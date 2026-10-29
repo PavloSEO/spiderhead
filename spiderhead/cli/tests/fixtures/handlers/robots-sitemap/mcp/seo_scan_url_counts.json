@@ -1,0 +1,5 @@
+{
+ "is_error": false,
+ "text": "{\n  \"ok\": true,\n  \"format\": \"spiderhead.scan-url-counts.v1\",\n  \"scan\": \"<WORK>/scan.sqlite\",\n  \"sets\": 1,\n  \"elapsed_ms\": <DURATION>,\n  \"counts\": [\n    {\n      \"filters\": [],\n      \"filtered_total\": 5\n    }\n  ]\n}",
+ "tool": "seo_scan_url_counts"
+}

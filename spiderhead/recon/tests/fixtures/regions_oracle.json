@@ -1,0 +1,143 @@
+{
+ "cases": [
+  {
+   "expected": "Москва",
+   "kind": "detect_region",
+   "name": "detect_region_slug",
+   "token": "msk"
+  },
+  {
+   "expected": "Санкт-Петербург",
+   "kind": "detect_region",
+   "name": "detect_region_hyphen",
+   "token": "sankt-peterburg"
+  },
+  {
+   "expected": null,
+   "kind": "detect_region",
+   "name": "detect_region_none",
+   "token": "catalog"
+  },
+  {
+   "expected": "Москва",
+   "kind": "detect_region_name",
+   "name": "detect_region_name_city",
+   "text": "Москва"
+  },
+  {
+   "expected": null,
+   "kind": "detect_region_name",
+   "name": "detect_region_name_sentence",
+   "text": "Филиал в Нижнем Новгороде"
+  },
+  {
+   "expected": null,
+   "kind": "detect_region_name",
+   "name": "detect_region_name_latin",
+   "text": "London office"
+  },
+  {
+   "expected": {
+    "host": "msk.example.ru",
+    "region": "Москва",
+    "scheme": "subdomain",
+    "slug": "msk",
+    "url": "https://msk.example.ru/catalog"
+   },
+   "kind": "classify_url",
+   "main_host": "example.ru",
+   "name": "classify_subdomain",
+   "url": "https://msk.example.ru/catalog"
+  },
+  {
+   "expected": {
+    "host": "example.ru",
+    "region": "Санкт-Петербург",
+    "scheme": "folder",
+    "slug": "spb",
+    "url": "https://example.ru/spb/about"
+   },
+   "kind": "classify_url",
+   "main_host": "example.ru",
+   "name": "classify_folder",
+   "url": "https://example.ru/spb/about"
+  },
+  {
+   "expected": {
+    "host": "example-msk.ru",
+    "region": "Москва",
+    "scheme": "domain",
+    "slug": "example-msk",
+    "url": "https://example-msk.ru/"
+   },
+   "kind": "classify_url",
+   "main_host": "example.ru",
+   "name": "classify_satellite",
+   "url": "https://example-msk.ru/"
+  },
+  {
+   "expected": {
+    "host": "example.ru",
+    "region": null,
+    "scheme": "main",
+    "slug": null,
+    "url": "https://example.ru/"
+   },
+   "kind": "classify_url",
+   "main_host": "example.ru",
+   "name": "classify_main",
+   "url": "https://example.ru/"
+  },
+  {
+   "expected": {
+    "host": "www.example.ru",
+    "region": "Москва",
+    "scheme": "folder",
+    "slug": "msk",
+    "url": "https://www.example.ru/msk/"
+   },
+   "kind": "classify_url",
+   "main_host": "example.ru",
+   "name": "classify_infra_host",
+   "url": "https://www.example.ru/msk/"
+  },
+  {
+   "base_url": "https://example.ru/",
+   "expected": [
+    {
+     "host": "msk.example.ru",
+     "region": "Москва",
+     "scheme": "subdomain",
+     "slug": "msk",
+     "url": "https://msk.example.ru/"
+    },
+    {
+     "host": "example.ru",
+     "region": "Санкт-Петербург",
+     "scheme": "folder",
+     "slug": "spb",
+     "url": "https://example.ru/spb/"
+    }
+   ],
+   "html": "<html><body><a href='https://msk.example.ru/'>Москва</a><a href='/spb/'>Санкт-Петербург</a><a href='/catalog/'>Каталог</a></body></html>",
+   "kind": "discover_regional_links",
+   "name": "discover_switcher"
+  },
+  {
+   "base_url": "https://example.ru/page",
+   "expected": [
+    {
+     "from_anchor_text": true,
+     "host": "example.ru",
+     "region": "Москва",
+     "scheme": "main",
+     "slug": null,
+     "url": "https://example.ru/regions/msk/"
+    }
+   ],
+   "html": "<html><head><base href='https://example.ru/regions/'></head><body><a href='msk/'>Москва</a></body></html>",
+   "kind": "discover_regional_links",
+   "name": "discover_base_href"
+  }
+ ]
+}

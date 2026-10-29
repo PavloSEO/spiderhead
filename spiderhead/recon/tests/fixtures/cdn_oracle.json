@@ -1,0 +1,156 @@
+{
+ "cases": [
+  {
+   "expected": {
+    "cache": {
+     "age": null,
+     "cache_control": {
+      "directives": {
+       "max-age": "3600",
+       "public": true
+      },
+      "immutable": false,
+      "max_age": 3600,
+      "no_cache": false,
+      "no_store": false,
+      "public": true,
+      "raw": "public, max-age=3600"
+     },
+     "etag": "\"abc\"",
+     "expires": null,
+     "hit_first": "hit",
+     "hit_second": "hit",
+     "last_modified": null,
+     "revalidation": {
+      "sent": [
+       "If-None-Match"
+      ],
+      "status_code": 200,
+      "supported": false
+     },
+     "status_first": "cf-cache-status: HIT",
+     "status_second": "cf-cache-status: HIT",
+     "vary": null,
+     "warmed_up": false
+    },
+    "cdn": "Cloudflare",
+    "final_url": "https://example.com/",
+    "findings": [
+     "conditional request returned 200 instead of 304; revalidation transfers the response body again",
+     "served over HTTP/1.1; HTTP/2 would provide multiplexing"
+    ],
+    "ok": true,
+    "server": "cloudflare",
+    "status_code": 200,
+    "transport": {
+     "alt_svc": "h3=\":443\"",
+     "brotli_probe": "br",
+     "brotli_supported": true,
+     "content_encoding": "br",
+     "http3_advertised": true,
+     "http_version": "HTTP/1.1",
+     "http_version_measurable": true
+    },
+    "url": "https://example.com/"
+   },
+   "name": "cloudflare_hit",
+   "responses": {
+    "https://example.com/": {
+     "headers": {
+      "alt-svc": "h3=\":443\"",
+      "cache-control": "public, max-age=3600",
+      "cf-cache-status": "HIT",
+      "cf-ray": "8f00-SJC",
+      "content-encoding": "br",
+      "etag": "\"abc\"",
+      "server": "cloudflare"
+     },
+     "status_code": 200,
+     "url": "https://example.com/"
+    }
+   },
+   "url": "https://example.com/"
+  },
+  {
+   "expected": {
+    "cache": {
+     "age": null,
+     "cache_control": {
+      "directives": {},
+      "immutable": false,
+      "max_age": null,
+      "no_cache": false,
+      "no_store": false,
+      "public": false,
+      "raw": null
+     },
+     "etag": null,
+     "expires": null,
+     "hit_first": null,
+     "hit_second": null,
+     "last_modified": null,
+     "revalidation": {
+      "reason": "neither ETag nor Last-Modified is available",
+      "supported": false
+     },
+     "status_first": null,
+     "status_second": null,
+     "vary": null,
+     "warmed_up": false
+    },
+    "cdn": null,
+    "final_url": "https://plain.example/",
+    "findings": [
+     "Cache-Control is missing; browsers and intermediaries must choose a policy",
+     "neither ETag nor Last-Modified is present for efficient revalidation",
+     "served over HTTP/1.1; HTTP/2 would provide multiplexing",
+     "HTTP/3 is not advertised through Alt-Svc",
+     "the response is uncompressed: neither gzip nor Brotli is enabled"
+    ],
+    "ok": true,
+    "server": "nginx",
+    "status_code": 200,
+    "transport": {
+     "alt_svc": null,
+     "brotli_probe": null,
+     "brotli_supported": null,
+     "content_encoding": null,
+     "http3_advertised": false,
+     "http_version": "HTTP/1.1",
+     "http_version_measurable": true
+    },
+    "url": "https://plain.example/"
+   },
+   "name": "no_cdn_no_cache",
+   "responses": {
+    "https://plain.example/": {
+     "headers": {
+      "server": "nginx"
+     },
+     "status_code": 200,
+     "url": "https://plain.example/"
+    }
+   },
+   "url": "https://plain.example/"
+  },
+  {
+   "expected": {
+    "error": "no route to https://down.example/",
+    "ok": false,
+    "url": "https://down.example/"
+   },
+   "name": "network_failure",
+   "responses": {},
+   "url": "https://down.example/"
+  },
+  {
+   "expected": {
+    "error": "not a valid URL: ''",
+    "ok": false
+   },
+   "name": "empty_url",
+   "responses": {},
+   "url": ""
+  }
+ ]
+}

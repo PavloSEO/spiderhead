@@ -1,0 +1,59 @@
+{
+ "exit": 0,
+ "stdout": {
+  "candidate_pairs_checked": 0,
+  "clusters": [],
+  "count": 6,
+  "coverage": {
+   "analyzed_documents": 6,
+   "document_limit": 10000,
+   "eligible_documents": 10,
+   "input_byte_limit": 16777216,
+   "measured_empty_documents": 0,
+   "omission_reasons": {},
+   "omitted_documents": 0,
+   "prepared_documents": 10,
+   "reason": "",
+   "state": "complete"
+  },
+  "exact_duplicates": [],
+  "excluded_duplicate_id": 0,
+  "excluded_no_id": 0,
+  "excluded_no_text": 0,
+  "excluded_non_indexable": 4,
+  "measured": false,
+  "ok": true,
+  "reason": "no pair of comparable documents was compared; duplicate content is unmeasured, not absent",
+  "source": {
+   "config_fingerprint": "<FINGERPRINT>",
+   "corpus_partial": false,
+   "crawl_partial": false,
+   "evidence_revision": 10,
+   "finish_reason": "finished",
+   "html_body_capability": {
+    "reason": "",
+    "state": "complete"
+   },
+   "implementation": {
+    "decoder_version": "scan_decoder.v1",
+    "files": [
+     "storage/corpus_inputs.py",
+     "storage/bodies.py",
+     "crawl/evidence.py",
+     "checks/duplicate.py",
+     "checks/markdown_extract.py",
+     "checks/content_area.py"
+    ],
+    "source_sha256": "62daf0a5baa4c4f0bf84a27a50ab81365423fcff5937b079e7149a039c32bf1e"
+   },
+   "kind": "scan.v1",
+   "lifecycle": "finished",
+   "representations": {
+    "static": 10
+   },
+   "scan_uuid": "<UUID:1>",
+   "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9"
+  },
+  "threshold": 0.92
+ }
+}

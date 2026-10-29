@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: headers-analyze\n",
+    "stdout": "{\n  \"ok\": true,\n  \"state\": \"not_found\",\n  \"format\": \"spiderhead.headers-analysis.v1\",\n  \"source\": {\n    \"scan_uuid\": \"<UUID:1>\",\n    \"format_version\": \"scan.v1\",\n    \"source_kind\": \"native\",\n    \"evidence_revision\": 10,\n    \"lifecycle\": \"finished\",\n    \"finish_reason\": \"finished\",\n    \"crawl_partial\": 0,\n    \"corpus_partial\": 0\n  },\n  \"url\": \"http://127.0.0.1:{PORT}/nope\",\n  \"total\": 0,\n  \"items\": [],\n  \"validation\": \"light\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"state\": \"not_found\",\n  \"format\": \"spiderhead.headers-analysis.v1\",\n  \"source\": {\n    \"scan_uuid\": \"<UUID:1>\",\n    \"format_version\": \"scan.v1\",\n    \"source_kind\": \"native\",\n    \"evidence_revision\": 10,\n    \"lifecycle\": \"finished\",\n    \"finish_reason\": \"finished\",\n    \"crawl_partial\": 0,\n    \"corpus_partial\": 0\n  },\n  \"url\": \"http://127.0.0.1:{PORT}/nope\",\n  \"total\": 0,\n  \"items\": [],\n  \"validation\": \"light\"\n}"
+   }
+  ]
+ }
+}

@@ -1,0 +1,341 @@
+{
+ "cases": [
+  {
+   "expected": {
+    "by_category": {
+     "analytics": [
+      {
+       "category": "analytics",
+       "evidence": "HTML: googletagmanager.com/gtm.js",
+       "identifiers": [
+        "GTM-WXYZ12"
+       ],
+       "name": "Google Tag Manager"
+      }
+     ],
+     "server": [
+      {
+       "category": "server",
+       "evidence": "server: nginx",
+       "name": "nginx"
+      }
+     ]
+    },
+    "external_db": {
+     "loaded": false
+    },
+    "final_url": "https://example.com/",
+    "findings": [
+     "No CMS or framework was detected; the site may be custom-built or rendered entirely by JavaScript."
+    ],
+    "generator": null,
+    "malformed_cookies": [],
+    "measurement": {
+     "representation": "static_markup",
+     "script_executed": false
+    },
+    "ok": true,
+    "scripts_total": 1,
+    "status_code": null,
+    "technologies": [
+     {
+      "category": "analytics",
+      "evidence": "HTML: googletagmanager.com/gtm.js",
+      "identifiers": [
+       "GTM-WXYZ12"
+      ],
+      "name": "Google Tag Manager"
+     },
+     {
+      "category": "server",
+      "evidence": "server: nginx",
+      "name": "nginx"
+     }
+    ],
+    "third_party_hosts": [
+     "www.googletagmanager.com"
+    ],
+    "url": "https://example.com/"
+   },
+   "input": {
+    "cookies": {},
+    "headers": {
+     "server": "nginx"
+    },
+    "html": "<html><head><script src='https://www.googletagmanager.com/gtm.js?id=GTM-WXYZ12'></script><script>gtag('config','G-ABC1234567');</script></head></html>",
+    "scripts": [
+     "https://www.googletagmanager.com/gtm.js?id=GTM-WXYZ12"
+    ]
+   },
+   "name": "gtm_and_ga4_identifiers"
+  },
+  {
+   "expected": {
+    "by_category": {
+     "analytics": [
+      {
+       "category": "analytics",
+       "evidence": "HTML: ym(",
+       "identifiers": [
+        "98765432"
+       ],
+       "name": "Яндекс.Метрика"
+      }
+     ]
+    },
+    "external_db": {
+     "loaded": false
+    },
+    "final_url": "https://example.com/",
+    "findings": [
+     "No CMS or framework was detected; the site may be custom-built or rendered entirely by JavaScript."
+    ],
+    "generator": null,
+    "malformed_cookies": [],
+    "measurement": {
+     "representation": "static_markup",
+     "script_executed": false
+    },
+    "ok": true,
+    "scripts_total": 0,
+    "status_code": null,
+    "technologies": [
+     {
+      "category": "analytics",
+      "evidence": "HTML: ym(",
+      "identifiers": [
+       "98765432"
+      ],
+      "name": "Яндекс.Метрика"
+     }
+    ],
+    "third_party_hosts": [],
+    "url": "https://example.com/"
+   },
+   "input": {
+    "headers": {},
+    "html": "<script>ym(98765432, 'init', {});</script>"
+   },
+   "name": "metrika_counter"
+  },
+  {
+   "expected": {
+    "by_category": {
+     "cms": [
+      {
+       "category": "cms",
+       "evidence": "HTML: /wp-includes/",
+       "name": "WordPress",
+       "version": "6.5"
+      },
+      {
+       "category": "cms",
+       "evidence": "meta name=generator",
+       "name": "WordPress 6.5",
+       "version": "6.5"
+      }
+     ],
+     "library": [
+      {
+       "category": "library",
+       "evidence": "script: jquery",
+       "name": "jQuery"
+      }
+     ],
+     "server": [
+      {
+       "category": "server",
+       "evidence": "server: Apache",
+       "name": "Apache"
+      }
+     ]
+    },
+    "external_db": {
+     "loaded": false
+    },
+    "final_url": "https://example.com/",
+    "findings": [
+     "No analytics integration was detected on the page."
+    ],
+    "generator": "WordPress 6.5",
+    "malformed_cookies": [],
+    "measurement": {
+     "representation": "static_markup",
+     "script_executed": false
+    },
+    "ok": true,
+    "scripts_total": 1,
+    "status_code": null,
+    "technologies": [
+     {
+      "category": "cms",
+      "evidence": "HTML: /wp-includes/",
+      "name": "WordPress",
+      "version": "6.5"
+     },
+     {
+      "category": "cms",
+      "evidence": "meta name=generator",
+      "name": "WordPress 6.5",
+      "version": "6.5"
+     },
+     {
+      "category": "library",
+      "evidence": "script: jquery",
+      "name": "jQuery"
+     },
+     {
+      "category": "server",
+      "evidence": "server: Apache",
+      "name": "Apache"
+     }
+    ],
+    "third_party_hosts": [],
+    "url": "https://example.com/"
+   },
+   "input": {
+    "cookies": {
+     "Secure": "",
+     "wp_lang": "en_US"
+    },
+    "headers": {
+     "server": "Apache"
+    },
+    "html": "<html><head><meta name=\"generator\" content=\"WordPress 6.5\"></head><script src=\"/wp-includes/js/jquery/jquery.min.js\"></script></html>",
+    "scripts": [
+     "/wp-includes/js/jquery/jquery.min.js"
+    ]
+   },
+   "name": "wordpress_jquery_valueless_cookie"
+  },
+  {
+   "expected": {
+    "by_category": {
+     "runtime": [
+      {
+       "category": "runtime",
+       "evidence": "x-powered-by: PHP/8.2.1",
+       "name": "PHP/8.2.1"
+      }
+     ],
+     "server": [
+      {
+       "category": "server",
+       "evidence": "server: nginx",
+       "name": "nginx"
+      }
+     ]
+    },
+    "external_db": {
+     "loaded": false
+    },
+    "final_url": "https://example.com/",
+    "findings": [
+     "No CMS or framework was detected; the site may be custom-built or rendered entirely by JavaScript.",
+     "No analytics integration was detected on the page."
+    ],
+    "generator": null,
+    "malformed_cookies": [],
+    "measurement": {
+     "representation": "static_markup",
+     "script_executed": false
+    },
+    "ok": true,
+    "scripts_total": 0,
+    "status_code": null,
+    "technologies": [
+     {
+      "category": "runtime",
+      "evidence": "x-powered-by: PHP/8.2.1",
+      "name": "PHP/8.2.1"
+     },
+     {
+      "category": "server",
+      "evidence": "server: nginx",
+      "name": "nginx"
+     }
+    ],
+    "third_party_hosts": [],
+    "url": "https://example.com/"
+   },
+   "input": {
+    "headers": {
+     "server": "nginx",
+     "x-powered-by": "PHP/8.2.1"
+    },
+    "html": "<html></html>"
+   },
+   "name": "x_powered_by_php"
+  },
+  {
+   "expected": {
+    "by_category": {},
+    "external_db": {
+     "loaded": false
+    },
+    "final_url": "https://example.com/",
+    "findings": [
+     "No CMS or framework was detected; the site may be custom-built or rendered entirely by JavaScript.",
+     "No analytics integration was detected on the page."
+    ],
+    "generator": null,
+    "malformed_cookies": [],
+    "measurement": {
+     "representation": "rendered_dom",
+     "script_executed": true
+    },
+    "ok": true,
+    "scripts_total": 0,
+    "status_code": null,
+    "technologies": [],
+    "third_party_hosts": [],
+    "url": "https://example.com/"
+   },
+   "input": {
+    "headers": {},
+    "html": "<html></html>",
+    "rendered": true
+   },
+   "name": "rendered_stamp"
+  },
+  {
+   "expected": {
+    "by_category": {},
+    "external_db": {
+     "loaded": false
+    },
+    "final_url": "https://example.com/",
+    "findings": [
+     "The site sent 1 Set-Cookie header with no name=value pair (Secure); each name was matched with an empty value, and clients may discard such a header outright.",
+     "No CMS or framework was detected; the site may be custom-built or rendered entirely by JavaScript.",
+     "No analytics integration was detected on the page."
+    ],
+    "generator": null,
+    "malformed_cookies": [
+     "Secure"
+    ],
+    "measurement": {
+     "representation": "static_markup",
+     "script_executed": false
+    },
+    "ok": true,
+    "scripts_total": 0,
+    "status_code": null,
+    "technologies": [],
+    "third_party_hosts": [],
+    "url": "https://example.com/"
+   },
+   "input": {
+    "cookies": {
+     "Secure": ""
+    },
+    "headers": {},
+    "html": "<html></html>",
+    "malformed_cookies": [
+     "Secure"
+    ]
+   },
+   "name": "malformed_cookie_named"
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "headers-check",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "headers-check",
+ "exit": 0,
+ "stderr": "seohead: headers-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/\",\n  \"final_url\": \"{BASE}/\",\n  \"status_code\": 200,\n  \"http_version\": \"HTTP/1.1\",\n  \"http_version_measurable\": true,\n  \"ttfb_ms\": <DURATION>,\n  \"bytes\": 672,\n  \"redirected\": false,\n  \"seo_headers\": {\n    \"content-type\": \"text/html; charset=utf-8\",\n    \"content-length\": \"672\",\n    \"server\": \"oracle-fixture\",\n    \"last-modified\": \"Mon, 01 Jan 2026 00:00:00 GMT\"\n  },\n  \"findings\": [\n    \"served over HTTP/1.1 (consider HTTP/2)\",\n    \"no Cache-Control header\"\n  ]\n}\n"
+}

@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: custom-extract-sample\n",
+    "stdout": "{\n  \"ok\": true,\n  \"url\": \"https://example.com/\",\n  \"representation\": \"static_markup\",\n  \"extractors\": [\n    {\n      \"name\": \"h1\",\n      \"mode\": \"css\",\n      \"output\": \"text\",\n      \"query\": \"h1\",\n      \"values\": [\n        \"Hi\"\n      ],\n      \"count\": 1,\n      \"reason\": null,\n      \"notes\": []\n    },\n    {\n      \"name\": \"xs\",\n      \"mode\": \"css\",\n      \"output\": \"text\",\n      \"query\": \"p.x\",\n      \"values\": [\n        \"a\",\n        \"b\"\n      ],\n      \"count\": 2,\n      \"reason\": null,\n      \"notes\": []\n    },\n    {\n      \"name\": \"none\",\n      \"mode\": \"css\",\n      \"output\": \"text\",\n      \"query\": \"table\",\n      \"values\": [],\n      \"count\": 0,\n      \"reason\": \"no_match\",\n      \"notes\": []\n    }\n  ]\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"url\": \"https://example.com/\",\n  \"representation\": \"static_markup\",\n  \"extractors\": [\n    {\n      \"name\": \"h1\",\n      \"mode\": \"css\",\n      \"output\": \"text\",\n      \"query\": \"h1\",\n      \"values\": [\n        \"Hi\"\n      ],\n      \"count\": 1,\n      \"reason\": null,\n      \"notes\": []\n    },\n    {\n      \"name\": \"xs\",\n      \"mode\": \"css\",\n      \"output\": \"text\",\n      \"query\": \"p.x\",\n      \"values\": [\n        \"a\",\n        \"b\"\n      ],\n      \"count\": 2,\n      \"reason\": null,\n      \"notes\": []\n    },\n    {\n      \"name\": \"none\",\n      \"mode\": \"css\",\n      \"output\": \"text\",\n      \"query\": \"table\",\n      \"values\": [],\n      \"count\": 0,\n      \"reason\": \"no_match\",\n      \"notes\": []\n    }\n  ]\n}"
+   }
+  ]
+ }
+}

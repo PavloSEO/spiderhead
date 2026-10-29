@@ -1,0 +1,650 @@
+{
+ "version": 1,
+ "sources": [
+  {
+   "provider": "google-common",
+   "url": "https://developers.google.com/static/crawling/ipranges/common-crawlers.json"
+  },
+  {
+   "provider": "google-special",
+   "url": "https://developers.google.com/static/crawling/ipranges/special-crawlers.json"
+  },
+  {
+   "provider": "google-user-fetchers",
+   "url": "https://developers.google.com/static/crawling/ipranges/user-triggered-fetchers.json"
+  },
+  {
+   "provider": "google-user-fetchers-google",
+   "url": "https://developers.google.com/static/crawling/ipranges/user-triggered-fetchers-google.json"
+  },
+  {
+   "provider": "google-user-agents",
+   "url": "https://developers.google.com/static/crawling/ipranges/user-triggered-agents.json"
+  },
+  {
+   "provider": "bingbot",
+   "url": "https://www.bing.com/toolbox/bingbot.json"
+  },
+  {
+   "provider": "applebot",
+   "url": "https://search.developer.apple.com/applebot.json"
+  },
+  {
+   "provider": "gptbot",
+   "url": "https://openai.com/gptbot.json"
+  },
+  {
+   "provider": "oai-searchbot",
+   "url": "https://openai.com/searchbot.json"
+  },
+  {
+   "provider": "chatgpt-user",
+   "url": "https://openai.com/chatgpt-user.json"
+  },
+  {
+   "provider": "perplexitybot",
+   "url": "https://www.perplexity.ai/perplexitybot.json"
+  },
+  {
+   "provider": "perplexity-user",
+   "url": "https://www.perplexity.ai/perplexity-user.json"
+  },
+  {
+   "provider": "duckduckbot",
+   "url": "https://duckduckgo.com/duckduckbot.json"
+  },
+  {
+   "provider": "ccbot",
+   "url": "https://index.commoncrawl.org/ccbot.json"
+  },
+  {
+   "provider": "claudebot",
+   "url": null
+  },
+  {
+   "provider": "amazonbot",
+   "url": null
+  }
+ ],
+ "presets": [
+  {
+   "name": "Googlebot",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-common"
+   ]
+  },
+  {
+   "name": "Googlebot Smartphone",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-common"
+   ]
+  },
+  {
+   "name": "Googlebot Image",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-common"
+   ]
+  },
+  {
+   "name": "Googlebot Video",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-common"
+   ]
+  },
+  {
+   "name": "Googlebot News",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-common"
+   ]
+  },
+  {
+   "name": "GoogleOther",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-common"
+   ]
+  },
+  {
+   "name": "Google-Extended (Gemini)",
+   "group": "ai_bot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-common"
+   ]
+  },
+  {
+   "name": "AdsBot Google Mobile",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-special"
+   ]
+  },
+  {
+   "name": "AdsBot Google",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-special"
+   ]
+  },
+  {
+   "name": "Mediapartners (AdSense)",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-special"
+   ]
+  },
+  {
+   "name": "Google InspectionTool",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-special"
+   ]
+  },
+  {
+   "name": "APIs-Google",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-special"
+   ]
+  },
+  {
+   "name": "FeedFetcher-Google",
+   "group": "googlebot",
+   "vendor": "google",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "google-user-fetchers",
+    "google-user-fetchers-google",
+    "google-user-agents"
+   ],
+   "suffixes": [
+    ".gae.googleusercontent.com",
+    ".google.com"
+   ]
+  },
+  {
+   "name": "Bingbot",
+   "group": "search_engine_bot",
+   "vendor": "bing",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "bingbot"
+   ]
+  },
+  {
+   "name": "MSNBot",
+   "group": "search_engine_bot",
+   "vendor": "bing",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "bingbot"
+   ]
+  },
+  {
+   "name": "BingPreview",
+   "group": "search_engine_bot",
+   "vendor": "bing",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "bingbot"
+   ]
+  },
+  {
+   "name": "AdIdxBot (Bing Ads)",
+   "group": "search_engine_bot",
+   "vendor": "bing",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "bingbot"
+   ]
+  },
+  {
+   "name": "YandexBot",
+   "group": "search_engine_bot",
+   "vendor": "yandex",
+   "verification": [
+    "dns_reverse_forward"
+   ],
+   "lists": []
+  },
+  {
+   "name": "YandexMobileBot",
+   "group": "search_engine_bot",
+   "vendor": "yandex",
+   "verification": [
+    "dns_reverse_forward"
+   ],
+   "lists": []
+  },
+  {
+   "name": "YandexImages",
+   "group": "search_engine_bot",
+   "vendor": "yandex",
+   "verification": [
+    "dns_reverse_forward"
+   ],
+   "lists": []
+  },
+  {
+   "name": "Yandex (other)",
+   "group": "search_engine_bot",
+   "vendor": "yandex",
+   "verification": [
+    "dns_reverse_forward"
+   ],
+   "lists": []
+  },
+  {
+   "name": "Baiduspider",
+   "group": "search_engine_bot",
+   "vendor": "baidu",
+   "verification": [
+    "dns_reverse_forward"
+   ],
+   "lists": []
+  },
+  {
+   "name": "Applebot",
+   "group": "search_engine_bot",
+   "vendor": "apple",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "applebot"
+   ]
+  },
+  {
+   "name": "DuckDuckBot",
+   "group": "search_engine_bot",
+   "vendor": "duckduckgo",
+   "verification": [
+    "ip_list"
+   ],
+   "lists": [
+    "duckduckbot"
+   ]
+  },
+  {
+   "name": "Sogou",
+   "group": "search_engine_bot",
+   "vendor": "sogou",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "Exabot",
+   "group": "search_engine_bot",
+   "vendor": "exabot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "SeznamBot",
+   "group": "search_engine_bot",
+   "vendor": "seznambot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "PetalBot",
+   "group": "search_engine_bot",
+   "vendor": "petalbot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "GPTBot (OpenAI)",
+   "group": "ai_bot",
+   "vendor": "openai",
+   "verification": [
+    "ip_list"
+   ],
+   "lists": [
+    "gptbot"
+   ]
+  },
+  {
+   "name": "OAI-SearchBot (OpenAI)",
+   "group": "ai_bot",
+   "vendor": "openai",
+   "verification": [
+    "ip_list"
+   ],
+   "lists": [
+    "oai-searchbot"
+   ]
+  },
+  {
+   "name": "ChatGPT-User",
+   "group": "ai_bot",
+   "vendor": "openai",
+   "verification": [
+    "ip_list"
+   ],
+   "lists": [
+    "chatgpt-user"
+   ]
+  },
+  {
+   "name": "ClaudeBot (Anthropic)",
+   "group": "ai_bot",
+   "vendor": "anthropic",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "claudebot"
+   ],
+   "matches": [
+    "*ClaudeBot*",
+    "*Claude-Web*",
+    "*anthropic-ai*"
+   ]
+  },
+  {
+   "name": "Claude-SearchBot",
+   "group": "ai_bot",
+   "vendor": "anthropic",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "claudebot"
+   ],
+   "matches": [
+    "*Claude-SearchBot*"
+   ]
+  },
+  {
+   "name": "Claude-User",
+   "group": "ai_bot",
+   "vendor": "anthropic",
+   "verification": [
+    "ip_list",
+    "dns_reverse_forward"
+   ],
+   "lists": [
+    "claudebot"
+   ],
+   "matches": [
+    "*Claude-User*"
+   ]
+  },
+  {
+   "name": "PerplexityBot",
+   "group": "ai_bot",
+   "vendor": "perplexity",
+   "verification": [
+    "ip_list"
+   ],
+   "lists": [
+    "perplexitybot"
+   ]
+  },
+  {
+   "name": "Perplexity-User",
+   "group": "ai_bot",
+   "vendor": "perplexity",
+   "verification": [
+    "ip_list"
+   ],
+   "lists": [
+    "perplexity-user"
+   ],
+   "matches": [
+    "*Perplexity-User*"
+   ]
+  },
+  {
+   "name": "CCBot (Common Crawl)",
+   "group": "ai_bot",
+   "vendor": "commoncrawl",
+   "verification": [
+    "ip_list"
+   ],
+   "lists": [
+    "ccbot"
+   ]
+  },
+  {
+   "name": "Amazonbot",
+   "group": "ai_bot",
+   "vendor": "amazon",
+   "verification": [
+    "ip_list"
+   ],
+   "lists": [
+    "amazonbot"
+   ]
+  },
+  {
+   "name": "Bytespider (ByteDance)",
+   "group": "ai_bot",
+   "vendor": "bytedance",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "Facebook",
+   "group": "bot",
+   "vendor": "facebook",
+   "verification": [
+    "asn"
+   ],
+   "lists": [],
+   "asn": "AS32934"
+  },
+  {
+   "name": "Twitterbot",
+   "group": "bot",
+   "vendor": "twitter",
+   "verification": [
+    "asn"
+   ],
+   "lists": [],
+   "asn": "AS13414"
+  },
+  {
+   "name": "LinkedInBot",
+   "group": "bot",
+   "vendor": "linkedinbot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "Slackbot",
+   "group": "bot",
+   "vendor": "slackbot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "WhatsApp",
+   "group": "bot",
+   "vendor": "whatsapp",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "TelegramBot",
+   "group": "bot",
+   "vendor": "telegrambot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "Discordbot",
+   "group": "bot",
+   "vendor": "discordbot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "Pinterestbot",
+   "group": "bot",
+   "vendor": "pinterestbot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "AhrefsBot",
+   "group": "bot",
+   "vendor": "ahrefsbot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "SemrushBot",
+   "group": "bot",
+   "vendor": "semrushbot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "MJ12bot (Majestic)",
+   "group": "bot",
+   "vendor": "mj12bot (majestic)",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "DotBot (Moz)",
+   "group": "bot",
+   "vendor": "dotbot (moz)",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "rogerbot (Moz)",
+   "group": "bot",
+   "vendor": "rogerbot (moz)",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "BLEXBot",
+   "group": "bot",
+   "vendor": "blexbot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "DataForSeoBot",
+   "group": "bot",
+   "vendor": "dataforseobot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "Screaming Frog",
+   "group": "bot",
+   "vendor": "screaming frog",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "Other bot",
+   "group": "bot",
+   "vendor": "other bot",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "human",
+   "group": "browser",
+   "vendor": "browser",
+   "verification": [],
+   "lists": []
+  },
+  {
+   "name": "unknown",
+   "group": "unknown",
+   "vendor": "unknown",
+   "verification": [],
+   "lists": []
+  }
+ ]
+}

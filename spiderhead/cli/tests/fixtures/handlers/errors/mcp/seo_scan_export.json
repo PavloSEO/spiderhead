@@ -1,0 +1,5 @@
+{
+ "is_error": false,
+ "text": "{\n  \"ok\": true,\n  \"format\": \"scan_export.v1\",\n  \"fmt\": \"json\",\n  \"files\": [\n    \"<WORK>/export-mcp.json\"\n  ],\n  \"counts\": {\n    \"pages\": 9,\n    \"links\": 10\n  }\n}",
+ "tool": "seo_scan_export"
+}

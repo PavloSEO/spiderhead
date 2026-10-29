@@ -1,0 +1,1654 @@
+{
+ "stage": "exact",
+ "scenarios": [
+  {
+   "name": "fresh",
+   "cfg": {
+    "regions": [
+     "225"
+    ],
+    "exact_cut_base": 20,
+    "exact_cut_exact": 10,
+    "budget_arsenkin_gate": 2000,
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/exact-oracle-nw7xxmfw"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [
+     [
+      "upsert",
+      "лидер группы",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "лидер группы",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "лидер группы",
+      [
+       [
+        "lemma_group",
+        "g1"
+       ]
+      ]
+     ],
+     [
+      "upsert",
+      "член группы",
+      50,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "член группы",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "член группы",
+      [
+       [
+        "lemma_group",
+        "g1"
+       ]
+      ]
+     ],
+     [
+      "upsert",
+      "мелкий член",
+      15,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "мелкий член",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "мелкий член",
+      [
+       [
+        "lemma_group",
+        "g1"
+       ]
+      ]
+     ],
+     [
+      "upsert",
+      "одиночка",
+      250,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "одиночка",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "затёртая! фраза",
+      200,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "затёртая! фраза",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "региональный чужак",
+      180,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "региональный чужак",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "мертвая",
+      15,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "мертвая",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "живая за счет показов",
+      15,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "живая за счет показов",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "живая за счет показов",
+      [
+       [
+        "impr",
+        5
+       ]
+      ]
+     ],
+     [
+      "upsert",
+      "уже точная",
+      100,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "уже точная",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "уже точная",
+      [
+       [
+        "exact",
+        42
+       ]
+      ]
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {
+    "arsenkin": {
+     "submits": [
+      {
+       "ok": {
+        "task_id": 41,
+        "cost": 6
+       }
+      }
+     ],
+     "waits": {
+      "41": [
+       {
+        "ok": {
+         "result": {
+          "data": {
+           "result": {
+            "лидер группы": {
+             "225": {
+              "base": 300,
+              "overal": 180,
+              "quoted": 25
+             }
+            },
+            "одиночка": {
+             "225": {
+              "base": 250,
+              "overal": 90,
+              "quoted": 10
+             }
+            },
+            "региональный чужак": {
+             "213": {
+              "base": 180,
+              "overal": 100
+             }
+            },
+            "мертвая": {
+             "225": {
+              "base": 15,
+              "overal": 3,
+              "quoted": 2
+             }
+            },
+            "живая за счет показов": {
+             "225": {
+              "base": 15,
+              "overal": 3,
+              "quoted": 1
+             }
+            },
+            "левый ответ": {
+             "225": {
+              "base": 5,
+              "overal": 1
+             }
+            },
+            "не словарь": "badrow",
+            "плохой регион": {
+             "225": "nodict"
+            }
+           }
+          }
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   "args": {
+    "yes": false,
+    "limit": 0
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "snapped": 6,
+     "dead": 1,
+     "pending": 0,
+     "blocked": 0,
+     "incomplete": 1
+    },
+    "calls": {
+     "arsenkin": [
+      [
+       "wordstat",
+       {
+        "type": 1,
+        "regions": [
+         225
+        ],
+        "ws": [
+         "base",
+         "overal",
+         "quoted"
+        ],
+        "queries": [
+         "лидер группы",
+         "одиночка",
+         "затёртая фраза",
+         "региональный чужак",
+         "мертвая",
+         "живая за счет показов"
+        ]
+       }
+      ]
+     ]
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "лидер группы",
+       "base": 300,
+       "quoted": 25,
+       "exact": 180,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": "g1",
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "член группы",
+       "base": 50,
+       "quoted": 25,
+       "exact": 180,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": "g1",
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "мелкий член",
+       "base": 15,
+       "quoted": 25,
+       "exact": 180,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": "g1",
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "одиночка",
+       "base": 250,
+       "quoted": 10,
+       "exact": 90,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 5,
+       "norm": "затёртая! фраза",
+       "base": 200,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 6,
+       "norm": "региональный чужак",
+       "base": 180,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 7,
+       "norm": "мертвая",
+       "base": 15,
+       "quoted": 2,
+       "exact": 3,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "dead",
+       "reason": "base<20 and exact<10",
+       "reason_stage": "exact",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 8,
+       "norm": "живая за счет показов",
+       "base": 15,
+       "quoted": 1,
+       "exact": 3,
+       "impr": 5,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 9,
+       "norm": "уже точная",
+       "base": 100,
+       "quoted": null,
+       "exact": 42,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "provider_tasks": [
+      {
+       "id": 1,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"лидер группы\", \"одиночка\", \"затёртая фраза\", \"региональный чужак\", \"мертвая\", \"живая за счет показов\"]}",
+       "state": "incomplete",
+       "task_id": 41,
+       "cost": 6.0,
+       "result_json": "{\"result\": {\"data\": {\"result\": {\"лидер группы\": {\"225\": {\"base\": 300, \"overal\": 180, \"quoted\": 25}}, \"одиночка\": {\"225\": {\"base\": 250, \"overal\": 90, \"quoted\": 10}}, \"региональный чужак\": {\"213\": {\"base\": 180, \"overal\": 100}}, \"мертвая\": {\"225\": {\"base\": 15, \"overal\": 3, \"quoted\": 2}}, \"живая за счет показов\": {\"225\": {\"base\": 15, \"overal\": 3, \"quoted\": 1}}, \"левый ответ\": {\"225\": {\"base\": 5, \"overal\": 1}}, \"не словарь\": \"badrow\", \"плохой регион\": {\"225\": \"nodict\"}}}}}",
+       "error": "'региональный чужак': no data for requested region 225 (provider returned regions: 213); 'не словарь': skipped a non-dict row; 'плохой регион': region 225 data is not a mapping; затёртая фраза: frequency row missing; региональный чужак: frequency row missing"
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "exact",
+       "n_requests": 6,
+       "cost_rub": null,
+       "cost_arsenkin": 6,
+       "note": "task_id=41"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  },
+  {
+   "name": "recovery",
+   "cfg": {
+    "regions": [
+     "225"
+    ],
+    "exact_cut_base": 20,
+    "exact_cut_exact": 10,
+    "budget_arsenkin_gate": 2000,
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/exact-recovery-o2zygjsx"
+   },
+   "setup": {
+    "ddl": [
+     "CREATE TABLE IF NOT EXISTS provider_tasks (\n    id INTEGER PRIMARY KEY, provider TEXT NOT NULL, stage TEXT NOT NULL,\n    region INTEGER NOT NULL, payload_json TEXT NOT NULL, state TEXT NOT NULL,\n    task_id INTEGER, cost REAL, result_json TEXT, error TEXT\n)"
+    ],
+    "ops": [
+     [
+      "upsert",
+      "старая фраза",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "старая фраза",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "вторая старая",
+      250,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "вторая старая",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "принятая фраза",
+      200,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "принятая фраза",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "неразрешённая",
+      180,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "неразрешённая",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "новая фраза",
+      150,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "новая фраза",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {
+     "provider_tasks": [
+      {
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"старая фраза\"]}",
+       "state": "pending",
+       "task_id": 11,
+       "cost": 5,
+       "result_json": null
+      },
+      {
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"вторая старая\"]}",
+       "state": "pending",
+       "task_id": 12,
+       "cost": 5,
+       "result_json": null
+      },
+      {
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"принятая фраза\"]}",
+       "state": "received",
+       "task_id": null,
+       "cost": 5,
+       "result_json": "{\"result\": {\"data\": {\"result\": {\"принятая фраза\": {\"225\": {\"base\": 200, \"overal\": 50, \"quoted\": 4}}}}}}"
+      },
+      {
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"неразрешённая\"]}",
+       "state": "unknown",
+       "task_id": null,
+       "cost": 5,
+       "result_json": null
+      }
+     ]
+    }
+   },
+   "providers": {
+    "arsenkin": {
+     "submits": [
+      {
+       "ok": {
+        "task_id": 13,
+        "cost": 7
+       }
+      }
+     ],
+     "waits": {
+      "11": [
+       {
+        "ok": {
+         "result": {
+          "data": {
+           "result": {
+            "старая фраза": {
+             "225": {
+              "base": 300,
+              "overal": 77,
+              "quoted": 8
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      ],
+      "12": [
+       {
+        "error": "still running"
+       }
+      ],
+      "13": [
+       {
+        "ok": {
+         "result": {
+          "data": {
+           "result": {
+            "новая фраза": {
+             "225": {
+              "base": 150,
+              "overal": 30,
+              "quoted": 3
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      ]
+     }
+    }
+   },
+   "args": {
+    "yes": false,
+    "limit": 0
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "snapped": 3,
+     "dead": 0,
+     "pending": 1,
+     "blocked": 1,
+     "incomplete": 1
+    },
+    "calls": {
+     "arsenkin": [
+      [
+       "wordstat",
+       {
+        "type": 1,
+        "regions": [
+         225
+        ],
+        "ws": [
+         "base",
+         "overal",
+         "quoted"
+        ],
+        "queries": [
+         "неразрешённая",
+         "новая фраза"
+        ]
+       }
+      ]
+     ],
+     "waits": [
+      [
+       "wait",
+       11
+      ],
+      [
+       "wait",
+       12
+      ],
+      [
+       "wait",
+       13
+      ]
+     ]
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "старая фраза",
+       "base": 300,
+       "quoted": 8,
+       "exact": 77,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "вторая старая",
+       "base": 250,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "принятая фраза",
+       "base": 200,
+       "quoted": 4,
+       "exact": 50,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "неразрешённая",
+       "base": 180,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 5,
+       "norm": "новая фраза",
+       "base": 150,
+       "quoted": 3,
+       "exact": 30,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "provider_tasks": [
+      {
+       "id": 1,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"старая фраза\"]}",
+       "state": "complete",
+       "task_id": 11,
+       "cost": 5.0,
+       "result_json": "{\"result\": {\"data\": {\"result\": {\"старая фраза\": {\"225\": {\"base\": 300, \"overal\": 77, \"quoted\": 8}}}}}}",
+       "error": null
+      },
+      {
+       "id": 2,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"вторая старая\"]}",
+       "state": "pending",
+       "task_id": 12,
+       "cost": 5.0,
+       "result_json": null,
+       "error": "still running"
+      },
+      {
+       "id": 3,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"принятая фраза\"]}",
+       "state": "complete",
+       "task_id": null,
+       "cost": 5.0,
+       "result_json": "{\"result\": {\"data\": {\"result\": {\"принятая фраза\": {\"225\": {\"base\": 200, \"overal\": 50, \"quoted\": 4}}}}}}",
+       "error": null
+      },
+      {
+       "id": 4,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"неразрешённая\"]}",
+       "state": "unknown",
+       "task_id": null,
+       "cost": 5.0,
+       "result_json": null,
+       "error": null
+      },
+      {
+       "id": 5,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"неразрешённая\", \"новая фраза\"]}",
+       "state": "incomplete",
+       "task_id": 13,
+       "cost": 7.0,
+       "result_json": "{\"result\": {\"data\": {\"result\": {\"новая фраза\": {\"225\": {\"base\": 150, \"overal\": 30, \"quoted\": 3}}}}}}",
+       "error": "неразрешённая: frequency row missing"
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "exact",
+       "n_requests": 2,
+       "cost_rub": null,
+       "cost_arsenkin": 7,
+       "note": "task_id=13"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  },
+  {
+   "name": "submit_fail",
+   "cfg": {
+    "regions": [
+     "225"
+    ],
+    "exact_cut_base": 20,
+    "exact_cut_exact": 10,
+    "budget_arsenkin_gate": 2000,
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/exact-fail-l1yk5ppd"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [
+     [
+      "upsert",
+      "отклонённый пакет",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "отклонённый пакет",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {
+    "arsenkin": {
+     "submits": [
+      {
+       "error_payload": {
+        "message": "billed but rejected",
+        "payload": {
+         "cost": 9,
+         "reason": "daily limit"
+        }
+       }
+      }
+     ]
+    }
+   },
+   "args": {
+    "yes": false,
+    "limit": 0
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "snapped": 0,
+     "dead": 0,
+     "pending": 0,
+     "blocked": 1,
+     "incomplete": 0
+    },
+    "calls": {
+     "arsenkin": [
+      [
+       "wordstat",
+       {
+        "type": 1,
+        "regions": [
+         225
+        ],
+        "ws": [
+         "base",
+         "overal",
+         "quoted"
+        ],
+        "queries": [
+         "отклонённый пакет"
+        ]
+       }
+      ]
+     ]
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "отклонённый пакет",
+       "base": 300,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "provider_tasks": [
+      {
+       "id": 1,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"отклонённый пакет\"]}",
+       "state": "unknown",
+       "task_id": null,
+       "cost": 9.0,
+       "result_json": null,
+       "error": "billed but rejected"
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "exact",
+       "n_requests": 1,
+       "cost_rub": null,
+       "cost_arsenkin": 9,
+       "note": "unknown task, submission=1"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  },
+  {
+   "name": "bad_taskid",
+   "cfg": {
+    "regions": [
+     "225"
+    ],
+    "exact_cut_base": 20,
+    "exact_cut_exact": 10,
+    "budget_arsenkin_gate": 2000,
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/exact-badid-gpi0nxic"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [
+     [
+      "upsert",
+      "без номера",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "без номера",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {
+    "arsenkin": {
+     "submits": [
+      {
+       "ok": {
+        "task_id": 0,
+        "cost": 5
+       }
+      }
+     ]
+    }
+   },
+   "args": {
+    "yes": false,
+    "limit": 0
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "snapped": 0,
+     "dead": 0,
+     "pending": 0,
+     "blocked": 1,
+     "incomplete": 0
+    },
+    "calls": {
+     "arsenkin": [
+      [
+       "wordstat",
+       {
+        "type": 1,
+        "regions": [
+         225
+        ],
+        "ws": [
+         "base",
+         "overal",
+         "quoted"
+        ],
+        "queries": [
+         "без номера"
+        ]
+       }
+      ]
+     ]
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "без номера",
+       "base": 300,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "provider_tasks": [
+      {
+       "id": 1,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\", \"quoted\"], \"queries\": [\"без номера\"]}",
+       "state": "unknown",
+       "task_id": null,
+       "cost": 5.0,
+       "result_json": null,
+       "error": "provider returned no usable task_id"
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "exact",
+       "n_requests": 1,
+       "cost_rub": null,
+       "cost_arsenkin": 5,
+       "note": "unknown task, submission=1"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  },
+  {
+   "name": "gate",
+   "cfg": {
+    "regions": [
+     "225"
+    ],
+    "exact_cut_base": 20,
+    "exact_cut_exact": 10,
+    "budget_arsenkin_gate": 2,
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/exact-gate-gk2sx1m4"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [
+     [
+      "upsert",
+      "первая",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "первая",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "вторая",
+      200,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "вторая",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "третья",
+      100,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "третья",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {
+    "arsenkin": {}
+   },
+   "args": {
+    "yes": false,
+    "limit": 0
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "gated": true
+    },
+    "calls": {
+     "arsenkin": []
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "первая",
+       "base": 300,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "вторая",
+       "base": 200,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "третья",
+       "base": 100,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "provider_tasks": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  },
+  {
+   "name": "empty",
+   "cfg": {
+    "regions": [
+     "225"
+    ],
+    "exact_cut_base": 20,
+    "exact_cut_exact": 10,
+    "budget_arsenkin_gate": 2000,
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/exact-empty-_s7ns3z_"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {}
+   },
+   "providers": {
+    "arsenkin": {}
+   },
+   "args": {
+    "yes": false,
+    "limit": 0
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "snapped": 0,
+     "dead": 0,
+     "pending": 0,
+     "blocked": 0,
+     "incomplete": 0
+    },
+    "calls": {},
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "provider_tasks": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  }
+ ]
+}

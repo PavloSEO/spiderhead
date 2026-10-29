@@ -1,0 +1,282 @@
+{
+ "cases": [
+  {
+   "doh": {
+    "34.216.184.93.in-addr.arpa|PTR": [
+     "edge.example.com"
+    ],
+    "_dmarc.example.com|TXT": [
+     "v=DMARC1; p=reject"
+    ],
+    "example.com|A": [
+     "93.184.216.34"
+    ],
+    "example.com|AAAA": [],
+    "example.com|MX": [
+     "mail.example.com"
+    ],
+    "example.com|NS": [
+     "ns1.example.com",
+     "ns2.example.com"
+    ],
+    "example.com|TXT": [
+     "v=spf1 -all"
+    ],
+    "www.example.com|CNAME": []
+   },
+   "domain": "example.com",
+   "expected": {
+    "dns": {
+     "a": [
+      "93.184.216.34"
+     ],
+     "aaaa": [],
+     "cname": [],
+     "dmarc": "v=DMARC1; p=reject",
+     "dns_provider": null,
+     "mail_provider": null,
+     "mx": [
+      "mail.example.com"
+     ],
+     "ns": [
+      "ns1.example.com",
+      "ns2.example.com"
+     ],
+     "spf": "v=spf1 -all",
+     "txt": [
+      "v=spf1 -all"
+     ]
+    },
+    "domain": "example.com",
+    "flags": [],
+    "hosting": {
+     "ip": "93.184.216.34",
+     "ip_source": "a",
+     "reverse_dns": "edge.example.com"
+    },
+    "ok": true,
+    "registration": {
+     "age_days": 2492,
+     "age_years": 6.8,
+     "created": "2020-01-01T00:00:00Z",
+     "expires": "2030-01-01T00:00:00Z",
+     "expires_in_days": 1161,
+     "nameservers": [
+      "ns1.example.com",
+      "ns2.example.com"
+     ],
+     "registrar": "Registrar Inc",
+     "source": "rdap",
+     "status": [
+      "client transfer prohibited"
+     ],
+     "updated": null
+    },
+    "tls": {
+     "days_left": 1000,
+     "expires": "2030-01-01",
+     "issuer": "CA",
+     "ok": true,
+     "protocol": "TLSv1.3",
+     "san": [
+      "example.com"
+     ],
+     "valid": true
+    }
+   },
+   "name": "rdap_profile",
+   "rdap": {
+    "data": {
+     "entities": [
+      {
+       "roles": [
+        "registrar"
+       ],
+       "vcardArray": [
+        "vcard",
+        [
+         [
+          "fn",
+          {},
+          "text",
+          "Registrar Inc"
+         ]
+        ]
+       ]
+      }
+     ],
+     "events": [
+      {
+       "eventAction": "registration",
+       "eventDate": "2020-01-01T00:00:00Z"
+      },
+      {
+       "eventAction": "expiration",
+       "eventDate": "2030-01-01T00:00:00Z"
+      }
+     ],
+     "nameservers": [
+      {
+       "ldhName": "NS1.EXAMPLE.COM"
+      },
+      {
+       "ldhName": "ns2.example.com."
+      }
+     ],
+     "status": [
+      "client transfer prohibited"
+     ]
+    },
+    "supported": true
+   },
+   "tls": {
+    "days_left": 1000,
+    "expires": "2030-01-01",
+    "issuer": "CA",
+    "ok": true,
+    "protocol": "TLSv1.3",
+    "san": [
+     "example.com"
+    ],
+    "valid": true
+   },
+   "whois": [
+    null,
+    null
+   ]
+  },
+  {
+   "doh": {},
+   "domain": "example.ru",
+   "expected": {
+    "dns": {
+     "a": [],
+     "aaaa": [],
+     "cname": [],
+     "dmarc": null,
+     "dns_provider": null,
+     "mail_provider": null,
+     "mx": [],
+     "ns": [],
+     "spf": null,
+     "txt": []
+    },
+    "domain": "example.ru",
+    "flags": [
+     "registration data is unavailable: WHOIS response did not identify the requested domain; no registration data was taken from it",
+     "domain does not resolve to an IP address",
+     "SPF record is missing",
+     "DMARC record is missing"
+    ],
+    "hosting": {},
+    "ok": true,
+    "registration": {
+     "age_days": null,
+     "age_years": null,
+     "created": null,
+     "expires": null,
+     "expires_in_days": null,
+     "nameservers": [],
+     "rdap_note": "absent",
+     "registrar": null,
+     "source": "none",
+     "status": [],
+     "updated": null,
+     "whois_note": "WHOIS response did not identify the requested domain; no registration data was taken from it"
+    }
+   },
+   "name": "whois_fallback_zone_rejected",
+   "rdap": {
+    "error": "absent",
+    "supported": false
+   },
+   "tls": null,
+   "whois": [
+    "% comment\ndomain: RU\nnserver: a.dns.ripn.net\ncreated: 1994-04-07T00:00:00Z\n",
+    "whois.tcinet.ru"
+   ]
+  },
+  {
+   "doh": {
+    "example.ru|A": [
+     "93.184.216.34"
+    ]
+   },
+   "domain": "example.ru",
+   "expected": {
+    "dns": {
+     "a": [
+      "93.184.216.34"
+     ],
+     "aaaa": [],
+     "cname": [],
+     "dmarc": null,
+     "dns_provider": null,
+     "mail_provider": null,
+     "mx": [],
+     "ns": [
+      "ns1.example.ru",
+      "ns2.example.ru"
+     ],
+     "spf": null,
+     "txt": []
+    },
+    "domain": "example.ru",
+    "flags": [
+     "SPF record is missing",
+     "DMARC record is missing"
+    ],
+    "hosting": {
+     "ip": "93.184.216.34",
+     "ip_source": "a",
+     "reverse_dns": null
+    },
+    "ok": true,
+    "registration": {
+     "age_days": 4781,
+     "age_years": 13.1,
+     "created": "2013-09-25T20:41:47Z",
+     "expires": "2030-09-26T00:00:00Z",
+     "expires_in_days": 1429,
+     "nameservers": [
+      "ns1.example.ru",
+      "ns2.example.ru"
+     ],
+     "rdap_note": "absent",
+     "registrar": "REGRU-RU",
+     "source": "whois",
+     "status": [],
+     "updated": null,
+     "whois_server": "whois.tcinet.ru"
+    }
+   },
+   "name": "whois_fallback_domain_record",
+   "rdap": {
+    "error": "absent",
+    "supported": false
+   },
+   "tls": null,
+   "whois": [
+    "domain: EXAMPLE.RU\nregistrar: REGRU-RU\ncreated: 2013-09-25T20:41:47Z\npaid-till: 2030-09-26T00:00:00Z\nnserver: ns1.example.ru\nnserver: ns2.example.ru\n",
+    "whois.tcinet.ru"
+   ]
+  },
+  {
+   "doh": {},
+   "domain": "not a domain",
+   "expected": {
+    "error": "not a valid domain: 'not a domain'",
+    "ok": false
+   },
+   "name": "invalid_domain",
+   "rdap": {
+    "supported": false
+   },
+   "tls": null,
+   "whois": [
+    null,
+    null
+   ]
+  }
+ ]
+}

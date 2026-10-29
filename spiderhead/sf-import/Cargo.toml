@@ -1,0 +1,34 @@
+[package]
+name = "spiderhead-sf-import"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead sf import side (Screaming Frog exports)."
+
+[dependencies]
+calamine.workspace = true
+csv.workspace = true
+encoding_rs.workspace = true
+flate2.workspace = true
+glob.workspace = true
+icu_casemap.workspace = true
+indexmap.workspace = true
+libc.workspace = true
+quick-xml.workspace = true
+regex.workspace = true
+rusqlite.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+spiderhead-core.workspace = true
+spiderhead-formats.workspace = true
+spiderhead-parse.workspace = true
+spiderhead-store.workspace = true
+tempfile.workspace = true
+thiserror.workspace = true
+unicode-general-category.workspace = true
+unicode-normalization.workspace = true
+zip.workspace = true
+
+[dev-dependencies]
+indexmap.workspace = true
+rusqlite.workspace = true

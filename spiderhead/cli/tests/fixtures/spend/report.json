@@ -1,0 +1,34 @@
+{
+ "cases": {
+  "case0": {
+   "argv": [
+    "spend-report"
+   ],
+   "exit": 0,
+   "stderr": "seohead: spend-report\n",
+   "stdout": "{\n  \"ok\": true,\n  \"calls\": 4,\n  \"since\": null,\n  \"by_source\": {\n    \"yandex_wordstat\": {\n      \"requests\": 2.0\n    },\n    \"yandex_search\": {\n      \"requests\": 5.0\n    },\n    \"arsenkin\": {\n      \"tasks\": 0.0\n    },\n    \"dataforseo\": {\n      \"usd\": 0.01\n    }\n  },\n  \"by_operation\": {\n    \"yandex_wordstat.collect\": {\n      \"requests\": 2.0\n    },\n    \"yandex_search.cluster\": {\n      \"requests\": 5.0\n    },\n    \"arsenkin.exact\": {\n      \"tasks\": 0.0\n    },\n    \"dataforseo.serp\": {\n      \"usd\": 0.01\n    }\n  },\n  \"by_day\": {\n    \"2026-10-20\": {\n      \"requests\": 2.0\n    },\n    \"2026-10-25\": {\n      \"requests\": 5.0\n    },\n    \"2026-10-26\": {\n      \"tasks\": 0.0,\n      \"usd\": 0.01\n    }\n  },\n  \"uncertain\": [],\n  \"log\": \"<WORK>/spend.jsonl\"\n}\n"
+  },
+  "case1": {
+   "argv": [
+    "spend-report",
+    "--since",
+    "2026-10-25"
+   ],
+   "exit": 0,
+   "stderr": "seohead: spend-report\n",
+   "stdout": "{\n  \"ok\": true,\n  \"calls\": 3,\n  \"since\": \"2026-10-25\",\n  \"by_source\": {\n    \"yandex_search\": {\n      \"requests\": 5.0\n    },\n    \"arsenkin\": {\n      \"tasks\": 0.0\n    },\n    \"dataforseo\": {\n      \"usd\": 0.01\n    }\n  },\n  \"by_operation\": {\n    \"yandex_search.cluster\": {\n      \"requests\": 5.0\n    },\n    \"arsenkin.exact\": {\n      \"tasks\": 0.0\n    },\n    \"dataforseo.serp\": {\n      \"usd\": 0.01\n    }\n  },\n  \"by_day\": {\n    \"2026-10-25\": {\n      \"requests\": 5.0\n    },\n    \"2026-10-26\": {\n      \"tasks\": 0.0,\n      \"usd\": 0.01\n    }\n  },\n  \"uncertain\": [],\n  \"log\": \"<WORK>/spend.jsonl\"\n}\n"
+  },
+  "case2": {
+   "argv": [
+    "spend-report",
+    "--csv",
+    "{WORK}/spend.csv"
+   ],
+   "exit": 0,
+   "out_file": "﻿at;source;operation;cost;unit;items;task_id;uncertain\n<TS>;yandex_wordstat;collect;2;requests;0;;False\n<TS>;yandex_search;cluster;5;requests;0;;False\n<TS>;arsenkin;exact;;tasks;0;;False\n<TS>;dataforseo;serp;0.01;usd;0;;False\n",
+   "stderr": "seohead: spend-report\n",
+   "stdout": "{\n  \"ok\": true,\n  \"csv\": \"<WORK>/spend.csv\",\n  \"rows\": 4,\n  \"since\": null\n}\n"
+  }
+ },
+ "journal": "{\"at\": \"2026-10-20T10:00:00Z\", \"source\": \"yandex_wordstat\", \"operation\": \"collect\", \"cost\": 2, \"unit\": \"requests\", \"status\": \"charged\"}\n{\"at\": \"2026-10-25T11:00:00Z\", \"source\": \"yandex_search\", \"operation\": \"cluster\", \"cost\": 5, \"unit\": \"requests\", \"status\": \"charged\"}\n{\"at\": \"2026-10-26T12:00:00Z\", \"source\": \"arsenkin\", \"operation\": \"exact\", \"status\": \"submitted\", \"unit\": \"tasks\"}\n{\"at\": \"2026-10-26T12:05:00Z\", \"source\": \"dataforseo\", \"operation\": \"serp\", \"cost\": 0.01, \"unit\": \"usd\", \"status\": \"uncertain\"}\n"
+}

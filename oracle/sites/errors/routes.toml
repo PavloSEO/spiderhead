@@ -1,0 +1,17 @@
+[site]
+start = "/"
+description = "404 (implicit), 410, 500, 503, 403, soft-404, empty page"
+
+[[route]]
+path = "/gone.html"
+status = 410
+[[route]]
+path = "/boom.html"
+status = 500
+[[route]]
+path = "/unavailable.html"
+status = 503
+headers = { Retry-After = "120" }
+[[route]]
+path = "/forbidden.html"
+status = 403

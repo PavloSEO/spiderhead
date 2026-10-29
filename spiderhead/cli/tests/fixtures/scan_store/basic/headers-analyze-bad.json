@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "seohead: headers-analyze\n",
+    "stdout": "{\n  \"ok\": false,\n  \"state\": \"invalid\",\n  \"reason_code\": \"invalid_headers_analysis\",\n  \"error\": \"limit must be 1..200\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_headers_analyze: {\"ok\": false, \"state\": \"invalid\", \"reason_code\": \"invalid_headers_analysis\", \"error\": \"limit must be 1..200\"}"
+   }
+  ]
+ }
+}

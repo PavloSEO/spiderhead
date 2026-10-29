@@ -1,0 +1,53 @@
+[site]
+start = "/"
+description = "301/302/307/308, 3-hop chain, loop, redirect to 404, meta refresh"
+
+[[route]]
+path = "/r301"
+status = 301
+location = "/final.html"
+
+[[route]]
+path = "/temp"
+status = 302
+location = "/final.html"
+
+[[route]]
+path = "/r307"
+status = 307
+location = "/final.html"
+
+[[route]]
+path = "/r308"
+status = 308
+location = "/final.html"
+
+[[route]]
+path = "/chain-a"
+status = 301
+location = "/chain-b"
+
+[[route]]
+path = "/chain-b"
+status = 302
+location = "/chain-c"
+
+[[route]]
+path = "/chain-c"
+status = 301
+location = "/final.html"
+
+[[route]]
+path = "/loop-a"
+status = 301
+location = "/loop-b"
+
+[[route]]
+path = "/loop-b"
+status = 301
+location = "/loop-a"
+
+[[route]]
+path = "/to-404"
+status = 301
+location = "/does-not-exist.html"

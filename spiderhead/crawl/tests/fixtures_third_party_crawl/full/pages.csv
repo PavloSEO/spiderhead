@@ -1,0 +1,4 @@
+Address,Response Code,Content Type,Title,Canonical,Indexability
+https://example.test/,200,text/html,Home & welcome,https://example.test/,Indexable
+https://EXAMPLE.test:443/products/,200,text/html,Products,https://example.test/products,Indexable
+https://example.test/products#top,200,text/html,Products duplicate,https://example.test/products,Indexable

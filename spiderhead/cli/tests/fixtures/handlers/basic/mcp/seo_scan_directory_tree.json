@@ -1,0 +1,5 @@
+{
+ "is_error": false,
+ "text": "{\n  \"ok\": true,\n  \"state\": \"available\",\n  \"reason\": \"\",\n  \"source\": {\n    \"scan_uuid\": \"<UUID:1>\",\n    \"evidence_revision\": 10,\n    \"lifecycle\": \"finished\"\n  },\n  \"validation\": \"light\",\n  \"scope\": {\n    \"origin\": \"127.0.0.1:{PORT}\",\n    \"total_pages\": 10,\n    \"included_pages\": 10,\n    \"excluded_other_origins\": 0\n  },\n  \"max_depth\": 3,\n  \"max_children\": 50,\n  \"max_nodes\": 10000,\n  \"tree\": {\n    \"name\": \"/\",\n    \"pages\": 10,\n    \"children\": []\n  }\n}",
+ "tool": "seo_scan_directory_tree"
+}

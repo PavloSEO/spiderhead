@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "cdn-check",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "cdn-check",
+ "exit": 0,
+ "stderr": "seohead: cdn-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/\",\n  \"final_url\": \"{BASE}/\",\n  \"status_code\": 200,\n  \"cdn\": null,\n  \"server\": \"oracle-fixture\",\n  \"transport\": {\n    \"http_version\": \"HTTP/1.1\",\n    \"http_version_measurable\": true,\n    \"http3_advertised\": false,\n    \"alt_svc\": null,\n    \"content_encoding\": null,\n    \"brotli_supported\": null,\n    \"brotli_probe\": null,\n    \"ttfb_first_ms\": <DURATION>,\n    \"ttfb_second_ms\": <DURATION>\n  },\n  \"cache\": {\n    \"cache_control\": {\n      \"raw\": null,\n      \"directives\": {},\n      \"max_age\": null,\n      \"public\": false,\n      \"no_store\": false,\n      \"no_cache\": false,\n      \"immutable\": false\n    },\n    \"etag\": null,\n    \"last_modified\": \"Mon, 01 Jan 2026 00:00:00 GMT\",\n    \"expires\": null,\n    \"vary\": null,\n    \"age\": null,\n    \"status_first\": null,\n    \"status_second\": null,\n    \"hit_first\": null,\n    \"hit_second\": null,\n    \"warmed_up\": false,\n    \"revalidation\": {\n      \"supported\": false,\n      \"status_code\": 200,\n      \"sent\": [\n        \"If-Modified-Since\"\n      ]\n    }\n  },\n  \"findings\": [\n    \"Cache-Control is missing; browsers and intermediaries must choose a policy\",\n    \"conditional request returned 200 instead of 304; revalidation transfers the response body again\",\n    \"served over HTTP/1.1; HTTP/2 would provide multiplexing\",\n    \"HTTP/3 is not advertised through Alt-Svc\",\n    \"the response is uncompressed: neither gzip nor Brotli is enabled\"\n  ]\n}\n"
+}

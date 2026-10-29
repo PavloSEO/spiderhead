@@ -1,0 +1,3 @@
+{"source": "https://example.com/", "destination": "https://example.com/second", "anchor": "Second", "nofollow": false, "position": "", "rel": [], "target": "", "raw_href": "", "anchor_source": ""}
+{"source": "https://example.com/", "destination": "https://example.com/second", "anchor": "Second again", "nofollow": false, "position": "", "rel": [], "target": "", "raw_href": "", "anchor_source": ""}
+{"source": "https://example.com/", "destination": "https://outside.example/path", "anchor": "External", "nofollow": false, "position": "", "rel": [], "target": "", "raw_href": "", "anchor_source": ""}

@@ -1,0 +1,337 @@
+{
+ "available": true,
+ "bucket_counts": {
+  "in_sitemap_and_linked": 21,
+  "in_sitemap_not_linked": 2,
+  "linked_not_comparable": 0,
+  "linked_not_in_sitemap": 1
+ },
+ "buckets": {
+  "in_sitemap_and_linked": [
+   "https://example.test/blocked",
+   "https://example.test/canonicalized",
+   "https://example.test/missing",
+   "https://example.test/noindex",
+   "https://example.test/redirect",
+   "https://example.test/server",
+   "https://example.test/showcase-0",
+   "https://example.test/showcase-1",
+   "https://example.test/showcase-10",
+   "https://example.test/showcase-11",
+   "https://example.test/showcase-12",
+   "https://example.test/showcase-13",
+   "https://example.test/showcase-14",
+   "https://example.test/showcase-2",
+   "https://example.test/showcase-3",
+   "https://example.test/showcase-4",
+   "https://example.test/showcase-5",
+   "https://example.test/showcase-6",
+   "https://example.test/showcase-7",
+   "https://example.test/showcase-8",
+   "https://example.test/showcase-9"
+  ],
+  "in_sitemap_not_linked": [
+   "https://example.test/",
+   "https://example.test/unfetched"
+  ],
+  "linked_not_comparable": [],
+  "linked_not_in_sitemap": [
+   "https://example.test/extra"
+  ]
+ },
+ "counts": {
+  "in_crawl_not_in_sitemap": 1,
+  "in_sitemap_not_in_crawl": 2,
+  "urls_in_sitemap": 23,
+  "urls_reached_by_links": 22
+ },
+ "crawl_partial": false,
+ "declared_facts": [
+  {
+   "blocked": 0,
+   "canonical": "",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/",
+   "x_robots": ""
+  },
+  {
+   "blocked": 1,
+   "canonical": "",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/blocked",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-0",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/canonicalized",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 404,
+   "url": "https://example.test/missing",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/noindex",
+   "x_robots": "noindex"
+  },
+  {
+   "blocked": 0,
+   "canonical": "",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "https://example.test/showcase-0",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 301,
+   "url": "https://example.test/redirect",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 503,
+   "url": "https://example.test/server",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-0",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-0",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-1",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-1",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-10",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-10",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-11",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-11",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-12",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-12",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-13",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-13",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-14",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-14",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-2",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-2",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-3",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-3",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-4",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-4",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-5",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-5",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-6",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-6",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-7",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-7",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-8",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-8",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": "https://example.test/showcase-9",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/showcase-9",
+   "x_robots": ""
+  },
+  {
+   "blocked": 0,
+   "canonical": null,
+   "final_url": null,
+   "meta_robots": null,
+   "redirect_url": null,
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": null,
+   "url": "https://example.test/unfetched",
+   "x_robots": null
+  }
+ ],
+ "has_names": true,
+ "missing_canonical": [
+  {
+   "status_code": 200,
+   "url": "https://example.test/extra"
+  },
+  {
+   "status_code": 200,
+   "url": "https://example.test/unlinked-extra"
+  }
+ ],
+ "orphan_facts": [
+  {
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/"
+  },
+  {
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": null,
+   "url": "https://example.test/unfetched"
+  }
+ ],
+ "reason": "",
+ "summary": {
+  "available": true,
+  "crawl_partial": false,
+  "in_crawl_not_in_sitemap": 1,
+  "in_sitemap_not_in_crawl": 2,
+  "reason": "",
+  "urls_in_sitemap": 23,
+  "urls_reached_by_links": 22
+ }
+}

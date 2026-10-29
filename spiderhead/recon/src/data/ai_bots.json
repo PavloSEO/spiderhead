@@ -1,0 +1,112 @@
+{
+ "ai_bots": [
+  {
+   "token": "GPTBot",
+   "vendor": "OpenAI",
+   "type": "training",
+   "purpose": "OpenAI model training"
+  },
+  {
+   "token": "OAI-SearchBot",
+   "vendor": "OpenAI",
+   "type": "retrieval",
+   "purpose": "retrieval for SearchGPT answers"
+  },
+  {
+   "token": "ChatGPT-User",
+   "vendor": "OpenAI",
+   "type": "user",
+   "purpose": "fetches requested by a ChatGPT user"
+  },
+  {
+   "token": "ClaudeBot",
+   "vendor": "Anthropic",
+   "type": "training",
+   "purpose": "Anthropic model training"
+  },
+  {
+   "token": "Claude-Web",
+   "vendor": "Anthropic",
+   "type": "retrieval",
+   "purpose": "source retrieval for Claude"
+  },
+  {
+   "token": "anthropic-ai",
+   "vendor": "Anthropic",
+   "type": "training",
+   "purpose": "Anthropic model training and research"
+  },
+  {
+   "token": "PerplexityBot",
+   "vendor": "Perplexity",
+   "type": "retrieval",
+   "purpose": "retrieval for Perplexity answers"
+  },
+  {
+   "token": "Perplexity-User",
+   "vendor": "Perplexity",
+   "type": "user",
+   "purpose": "fetches requested by a Perplexity user"
+  },
+  {
+   "token": "Google-Extended",
+   "vendor": "Google (Gemini)",
+   "type": "training",
+   "purpose": "Gemini and Vertex AI model training"
+  },
+  {
+   "token": "Applebot-Extended",
+   "vendor": "Apple",
+   "type": "training",
+   "purpose": "Apple model training"
+  },
+  {
+   "token": "Bytespider",
+   "vendor": "ByteDance",
+   "type": "training",
+   "purpose": "ByteDance and TikTok model training"
+  },
+  {
+   "token": "CCBot",
+   "vendor": "Common Crawl",
+   "type": "training",
+   "purpose": "public web dataset used by many models"
+  },
+  {
+   "token": "Meta-ExternalAgent",
+   "vendor": "Meta",
+   "type": "training",
+   "purpose": "Meta AI training and indexing"
+  },
+  {
+   "token": "Meta-ExternalFetcher",
+   "vendor": "Meta",
+   "type": "retrieval",
+   "purpose": "page retrieval for Meta products"
+  },
+  {
+   "token": "Amazonbot",
+   "vendor": "Amazon",
+   "type": "training",
+   "purpose": "Amazon model training"
+  },
+  {
+   "token": "cohere-ai",
+   "vendor": "Cohere",
+   "type": "training",
+   "purpose": "Cohere model training"
+  },
+  {
+   "token": "YouBot",
+   "vendor": "You.com",
+   "type": "retrieval",
+   "purpose": "retrieval for You.com answers"
+  },
+  {
+   "token": "Diffbot",
+   "vendor": "Diffbot",
+   "type": "training",
+   "purpose": "data extraction for a knowledge graph"
+  }
+ ]
+}

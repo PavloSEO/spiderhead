@@ -1,0 +1,2708 @@
+{
+ "stage": "cluster",
+ "scenarios": [
+  {
+   "name": "mixed",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/cluster-oracle-p1r6nkr_",
+    "regions": [
+     "225"
+    ],
+    "serp_overlap": 3,
+    "rps": 5
+   },
+   "setup": {
+    "ddl": [
+     "CREATE TABLE IF NOT EXISTS serp_fetches(\nphrase_norm TEXT, region TEXT, top INTEGER, state TEXT, operation_id TEXT,\nraw_json TEXT, error TEXT, fetched_at TEXT, PRIMARY KEY(phrase_norm, region, top))"
+    ],
+    "ops": [
+     [
+      "upsert",
+      "seo аудит сайта",
+      500,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "seo аудит сайта",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "seo аудит сайта",
+      [
+       [
+        "exact",
+        600
+       ]
+      ]
+     ],
+     [
+      "upsert",
+      "seo продвижение цена",
+      450,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "seo продвижение цена",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "аудит сайта онлайн",
+      320,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "аудит сайта онлайн",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "аудит сайта онлайн",
+      [
+       [
+        "exact",
+        400
+       ]
+      ]
+     ],
+     [
+      "upsert",
+      "замок установка москва",
+      400,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "замок установка москва",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "замок установка москва",
+      [
+       [
+        "exact",
+        350
+       ]
+      ]
+     ],
+     [
+      "upsert",
+      "замок врезной установка",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "замок врезной установка",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "check serp tool",
+      150,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "check serp tool",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "замок дверной цена",
+      200,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "замок дверной цена",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_fields",
+      "замок дверной цена",
+      [
+       [
+        "exact",
+        100
+       ]
+      ]
+     ],
+     [
+      "upsert",
+      "защищённая фраза",
+      90,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "защищённая фраза",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "замок механизм ключ",
+      50,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "замок механизм ключ",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "краулер сайта бесплатно",
+      210,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "краулер сайта бесплатно",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "позиции сайта гугл",
+      70,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "позиции сайта гугл",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "одинокий единственный",
+      10,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "одинокий единственный",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "add_serp",
+      "краулер сайта бесплатно",
+      [
+       {
+        "pos": 0,
+        "url": "https://crawl-a.ru/t",
+        "domain": "crawl-a.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://crawl-b.ru/x",
+        "domain": "crawl-b.ru",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://crawl-c.ru/only",
+        "domain": "crawl-c.ru",
+        "title": "doc 2"
+       }
+      ]
+     ],
+     [
+      "exec",
+      "INSERT INTO clusters(name,source) VALUES(?,?)",
+      [
+       "ручной кластер",
+       "manual"
+      ]
+     ],
+     [
+      "set_fields",
+      "защищённая фраза",
+      [
+       [
+        "cluster_id",
+        1
+       ]
+      ]
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {
+     "serp_fetches": [
+      {
+       "phrase_norm": "check serp tool",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-old",
+       "raw_json": "{\"operation_id\": \"op-old\", \"docs\": [{\"pos\": 0, \"url\": \"https://seo-x.ru/audit\", \"domain\": \"seo-x.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://seo-y.com/price\", \"domain\": \"seo-y.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://seo-z.ru/online\", \"domain\": \"seo-z.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://seo-t.ru/tool\", \"domain\": \"seo-t.ru\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://seo-t.ru/x\", \"domain\": \"seo-t.ru\", \"title\": \"doc 4\"}]}",
+       "fetched_at": "2024-01-02T03:04:05Z"
+      }
+     ]
+    }
+   },
+   "providers": {
+    "serp": {
+     "seo аудит сайта@225": {
+      "operation_id": "op-0",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://seo-x.ru/audit",
+        "domain": "seo-x.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://seo-y.com/price",
+        "domain": "seo-y.com",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://seo-z.ru/online",
+        "domain": "seo-z.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://ubiq.example.com/x",
+        "domain": "ubiq.example.com",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://seo-1.ru/own",
+        "domain": "seo-1.ru",
+        "title": "doc 4"
+       }
+      ]
+     },
+     "seo продвижение цена@225": {
+      "operation_id": "op-1",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://seo-x.ru/audit",
+        "domain": "seo-x.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://seo-y.com/price",
+        "domain": "seo-y.com",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://seo-z.ru/online",
+        "domain": "seo-z.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://ubiq.example.com/x",
+        "domain": "ubiq.example.com",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://seo-2.ru/own",
+        "domain": "seo-2.ru",
+        "title": "doc 4"
+       }
+      ]
+     },
+     "аудит сайта онлайн@225": {
+      "operation_id": "op-2",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://seo-x.ru/audit",
+        "domain": "seo-x.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://seo-y.com/price",
+        "domain": "seo-y.com",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://seo-z.ru/online",
+        "domain": "seo-z.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://ubiq.example.com/x",
+        "domain": "ubiq.example.com",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://seo-3.ru/own",
+        "domain": "seo-3.ru",
+        "title": "doc 4"
+       }
+      ]
+     },
+     "замок установка москва@225": {
+      "operation_id": "op-3",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://lock-a.ru/vrezka",
+        "domain": "lock-a.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://lock-b.com/install/",
+        "domain": "lock-b.com",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://www.Lock-C.ru/Zamki",
+        "domain": "www.Lock-C.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://ubiq.example.com/x",
+        "domain": "ubiq.example.com",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://yandex.ru/market",
+        "domain": "yandex.ru",
+        "title": "doc 4"
+       }
+      ]
+     },
+     "замок врезной установка@225": {
+      "operation_id": "op-4",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://lock-a.ru/vrezka",
+        "domain": "lock-a.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://lock-b.com/install/",
+        "domain": "lock-b.com",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://www.Lock-C.ru/Zamki",
+        "domain": "www.Lock-C.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://ubiq.example.com/x",
+        "domain": "ubiq.example.com",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://lock-2.ru/own",
+        "domain": "lock-2.ru",
+        "title": "doc 4"
+       }
+      ]
+     },
+     "замок дверной цена@225": {
+      "operation_id": "op-5",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://lock-a.ru/vrezka",
+        "domain": "lock-a.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://lock-b.com/install/",
+        "domain": "lock-b.com",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://www.Lock-C.ru/Zamki",
+        "domain": "www.Lock-C.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://ubiq.example.com/x",
+        "domain": "ubiq.example.com",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://lock-3.ru/own",
+        "domain": "lock-3.ru",
+        "title": "doc 4"
+       }
+      ]
+     },
+     "защищённая фраза@225": {
+      "operation_id": "op-6",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://lock-a.ru/vrezka",
+        "domain": "lock-a.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://lock-b.com/install/",
+        "domain": "lock-b.com",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://www.Lock-C.ru/Zamki",
+        "domain": "www.Lock-C.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://lock-p.ru/a",
+        "domain": "lock-p.ru",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://lock-p.ru/b",
+        "domain": "lock-p.ru",
+        "title": "doc 4"
+       }
+      ]
+     },
+     "замок механизм ключ@225": {
+      "operation_id": "op-7",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://m-1.ru/x",
+        "domain": "m-1.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://m-2.ru/y",
+        "domain": "m-2.ru",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://lock-4.ru/a",
+        "domain": "lock-4.ru",
+        "title": "doc 2"
+       }
+      ]
+     },
+     "позиции сайта гугл@225": {
+      "operation_id": "op-8",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://m-1.ru/x",
+        "domain": "m-1.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://m-2.ru/y",
+        "domain": "m-2.ru",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://yandex.ru/market",
+        "domain": "yandex.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://pos-1.ru/a",
+        "domain": "pos-1.ru",
+        "title": "doc 3"
+       }
+      ]
+     },
+     "одинокий единственный@225": {
+      "operation_id": "op-9",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://solo-a.ru/x",
+        "domain": "solo-a.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://solo-b.ru/y",
+        "domain": "solo-b.ru",
+        "title": "doc 1"
+       }
+      ]
+     }
+    }
+   },
+   "args": {
+    "limit": 0,
+    "top": 5,
+    "method": "serp"
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "clusters": 6,
+     "requests": 10,
+     "method": "serp"
+    },
+    "calls": {
+     "serp": [
+      {
+       "queries": [
+        "seo аудит сайта",
+        "seo продвижение цена",
+        "аудит сайта онлайн",
+        "замок установка москва",
+        "замок врезной установка",
+        "замок дверной цена",
+        "защищённая фраза",
+        "позиции сайта гугл",
+        "замок механизм ключ",
+        "одинокий единственный"
+       ],
+       "region": "225",
+       "groups": 5
+      }
+     ]
+    },
+    "tables": {
+     "clusters": [
+      {
+       "id": 1,
+       "name": "ручной кластер",
+       "marker_norm": null,
+       "coherence": null,
+       "is_real": null,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "manual",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 2,
+       "name": "seo аудит сайта",
+       "marker_norm": "seo аудит сайта",
+       "coherence": 0.548,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "serp",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 3,
+       "name": "замок установка москва",
+       "marker_norm": "замок установка москва",
+       "coherence": 0.548,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "serp",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 4,
+       "name": "краулер сайта бесплатно",
+       "marker_norm": "краулер сайта бесплатно",
+       "coherence": 1.0,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "serp",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 5,
+       "name": "позиции сайта гугл",
+       "marker_norm": "позиции сайта гугл",
+       "coherence": 1.0,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "serp",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 6,
+       "name": "замок механизм ключ",
+       "marker_norm": "замок механизм ключ",
+       "coherence": 1.0,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "serp",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 7,
+       "name": "одинокий единственный",
+       "marker_norm": "одинокий единственный",
+       "coherence": 1.0,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "serp",
+       "page_types": null,
+       "level": null
+      }
+     ],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "seo аудит сайта",
+       "base": 500,
+       "quoted": null,
+       "exact": 600,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "seo продвижение цена",
+       "base": 450,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "аудит сайта онлайн",
+       "base": 320,
+       "quoted": null,
+       "exact": 400,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "замок установка москва",
+       "base": 400,
+       "quoted": null,
+       "exact": 350,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 3,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 5,
+       "norm": "замок врезной установка",
+       "base": 300,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 3,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 6,
+       "norm": "check serp tool",
+       "base": 150,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 7,
+       "norm": "замок дверной цена",
+       "base": 200,
+       "quoted": null,
+       "exact": 100,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 3,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 8,
+       "norm": "защищённая фраза",
+       "base": 90,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 1,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 9,
+       "norm": "замок механизм ключ",
+       "base": 50,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 6,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 10,
+       "norm": "краулер сайта бесплатно",
+       "base": 210,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 4,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 11,
+       "norm": "позиции сайта гугл",
+       "base": 70,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 5,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 12,
+       "norm": "одинокий единственный",
+       "base": 10,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 7,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "cluster",
+       "n_requests": 10,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "SERP batch: complete=10, unresolved=0"
+      },
+      {
+       "id": 2,
+       "ts": "__ts__",
+       "stage": "cluster",
+       "n_requests": 0,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "method=serp, clusters=6, SERP requests=10"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": [
+      {
+       "phrase_norm": "краулер сайта бесплатно",
+       "pos": 0,
+       "url": "https://crawl-a.ru/t",
+       "domain": "crawl-a.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "краулер сайта бесплатно",
+       "pos": 1,
+       "url": "https://crawl-b.ru/x",
+       "domain": "crawl-b.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "краулер сайта бесплатно",
+       "pos": 2,
+       "url": "https://crawl-c.ru/only",
+       "domain": "crawl-c.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "check serp tool",
+       "pos": 0,
+       "url": "https://seo-x.ru/audit",
+       "domain": "seo-x.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "check serp tool",
+       "pos": 1,
+       "url": "https://seo-y.com/price",
+       "domain": "seo-y.com",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "check serp tool",
+       "pos": 2,
+       "url": "https://seo-z.ru/online",
+       "domain": "seo-z.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "check serp tool",
+       "pos": 3,
+       "url": "https://seo-t.ru/tool",
+       "domain": "seo-t.ru",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "check serp tool",
+       "pos": 4,
+       "url": "https://seo-t.ru/x",
+       "domain": "seo-t.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 0,
+       "url": "https://seo-x.ru/audit",
+       "domain": "seo-x.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 1,
+       "url": "https://seo-y.com/price",
+       "domain": "seo-y.com",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 2,
+       "url": "https://seo-z.ru/online",
+       "domain": "seo-z.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 3,
+       "url": "https://ubiq.example.com/x",
+       "domain": "ubiq.example.com",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 4,
+       "url": "https://seo-1.ru/own",
+       "domain": "seo-1.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo продвижение цена",
+       "pos": 0,
+       "url": "https://seo-x.ru/audit",
+       "domain": "seo-x.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo продвижение цена",
+       "pos": 1,
+       "url": "https://seo-y.com/price",
+       "domain": "seo-y.com",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo продвижение цена",
+       "pos": 2,
+       "url": "https://seo-z.ru/online",
+       "domain": "seo-z.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo продвижение цена",
+       "pos": 3,
+       "url": "https://ubiq.example.com/x",
+       "domain": "ubiq.example.com",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo продвижение цена",
+       "pos": 4,
+       "url": "https://seo-2.ru/own",
+       "domain": "seo-2.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "аудит сайта онлайн",
+       "pos": 0,
+       "url": "https://seo-x.ru/audit",
+       "domain": "seo-x.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "аудит сайта онлайн",
+       "pos": 1,
+       "url": "https://seo-y.com/price",
+       "domain": "seo-y.com",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "аудит сайта онлайн",
+       "pos": 2,
+       "url": "https://seo-z.ru/online",
+       "domain": "seo-z.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "аудит сайта онлайн",
+       "pos": 3,
+       "url": "https://ubiq.example.com/x",
+       "domain": "ubiq.example.com",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "аудит сайта онлайн",
+       "pos": 4,
+       "url": "https://seo-3.ru/own",
+       "domain": "seo-3.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок установка москва",
+       "pos": 0,
+       "url": "https://lock-a.ru/vrezka",
+       "domain": "lock-a.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок установка москва",
+       "pos": 1,
+       "url": "https://lock-b.com/install/",
+       "domain": "lock-b.com",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок установка москва",
+       "pos": 2,
+       "url": "https://www.Lock-C.ru/Zamki",
+       "domain": "www.Lock-C.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок установка москва",
+       "pos": 3,
+       "url": "https://ubiq.example.com/x",
+       "domain": "ubiq.example.com",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок установка москва",
+       "pos": 4,
+       "url": "https://yandex.ru/market",
+       "domain": "yandex.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной установка",
+       "pos": 0,
+       "url": "https://lock-a.ru/vrezka",
+       "domain": "lock-a.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной установка",
+       "pos": 1,
+       "url": "https://lock-b.com/install/",
+       "domain": "lock-b.com",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной установка",
+       "pos": 2,
+       "url": "https://www.Lock-C.ru/Zamki",
+       "domain": "www.Lock-C.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной установка",
+       "pos": 3,
+       "url": "https://ubiq.example.com/x",
+       "domain": "ubiq.example.com",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной установка",
+       "pos": 4,
+       "url": "https://lock-2.ru/own",
+       "domain": "lock-2.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок дверной цена",
+       "pos": 0,
+       "url": "https://lock-a.ru/vrezka",
+       "domain": "lock-a.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок дверной цена",
+       "pos": 1,
+       "url": "https://lock-b.com/install/",
+       "domain": "lock-b.com",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок дверной цена",
+       "pos": 2,
+       "url": "https://www.Lock-C.ru/Zamki",
+       "domain": "www.Lock-C.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок дверной цена",
+       "pos": 3,
+       "url": "https://ubiq.example.com/x",
+       "domain": "ubiq.example.com",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок дверной цена",
+       "pos": 4,
+       "url": "https://lock-3.ru/own",
+       "domain": "lock-3.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "защищённая фраза",
+       "pos": 0,
+       "url": "https://lock-a.ru/vrezka",
+       "domain": "lock-a.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "защищённая фраза",
+       "pos": 1,
+       "url": "https://lock-b.com/install/",
+       "domain": "lock-b.com",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "защищённая фраза",
+       "pos": 2,
+       "url": "https://www.Lock-C.ru/Zamki",
+       "domain": "www.Lock-C.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "защищённая фраза",
+       "pos": 3,
+       "url": "https://lock-p.ru/a",
+       "domain": "lock-p.ru",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "защищённая фраза",
+       "pos": 4,
+       "url": "https://lock-p.ru/b",
+       "domain": "lock-p.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "позиции сайта гугл",
+       "pos": 0,
+       "url": "https://m-1.ru/x",
+       "domain": "m-1.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "позиции сайта гугл",
+       "pos": 1,
+       "url": "https://m-2.ru/y",
+       "domain": "m-2.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "позиции сайта гугл",
+       "pos": 2,
+       "url": "https://yandex.ru/market",
+       "domain": "yandex.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "позиции сайта гугл",
+       "pos": 3,
+       "url": "https://pos-1.ru/a",
+       "domain": "pos-1.ru",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок механизм ключ",
+       "pos": 0,
+       "url": "https://m-1.ru/x",
+       "domain": "m-1.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок механизм ключ",
+       "pos": 1,
+       "url": "https://m-2.ru/y",
+       "domain": "m-2.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок механизм ключ",
+       "pos": 2,
+       "url": "https://lock-4.ru/a",
+       "domain": "lock-4.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "одинокий единственный",
+       "pos": 0,
+       "url": "https://solo-a.ru/x",
+       "domain": "solo-a.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "одинокий единственный",
+       "pos": 1,
+       "url": "https://solo-b.ru/y",
+       "domain": "solo-b.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      }
+     ],
+     "serp_fetches": [
+      {
+       "phrase_norm": "check serp tool",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-old",
+       "raw_json": "{\"operation_id\": \"op-old\", \"docs\": [{\"pos\": 0, \"url\": \"https://seo-x.ru/audit\", \"domain\": \"seo-x.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://seo-y.com/price\", \"domain\": \"seo-y.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://seo-z.ru/online\", \"domain\": \"seo-z.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://seo-t.ru/tool\", \"domain\": \"seo-t.ru\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://seo-t.ru/x\", \"domain\": \"seo-t.ru\", \"title\": \"doc 4\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-0",
+       "raw_json": "{\"operation_id\": \"op-0\", \"docs\": [{\"pos\": 0, \"url\": \"https://seo-x.ru/audit\", \"domain\": \"seo-x.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://seo-y.com/price\", \"domain\": \"seo-y.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://seo-z.ru/online\", \"domain\": \"seo-z.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://ubiq.example.com/x\", \"domain\": \"ubiq.example.com\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://seo-1.ru/own\", \"domain\": \"seo-1.ru\", \"title\": \"doc 4\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo продвижение цена",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-1",
+       "raw_json": "{\"operation_id\": \"op-1\", \"docs\": [{\"pos\": 0, \"url\": \"https://seo-x.ru/audit\", \"domain\": \"seo-x.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://seo-y.com/price\", \"domain\": \"seo-y.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://seo-z.ru/online\", \"domain\": \"seo-z.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://ubiq.example.com/x\", \"domain\": \"ubiq.example.com\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://seo-2.ru/own\", \"domain\": \"seo-2.ru\", \"title\": \"doc 4\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "аудит сайта онлайн",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-2",
+       "raw_json": "{\"operation_id\": \"op-2\", \"docs\": [{\"pos\": 0, \"url\": \"https://seo-x.ru/audit\", \"domain\": \"seo-x.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://seo-y.com/price\", \"domain\": \"seo-y.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://seo-z.ru/online\", \"domain\": \"seo-z.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://ubiq.example.com/x\", \"domain\": \"ubiq.example.com\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://seo-3.ru/own\", \"domain\": \"seo-3.ru\", \"title\": \"doc 4\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок установка москва",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-3",
+       "raw_json": "{\"operation_id\": \"op-3\", \"docs\": [{\"pos\": 0, \"url\": \"https://lock-a.ru/vrezka\", \"domain\": \"lock-a.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://lock-b.com/install/\", \"domain\": \"lock-b.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://www.Lock-C.ru/Zamki\", \"domain\": \"www.Lock-C.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://ubiq.example.com/x\", \"domain\": \"ubiq.example.com\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://yandex.ru/market\", \"domain\": \"yandex.ru\", \"title\": \"doc 4\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной установка",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-4",
+       "raw_json": "{\"operation_id\": \"op-4\", \"docs\": [{\"pos\": 0, \"url\": \"https://lock-a.ru/vrezka\", \"domain\": \"lock-a.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://lock-b.com/install/\", \"domain\": \"lock-b.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://www.Lock-C.ru/Zamki\", \"domain\": \"www.Lock-C.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://ubiq.example.com/x\", \"domain\": \"ubiq.example.com\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://lock-2.ru/own\", \"domain\": \"lock-2.ru\", \"title\": \"doc 4\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок дверной цена",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-5",
+       "raw_json": "{\"operation_id\": \"op-5\", \"docs\": [{\"pos\": 0, \"url\": \"https://lock-a.ru/vrezka\", \"domain\": \"lock-a.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://lock-b.com/install/\", \"domain\": \"lock-b.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://www.Lock-C.ru/Zamki\", \"domain\": \"www.Lock-C.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://ubiq.example.com/x\", \"domain\": \"ubiq.example.com\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://lock-3.ru/own\", \"domain\": \"lock-3.ru\", \"title\": \"doc 4\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "защищённая фраза",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-6",
+       "raw_json": "{\"operation_id\": \"op-6\", \"docs\": [{\"pos\": 0, \"url\": \"https://lock-a.ru/vrezka\", \"domain\": \"lock-a.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://lock-b.com/install/\", \"domain\": \"lock-b.com\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://www.Lock-C.ru/Zamki\", \"domain\": \"www.Lock-C.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://lock-p.ru/a\", \"domain\": \"lock-p.ru\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://lock-p.ru/b\", \"domain\": \"lock-p.ru\", \"title\": \"doc 4\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "позиции сайта гугл",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-8",
+       "raw_json": "{\"operation_id\": \"op-8\", \"docs\": [{\"pos\": 0, \"url\": \"https://m-1.ru/x\", \"domain\": \"m-1.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://m-2.ru/y\", \"domain\": \"m-2.ru\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://yandex.ru/market\", \"domain\": \"yandex.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://pos-1.ru/a\", \"domain\": \"pos-1.ru\", \"title\": \"doc 3\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок механизм ключ",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-7",
+       "raw_json": "{\"operation_id\": \"op-7\", \"docs\": [{\"pos\": 0, \"url\": \"https://m-1.ru/x\", \"domain\": \"m-1.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://m-2.ru/y\", \"domain\": \"m-2.ru\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://lock-4.ru/a\", \"domain\": \"lock-4.ru\", \"title\": \"doc 2\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "одинокий единственный",
+       "region": "225",
+       "top": 5,
+       "state": "complete",
+       "operation_id": "op-9",
+       "raw_json": "{\"operation_id\": \"op-9\", \"docs\": [{\"pos\": 0, \"url\": \"https://solo-a.ru/x\", \"domain\": \"solo-a.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://solo-b.ru/y\", \"domain\": \"solo-b.ru\", \"title\": \"doc 1\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      }
+     ]
+    },
+    "files": {}
+   }
+  },
+  {
+   "name": "louvain",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/cluster-louvain-topmrahm",
+    "regions": [
+     "225"
+    ],
+    "serp_overlap": 3,
+    "rps": 5,
+    "louvain_resolution": 1.2
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [
+     [
+      "upsert",
+      "цепь альфа",
+      400,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "цепь альфа",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "цепь бета",
+      350,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "цепь бета",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "цепь гамма",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "цепь гамма",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "цепь дельта",
+      250,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "цепь дельта",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "одинокая цепь",
+      50,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "одинокая цепь",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {
+    "serp": {
+     "цепь альфа@225": {
+      "operation_id": "op-0",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://c1.ru/a",
+        "domain": "c1.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://c1.ru/b",
+        "domain": "c1.ru",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://c1.ru/c",
+        "domain": "c1.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://c1.ru/own",
+        "domain": "c1.ru",
+        "title": "doc 3"
+       }
+      ]
+     },
+     "цепь бета@225": {
+      "operation_id": "op-1",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://c1.ru/a",
+        "domain": "c1.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://c1.ru/b",
+        "domain": "c1.ru",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://c1.ru/c",
+        "domain": "c1.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://c2.ru/d",
+        "domain": "c2.ru",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://c2.ru/e",
+        "domain": "c2.ru",
+        "title": "doc 4"
+       },
+       {
+        "pos": 5,
+        "url": "https://c2.ru/f",
+        "domain": "c2.ru",
+        "title": "doc 5"
+       },
+       {
+        "pos": 6,
+        "url": "https://c2.ru/own",
+        "domain": "c2.ru",
+        "title": "doc 6"
+       }
+      ]
+     },
+     "цепь гамма@225": {
+      "operation_id": "op-2",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://c2.ru/d",
+        "domain": "c2.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://c2.ru/e",
+        "domain": "c2.ru",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://c2.ru/f",
+        "domain": "c2.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://c3.ru/g",
+        "domain": "c3.ru",
+        "title": "doc 3"
+       },
+       {
+        "pos": 4,
+        "url": "https://c3.ru/h",
+        "domain": "c3.ru",
+        "title": "doc 4"
+       },
+       {
+        "pos": 5,
+        "url": "https://c3.ru/i",
+        "domain": "c3.ru",
+        "title": "doc 5"
+       },
+       {
+        "pos": 6,
+        "url": "https://c3.ru/own",
+        "domain": "c3.ru",
+        "title": "doc 6"
+       }
+      ]
+     },
+     "цепь дельта@225": {
+      "operation_id": "op-3",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://c3.ru/g",
+        "domain": "c3.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://c3.ru/h",
+        "domain": "c3.ru",
+        "title": "doc 1"
+       },
+       {
+        "pos": 2,
+        "url": "https://c3.ru/i",
+        "domain": "c3.ru",
+        "title": "doc 2"
+       },
+       {
+        "pos": 3,
+        "url": "https://c4.ru/own",
+        "domain": "c4.ru",
+        "title": "doc 3"
+       }
+      ]
+     },
+     "одинокая цепь@225": {
+      "operation_id": "op-4",
+      "docs": [
+       {
+        "pos": 0,
+        "url": "https://c5.ru/only-a",
+        "domain": "c5.ru",
+        "title": "doc 0"
+       },
+       {
+        "pos": 1,
+        "url": "https://c5.ru/only-b",
+        "domain": "c5.ru",
+        "title": "doc 1"
+       }
+      ]
+     }
+    }
+   },
+   "args": {
+    "limit": 0,
+    "top": 10,
+    "method": "louvain"
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "clusters": 3,
+     "requests": 5,
+     "method": "louvain"
+    },
+    "calls": {
+     "serp": [
+      {
+       "queries": [
+        "цепь альфа",
+        "цепь бета",
+        "цепь гамма",
+        "цепь дельта",
+        "одинокая цепь"
+       ],
+       "region": "225",
+       "groups": 10
+      }
+     ]
+    },
+    "tables": {
+     "clusters": [
+      {
+       "id": 1,
+       "name": "цепь альфа",
+       "marker_norm": "цепь альфа",
+       "coherence": 0.375,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "louvain",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 2,
+       "name": "цепь гамма",
+       "marker_norm": "цепь гамма",
+       "coherence": 0.375,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "louvain",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 3,
+       "name": "одинокая цепь",
+       "marker_norm": "одинокая цепь",
+       "coherence": 1.0,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "louvain",
+       "page_types": null,
+       "level": null
+      }
+     ],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "цепь альфа",
+       "base": 400,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 1,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "цепь бета",
+       "base": 350,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 1,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "цепь гамма",
+       "base": 300,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "цепь дельта",
+       "base": 250,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 5,
+       "norm": "одинокая цепь",
+       "base": 50,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 3,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "cluster",
+       "n_requests": 5,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "SERP batch: complete=5, unresolved=0"
+      },
+      {
+       "id": 2,
+       "ts": "__ts__",
+       "stage": "cluster",
+       "n_requests": 0,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "method=louvain, clusters=3, SERP requests=5"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": [
+      {
+       "phrase_norm": "цепь альфа",
+       "pos": 0,
+       "url": "https://c1.ru/a",
+       "domain": "c1.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь альфа",
+       "pos": 1,
+       "url": "https://c1.ru/b",
+       "domain": "c1.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь альфа",
+       "pos": 2,
+       "url": "https://c1.ru/c",
+       "domain": "c1.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь альфа",
+       "pos": 3,
+       "url": "https://c1.ru/own",
+       "domain": "c1.ru",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь бета",
+       "pos": 0,
+       "url": "https://c1.ru/a",
+       "domain": "c1.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь бета",
+       "pos": 1,
+       "url": "https://c1.ru/b",
+       "domain": "c1.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь бета",
+       "pos": 2,
+       "url": "https://c1.ru/c",
+       "domain": "c1.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь бета",
+       "pos": 3,
+       "url": "https://c2.ru/d",
+       "domain": "c2.ru",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь бета",
+       "pos": 4,
+       "url": "https://c2.ru/e",
+       "domain": "c2.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь бета",
+       "pos": 5,
+       "url": "https://c2.ru/f",
+       "domain": "c2.ru",
+       "title": "doc 5",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь бета",
+       "pos": 6,
+       "url": "https://c2.ru/own",
+       "domain": "c2.ru",
+       "title": "doc 6",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь гамма",
+       "pos": 0,
+       "url": "https://c2.ru/d",
+       "domain": "c2.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь гамма",
+       "pos": 1,
+       "url": "https://c2.ru/e",
+       "domain": "c2.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь гамма",
+       "pos": 2,
+       "url": "https://c2.ru/f",
+       "domain": "c2.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь гамма",
+       "pos": 3,
+       "url": "https://c3.ru/g",
+       "domain": "c3.ru",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь гамма",
+       "pos": 4,
+       "url": "https://c3.ru/h",
+       "domain": "c3.ru",
+       "title": "doc 4",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь гамма",
+       "pos": 5,
+       "url": "https://c3.ru/i",
+       "domain": "c3.ru",
+       "title": "doc 5",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь гамма",
+       "pos": 6,
+       "url": "https://c3.ru/own",
+       "domain": "c3.ru",
+       "title": "doc 6",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь дельта",
+       "pos": 0,
+       "url": "https://c3.ru/g",
+       "domain": "c3.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь дельта",
+       "pos": 1,
+       "url": "https://c3.ru/h",
+       "domain": "c3.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь дельта",
+       "pos": 2,
+       "url": "https://c3.ru/i",
+       "domain": "c3.ru",
+       "title": "doc 2",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь дельта",
+       "pos": 3,
+       "url": "https://c4.ru/own",
+       "domain": "c4.ru",
+       "title": "doc 3",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "одинокая цепь",
+       "pos": 0,
+       "url": "https://c5.ru/only-a",
+       "domain": "c5.ru",
+       "title": "doc 0",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "одинокая цепь",
+       "pos": 1,
+       "url": "https://c5.ru/only-b",
+       "domain": "c5.ru",
+       "title": "doc 1",
+       "fetched_at": "__ts__"
+      }
+     ],
+     "serp_fetches": [
+      {
+       "phrase_norm": "цепь альфа",
+       "region": "225",
+       "top": 10,
+       "state": "complete",
+       "operation_id": "op-0",
+       "raw_json": "{\"operation_id\": \"op-0\", \"docs\": [{\"pos\": 0, \"url\": \"https://c1.ru/a\", \"domain\": \"c1.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://c1.ru/b\", \"domain\": \"c1.ru\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://c1.ru/c\", \"domain\": \"c1.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://c1.ru/own\", \"domain\": \"c1.ru\", \"title\": \"doc 3\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь бета",
+       "region": "225",
+       "top": 10,
+       "state": "complete",
+       "operation_id": "op-1",
+       "raw_json": "{\"operation_id\": \"op-1\", \"docs\": [{\"pos\": 0, \"url\": \"https://c1.ru/a\", \"domain\": \"c1.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://c1.ru/b\", \"domain\": \"c1.ru\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://c1.ru/c\", \"domain\": \"c1.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://c2.ru/d\", \"domain\": \"c2.ru\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://c2.ru/e\", \"domain\": \"c2.ru\", \"title\": \"doc 4\"}, {\"pos\": 5, \"url\": \"https://c2.ru/f\", \"domain\": \"c2.ru\", \"title\": \"doc 5\"}, {\"pos\": 6, \"url\": \"https://c2.ru/own\", \"domain\": \"c2.ru\", \"title\": \"doc 6\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь гамма",
+       "region": "225",
+       "top": 10,
+       "state": "complete",
+       "operation_id": "op-2",
+       "raw_json": "{\"operation_id\": \"op-2\", \"docs\": [{\"pos\": 0, \"url\": \"https://c2.ru/d\", \"domain\": \"c2.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://c2.ru/e\", \"domain\": \"c2.ru\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://c2.ru/f\", \"domain\": \"c2.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://c3.ru/g\", \"domain\": \"c3.ru\", \"title\": \"doc 3\"}, {\"pos\": 4, \"url\": \"https://c3.ru/h\", \"domain\": \"c3.ru\", \"title\": \"doc 4\"}, {\"pos\": 5, \"url\": \"https://c3.ru/i\", \"domain\": \"c3.ru\", \"title\": \"doc 5\"}, {\"pos\": 6, \"url\": \"https://c3.ru/own\", \"domain\": \"c3.ru\", \"title\": \"doc 6\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "цепь дельта",
+       "region": "225",
+       "top": 10,
+       "state": "complete",
+       "operation_id": "op-3",
+       "raw_json": "{\"operation_id\": \"op-3\", \"docs\": [{\"pos\": 0, \"url\": \"https://c3.ru/g\", \"domain\": \"c3.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://c3.ru/h\", \"domain\": \"c3.ru\", \"title\": \"doc 1\"}, {\"pos\": 2, \"url\": \"https://c3.ru/i\", \"domain\": \"c3.ru\", \"title\": \"doc 2\"}, {\"pos\": 3, \"url\": \"https://c4.ru/own\", \"domain\": \"c4.ru\", \"title\": \"doc 3\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "одинокая цепь",
+       "region": "225",
+       "top": 10,
+       "state": "complete",
+       "operation_id": "op-4",
+       "raw_json": "{\"operation_id\": \"op-4\", \"docs\": [{\"pos\": 0, \"url\": \"https://c5.ru/only-a\", \"domain\": \"c5.ru\", \"title\": \"doc 0\"}, {\"pos\": 1, \"url\": \"https://c5.ru/only-b\", \"domain\": \"c5.ru\", \"title\": \"doc 1\"}]}",
+       "error": null,
+       "fetched_at": "__ts__"
+      }
+     ]
+    },
+    "files": {}
+   }
+  },
+  {
+   "name": "unresolved",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/cluster-unresolved-opqpq95i",
+    "regions": [
+     "225"
+    ],
+    "serp_overlap": 3,
+    "rps": 5
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [
+     [
+      "upsert",
+      "сбойная операция",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "сбойная операция",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "отклонённая операция",
+      290,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "отклонённая операция",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "upsert",
+      "потерянная операция",
+      280,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "потерянная операция",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {
+    "serp": {
+     "сбойная операция@225": {
+      "operation_id": "op-e",
+      "error": "gateway timeout"
+     },
+     "отклонённая операция@225": {
+      "status": "rejected",
+      "operation_id": "op-r"
+     },
+     "потерянная операция@225": null
+    }
+   },
+   "args": {
+    "limit": 0,
+    "top": 5,
+    "method": "serp"
+   },
+   "files": {},
+   "expect": {
+    "result": null,
+    "error": "SERP batch incomplete; retained receipts must be recovered before retrying",
+    "calls": {
+     "serp": [
+      {
+       "queries": [
+        "сбойная операция",
+        "отклонённая операция",
+        "потерянная операция"
+       ],
+       "region": "225",
+       "groups": 5
+      }
+     ]
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "сбойная операция",
+       "base": 300,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "отклонённая операция",
+       "base": 290,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "потерянная операция",
+       "base": 280,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "cluster",
+       "n_requests": 1,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "SERP batch: complete=0, unresolved=3"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": [],
+     "serp_fetches": [
+      {
+       "phrase_norm": "сбойная операция",
+       "region": "225",
+       "top": 5,
+       "state": "pending",
+       "operation_id": "op-e",
+       "raw_json": "{\"operation_id\": \"op-e\", \"error\": \"gateway timeout\"}",
+       "error": "gateway timeout",
+       "fetched_at": null
+      },
+      {
+       "phrase_norm": "потерянная операция",
+       "region": "225",
+       "top": 5,
+       "state": "pending",
+       "operation_id": null,
+       "raw_json": "null",
+       "error": null,
+       "fetched_at": null
+      }
+     ]
+    },
+    "files": {}
+   }
+  },
+  {
+   "name": "empty",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/cluster-empty-ku_tfjs8",
+    "regions": [
+     "225"
+    ]
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {}
+   },
+   "providers": {},
+   "args": {
+    "limit": 0,
+    "top": 10,
+    "method": "serp"
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "clusters": 0
+    },
+    "calls": {},
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  }
+ ]
+}

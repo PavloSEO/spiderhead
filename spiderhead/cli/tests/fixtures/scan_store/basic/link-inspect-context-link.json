@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-link-inspect\n",
+    "stdout": "{\n  \"ok\": true,\n  \"view\": \"context\",\n  \"schema_version\": \"link_occurrence_context.v1\",\n  \"link_id\": 1,\n  \"source_url_id\": 1,\n  \"destination_url_id\": 2,\n  \"source_document_id\": 1,\n  \"representation\": \"static\",\n  \"ordinal\": 0,\n  \"source_url\": \"http://127.0.0.1:{PORT}/\",\n  \"destination_url\": \"http://127.0.0.1:{PORT}/about.html\",\n  \"anchor\": \"About\",\n  \"nofollow\": false,\n  \"raw_href\": null,\n  \"stored_position\": null,\n  \"state\": \"measured\",\n  \"reason\": \"\",\n  \"placement\": {\n    \"position\": \"nav\",\n    \"basis\": \"matched_selector\",\n    \"matched_selector\": \"nav, [role='navigation'], .nav, .navbar, .menu, .main-menu, .primary-menu\",\n    \"matched_selector_truncated\": false,\n    \"content_root_strategy\": \"auto_main\",\n    \"dom_path\": \"body:nth-of-type(1) > main:nth-of-type(1) > nav:nth-of-type(1) > a:nth-of-type(1)\",\n    \"dom_path_truncated\": false,\n    \"stored_position\": null\n  },\n  \"heading\": null,\n  \"heading_relation\": \"not_content_link\",\n  \"disclosure\": null,\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 10,\n  \"document_coverage\": {\n    \"state\": \"complete\",\n    \"reason\": \"\",\n    \"eligible_total\": 10,\n    \"eligible_omitted\": 0\n  },\n  \"validation\": \"light\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"view\": \"context\",\n  \"schema_version\": \"link_occurrence_context.v1\",\n  \"link_id\": 1,\n  \"source_url_id\": 1,\n  \"destination_url_id\": 2,\n  \"source_document_id\": 1,\n  \"representation\": \"static\",\n  \"ordinal\": 0,\n  \"source_url\": \"http://127.0.0.1:{PORT}/\",\n  \"destination_url\": \"http://127.0.0.1:{PORT}/about.html\",\n  \"anchor\": \"About\",\n  \"nofollow\": false,\n  \"raw_href\": null,\n  \"stored_position\": null,\n  \"state\": \"measured\",\n  \"reason\": \"\",\n  \"placement\": {\n    \"position\": \"nav\",\n    \"basis\": \"matched_selector\",\n    \"matched_selector\": \"nav, [role='navigation'], .nav, .navbar, .menu, .main-menu, .primary-menu\",\n    \"matched_selector_truncated\": false,\n    \"content_root_strategy\": \"auto_main\",\n    \"dom_path\": \"body:nth-of-type(1) > main:nth-of-type(1) > nav:nth-of-type(1) > a:nth-of-type(1)\",\n    \"dom_path_truncated\": false,\n    \"stored_position\": null\n  },\n  \"heading\": null,\n  \"heading_relation\": \"not_content_link\",\n  \"disclosure\": null,\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 10,\n  \"document_coverage\": {\n    \"state\": \"complete\",\n    \"reason\": \"\",\n    \"eligible_total\": 10,\n    \"eligible_omitted\": 0\n  },\n  \"validation\": \"light\"\n}"
+   }
+  ]
+ }
+}

@@ -1,0 +1,11 @@
+Address,Content Type,Status Code,Status,Indexability,Indexability Status,Title 1,Title 1 Length,Meta Description 1,H1-1,H1-2,H2-1,Word Count,Text Ratio,Size (bytes),Inlinks,Unique Inlinks,Outlinks,External Outlinks,Crawl Depth,Response Time,Canonical Link Element 1,Meta Robots 1,Link Score,Redirect URL,Redirect Type
+https://a.test/,text/html,200,OK,Indexable,,Home,4,desc,Home,,Sub,1200,12.5,4096,12,9,8,2,0,0.12,https://a.test/,,9.1,,
+https://a.test/x,text/html,301,Moved Permanently,Non-Indexable,Redirect URL,,0,,,,,0,,512,3,2,1,0,1,0.05,,,1.0,https://a.test/x/,HTTP Redirect
+https://a.test/x/,text/html,200,OK,Indexable,,X page,6,dx,X,,,800,10.1,2048,5,4,6,1,1,0.09,https://a.test/x/,,7.2,,
+https://a.test/miss,text/html,200,OK,Indexable,,,0,,NoTitle,,H2only,300,9.0,1024,0,0,4,0,2,0.20,https://a.test/miss,,3.3,,
+https://a.test/img.png,image/png,200,OK,Indexable,,,,,,,,,20480,1,1,0,0,3,0.03,,,0.1,,
+https://a.test/noindex,text/html,200,OK,Non-Indexable,noindex,Hidden,6,,Hidden,,,400,8.8,1024,0,0,2,0,2,0.11,,noindex,2.0,,
+https://a.test/five,text/html,500,Server Error,Non-Indexable,Server Error,,0,,,,,0,,900,0,0,1,0,2,0.30,,,0.2,,
+https://a.test/dup,text/html,200,OK,Indexable,,First,5,,First,,,100,1.0,100,0,0,0,0,4,0.10,,,1.1,,
+https://a.test/dup,text/html,200,OK,Indexable,,Second,6,,Second,,,100,1.0,100,0,0,0,0,4,0.10,,,1.1,,
+,text/html,200,OK,Indexable,,Ghost,5,,Ghost,,,100,1.0,100,0,0,0,0,4,0.10,,,1.1,,

@@ -1,0 +1,30 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-pin\n",
+    "stdout": "{\n  \"input\": \"<WORK>/scan.sqlite\",\n  \"pinned\": true\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-pin\n",
+    "stdout": "{\n  \"input\": \"<WORK>/scan.sqlite\",\n  \"pinned\": false\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"input\": \"<WORK>/scan.sqlite\",\n  \"pinned\": true\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"input\": \"<WORK>/scan.sqlite\",\n  \"pinned\": false\n}"
+   }
+  ]
+ }
+}

@@ -1,0 +1,8 @@
+{
+ "arguments": {
+  "url": "{BASE}/missing-sitemap.xml"
+ },
+ "is_error": true,
+ "text": "Error executing tool seo_sitemap_crawl: {\"ok\": false, \"root\": \"{BASE}/missing-sitemap.xml\", \"count\": 0, \"urls\": [], \"sitemaps\": [], \"duplicates\": [], \"duplicate_sources\": {}, \"errors\": [{\"url\": \"{BASE}/missing-sitemap.xml\", \"error\": \"HTTP 404\"}], \"truncated\": false, \"loc_entries\": 0, \"image_entries\": 0, \"news_entries\": 0, \"video_entries\": 0}",
+ "tool": "seo_sitemap_crawl"
+}

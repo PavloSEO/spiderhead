@@ -1,0 +1,131 @@
+{
+ "cdn_signatures": [
+  [
+   "Cloudflare",
+   "header",
+   "cf-ray"
+  ],
+  [
+   "Cloudflare",
+   "server",
+   "cloudflare"
+  ],
+  [
+   "Fastly",
+   "header",
+   "x-fastly-request-id"
+  ],
+  [
+   "Fastly",
+   "value",
+   "fastly"
+  ],
+  [
+   "Akamai",
+   "header",
+   "x-akamai-transformed"
+  ],
+  [
+   "Akamai",
+   "server",
+   "akamaighost"
+  ],
+  [
+   "Amazon CloudFront",
+   "header",
+   "x-amz-cf-id"
+  ],
+  [
+   "Vercel",
+   "header",
+   "x-vercel-id"
+  ],
+  [
+   "Netlify",
+   "header",
+   "x-nf-request-id"
+  ],
+  [
+   "Imperva Incapsula",
+   "header",
+   "x-iinfo"
+  ],
+  [
+   "Sucuri",
+   "header",
+   "x-sucuri-id"
+  ],
+  [
+   "BunnyCDN",
+   "server",
+   "bunnycdn"
+  ],
+  [
+   "KeyCDN",
+   "server",
+   "keycdn-engine"
+  ],
+  [
+   "Gcore",
+   "server",
+   "gcore"
+  ],
+  [
+   "Qrator",
+   "server",
+   "qrator"
+  ],
+  [
+   "DDoS-Guard",
+   "server",
+   "ddos-guard"
+  ],
+  [
+   "Azure CDN",
+   "header",
+   "x-azure-ref"
+  ],
+  [
+   "Alibaba Cloud CDN",
+   "header",
+   "x-swift-savetime"
+  ],
+  [
+   "Yandex Cloud CDN",
+   "header",
+   "x-yandex-req-id"
+  ],
+  [
+   "Google Cloud CDN",
+   "value",
+   "1.1 google"
+  ],
+  [
+   "StackPath",
+   "header",
+   "x-hw"
+  ]
+ ],
+ "cache_status_headers": [
+  "cf-cache-status",
+  "x-cache",
+  "x-cache-status",
+  "x-proxy-cache",
+  "x-vercel-cache",
+  "cdn-cache",
+  "x-served-by",
+  "x-drupal-cache"
+ ],
+ "hit_words": [
+  "hit",
+  "stale",
+  "revalidated"
+ ],
+ "miss_words": [
+  "miss",
+  "expired",
+  "bypass",
+  "dynamic",
+  "none"
+ ]
+}

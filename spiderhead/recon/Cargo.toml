@@ -1,0 +1,23 @@
+[package]
+name = "spiderhead-recon"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead recon (domain and infrastructure reconnaissance)."
+
+[dependencies]
+spiderhead-core.workspace = true
+spiderhead-parse.workspace = true
+spiderhead-checks.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+url.workspace = true
+regex.workspace = true
+fancy-regex.workspace = true
+scraper.workspace = true
+idna.workspace = true
+indexmap.workspace = true
+csv.workspace = true
+encoding_rs.workspace = true
+reqwest = { workspace = true, features = ["blocking", "cookies", "json"] }

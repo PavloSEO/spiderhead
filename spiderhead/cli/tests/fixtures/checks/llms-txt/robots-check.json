@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "robots-check",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "robots-check",
+ "exit": 0,
+ "stderr": "seohead: robots-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"robots_url\": \"{BASE}/robots.txt\",\n  \"status_code\": 404,\n  \"exists\": false,\n  \"groups\": [],\n  \"sitemaps\": [],\n  \"note\": \"no robots.txt (crawl allowed)\"\n}\n"
+}

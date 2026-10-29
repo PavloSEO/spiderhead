@@ -1,0 +1,11 @@
+[site]
+start = "/"
+description = "robots.txt and llms.txt answered with server errors (unmeasured checks)"
+
+[[route]]
+path = "/robots.txt"
+status = 500
+
+[[route]]
+path = "/llms.txt"
+status = 500

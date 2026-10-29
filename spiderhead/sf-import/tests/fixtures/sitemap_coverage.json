@@ -1,0 +1,4704 @@
+{
+ "parse": [
+  {
+   "name": "nested-2-level",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2luZGV4LWEueG1sPC9sb2M+PC9zaXRlbWFwPjxzaXRlbWFwPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS9pbmRleC1iLnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+   "source": "",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {
+    "https://example.com/index-a.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2EtMS54bWw8L2xvYz48L3NpdGVtYXA+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2EtMi54bWw8L2xvYz48L3NpdGVtYXA+PC9zaXRlbWFwaW5kZXg+",
+    "https://example.com/index-b.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2ItMS54bWw8L2xvYz48L3NpdGVtYXA+PC9zaXRlbWFwaW5kZXg+",
+    "https://example.com/a-1.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYS8xPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48dXJsPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS9hLzI8L2xvYz48bGFzdG1vZD4yMDI1LTAxLTAxPC9sYXN0bW9kPjwvdXJsPjwvdXJsc2V0Pg==",
+    "https://example.com/a-2.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYS8zPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48L3VybHNldD4=",
+    "https://example.com/b-1.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYi8xPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48L3VybHNldD4="
+   },
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/a/1",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/a-1.xml"
+     },
+     {
+      "loc": "https://example.com/a/2",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/a-1.xml"
+     },
+     {
+      "loc": "https://example.com/a/3",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/a-2.xml"
+     },
+     {
+      "loc": "https://example.com/b/1",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/b-1.xml"
+     }
+    ],
+    "failures": [],
+    "documents": [
+     {
+      "url": "https://example.com/a-1.xml",
+      "bytes": 217,
+      "declared": 2
+     },
+     {
+      "url": "https://example.com/a-2.xml",
+      "bytes": 143,
+      "declared": 1
+     },
+     {
+      "url": "https://example.com/b-1.xml",
+      "bytes": 143,
+      "declared": 1
+     }
+    ],
+    "truncated": [],
+    "calls": [
+     "https://example.com/index-a.xml",
+     "https://example.com/a-1.xml",
+     "https://example.com/a-2.xml",
+     "https://example.com/index-b.xml",
+     "https://example.com/b-1.xml"
+    ]
+   }
+  },
+  {
+   "name": "failed-child",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2EueG1sPC9sb2M+PC9zaXRlbWFwPjxzaXRlbWFwPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS9iLnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+   "source": "",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {
+    "https://example.com/a.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vMTwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/1",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/a.xml"
+     }
+    ],
+    "failures": [
+     "https://example.com/b.xml"
+    ],
+    "documents": [
+     {
+      "url": "https://example.com/a.xml",
+      "bytes": 141,
+      "declared": 1
+     }
+    ],
+    "truncated": [],
+    "calls": [
+     "https://example.com/a.xml",
+     "https://example.com/b.xml"
+    ]
+   }
+  },
+  {
+   "name": "ssrf-foreign-host",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2NoaWxkLnhtbDwvbG9jPjwvc2l0ZW1hcD48c2l0ZW1hcD48bG9jPmh0dHBzOi8vZXhhbXBsZS5vcmcvY2hpbGQueG1sPC9sb2M+PC9zaXRlbWFwPjwvc2l0ZW1hcGluZGV4Pg==",
+   "source": "",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {
+    "https://example.com/child.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vb2s8L2xvYz48bGFzdG1vZD4yMDI1LTAxLTAxPC9sYXN0bW9kPjwvdXJsPjwvdXJsc2V0Pg==",
+    "https://example.org/child.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5vcmcveDwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/ok",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/child.xml"
+     }
+    ],
+    "failures": [],
+    "documents": [
+     {
+      "url": "https://example.com/child.xml",
+      "bytes": 142,
+      "declared": 1
+     }
+    ],
+    "truncated": [],
+    "calls": [
+     "https://example.com/child.xml"
+    ]
+   }
+  },
+  {
+   "name": "xxe-doctype",
+   "data": "PD94bWwgdmVyc2lvbj0iMS4wIj8+PCFET0NUWVBFIHIgWzwhRU5USVRZIGUgU1lTVEVNICJmaWxlOi8vL2V0Yy9wYXNzd2QiPl0+PHVybHNldD48dXJsPjxsb2M+JmU7PC9sb2M+PC91cmw+PC91cmxzZXQ+",
+   "source": "https://example.com/s.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {},
+   "expect": {
+    "entries": [],
+    "failures": [
+     "https://example.com/s.xml"
+    ],
+    "documents": [],
+    "truncated": [],
+    "calls": []
+   }
+  },
+  {
+   "name": "parse-error-amp",
+   "data": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYT94PTEmeT0yPC9sb2M+PC91cmw+PC91cmxzZXQ+",
+   "source": "https://example.com/sitemap.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {},
+   "expect": {
+    "entries": [],
+    "failures": [
+     "https://example.com/sitemap.xml"
+    ],
+    "documents": [],
+    "truncated": [],
+    "calls": []
+   }
+  },
+  {
+   "name": "depth-cap",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2wyLnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+   "source": "https://example.com/l1.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {
+    "https://example.com/l6.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2xlYWYueG1sPC9sb2M+PC9zaXRlbWFwPjwvc2l0ZW1hcGluZGV4Pg==",
+    "https://example.com/l5.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2w2LnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+    "https://example.com/l4.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2w1LnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+    "https://example.com/l3.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2w0LnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+    "https://example.com/l2.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2wzLnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+    "https://example.com/l1.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2wyLnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+    "https://example.com/leaf.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vZGVlcDwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "expect": {
+    "entries": [],
+    "failures": [],
+    "documents": [],
+    "truncated": [
+     "https://example.com/l6.xml"
+    ],
+    "calls": [
+     "https://example.com/l2.xml",
+     "https://example.com/l3.xml",
+     "https://example.com/l4.xml",
+     "https://example.com/l5.xml",
+     "https://example.com/l6.xml"
+    ]
+   }
+  },
+  {
+   "name": "url-cap-index",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2EueG1sPC9sb2M+PC9zaXRlbWFwPjxzaXRlbWFwPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS9iLnhtbDwvbG9jPjwvc2l0ZW1hcD48c2l0ZW1hcD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYy54bWw8L2xvYz48L3NpdGVtYXA+PC9zaXRlbWFwaW5kZXg+",
+   "source": "https://example.com/index.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": 3,
+   "seen": [],
+   "fetch": {
+    "https://example.com/a.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vMTwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vMjwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+",
+    "https://example.com/b.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vMzwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+",
+    "https://example.com/c.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vNDwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/1",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/a.xml"
+     },
+     {
+      "loc": "https://example.com/2",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/a.xml"
+     },
+     {
+      "loc": "https://example.com/3",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/b.xml"
+     }
+    ],
+    "failures": [],
+    "documents": [
+     {
+      "url": "https://example.com/a.xml",
+      "bytes": 213,
+      "declared": 2
+     },
+     {
+      "url": "https://example.com/b.xml",
+      "bytes": 141,
+      "declared": 1
+     }
+    ],
+    "truncated": [
+     "https://example.com/c.xml"
+    ],
+    "calls": [
+     "https://example.com/a.xml",
+     "https://example.com/b.xml"
+    ]
+   }
+  },
+  {
+   "name": "relative-index",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5wYXJ0cy91cmxzLnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+   "source": "https://example.com/sitemaps/index.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {
+    "https://example.com/sitemaps/parts/urls.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPi4uL3AxPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48dXJsPjxsb2M+L3AyPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48L3VybHNldD4="
+   },
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/sitemaps/p1",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/sitemaps/parts/urls.xml"
+     },
+     {
+      "loc": "https://example.com/p2",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/sitemaps/parts/urls.xml"
+     }
+    ],
+    "failures": [],
+    "documents": [
+     {
+      "url": "https://example.com/sitemaps/parts/urls.xml",
+      "bytes": 179,
+      "declared": 2
+     }
+    ],
+    "truncated": [],
+    "calls": [
+     "https://example.com/sitemaps/parts/urls.xml"
+    ]
+   }
+  },
+  {
+   "name": "dup-and-self-child",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL3gueG1sPC9sb2M+PC9zaXRlbWFwPjxzaXRlbWFwPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS94LnhtbDwvbG9jPjwvc2l0ZW1hcD48c2l0ZW1hcD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vc2VsZi54bWw8L2xvYz48L3NpdGVtYXA+PC9zaXRlbWFwaW5kZXg+",
+   "source": "https://example.com/self.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [
+    "https://example.com/self.xml"
+   ],
+   "fetch": {
+    "https://example.com/x.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vMTwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/1",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/x.xml"
+     }
+    ],
+    "failures": [],
+    "documents": [
+     {
+      "url": "https://example.com/x.xml",
+      "bytes": 141,
+      "declared": 1
+     }
+    ],
+    "truncated": [],
+    "calls": [
+     "https://example.com/x.xml"
+    ]
+   }
+  },
+  {
+   "name": "missing-locs",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PC9zaXRlbWFwPjxzaXRlbWFwPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS9hLnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+   "source": "https://example.com/index.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {
+    "https://example.com/a.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48L3VybD48dXJsPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS8xPC9sb2M+PC91cmw+PC91cmxzZXQ+"
+   },
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/1",
+      "lastmod": null,
+      "source": "https://example.com/a.xml"
+     }
+    ],
+    "failures": [],
+    "documents": [
+     {
+      "url": "https://example.com/a.xml",
+      "bytes": 123,
+      "declared": 2
+     }
+    ],
+    "truncated": [],
+    "calls": [
+     "https://example.com/a.xml"
+    ]
+   }
+  },
+  {
+   "name": "urlset-details",
+   "data": "77u/PD94bWwgdmVyc2lvbj0iMS4wIj8+PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSIgeG1sbnM6aW1hZ2U9Imh0dHA6Ly93d3cuZ29vZ2xlLmNvbS9zY2hlbWFzL3NpdGVtYXAtaW1hZ2UvMS4xIj48IS0tIGMgLS0+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYT94PTEmYW1wO3k9MjwvbG9jPjxsYXN0bW9kPjIwMjUtMDItMDM8L2xhc3Rtb2Q+PGltYWdlOmltYWdlPjxpbWFnZTpsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS9pLnBuZzwvaW1hZ2U6bG9jPjwvaW1hZ2U6aW1hZ2U+PC91cmw+PHVybD48bG9jPjwhW0NEQVRBW2h0dHBzOi8vZXhhbXBsZS5jb20vYl1dPjwvbG9jPjwvdXJsPjxvdGhlci8+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYzwvbG9jPjwvdXJsPjwvdXJsc2V0Pg==",
+   "source": "https://example.com/sitemap.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {},
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/a?x=1&y=2",
+      "lastmod": "2025-02-03",
+      "source": "https://example.com/sitemap.xml",
+      "image_entries": 1
+     },
+     {
+      "loc": "https://example.com/b",
+      "lastmod": null,
+      "source": "https://example.com/sitemap.xml"
+     },
+     {
+      "loc": "https://example.com/c",
+      "lastmod": null,
+      "source": "https://example.com/sitemap.xml"
+     }
+    ],
+    "failures": [],
+    "documents": [
+     {
+      "url": "https://example.com/sitemap.xml",
+      "bytes": 430,
+      "declared": 3
+     }
+    ],
+    "truncated": [],
+    "calls": []
+   }
+  },
+  {
+   "name": "garbage",
+   "data": "dGhpcyBpcyBub3QgeG1sIGF0IGFsbCA8PDw=",
+   "source": "https://example.com/sitemap.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {},
+   "expect": {
+    "entries": [],
+    "failures": [
+     "https://example.com/sitemap.xml"
+    ],
+    "documents": [],
+    "truncated": [],
+    "calls": []
+   }
+  },
+  {
+   "name": "empty-documents-not-recorded-for-index",
+   "data": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2EueG1sPC9sb2M+PC9zaXRlbWFwPjwvc2l0ZW1hcGluZGV4Pg==",
+   "source": "https://example.com/index.xml",
+   "allowed_hosts": [
+    "example.com"
+   ],
+   "max_urls": null,
+   "seen": [],
+   "fetch": {
+    "https://example.com/a.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vMTwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "expect": {
+    "entries": [
+     {
+      "loc": "https://example.com/1",
+      "lastmod": "2025-01-01",
+      "source": "https://example.com/a.xml"
+     }
+    ],
+    "failures": [],
+    "documents": [
+     {
+      "url": "https://example.com/a.xml",
+      "bytes": 141,
+      "declared": 1
+     }
+    ],
+    "truncated": [],
+    "calls": [
+     "https://example.com/a.xml"
+    ]
+   }
+  }
+ ],
+ "run": [
+  {
+   "name": "broken-sitemap",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgo=",
+    "https://example.com/sitemap.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYT94PTEmeT0yPC9sb2M+PC91cmw+PC91cmxzZXQ+"
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "sitemap_fetch_failures": [
+      "https://example.com/sitemap.xml"
+     ],
+     "declared_in_robots": false,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 0,
+     "urls_in_crawl_indexable": 1,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_NOT_IN_ROBOTS",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "robots.txt does not declare a Sitemap directive",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {},
+      "group_id": null,
+      "fix_hint": "Add a Sitemap directive to robots.txt with the absolute sitemap URL.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_FETCH_INCOMPLETE",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Some child sitemaps could not be fetched or parsed",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "failed_count": 1,
+       "examples": [
+        "https://example.com/sitemap.xml"
+       ],
+       "depth_truncated_count": 0,
+       "depth_truncated_examples": [],
+       "max_depth": 5
+      },
+      "group_id": null,
+      "fix_hint": "Check that every child sitemap is reachable, retry in case the service was temporarily slow, and validate the XML -- a 200 response with malformed markup (e.g. an unescaped '&' in a URL) fails here the same way a network error does.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [
+     {
+      "id": "SITEMAP_TOO_MANY_URLS",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_TOO_LARGE",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_URL_DUPLICATED",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_STALE_LASTMOD",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_DESYNC",
+      "reason": "sitemap fetch/parse failed for all 1 attempted document(s): ['https://example.com/sitemap.xml']"
+     }
+    ],
+    "pages_in_sitemap": {
+     "https://example.com/a": null
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "relative-index-run",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgo=",
+    "https://example.com/sitemaps/index.xml": "PHNpdGVtYXBpbmRleCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHNpdGVtYXA+PGxvYz5wYXJ0cy91cmxzLnhtbDwvbG9jPjwvc2l0ZW1hcD48L3NpdGVtYXBpbmRleD4=",
+    "https://example.com/sitemaps/parts/urls.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPi4uL3JlbGF0aXZlLXBhZ2U8L2xvYz48bGFzdG1vZD4yMDI1LTAxLTAxPC9sYXN0bW9kPjwvdXJsPjx1cmw+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL2Fic29sdXRlLXBhZ2U8L2xvYz48bGFzdG1vZD4yMDI1LTAxLTAxPC9sYXN0bW9kPjwvdXJsPjwvdXJsc2V0Pg=="
+   },
+   "sitemap_url": "https://example.com/sitemaps/index.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "lastmod": {
+      "oldest": "2025-01-01",
+      "median": "2025-01-01",
+      "newest": "2025-01-01",
+      "share_older_than_threshold": 1.0,
+      "threshold_days": 365,
+      "all_identical": true,
+      "invalid_count": 0,
+      "future_count": 0
+     },
+     "declared_in_robots": false,
+     "sitemaps": [
+      "https://example.com/sitemaps/index.xml"
+     ],
+     "urls_in_sitemap": 2,
+     "urls_in_crawl_indexable": 2,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0,
+     "in_sitemap_and_linked": [
+      "https://example.com/absolute-page",
+      "https://example.com/sitemaps/relative-page"
+     ],
+     "in_sitemap_not_linked": [],
+     "linked_not_in_sitemap": []
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_NOT_IN_ROBOTS",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "robots.txt does not declare a Sitemap directive",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {},
+      "group_id": null,
+      "fix_hint": "Add a Sitemap directive to robots.txt with the absolute sitemap URL.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_STALE_LASTMOD",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Sitemap contains stale or boilerplate lastmod values",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "oldest": "2025-01-01",
+       "median": "2025-01-01",
+       "newest": "2025-01-01",
+       "share_older_than_threshold": 1.0,
+       "threshold_days": 365,
+       "all_identical": true,
+       "invalid_count": 0,
+       "future_count": 0
+      },
+      "group_id": null,
+      "fix_hint": "Generate each lastmod value from the page's actual meaningful modification date.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [],
+    "pages_in_sitemap": {
+     "https://example.com/sitemaps/relative-page": true,
+     "https://example.com/absolute-page": true
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemaps/index.xml",
+     "https://example.com/sitemaps/parts/urls.xml"
+    ]
+   }
+  },
+  {
+   "name": "zero-urls",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgo=",
+    "https://example.com/sitemap.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PC91cmxzZXQ+"
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "declared_in_robots": false,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 0,
+     "urls_in_crawl_indexable": 1,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_NOT_IN_ROBOTS",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "robots.txt does not declare a Sitemap directive",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {},
+      "group_id": null,
+      "fix_hint": "Add a Sitemap directive to robots.txt with the absolute sitemap URL.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [
+     {
+      "id": "SITEMAP_URL_DUPLICATED",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_STALE_LASTMOD",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_DESYNC",
+      "reason": "sitemap fetched but declared zero URLs"
+     }
+    ],
+    "pages_in_sitemap": {
+     "https://example.com/": null
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "partial-crawl",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgpTaXRlbWFwOiBodHRwczovL2V4YW1wbGUuY29tL3NpdGVtYXAueG1sCg==",
+    "https://example.com/sitemap.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYTwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYjwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYzwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": true,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "lastmod": {
+      "oldest": "2025-01-01",
+      "median": "2025-01-01",
+      "newest": "2025-01-01",
+      "share_older_than_threshold": 1.0,
+      "threshold_days": 365,
+      "all_identical": true,
+      "invalid_count": 0,
+      "future_count": 0
+     },
+     "declared_in_robots": true,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 3,
+     "urls_in_crawl_indexable": 1,
+     "in_sitemap_not_in_crawl": 3,
+     "in_crawl_not_in_sitemap": 1,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0,
+     "in_sitemap_and_linked": [],
+     "in_sitemap_not_linked": [
+      "https://example.com/a",
+      "https://example.com/b",
+      "https://example.com/c"
+     ],
+     "linked_not_in_sitemap": [
+      "https://example.com/"
+     ]
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_STALE_LASTMOD",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Sitemap contains stale or boilerplate lastmod values",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "oldest": "2025-01-01",
+       "median": "2025-01-01",
+       "newest": "2025-01-01",
+       "share_older_than_threshold": 1.0,
+       "threshold_days": 365,
+       "all_identical": true,
+       "invalid_count": 0,
+       "future_count": 0
+      },
+      "group_id": null,
+      "fix_hint": "Generate each lastmod value from the page's actual meaningful modification date.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [
+     {
+      "id": "SITEMAP_DESYNC",
+      "reason": "crawl is partial: a sitemap-versus-link-graph verdict cannot be proven when the crawl did not reach every URL"
+     }
+    ],
+    "pages_in_sitemap": {
+     "https://example.com/": false
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "complete-crawl-desync",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgpTaXRlbWFwOiBodHRwczovL2V4YW1wbGUuY29tL3NpdGVtYXAueG1sCg==",
+    "https://example.com/sitemap.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYTwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYjwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYzwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "lastmod": {
+      "oldest": "2025-01-01",
+      "median": "2025-01-01",
+      "newest": "2025-01-01",
+      "share_older_than_threshold": 1.0,
+      "threshold_days": 365,
+      "all_identical": true,
+      "invalid_count": 0,
+      "future_count": 0
+     },
+     "declared_in_robots": true,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 3,
+     "urls_in_crawl_indexable": 1,
+     "in_sitemap_not_in_crawl": 3,
+     "in_crawl_not_in_sitemap": 1,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0,
+     "in_sitemap_and_linked": [],
+     "in_sitemap_not_linked": [
+      "https://example.com/a",
+      "https://example.com/b",
+      "https://example.com/c"
+     ],
+     "linked_not_in_sitemap": [
+      "https://example.com/"
+     ]
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_STALE_LASTMOD",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Sitemap contains stale or boilerplate lastmod values",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "oldest": "2025-01-01",
+       "median": "2025-01-01",
+       "newest": "2025-01-01",
+       "share_older_than_threshold": 1.0,
+       "threshold_days": 365,
+       "all_identical": true,
+       "invalid_count": 0,
+       "future_count": 0
+      },
+      "group_id": null,
+      "fix_hint": "Generate each lastmod value from the page's actual meaningful modification date.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_DESYNC",
+      "severity": "warning",
+      "source": "sitemap",
+      "message": "Sitemap and crawl URL sets are out of sync",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_crawl_not_in_sitemap": 1,
+       "in_sitemap_not_in_crawl": 3,
+       "crawl_not_in_sitemap_pct": 100.0,
+       "sitemap_not_in_crawl_pct": 100.0,
+       "examples_missing_from_sitemap": [
+        "https://example.com/"
+       ],
+       "examples_in_sitemap_not_crawled": [
+        "https://example.com/a",
+        "https://example.com/b",
+        "https://example.com/c"
+       ]
+      },
+      "group_id": null,
+      "fix_hint": "Synchronize the sitemap with the site's actual set of canonical, indexable pages.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [],
+    "pages_in_sitemap": {
+     "https://example.com/": false
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "stale-lastmod",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgpTaXRlbWFwOiBodHRwczovL2V4YW1wbGUuY29tL3NpdGVtYXAueG1sCg==",
+    "https://example.com/sitemap.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYTwvbG9jPjxsYXN0bW9kPjIwMTUtMDYtMTU8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "lastmod": {
+      "oldest": "2015-06-15",
+      "median": "2015-06-15",
+      "newest": "2015-06-15",
+      "share_older_than_threshold": 1.0,
+      "threshold_days": 365,
+      "all_identical": true,
+      "invalid_count": 0,
+      "future_count": 0
+     },
+     "declared_in_robots": true,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 1,
+     "urls_in_crawl_indexable": 1,
+     "in_sitemap_not_in_crawl": 1,
+     "in_crawl_not_in_sitemap": 1,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0,
+     "in_sitemap_and_linked": [],
+     "in_sitemap_not_linked": [
+      "https://example.com/a"
+     ],
+     "linked_not_in_sitemap": [
+      "https://example.com/"
+     ]
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_STALE_LASTMOD",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Sitemap contains stale or boilerplate lastmod values",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "oldest": "2015-06-15",
+       "median": "2015-06-15",
+       "newest": "2015-06-15",
+       "share_older_than_threshold": 1.0,
+       "threshold_days": 365,
+       "all_identical": true,
+       "invalid_count": 0,
+       "future_count": 0
+      },
+      "group_id": null,
+      "fix_hint": "Generate each lastmod value from the page's actual meaningful modification date.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_DESYNC",
+      "severity": "warning",
+      "source": "sitemap",
+      "message": "Sitemap and crawl URL sets are out of sync",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_crawl_not_in_sitemap": 1,
+       "in_sitemap_not_in_crawl": 1,
+       "crawl_not_in_sitemap_pct": 100.0,
+       "sitemap_not_in_crawl_pct": 100.0,
+       "examples_missing_from_sitemap": [
+        "https://example.com/"
+       ],
+       "examples_in_sitemap_not_crawled": [
+        "https://example.com/a"
+       ]
+      },
+      "group_id": null,
+      "fix_hint": "Synchronize the sitemap with the site's actual set of canonical, indexable pages.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [],
+    "pages_in_sitemap": {
+     "https://example.com/": false
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "explicit-no-pages",
+   "fetch": {},
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "sitemap_fetch_failures": [
+      "https://example.com/sitemap.xml"
+     ],
+     "declared_in_robots": null,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 0,
+     "urls_in_crawl_indexable": 0,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_FETCH_INCOMPLETE",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Some child sitemaps could not be fetched or parsed",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "failed_count": 1,
+       "examples": [
+        "https://example.com/sitemap.xml"
+       ],
+       "depth_truncated_count": 0,
+       "depth_truncated_examples": [],
+       "max_depth": 5
+      },
+      "group_id": null,
+      "fix_hint": "Check that every child sitemap is reachable, retry in case the service was temporarily slow, and validate the XML -- a 200 response with malformed markup (e.g. an unescaped '&' in a URL) fails here the same way a network error does.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [
+     {
+      "id": "SITEMAP_TOO_MANY_URLS",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_TOO_LARGE",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_URL_DUPLICATED",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_STALE_LASTMOD",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_DESYNC",
+      "reason": "sitemap fetch/parse failed for all 1 attempted document(s): ['https://example.com/sitemap.xml']"
+     }
+    ],
+    "pages_in_sitemap": {},
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "no-sitemap-no-pages",
+   "fetch": {},
+   "sitemap_url": null,
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "declared_in_robots": null,
+     "sitemaps": [],
+     "urls_in_sitemap": 0,
+     "urls_in_crawl_indexable": 0,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0
+    },
+    "issues": [],
+    "skipped": [
+     {
+      "id": "SITEMAP_NOT_IN_ROBOTS",
+      "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+     },
+     {
+      "id": "ROBOTS_BLOCKS_RESOURCES",
+      "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+     },
+     {
+      "id": "SITEMAP_FETCH_INCOMPLETE",
+      "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+     },
+     {
+      "id": "SITEMAP_TOO_MANY_URLS",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_TOO_LARGE",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_URL_DUPLICATED",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_STALE_LASTMOD",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_DESYNC",
+      "reason": "no sitemap URL set (no export and network disabled)"
+     }
+    ],
+    "pages_in_sitemap": {},
+    "calls": []
+   }
+  },
+  {
+   "name": "robots-blocks-resources",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgpEaXNhbGxvdzogL2Fzc2V0cy9hcHAuanMKRGlzYWxsb3c6IC9jc3Mvc2l0ZS5jc3MKU2l0ZW1hcDogaHR0cHM6Ly9leGFtcGxlLmNvbS9zaXRlbWFwLnhtbAo=",
+    "https://example.com/sitemap.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48L3VybHNldD4="
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "lastmod": {
+      "oldest": "2025-01-01",
+      "median": "2025-01-01",
+      "newest": "2025-01-01",
+      "share_older_than_threshold": 1.0,
+      "threshold_days": 365,
+      "all_identical": true,
+      "invalid_count": 0,
+      "future_count": 0
+     },
+     "declared_in_robots": true,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 1,
+     "urls_in_crawl_indexable": 1,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0,
+     "in_sitemap_and_linked": [
+      "https://example.com/"
+     ],
+     "in_sitemap_not_linked": [],
+     "linked_not_in_sitemap": []
+    },
+    "issues": [
+     {
+      "check": "ROBOTS_BLOCKS_RESOURCES",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "robots.txt blocks JavaScript or CSS resources required for rendering",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "rules": [
+        "/assets/app.js",
+        "/css/site.css"
+       ]
+      },
+      "group_id": null,
+      "fix_hint": "Do not block .js, .css, or _next/static resources in robots.txt; otherwise Google may render the page incompletely.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_STALE_LASTMOD",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Sitemap contains stale or boilerplate lastmod values",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "oldest": "2025-01-01",
+       "median": "2025-01-01",
+       "newest": "2025-01-01",
+       "share_older_than_threshold": 1.0,
+       "threshold_days": 365,
+       "all_identical": true,
+       "invalid_count": 0,
+       "future_count": 0
+      },
+      "group_id": null,
+      "fix_hint": "Generate each lastmod value from the page's actual meaningful modification date.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [],
+    "pages_in_sitemap": {
+     "https://example.com/": true
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "export-driven",
+   "fetch": {},
+   "sitemap_url": null,
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "declared_in_robots": null,
+     "sitemaps": [],
+     "urls_in_sitemap": 4,
+     "urls_in_crawl_indexable": 3,
+     "in_sitemap_not_in_crawl": 1,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 1,
+     "non_indexable_in_sitemap": 1,
+     "in_sitemap_not_linked": [
+      "https://example.com/orphaned",
+      "https://example.com/unseen"
+     ],
+     "in_sitemap_and_linked": [
+      "https://example.com/",
+      "https://example.com/linked"
+     ],
+     "linked_not_in_sitemap": []
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_URL_4XX_5XX",
+      "severity": "critical",
+      "source": "sitemap",
+      "message": "Sitemap URL returns a 4xx or 5xx response",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/gone",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_sitemap": true
+      },
+      "group_id": null,
+      "fix_hint": "Remove broken URLs from the sitemap or restore them before listing them again.",
+      "evidence": {
+       "export": "{root}/export-driven/Sitemaps-Non-200-URLs.csv"
+      }
+     },
+     {
+      "check": "SITEMAP_URL_3XX",
+      "severity": "warning",
+      "source": "sitemap",
+      "message": "Sitemap URL returns a 3xx response",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/old",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_sitemap": true
+      },
+      "group_id": null,
+      "fix_hint": "List the final 200-status URL in the sitemap instead of a redirecting URL.",
+      "evidence": {
+       "export": "{root}/export-driven/Sitemaps-Redirect-URLs.csv"
+      }
+     },
+     {
+      "check": "SITEMAP_URL_NON_INDEXABLE",
+      "severity": "warning",
+      "source": "sitemap",
+      "message": "Sitemap contains a non-indexable URL",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/noindex",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_sitemap": true
+      },
+      "group_id": null,
+      "fix_hint": "Keep only canonical, indexable URLs in the sitemap.",
+      "evidence": {
+       "export": "{root}/export-driven/Sitemaps-Non-Indexable-URLs.csv"
+      }
+     },
+     {
+      "check": "SITEMAP_ORPHAN",
+      "severity": "warning",
+      "source": "sitemap",
+      "message": "Sitemap URL has no internal inlinks",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/orphaned",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_sitemap": true
+      },
+      "group_id": null,
+      "fix_hint": "Add relevant internal links to the page or remove it from the sitemap if it should not be discoverable.",
+      "evidence": {
+       "export": "{root}/export-driven/Sitemaps-Orphan-URLs.csv"
+      }
+     },
+     {
+      "check": "URL_NOT_IN_SITEMAP",
+      "severity": "opportunity",
+      "source": "sitemap",
+      "message": "Indexable page is missing from the sitemap",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/linked",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {},
+      "group_id": null,
+      "fix_hint": "Add the canonical page URL to the appropriate sitemap.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_DESYNC",
+      "severity": "warning",
+      "source": "sitemap",
+      "message": "Sitemap and crawl URL sets are out of sync",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_crawl_not_in_sitemap": 0,
+       "in_sitemap_not_in_crawl": 1,
+       "crawl_not_in_sitemap_pct": 0.0,
+       "sitemap_not_in_crawl_pct": 25.0,
+       "examples_missing_from_sitemap": [],
+       "examples_in_sitemap_not_crawled": [
+        "https://example.com/unseen"
+       ]
+      },
+      "group_id": null,
+      "fix_hint": "Synchronize the sitemap with the site's actual set of canonical, indexable pages.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [
+     {
+      "id": "SITEMAP_NOT_IN_ROBOTS",
+      "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+     },
+     {
+      "id": "ROBOTS_BLOCKS_RESOURCES",
+      "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+     },
+     {
+      "id": "SITEMAP_FETCH_INCOMPLETE",
+      "reason": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)"
+     },
+     {
+      "id": "SITEMAP_TOO_MANY_URLS",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_TOO_LARGE",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_URL_DUPLICATED",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_STALE_LASTMOD",
+      "reason": "no sitemap entries were fetched to compare"
+     }
+    ],
+    "pages_in_sitemap": {
+     "https://example.com/": true,
+     "https://example.com/linked": true,
+     "https://example.com/orphaned": true
+    },
+    "calls": []
+   }
+  },
+  {
+   "name": "multi-roots",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgo=",
+    "https://example.com/s1.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYTwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+",
+    "https://example.com/s2.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYjwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vYTwvbG9jPjxsYXN0bW9kPjIwMjUtMDEtMDE8L2xhc3Rtb2Q+PC91cmw+PC91cmxzZXQ+"
+   },
+   "sitemap_url": null,
+   "sitemap_urls": [
+    "https://example.com/s1.xml",
+    "https://example.com/s2.xml",
+    "https://example.com/s1.xml"
+   ],
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "urls_in_multiple_sitemaps": 1,
+     "lastmod": {
+      "oldest": "2025-01-01",
+      "median": "2025-01-01",
+      "newest": "2025-01-01",
+      "share_older_than_threshold": 1.0,
+      "threshold_days": 365,
+      "all_identical": true,
+      "invalid_count": 0,
+      "future_count": 0
+     },
+     "declared_in_robots": false,
+     "sitemaps": [
+      "https://example.com/s1.xml",
+      "https://example.com/s2.xml",
+      "https://example.com/s1.xml"
+     ],
+     "urls_in_sitemap": 2,
+     "urls_in_crawl_indexable": 3,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 1,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0,
+     "in_sitemap_and_linked": [
+      "https://example.com/a",
+      "https://example.com/b"
+     ],
+     "in_sitemap_not_linked": [],
+     "linked_not_in_sitemap": [
+      "https://example.com/"
+     ]
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_NOT_IN_ROBOTS",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "robots.txt does not declare a Sitemap directive",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {},
+      "group_id": null,
+      "fix_hint": "Add a Sitemap directive to robots.txt with the absolute sitemap URL.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_URL_DUPLICATED",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "URL is declared in more than one sitemap",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/a",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "sitemaps": [
+        "https://example.com/s1.xml",
+        "https://example.com/s2.xml"
+       ]
+      },
+      "group_id": null,
+      "fix_hint": "Declare each URL in exactly one sitemap. A URL in two files is usually a generator that ran twice, and it distorts every count taken from the declared set.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_STALE_LASTMOD",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Sitemap contains stale or boilerplate lastmod values",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "oldest": "2025-01-01",
+       "median": "2025-01-01",
+       "newest": "2025-01-01",
+       "share_older_than_threshold": 1.0,
+       "threshold_days": 365,
+       "all_identical": true,
+       "invalid_count": 0,
+       "future_count": 0
+      },
+      "group_id": null,
+      "fix_hint": "Generate each lastmod value from the page's actual meaningful modification date.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_DESYNC",
+      "severity": "warning",
+      "source": "sitemap",
+      "message": "Sitemap and crawl URL sets are out of sync",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_crawl_not_in_sitemap": 1,
+       "in_sitemap_not_in_crawl": 0,
+       "crawl_not_in_sitemap_pct": 33.3,
+       "sitemap_not_in_crawl_pct": 0.0,
+       "examples_missing_from_sitemap": [
+        "https://example.com/"
+       ],
+       "examples_in_sitemap_not_crawled": []
+      },
+      "group_id": null,
+      "fix_hint": "Synchronize the sitemap with the site's actual set of canonical, indexable pages.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [],
+    "pages_in_sitemap": {
+     "https://example.com/": false,
+     "https://example.com/a": true,
+     "https://example.com/b": true
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/s1.xml",
+     "https://example.com/s2.xml"
+    ]
+   }
+  },
+  {
+   "name": "scan-con-native",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgpTaXRlbWFwOiBodHRwczovL2V4YW1wbGUuY29tL3NpdGVtYXAueG1sCg==",
+    "https://example.com/sitemap.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vb2s8L2xvYz48bGFzdG1vZD4yMDI1LTAxLTAxPC9sYXN0bW9kPjwvdXJsPjx1cmw+PGxvYz5odHRwczovL2V4YW1wbGUuY29tL3JlZGlyPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48dXJsPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS9vcnBoPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48dXJsPjxsb2M+aHR0cHM6Ly9leGFtcGxlLmNvbS91bmNyYXdsZWQ8L2xvYz48bGFzdG1vZD4yMDI1LTAxLTAxPC9sYXN0bW9kPjwvdXJsPjwvdXJsc2V0Pg=="
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": true,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "lastmod": {
+      "oldest": "2025-01-01",
+      "median": "2025-01-01",
+      "newest": "2025-01-01",
+      "share_older_than_threshold": 1.0,
+      "threshold_days": 365,
+      "all_identical": true,
+      "invalid_count": 0,
+      "future_count": 0
+     },
+     "declared_in_robots": true,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 4,
+     "urls_in_crawl_indexable": 3,
+     "in_sitemap_not_in_crawl": 1,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0,
+     "in_sitemap_and_linked": [
+      "https://example.com/ok",
+      "https://example.com/orph",
+      "https://example.com/redir"
+     ],
+     "in_sitemap_not_linked": [
+      "https://example.com/uncrawled"
+     ],
+     "linked_not_in_sitemap": []
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_STALE_LASTMOD",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Sitemap contains stale or boilerplate lastmod values",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "oldest": "2025-01-01",
+       "median": "2025-01-01",
+       "newest": "2025-01-01",
+       "share_older_than_threshold": 1.0,
+       "threshold_days": 365,
+       "all_identical": true,
+       "invalid_count": 0,
+       "future_count": 0
+      },
+      "group_id": null,
+      "fix_hint": "Generate each lastmod value from the page's actual meaningful modification date.",
+      "evidence": {}
+     },
+     {
+      "check": "SITEMAP_DESYNC",
+      "severity": "warning",
+      "source": "sitemap",
+      "message": "Sitemap and crawl URL sets are out of sync",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "in_crawl_not_in_sitemap": 0,
+       "in_sitemap_not_in_crawl": 1,
+       "crawl_not_in_sitemap_pct": 0.0,
+       "sitemap_not_in_crawl_pct": 25.0,
+       "examples_missing_from_sitemap": [],
+       "examples_in_sitemap_not_crawled": [
+        "https://example.com/uncrawled"
+       ]
+      },
+      "group_id": null,
+      "fix_hint": "Synchronize the sitemap with the site's actual set of canonical, indexable pages.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [
+     {
+      "id": "SITEMAP_URL_4XX_5XX",
+      "reason": "1 sitemap URL(s) were not requested by this crawl, so their status is unmeasured"
+     },
+     {
+      "id": "SITEMAP_URL_3XX",
+      "reason": "1 sitemap URL(s) were not requested by this crawl, so their status is unmeasured"
+     },
+     {
+      "id": "SITEMAP_URL_NON_INDEXABLE",
+      "reason": "1 sitemap URL(s) were not requested by this crawl, so their status is unmeasured"
+     }
+    ],
+    "pages_in_sitemap": {
+     "https://example.com/ok": true,
+     "https://example.com/redir": true,
+     "https://example.com/orph": true
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "fetch-none",
+   "fetch": {
+    "https://example.com/robots.txt": "VXNlci1hZ2VudDogKgpTaXRlbWFwOiBodHRwczovL2V4YW1wbGUuY29tL3NpdGVtYXAueG1sCg=="
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "sitemap_fetch_failures": [
+      "https://example.com/sitemap.xml"
+     ],
+     "declared_in_robots": true,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 0,
+     "urls_in_crawl_indexable": 1,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_FETCH_INCOMPLETE",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Some child sitemaps could not be fetched or parsed",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "failed_count": 1,
+       "examples": [
+        "https://example.com/sitemap.xml"
+       ],
+       "depth_truncated_count": 0,
+       "depth_truncated_examples": [],
+       "max_depth": 5
+      },
+      "group_id": null,
+      "fix_hint": "Check that every child sitemap is reachable, retry in case the service was temporarily slow, and validate the XML -- a 200 response with malformed markup (e.g. an unescaped '&' in a URL) fails here the same way a network error does.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [
+     {
+      "id": "SITEMAP_TOO_MANY_URLS",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_TOO_LARGE",
+      "reason": "no sitemap document was fetched to measure"
+     },
+     {
+      "id": "SITEMAP_URL_DUPLICATED",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_STALE_LASTMOD",
+      "reason": "no sitemap entries were fetched to compare"
+     },
+     {
+      "id": "SITEMAP_DESYNC",
+      "reason": "sitemap fetch/parse failed for all 1 attempted document(s): ['https://example.com/sitemap.xml']"
+     }
+    ],
+    "pages_in_sitemap": {
+     "https://example.com/": null
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  },
+  {
+   "name": "robots-missing",
+   "fetch": {
+    "https://example.com/sitemap.xml": "PHVybHNldCB4bWxucz0iaHR0cDovL3d3dy5zaXRlbWFwcy5vcmcvc2NoZW1hcy9zaXRlbWFwLzAuOSI+PHVybD48bG9jPmh0dHBzOi8vZXhhbXBsZS5jb20vPC9sb2M+PGxhc3Rtb2Q+MjAyNS0wMS0wMTwvbGFzdG1vZD48L3VybD48L3VybHNldD4="
+   },
+   "sitemap_url": "https://example.com/sitemap.xml",
+   "sitemap_urls": null,
+   "crawl_partial": false,
+   "compare_with_crawl": true,
+   "scan_con": false,
+   "now_epoch": 1772366400.0,
+   "config": {
+    "sf_cli": {
+     "path": "",
+     "search_paths": [
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+      "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+      "/usr/bin/screamingfrogseospider",
+      "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+      "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+     ],
+     "seospiderconfig": "audit.seospiderconfig",
+     "export_format": "csv",
+     "timeout_minutes": 30,
+     "expected_urls": 0,
+     "max_urls_per_second": null
+    },
+    "profile": "full",
+    "exports": {
+     "tabs": [
+      "Internal:All",
+      "Response Codes:Client Error (4xx)",
+      "Response Codes:Server Error (5xx)",
+      "Response Codes:Redirection (3xx)",
+      "Sitemaps:URLs in Sitemap",
+      "Sitemaps:URLs not in Sitemap",
+      "Sitemaps:Orphan URLs",
+      "Sitemaps:Non-Indexable URLs in Sitemap",
+      "Page Titles:Multiple",
+      "Structured Data:Validation Errors",
+      "Structured Data:Validation Warnings",
+      "Security:Mixed Content",
+      "Images:Missing Alt Text",
+      "Images:Missing Size Attributes",
+      "JavaScript:All",
+      "Canonicals:All",
+      "H1:All",
+      "Hreflang:Non-200 hreflang URLs",
+      "Page Titles:Duplicate",
+      "Meta Description:Duplicate",
+      "Images:Over X KB",
+      "Security:Missing HSTS Header",
+      "Structured Data:Missing",
+      "Response Codes:No Response",
+      "Response Codes:Blocked by Robots.txt"
+     ],
+     "bulk": [
+      "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+      "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+      "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+     ],
+     "reports": [
+      "Redirects:Redirect Chains",
+      "Hreflang:All hreflang URLs"
+     ],
+     "fetch_all_inlinks": false
+    },
+    "input": {
+     "mode": "auto",
+     "exports_dir": "exports",
+     "html_store_dir": null,
+     "lighthouse_reports": {}
+    },
+    "semantic_similarity": {
+     "adapter": null,
+     "embeddings": [],
+     "cache_path": null,
+     "threshold": 0.82,
+     "relevance_threshold": 0.35,
+     "max_documents": 1000,
+     "max_candidate_comparisons": 250000
+    },
+    "analysis": {
+     "semantic": {
+      "adapter": "tfidf",
+      "st_model": null
+     }
+    },
+    "filters": {
+     "content_type_include": [
+      "text/html"
+     ],
+     "exclude_extensions": [
+      ".js",
+      ".css",
+      ".json",
+      ".xml",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".svg",
+      ".pdf",
+      ".woff",
+      ".woff2",
+      ".ttf",
+      ".eot",
+      ".ico"
+     ]
+    },
+    "thresholds": {
+     "title_max_chars": 60,
+     "title_max_px": 561,
+     "title_min_px": 200,
+     "title_min_chars": 30,
+     "desc_max_chars": 160,
+     "desc_max_px": 985,
+     "desc_min_px": 400,
+     "desc_min_chars": 70,
+     "h1_max_chars": 70,
+     "thin_content_words": 200,
+     "low_text_ratio_pct": 10,
+     "url_max_chars": 115,
+     "crawl_depth_max": 4,
+     "click_depth_max": 10,
+     "orphan_inlinks_min": 1,
+     "response_time_max_s": 1.5,
+     "large_html_abs_kb": 200,
+     "large_html_x_median": 3.0,
+     "dom_depth_max": 32,
+     "dom_nodes_max": 1500,
+     "img_max_kb": 150,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152,
+     "network_payload_max_bytes": 4194304,
+     "sitemap_lastmod_stale_days": 365,
+     "sitemap_desync_pct_warn": 20,
+     "templated_title_share": 0.6,
+     "bytes_per_word_x_median": 4.0,
+     "readability_flesch_min": 30,
+     "avg_words_per_sentence_max": 25,
+     "high_external_outlinks": 100,
+     "high_outlinks": 300,
+     "redirect_hop_cap": 20,
+     "link_score_low_ratio": 0.25,
+     "near_duplicate_similarity": 0.92
+    },
+    "requirements": {
+     "require_canonical": true,
+     "require_h2": false,
+     "require_hreflang": false,
+     "require_structured_data": false,
+     "require_og": false
+    },
+    "canonical_policy": {
+     "pagination": [],
+     "filters": []
+    },
+    "live_recheck": {
+     "enabled": false,
+     "use": "auto",
+     "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)",
+     "max_urls": 5000,
+     "timeout_s": 10
+    },
+    "tasks_pipeline": {
+     "include_severities": [
+      "critical",
+      "warning",
+      "notice",
+      "opportunity"
+     ],
+     "group_by": "check",
+     "priority_map": {
+      "critical": "P1",
+      "warning": "P2",
+      "notice": "P3",
+      "opportunity": "P3"
+     },
+     "effort_map": {
+      "critical": "high",
+      "warning": "medium",
+      "notice": "low",
+      "opportunity": "low"
+     },
+     "max_urls_per_task": 25,
+     "min_occurrences": 1,
+     "include_checks": [],
+     "exclude_checks": [],
+     "assignments": []
+    },
+    "checks": {},
+    "severity_overrides": {},
+    "finding_exclusions": [],
+    "scoring": {
+     "weights": {
+      "critical": 5,
+      "warning": 2,
+      "notice": 0.5,
+      "opportunity": 0.25
+     }
+    },
+    "output": {
+     "json_path": "audit.json",
+     "md_path": "audit.md",
+     "keep_raw_exports": true,
+     "max_locations_per_issue": 200,
+     "max_pages_in_json": 100000
+    }
+   },
+   "expect": {
+    "summary": {
+     "lastmod": {
+      "oldest": "2025-01-01",
+      "median": "2025-01-01",
+      "newest": "2025-01-01",
+      "share_older_than_threshold": 1.0,
+      "threshold_days": 365,
+      "all_identical": true,
+      "invalid_count": 0,
+      "future_count": 0
+     },
+     "declared_in_robots": null,
+     "sitemaps": [
+      "https://example.com/sitemap.xml"
+     ],
+     "urls_in_sitemap": 1,
+     "urls_in_crawl_indexable": 1,
+     "in_sitemap_not_in_crawl": 0,
+     "in_crawl_not_in_sitemap": 0,
+     "non_200_in_sitemap": 0,
+     "non_indexable_in_sitemap": 0,
+     "in_sitemap_and_linked": [
+      "https://example.com/"
+     ],
+     "in_sitemap_not_linked": [],
+     "linked_not_in_sitemap": []
+    },
+    "issues": [
+     {
+      "check": "SITEMAP_STALE_LASTMOD",
+      "severity": "notice",
+      "source": "sitemap",
+      "message": "Sitemap contains stale or boilerplate lastmod values",
+      "id": null,
+      "fingerprint": null,
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "locations": [],
+      "details": {
+       "oldest": "2025-01-01",
+       "median": "2025-01-01",
+       "newest": "2025-01-01",
+       "share_older_than_threshold": 1.0,
+       "threshold_days": 365,
+       "all_identical": true,
+       "invalid_count": 0,
+       "future_count": 0
+      },
+      "group_id": null,
+      "fix_hint": "Generate each lastmod value from the page's actual meaningful modification date.",
+      "evidence": {}
+     }
+    ],
+    "skipped": [],
+    "pages_in_sitemap": {
+     "https://example.com/": true
+    },
+    "calls": [
+     "https://example.com/robots.txt",
+     "https://example.com/sitemap.xml"
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,622 @@
+[
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "count": 4,
+    "domain": "example.com",
+    "ok": true,
+    "subdomains": [
+     "app.example.com",
+     "deep.example.com",
+     "example.com",
+     "sub.example.com"
+    ]
+   }
+  },
+  "isolate_config": false,
+  "name": "folds wildcard and multiline SANs",
+  "responses": [
+   {
+    "body": [
+     {
+      "common_name": "example.com",
+      "name_value": "example.com\napp.example.com"
+     },
+     {
+      "common_name": "*.deep.example.com",
+      "name_value": "*.deep.example.com\nunrelated.org"
+     },
+     {
+      "common_name": "EXAMPLE.com",
+      "name_value": "sub.Example.COM"
+     }
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "none.example"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.none.example&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "domain": "none.example",
+    "ok": true,
+    "subdomains": []
+   }
+  },
+  "isolate_config": false,
+  "name": "empty body",
+  "responses": [
+   {
+    "body": "",
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "none.example"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.none.example&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "domain": "none.example",
+    "ok": true,
+    "subdomains": []
+   }
+  },
+  "isolate_config": false,
+  "name": "empty array",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "domain": "example.com",
+    "error": "crt.sh returned a response that is not JSON (the service may be overloaded)",
+    "ok": false
+   }
+  },
+  "isolate_config": false,
+  "name": "html maintenance page",
+  "responses": [
+   {
+    "body": "<html>crt.sh overloaded</html>",
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "domain": "example.com",
+    "error": "crt.sh returned a JSON body that is not an array",
+    "ok": false
+   }
+  },
+  "isolate_config": false,
+  "name": "json not array",
+  "responses": [
+   {
+    "body": {
+     "error": "x"
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "domain": "example.com",
+    "error": "crt.sh response contains a malformed row",
+    "ok": false
+   }
+  },
+  "isolate_config": false,
+  "name": "row missing both keys",
+  "responses": [
+   {
+    "body": [
+     {
+      "id": 1
+     }
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "domain": "example.com",
+    "error": "crt.sh response contains a malformed row",
+    "ok": false
+   }
+  },
+  "isolate_config": false,
+  "name": "row not dict",
+  "responses": [
+   {
+    "body": [
+     [
+      "cn"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "  EXAMPLE.com "
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "domain": "example.com",
+    "ok": true,
+    "subdomains": []
+   }
+  },
+  "isolate_config": false,
+  "name": "domain stripped and lowercased",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "count": 1,
+    "domain": "example.com",
+    "ok": true,
+    "subdomains": [
+     "a.example.com"
+    ]
+   }
+  },
+  "isolate_config": false,
+  "name": "non-str name_value via str()",
+  "responses": [
+   {
+    "body": [
+     {
+      "common_name": "a.example.com",
+      "name_value": 5
+     }
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "count": 1,
+    "domain": "example.com",
+    "ok": true,
+    "subdomains": [
+     "n.example.com"
+    ]
+   }
+  },
+  "isolate_config": false,
+  "name": "null fields skipped",
+  "responses": [
+   {
+    "body": [
+     {
+      "common_name": null,
+      "name_value": "n.example.com"
+     }
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "domain": "example.com",
+    "error": "crt.sh request failed: HTTP Error 503: Service Unavailable",
+    "ok": false
+   }
+  },
+  "isolate_config": false,
+  "name": "http 503 message",
+  "responses": [
+   {
+    "body": "busy",
+    "headers": {},
+    "status": 503
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "domain": "example.com",
+    "error": "crt.sh request failed: timed out",
+    "ok": false
+   }
+  },
+  "isolate_config": false,
+  "name": "timeout",
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "domain": "example.com",
+    "error": "crt.sh request failed: <urlopen error reset>",
+    "ok": false
+   }
+  },
+  "isolate_config": false,
+  "name": "reset",
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": "example.com"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://crt.sh/?q=%25.example.com&output=json"
+    }
+   ],
+   "result": {
+    "count": 4,
+    "domain": "example.com",
+    "ok": true,
+    "subdomains": [
+     "app.example.com",
+     "deep.example.com",
+     "example.com",
+     "sub.example.com"
+    ]
+   }
+  },
+  "isolate_config": false,
+  "name": "redirect followed",
+  "responses": [
+   {
+    "body": "",
+    "headers": {
+     "Location": "/?q=moved"
+    },
+    "status": 302
+   },
+   {
+    "body": [
+     {
+      "common_name": "example.com",
+      "name_value": "example.com\napp.example.com"
+     },
+     {
+      "common_name": "*.deep.example.com",
+      "name_value": "*.deep.example.com\nunrelated.org"
+     },
+     {
+      "common_name": "EXAMPLE.com",
+      "name_value": "sub.Example.COM"
+     }
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "domain": ""
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "domain required"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "domain required",
+  "responses": []
+ }
+]

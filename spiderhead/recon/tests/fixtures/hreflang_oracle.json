@@ -1,0 +1,108 @@
+{
+ "cases": [
+  {
+   "expected": {
+    "alternates": [
+     {
+      "href": "https://href.example/ru",
+      "hreflang": "ru"
+     },
+     {
+      "href": "https://href.example/en",
+      "hreflang": "en-US"
+     },
+     {
+      "href": "https://href.example/",
+      "hreflang": "x-default"
+     }
+    ],
+    "count": 3,
+    "final_url": "https://href.example/en/page",
+    "issues": [
+     "page does not self-reference in its hreflang set"
+    ],
+    "ok": true,
+    "status_code": 200,
+    "url": "https://href.example/start"
+   },
+   "name": "ok_alternates_no_issues",
+   "responses": {
+    "https://href.example/start": {
+     "body": "<link rel=\"alternate\" hreflang=\"ru\" href=\"/ru\"><link rel=\"alternate\" hreflang=\"en-US\" href=\"/en\"><link rel=\"alternate\" hreflang=\"x-default\" href=\"/\">",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://href.example/en/page"
+    }
+   },
+   "url": "https://href.example/start"
+  },
+  {
+   "expected": {
+    "alternates": [
+     {
+      "href": "https://href.example/ru",
+      "hreflang": "ru_RU"
+     },
+     {
+      "href": "https://href.example/ru-2",
+      "hreflang": "ru"
+     },
+     {
+      "href": "https://href.example/ru-3",
+      "hreflang": "ru"
+     }
+    ],
+    "count": 3,
+    "final_url": "https://href.example/page",
+    "issues": [
+     "malformed hreflang code: 'ru_RU' ('ru_RU' is not an ISO 639-1 language code)",
+     "duplicate hreflang: ru",
+     "no x-default alternate",
+     "page does not self-reference in its hreflang set"
+    ],
+    "ok": true,
+    "status_code": 200,
+    "url": "https://href.example/page"
+   },
+   "name": "malformed_duplicates_and_no_default",
+   "responses": {
+    "https://href.example/page": {
+     "body": "<link rel=\"alternate\" hreflang=\"ru_RU\" href=\"/ru\"><link rel=\"alternate\" hreflang=\"ru\" href=\"/ru-2\"><link rel=\"alternate\" hreflang=\"ru\" href=\"/ru-3\">",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://href.example/page"
+    }
+   },
+   "url": "https://href.example/page"
+  },
+  {
+   "expected": {
+    "error": "The page returned HTTP 404, so it has no annotations to check",
+    "final_url": "https://href.example/gone",
+    "ok": false,
+    "status_code": 404,
+    "url": "https://href.example/gone"
+   },
+   "name": "non_2xx_has_no_annotations",
+   "responses": {
+    "https://href.example/gone": {
+     "body": "missing",
+     "headers": {},
+     "status_code": 404,
+     "url": "https://href.example/gone"
+    }
+   },
+   "url": "https://href.example/gone"
+  },
+  {
+   "expected": {
+    "error": "no route to https://down.example/",
+    "ok": false,
+    "url": "https://down.example/"
+   },
+   "name": "network_failure",
+   "responses": {},
+   "url": "https://down.example/"
+  }
+ ]
+}

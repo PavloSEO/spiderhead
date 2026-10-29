@@ -1,0 +1,6 @@
+{
+ "command": "scan-findings-page",
+ "exit": 1,
+ "stderr": "seohead: scan-findings-page\nerror: project scans directory is missing or unsafe\n",
+ "stdout": ""
+}

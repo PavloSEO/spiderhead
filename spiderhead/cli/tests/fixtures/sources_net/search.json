@@ -1,0 +1,1179 @@
+{
+ "group": "search",
+ "cases": [
+  {
+   "name": "gsc-analytics",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     "sc-domain:example.test",
+     "--start-date",
+     "2026-01-01",
+     "--end-date",
+     "2026-01-28",
+     "--dimensions",
+     "query,page",
+     "--row-limit",
+     "50"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_gsc_query",
+    "arguments": {
+     "site_url": "sc-domain:example.test",
+     "start_date": "2026-01-01",
+     "end_date": "2026-01-02"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "www.googleapis.com",
+     "method": "POST",
+     "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "rows": [
+         {
+          "keys": [
+           "seo audit"
+          ],
+          "clicks": 12,
+          "impressions": 340,
+          "ctr": 0.0353,
+          "position": 4.2
+         },
+         {
+          "keys": [
+           "sitemap check"
+          ],
+          "clicks": 3,
+          "impressions": 90,
+          "ctr": 0.0333,
+          "position": 8.7
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"site_url\": \"sc-domain:example.test\",\n  \"period\": \"2026-01-01..2026-01-28\",\n  \"count\": 2,\n  \"rows\": [\n    {\n      \"keys\": [\n        \"seo audit\"\n      ],\n      \"clicks\": 12,\n      \"impressions\": 340,\n      \"ctr\": 0.0353,\n      \"position\": 4.2\n    },\n    {\n      \"keys\": [\n        \"sitemap check\"\n      ],\n      \"clicks\": 3,\n      \"impressions\": 90,\n      \"ctr\": 0.0333,\n      \"position\": 8.7\n    }\n  ]\n}\n",
+     "stderr": "seohead: gsc-query\n",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-28\", \"dimensions\": [\"query\", \"page\"], \"rowLimit\": 50}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"site_url\": \"sc-domain:example.test\",\n  \"period\": \"2026-01-01..2026-01-02\",\n  \"count\": 2,\n  \"rows\": [\n    {\n      \"keys\": [\n        \"seo audit\"\n      ],\n      \"clicks\": 12,\n      \"impressions\": 340,\n      \"ctr\": 0.0353,\n      \"position\": 4.2\n    },\n    {\n      \"keys\": [\n        \"sitemap check\"\n      ],\n      \"clicks\": 3,\n      \"impressions\": 90,\n      \"ctr\": 0.0333,\n      \"position\": 8.7\n    }\n  ]\n}",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-02\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "gsc-analytics-api-error",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     "sc-domain:example.test",
+     "--start-date",
+     "2026-01-01",
+     "--end-date",
+     "2026-01-28"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "www.googleapis.com",
+     "method": "POST",
+     "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+     "responses": [
+      {
+       "status": 403,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "error": {
+         "code": 403,
+         "message": "forbidden"
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"forbidden\",\n  \"status\": 403\n}\n",
+     "stderr": "seohead: gsc-query\n",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-28\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "gsc-analytics-bad-dates",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     "sc-domain:example.test",
+     "--start-date",
+     "2026-02-01",
+     "--end-date",
+     "2026-01-28"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"start_date must not be after end_date: '2026-02-01' > '2026-01-28'\"\n}\n",
+     "stderr": "seohead: gsc-query\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "gsc-no-credential",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     "sc-domain:example.test",
+     "--start-date",
+     "2026-01-01",
+     "--end-date",
+     "2026-01-28"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/gsc/access_token or set $GSC_ACCESS_TOKEN. See docs/SETUP.md for how to obtain a Search Console OAuth token.\"\n}\n",
+     "stderr": "seohead: gsc-query\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "gsc-inspect",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     "sc-domain:example.test",
+     "--mode",
+     "inspect_url",
+     "--inspection-url",
+     "https://example.test/a"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_gsc_query",
+    "arguments": {
+     "site_url": "sc-domain:example.test",
+     "mode": "inspect_url",
+     "inspection_url": "https://example.test/b"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "searchconsole.googleapis.com",
+     "method": "POST",
+     "path": "/v1/urlInspection/index:inspect",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "inspectionResult": {
+         "indexStatusResult": {
+          "verdict": "PASS",
+          "coverageState": "Submitted and indexed",
+          "indexingState": "INDEXING_ALLOWED",
+          "lastCrawlTime": "2026-01-01T00:00:00Z",
+          "googleCanonical": "https://example.test/a",
+          "userCanonical": "https://example.test/a"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"site_url\": \"sc-domain:example.test\",\n  \"inspection_url\": \"https://example.test/a\",\n  \"verdict\": \"PASS\",\n  \"coverage_state\": \"Submitted and indexed\",\n  \"indexing_state\": \"INDEXING_ALLOWED\",\n  \"last_crawl_time\": \"<TS>\",\n  \"google_canonical\": \"https://example.test/a\",\n  \"user_canonical\": \"https://example.test/a\"\n}\n",
+     "stderr": "seohead: gsc-query\n",
+     "requests": [
+      {
+       "host": "searchconsole.googleapis.com",
+       "method": "POST",
+       "path": "/v1/urlInspection/index:inspect",
+       "query": "",
+       "body": "{\"inspectionUrl\": \"https://example.test/a\", \"siteUrl\": \"sc-domain:example.test\"}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"site_url\": \"sc-domain:example.test\",\n  \"inspection_url\": \"https://example.test/b\",\n  \"verdict\": \"PASS\",\n  \"coverage_state\": \"Submitted and indexed\",\n  \"indexing_state\": \"INDEXING_ALLOWED\",\n  \"last_crawl_time\": \"<TS>\",\n  \"google_canonical\": \"https://example.test/a\",\n  \"user_canonical\": \"https://example.test/a\"\n}",
+     "requests": [
+      {
+       "host": "searchconsole.googleapis.com",
+       "method": "POST",
+       "path": "/v1/urlInspection/index:inspect",
+       "query": "",
+       "body": "{\"inspectionUrl\": \"https://example.test/b\", \"siteUrl\": \"sc-domain:example.test\"}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "gsc-inspect-needs-url",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     "sc-domain:example.test",
+     "--mode",
+     "inspect_url"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: gsc-query\nerror: inspection_url required for mode=inspect_url\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "gsc-bad-mode",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     "sc-domain:example.test",
+     "--mode",
+     "nope"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 2,
+     "stdout": "",
+     "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}]\n                            [--start-date START_DATE] [--end-date END_DATE]\n                            [--dimensions DIMENSIONS] [--row-limit ROW_LIMIT]\n                            [--inspection-url INSPECTION_URL]\nspiderhead gsc-query: error: argument --mode: invalid choice: 'nope' (choose from 'search_analytics', 'inspect_url')\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "gsc-no-site",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     ""
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: gsc-query\nerror: site_url required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "webmaster-ok",
+   "cli": {
+    "argv": [
+     "webmaster-url-queries",
+     "--host-id",
+     "https:example.test:443",
+     "--url",
+     "https://example.test/a",
+     "--max-urls",
+     "5"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_webmaster_url_queries",
+    "arguments": {
+     "host_id": "https:example.test:443",
+     "url": "https://example.test/a"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-webmaster/access_token",
+     "text": "test-webmaster-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "GET",
+     "path": "/v4/user",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "user_id": 77
+       }
+      }
+     ]
+    },
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "GET",
+     "path": "/v4/user/77/hosts",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "hosts": [
+         {
+          "host_id": "https:example.test:443",
+          "ascii_host_url": "https://example.test/"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "POST",
+     "path": "/v4/user/77/hosts/https:example.test:443/query-analytics/list",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "count": 1,
+        "text_indicator_to_statistics": [
+         {
+          "text_indicator": {
+           "type": "URL",
+           "value": "https://example.test/a"
+          },
+          "statistics": []
+         }
+        ]
+       }
+      }
+     ],
+     "body_contains": "\"text_indicator\": \"URL\", \"filters\""
+    },
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "POST",
+     "path": "/v4/user/77/hosts/https:example.test:443/query-analytics/list",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "count": 2,
+        "text_indicator_to_statistics": [
+         {
+          "text_indicator": {
+           "type": "QUERY",
+           "value": "seo audit"
+          },
+          "statistics": [
+           {
+            "date": "2026-10-20",
+            "field": "IMPRESSIONS",
+            "value": 100
+           },
+           {
+            "date": "2026-10-20",
+            "field": "CLICKS",
+            "value": 7
+           },
+           {
+            "date": "2026-10-20",
+            "field": "POSITION",
+            "value": 3.5
+           },
+           {
+            "date": "2026-10-20",
+            "field": "DEMAND",
+            "value": 900
+           }
+          ]
+         },
+         {
+          "text_indicator": {
+           "type": "QUERY",
+           "value": "ghost"
+          },
+          "statistics": [
+           {
+            "date": "2026-10-20",
+            "field": "IMPRESSIONS",
+            "value": 0
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ],
+     "body_contains": "\"text_indicator\": \"QUERY\""
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"state\": \"complete\",\n  \"host_id\": \"https:example.test:443\",\n  \"property_access\": \"verified\",\n  \"result_state\": \"observed\",\n  \"rows\": [\n    {\n      \"url\": \"https://example.test/a\",\n      \"query\": \"seo audit\",\n      \"daily\": [\n        {\n          \"date\": \"2026-10-20\",\n          \"impressions\": 100.0,\n          \"clicks\": 7.0,\n          \"demand\": 900.0,\n          \"ctr\": 0.07,\n          \"position\": 3.5,\n          \"unit\": \"provider_reported\"\n        }\n      ],\n      \"truncated\": false\n    }\n  ],\n  \"returned_urls\": 1,\n  \"returned_queries\": 1,\n  \"truncated\": false,\n  \"coverage\": null,\n  \"scope\": \"Yandex Webmaster query analytics; provider retention and metric attribution apply\"\n}\n",
+     "stderr": "seohead: webmaster-url-queries\n",
+     "requests": [
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "GET",
+       "path": "/v4/user",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "GET",
+       "path": "/v4/user/77/hosts",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "POST",
+       "path": "/v4/user/77/hosts/https:example.test:443/query-analytics/list",
+       "query": "",
+       "body": "{\"offset\": 0, \"limit\": 5, \"device_type_indicator\": \"ALL\", \"text_indicator\": \"URL\", \"filters\": {\"text_filters\": [{\"text_indicator\": \"URL\", \"operation\": \"TEXT_MATCH\", \"value\": \"https://example.test/a\"}]}}",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "POST",
+       "path": "/v4/user/77/hosts/https:example.test:443/query-analytics/list",
+       "query": "",
+       "body": "{\"offset\": 0, \"limit\": 500, \"device_type_indicator\": \"ALL\", \"text_indicator\": \"QUERY\", \"filters\": {\"text_filters\": [{\"text_indicator\": \"URL\", \"operation\": \"TEXT_MATCH\", \"value\": \"https://example.test/a\"}]}}",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"state\": \"complete\",\n  \"host_id\": \"https:example.test:443\",\n  \"property_access\": \"verified\",\n  \"result_state\": \"observed\",\n  \"rows\": [\n    {\n      \"url\": \"https://example.test/a\",\n      \"query\": \"seo audit\",\n      \"daily\": [\n        {\n          \"date\": \"2026-10-20\",\n          \"impressions\": 100.0,\n          \"clicks\": 7.0,\n          \"demand\": 900.0,\n          \"ctr\": 0.07,\n          \"position\": 3.5,\n          \"unit\": \"provider_reported\"\n        }\n      ],\n      \"truncated\": false\n    }\n  ],\n  \"returned_urls\": 1,\n  \"returned_queries\": 1,\n  \"truncated\": false,\n  \"coverage\": null,\n  \"scope\": \"Yandex Webmaster query analytics; provider retention and metric attribution apply\"\n}",
+     "requests": [
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "GET",
+       "path": "/v4/user",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "GET",
+       "path": "/v4/user/77/hosts",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "POST",
+       "path": "/v4/user/77/hosts/https:example.test:443/query-analytics/list",
+       "query": "",
+       "body": "{\"offset\": 0, \"limit\": 100, \"device_type_indicator\": \"ALL\", \"text_indicator\": \"URL\", \"filters\": {\"text_filters\": [{\"text_indicator\": \"URL\", \"operation\": \"TEXT_MATCH\", \"value\": \"https://example.test/a\"}]}}",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "POST",
+       "path": "/v4/user/77/hosts/https:example.test:443/query-analytics/list",
+       "query": "",
+       "body": "{\"offset\": 0, \"limit\": 500, \"device_type_indicator\": \"ALL\", \"text_indicator\": \"QUERY\", \"filters\": {\"text_filters\": [{\"text_indicator\": \"URL\", \"operation\": \"TEXT_MATCH\", \"value\": \"https://example.test/a\"}]}}",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "webmaster-not-granted",
+   "cli": {
+    "argv": [
+     "webmaster-url-queries",
+     "--host-id",
+     "https:other.test:443"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-webmaster/access_token",
+     "text": "test-webmaster-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "GET",
+     "path": "/v4/user",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "user_id": 77
+       }
+      }
+     ]
+    },
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "GET",
+     "path": "/v4/user/77/hosts",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "hosts": [
+         {
+          "host_id": "https:example.test:443",
+          "ascii_host_url": "https://example.test/"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "POST",
+     "path": "/v4/user/77/hosts/https:example.test:443/query-analytics/list",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "count": 1,
+        "text_indicator_to_statistics": [
+         {
+          "text_indicator": {
+           "type": "URL",
+           "value": "https://example.test/a"
+          },
+          "statistics": []
+         }
+        ]
+       }
+      }
+     ],
+     "body_contains": "\"text_indicator\": \"URL\", \"filters\""
+    },
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "POST",
+     "path": "/v4/user/77/hosts/https:example.test:443/query-analytics/list",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "count": 2,
+        "text_indicator_to_statistics": [
+         {
+          "text_indicator": {
+           "type": "QUERY",
+           "value": "seo audit"
+          },
+          "statistics": [
+           {
+            "date": "2026-10-20",
+            "field": "IMPRESSIONS",
+            "value": 100
+           },
+           {
+            "date": "2026-10-20",
+            "field": "CLICKS",
+            "value": 7
+           },
+           {
+            "date": "2026-10-20",
+            "field": "POSITION",
+            "value": 3.5
+           },
+           {
+            "date": "2026-10-20",
+            "field": "DEMAND",
+            "value": 900
+           }
+          ]
+         },
+         {
+          "text_indicator": {
+           "type": "QUERY",
+           "value": "ghost"
+          },
+          "statistics": [
+           {
+            "date": "2026-10-20",
+            "field": "IMPRESSIONS",
+            "value": 0
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ],
+     "body_contains": "\"text_indicator\": \"QUERY\""
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"state\": \"not_granted\",\n  \"host_id\": \"https:other.test:443\"\n}\n",
+     "stderr": "seohead: webmaster-url-queries\n",
+     "requests": [
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "GET",
+       "path": "/v4/user",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "GET",
+       "path": "/v4/user/77/hosts",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "webmaster-http-error",
+   "cli": {
+    "argv": [
+     "webmaster-url-queries",
+     "--host-id",
+     "https:example.test:443"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-webmaster/access_token",
+     "text": "test-webmaster-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api.webmaster.yandex.net",
+     "method": "GET",
+     "path": "/v4/user",
+     "responses": [
+      {
+       "status": 401,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "error_code": "INVALID_OAUTH_TOKEN"
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"error_code\": \"INVALID_OAUTH_TOKEN\"\n}\n",
+     "stderr": "seohead: webmaster-url-queries\n",
+     "requests": [
+      {
+       "host": "api.webmaster.yandex.net",
+       "method": "GET",
+       "path": "/v4/user",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-webmaster-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "webmaster-no-credential",
+   "cli": {
+    "argv": [
+     "webmaster-url-queries",
+     "--host-id",
+     "https:example.test:443"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"state\": \"not_configured\",\n  \"verified\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-webmaster/access_token or set $YANDEX_WEBMASTER_TOKEN. Authorize a read-only Yandex Webmaster application before collecting evidence.\"\n}\n",
+     "stderr": "seohead: webmaster-url-queries\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "webmaster-both-filters",
+   "cli": {
+    "argv": [
+     "webmaster-url-queries",
+     "--host-id",
+     "https:example.test:443",
+     "--url",
+     "a",
+     "--url-contains",
+     "b"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: webmaster-url-queries\nerror: host_id, one optional URL filter, and max_urls in 1..50000 are required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "webmaster-no-host",
+   "cli": {
+    "argv": [
+     "webmaster-url-queries",
+     "--host-id",
+     ""
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: webmaster-url-queries\nerror: host_id required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "sync-gsc",
+   "cli": {
+    "argv": [
+     "sources-sync",
+     "--source",
+     "gsc",
+     "--resource",
+     "sc-domain:example.test",
+     "--db",
+     "{WORK}/s.sqlite",
+     "--start-date",
+     "2026-01-01",
+     "--end-date",
+     "2026-01-02"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_sources_sync",
+    "arguments": {
+     "source": "gsc",
+     "resource": "sc-domain:example.test",
+     "db": "{WORK}/m.sqlite",
+     "start_date": "2026-01-01",
+     "end_date": "2026-01-02"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "www.googleapis.com",
+     "method": "POST",
+     "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "rows": [
+         {
+          "keys": [
+           "2026-01-01",
+           "seo audit",
+           "https://example.test/"
+          ],
+          "clicks": 1,
+          "impressions": 10,
+          "ctr": 0.1,
+          "position": 2.0
+         }
+        ]
+       }
+      },
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "rows": [
+         {
+          "keys": [
+           "2026-01-02",
+           "seo audit",
+           "https://example.test/"
+          ],
+          "clicks": 2,
+          "impressions": 20,
+          "ctr": 0.1,
+          "position": 2.5
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"source\": \"gsc\",\n  \"resource\": \"sc-domain:example.test\",\n  \"period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"requested_period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"available_period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"lagged_days\": [],\n  \"already_synced_days\": 0,\n  \"synced_days\": 2,\n  \"attempted_days\": 2,\n  \"rows_stored\": 2,\n  \"incomplete_days\": [],\n  \"db\": \"<WORK>/s.sqlite\"\n}\n",
+     "stderr": "seohead: sources-sync\n",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-01\", \"dimensions\": [\"date\", \"query\", \"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-02\", \"endDate\": \"2026-01-02\", \"dimensions\": [\"date\", \"query\", \"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"source\": \"gsc\",\n  \"resource\": \"sc-domain:example.test\",\n  \"period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"requested_period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"available_period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"lagged_days\": [],\n  \"already_synced_days\": 0,\n  \"synced_days\": 2,\n  \"attempted_days\": 2,\n  \"rows_stored\": 2,\n  \"incomplete_days\": [],\n  \"db\": \"<WORK>/m.sqlite\"\n}",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-01\", \"dimensions\": [\"date\", \"query\", \"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-02\", \"endDate\": \"2026-01-02\", \"dimensions\": [\"date\", \"query\", \"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "sync-gsc-provider-error",
+   "cli": {
+    "argv": [
+     "sources-sync",
+     "--source",
+     "gsc",
+     "--resource",
+     "sc-domain:example.test",
+     "--db",
+     "{WORK}/s.sqlite",
+     "--start-date",
+     "2026-01-01",
+     "--end-date",
+     "2026-01-01"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "www.googleapis.com",
+     "method": "POST",
+     "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+     "responses": [
+      {
+       "status": 400,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "error": {
+         "message": "nope"
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"source\": \"gsc\",\n  \"resource\": \"sc-domain:example.test\",\n  \"error\": \"HTTP Error 400: Bad Request\",\n  \"failed_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"synced_days\": 0,\n  \"attempted_days\": 1,\n  \"rows_stored\": 0,\n  \"requested_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"available_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"lagged_days\": [],\n  \"db\": \"<WORK>/s.sqlite\"\n}\n",
+     "stderr": "seohead: sources-sync\n",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-01\", \"dimensions\": [\"date\", \"query\", \"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-01\", \"dimensions\": [\"date\", \"query\", \"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-01\", \"dimensions\": [\"date\", \"query\", \"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "sync-no-source",
+   "cli": {
+    "argv": [
+     "sources-sync",
+     "--db",
+     "{WORK}/s.sqlite"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: sources-sync\nerror: source required: one of ['ga4', 'gsc', 'metrika', 'webmaster', 'webmaster_history']\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "sync-no-resource",
+   "cli": {
+    "argv": [
+     "sources-sync",
+     "--source",
+     "gsc",
+     "--db",
+     "{WORK}/s.sqlite"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: sources-sync\nerror: resource is required (sc-domain:…)\n",
+     "requests": []
+    }
+   }
+  }
+ ]
+}

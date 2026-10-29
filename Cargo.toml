@@ -1,0 +1,106 @@
+[workspace]
+resolver = "2"
+members = ["xtask", "spiderhead/core", "spiderhead/formats", "spiderhead/store", "spiderhead/parse", "spiderhead/checks", "spiderhead/log-analyzer", "spiderhead/render", "spiderhead/fetch", "spiderhead/crawl", "spiderhead/sf-import", "spiderhead/catalog", "spiderhead/reports", "spiderhead/projects", "spiderhead/sources", "spiderhead/semantics", "spiderhead/recon", "spiderhead/mcp", "spiderhead/tui", "spiderhead/remote", "spiderhead/control", "spiderhead/cli", "spiderhead/desktop", "oracle/diff", "oracle/testkit"]
+
+[workspace.package]
+version = "0.9.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/PavloSEO/spiderhead"
+
+[workspace.dependencies]
+chromiumoxide = "0.9"
+eframe = "0.33"
+encoding_rs = "0.8"
+egui = "0.33"
+egui_extras = "0.33"
+fancy-regex = "0.20"
+futures = "0.3"
+flate2 = { version = "1", default-features = false, features = ["zlib"] }
+icu_casemap = "2"
+icu_normalizer = "2"
+idna = "1"
+jiff = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip", "preserve_order"] }
+thiserror = "2"
+tokio = { version = "1", features = ["full"] }
+unicode-casefold = "0.2"
+unicode-general-category = "1"
+unicode-normalization = "0.1"
+unicode-width = "0.2"
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+anyhow = "1"
+glob = "0.3"
+caseless = "0.2"
+ego-tree = "0.11"
+getrandom = "0.3"
+html5ever = "0.40"
+indexmap = { version = "2", features = ["serde"] }
+jsonschema = { version = "0.60", default-features = false }
+libc = "0.2"
+lopdf = "0.37"
+muda = "0.17"
+rusqlite = { version = "0.37", features = ["bundled", "hooks", "functions", "backup"] }
+libz-sys = { version = "1", features = ["static"] }
+regex = "1"
+rfd = "0.15"
+ring = "0.17"
+scraper = "0.29"
+sha1 = "0.10"
+sha2 = "0.10"
+spiderhead-control = { path = "spiderhead/control" }
+spiderhead-core = { path = "spiderhead/core" }
+spiderhead-formats = { path = "spiderhead/formats" }
+spiderhead-store = { path = "spiderhead/store" }
+spiderhead-parse = { path = "spiderhead/parse" }
+spiderhead-checks = { path = "spiderhead/checks" }
+spiderhead-render = { path = "spiderhead/render" }
+spiderhead-fetch = { path = "spiderhead/fetch" }
+spiderhead-crawl = { path = "spiderhead/crawl" }
+spiderhead-sf-import = { path = "spiderhead/sf-import" }
+spiderhead-catalog = { path = "spiderhead/catalog" }
+spiderhead-reports = { path = "spiderhead/reports" }
+spiderhead-projects = { path = "spiderhead/projects" }
+spiderhead-sources = { path = "spiderhead/sources" }
+spiderhead-semantics = { path = "spiderhead/semantics" }
+spiderhead-recon = { path = "spiderhead/recon" }
+spiderhead-mcp = { path = "spiderhead/mcp" }
+spiderhead-log-analyzer = { path = "spiderhead/log-analyzer" }
+spiderhead-tui = { path = "spiderhead/tui" }
+spiderhead-remote = { path = "spiderhead/remote" }
+spiderhead-oracle-diff = { path = "oracle/diff" }
+spiderhead-oracle-testkit = { path = "oracle/testkit" }
+tempfile = "3.27"
+toml = "0.8"
+calamine = "0.37"
+csv = "1"
+quick-xml = "0.41"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "http2"] }
+ruzstd = "0.9"
+rust_xlsxwriter = { version = "0.101", features = ["constant_memory"] }
+zip = { version = "9.1", default-features = false, features = ["deflate"] }
+windows-sys = { version = "0.59", features = ["Win32_Storage_FileSystem", "Win32_Networking_WinSock", "Win32_Foundation", "Win32_System_Threading"] }
+
+# Fast inner loop: light debug info links faster; deps are optimized once
+# (they rarely change) so tests over parsers and SQLite run quicker.
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+opt-level = 1
+debug = false
+
+# The parser is the hot path of the oracle tests; light optimization cuts them
+# from minutes to seconds at a small rebuild cost.
+[profile.dev.package.spiderhead-parse]
+opt-level = 1
+
+[profile.dev.build-override]
+opt-level = 3
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

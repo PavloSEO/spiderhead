@@ -1,0 +1,28 @@
+[package]
+name = "spiderhead-checks"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead checks (the 298 SEO checks)."
+
+[dependencies]
+caseless.workspace = true
+indexmap.workspace = true
+rusqlite.workspace = true
+regex.workspace = true
+scraper.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha1.workspace = true
+sha2.workspace = true
+spiderhead-core.workspace = true
+spiderhead-formats.workspace = true
+spiderhead-parse.workspace = true
+spiderhead-store.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+spiderhead-fetch.workspace = true
+spiderhead-oracle-diff.workspace = true
+spiderhead-sources.workspace = true
+tempfile.workspace = true

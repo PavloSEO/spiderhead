@@ -1,0 +1,4 @@
+Address,Status Code
+https://a.test/,200
+https://a.test/old,301
+https://a.test/gone,404

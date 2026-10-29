@@ -1,0 +1,4040 @@
+[
+ {
+  "name": "estimate-ahrefs-weights",
+  "ops": [
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs",
+     "limit": 100
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "max_rows": 100,
+      "estimated_units": {
+       "api_units": 1100
+      },
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+      "requires_confirmation": true,
+      "legacy": false,
+      "field_units": {
+       "url_from": 1,
+       "url_to": 1,
+       "anchor": 1,
+       "is_nofollow": 1,
+       "is_sponsored": 1,
+       "is_ugc": 1,
+       "is_lost": 1,
+       "first_seen_link": 1,
+       "last_visited": 1,
+       "last_seen": 1,
+       "domain_rating_source": 1
+      }
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs",
+     "limit": 1
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "max_rows": 1,
+      "estimated_units": {
+       "api_units": 50
+      },
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+      "requires_confirmation": true,
+      "legacy": false,
+      "field_units": {
+       "url_from": 1,
+       "url_to": 1,
+       "anchor": 1,
+       "is_nofollow": 1,
+       "is_sponsored": 1,
+       "is_ugc": 1,
+       "is_lost": 1,
+       "first_seen_link": 1,
+       "last_visited": 1,
+       "last_seen": 1,
+       "domain_rating_source": 1
+      }
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "max_rows": 100,
+      "estimated_units": {
+       "api_units": 1100
+      },
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+      "requires_confirmation": true,
+      "legacy": false,
+      "field_units": {
+       "url_from": 1,
+       "url_to": 1,
+       "anchor": 1,
+       "is_nofollow": 1,
+       "is_sponsored": 1,
+       "is_ugc": 1,
+       "is_lost": 1,
+       "first_seen_link": 1,
+       "last_visited": 1,
+       "last_seen": 1,
+       "domain_rating_source": 1
+      }
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs",
+     "limit": null
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "max_rows": 100,
+      "estimated_units": {
+       "api_units": 1100
+      },
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+      "requires_confirmation": true,
+      "legacy": false,
+      "field_units": {
+       "url_from": 1,
+       "url_to": 1,
+       "anchor": 1,
+       "is_nofollow": 1,
+       "is_sponsored": 1,
+       "is_ugc": 1,
+       "is_lost": 1,
+       "first_seen_link": 1,
+       "last_visited": 1,
+       "last_seen": 1,
+       "domain_rating_source": 1
+      }
+     }
+    }
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "estimate-majestic-moz",
+  "ops": [
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "majestic",
+     "limit": 100
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "majestic",
+      "operation": "backlinks",
+      "max_rows": 100,
+      "estimated_units": {
+       "analysis_units": 5000,
+       "retrieval_units": 100
+      },
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://developer-support.majestic.com/api/commands/get-back-link-data.shtml",
+      "requires_confirmation": true,
+      "legacy": false,
+      "field_units": null
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "majestic"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "majestic",
+      "operation": "backlinks",
+      "max_rows": 100,
+      "estimated_units": {
+       "analysis_units": 5000,
+       "retrieval_units": 100
+      },
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://developer-support.majestic.com/api/commands/get-back-link-data.shtml",
+      "requires_confirmation": true,
+      "legacy": false,
+      "field_units": null
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "moz"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "moz",
+      "operation": "url_metrics_v2",
+      "max_rows": 1,
+      "estimated_units": null,
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://moz.com/help/links-api/making-calls/url-metrics",
+      "requires_confirmation": true,
+      "legacy": true,
+      "field_units": null
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "moz",
+     "operation": "backlinks"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "moz",
+      "operation": "backlinks",
+      "max_rows": 25,
+      "estimated_units": null,
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+      "requires_confirmation": true,
+      "legacy": false,
+      "field_units": null
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "moz",
+     "operation": "backlinks",
+     "limit": 50
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "provider": "moz",
+      "operation": "backlinks",
+      "max_rows": 50,
+      "estimated_units": null,
+      "currency_cost": null,
+      "price_state": "account_plan_dependent",
+      "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+      "requires_confirmation": true,
+      "legacy": false,
+      "field_units": null
+     }
+    }
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "estimate-errors",
+  "ops": [
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs",
+     "operation": "other"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "operation is supported only as moz/backlinks"
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "moz",
+     "operation": "metrics"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "operation is supported only as moz/backlinks"
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "bogus",
+     "limit": 10
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "provider must be ahrefs/majestic/moz and limit must be an integer"
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs",
+     "limit": 0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..1000"
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs",
+     "limit": 1001
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..1000"
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "moz",
+     "operation": "backlinks",
+     "limit": 51
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Moz backlink limit must be 1..50"
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs",
+     "limit": "10"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "provider must be ahrefs/majestic/moz and limit must be an integer"
+     }
+    }
+   },
+   {
+    "fn": "estimate",
+    "kw": {
+     "provider": "ahrefs",
+     "limit": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "provider must be ahrefs/majestic/moz and limit must be an integer"
+     }
+    }
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "collect-preflight-no-network",
+  "ops": [
+   {
+    "replies": [],
+    "cred": {},
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test"
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "confirmation_required",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      }
+     }
+    },
+    "requests": []
+   },
+   {
+    "replies": [],
+    "cred": {},
+    "fn": "collect",
+    "kw": {
+     "provider": "majestic",
+     "target": "example.test"
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "confirmation_required",
+      "estimate": {
+       "ok": true,
+       "provider": "majestic",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "analysis_units": 5000,
+        "retrieval_units": 100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://developer-support.majestic.com/api/commands/get-back-link-data.shtml",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      }
+     }
+    },
+    "requests": []
+   },
+   {
+    "replies": [],
+    "cred": {},
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test"
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "confirmation_required",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "url_metrics_v2",
+       "max_rows": 1,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/help/links-api/making-calls/url-metrics",
+       "requires_confirmation": true,
+       "legacy": true,
+       "field_units": null
+      }
+     }
+    },
+    "requests": []
+   },
+   {
+    "replies": [],
+    "cred": {},
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks"
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "confirmation_required",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      }
+     }
+    },
+    "requests": []
+   },
+   {
+    "replies": [],
+    "cred": {},
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "limit": 100,
+     "max_units": 100,
+     "confirm_paid": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "cost_limit",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      }
+     }
+    },
+    "requests": []
+   },
+   {
+    "replies": [],
+    "cred": {},
+    "fn": "collect",
+    "kw": {
+     "provider": "majestic",
+     "target": "example.test",
+     "limit": 100,
+     "max_units": 4999,
+     "confirm_paid": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "cost_limit",
+      "estimate": {
+       "ok": true,
+       "provider": "majestic",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "analysis_units": 5000,
+        "retrieval_units": 100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://developer-support.majestic.com/api/commands/get-back-link-data.shtml",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      }
+     }
+    },
+    "requests": []
+   },
+   {
+    "replies": [],
+    "cred": {},
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "limit": 1,
+     "max_units": 10000,
+     "confirm_paid": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "cost_limit",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "url_metrics_v2",
+       "max_rows": 1,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/help/links-api/making-calls/url-metrics",
+       "requires_confirmation": true,
+       "legacy": true,
+       "field_units": null
+      }
+     }
+    },
+    "requests": []
+   },
+   {
+    "replies": [],
+    "cred": {},
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "max_units": 10000,
+     "confirm_paid": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "cost_limit",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      }
+     }
+    },
+    "requests": []
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "collect-arg-validation",
+  "ops": [
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "page_token": "abc",
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "page_token is supported only by Moz backlinks"
+     }
+    },
+    "requests": []
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "offset": 5,
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "offset is supported only by Majestic"
+     }
+    },
+    "requests": []
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "not a domain!!",
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "a valid target and nonnegative offset are required"
+     }
+    },
+    "requests": []
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "offset": -1,
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "a valid target and nonnegative offset are required"
+     }
+    },
+    "requests": []
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "max_units": -1,
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_units must be finite and nonnegative"
+     }
+    },
+    "requests": []
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "max_units": {
+      "$float": "nan"
+     },
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_units must be finite and nonnegative"
+     }
+    },
+    "requests": []
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "operation": "other",
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "operation is supported only as moz/backlinks"
+     }
+    },
+    "requests": []
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "page_token": 17,
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "page_token must be a string of at most 4096 characters"
+     }
+    },
+    "requests": []
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "page_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "confirm_paid": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "page_token must be a string of at most 4096 characters"
+     }
+    },
+    "requests": []
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "collect-missing-credentials",
+  "ops": [
+   {
+    "cred": {
+     "ahrefs/api_key": {
+      "missing": "ahrefs api key missing"
+     },
+     "majestic/api_key": {
+      "missing": "majestic api key missing"
+     },
+     "moz/access_id": {
+      "missing": "moz access id missing"
+     },
+     "moz/secret_key": {
+      "missing": "moz secret missing"
+     },
+     "moz/api_token": {
+      "missing": "moz api token missing"
+     }
+    },
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "not_configured",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "error": "ahrefs api key missing"
+     }
+    },
+    "requests": []
+   },
+   {
+    "cred": {
+     "ahrefs/api_key": {
+      "missing": "ahrefs api key missing"
+     },
+     "majestic/api_key": {
+      "missing": "majestic api key missing"
+     },
+     "moz/access_id": {
+      "missing": "moz access id missing"
+     },
+     "moz/secret_key": {
+      "missing": "moz secret missing"
+     },
+     "moz/api_token": {
+      "missing": "moz api token missing"
+     }
+    },
+    "fn": "collect",
+    "kw": {
+     "provider": "majestic",
+     "target": "example.test",
+     "confirm_paid": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "not_configured",
+      "estimate": {
+       "ok": true,
+       "provider": "majestic",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "analysis_units": 5000,
+        "retrieval_units": 100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://developer-support.majestic.com/api/commands/get-back-link-data.shtml",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "error": "majestic api key missing"
+     }
+    },
+    "requests": []
+   },
+   {
+    "cred": {
+     "ahrefs/api_key": {
+      "missing": "ahrefs api key missing"
+     },
+     "majestic/api_key": {
+      "missing": "majestic api key missing"
+     },
+     "moz/access_id": {
+      "missing": "moz access id missing"
+     },
+     "moz/secret_key": {
+      "missing": "moz secret missing"
+     },
+     "moz/api_token": {
+      "missing": "moz api token missing"
+     }
+    },
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "confirm_paid": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "not_configured",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "url_metrics_v2",
+       "max_rows": 1,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/help/links-api/making-calls/url-metrics",
+       "requires_confirmation": true,
+       "legacy": true,
+       "field_units": null
+      },
+      "error": "moz access id missing"
+     }
+    },
+    "requests": []
+   },
+   {
+    "cred": {
+     "ahrefs/api_key": {
+      "missing": "ahrefs api key missing"
+     },
+     "majestic/api_key": {
+      "missing": "majestic api key missing"
+     },
+     "moz/access_id": {
+      "missing": "moz access id missing"
+     },
+     "moz/secret_key": {
+      "missing": "moz secret missing"
+     },
+     "moz/api_token": {
+      "missing": "moz api token missing"
+     }
+    },
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "confirm_paid": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "not_configured",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "error": "moz api token missing"
+     }
+    },
+    "requests": []
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "ahrefs-success-with-receipt",
+  "ops": [
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "limit": 10,
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "headers": {
+       "x-api-units-cost-total-actual": "110"
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "rows": [
+       {
+        "url_from": "https://donor.test/a",
+        "url_to": "https://example.test/p",
+        "anchor": "Brand",
+        "is_nofollow": false,
+        "is_sponsored": false,
+        "is_ugc": false,
+        "is_lost": false,
+        "first_seen_link": "2026-01-01",
+        "last_visited": "2026-02-01",
+        "last_seen": "2026-02-02",
+        "domain_rating_source": 41.5
+       }
+      ],
+      "data": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "url_metrics": null,
+      "next_token": null,
+      "returned": 1,
+      "truncated": false,
+      "scope": "bounded index sample",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 10,
+       "estimated_units": {
+        "api_units": 110
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=10&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   }
+  ],
+  "spends": [
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": 110.0,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": false,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 110
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "ahrefs-receipt-variants",
+  "ops": [
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "rows": [
+       {
+        "url_from": "https://donor.test/a",
+        "url_to": "https://example.test/p",
+        "anchor": "Brand",
+        "is_nofollow": false,
+        "is_sponsored": false,
+        "is_ugc": false,
+        "is_lost": false,
+        "first_seen_link": "2026-01-01",
+        "last_visited": "2026-02-01",
+        "last_seen": "2026-02-02",
+        "domain_rating_source": 41.5
+       }
+      ],
+      "data": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "url_metrics": null,
+      "next_token": null,
+      "returned": 1,
+      "truncated": false,
+      "scope": "bounded index sample",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "headers": {
+       "x-api-units-cost-total-actual": "junk"
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "rows": [
+       {
+        "url_from": "https://donor.test/a",
+        "url_to": "https://example.test/p",
+        "anchor": "Brand",
+        "is_nofollow": false,
+        "is_sponsored": false,
+        "is_ugc": false,
+        "is_lost": false,
+        "first_seen_link": "2026-01-01",
+        "last_visited": "2026-02-01",
+        "last_seen": "2026-02-02",
+        "domain_rating_source": 41.5
+       }
+      ],
+      "data": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "url_metrics": null,
+      "next_token": null,
+      "returned": 1,
+      "truncated": false,
+      "scope": "bounded index sample",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "headers": {
+       "x-api-units-cost-total-actual": "-3"
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "rows": [
+       {
+        "url_from": "https://donor.test/a",
+        "url_to": "https://example.test/p",
+        "anchor": "Brand",
+        "is_nofollow": false,
+        "is_sponsored": false,
+        "is_ugc": false,
+        "is_lost": false,
+        "first_seen_link": "2026-01-01",
+        "last_visited": "2026-02-01",
+        "last_seen": "2026-02-02",
+        "domain_rating_source": 41.5
+       }
+      ],
+      "data": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "url_metrics": null,
+      "next_token": null,
+      "returned": 1,
+      "truncated": false,
+      "scope": "bounded index sample",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   }
+  ],
+  "spends": [
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 1100
+     }
+    }
+   },
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 1100
+     }
+    }
+   },
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 1100
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "ahrefs-transport-and-shape-failures",
+  "ops": [
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "raise": {
+       "class": "URLError",
+       "message": "timed out"
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "backlink index request failed",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": "not json {"
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": [
+       "a",
+       "b"
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "limit": 1,
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "backlinks": [
+        {
+         "x": 1
+        },
+        {
+         "x": 2
+        }
+       ]
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 1,
+       "estimated_units": {
+        "api_units": 50
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=1&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "backlinks": {
+        "not": "list"
+       }
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "bare": true
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "rows": [
+       {
+        "url_from": "https://donor.test/a",
+        "url_to": "https://example.test/p",
+        "anchor": "Brand",
+        "is_nofollow": false,
+        "is_sponsored": false,
+        "is_ugc": false,
+        "is_lost": false,
+        "first_seen_link": "2026-01-01",
+        "last_visited": "2026-02-01",
+        "last_seen": "2026-02-02",
+        "domain_rating_source": 41.5
+       }
+      ],
+      "data": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "url_metrics": null,
+      "next_token": null,
+      "returned": 1,
+      "truncated": false,
+      "scope": "bounded index sample",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-ahrefs-key"
+    },
+    "replies": [
+     {
+      "raise": {
+       "class": "RuntimeError",
+       "message": "boom"
+      }
+     }
+    ],
+    "outcome": {
+     "error": {
+      "class": "RuntimeError",
+      "message": "boom"
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer test-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   }
+  ],
+  "spends": [
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "charge_uncertain": true,
+     "response_received": false
+    }
+   },
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 1100
+     }
+    }
+   },
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 1100
+     }
+    }
+   },
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 50
+     }
+    }
+   },
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 1100
+     }
+    }
+   },
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 1100
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "majestic-success-and-errors",
+  "ops": [
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "majestic",
+     "target": "example.test",
+     "limit": 10,
+     "offset": 25,
+     "confirm_paid": true,
+     "api_key": "test-majestic-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "Code": "OK",
+       "DataTables": {
+        "BackLinks": {
+         "Data": [
+          {
+           "SourceURL": "https://donor.test/a",
+           "TargetURL": "https://example.test/p",
+           "AnchorText": "Brand",
+           "FlagNoFollow": 0
+          }
+         ]
+        }
+       }
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "majestic",
+      "operation": "backlinks",
+      "rows": [
+       {
+        "SourceURL": "https://donor.test/a",
+        "TargetURL": "https://example.test/p",
+        "AnchorText": "Brand",
+        "FlagNoFollow": 0
+       }
+      ],
+      "data": {
+       "Code": "OK",
+       "DataTables": {
+        "BackLinks": {
+         "Data": [
+          {
+           "SourceURL": "https://donor.test/a",
+           "TargetURL": "https://example.test/p",
+           "AnchorText": "Brand",
+           "FlagNoFollow": 0
+          }
+         ]
+        }
+       }
+      },
+      "url_metrics": null,
+      "next_token": null,
+      "returned": 1,
+      "truncated": false,
+      "scope": "bounded index sample",
+      "estimate": {
+       "ok": true,
+       "provider": "majestic",
+       "operation": "backlinks",
+       "max_rows": 10,
+       "estimated_units": {
+        "analysis_units": 5000,
+        "retrieval_units": 10
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://developer-support.majestic.com/api/commands/get-back-link-data.shtml",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.majestic.com/api/json",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "content-type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "body": "app_api_key=test-majestic-key&cmd=GetBackLinkData&item=example.test&Count=10&From=25&datasource=fresh&Mode=0"
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "majestic",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-majestic-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "Code": "QuotaExceeded",
+       "ErrorMessage": "limit hit"
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "majestic",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "analysis_units": 5000,
+        "retrieval_units": 100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://developer-support.majestic.com/api/commands/get-back-link-data.shtml",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.majestic.com/api/json",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "content-type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "body": "app_api_key=test-majestic-key&cmd=GetBackLinkData&item=example.test&Count=$OMITTED&From=0&datasource=fresh&Mode=0"
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "majestic",
+     "target": "example.test",
+     "confirm_paid": true,
+     "api_key": "test-majestic-key"
+    },
+    "replies": [
+     {
+      "body": {
+       "Code": "OK",
+       "DataTables": {}
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "majestic",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "analysis_units": 5000,
+        "retrieval_units": 100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://developer-support.majestic.com/api/commands/get-back-link-data.shtml",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.majestic.com/api/json",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "content-type",
+        "application/x-www-form-urlencoded"
+       ]
+      ],
+      "body": "app_api_key=test-majestic-key&cmd=GetBackLinkData&item=example.test&Count=$OMITTED&From=0&datasource=fresh&Mode=0"
+     }
+    ]
+   }
+  ],
+  "spends": [
+   {
+    "source": "majestic",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "analysis_units": 5000,
+      "retrieval_units": 10
+     }
+    }
+   },
+   {
+    "source": "majestic",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "analysis_units": 5000,
+      "retrieval_units": 100
+     }
+    }
+   },
+   {
+    "source": "majestic",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "analysis_units": 5000,
+      "retrieval_units": 100
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "moz-metrics-success",
+  "ops": [
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "confirm_paid": true,
+     "access_id": "test-access",
+     "secret_key": "test-secret"
+    },
+    "replies": [
+     {
+      "body": {
+       "results": [
+        {
+         "page_authority": 31.2,
+         "spam_score": 2
+        }
+       ]
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "moz",
+      "operation": "url_metrics_v2",
+      "rows": null,
+      "data": {
+       "results": [
+        {
+         "page_authority": 31.2,
+         "spam_score": 2
+        }
+       ]
+      },
+      "url_metrics": [
+       {
+        "page_authority": 31.2,
+        "spam_score": 2
+       }
+      ],
+      "next_token": null,
+      "returned": 1,
+      "truncated": true,
+      "scope": "legacy v2 per-URL metrics",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "url_metrics_v2",
+       "max_rows": 1,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/help/links-api/making-calls/url-metrics",
+       "requires_confirmation": true,
+       "legacy": true,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://lsapi.seomoz.com/v2/url_metrics",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Basic dGVzdC1hY2Nlc3M6dGVzdC1zZWNyZXQ="
+       ],
+       [
+        "content-type",
+        "application/json"
+       ]
+      ],
+      "body": "{\"targets\": [\"example.test\"]}"
+     }
+    ]
+   }
+  ],
+  "spends": [
+   {
+    "source": "moz",
+    "operation": "url_metrics_v2",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": null
+    }
+   }
+  ]
+ },
+ {
+  "name": "moz-links-success-and-failures",
+  "ops": [
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "limit": 25,
+     "page_token": "page-2",
+     "confirm_paid": true,
+     "api_key": "test-moz-token"
+    },
+    "replies": [
+     {
+      "moz_rpc": {
+       "links": [
+        {
+         "source": {
+          "page": "https://donor.test/a",
+          "root_domain": "donor.test"
+         },
+         "target": {
+          "page": "https://example.test/p",
+          "root_domain": "example.test"
+         },
+         "anchor_text": "Brand"
+        }
+       ],
+       "offset": {
+        "token": "next-page-token"
+       }
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "moz",
+      "operation": "backlinks",
+      "rows": [
+       {
+        "source": {
+         "page": "https://donor.test/a",
+         "root_domain": "donor.test"
+        },
+        "target": {
+         "page": "https://example.test/p",
+         "root_domain": "example.test"
+        },
+        "anchor_text": "Brand"
+       }
+      ],
+      "data": {
+       "jsonrpc": "2.0",
+       "id": "11111111-2222-4333-8444-555555555555",
+       "result": {
+        "links": [
+         {
+          "source": {
+           "page": "https://donor.test/a",
+           "root_domain": "donor.test"
+          },
+          "target": {
+           "page": "https://example.test/p",
+           "root_domain": "example.test"
+          },
+          "anchor_text": "Brand"
+         }
+        ],
+        "offset": {
+         "token": "next-page-token"
+        }
+       }
+      },
+      "url_metrics": null,
+      "next_token": "next-page-token",
+      "returned": 1,
+      "truncated": true,
+      "scope": "bounded backlink page",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.moz.com/jsonrpc",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "x-moz-token",
+        "test-moz-token"
+       ],
+       [
+        "content-type",
+        "application/json"
+       ]
+      ],
+      "body": "{\"jsonrpc\": \"2.0\", \"id\": \"11111111-2222-4333-8444-555555555555\", \"method\": \"data.site.link.list\", \"params\": {\"data\": {\"site_query\": {\"query\": \"example.test\", \"scope\": \"root_domain\"}}, \"options\": {\"scope\": \"page\", \"filters\": [\"external\"]}, \"offset\": {\"limit\": 25, \"token\": \"page-2\"}}}"
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "confirm_paid": true,
+     "api_key": "test-moz-token"
+    },
+    "replies": [
+     {
+      "moz_rpc": {
+       "links": [],
+       "offset": {
+        "token": null
+       }
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "moz",
+      "operation": "backlinks",
+      "rows": [],
+      "data": {
+       "jsonrpc": "2.0",
+       "id": "11111111-2222-4333-8444-555555555555",
+       "result": {
+        "links": [],
+        "offset": {
+         "token": null
+        }
+       }
+      },
+      "url_metrics": null,
+      "next_token": null,
+      "returned": 0,
+      "truncated": false,
+      "scope": "bounded backlink page",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.moz.com/jsonrpc",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "x-moz-token",
+        "test-moz-token"
+       ],
+       [
+        "content-type",
+        "application/json"
+       ]
+      ],
+      "body": "{\"jsonrpc\": \"2.0\", \"id\": \"11111111-2222-4333-8444-555555555555\", \"method\": \"data.site.link.list\", \"params\": {\"data\": {\"site_query\": {\"query\": \"example.test\", \"scope\": \"root_domain\"}}, \"options\": {\"scope\": \"page\", \"filters\": [\"external\"]}, \"offset\": {\"limit\": 25, \"token\": null}}}"
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "confirm_paid": true,
+     "api_key": "test-moz-token"
+    },
+    "replies": [
+     {
+      "moz_rpc_bad_id": {
+       "links": [
+        {
+         "source": {
+          "page": "https://donor.test/a",
+          "root_domain": "donor.test"
+         },
+         "target": {
+          "page": "https://example.test/p",
+          "root_domain": "example.test"
+         },
+         "anchor_text": "Brand"
+        }
+       ],
+       "offset": {
+        "token": "next-page-token"
+       }
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.moz.com/jsonrpc",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "x-moz-token",
+        "test-moz-token"
+       ],
+       [
+        "content-type",
+        "application/json"
+       ]
+      ],
+      "body": "{\"jsonrpc\": \"2.0\", \"id\": \"11111111-2222-4333-8444-555555555555\", \"method\": \"data.site.link.list\", \"params\": {\"data\": {\"site_query\": {\"query\": \"example.test\", \"scope\": \"root_domain\"}}, \"options\": {\"scope\": \"page\", \"filters\": [\"external\"]}, \"offset\": {\"limit\": 25, \"token\": null}}}"
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "confirm_paid": true,
+     "api_key": "test-moz-token"
+    },
+    "replies": [
+     {
+      "moz_rpc_error": {
+       "code": -32602,
+       "message": "bad params"
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.moz.com/jsonrpc",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "x-moz-token",
+        "test-moz-token"
+       ],
+       [
+        "content-type",
+        "application/json"
+       ]
+      ],
+      "body": "{\"jsonrpc\": \"2.0\", \"id\": \"11111111-2222-4333-8444-555555555555\", \"method\": \"data.site.link.list\", \"params\": {\"data\": {\"site_query\": {\"query\": \"example.test\", \"scope\": \"root_domain\"}}, \"options\": {\"scope\": \"page\", \"filters\": [\"external\"]}, \"offset\": {\"limit\": 25, \"token\": null}}}"
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "confirm_paid": true,
+     "api_key": "test-moz-token"
+    },
+    "replies": [
+     {
+      "moz_rpc": {
+       "links": [],
+       "offset": "token-not-dict"
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.moz.com/jsonrpc",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "x-moz-token",
+        "test-moz-token"
+       ],
+       [
+        "content-type",
+        "application/json"
+       ]
+      ],
+      "body": "{\"jsonrpc\": \"2.0\", \"id\": \"11111111-2222-4333-8444-555555555555\", \"method\": \"data.site.link.list\", \"params\": {\"data\": {\"site_query\": {\"query\": \"example.test\", \"scope\": \"root_domain\"}}, \"options\": {\"scope\": \"page\", \"filters\": [\"external\"]}, \"offset\": {\"limit\": 25, \"token\": null}}}"
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "confirm_paid": true,
+     "api_key": "test-moz-token"
+    },
+    "replies": [
+     {
+      "moz_rpc": {
+       "links": [],
+       "offset": {
+        "token": 42
+       }
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.moz.com/jsonrpc",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "x-moz-token",
+        "test-moz-token"
+       ],
+       [
+        "content-type",
+        "application/json"
+       ]
+      ],
+      "body": "{\"jsonrpc\": \"2.0\", \"id\": \"11111111-2222-4333-8444-555555555555\", \"method\": \"data.site.link.list\", \"params\": {\"data\": {\"site_query\": {\"query\": \"example.test\", \"scope\": \"root_domain\"}}, \"options\": {\"scope\": \"page\", \"filters\": [\"external\"]}, \"offset\": {\"limit\": 25, \"token\": null}}}"
+     }
+    ]
+   },
+   {
+    "fn": "collect",
+    "kw": {
+     "provider": "moz",
+     "target": "example.test",
+     "operation": "backlinks",
+     "confirm_paid": true,
+     "api_key": "test-moz-token"
+    },
+    "replies": [
+     {
+      "moz_rpc": {
+       "links": "nope",
+       "offset": {
+        "token": null
+       }
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "error": "malformed backlink index response",
+      "estimate": {
+       "ok": true,
+       "provider": "moz",
+       "operation": "backlinks",
+       "max_rows": 25,
+       "estimated_units": null,
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://moz.com/api/docs/methods/DataSiteLinkListAction",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": null
+      },
+      "receipt": {
+       "ok": true
+      }
+     }
+    },
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://api.moz.com/jsonrpc",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "x-moz-token",
+        "test-moz-token"
+       ],
+       [
+        "content-type",
+        "application/json"
+       ]
+      ],
+      "body": "{\"jsonrpc\": \"2.0\", \"id\": \"11111111-2222-4333-8444-555555555555\", \"method\": \"data.site.link.list\", \"params\": {\"data\": {\"site_query\": {\"query\": \"example.test\", \"scope\": \"root_domain\"}}, \"options\": {\"scope\": \"page\", \"filters\": [\"external\"]}, \"offset\": {\"limit\": 25, \"token\": null}}}"
+     }
+    ]
+   }
+  ],
+  "spends": [
+   {
+    "source": "moz",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": null
+    }
+   },
+   {
+    "source": "moz",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": null
+    }
+   },
+   {
+    "source": "moz",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": null
+    }
+   },
+   {
+    "source": "moz",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": null
+    }
+   },
+   {
+    "source": "moz",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": null
+    }
+   },
+   {
+    "source": "moz",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": null
+    }
+   },
+   {
+    "source": "moz",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "unknown",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": null
+    }
+   }
+  ]
+ },
+ {
+  "name": "collect-credential-from-store",
+  "ops": [
+   {
+    "cred": {
+     "ahrefs/api_key": {
+      "token": "stored-ahrefs-key"
+     }
+    },
+    "fn": "collect",
+    "kw": {
+     "provider": "ahrefs",
+     "target": "example.test",
+     "confirm_paid": true
+    },
+    "replies": [
+     {
+      "body": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      }
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "provider": "ahrefs",
+      "operation": "backlinks",
+      "rows": [
+       {
+        "url_from": "https://donor.test/a",
+        "url_to": "https://example.test/p",
+        "anchor": "Brand",
+        "is_nofollow": false,
+        "is_sponsored": false,
+        "is_ugc": false,
+        "is_lost": false,
+        "first_seen_link": "2026-01-01",
+        "last_visited": "2026-02-01",
+        "last_seen": "2026-02-02",
+        "domain_rating_source": 41.5
+       }
+      ],
+      "data": {
+       "backlinks": [
+        {
+         "url_from": "https://donor.test/a",
+         "url_to": "https://example.test/p",
+         "anchor": "Brand",
+         "is_nofollow": false,
+         "is_sponsored": false,
+         "is_ugc": false,
+         "is_lost": false,
+         "first_seen_link": "2026-01-01",
+         "last_visited": "2026-02-01",
+         "last_seen": "2026-02-02",
+         "domain_rating_source": 41.5
+        }
+       ]
+      },
+      "url_metrics": null,
+      "next_token": null,
+      "returned": 1,
+      "truncated": false,
+      "scope": "bounded index sample",
+      "estimate": {
+       "ok": true,
+       "provider": "ahrefs",
+       "operation": "backlinks",
+       "max_rows": 100,
+       "estimated_units": {
+        "api_units": 1100
+       },
+       "currency_cost": null,
+       "price_state": "account_plan_dependent",
+       "price_reference": "https://docs.ahrefs.com/en/api/docs/limits-consumption",
+       "requires_confirmation": true,
+       "legacy": false,
+       "field_units": {
+        "url_from": 1,
+        "url_to": 1,
+        "anchor": 1,
+        "is_nofollow": 1,
+        "is_sponsored": 1,
+        "is_ugc": 1,
+        "is_lost": 1,
+        "first_seen_link": 1,
+        "last_visited": 1,
+        "last_seen": 1,
+        "domain_rating_source": 1
+       }
+      },
+      "receipt": {
+       "ok": true
+      },
+      "read_only": true
+     }
+    },
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://api.ahrefs.com/v3/site-explorer/all-backlinks?target=example.test&mode=subdomains&limit=$OMITTED&aggregation=all&history=all_time&output=json&select=url_from%2Curl_to%2Canchor%2Cis_nofollow%2Cis_sponsored%2Cis_ugc%2Cis_lost%2Cfirst_seen_link%2Clast_visited%2Clast_seen%2Cdomain_rating_source",
+      "headers": [
+       [
+        "accept",
+        "application/json"
+       ],
+       [
+        "authorization",
+        "Bearer stored-ahrefs-key"
+       ]
+      ],
+      "body": null
+     }
+    ]
+   }
+  ],
+  "spends": [
+   {
+    "source": "ahrefs",
+    "operation": "backlinks",
+    "cost": null,
+    "unit": "api_units",
+    "extra": {
+     "cost_unknown": true,
+     "response_received": true,
+     "estimated_units": {
+      "api_units": 1100
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "history-save-and-read",
+  "ops": [
+   {
+    "fn": "_setup",
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [
+      {
+       "source_url": "https://donor.test/a",
+       "target_url": "https://example.test/p",
+       "anchor": "Brand",
+       "state": "live"
+      }
+     ],
+     "coverage": [
+      {
+       "source": "generic",
+       "rows": 1
+      }
+     ],
+     "domain_edges": [],
+     "db": "$BASE/backlinks.sqlite",
+     "observed_at": "2026-10-01T00:00:00Z"
+    },
+    "outcome": {
+     "result": {
+      "db": "$BASE/backlinks.sqlite",
+      "snapshot_id": 1,
+      "fingerprint": "ff081fc513ad1727b43af5d81a31be45b153a9848be1e391e6f9feb551cd2eb7",
+      "previous_snapshot_id": null,
+      "newly_observed": 1,
+      "unobserved_since_previous": 0,
+      "confirmed_lost": 0,
+      "absence_is_loss": false
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [
+      {
+       "source_url": "https://donor.test/b",
+       "target_url": "https://example.test/q",
+       "anchor": "Keyword",
+       "state": "live"
+      }
+     ],
+     "coverage": [],
+     "domain_edges": [
+      {
+       "source_domain": "donor.test"
+      }
+     ],
+     "db": "$BASE/backlinks.sqlite",
+     "observed_at": "2026-10-02T00:00:00Z"
+    },
+    "outcome": {
+     "result": {
+      "db": "$BASE/backlinks.sqlite",
+      "snapshot_id": 2,
+      "fingerprint": "259d3bc1fcfad795c73512b93465149e49e3bd06dcdd19b6166c790137217554",
+      "previous_snapshot_id": 1,
+      "newly_observed": 1,
+      "unobserved_since_previous": 1,
+      "confirmed_lost": 0,
+      "absence_is_loss": false
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [
+      {
+       "source_url": "https://donor.test/b",
+       "target_url": "https://example.test/q",
+       "anchor": "Keyword",
+       "state": "lost"
+      }
+     ],
+     "coverage": [],
+     "domain_edges": [],
+     "db": "$BASE/backlinks.sqlite",
+     "observed_at": "2026-10-03T00:00:00Z"
+    },
+    "outcome": {
+     "result": {
+      "db": "$BASE/backlinks.sqlite",
+      "snapshot_id": 3,
+      "fingerprint": "defe7af61a310fc33e2334322d15a88504a6549fa587f9868cd62f2d2216c561",
+      "previous_snapshot_id": 2,
+      "newly_observed": 0,
+      "unobserved_since_previous": 0,
+      "confirmed_lost": 1,
+      "absence_is_loss": false
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/backlinks.sqlite"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "db": "$BASE/backlinks.sqlite",
+      "total": 3,
+      "snapshots": [
+       {
+        "id": 3,
+        "domain": "example.test",
+        "observed_at": "2026-10-03T00:00:00Z",
+        "fingerprint": "defe7af61a310fc33e2334322d15a88504a6549fa587f9868cd62f2d2216c561"
+       },
+       {
+        "id": 2,
+        "domain": "example.test",
+        "observed_at": "2026-10-02T00:00:00Z",
+        "fingerprint": "259d3bc1fcfad795c73512b93465149e49e3bd06dcdd19b6166c790137217554"
+       },
+       {
+        "id": 1,
+        "domain": "example.test",
+        "observed_at": "2026-10-01T00:00:00Z",
+        "fingerprint": "ff081fc513ad1727b43af5d81a31be45b153a9848be1e391e6f9feb551cd2eb7"
+       }
+      ],
+      "has_more": false
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/backlinks.sqlite",
+     "limit": 2
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "db": "$BASE/backlinks.sqlite",
+      "total": 3,
+      "snapshots": [
+       {
+        "id": 3,
+        "domain": "example.test",
+        "observed_at": "2026-10-03T00:00:00Z",
+        "fingerprint": "defe7af61a310fc33e2334322d15a88504a6549fa587f9868cd62f2d2216c561"
+       },
+       {
+        "id": 2,
+        "domain": "example.test",
+        "observed_at": "2026-10-02T00:00:00Z",
+        "fingerprint": "259d3bc1fcfad795c73512b93465149e49e3bd06dcdd19b6166c790137217554"
+       }
+      ],
+      "has_more": true
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/backlinks.sqlite",
+     "limit": 2,
+     "offset": 2
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "db": "$BASE/backlinks.sqlite",
+      "total": 3,
+      "snapshots": [
+       {
+        "id": 1,
+        "domain": "example.test",
+        "observed_at": "2026-10-01T00:00:00Z",
+        "fingerprint": "ff081fc513ad1727b43af5d81a31be45b153a9848be1e391e6f9feb551cd2eb7"
+       }
+      ],
+      "has_more": false
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/backlinks.sqlite",
+     "domain": "example.test"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "db": "$BASE/backlinks.sqlite",
+      "total": 3,
+      "snapshots": [
+       {
+        "id": 3,
+        "domain": "example.test",
+        "observed_at": "2026-10-03T00:00:00Z",
+        "fingerprint": "defe7af61a310fc33e2334322d15a88504a6549fa587f9868cd62f2d2216c561"
+       },
+       {
+        "id": 2,
+        "domain": "example.test",
+        "observed_at": "2026-10-02T00:00:00Z",
+        "fingerprint": "259d3bc1fcfad795c73512b93465149e49e3bd06dcdd19b6166c790137217554"
+       },
+       {
+        "id": 1,
+        "domain": "example.test",
+        "observed_at": "2026-10-01T00:00:00Z",
+        "fingerprint": "ff081fc513ad1727b43af5d81a31be45b153a9848be1e391e6f9feb551cd2eb7"
+       }
+      ],
+      "has_more": false
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/backlinks.sqlite",
+     "domain": "other.test"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "db": "$BASE/backlinks.sqlite",
+      "total": 0,
+      "snapshots": [],
+      "has_more": false
+     }
+    }
+   },
+   {
+    "fn": "read_snapshot",
+    "kw": {
+     "snapshot_id": 1,
+     "db": "$BASE/backlinks.sqlite"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "snapshot_id": 1,
+      "domain": "example.test",
+      "observed_at": "2026-10-01T00:00:00Z",
+      "coverage": [
+       {
+        "rows": 1,
+        "source": "generic"
+       }
+      ],
+      "domain_edges": [],
+      "rows": [
+       {
+        "anchor": "Brand",
+        "source_url": "https://donor.test/a",
+        "state": "live",
+        "target_url": "https://example.test/p"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "history-idempotent-retry",
+  "ops": [
+   {
+    "fn": "_setup",
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [
+      {
+       "source_url": "https://donor.test/a",
+       "target_url": "https://example.test/p",
+       "anchor": "Brand",
+       "state": "live"
+      }
+     ],
+     "coverage": [],
+     "domain_edges": [],
+     "db": "$BASE/backlinks.sqlite",
+     "observed_at": "2026-10-01T00:00:00Z"
+    },
+    "outcome": {
+     "result": {
+      "db": "$BASE/backlinks.sqlite",
+      "snapshot_id": 1,
+      "fingerprint": "8fb96179b3730050cde5b80618c9294e0bfcc0252b710ab18af02f3fbdcc8859",
+      "previous_snapshot_id": null,
+      "newly_observed": 1,
+      "unobserved_since_previous": 0,
+      "confirmed_lost": 0,
+      "absence_is_loss": false
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [
+      {
+       "source_url": "https://donor.test/a",
+       "target_url": "https://example.test/p",
+       "anchor": "Brand",
+       "state": "live"
+      }
+     ],
+     "coverage": [],
+     "domain_edges": [],
+     "db": "$BASE/backlinks.sqlite",
+     "observed_at": "2026-10-01T00:00:00Z"
+    },
+    "outcome": {
+     "result": {
+      "db": "$BASE/backlinks.sqlite",
+      "snapshot_id": 1,
+      "fingerprint": "8fb96179b3730050cde5b80618c9294e0bfcc0252b710ab18af02f3fbdcc8859",
+      "previous_snapshot_id": null,
+      "newly_observed": 0,
+      "unobserved_since_previous": 0,
+      "confirmed_lost": 0,
+      "absence_is_loss": false
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/backlinks.sqlite"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "db": "$BASE/backlinks.sqlite",
+      "total": 1,
+      "snapshots": [
+       {
+        "id": 1,
+        "domain": "example.test",
+        "observed_at": "2026-10-01T00:00:00Z",
+        "fingerprint": "8fb96179b3730050cde5b80618c9294e0bfcc0252b710ab18af02f3fbdcc8859"
+       }
+      ],
+      "has_more": false
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [],
+     "coverage": [],
+     "domain_edges": [],
+     "db": "$BASE/backlinks.sqlite",
+     "observed_at": "2026-10-04T00:00:00Z"
+    },
+    "outcome": {
+     "result": {
+      "db": "$BASE/backlinks.sqlite",
+      "snapshot_id": 2,
+      "fingerprint": "58d7a1eef774afd4698b42cc9446af417b8cd2df9d47c76da223f6093d77350c",
+      "previous_snapshot_id": 1,
+      "newly_observed": 0,
+      "unobserved_since_previous": 1,
+      "confirmed_lost": 0,
+      "absence_is_loss": false
+     }
+    }
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "history-path-and-validation-errors",
+  "ops": [
+   {
+    "fn": "_setup",
+    "files": {
+     "proj/project.json": "{}"
+    },
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [],
+     "coverage": [],
+     "domain_edges": [],
+     "observed_at": "2026-10-01T00:00:00Z"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "pass exactly one of db or project"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [],
+     "coverage": [],
+     "domain_edges": [],
+     "db": "$BASE/a.sqlite",
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-01T00:00:00Z"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "pass exactly one of db or project"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [],
+     "coverage": [],
+     "domain_edges": [],
+     "project": "$BASE/noproj",
+     "observed_at": "2026-10-01T00:00:00Z"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "project requires project.json"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [],
+     "coverage": [],
+     "domain_edges": [],
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-01T00:00:00Z"
+    },
+    "outcome": {
+     "result": {
+      "db": "$BASE/proj/backlinks.sqlite",
+      "snapshot_id": 1,
+      "fingerprint": "58d7a1eef774afd4698b42cc9446af417b8cd2df9d47c76da223f6093d77350c",
+      "previous_snapshot_id": null,
+      "newly_observed": 0,
+      "unobserved_since_previous": 0,
+      "confirmed_lost": 0,
+      "absence_is_loss": false
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "db": "$BASE/proj/backlinks.sqlite",
+      "total": 1,
+      "snapshots": [
+       {
+        "id": 1,
+        "domain": "example.test",
+        "observed_at": "2026-10-01T00:00:00Z",
+        "fingerprint": "58d7a1eef774afd4698b42cc9446af417b8cd2df9d47c76da223f6093d77350c"
+       }
+      ],
+      "has_more": false
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/proj/backlinks.sqlite",
+     "limit": 0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..1000 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/proj/backlinks.sqlite",
+     "limit": 1001
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..1000 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/proj/backlinks.sqlite",
+     "limit": "5"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..1000 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/proj/backlinks.sqlite",
+     "offset": -1
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..1000 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/proj/backlinks.sqlite",
+     "offset": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..1000 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "read_snapshot",
+    "kw": {
+     "snapshot_id": 0,
+     "db": "$BASE/proj/backlinks.sqlite"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "snapshot_id must be a positive integer"
+     }
+    }
+   },
+   {
+    "fn": "read_snapshot",
+    "kw": {
+     "snapshot_id": "3",
+     "db": "$BASE/proj/backlinks.sqlite"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "snapshot_id must be a positive integer"
+     }
+    }
+   },
+   {
+    "fn": "read_snapshot",
+    "kw": {
+     "snapshot_id": 99,
+     "db": "$BASE/proj/backlinks.sqlite"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "backlink snapshot was not found"
+     }
+    }
+   }
+  ],
+  "spends": []
+ },
+ {
+  "name": "history-foreign-and-missing-db",
+  "ops": [
+   {
+    "fn": "_setup",
+    "sqlite_foreign": [
+     "scan.sqlite"
+    ],
+    "sqlite_bad_marker": [
+     "bad.sqlite"
+    ],
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "domain": "example.test",
+     "rows": [
+      {
+       "source_url": "https://donor.test/a",
+       "target_url": "https://example.test/p",
+       "anchor": "Brand",
+       "state": "live"
+      }
+     ],
+     "coverage": [],
+     "domain_edges": [],
+     "db": "$BASE/scan.sqlite",
+     "observed_at": "2026-10-01T00:00:00Z"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "existing database is not a backlink history database"
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/scan.sqlite"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "existing database is not a backlink history database"
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/bad.sqlite"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "unsupported backlink history format"
+     }
+    }
+   },
+   {
+    "fn": "snapshot_history",
+    "kw": {
+     "db": "$BASE/missing.sqlite"
+    },
+    "outcome": {
+     "error": {
+      "class": "FileNotFoundError",
+      "message": "[Errno 2] No such file or directory: '$BASE/missing.sqlite'"
+     }
+    }
+   },
+   {
+    "fn": "read_snapshot",
+    "kw": {
+     "snapshot_id": 1,
+     "db": "$BASE/missing.sqlite"
+    },
+    "outcome": {
+     "error": {
+      "class": "FileNotFoundError",
+      "message": "[Errno 2] No such file or directory: '$BASE/missing.sqlite'"
+     }
+    }
+   }
+  ],
+  "spends": []
+ }
+]

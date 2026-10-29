@@ -1,0 +1,217 @@
+{
+ "cases": [
+  {
+   "db": {
+    "categories": {
+     "1": {
+      "name": "CMS"
+     },
+     "2": {
+      "name": "Analytics"
+     }
+    },
+    "technologies": {
+     "DemoAnalytics": {
+      "cats": [
+       2
+      ],
+      "scripts": [
+       "demo-analytics\\.js"
+      ]
+     },
+     "DemoCMS": {
+      "cats": [
+       1
+      ],
+      "html": [
+       "demo-cms-marker"
+      ],
+      "implies": "DemoAnalytics",
+      "version": "v(\\d+\\.\\d+)"
+     },
+     "HeaderTech": {
+      "cats": [
+       1
+      ],
+      "headers": {
+       "x-demo": "^yes$"
+      },
+      "meta": {
+       "generator": "DemoGen"
+      }
+     }
+    }
+   },
+   "expected": {
+    "db_loaded": true,
+    "db_path": "@DB_DIR@",
+    "ok": true,
+    "technologies": [
+     {
+      "category": "CMS",
+      "evidence": "HTML",
+      "name": "DemoCMS",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "A",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "a",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "c",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "D",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "e",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "i",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "l",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "m",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "n",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "o",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "s",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "t",
+      "source": "external"
+     },
+     {
+      "category": "implied",
+      "evidence": "implied by DemoCMS",
+      "name": "y",
+      "source": "external"
+     }
+    ],
+    "technologies_count": 5
+   },
+   "input": {
+    "cookies": {},
+    "headers": {},
+    "html": "<div class='demo-cms-marker'>v1.9</div><script src='/demo-analytics.js'></script>",
+    "scripts": [],
+    "url": "https://example.com/"
+   },
+   "name": "html_and_implies_and_version"
+  },
+  {
+   "db": {
+    "categories": {
+     "1": {
+      "name": "CMS"
+     },
+     "2": {
+      "name": "Analytics"
+     }
+    },
+    "technologies": {
+     "DemoAnalytics": {
+      "cats": [
+       2
+      ],
+      "scripts": [
+       "demo-analytics\\.js"
+      ]
+     },
+     "DemoCMS": {
+      "cats": [
+       1
+      ],
+      "html": [
+       "demo-cms-marker"
+      ],
+      "implies": "DemoAnalytics",
+      "version": "v(\\d+\\.\\d+)"
+     },
+     "HeaderTech": {
+      "cats": [
+       1
+      ],
+      "headers": {
+       "x-demo": "^yes$"
+      },
+      "meta": {
+       "generator": "DemoGen"
+      }
+     }
+    }
+   },
+   "expected": {
+    "db_loaded": true,
+    "db_path": "@DB_DIR@",
+    "ok": true,
+    "technologies": [
+     {
+      "category": "CMS",
+      "evidence": "header x-demo",
+      "name": "HeaderTech",
+      "source": "external"
+     }
+    ],
+    "technologies_count": 5
+   },
+   "input": {
+    "cookies": {},
+    "headers": {
+     "x-demo": "yes"
+    },
+    "html": "",
+    "meta": {
+     "generator": "DemoGen"
+    },
+    "scripts": [],
+    "url": "https://example.com/"
+   },
+   "name": "header_and_meta_match"
+  }
+ ]
+}

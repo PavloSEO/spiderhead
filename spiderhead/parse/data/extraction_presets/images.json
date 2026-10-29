@@ -1,0 +1,46 @@
+{
+ "name": "images",
+ "description": "Every image with src and alt, images with an empty alt, and images with no alt attribute at all.",
+ "rules": [
+  {
+   "id": "img-src",
+   "kind": "attribute",
+   "selector": "img@src",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "img-alt",
+   "kind": "attribute",
+   "selector": "img@alt",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "img-alt-empty",
+   "kind": "count",
+   "selector": "img[alt=\"\"]",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "img-alt-missing",
+   "kind": "count",
+   "selector": "img:not([alt])",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "img-count",
+   "kind": "count",
+   "selector": "img",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: custom-extract-sample\n",
+    "stdout": "{\n  \"ok\": true,\n  \"url\": \"\",\n  \"representation\": \"static_markup\",\n  \"extractors\": [\n    {\n      \"name\": \"p\",\n      \"mode\": \"css\",\n      \"output\": \"text\",\n      \"query\": \"p\",\n      \"values\": [\n        \"x\"\n      ],\n      \"count\": 1,\n      \"reason\": null,\n      \"notes\": []\n    }\n  ]\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"url\": \"\",\n  \"representation\": \"static_markup\",\n  \"extractors\": [\n    {\n      \"name\": \"p\",\n      \"mode\": \"css\",\n      \"output\": \"text\",\n      \"query\": \"p\",\n      \"values\": [\n        \"x\"\n      ],\n      \"count\": 1,\n      \"reason\": null,\n      \"notes\": []\n    }\n  ]\n}"
+   }
+  ]
+ }
+}

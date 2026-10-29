@@ -1,0 +1,39 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: project-new\n",
+    "stdout": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"site\": {\n      \"host\": \"example.com\",\n      \"label\": null,\n      \"target\": \"https://example.com/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"/private<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-snapshot\n",
+    "stdout": "{\n  \"snapshot\": \"<WORK>/proj/scans/<TS>_127.0.0.1_ea01145e.sqlite\"\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-url-history\n",
+    "stdout": "{\n  \"ok\": true,\n  \"state\": \"available\",\n  \"format\": \"spiderhead.scan-url-history.v1\",\n  \"url\": \"http://127.0.0.1:{PORT}/nope\",\n  \"scan_total\": 1,\n  \"limit\": 50,\n  \"returned\": 1,\n  \"has_more\": false,\n  \"scans\": [\n    {\n      \"scan_uuid\": \"<UUID:2>\",\n      \"number\": 1,\n      \"finished_at\": \"<TS>\",\n      \"state\": \"absent\",\n      \"status_code\": null,\n      \"indexability\": null,\n      \"title_hash\": null,\n      \"title\": null,\n      \"meta_description\": null,\n      \"h1\": null,\n      \"canonical\": null,\n      \"redirect_target\": null,\n      \"content_hash\": null,\n      \"word_count\": null,\n      \"inlinks\": null,\n      \"outlinks\": null,\n      \"response_time_seconds\": null,\n      \"html_size_bytes\": null,\n      \"external_link_response_codes\": null\n    }\n  ],\n  \"transitions\": [],\n  \"errors\": []\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"site\": {\n      \"host\": \"example.com\",\n      \"label\": null,\n      \"target\": \"https://example.com/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"/private<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"snapshot\": \"<WORK>/proj/scans/<TS>_127.0.0.1_ea01145e.sqlite\"\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"state\": \"available\",\n  \"format\": \"spiderhead.scan-url-history.v1\",\n  \"url\": \"http://127.0.0.1:{PORT}/nope\",\n  \"scan_total\": 1,\n  \"limit\": 50,\n  \"returned\": 1,\n  \"has_more\": false,\n  \"scans\": [\n    {\n      \"scan_uuid\": \"<UUID:2>\",\n      \"number\": 1,\n      \"finished_at\": \"<TS>\",\n      \"state\": \"absent\",\n      \"status_code\": null,\n      \"indexability\": null,\n      \"title_hash\": null,\n      \"title\": null,\n      \"meta_description\": null,\n      \"h1\": null,\n      \"canonical\": null,\n      \"redirect_target\": null,\n      \"content_hash\": null,\n      \"word_count\": null,\n      \"inlinks\": null,\n      \"outlinks\": null,\n      \"response_time_seconds\": null,\n      \"html_size_bytes\": null,\n      \"external_link_response_codes\": null\n    }\n  ],\n  \"transitions\": [],\n  \"errors\": []\n}"
+   }
+  ]
+ }
+}

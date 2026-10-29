@@ -1,0 +1,8 @@
+{
+ "arguments": {
+  "url": "{BASE}/sitemap-ok.xml"
+ },
+ "is_error": false,
+ "text": "{\n  \"ok\": true,\n  \"root\": \"{BASE}/sitemap-ok.xml\",\n  \"count\": 3,\n  \"urls\": [\n    {\n      \"loc\": \"{BASE}/\",\n      \"loc_normalized\": \"{BASE}/\",\n      \"lastmod\": null,\n      \"changefreq\": null,\n      \"priority\": null\n    },\n    {\n      \"loc\": \"{BASE}/a.html\",\n      \"loc_normalized\": \"{BASE}/a.html\",\n      \"lastmod\": null,\n      \"changefreq\": null,\n      \"priority\": null\n    },\n    {\n      \"loc\": \"{BASE}/orphan.html\",\n      \"loc_normalized\": \"{BASE}/orphan.html\",\n      \"lastmod\": null,\n      \"changefreq\": null,\n      \"priority\": null\n    }\n  ],\n  \"sitemaps\": [\n    {\n      \"url\": \"{BASE}/sitemap-ok.xml\",\n      \"source\": \"explicit\",\n      \"type\": \"urlset\",\n      \"count\": 3,\n      \"declared\": 3,\n      \"bytes\": 271\n    }\n  ],\n  \"duplicates\": [],\n  \"duplicate_sources\": {},\n  \"errors\": [],\n  \"truncated\": false,\n  \"loc_entries\": 3,\n  \"image_entries\": 0,\n  \"news_entries\": 0,\n  \"video_entries\": 0\n}",
+ "tool": "seo_sitemap_crawl"
+}

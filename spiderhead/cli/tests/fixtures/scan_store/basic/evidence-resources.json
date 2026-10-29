@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-evidence\n",
+    "stdout": "{\n  \"ok\": true,\n  \"section\": \"resources\",\n  \"evidence\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"resource graph was not stored in this scan\"\n  }\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"section\": \"resources\",\n  \"evidence\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"resource graph was not stored in this scan\"\n  }\n}"
+   }
+  ]
+ }
+}

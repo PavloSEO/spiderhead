@@ -1,0 +1,10 @@
+{
+ "argv": [
+  "sitemap-crawl",
+  "--url",
+  "{BASE}/missing-sitemap.xml"
+ ],
+ "exit": 1,
+ "stderr": "seohead: sitemap-crawl\n",
+ "stdout": "{\n  \"ok\": false,\n  \"root\": \"{BASE}/missing-sitemap.xml\",\n  \"count\": 0,\n  \"urls\": [],\n  \"sitemaps\": [],\n  \"duplicates\": [],\n  \"duplicate_sources\": {},\n  \"errors\": [\n    {\n      \"url\": \"{BASE}/missing-sitemap.xml\",\n      \"error\": \"HTTP 404\"\n    }\n  ],\n  \"truncated\": false,\n  \"loc_entries\": 0,\n  \"image_entries\": 0,\n  \"news_entries\": 0,\n  \"video_entries\": 0\n}\n"
+}

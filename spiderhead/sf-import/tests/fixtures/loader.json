@@ -1,0 +1,868 @@
+{
+  "cases": [
+    {
+      "dir": "empty",
+      "discovered": {},
+      "loaded_error": "FileNotFoundError: Required export 'internal_all' not found in '<FIXTURES>/empty'. Export at least Internal:All from Screaming Frog."
+    },
+    {
+      "dir": "only_internal",
+      "discovered": {
+        "internal_all": "internal_all.csv"
+      },
+      "loaded": {
+        "files": {
+          "internal_all": "internal_all.csv"
+        },
+        "encodings": {
+          "internal_all": "utf-8-sig"
+        },
+        "found": [
+          "internal_all"
+        ],
+        "missing": [
+          "resp_4xx",
+          "resp_5xx",
+          "resp_3xx",
+          "resp_no_response",
+          "resp_blocked",
+          "inlinks_4xx",
+          "inlinks_5xx",
+          "inlinks_3xx",
+          "all_inlinks",
+          "sitemap_in",
+          "sitemap_not_in",
+          "sitemap_orphan",
+          "sitemap_non_indexable",
+          "sitemap_redirects",
+          "sitemap_non_200",
+          "images_missing_alt",
+          "images_over_kb",
+          "images_missing_size",
+          "titles_duplicate",
+          "titles_multiple",
+          "hreflang",
+          "all_hreflang",
+          "desc_duplicate",
+          "redirect_chains",
+          "security_mixed",
+          "security_hsts",
+          "structured_data_missing"
+        ],
+        "derived_from": {},
+        "derivation_errors": {},
+        "frames": {
+          "internal_all": {
+            "columns": [
+              "Address",
+              "Status Code",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200,
+                "Home"
+              ],
+              [
+                "https://a.test/x",
+                404,
+                null
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "dir": "mixed",
+      "discovered": {
+        "internal_all": "internal_all.csv",
+        "resp_4xx": "4xx-client-errors.csv",
+        "all_inlinks": "all_inlinks.csv",
+        "sitemap_in": "urls_in_sitemap.csv"
+      },
+      "loaded": {
+        "files": {
+          "internal_all": "internal_all.csv",
+          "resp_4xx": "4xx-client-errors.csv",
+          "all_inlinks": "all_inlinks.csv",
+          "sitemap_in": "urls_in_sitemap.csv",
+          "sitemap_redirects": "urls_in_sitemap.csv",
+          "sitemap_non_200": "urls_in_sitemap.csv"
+        },
+        "encodings": {
+          "internal_all": "utf-8-sig",
+          "resp_4xx": "utf-8-sig",
+          "all_inlinks": "utf-8-sig",
+          "sitemap_in": "utf-8-sig",
+          "sitemap_redirects": "utf-8-sig",
+          "sitemap_non_200": "utf-8-sig"
+        },
+        "found": [
+          "internal_all",
+          "resp_4xx",
+          "all_inlinks",
+          "sitemap_in",
+          "sitemap_redirects",
+          "sitemap_non_200"
+        ],
+        "missing": [
+          "resp_5xx",
+          "resp_3xx",
+          "resp_no_response",
+          "resp_blocked",
+          "inlinks_4xx",
+          "inlinks_5xx",
+          "inlinks_3xx",
+          "sitemap_not_in",
+          "sitemap_orphan",
+          "sitemap_non_indexable",
+          "images_missing_alt",
+          "images_over_kb",
+          "images_missing_size",
+          "titles_duplicate",
+          "titles_multiple",
+          "hreflang",
+          "all_hreflang",
+          "desc_duplicate",
+          "redirect_chains",
+          "security_mixed",
+          "security_hsts",
+          "structured_data_missing"
+        ],
+        "derived_from": {
+          "sitemap_redirects": "sitemap_in",
+          "sitemap_non_200": "sitemap_in"
+        },
+        "derivation_errors": {},
+        "frames": {
+          "internal_all": {
+            "columns": [
+              "Address",
+              "Status Code",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200,
+                "Home"
+              ],
+              [
+                "https://a.test/x",
+                404,
+                null
+              ]
+            ]
+          },
+          "resp_4xx": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/x",
+                404
+              ]
+            ]
+          },
+          "all_inlinks": {
+            "columns": [
+              "Source",
+              "Destination",
+              "Anchor Text"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                "https://a.test/x",
+                "link"
+              ]
+            ]
+          },
+          "sitemap_in": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200
+              ],
+              [
+                "https://a.test/old",
+                301
+              ],
+              [
+                "https://a.test/gone",
+                404
+              ]
+            ]
+          },
+          "sitemap_redirects": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/old",
+                301
+              ]
+            ]
+          },
+          "sitemap_non_200": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/gone",
+                404
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "dir": "ambiguous",
+      "discovered_error": "ValueError: Ambiguous export for 'resp_4xx': 2 files match it in '<FIXTURES>/ambiguous': 4xx_first.csv, 4xx_second.csv. Keep only one.",
+      "loaded_error": "ValueError: Ambiguous export for 'resp_4xx': 2 files match it in '<FIXTURES>/ambiguous': 4xx_first.csv, 4xx_second.csv. Keep only one."
+    },
+    {
+      "dir": "encodings",
+      "discovered": {
+        "internal_all": "internal_all.csv",
+        "resp_4xx": "4xx_errors.csv",
+        "resp_5xx": "5xx_errors.csv",
+        "resp_3xx": "3xx_redirects.csv",
+        "resp_blocked": "blocked_bots.csv"
+      },
+      "loaded": {
+        "files": {
+          "internal_all": "internal_all.csv",
+          "resp_4xx": "4xx_errors.csv",
+          "resp_5xx": "5xx_errors.csv",
+          "resp_3xx": "3xx_redirects.csv"
+        },
+        "encodings": {
+          "internal_all": "utf-8-sig",
+          "resp_4xx": "utf-16",
+          "resp_5xx": "utf-16",
+          "resp_3xx": "cp1250"
+        },
+        "found": [
+          "internal_all",
+          "resp_4xx",
+          "resp_5xx",
+          "resp_3xx"
+        ],
+        "missing": [
+          "resp_blocked (read error: Could not decode export '<FIXTURES>/encodings/blocked_bots.csv': 'utf-8' codec can't decode byte 0x80 in position 0: invalid start byte)",
+          "resp_no_response",
+          "inlinks_4xx",
+          "inlinks_5xx",
+          "inlinks_3xx",
+          "all_inlinks",
+          "sitemap_in",
+          "sitemap_not_in",
+          "sitemap_orphan",
+          "sitemap_non_indexable",
+          "sitemap_redirects",
+          "sitemap_non_200",
+          "images_missing_alt",
+          "images_over_kb",
+          "images_missing_size",
+          "titles_duplicate",
+          "titles_multiple",
+          "hreflang",
+          "all_hreflang",
+          "desc_duplicate",
+          "redirect_chains",
+          "security_mixed",
+          "security_hsts",
+          "structured_data_missing"
+        ],
+        "derived_from": {},
+        "derivation_errors": {},
+        "frames": {
+          "internal_all": {
+            "columns": [
+              "Address",
+              "Status Code",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200,
+                "Home"
+              ],
+              [
+                "https://a.test/x",
+                404,
+                null
+              ]
+            ]
+          },
+          "resp_4xx": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/x",
+                404
+              ]
+            ]
+          },
+          "resp_5xx": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/s",
+                500
+              ]
+            ]
+          },
+          "resp_3xx": {
+            "columns": [
+              "Address",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                "Ăëŕâíŕ˙ ńňđŕíčöŕ"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "dir": "xlsx_case",
+      "discovered": {
+        "internal_all": "internal_all.csv",
+        "resp_4xx": "4xx_errors.xlsx"
+      },
+      "loaded": {
+        "files": {
+          "internal_all": "internal_all.csv",
+          "resp_4xx": "4xx_errors.xlsx"
+        },
+        "encodings": {
+          "internal_all": "utf-8-sig",
+          "resp_4xx": "xlsx"
+        },
+        "found": [
+          "internal_all",
+          "resp_4xx"
+        ],
+        "missing": [
+          "resp_5xx",
+          "resp_3xx",
+          "resp_no_response",
+          "resp_blocked",
+          "inlinks_4xx",
+          "inlinks_5xx",
+          "inlinks_3xx",
+          "all_inlinks",
+          "sitemap_in",
+          "sitemap_not_in",
+          "sitemap_orphan",
+          "sitemap_non_indexable",
+          "sitemap_redirects",
+          "sitemap_non_200",
+          "images_missing_alt",
+          "images_over_kb",
+          "images_missing_size",
+          "titles_duplicate",
+          "titles_multiple",
+          "hreflang",
+          "all_hreflang",
+          "desc_duplicate",
+          "redirect_chains",
+          "security_mixed",
+          "security_hsts",
+          "structured_data_missing"
+        ],
+        "derived_from": {},
+        "derivation_errors": {},
+        "frames": {
+          "internal_all": {
+            "columns": [
+              "Address",
+              "Status Code",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200,
+                "Home"
+              ],
+              [
+                "https://a.test/x",
+                404,
+                null
+              ]
+            ]
+          },
+          "resp_4xx": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200
+              ],
+              [
+                "https://a.test/x",
+                404
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "dir": "derive_ok",
+      "discovered": {
+        "internal_all": "internal_all.csv",
+        "sitemap_in": "urls_in_sitemap.csv"
+      },
+      "loaded": {
+        "files": {
+          "internal_all": "internal_all.csv",
+          "sitemap_in": "urls_in_sitemap.csv",
+          "sitemap_redirects": "urls_in_sitemap.csv",
+          "sitemap_non_200": "urls_in_sitemap.csv"
+        },
+        "encodings": {
+          "internal_all": "utf-8-sig",
+          "sitemap_in": "utf-8-sig",
+          "sitemap_redirects": "utf-8-sig",
+          "sitemap_non_200": "utf-8-sig"
+        },
+        "found": [
+          "internal_all",
+          "sitemap_in",
+          "sitemap_redirects",
+          "sitemap_non_200"
+        ],
+        "missing": [
+          "resp_4xx",
+          "resp_5xx",
+          "resp_3xx",
+          "resp_no_response",
+          "resp_blocked",
+          "inlinks_4xx",
+          "inlinks_5xx",
+          "inlinks_3xx",
+          "all_inlinks",
+          "sitemap_not_in",
+          "sitemap_orphan",
+          "sitemap_non_indexable",
+          "images_missing_alt",
+          "images_over_kb",
+          "images_missing_size",
+          "titles_duplicate",
+          "titles_multiple",
+          "hreflang",
+          "all_hreflang",
+          "desc_duplicate",
+          "redirect_chains",
+          "security_mixed",
+          "security_hsts",
+          "structured_data_missing"
+        ],
+        "derived_from": {
+          "sitemap_redirects": "sitemap_in",
+          "sitemap_non_200": "sitemap_in"
+        },
+        "derivation_errors": {},
+        "frames": {
+          "internal_all": {
+            "columns": [
+              "Address",
+              "Status Code",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200,
+                "Home"
+              ],
+              [
+                "https://a.test/x",
+                404,
+                null
+              ]
+            ]
+          },
+          "sitemap_in": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200
+              ],
+              [
+                "https://a.test/old",
+                301
+              ],
+              [
+                "https://a.test/gone",
+                404
+              ]
+            ]
+          },
+          "sitemap_redirects": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/old",
+                301
+              ]
+            ]
+          },
+          "sitemap_non_200": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/gone",
+                404
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "dir": "derive_user",
+      "discovered": {
+        "internal_all": "internal_all.csv",
+        "sitemap_in": "urls_in_sitemap.csv",
+        "sitemap_redirects": "redirect_sitemap.csv"
+      },
+      "loaded": {
+        "files": {
+          "internal_all": "internal_all.csv",
+          "sitemap_in": "urls_in_sitemap.csv",
+          "sitemap_redirects": "redirect_sitemap.csv",
+          "sitemap_non_200": "urls_in_sitemap.csv"
+        },
+        "encodings": {
+          "internal_all": "utf-8-sig",
+          "sitemap_in": "utf-8-sig",
+          "sitemap_redirects": "utf-8-sig",
+          "sitemap_non_200": "utf-8-sig"
+        },
+        "found": [
+          "internal_all",
+          "sitemap_in",
+          "sitemap_redirects",
+          "sitemap_non_200"
+        ],
+        "missing": [
+          "resp_4xx",
+          "resp_5xx",
+          "resp_3xx",
+          "resp_no_response",
+          "resp_blocked",
+          "inlinks_4xx",
+          "inlinks_5xx",
+          "inlinks_3xx",
+          "all_inlinks",
+          "sitemap_not_in",
+          "sitemap_orphan",
+          "sitemap_non_indexable",
+          "images_missing_alt",
+          "images_over_kb",
+          "images_missing_size",
+          "titles_duplicate",
+          "titles_multiple",
+          "hreflang",
+          "all_hreflang",
+          "desc_duplicate",
+          "redirect_chains",
+          "security_mixed",
+          "security_hsts",
+          "structured_data_missing"
+        ],
+        "derived_from": {
+          "sitemap_non_200": "sitemap_in"
+        },
+        "derivation_errors": {},
+        "frames": {
+          "internal_all": {
+            "columns": [
+              "Address",
+              "Status Code",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200,
+                "Home"
+              ],
+              [
+                "https://a.test/x",
+                404,
+                null
+              ]
+            ]
+          },
+          "sitemap_in": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200
+              ],
+              [
+                "https://a.test/old",
+                301
+              ],
+              [
+                "https://a.test/gone",
+                404
+              ]
+            ]
+          },
+          "sitemap_redirects": {
+            "columns": [
+              "Address"
+            ],
+            "rows": [
+              [
+                "https://a.test/old"
+              ]
+            ]
+          },
+          "sitemap_non_200": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/gone",
+                404
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "dir": "derive_bad",
+      "discovered": {
+        "internal_all": "internal_all.csv",
+        "sitemap_in": "urls_in_sitemap.csv"
+      },
+      "loaded": {
+        "files": {
+          "internal_all": "internal_all.csv",
+          "sitemap_in": "urls_in_sitemap.csv"
+        },
+        "encodings": {
+          "internal_all": "utf-8-sig",
+          "sitemap_in": "utf-8-sig"
+        },
+        "found": [
+          "internal_all",
+          "sitemap_in"
+        ],
+        "missing": [
+          "resp_4xx",
+          "resp_5xx",
+          "resp_3xx",
+          "resp_no_response",
+          "resp_blocked",
+          "inlinks_4xx",
+          "inlinks_5xx",
+          "inlinks_3xx",
+          "all_inlinks",
+          "sitemap_not_in",
+          "sitemap_orphan",
+          "sitemap_non_indexable",
+          "sitemap_redirects",
+          "sitemap_non_200",
+          "images_missing_alt",
+          "images_over_kb",
+          "images_missing_size",
+          "titles_duplicate",
+          "titles_multiple",
+          "hreflang",
+          "all_hreflang",
+          "desc_duplicate",
+          "redirect_chains",
+          "security_mixed",
+          "security_hsts",
+          "structured_data_missing"
+        ],
+        "derived_from": {},
+        "derivation_errors": {
+          "sitemap_redirects": "cannot derive sitemap status findings: 1 URL(s) have missing or invalid Status Code values",
+          "sitemap_non_200": "cannot derive sitemap status findings: 1 URL(s) have missing or invalid Status Code values"
+        },
+        "frames": {
+          "internal_all": {
+            "columns": [
+              "Address",
+              "Status Code",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200,
+                "Home"
+              ],
+              [
+                "https://a.test/x",
+                404,
+                null
+              ]
+            ]
+          },
+          "sitemap_in": {
+            "columns": [
+              "Address",
+              "Status Code"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                "200"
+              ],
+              [
+                "https://a.test/x",
+                "abc"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "dir": "derive_nocol",
+      "discovered": {
+        "internal_all": "internal_all.csv",
+        "sitemap_in": "urls_in_sitemap.csv"
+      },
+      "loaded": {
+        "files": {
+          "internal_all": "internal_all.csv",
+          "sitemap_in": "urls_in_sitemap.csv"
+        },
+        "encodings": {
+          "internal_all": "utf-8-sig",
+          "sitemap_in": "utf-8-sig"
+        },
+        "found": [
+          "internal_all",
+          "sitemap_in"
+        ],
+        "missing": [
+          "resp_4xx",
+          "resp_5xx",
+          "resp_3xx",
+          "resp_no_response",
+          "resp_blocked",
+          "inlinks_4xx",
+          "inlinks_5xx",
+          "inlinks_3xx",
+          "all_inlinks",
+          "sitemap_not_in",
+          "sitemap_orphan",
+          "sitemap_non_indexable",
+          "sitemap_redirects",
+          "sitemap_non_200",
+          "images_missing_alt",
+          "images_over_kb",
+          "images_missing_size",
+          "titles_duplicate",
+          "titles_multiple",
+          "hreflang",
+          "all_hreflang",
+          "desc_duplicate",
+          "redirect_chains",
+          "security_mixed",
+          "security_hsts",
+          "structured_data_missing"
+        ],
+        "derived_from": {},
+        "derivation_errors": {
+          "sitemap_redirects": "cannot derive sitemap status findings: URLs In Sitemap has no Status Code column",
+          "sitemap_non_200": "cannot derive sitemap status findings: URLs In Sitemap has no Status Code column"
+        },
+        "frames": {
+          "internal_all": {
+            "columns": [
+              "Address",
+              "Status Code",
+              "Title 1"
+            ],
+            "rows": [
+              [
+                "https://a.test/",
+                200,
+                "Home"
+              ],
+              [
+                "https://a.test/x",
+                404,
+                null
+              ]
+            ]
+          },
+          "sitemap_in": {
+            "columns": [
+              "Address"
+            ],
+            "rows": [
+              [
+                "https://a.test/"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    {
+      "dir": "internal_bad",
+      "discovered": {
+        "internal_all": "internal_all.csv"
+      },
+      "loaded_error": "FileNotFoundError: Required export 'internal_all' was found at '<FIXTURES>/internal_bad/internal_all.csv' but could not be read: Could not decode export '<FIXTURES>/internal_bad/internal_all.csv': 'utf-8' codec can't decode byte 0x80 in position 0: invalid start byte."
+    }
+  ]
+}

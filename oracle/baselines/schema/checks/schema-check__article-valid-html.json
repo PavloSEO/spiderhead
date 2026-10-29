@@ -1,0 +1,93 @@
+{
+ "exit": 0,
+ "stdout": {
+  "blocks": 1,
+  "blocks_found": 1,
+  "blocks_invalid": 0,
+  "entities": [
+   {
+    "errors": [],
+    "format": "jsonld",
+    "id": null,
+    "path": "jsonld[1]",
+    "types": [
+     "Article"
+    ],
+    "warnings": []
+   },
+   {
+    "errors": [],
+    "format": "jsonld",
+    "id": null,
+    "path": "jsonld[1].author",
+    "types": [
+     "Person"
+    ],
+    "warnings": []
+   }
+  ],
+  "final_url": "{BASE}/article-valid.html",
+  "findings": [
+   "Rich-result checks above verify only locally observable structure (required properties present for a type Google documents); they are not a guarantee that Google will display a rich result for this page"
+  ],
+  "graph": {
+   "is_graph": false,
+   "islands": [],
+   "linked_by_id": 0,
+   "nodes": 2,
+   "top_level": 1,
+   "with_id": 0
+  },
+  "markup_counts": {
+   "microdata": 0,
+   "rdfa": 0
+  },
+  "markup_coverage": [
+   {
+    "format": "microdata",
+    "status": "absent"
+   },
+   {
+    "format": "rdfa",
+    "reasons": [],
+    "status": "absent"
+   }
+  ],
+  "ok": true,
+  "other_markup": {
+   "microdata": false,
+   "rdfa": false
+  },
+  "parse_errors": [],
+  "rich_results": [
+   {
+    "eligible": true,
+    "format": "jsonld",
+    "google_feature": "Article",
+    "missing_recommended": [
+     "dateModified"
+    ],
+    "missing_required": [],
+    "missing_required_any_of": [],
+    "path": "jsonld[1]",
+    "rules_version": "2026-10-23",
+    "type": "Article"
+   }
+  ],
+  "rules_version": "2026-10-23",
+  "status_code": 200,
+  "url": "{BASE}/article-valid.html",
+  "vocabularies": [
+   {
+    "blocks": 1,
+    "context": "https://schema.org",
+    "supported": true
+   }
+  ],
+  "vocabulary": {
+   "fetched": "2026-08-12",
+   "properties": 1676,
+   "types": 1010
+  }
+ }
+}

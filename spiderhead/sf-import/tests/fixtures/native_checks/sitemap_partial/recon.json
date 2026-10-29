@@ -1,0 +1,38 @@
+{
+ "available": false,
+ "bucket_counts": {
+  "in_sitemap_and_linked": 0,
+  "in_sitemap_not_linked": 0,
+  "linked_not_comparable": 0,
+  "linked_not_in_sitemap": 0
+ },
+ "buckets": {
+  "in_sitemap_and_linked": [],
+  "in_sitemap_not_linked": [],
+  "linked_not_comparable": [],
+  "linked_not_in_sitemap": []
+ },
+ "counts": {},
+ "crawl_partial": false,
+ "declared_facts": [
+  {
+   "blocked": 0,
+   "canonical": "",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 404,
+   "url": "https://example.test/broken",
+   "x_robots": ""
+  }
+ ],
+ "has_names": true,
+ "missing_canonical": [],
+ "orphan_facts": [],
+ "reason": "saved sitemap declaration membership is partial",
+ "summary": {
+  "available": false,
+  "reason": "saved sitemap declaration membership is partial"
+ }
+}

@@ -1,0 +1,9 @@
+[package]
+name = "spiderhead-remote"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Rust port of the reference remote (fastapi) service."
+
+[dependencies]
+spiderhead-core.workspace = true

@@ -1,0 +1,13 @@
+{
+ "exit": 0,
+ "stdout": {
+  "chain": [
+   {
+    "location": null,
+    "ok": true,
+    "status": 200,
+    "url": "{BASE}/final.html"
+   }
+  ]
+ }
+}

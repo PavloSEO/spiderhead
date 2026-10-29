@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "seohead: scan-sitemap-generate\n",
+    "stdout": "{\n  \"ok\": false,\n  \"format\": \"spiderhead.scan-sitemaps.v1\",\n  \"error\": \"sitemap_base_url must share the scan start URL origin\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_scan_sitemap_generate: {\"ok\": false, \"format\": \"spiderhead.scan-sitemaps.v1\", \"error\": \"sitemap_base_url must share the scan start URL origin\"}"
+   }
+  ]
+ }
+}

@@ -1,0 +1,269 @@
+{
+ "cases": [
+  {
+   "donors": [
+    "https://donor.example/page"
+   ],
+   "expected": {
+    "donors_checked": 1,
+    "donors_dropped": 0,
+    "ok": true,
+    "results": [
+     {
+      "canonical": "https://donor.example/page",
+      "canonical_elsewhere": false,
+      "donor": "https://donor.example/page",
+      "donor_indexable": true,
+      "final_url": "https://donor.example/page",
+      "found": true,
+      "links": [
+       {
+        "anchor": "click here",
+        "blocked_by": [
+         "nofollow",
+         "ugc"
+        ],
+        "disclosure": null,
+        "follow": false,
+        "href": "https://target.example/landing",
+        "mixed_rel": true,
+        "nofollow": true,
+        "rel": [
+         "nofollow",
+         "ugc"
+        ],
+        "sponsored": false,
+        "ugc": true
+       },
+       {
+        "anchor": "bare link",
+        "blocked_by": [],
+        "disclosure": null,
+        "follow": true,
+        "href": "https://target.example/landing",
+        "mixed_rel": false,
+        "nofollow": false,
+        "rel": [],
+        "sponsored": false,
+        "ugc": false
+       }
+      ],
+      "status_code": 200
+     }
+    ],
+    "summary": {
+     "dofollow": 1,
+     "found": 1,
+     "missing": 0,
+     "nofollow": 0,
+     "on_noindex_page": 0
+    },
+    "target": "target.example"
+   },
+   "name": "dofollow_and_nofollow",
+   "responses": {
+    "https://donor.example/page": {
+     "body": "<html><head><link rel=\"canonical\" href=\"https://donor.example/page\"></head><body><a href=\"https://target.example/landing\" rel=\"nofollow ugc\">click here</a><a href=\"https://target.example/landing\">bare link</a></body></html>",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://donor.example/page"
+    }
+   },
+   "target": "target.example"
+  },
+  {
+   "donors": [
+    "https://donor.example/xr"
+   ],
+   "expected": {
+    "donors_checked": 1,
+    "donors_dropped": 0,
+    "ok": true,
+    "results": [
+     {
+      "canonical": "https://donor.example/xr",
+      "canonical_elsewhere": false,
+      "donor": "https://donor.example/xr",
+      "donor_indexable": false,
+      "final_url": "https://donor.example/xr",
+      "found": true,
+      "links": [
+       {
+        "anchor": "click here",
+        "blocked_by": [
+         "page robots nofollow"
+        ],
+        "disclosure": null,
+        "follow": false,
+        "href": "https://target.example/",
+        "mixed_rel": false,
+        "nofollow": false,
+        "rel": [],
+        "sponsored": false,
+        "ugc": false
+       },
+       {
+        "anchor": "bare link",
+        "blocked_by": [
+         "page robots nofollow"
+        ],
+        "disclosure": null,
+        "follow": false,
+        "href": "https://target.example/",
+        "mixed_rel": false,
+        "nofollow": false,
+        "rel": [],
+        "sponsored": false,
+        "ugc": false
+       }
+      ],
+      "reason": "the link exists, but the donor page is not indexable",
+      "status_code": 200
+     }
+    ],
+    "summary": {
+     "dofollow": 0,
+     "found": 1,
+     "missing": 0,
+     "nofollow": 1,
+     "on_noindex_page": 1
+    },
+    "target": "target.example"
+   },
+   "name": "x_robots_noindex_nofollow",
+   "responses": {
+    "https://donor.example/xr": {
+     "body": "<html><head><link rel=\"canonical\" href=\"https://donor.example/xr\"></head><body><a href=\"https://target.example/\" rel=\"\">click here</a><a href=\"https://target.example/\">bare link</a></body></html>",
+     "headers": {
+      "x-robots-tag": "noindex, nofollow"
+     },
+     "status_code": 200,
+     "url": "https://donor.example/xr"
+    }
+   },
+   "target": "target.example"
+  },
+  {
+   "donors": [
+    "https://donor.example/bing"
+   ],
+   "expected": {
+    "donors_checked": 1,
+    "donors_dropped": 0,
+    "ok": true,
+    "results": [
+     {
+      "canonical": "https://donor.example/bing",
+      "canonical_elsewhere": false,
+      "donor": "https://donor.example/bing",
+      "donor_indexable": true,
+      "final_url": "https://donor.example/bing",
+      "found": true,
+      "links": [
+       {
+        "anchor": "click here",
+        "blocked_by": [],
+        "disclosure": null,
+        "follow": true,
+        "href": "https://target.example/",
+        "mixed_rel": false,
+        "nofollow": false,
+        "rel": [],
+        "sponsored": false,
+        "ugc": false
+       },
+       {
+        "anchor": "bare link",
+        "blocked_by": [],
+        "disclosure": null,
+        "follow": true,
+        "href": "https://target.example/",
+        "mixed_rel": false,
+        "nofollow": false,
+        "rel": [],
+        "sponsored": false,
+        "ugc": false
+       }
+      ],
+      "status_code": 200
+     }
+    ],
+    "summary": {
+     "dofollow": 1,
+     "found": 1,
+     "missing": 0,
+     "nofollow": 0,
+     "on_noindex_page": 0
+    },
+    "target": "target.example"
+   },
+   "name": "bing_scoped_does_not_block",
+   "responses": {
+    "https://donor.example/bing": {
+     "body": "<html><head><link rel=\"canonical\" href=\"https://donor.example/bing\"></head><body><a href=\"https://target.example/\" rel=\"\">click here</a><a href=\"https://target.example/\">bare link</a></body></html>",
+     "headers": {
+      "x-robots-tag": "bingbot: noindex"
+     },
+     "status_code": 200,
+     "url": "https://donor.example/bing"
+    }
+   },
+   "target": "target.example"
+  },
+  {
+   "donors": [
+    "https://donor.example/nolink",
+    "https://donor.example/dead"
+   ],
+   "expected": {
+    "donors_checked": 2,
+    "donors_dropped": 0,
+    "ok": true,
+    "results": [
+     {
+      "canonical": null,
+      "canonical_elsewhere": false,
+      "donor": "https://donor.example/nolink",
+      "donor_indexable": true,
+      "final_url": "https://donor.example/nolink",
+      "found": false,
+      "links": [],
+      "reason": "no link to the target domain was found on the page",
+      "status_code": 200
+     },
+     {
+      "donor": "https://donor.example/dead",
+      "final_url": "https://donor.example/dead",
+      "found": false,
+      "links": [],
+      "reason": "donor page returned HTTP 404",
+      "status_code": 404
+     }
+    ],
+    "summary": {
+     "dofollow": 0,
+     "found": 0,
+     "missing": 2,
+     "nofollow": 0,
+     "on_noindex_page": 0
+    },
+    "target": "target.example"
+   },
+   "name": "missing_link_and_404",
+   "responses": {
+    "https://donor.example/dead": {
+     "headers": {},
+     "status_code": 404,
+     "url": "https://donor.example/dead"
+    },
+    "https://donor.example/nolink": {
+     "body": "<html><body>no links</body></html>",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://donor.example/nolink"
+    }
+   },
+   "target": "target.example"
+  }
+ ]
+}

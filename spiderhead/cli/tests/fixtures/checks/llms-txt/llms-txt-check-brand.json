@@ -1,0 +1,13 @@
+{
+ "argv": [
+  "llms-txt-check",
+  "--url",
+  "{BASE}/",
+  "--brand",
+  "Acme"
+ ],
+ "command": "llms-txt-check",
+ "exit": 0,
+ "stderr": "seohead: llms-txt-check\n",
+ "stdout": "{\n  \"url\": \"{BASE}/llms.txt\",\n  \"status_code\": 200,\n  \"exists\": true,\n  \"ok\": true,\n  \"score\": 10.0,\n  \"grade\": \"A\",\n  \"passed\": 9,\n  \"total\": 9,\n  \"checks\": [\n    {\n      \"name\": \"H1 heading names the project (Acme)\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"At least 3 H2 sections\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"At least 3 Markdown links\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"Brand mention (Acme)\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"Product or service category mention\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"Product or pricing page\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"Proof: cases, testimonials, reviews, or customers\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"Documentation, API, or guide\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"Size at most 60 KiB\",\n      \"passed\": true\n    }\n  ],\n  \"stats\": {\n    \"h1\": true,\n    \"sections\": 3,\n    \"links\": 5,\n    \"mentions_brand\": true,\n    \"size_bytes\": 523,\n    \"size_ok\": true\n  }\n}\n"
+}

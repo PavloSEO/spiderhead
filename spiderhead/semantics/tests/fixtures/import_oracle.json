@@ -1,0 +1,2066 @@
+{
+ "stage": "import",
+ "scenarios": [
+  {
+   "name": "add_csv",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-add_csv-_kyhmmoy"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": [
+      {
+       "norm": "существующий",
+       "base": 40,
+       "status": "kept",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "наблюдаемая",
+       "status": "new",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "вне файла",
+       "base": 15,
+       "status": "review",
+       "depth": 0,
+       "region": "225"
+      }
+     ]
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.csv",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "import.csv",
+     "b64": "77u/cXVlcnk7ZnJlcXVlbmN5O2dyb3VwO3VybDtpbXByO3Bvc19nO2NvbW1lbnQKItCX0LDQv9GA0L7RgSDQntC00LjQvSI7MTAwO1NFTy/QkNGD0LTQuNGCO2h0dHBzOi8vYS5ydS87NTs70L/QtdGA0LLRi9C5CtC30LDQv9GA0L7RgSDQtNCy0LA7O1NFTzs7OzsK0JfQkNCf0KDQntChINC+0LTQuNC9OzUwOztodHRwczovL2IucnUvOzs7CtC90LDQsdC70Y7QtNCw0LXQvNCw0Y87Ozs7OzQ7CtGB0YPRidC10YHRgtCy0YPRjtGJ0LjQuTs5OTk7Ozs7Owo="
+    }
+   ],
+   "expect": {
+    "result": {
+     "contract": "spiderhead.semantics.operation.v1",
+     "mode": "preview",
+     "state": "complete",
+     "format": "spiderhead.semantics.import-plan.v1",
+     "file_type": "csv",
+     "sheet": null,
+     "merge": "add",
+     "applied_mapping": {
+      "query": "query",
+      "frequency": "frequency",
+      "group": "group",
+      "url": "url",
+      "comment": "comment",
+      "impr": "impr",
+      "pos_g": "pos_g"
+     },
+     "input_rows": 5,
+     "unique_queries": 4,
+     "new": 2,
+     "already_in_core": 2,
+     "duplicates_in_input": 1,
+     "group_counts": {
+      "SEO": 2,
+      "(ungrouped)": 2
+     },
+     "preview": [
+      {
+       "query": "запрос один",
+       "values": {
+        "base": 50,
+        "impr": 5,
+        "group_name": "SEO",
+        "subgroup": "Аудит",
+        "url": "https://b.ru/",
+        "comment": "первый"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "запрос два",
+       "values": {
+        "group_name": "SEO"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "наблюдаемая",
+       "values": {
+        "pos_g": 4
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "существующий",
+       "values": {
+        "base": 999
+       },
+       "duplicate_in_file": false
+      }
+     ],
+     "replacement_rows": null,
+     "added": 2,
+     "updated": 0,
+     "skipped_existing": 2
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "существующий",
+       "base": 40,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "наблюдаемая",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": "observed search demand",
+       "reason_stage": "import",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "вне файла",
+       "base": 15,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "review",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "запрос один",
+       "base": 50,
+       "quoted": null,
+       "exact": null,
+       "impr": 5,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "observed search demand",
+       "reason_stage": "import",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": "SEO",
+       "subgroup": "Аудит",
+       "url": "https://b.ru/",
+       "comment": "первый"
+      },
+      {
+       "id": 5,
+       "norm": "запрос два",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": "SEO",
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [],
+     "semantic_audit": [
+      {
+       "id": 1,
+       "at": "__ts__",
+       "action": "import",
+       "entity": "phrases",
+       "before_json": null,
+       "after_json": "{\"merge\": \"add\", \"rows\": 2}",
+       "evidence_json": "{\"file_type\": \"csv\", \"sheet\": null}"
+      }
+     ],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "update_merge",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-update_merge-b468s6ua"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": [
+      {
+       "norm": "существующий",
+       "base": 40,
+       "status": "kept",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "наблюдаемая",
+       "status": "new",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "вне файла",
+       "base": 15,
+       "status": "review",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "запрос один",
+       "base": 30,
+       "exact": 7,
+       "status": "kept",
+       "depth": 0,
+       "region": "225"
+      }
+     ]
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.csv",
+    "merge": "update",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "import.csv",
+     "b64": "77u/cXVlcnk7ZnJlcXVlbmN5O2dyb3VwO3VybDtpbXByO3Bvc19nO2NvbW1lbnQKItCX0LDQv9GA0L7RgSDQntC00LjQvSI7MTAwO1NFTy/QkNGD0LTQuNGCO2h0dHBzOi8vYS5ydS87NTs70L/QtdGA0LLRi9C5CtC30LDQv9GA0L7RgSDQtNCy0LA7O1NFTzs7OzsK0JfQkNCf0KDQntChINC+0LTQuNC9OzUwOztodHRwczovL2IucnUvOzs7CtC90LDQsdC70Y7QtNCw0LXQvNCw0Y87Ozs7OzQ7CtGB0YPRidC10YHRgtCy0YPRjtGJ0LjQuTs5OTk7Ozs7Owo="
+    }
+   ],
+   "expect": {
+    "result": {
+     "contract": "spiderhead.semantics.operation.v1",
+     "mode": "preview",
+     "state": "complete",
+     "format": "spiderhead.semantics.import-plan.v1",
+     "file_type": "csv",
+     "sheet": null,
+     "merge": "update",
+     "applied_mapping": {
+      "query": "query",
+      "frequency": "frequency",
+      "group": "group",
+      "url": "url",
+      "comment": "comment",
+      "impr": "impr",
+      "pos_g": "pos_g"
+     },
+     "input_rows": 5,
+     "unique_queries": 4,
+     "new": 1,
+     "already_in_core": 3,
+     "duplicates_in_input": 1,
+     "group_counts": {
+      "SEO": 2,
+      "(ungrouped)": 2
+     },
+     "preview": [
+      {
+       "query": "запрос один",
+       "values": {
+        "base": 50,
+        "impr": 5,
+        "group_name": "SEO",
+        "subgroup": "Аудит",
+        "url": "https://b.ru/",
+        "comment": "первый"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "запрос два",
+       "values": {
+        "group_name": "SEO"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "наблюдаемая",
+       "values": {
+        "pos_g": 4
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "существующий",
+       "values": {
+        "base": 999
+       },
+       "duplicate_in_file": false
+      }
+     ],
+     "replacement_rows": null,
+     "added": 1,
+     "updated": 3,
+     "skipped_existing": 0
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "существующий",
+       "base": 999,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "наблюдаемая",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": 4,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": "observed search demand",
+       "reason_stage": "import",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "вне файла",
+       "base": 15,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "review",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "запрос один",
+       "base": 50,
+       "quoted": null,
+       "exact": 7,
+       "impr": 5,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": "observed search demand",
+       "reason_stage": "import",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": "SEO",
+       "subgroup": "Аудит",
+       "url": "https://b.ru/",
+       "comment": "первый"
+      },
+      {
+       "id": 5,
+       "norm": "запрос два",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": "SEO",
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [],
+     "semantic_audit": [
+      {
+       "id": 1,
+       "at": "__ts__",
+       "action": "import",
+       "entity": "phrases",
+       "before_json": null,
+       "after_json": "{\"merge\": \"update\", \"rows\": 4}",
+       "evidence_json": "{\"file_type\": \"csv\", \"sheet\": null}"
+      }
+     ],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "replace_merge",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-replace_merge-1tu71ixb"
+   },
+   "setup": {
+    "ddl": [
+     "CREATE TABLE IF NOT EXISTS provider_tasks (\n    id INTEGER PRIMARY KEY, provider TEXT NOT NULL, stage TEXT NOT NULL,\n    region INTEGER NOT NULL, payload_json TEXT NOT NULL, state TEXT NOT NULL,\n    task_id INTEGER, cost REAL, result_json TEXT, error TEXT\n)"
+    ],
+    "ops": [],
+    "tables": {
+     "phrases": [
+      {
+       "norm": "старая одна",
+       "base": 10,
+       "status": "kept",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "старая два",
+       "base": 20,
+       "status": "dropped",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "старая три",
+       "base": 30,
+       "status": "review",
+       "depth": 0,
+       "region": "225"
+      }
+     ],
+     "edges": [
+      {
+       "parent": "старая одна",
+       "child": "старая два",
+       "kind": "expand"
+      }
+     ],
+     "serp": [
+      {
+       "phrase_norm": "старая одна",
+       "pos": 1,
+       "url": "https://old.ru/",
+       "domain": "old.ru"
+      }
+     ],
+     "clusters": [
+      {
+       "id": 1,
+       "name": "старый",
+       "is_real": 1
+      }
+     ],
+     "provider_tasks": [
+      {
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"queries\": [\"x\"]}",
+       "state": "complete",
+       "task_id": 314,
+       "cost": 3.0,
+       "result_json": "{\"code\": \"TASK_RESULT\"}"
+      }
+     ]
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.csv",
+    "merge": "replace",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "import.csv",
+     "b64": "77u/cXVlcnk7ZnJlcXVlbmN5O2dyb3VwO3VybDtpbXByO3Bvc19nO2NvbW1lbnQKItCX0LDQv9GA0L7RgSDQntC00LjQvSI7MTAwO1NFTy/QkNGD0LTQuNGCO2h0dHBzOi8vYS5ydS87NTs70L/QtdGA0LLRi9C5CtC30LDQv9GA0L7RgSDQtNCy0LA7O1NFTzs7OzsK0JfQkNCf0KDQntChINC+0LTQuNC9OzUwOztodHRwczovL2IucnUvOzs7CtC90LDQsdC70Y7QtNCw0LXQvNCw0Y87Ozs7OzQ7CtGB0YPRidC10YHRgtCy0YPRjtGJ0LjQuTs5OTk7Ozs7Owo="
+    }
+   ],
+   "expect": {
+    "result": {
+     "contract": "spiderhead.semantics.operation.v1",
+     "mode": "preview",
+     "state": "complete",
+     "format": "spiderhead.semantics.import-plan.v1",
+     "file_type": "csv",
+     "sheet": null,
+     "merge": "replace",
+     "applied_mapping": {
+      "query": "query",
+      "frequency": "frequency",
+      "group": "group",
+      "url": "url",
+      "comment": "comment",
+      "impr": "impr",
+      "pos_g": "pos_g"
+     },
+     "input_rows": 5,
+     "unique_queries": 4,
+     "new": 4,
+     "already_in_core": 0,
+     "duplicates_in_input": 1,
+     "group_counts": {
+      "SEO": 2,
+      "(ungrouped)": 2
+     },
+     "preview": [
+      {
+       "query": "запрос один",
+       "values": {
+        "base": 50,
+        "impr": 5,
+        "group_name": "SEO",
+        "subgroup": "Аудит",
+        "url": "https://b.ru/",
+        "comment": "первый"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "запрос два",
+       "values": {
+        "group_name": "SEO"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "наблюдаемая",
+       "values": {
+        "pos_g": 4
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "существующий",
+       "values": {
+        "base": 999
+       },
+       "duplicate_in_file": false
+      }
+     ],
+     "replacement_rows": 3,
+     "added": 4,
+     "updated": 0,
+     "skipped_existing": 0
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "запрос один",
+       "base": 50,
+       "quoted": null,
+       "exact": null,
+       "impr": 5,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "observed search demand",
+       "reason_stage": "import",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": "SEO",
+       "subgroup": "Аудит",
+       "url": "https://b.ru/",
+       "comment": "первый"
+      },
+      {
+       "id": 2,
+       "norm": "запрос два",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": "SEO",
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "наблюдаемая",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": 4,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "observed search demand",
+       "reason_stage": "import",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "существующий",
+       "base": 999,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "provider_tasks": [
+      {
+       "id": 1,
+       "provider": "arsenkin",
+       "stage": "exact",
+       "region": 225,
+       "payload_json": "{\"queries\": [\"x\"]}",
+       "state": "complete",
+       "task_id": 314,
+       "cost": 3.0,
+       "result_json": "{\"code\": \"TASK_RESULT\"}",
+       "error": null
+      }
+     ],
+     "runs": [],
+     "semantic_audit": [
+      {
+       "id": 1,
+       "at": "__ts__",
+       "action": "import",
+       "entity": "phrases",
+       "before_json": "{\"merge\": \"replace\", \"rows\": 3}",
+       "after_json": "{\"merge\": \"replace\", \"rows\": 4}",
+       "evidence_json": "{\"file_type\": \"csv\", \"sheet\": null}"
+      }
+     ],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "plan_preview",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-plan_preview-v927oqe3"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": [
+      {
+       "norm": "существующий",
+       "base": 40,
+       "status": "kept",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "наблюдаемая",
+       "status": "new",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "вне файла",
+       "base": 15,
+       "status": "review",
+       "depth": 0,
+       "region": "225"
+      }
+     ]
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.csv",
+    "mode": "plan"
+   },
+   "input_files": [
+    {
+     "name": "import.csv",
+     "b64": "77u/cXVlcnk7ZnJlcXVlbmN5O2dyb3VwO3VybDtpbXByO3Bvc19nO2NvbW1lbnQKItCX0LDQv9GA0L7RgSDQntC00LjQvSI7MTAwO1NFTy/QkNGD0LTQuNGCO2h0dHBzOi8vYS5ydS87NTs70L/QtdGA0LLRi9C5CtC30LDQv9GA0L7RgSDQtNCy0LA7O1NFTzs7OzsK0JfQkNCf0KDQntChINC+0LTQuNC9OzUwOztodHRwczovL2IucnUvOzs7CtC90LDQsdC70Y7QtNCw0LXQvNCw0Y87Ozs7OzQ7CtGB0YPRidC10YHRgtCy0YPRjtGJ0LjQuTs5OTk7Ozs7Owo="
+    }
+   ],
+   "expect": {
+    "result": {
+     "contract": "spiderhead.semantics.operation.v1",
+     "mode": "preview",
+     "state": "complete",
+     "format": "spiderhead.semantics.import-plan.v1",
+     "file_type": "csv",
+     "sheet": null,
+     "merge": "add",
+     "applied_mapping": {
+      "query": "query",
+      "frequency": "frequency",
+      "group": "group",
+      "url": "url",
+      "comment": "comment",
+      "impr": "impr",
+      "pos_g": "pos_g"
+     },
+     "input_rows": 5,
+     "unique_queries": 4,
+     "new": 2,
+     "already_in_core": 2,
+     "duplicates_in_input": 1,
+     "group_counts": {
+      "SEO": 2,
+      "(ungrouped)": 2
+     },
+     "preview": [
+      {
+       "query": "запрос один",
+       "values": {
+        "base": 50,
+        "impr": 5,
+        "group_name": "SEO",
+        "subgroup": "Аудит",
+        "url": "https://b.ru/",
+        "comment": "первый"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "запрос два",
+       "values": {
+        "group_name": "SEO"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "наблюдаемая",
+       "values": {
+        "pos_g": 4
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "существующий",
+       "values": {
+        "base": 999
+       },
+       "duplicate_in_file": false
+      }
+     ],
+     "replacement_rows": null
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "существующий",
+       "base": 40,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "наблюдаемая",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "вне файла",
+       "base": 15,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "review",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "xlsx_sheet",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-xlsx_sheet-k5xw0mre"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.xlsx",
+    "sheet": "Second",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "import.xlsx",
+     "b64": "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"
+    }
+   ],
+   "expect": {
+    "result": {
+     "contract": "spiderhead.semantics.operation.v1",
+     "mode": "preview",
+     "state": "complete",
+     "format": "spiderhead.semantics.import-plan.v1",
+     "file_type": "xlsx",
+     "sheet": "Second",
+     "merge": "add",
+     "applied_mapping": {
+      "query": "query",
+      "frequency": "frequency",
+      "impr": "impr"
+     },
+     "input_rows": 3,
+     "unique_queries": 3,
+     "new": 3,
+     "already_in_core": 0,
+     "duplicates_in_input": 0,
+     "group_counts": {
+      "(ungrouped)": 3
+     },
+     "preview": [
+      {
+       "query": "икс запрос",
+       "values": {
+        "base": 42,
+        "impr": 3
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "игрек",
+       "values": {
+        "base": 7
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "строковое число",
+       "values": {
+        "base": 12
+       },
+       "duplicate_in_file": false
+      }
+     ],
+     "replacement_rows": null,
+     "added": 3,
+     "updated": 0,
+     "skipped_existing": 0
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "икс запрос",
+       "base": 42,
+       "quoted": null,
+       "exact": null,
+       "impr": 3,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "observed search demand",
+       "reason_stage": "import",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "игрек",
+       "base": 7,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "строковое число",
+       "base": 12,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [],
+     "semantic_audit": [
+      {
+       "id": 1,
+       "at": "__ts__",
+       "action": "import",
+       "entity": "phrases",
+       "before_json": null,
+       "after_json": "{\"merge\": \"add\", \"rows\": 3}",
+       "evidence_json": "{\"file_type\": \"xlsx\", \"sheet\": \"Second\"}"
+      }
+     ],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "explicit_mapping",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-explicit_mapping-jtimnv1v"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "m.csv",
+    "mapping": {
+     "query": "фраза",
+     "base": "частота"
+    },
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "m.csv",
+     "b64": "0YTRgNCw0LfQsCzRh9Cw0YHRgtC+0YLQsCzQutCw0YLQtdCz0L7RgNC40Y8K0LzQsNC/0L/QtdC0INC+0LTQuNC9LDks0JAK0LzQsNC/0L/QtdC0INC00LLQsCwsCg=="
+    }
+   ],
+   "expect": {
+    "result": {
+     "contract": "spiderhead.semantics.operation.v1",
+     "mode": "preview",
+     "state": "complete",
+     "format": "spiderhead.semantics.import-plan.v1",
+     "file_type": "csv",
+     "sheet": null,
+     "merge": "add",
+     "applied_mapping": {
+      "query": "фраза",
+      "frequency": "частота",
+      "group": "категория"
+     },
+     "input_rows": 2,
+     "unique_queries": 2,
+     "new": 2,
+     "already_in_core": 0,
+     "duplicates_in_input": 0,
+     "group_counts": {
+      "А": 1,
+      "(ungrouped)": 1
+     },
+     "preview": [
+      {
+       "query": "маппед один",
+       "values": {
+        "base": 9,
+        "group_name": "А"
+       },
+       "duplicate_in_file": false
+      },
+      {
+       "query": "маппед два",
+       "values": {},
+       "duplicate_in_file": false
+      }
+     ],
+     "replacement_rows": null,
+     "added": 2,
+     "updated": 0,
+     "skipped_existing": 0
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "маппед один",
+       "base": 9,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": "А",
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "маппед два",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [],
+     "semantic_audit": [
+      {
+       "id": 1,
+       "at": "__ts__",
+       "action": "import",
+       "entity": "phrases",
+       "before_json": null,
+       "after_json": "{\"merge\": \"add\", \"rows\": 2}",
+       "evidence_json": "{\"file_type\": \"csv\", \"sheet\": null}"
+      }
+     ],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "missing_file",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-missing_file-jj5uj57i"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "gone.csv",
+    "mode": "run"
+   },
+   "input_files": [],
+   "expect": {
+    "error": "import file not found: /var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-missing_file-jj5uj57i/gone.csv",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "empty_replace",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-empty_replace-_8m1whux"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": [
+      {
+       "norm": "существующий",
+       "base": 40,
+       "status": "kept",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "наблюдаемая",
+       "status": "new",
+       "depth": 0,
+       "region": "225"
+      },
+      {
+       "norm": "вне файла",
+       "base": 15,
+       "status": "review",
+       "depth": 0,
+       "region": "225"
+      }
+     ]
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "e.csv",
+    "merge": "replace",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "e.csv",
+     "b64": "cXVlcnksZnJlcXVlbmN5CiwK"
+    }
+   ],
+   "expect": {
+    "error": "replace import contains no valid queries; refusing to clear the semantic core",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "существующий",
+       "base": 40,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "наблюдаемая",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "вне файла",
+       "base": 15,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "review",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "no_query_column",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-no_query_column-dox3l7yr"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "n.csv",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "n.csv",
+     "b64": "YWxwaGEsYmV0YQoxLDIK"
+    }
+   ],
+   "expect": {
+    "error": "import needs an explicit query mapping or a norm/phrase/query column",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "invalid_frequency",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-invalid_frequency-k4cwpvto"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "i.csv",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "i.csv",
+     "b64": "cXVlcnksZnJlcXVlbmN5CmFiYyDQt9Cw0L/RgNC+0YEsYWJjCg=="
+    }
+   ],
+   "expect": {
+    "error": "invalid frequency on input row 2",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "negative_frequency",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-negative_frequency-leks03td"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "n2.csv",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "n2.csv",
+     "b64": "cXVlcnksZnJlcXVlbmN5CmFiYyDQt9Cw0L/RgNC+0YEsLTUK"
+    }
+   ],
+   "expect": {
+    "error": "negative frequency on input row 2",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "unknown_mapping",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-unknown_mapping-je3cpt14"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.csv",
+    "mapping": {
+     "bogus": "x",
+     "zone": "y"
+    },
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "import.csv",
+     "b64": "77u/cXVlcnk7ZnJlcXVlbmN5O2dyb3VwO3VybDtpbXByO3Bvc19nO2NvbW1lbnQKItCX0LDQv9GA0L7RgSDQntC00LjQvSI7MTAwO1NFTy/QkNGD0LTQuNGCO2h0dHBzOi8vYS5ydS87NTs70L/QtdGA0LLRi9C5CtC30LDQv9GA0L7RgSDQtNCy0LA7O1NFTzs7OzsK0JfQkNCf0KDQntChINC+0LTQuNC9OzUwOztodHRwczovL2IucnUvOzs7CtC90LDQsdC70Y7QtNCw0LXQvNCw0Y87Ozs7OzQ7CtGB0YPRidC10YHRgtCy0YPRjtGJ0LjQuTs5OTk7Ozs7Owo="
+    }
+   ],
+   "expect": {
+    "error": "unsupported import mapping fields: bogus, zone",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "missing_column",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-missing_column-f8_r78jg"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.csv",
+    "mapping": {
+     "exact": "zzz"
+    },
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "import.csv",
+     "b64": "77u/cXVlcnk7ZnJlcXVlbmN5O2dyb3VwO3VybDtpbXByO3Bvc19nO2NvbW1lbnQKItCX0LDQv9GA0L7RgSDQntC00LjQvSI7MTAwO1NFTy/QkNGD0LTQuNGCO2h0dHBzOi8vYS5ydS87NTs70L/QtdGA0LLRi9C5CtC30LDQv9GA0L7RgSDQtNCy0LA7O1NFTzs7OzsK0JfQkNCf0KDQntChINC+0LTQuNC9OzUwOztodHRwczovL2IucnUvOzs7CtC90LDQsdC70Y7QtNCw0LXQvNCw0Y87Ozs7OzQ7CtGB0YPRidC10YHRgtCy0YPRjtGJ0LjQuTs5OTk7Ozs7Owo="
+    }
+   ],
+   "expect": {
+    "error": "column for exact not found: zzz",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "sheet_on_csv",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-sheet_on_csv-9wjh1jde"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.csv",
+    "sheet": "S1",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "import.csv",
+     "b64": "77u/cXVlcnk7ZnJlcXVlbmN5O2dyb3VwO3VybDtpbXByO3Bvc19nO2NvbW1lbnQKItCX0LDQv9GA0L7RgSDQntC00LjQvSI7MTAwO1NFTy/QkNGD0LTQuNGCO2h0dHBzOi8vYS5ydS87NTs70L/QtdGA0LLRi9C5CtC30LDQv9GA0L7RgSDQtNCy0LA7O1NFTzs7OzsK0JfQkNCf0KDQntChINC+0LTQuNC9OzUwOztodHRwczovL2IucnUvOzs7CtC90LDQsdC70Y7QtNCw0LXQvNCw0Y87Ozs7OzQ7CtGB0YPRidC10YHRgtCy0YPRjtGJ0LjQuTs5OTk7Ozs7Owo="
+    }
+   ],
+   "expect": {
+    "error": "--sheet is available only for .xlsx and .xlsm imports",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "duplicate_headers",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-duplicate_headers-h3lgkl36"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "d.csv",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "d.csv",
+     "b64": "cXVlcnksUXVlcnkKeCwxCg=="
+    }
+   ],
+   "expect": {
+    "error": "CSV headers must be unique",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "wrong_width",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-wrong_width-9g4f2mqw"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "w.csv",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "w.csv",
+     "b64": "cXVlcnksZnJlcXVlbmN5CngsMSxleHRyYQo="
+    }
+   ],
+   "expect": {
+    "error": "wrong column count on CSV row 2",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  },
+  {
+   "name": "sheet_not_found",
+   "cfg": {
+    "_project": "demo",
+    "regions": [
+     225
+    ],
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/imp-sheet_not_found-iqqpu02r"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": []
+    }
+   },
+   "providers": {},
+   "args": {
+    "file": "import.xlsx",
+    "sheet": "Nope",
+    "mode": "run"
+   },
+   "input_files": [
+    {
+     "name": "import.xlsx",
+     "b64": "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"
+    }
+   ],
+   "expect": {
+    "error": "worksheet not found: Nope",
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    }
+   }
+  }
+ ]
+}

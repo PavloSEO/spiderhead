@@ -1,0 +1,1501 @@
+[
+ {
+  "name": "save-and-list",
+  "ops": [
+   {
+    "fn": "_setup",
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": "z1",
+      "zone": "example.com",
+      "period": {
+       "from": "2026-10-01",
+       "to": "2026-10-07"
+      },
+      "requests": 42,
+      "sampled": false,
+      "truncated_days": [],
+      "url_facts": [
+       {
+        "host": "example.com",
+        "path": "/a",
+        "date": "2026-10-01",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 200,
+        "origin_status": null,
+        "cache_status": "hit",
+        "edge_redirect": false,
+        "requests": 10
+       },
+       {
+        "host": "example.com",
+        "path": "/b",
+        "date": "2026-10-02",
+        "bot_family": "ai",
+        "bot_name": "ClaudeBot (Anthropic)",
+        "verified_bot_category": "AI Crawler",
+        "edge_status": 404,
+        "origin_status": 404,
+        "cache_status": "miss",
+        "edge_redirect": false,
+        "requests": 3
+       }
+      ],
+      "url_facts_truncated": false,
+      "url_facts_omitted": 0,
+      "verification": {
+       "checked": false,
+       "reason": "no IPs"
+      },
+      "note": "aggregated"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "result": {
+      "state": "stored",
+      "snapshot_id": 1,
+      "snapshot_state": "complete"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": "z1",
+      "zone": "example.com",
+      "period": {
+       "from": "2026-10-01",
+       "to": "2026-10-07"
+      },
+      "requests": 42,
+      "sampled": false,
+      "truncated_days": [],
+      "url_facts": [
+       {
+        "host": "example.com",
+        "path": "/a",
+        "date": "2026-10-01",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 200,
+        "origin_status": null,
+        "cache_status": "hit",
+        "edge_redirect": false,
+        "requests": 10
+       },
+       {
+        "host": "example.com",
+        "path": "/b",
+        "date": "2026-10-02",
+        "bot_family": "ai",
+        "bot_name": "ClaudeBot (Anthropic)",
+        "verified_bot_category": "AI Crawler",
+        "edge_status": 404,
+        "origin_status": 404,
+        "cache_status": "miss",
+        "edge_redirect": false,
+        "requests": 3
+       }
+      ],
+      "url_facts_truncated": false,
+      "url_facts_omitted": 0,
+      "verification": {
+       "checked": false,
+       "reason": "no IPs"
+      },
+      "note": "aggregated"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "result": {
+      "state": "stored",
+      "snapshot_id": 1,
+      "snapshot_state": "complete"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": "z2",
+      "zone": "other.test",
+      "period": {
+       "from": "2026-10-01",
+       "to": "2026-10-07"
+      },
+      "requests": 42,
+      "sampled": true,
+      "truncated_days": [
+       "2026-10-03"
+      ],
+      "url_facts": [
+       {
+        "host": "example.com",
+        "path": "/a",
+        "date": "2026-10-01",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 200,
+        "origin_status": null,
+        "cache_status": "hit",
+        "edge_redirect": false,
+        "requests": 10
+       },
+       {
+        "host": "example.com",
+        "path": "/b",
+        "date": "2026-10-02",
+        "bot_family": "ai",
+        "bot_name": "ClaudeBot (Anthropic)",
+        "verified_bot_category": "AI Crawler",
+        "edge_status": 404,
+        "origin_status": 404,
+        "cache_status": "miss",
+        "edge_redirect": false,
+        "requests": 3
+       }
+      ],
+      "url_facts_truncated": true,
+      "url_facts_omitted": 7,
+      "verification": {
+       "checked": false,
+       "reason": "no IPs"
+      },
+      "note": "aggregated"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-11T00:00:00+00:00"
+    },
+    "outcome": {
+     "result": {
+      "state": "stored",
+      "snapshot_id": 2,
+      "snapshot_state": "partial"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": false,
+      "zone_id": "z1"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "a successful Cloudflare result with zone ID is required"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 2,
+      "offset": 0,
+      "limit": 2,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": false,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": [
+       {
+        "snapshot_id": 2,
+        "zone_id": "z2",
+        "zone": "other.test",
+        "observed_at": "2026-10-11T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "partial",
+        "sampled": true,
+        "truncated_days": [
+         "2026-10-03"
+        ],
+        "url_facts_available": true,
+        "url_facts_payload_bytes": 651
+       },
+       {
+        "snapshot_id": 1,
+        "zone_id": "z1",
+        "zone": "example.com",
+        "observed_at": "2026-10-10T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated_days": [],
+        "url_facts_available": true,
+        "url_facts_payload_bytes": 653
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "limit": 1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 2,
+      "offset": 0,
+      "limit": 1,
+      "has_more": true,
+      "next_offset": 1,
+      "truncated_by_byte_limit": false,
+      "facts_included": false,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": [
+       {
+        "snapshot_id": 2,
+        "zone_id": "z2",
+        "zone": "other.test",
+        "observed_at": "2026-10-11T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "partial",
+        "sampled": true,
+        "truncated_days": [
+         "2026-10-03"
+        ],
+        "url_facts_available": true,
+        "url_facts_payload_bytes": 651
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "limit": 1,
+     "offset": 1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 2,
+      "offset": 1,
+      "limit": 1,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": false,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": [
+       {
+        "snapshot_id": 1,
+        "zone_id": "z1",
+        "zone": "example.com",
+        "observed_at": "2026-10-10T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated_days": [],
+        "url_facts_available": true,
+        "url_facts_payload_bytes": 653
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "zone_id": "z2",
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 1,
+      "offset": 0,
+      "limit": 1,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": false,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": [
+       {
+        "snapshot_id": 2,
+        "zone_id": "z2",
+        "zone": "other.test",
+        "observed_at": "2026-10-11T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "partial",
+        "sampled": true,
+        "truncated_days": [
+         "2026-10-03"
+        ],
+        "url_facts_available": true,
+        "url_facts_payload_bytes": 651
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "snapshot_id": 1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 1,
+      "offset": 0,
+      "limit": 1,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": false,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": [
+       {
+        "snapshot_id": 1,
+        "zone_id": "z1",
+        "zone": "example.com",
+        "observed_at": "2026-10-10T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated_days": [],
+        "url_facts_available": true,
+        "url_facts_payload_bytes": 653
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "snapshot_id": 99,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 0,
+      "offset": 0,
+      "limit": 0,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": false,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": []
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "zone_id": "nope",
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 0,
+      "offset": 0,
+      "limit": 0,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": false,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": []
+     }
+    }
+   },
+   {
+    "fn": "list_zones",
+    "kw": {
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 2,
+      "offset": 0,
+      "limit": 100,
+      "zones": [
+       {
+        "zone_id": "z2",
+        "zone": "other.test",
+        "latest_observed_at": "2026-10-11T00:00:00+00:00",
+        "latest_period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "partial",
+        "sampled": true,
+        "truncated": true
+       },
+       {
+        "zone_id": "z1",
+        "zone": "example.com",
+        "latest_observed_at": "2026-10-10T00:00:00+00:00",
+        "latest_period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated": false
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_zones",
+    "kw": {
+     "limit": 1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 2,
+      "offset": 0,
+      "limit": 1,
+      "zones": [
+       {
+        "zone_id": "z2",
+        "zone": "other.test",
+        "latest_observed_at": "2026-10-11T00:00:00+00:00",
+        "latest_period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "partial",
+        "sampled": true,
+        "truncated": true
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "facts-paging",
+  "ops": [
+   {
+    "fn": "_setup",
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": "z1",
+      "zone": "example.com",
+      "period": {
+       "from": "2026-10-01",
+       "to": "2026-10-07"
+      },
+      "requests": 42,
+      "sampled": false,
+      "truncated_days": [],
+      "url_facts": [
+       {
+        "host": "example.com",
+        "path": "/a",
+        "date": "2026-10-01",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 200,
+        "origin_status": null,
+        "cache_status": "hit",
+        "edge_redirect": false,
+        "requests": 10
+       },
+       {
+        "host": "example.com",
+        "path": "/b",
+        "date": "2026-10-02",
+        "bot_family": "ai",
+        "bot_name": "ClaudeBot (Anthropic)",
+        "verified_bot_category": "AI Crawler",
+        "edge_status": 404,
+        "origin_status": 404,
+        "cache_status": "miss",
+        "edge_redirect": false,
+        "requests": 3
+       }
+      ],
+      "url_facts_truncated": false,
+      "url_facts_omitted": 0,
+      "verification": {
+       "checked": false,
+       "reason": "no IPs"
+      },
+      "note": "aggregated"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "result": {
+      "state": "stored",
+      "snapshot_id": 1,
+      "snapshot_state": "complete"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "include_facts": true,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 1,
+      "offset": 0,
+      "limit": 1,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": true,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": [
+       {
+        "snapshot_id": 1,
+        "zone_id": "z1",
+        "zone": "example.com",
+        "observed_at": "2026-10-10T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated_days": [],
+        "url_facts_available": true,
+        "url_facts": [
+         {
+          "host": "example.com",
+          "path": "/a",
+          "date": "2026-10-01",
+          "bot_family": "googlebot",
+          "bot_name": "Googlebot",
+          "verified_bot_category": "Search Engine Crawler",
+          "edge_status": 200,
+          "origin_status": null,
+          "cache_status": "hit",
+          "edge_redirect": false,
+          "requests": 10
+         },
+         {
+          "host": "example.com",
+          "path": "/b",
+          "date": "2026-10-02",
+          "bot_family": "ai",
+          "bot_name": "ClaudeBot (Anthropic)",
+          "verified_bot_category": "AI Crawler",
+          "edge_status": 404,
+          "origin_status": 404,
+          "cache_status": "miss",
+          "edge_redirect": false,
+          "requests": 3
+         }
+        ],
+        "url_facts_source_truncated": false,
+        "url_facts_truncated": false,
+        "url_facts_omitted": 0,
+        "url_facts_total_retained": 2,
+        "url_facts_offset": 0,
+        "url_facts_next_offset": null,
+        "url_facts_page_omitted": 0
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "include_facts": true,
+     "facts_limit": 1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 1,
+      "offset": 0,
+      "limit": 1,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": true,
+      "facts_page": {
+       "offset": 0,
+       "limit": 1
+      },
+      "rows": [
+       {
+        "snapshot_id": 1,
+        "zone_id": "z1",
+        "zone": "example.com",
+        "observed_at": "2026-10-10T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated_days": [],
+        "url_facts_available": true,
+        "url_facts": [
+         {
+          "host": "example.com",
+          "path": "/a",
+          "date": "2026-10-01",
+          "bot_family": "googlebot",
+          "bot_name": "Googlebot",
+          "verified_bot_category": "Search Engine Crawler",
+          "edge_status": 200,
+          "origin_status": null,
+          "cache_status": "hit",
+          "edge_redirect": false,
+          "requests": 10
+         }
+        ],
+        "url_facts_source_truncated": false,
+        "url_facts_truncated": false,
+        "url_facts_omitted": 0,
+        "url_facts_total_retained": 2,
+        "url_facts_offset": 0,
+        "url_facts_next_offset": 1,
+        "url_facts_page_omitted": 1
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "include_facts": true,
+     "facts_limit": 1,
+     "facts_offset": 1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 1,
+      "offset": 0,
+      "limit": 1,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": true,
+      "facts_page": {
+       "offset": 1,
+       "limit": 1
+      },
+      "rows": [
+       {
+        "snapshot_id": 1,
+        "zone_id": "z1",
+        "zone": "example.com",
+        "observed_at": "2026-10-10T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated_days": [],
+        "url_facts_available": true,
+        "url_facts": [
+         {
+          "host": "example.com",
+          "path": "/b",
+          "date": "2026-10-02",
+          "bot_family": "ai",
+          "bot_name": "ClaudeBot (Anthropic)",
+          "verified_bot_category": "AI Crawler",
+          "edge_status": 404,
+          "origin_status": 404,
+          "cache_status": "miss",
+          "edge_redirect": false,
+          "requests": 3
+         }
+        ],
+        "url_facts_source_truncated": false,
+        "url_facts_truncated": false,
+        "url_facts_omitted": 0,
+        "url_facts_total_retained": 2,
+        "url_facts_offset": 1,
+        "url_facts_next_offset": null,
+        "url_facts_page_omitted": 0
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "include_facts": true,
+     "facts_offset": 5,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 1,
+      "offset": 0,
+      "limit": 1,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": true,
+      "facts_page": {
+       "offset": 5,
+       "limit": 100
+      },
+      "rows": [
+       {
+        "snapshot_id": 1,
+        "zone_id": "z1",
+        "zone": "example.com",
+        "observed_at": "2026-10-10T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated_days": [],
+        "url_facts_available": true,
+        "url_facts": [],
+        "url_facts_source_truncated": false,
+        "url_facts_truncated": false,
+        "url_facts_omitted": 0,
+        "url_facts_total_retained": 2,
+        "url_facts_offset": 5,
+        "url_facts_next_offset": null,
+        "url_facts_page_omitted": 0
+       }
+      ]
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "include_facts": true,
+     "limit": 50,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "source": "cloudflare-history",
+      "schema_version": "spiderhead.cloudflare-history.v1",
+      "total": 1,
+      "offset": 0,
+      "limit": 1,
+      "has_more": false,
+      "next_offset": null,
+      "truncated_by_byte_limit": false,
+      "facts_included": true,
+      "facts_page": {
+       "offset": 0,
+       "limit": 100
+      },
+      "rows": [
+       {
+        "snapshot_id": 1,
+        "zone_id": "z1",
+        "zone": "example.com",
+        "observed_at": "2026-10-10T00:00:00+00:00",
+        "period": {
+         "from": "2026-10-01",
+         "to": "2026-10-07"
+        },
+        "state": "complete",
+        "sampled": false,
+        "truncated_days": [],
+        "url_facts_available": true,
+        "url_facts": [
+         {
+          "host": "example.com",
+          "path": "/a",
+          "date": "2026-10-01",
+          "bot_family": "googlebot",
+          "bot_name": "Googlebot",
+          "verified_bot_category": "Search Engine Crawler",
+          "edge_status": 200,
+          "origin_status": null,
+          "cache_status": "hit",
+          "edge_redirect": false,
+          "requests": 10
+         },
+         {
+          "host": "example.com",
+          "path": "/b",
+          "date": "2026-10-02",
+          "bot_family": "ai",
+          "bot_name": "ClaudeBot (Anthropic)",
+          "verified_bot_category": "AI Crawler",
+          "edge_status": 404,
+          "origin_status": 404,
+          "cache_status": "miss",
+          "edge_redirect": false,
+          "requests": 3
+         }
+        ],
+        "url_facts_source_truncated": false,
+        "url_facts_truncated": false,
+        "url_facts_omitted": 0,
+        "url_facts_total_retained": 2,
+        "url_facts_offset": 0,
+        "url_facts_next_offset": null,
+        "url_facts_page_omitted": 0
+       }
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "validation-errors",
+  "ops": [
+   {
+    "fn": "_setup",
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "limit": 0,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..100 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "limit": 101,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..100 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "limit": "5",
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..100 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "offset": -1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..100 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "offset": true,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..100 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "include_facts": "yes",
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "include_facts must be a boolean"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "facts_offset": -1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "facts_offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "facts_limit": 0,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "facts_limit must be 1..500"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "facts_limit": 501,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "facts_limit must be 1..500"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "snapshot_id": 0,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "snapshot_id must be positive"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "snapshot_id": "1",
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "snapshot_id must be positive"
+     }
+    }
+   },
+   {
+    "fn": "list_zones",
+    "kw": {
+     "limit": 0,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..100 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "list_zones",
+    "kw": {
+     "offset": -1,
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "limit must be 1..100 and offset must be nonnegative"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "project": "$BASE/missing"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "project must be a regular directory"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": "z1",
+      "zone": "example.com",
+      "period": {
+       "from": "2026-10-01",
+       "to": "2026-10-07"
+      },
+      "requests": 42,
+      "sampled": false,
+      "truncated_days": [],
+      "url_facts": [
+       {
+        "host": "example.com",
+        "path": "/a",
+        "date": "2026-10-01",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 200,
+        "origin_status": null,
+        "cache_status": "hit",
+        "edge_redirect": false,
+        "requests": 10
+       },
+       {
+        "host": "example.com",
+        "path": "/b",
+        "date": "2026-10-02",
+        "bot_family": "ai",
+        "bot_name": "ClaudeBot (Anthropic)",
+        "verified_bot_category": "AI Crawler",
+        "edge_status": 404,
+        "origin_status": 404,
+        "cache_status": "miss",
+        "edge_redirect": false,
+        "requests": 3
+       }
+      ],
+      "url_facts_truncated": false,
+      "url_facts_omitted": 0,
+      "verification": {
+       "checked": false,
+       "reason": "no IPs"
+      },
+      "note": "aggregated"
+     },
+     "project": "$BASE/missing",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "project must be a regular directory"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": null,
+      "zone": "example.com",
+      "period": {
+       "from": "2026-10-01",
+       "to": "2026-10-07"
+      },
+      "requests": 42,
+      "sampled": false,
+      "truncated_days": [],
+      "url_facts": [
+       {
+        "host": "example.com",
+        "path": "/a",
+        "date": "2026-10-01",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 200,
+        "origin_status": null,
+        "cache_status": "hit",
+        "edge_redirect": false,
+        "requests": 10
+       },
+       {
+        "host": "example.com",
+        "path": "/b",
+        "date": "2026-10-02",
+        "bot_family": "ai",
+        "bot_name": "ClaudeBot (Anthropic)",
+        "verified_bot_category": "AI Crawler",
+        "edge_status": 404,
+        "origin_status": 404,
+        "cache_status": "miss",
+        "edge_redirect": false,
+        "requests": 3
+       }
+      ],
+      "url_facts_truncated": false,
+      "url_facts_omitted": 0,
+      "verification": {
+       "checked": false,
+       "reason": "no IPs"
+      },
+      "note": "aggregated"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "a successful Cloudflare result with zone ID is required"
+     }
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": "z3"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "error": {
+      "class": "KeyError",
+      "message": "'zone'"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "foreign-and-marker",
+  "ops": [
+   {
+    "fn": "_setup",
+    "sqlite_foreign": [
+     "cloudflare.sqlite"
+    ],
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": "z1",
+      "zone": "example.com",
+      "period": {
+       "from": "2026-10-01",
+       "to": "2026-10-07"
+      },
+      "requests": 42,
+      "sampled": false,
+      "truncated_days": [],
+      "url_facts": [
+       {
+        "host": "example.com",
+        "path": "/a",
+        "date": "2026-10-01",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 200,
+        "origin_status": null,
+        "cache_status": "hit",
+        "edge_redirect": false,
+        "requests": 10
+       },
+       {
+        "host": "example.com",
+        "path": "/b",
+        "date": "2026-10-02",
+        "bot_family": "ai",
+        "bot_name": "ClaudeBot (Anthropic)",
+        "verified_bot_category": "AI Crawler",
+        "edge_status": 404,
+        "origin_status": 404,
+        "cache_status": "miss",
+        "edge_redirect": false,
+        "requests": 3
+       }
+      ],
+      "url_facts_truncated": false,
+      "url_facts_omitted": 0,
+      "verification": {
+       "checked": false,
+       "reason": "no IPs"
+      },
+      "note": "aggregated"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Cloudflare history must be a private regular unaliased file"
+     }
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Cloudflare history must be a private regular unaliased file"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "bad-marker",
+  "ops": [
+   {
+    "fn": "_setup",
+    "sqlite_bad_marker": [
+     "cloudflare.sqlite"
+    ],
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "list_snapshots",
+    "kw": {
+     "project": "$BASE/proj"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Cloudflare history must be a private regular unaliased file"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "open-mode-db",
+  "ops": [
+   {
+    "fn": "_setup",
+    "sqlite_open": [
+     [
+      "cloudflare.sqlite",
+      420
+     ]
+    ],
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "save_snapshot",
+    "kw": {
+     "result": {
+      "ok": true,
+      "zone_id": "z1",
+      "zone": "example.com",
+      "period": {
+       "from": "2026-10-01",
+       "to": "2026-10-07"
+      },
+      "requests": 42,
+      "sampled": false,
+      "truncated_days": [],
+      "url_facts": [
+       {
+        "host": "example.com",
+        "path": "/a",
+        "date": "2026-10-01",
+        "bot_family": "googlebot",
+        "bot_name": "Googlebot",
+        "verified_bot_category": "Search Engine Crawler",
+        "edge_status": 200,
+        "origin_status": null,
+        "cache_status": "hit",
+        "edge_redirect": false,
+        "requests": 10
+       },
+       {
+        "host": "example.com",
+        "path": "/b",
+        "date": "2026-10-02",
+        "bot_family": "ai",
+        "bot_name": "ClaudeBot (Anthropic)",
+        "verified_bot_category": "AI Crawler",
+        "edge_status": 404,
+        "origin_status": 404,
+        "cache_status": "miss",
+        "edge_redirect": false,
+        "requests": 3
+       }
+      ],
+      "url_facts_truncated": false,
+      "url_facts_omitted": 0,
+      "verification": {
+       "checked": false,
+       "reason": "no IPs"
+      },
+      "note": "aggregated"
+     },
+     "project": "$BASE/proj",
+     "observed_at": "2026-10-10T00:00:00+00:00"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Cloudflare history must be a private regular unaliased file"
+     }
+    }
+   }
+  ]
+ }
+]

@@ -1,0 +1,28 @@
+{
+ "exit": 0,
+ "stdout": {
+  "max_children": 50,
+  "max_depth": 3,
+  "max_nodes": 10000,
+  "ok": true,
+  "reason": "",
+  "scope": {
+   "excluded_other_origins": 0,
+   "included_pages": 9,
+   "origin": "127.0.0.1:{PORT}",
+   "total_pages": 9
+  },
+  "source": {
+   "evidence_revision": 9,
+   "lifecycle": "finished",
+   "scan_uuid": "<UUID:1>"
+  },
+  "state": "available",
+  "tree": {
+   "children": [],
+   "name": "/",
+   "pages": 9
+  },
+  "validation": "light"
+ }
+}

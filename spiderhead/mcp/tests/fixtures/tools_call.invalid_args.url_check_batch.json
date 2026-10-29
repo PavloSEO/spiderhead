@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Error executing tool seo_url_check_batch: 1 validation error for seo_url_check_batchArguments\nurls\n  Input should be a valid list [type=list_type, input_value='not-a-list', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/list_type"
+      }
+    ],
+    "isError": true
+  }
+}

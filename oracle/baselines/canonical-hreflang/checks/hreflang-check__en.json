@@ -1,0 +1,29 @@
+{
+ "exit": 0,
+ "stdout": {
+  "alternates": [
+   {
+    "href": "{BASE}/en/",
+    "hreflang": "en"
+   },
+   {
+    "href": "{BASE}/de/",
+    "hreflang": "de"
+   },
+   {
+    "href": "{BASE}/en/",
+    "hreflang": "x-default"
+   },
+   {
+    "href": "{BASE}/fr/",
+    "hreflang": "fr"
+   }
+  ],
+  "count": 4,
+  "final_url": "{BASE}/en/",
+  "issues": [],
+  "ok": true,
+  "status_code": 200,
+  "url": "{BASE}/en/"
+ }
+}

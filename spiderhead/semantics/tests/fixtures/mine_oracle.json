@@ -1,0 +1,401 @@
+{
+ "stage": "mine",
+ "scenarios": [
+  {
+   "name": "full",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/mine-oracle-x8wo502u",
+    "_project": "mine-proj",
+    "preset": "generic",
+    "intent": "seo|аудит|продвижен|замок|установк|сайт|онлайн|сервис|инструмент|проверк",
+    "stop": "купить",
+    "info": ""
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [
+     [
+      "upsert",
+      "seo аудит сайта",
+      500,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "upsert",
+      "замок врезной",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "upsert",
+      "мусорная фраза",
+      100,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "seo аудит сайта",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_status",
+      "замок врезной",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "add_serp",
+      "seo аудит сайта",
+      [
+       {
+        "pos": 1,
+        "url": "https://a.ru/p1",
+        "domain": "a.ru",
+        "title": "t"
+       },
+       {
+        "pos": 2,
+        "url": "https://a.ru/p2",
+        "domain": "a.ru",
+        "title": "t"
+       },
+       {
+        "pos": 8,
+        "url": "https://deep.ru/x",
+        "domain": "deep.ru",
+        "title": "t"
+       },
+       {
+        "pos": 4,
+        "url": "https://dup.ru/z",
+        "domain": "dup.ru",
+        "title": "t"
+       }
+      ]
+     ],
+     [
+      "add_serp",
+      "замок врезной",
+      [
+       {
+        "pos": 1,
+        "url": "https://a.ru/p1",
+        "domain": "a.ru",
+        "title": "t"
+       },
+       {
+        "pos": 3,
+        "url": "https://b.ru/k",
+        "domain": "b.ru",
+        "title": "t"
+       },
+       {
+        "pos": 5,
+        "url": "https://dup.ru/z",
+        "domain": "dup.ru",
+        "title": "t"
+       }
+      ]
+     ],
+     [
+      "add_serp",
+      "мусорная фраза",
+      [
+       {
+        "pos": 1,
+        "url": "https://ghost.ru/g",
+        "domain": "ghost.ru",
+        "title": "t"
+       }
+      ]
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {
+    "pages": {
+     "https://a.ru/p1": {
+      "title": "SEO аудит сайта инструмент | BrandCo",
+      "meta": "Аудит сайта онлайн сервис проверка",
+      "h1": [
+       "Аудит сайта за 5 минут"
+      ],
+      "h2": [
+       "SEO аудит инструмент",
+       "Второй",
+       "Третий",
+       "Четвёртый",
+       "Пятый",
+       "Шестой",
+       "Седьмой h2 игнорируется"
+      ]
+     },
+     "https://b.ru/k": {
+      "title": "Замок врезной установка дверь",
+      "meta": "Купить замок врезной",
+      "h1": [],
+      "h2": []
+     },
+     "https://dup.ru/z": {
+      "title": "",
+      "meta": "",
+      "h1": [],
+      "h2": []
+     },
+     "https://a.ru/p2": null
+    }
+   },
+   "args": {
+    "out_dir": "report",
+    "top_urls": 60
+   },
+   "files": {
+    "synonyms.txt": "уже есть фраза\n"
+   },
+   "expect": {
+    "result": {
+     "fetched": 3,
+     "candidates": 19
+    },
+    "calls": {
+     "pages": [
+      "https://dup.ru/z",
+      "https://a.ru/p1",
+      "https://b.ru/k",
+      "https://a.ru/p2"
+     ]
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "seo аудит сайта",
+       "base": 500,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "замок врезной",
+       "base": 300,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "мусорная фраза",
+       "base": 100,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "mine",
+       "n_requests": 0,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "pages=3, candidates=19"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": [
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 1,
+       "url": "https://a.ru/p1",
+       "domain": "a.ru",
+       "title": "t",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 2,
+       "url": "https://a.ru/p2",
+       "domain": "a.ru",
+       "title": "t",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 8,
+       "url": "https://deep.ru/x",
+       "domain": "deep.ru",
+       "title": "t",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 4,
+       "url": "https://dup.ru/z",
+       "domain": "dup.ru",
+       "title": "t",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной",
+       "pos": 1,
+       "url": "https://a.ru/p1",
+       "domain": "a.ru",
+       "title": "t",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной",
+       "pos": 3,
+       "url": "https://b.ru/k",
+       "domain": "b.ru",
+       "title": "t",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной",
+       "pos": 5,
+       "url": "https://dup.ru/z",
+       "domain": "dup.ru",
+       "title": "t",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "мусорная фраза",
+       "pos": 1,
+       "url": "https://ghost.ru/g",
+       "domain": "ghost.ru",
+       "title": "t",
+       "fetched_at": "__ts__"
+      }
+     ]
+    },
+    "files": {
+     "report/competitor_mining.md": "# Competitor mining (title and headings) — mine-proj\n\nPages parsed: 3 of top 4. New candidate phrases: 19\n\nAppended to synonyms.txt; the `synonyms` stage checks them in Wordstat.\n\n- аудит сайта (×3)\n- seo аудит (×2)\n- сайта инструмент (×1)\n- аудит сайта инструмент (×1)\n- сайта онлайн (×1)\n- онлайн сервис (×1)\n- сервис проверка (×1)\n- аудит сайта онлайн (×1)\n- сайта онлайн сервис (×1)\n- онлайн сервис проверка (×1)\n- сайта за (×1)\n- аудит сайта за (×1)\n- сайта за 5 (×1)\n- аудит инструмент (×1)\n- seo аудит инструмент (×1)\n- врезной установка (×1)\n- установка дверь (×1)\n- замок врезной установка (×1)\n- врезной установка дверь (×1)\n",
+     "synonyms.txt": "уже есть фраза\nаудит сайта\nseo аудит\nсайта инструмент\nаудит сайта инструмент\nсайта онлайн\nонлайн сервис\nсервис проверка\nаудит сайта онлайн\nсайта онлайн сервис\nонлайн сервис проверка\nсайта за\nаудит сайта за\nсайта за 5\nаудит инструмент\nseo аудит инструмент\nврезной установка\nустановка дверь\nзамок врезной установка\nврезной установка дверь\n"
+    }
+   }
+  },
+  {
+   "name": "empty",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/mine-empty-15fwcsj1",
+    "_project": "p",
+    "preset": "generic"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {}
+   },
+   "providers": {},
+   "args": {
+    "out_dir": "report",
+    "top_urls": 60
+   },
+   "files": {},
+   "expect": {
+    "result": {},
+    "calls": {},
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+{
+  "format": "seohead.gsc-progress-input.v1",
+  "brand_rules": [
+    {"id": "brand", "match": "tokens", "value": "Acme"},
+    {"id": "exact-brand", "match": "exact", "value": "Acme SEO"}
+  ],
+  "periods": [
+    {"id": "previous", "start_date": "2026-01-01", "end_date": "2026-01-31"},
+    {"id": "current", "start_date": "2026-02-01", "end_date": "2026-02-28"}
+  ],
+  "evidence": {
+    "format": "seohead.normalized-evidence.v1",
+    "mapping": {
+      "source": {"provider": "gsc", "timezone": "America/Los_Angeles", "search_type": "web"},
+      "period": {"start_date": "2026-01-01", "end_date": "2026-02-28"},
+      "collection": {"state": "partial", "sampled": false, "thresholded": true, "truncated": false},
+      "dimensions": ["query", "page", "date", "country"]
+    },
+    "rows": [
+      {"url": {"normalized": "https://example.test/"}, "dimensions": {"query": "ACME services", "page": "https://example.test/", "date": "2026-01-05", "country": "US"}, "metrics": {"clicks": {"value": 2, "state": "measured"}, "impressions": {"value": 10, "state": "measured"}, "position": {"value": 4, "state": "measured"}}, "ambiguous": false},
+      {"url": {"normalized": "https://example.test/"}, "dimensions": {"query": "acme services", "page": "https://example.test/", "date": "2026-02-05", "country": "US"}, "metrics": {"clicks": {"value": 0, "state": "measured"}, "impressions": {"value": 20, "state": "measured"}, "position": {"value": 3, "state": "measured"}}, "ambiguous": false},
+      {"url": {"normalized": "https://example.test/guide"}, "dimensions": {"query": "best services", "page": "https://example.test/guide", "date": "2026-01-06", "country": "US"}, "metrics": {"clicks": {"value": 0, "state": "measured"}, "impressions": {"value": 0, "state": "measured"}, "position": {"value": 9, "state": "measured"}}, "ambiguous": false},
+      {"url": {"normalized": "https://example.test/guide"}, "dimensions": {"query": "best services", "page": "https://example.test/guide", "date": "2026-02-06", "country": "US"}, "metrics": {"clicks": {"value": 1, "state": "measured"}, "impressions": {"value": 5, "state": "measured"}, "position": {"value": null, "state": "unknown", "reason": "suppressed"}}, "ambiguous": false},
+      {"url": {"normalized": "https://example.test/"}, "dimensions": {"query": "Acme SEO", "page": "https://example.test/", "date": "2026-02-07", "country": "US"}, "metrics": {"clicks": {"value": 1, "state": "measured"}, "impressions": {"value": 2, "state": "measured"}}, "ambiguous": false}
+    ]
+  }
+}

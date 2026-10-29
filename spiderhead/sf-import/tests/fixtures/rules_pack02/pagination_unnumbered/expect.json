@@ -1,0 +1,259 @@
+{
+ "asset_measurements": {},
+ "checks": [
+  "check_pagination_sequence"
+ ],
+ "config": {
+  "analysis": {
+   "semantic": {
+    "adapter": "tfidf",
+    "st_model": null
+   }
+  },
+  "canonical_policy": {
+   "filters": [],
+   "pagination": []
+  },
+  "checks": {},
+  "exports": {
+   "bulk": [
+    "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+    "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+    "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+   ],
+   "fetch_all_inlinks": false,
+   "reports": [
+    "Redirects:Redirect Chains",
+    "Hreflang:All hreflang URLs"
+   ],
+   "tabs": [
+    "Internal:All",
+    "Response Codes:Client Error (4xx)",
+    "Response Codes:Server Error (5xx)",
+    "Response Codes:Redirection (3xx)",
+    "Sitemaps:URLs in Sitemap",
+    "Sitemaps:URLs not in Sitemap",
+    "Sitemaps:Orphan URLs",
+    "Sitemaps:Non-Indexable URLs in Sitemap",
+    "Page Titles:Multiple",
+    "Structured Data:Validation Errors",
+    "Structured Data:Validation Warnings",
+    "Security:Mixed Content",
+    "Images:Missing Alt Text",
+    "Images:Missing Size Attributes",
+    "JavaScript:All",
+    "Canonicals:All",
+    "H1:All",
+    "Hreflang:Non-200 hreflang URLs",
+    "Page Titles:Duplicate",
+    "Meta Description:Duplicate",
+    "Images:Over X KB",
+    "Security:Missing HSTS Header",
+    "Structured Data:Missing",
+    "Response Codes:No Response",
+    "Response Codes:Blocked by Robots.txt"
+   ]
+  },
+  "filters": {
+   "content_type_include": [
+    "text/html"
+   ],
+   "exclude_extensions": [
+    ".js",
+    ".css",
+    ".json",
+    ".xml",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".pdf",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".eot",
+    ".ico"
+   ]
+  },
+  "finding_exclusions": [],
+  "input": {
+   "exports_dir": "exports",
+   "html_store_dir": null,
+   "lighthouse_reports": {},
+   "mode": "auto"
+  },
+  "live_recheck": {
+   "enabled": false,
+   "max_urls": 5000,
+   "timeout_s": 10,
+   "use": "auto",
+   "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+  },
+  "output": {
+   "json_path": "audit.json",
+   "keep_raw_exports": true,
+   "max_locations_per_issue": 200,
+   "max_pages_in_json": 100000,
+   "md_path": "audit.md"
+  },
+  "profile": "full",
+  "requirements": {
+   "require_canonical": true,
+   "require_h2": false,
+   "require_hreflang": false,
+   "require_og": false,
+   "require_structured_data": false
+  },
+  "scoring": {
+   "weights": {
+    "critical": 5,
+    "notice": 0.5,
+    "opportunity": 0.25,
+    "warning": 2
+   }
+  },
+  "semantic_similarity": {
+   "adapter": null,
+   "cache_path": null,
+   "embeddings": [],
+   "max_candidate_comparisons": 250000,
+   "max_documents": 1000,
+   "relevance_threshold": 0.35,
+   "threshold": 0.82
+  },
+  "severity_overrides": {},
+  "sf_cli": {
+   "expected_urls": 0,
+   "export_format": "csv",
+   "max_urls_per_second": null,
+   "path": "",
+   "search_paths": [
+    "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+    "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+    "/usr/bin/screamingfrogseospider",
+    "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+    "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+   ],
+   "seospiderconfig": "audit.seospiderconfig",
+   "timeout_minutes": 30
+  },
+  "tasks_pipeline": {
+   "assignments": [],
+   "effort_map": {
+    "critical": "high",
+    "notice": "low",
+    "opportunity": "low",
+    "warning": "medium"
+   },
+   "exclude_checks": [],
+   "group_by": "check",
+   "include_checks": [],
+   "include_severities": [
+    "critical",
+    "warning",
+    "notice",
+    "opportunity"
+   ],
+   "max_urls_per_task": 25,
+   "min_occurrences": 1,
+   "priority_map": {
+    "critical": "P1",
+    "notice": "P3",
+    "opportunity": "P3",
+    "warning": "P2"
+   }
+  },
+  "thresholds": {
+   "avg_words_per_sentence_max": 25,
+   "bytes_per_word_x_median": 4.0,
+   "click_depth_max": 10,
+   "crawl_depth_max": 4,
+   "desc_max_chars": 160,
+   "desc_max_px": 985,
+   "desc_min_chars": 70,
+   "desc_min_px": 400,
+   "dom_depth_max": 32,
+   "dom_nodes_max": 1500,
+   "h1_max_chars": 70,
+   "high_external_outlinks": 100,
+   "high_outlinks": 300,
+   "img_max_kb": 150,
+   "large_html_abs_kb": 200,
+   "large_html_x_median": 3.0,
+   "link_score_low_ratio": 0.25,
+   "low_text_ratio_pct": 10,
+   "near_duplicate_similarity": 0.92,
+   "network_payload_max_bytes": 4194304,
+   "orphan_inlinks_min": 1,
+   "page_weight_max_bytes": 2097152,
+   "readability_flesch_min": 30,
+   "redirect_hop_cap": 20,
+   "resource_max_bytes": 2097152,
+   "response_time_max_s": 1.5,
+   "sitemap_desync_pct_warn": 20,
+   "sitemap_lastmod_stale_days": 365,
+   "templated_title_share": 0.6,
+   "thin_content_words": 200,
+   "title_max_chars": 60,
+   "title_max_px": 561,
+   "title_min_chars": 30,
+   "title_min_px": 200,
+   "url_max_chars": 115
+  }
+ },
+ "exports": {
+  "internal_all": {
+   "columns": [
+    "Address",
+    "Content Type",
+    "Status Code",
+    "Status",
+    "Indexability",
+    "Indexability Status",
+    "rel=\"next\" 1",
+    "Inlinks",
+    "rel=\"prev\" 1"
+   ],
+   "rows": [
+    [
+     "https://example.test/blog/first",
+     "text/html",
+     200,
+     "OK",
+     "Indexable",
+     "",
+     "https://example.test/blog/second",
+     5.0,
+     null
+    ],
+    [
+     "https://example.test/blog/second",
+     "text/html",
+     200,
+     "OK",
+     "Indexable",
+     "",
+     "https://example.test/blog/third",
+     null,
+     "https://example.test/blog/first"
+    ],
+    [
+     "https://example.test/blog/third",
+     "text/html",
+     200,
+     "OK",
+     "Indexable",
+     "",
+     null,
+     null,
+     "https://example.test/blog/second"
+    ]
+   ]
+  }
+ },
+ "issues": [],
+ "skipped": [],
+ "target_probes": {}
+}

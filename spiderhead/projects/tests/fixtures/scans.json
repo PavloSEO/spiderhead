@@ -1,0 +1,2236 @@
+[
+ {
+  "name": "files",
+  "steps": [
+   {
+    "op": "file.write",
+    "args": {
+     "path": "a/b.txt",
+     "text": "hello"
+    }
+   },
+   {
+    "op": "file.write",
+    "args": {
+     "path": "a/c.json",
+     "json": {
+      "k": [
+       1,
+       2
+      ],
+      "u": "é"
+     }
+    }
+   },
+   {
+    "op": "file.read",
+    "args": {
+     "path": "a/b.txt"
+    }
+   },
+   {
+    "op": "file.read",
+    "args": {
+     "path": "a/c.json"
+    }
+   },
+   {
+    "op": "file.read",
+    "args": {
+     "path": "a/missing.txt"
+    }
+   },
+   {
+    "op": "file.mkdir",
+    "args": {
+     "path": "a/sub"
+    }
+   },
+   {
+    "op": "file.tree",
+    "args": {
+     "path": "a"
+    }
+   },
+   {
+    "op": "file.tree",
+    "args": {
+     "path": "nope"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": null
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": "hello"
+   },
+   {
+    "ok": {
+     "k": [
+      1,
+      2
+     ],
+     "u": "é"
+    }
+   },
+   {
+    "error": "FileNotFoundError: [Errno 2] No such file or directory: '<DIR>/a/missing.txt'"
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": {
+     "b.txt": {
+      "text": "hello"
+     },
+     "c.json": {
+      "json": {
+       "k": [
+        1,
+        2
+       ],
+       "u": "é"
+      }
+     },
+     "sub": {
+      "dir": true
+     }
+    }
+   },
+   {
+    "ok": {}
+   }
+  ]
+ },
+ {
+  "name": "catalogue",
+  "steps": [
+   {
+    "op": "catalogue.definition_hash",
+    "args": {
+     "definition": {
+      "id": "check:x",
+      "execution_kind": "automatic",
+      "scope": "page",
+      "title": "T"
+     }
+    }
+   },
+   {
+    "op": "catalogue.definition_hash",
+    "args": {
+     "definition": {
+      "id": "check:x",
+      "execution_kind": "manual",
+      "scope": "page",
+      "title": "T"
+     }
+    }
+   },
+   {
+    "op": "catalogue.definition_hash",
+    "args": {
+     "definition": {}
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": "<SHA>"
+   },
+   {
+    "ok": "<SHA>"
+   },
+   {
+    "ok": "<SHA>"
+   }
+  ]
+ },
+ {
+  "name": "evidence-validation",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "file.write",
+    "args": {
+     "path": "proj/reports/r.md",
+     "text": "reviewed"
+    }
+   },
+   {
+    "op": "evidence.artifact_path",
+    "args": {
+     "path": "proj",
+     "value": "scans/a.bin"
+    }
+   },
+   {
+    "op": "evidence.artifact_path",
+    "args": {
+     "path": "proj",
+     "value": "reports/r.md"
+    }
+   },
+   {
+    "op": "evidence.artifact_path",
+    "args": {
+     "path": "proj",
+     "value": "../evil"
+    }
+   },
+   {
+    "op": "evidence.artifact_path",
+    "args": {
+     "path": "proj",
+     "value": "/abs/path"
+    }
+   },
+   {
+    "op": "evidence.artifact_path",
+    "args": {
+     "path": "proj",
+     "value": "other/x"
+    }
+   },
+   {
+    "op": "evidence.artifact_path",
+    "args": {
+     "path": "proj",
+     "value": ""
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "automatic",
+      "scope": "page"
+     },
+     "record": {
+      "status": "running",
+      "reason": "went out"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "automatic",
+      "scope": "page"
+     },
+     "record": {
+      "status": "bogus",
+      "reason": "x"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "automatic",
+      "scope": "page"
+     },
+     "record": "not a dict"
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "automatic",
+      "scope": "page"
+     },
+     "record": {
+      "status": "failed",
+      "reason": "boom",
+      "actor": "crawl",
+      "extra": 1
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "manual",
+      "scope": "project"
+     },
+     "record": {
+      "status": "succeeded",
+      "reason": "done",
+      "reviewer": "Pavel",
+      "signoff": true
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "manual",
+      "scope": "project"
+     },
+     "record": {
+      "status": "succeeded",
+      "reason": "done",
+      "reviewer": "Pavel",
+      "signoff": "yes"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "manual",
+      "scope": "project"
+     },
+     "record": {
+      "status": "succeeded",
+      "reason": "done",
+      "reviewer": "Pavel"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "manual",
+      "scope": "project"
+     },
+     "record": {
+      "status": "succeeded",
+      "reason": "done",
+      "reviewer": "Pavel",
+      "review": "approved",
+      "artifact": "reports/r.md"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "automatic",
+      "scope": "page"
+     },
+     "record": {
+      "status": "succeeded",
+      "reason": "done",
+      "artifact": "reports/r.md"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "manual",
+      "scope": "project"
+     },
+     "record": {
+      "status": "not_applicable",
+      "reason": "n/a",
+      "reviewer": "Pavel",
+      "evidence": "no pages"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "manual",
+      "scope": "project"
+     },
+     "record": {
+      "status": "not_applicable",
+      "reason": "n/a",
+      "reviewer": "Pavel",
+      "artifact": "reports/r.md"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {
+      "execution_kind": "manual",
+      "scope": "project"
+     },
+     "record": {
+      "status": "not_applicable",
+      "reason": "n/a",
+      "reviewer": "Pavel"
+     }
+    }
+   },
+   {
+    "op": "evidence.validate_record",
+    "args": {
+     "path": "proj",
+     "definition": {},
+     "record": {
+      "status": "succeeded",
+      "reason": "done",
+      "reviewer": "Pavel",
+      "signoff": true
+     }
+    }
+   },
+   {
+    "op": "evidence.evidence_stale",
+    "args": {
+     "path": "proj",
+     "record": {
+      "artifact": "reports/r.md",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+     }
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": null
+   },
+   {
+    "error": "ValueError: evidence artifact is missing or unsafe"
+   },
+   {
+    "error": "ValueError: evidence artifact is missing or unsafe"
+   },
+   {
+    "error": "ValueError: artifact must be a portable project-relative path"
+   },
+   {
+    "error": "ValueError: artifact must be a portable project-relative path"
+   },
+   {
+    "error": "ValueError: evidence belongs under scans/ or reports/"
+   },
+   {
+    "error": "ValueError: artifact must be nonempty text of at most 1024 characters"
+   },
+   {
+    "ok": {
+     "status": "running",
+     "reason": "went out",
+     "measurement": null
+    }
+   },
+   {
+    "error": "ValueError: invalid execution status"
+   },
+   {
+    "error": "ValueError: record has unsupported fields"
+   },
+   {
+    "error": "ValueError: record has unsupported fields"
+   },
+   {
+    "ok": {
+     "status": "succeeded",
+     "reason": "done",
+     "measurement": {
+      "state": "not_measured",
+      "reason": "specialist review or signoff; no automatic measurement is implied"
+     },
+     "reviewer": "Pavel",
+     "signoff": true,
+     "scope": "project"
+    }
+   },
+   {
+    "error": "ValueError: signoff must be a boolean"
+   },
+   {
+    "error": "ValueError: completion requires approved artifact review"
+   },
+   {
+    "error": "ValueError: evidence artifact is missing or unsafe"
+   },
+   {
+    "error": "ValueError: evidence artifact is missing or unsafe"
+   },
+   {
+    "ok": {
+     "status": "not_applicable",
+     "reason": "n/a",
+     "measurement": null,
+     "reviewer": "Pavel",
+     "evidence": "no pages"
+    }
+   },
+   {
+    "error": "ValueError: evidence artifact is missing or unsafe"
+   },
+   {
+    "error": "ValueError: applicability review requires an inspectable evidence basis"
+   },
+   {
+    "error": "KeyError: 'execution_kind'"
+   },
+   {
+    "ok": "evidence artifact is missing or unsafe"
+   }
+  ]
+ },
+ {
+  "name": "crawl-evidence",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "crawl_evidence.record_failure",
+    "args": {
+     "path": "proj",
+     "reason": "crawl died"
+    }
+   },
+   {
+    "op": "file.copy_scan",
+    "args": {
+     "path": "proj/scans/basic",
+     "site": "basic"
+    }
+   },
+   {
+    "op": "crawl_evidence.record_scan",
+    "args": {
+     "path": "proj",
+     "scan": "proj/scans/basic"
+    }
+   },
+   {
+    "op": "crawl_evidence.record_failure",
+    "args": {
+     "path": "proj",
+     "reason": "crawl died"
+    }
+   },
+   {
+    "op": "crawl_evidence.record_scan",
+    "args": {
+     "path": "proj",
+     "scan": "proj/scans"
+    }
+   },
+   {
+    "op": "file.mkdir",
+    "args": {
+     "path": "proj/scans/empty"
+    }
+   },
+   {
+    "op": "crawl_evidence.record_scan",
+    "args": {
+     "path": "proj",
+     "scan": "proj/scans/empty"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "skipped": "coverage checklist is initialized by project checklist setup, not project creation"
+    }
+   },
+   {
+    "ok": [
+     "scan.sqlite",
+     "scan.sqlite.audit-v2.sqlite"
+    ]
+   },
+   {
+    "ok": {
+     "skipped": "coverage checklist is initialized by project checklist setup, not project creation"
+    }
+   },
+   {
+    "ok": {
+     "skipped": "coverage checklist is initialized by project checklist setup, not project creation"
+    }
+   },
+   {
+    "ok": {
+     "skipped": "coverage checklist is initialized by project checklist setup, not project creation"
+    }
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": {
+     "skipped": "coverage checklist is initialized by project checklist setup, not project creation"
+    }
+   }
+  ]
+ },
+ {
+  "name": "archive",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "file.write",
+    "args": {
+     "path": "proj/reports/r.md",
+     "text": "report"
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj",
+     "dry_run": true
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj",
+     "out": "proj.tgz",
+     "dry_run": true
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj",
+     "out": "proj.tgz"
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj",
+     "out": "proj.tgz"
+    }
+   },
+   {
+    "op": "archive.archive_list",
+    "args": {
+     "archive": "proj.tgz"
+    }
+   },
+   {
+    "op": "archive.restore_project",
+    "args": {
+     "archive": "proj.tgz",
+     "to": "restored"
+    }
+   },
+   {
+    "op": "workspace.load",
+    "args": {
+     "path": "restored"
+    }
+   },
+   {
+    "op": "archive.archive_list",
+    "args": {
+     "archive": "missing.tgz"
+    }
+   },
+   {
+    "op": "archive.restore_project",
+    "args": {
+     "archive": "proj.tgz",
+     "to": "restored"
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj",
+     "out": "x.tgz",
+     "exclude_bodies": "yes"
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj",
+     "out": "x.tgz",
+     "exclude_bodies_older_than_days": 45
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj",
+     "out": "x.tgz",
+     "exclude_bodies": true,
+     "exclude_bodies_older_than_days": 30
+    }
+   },
+   {
+    "op": "archive.archive_project",
+    "args": {
+     "path": "proj",
+     "out": "x.tgz",
+     "keep_newest_scans": 0
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": null
+   },
+   {
+    "error": "TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'NoneType'"
+   },
+   {
+    "error": "TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'NoneType'"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "dry_run": true,
+     "files": [
+      "log.md",
+      "project.json",
+      "reports/r.md"
+     ],
+     "skipped": [],
+     "estimated_bytes": 500,
+     "exclude_bodies": false,
+     "exclude_bodies_older_than_days": null,
+     "keep_newest_scans": null
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "dry_run": false,
+     "files": [
+      "log.md",
+      "project.json",
+      "reports/r.md"
+     ],
+     "skipped": [],
+     "estimated_bytes": 500,
+     "exclude_bodies": false,
+     "exclude_bodies_older_than_days": null,
+     "keep_newest_scans": null,
+     "archive": "<DIR>/proj.tgz",
+     "file_count": 3,
+     "excluded_body_blobs": 0
+    }
+   },
+   {
+    "error": "ValueError: archive output already exists; choose a new file"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "archive": "<DIR>/proj.tgz",
+     "format": "spiderhead.project-archive.v1",
+     "archive_version": 1,
+     "seohead_version": "3.2.0",
+     "project_uuid": "<UUID>",
+     "created_at": "<TS>",
+     "file_count": 3,
+     "total_bytes": 500,
+     "verified": true,
+     "files": [
+      {
+       "path": "log.md",
+       "size": 55,
+       "sha256": "acc37444ba3d907858149d0c1d1476c42b3e4485c2c4eee2458f803a7b5b55ed"
+      },
+      {
+       "path": "project.json",
+       "size": 439,
+       "sha256": "<SHA>"
+      },
+      {
+       "path": "reports/r.md",
+       "size": 6,
+       "sha256": "845e91831319e89c4d656bdb80c278ac09a7230d61e5dfd2e1b1fbb436ac8917"
+      }
+     ]
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "restored": "<DIR>/restored",
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     }
+    }
+   },
+   {
+    "ok": {
+     "root": "/private<DIR>/restored",
+     "document": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1
+     }
+    }
+   },
+   {
+    "error": "ValueError: archive must be an existing regular file"
+   },
+   {
+    "error": "ValueError: restore target must be a new path"
+   },
+   {
+    "error": "ValueError: exclude_bodies must be a boolean"
+   },
+   {
+    "error": "ValueError: exclude_bodies_older_than_days must be 30, 90, or null"
+   },
+   {
+    "error": "ValueError: choose exclude_bodies or exclude_bodies_older_than_days"
+   },
+   {
+    "error": "ValueError: keep_newest_scans must be from 1 to 10000"
+   }
+  ]
+ },
+ {
+  "name": "exports",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "exports.has_active_jobs",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "exports.exports_page",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "exports.record_export",
+    "args": {
+     "path": "proj",
+     "dataset": "audit",
+     "format": "csv",
+     "export_path": "proj/reports/audit.csv",
+     "row_count": 10,
+     "byte_count": 512
+    }
+   },
+   {
+    "op": "exports.record_export",
+    "args": {
+     "path": "proj",
+     "dataset": "tasks",
+     "format": "json",
+     "export_path": "proj/reports/tasks.json",
+     "row_count": 3,
+     "byte_count": 128,
+     "sha256": "abababababababababababababababababababababababababababababababab",
+     "job_id": null
+    }
+   },
+   {
+    "op": "exports.exports_page",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "exports.exports_page",
+    "args": {
+     "path": "proj",
+     "offset": 1,
+     "limit": 1
+    }
+   },
+   {
+    "op": "exports.export_status",
+    "args": {
+     "path": "proj",
+     "job_id": "not-a-uuid"
+    }
+   },
+   {
+    "op": "exports.cancel_export",
+    "args": {
+     "path": "proj",
+     "job_id": "not-a-uuid"
+    }
+   },
+   {
+    "op": "exports.record_export",
+    "args": {
+     "path": "proj",
+     "dataset": "bogus",
+     "format": "csv",
+     "export_path": "x",
+     "row_count": 0,
+     "byte_count": 0
+    }
+   },
+   {
+    "op": "exports.start_export",
+    "args": {
+     "path": "proj",
+     "dataset": "bogus",
+     "format": "csv",
+     "output": "out"
+    }
+   },
+   {
+    "op": "exports.start_export",
+    "args": {
+     "path": "proj",
+     "dataset": "tasks",
+     "format": "yaml",
+     "output": "out"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": false
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null,
+      "previous_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "id": "<UUID>",
+     "recorded_at": "<TS>",
+     "dataset": "audit",
+     "format": "csv",
+     "path": "proj/reports/audit.csv",
+     "row_count": 10,
+     "byte_count": 512,
+     "sha256": null,
+     "source": {}
+    }
+   },
+   {
+    "ok": {
+     "id": "<UUID>",
+     "recorded_at": "<TS>",
+     "dataset": "tasks",
+     "format": "json",
+     "path": "proj/reports/tasks.json",
+     "row_count": 3,
+     "byte_count": 128,
+     "sha256": "abababababababababababababababababababababababababababababababab",
+     "source": {}
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 2,
+     "items": [
+      {
+       "byte_count": 128,
+       "dataset": "tasks",
+       "format": "json",
+       "id": "<UUID>",
+       "path": "proj/reports/tasks.json",
+       "recorded_at": "<TS>",
+       "row_count": 3,
+       "sha256": "abababababababababababababababababababababababababababababababab",
+       "source": {}
+      },
+      {
+       "byte_count": 512,
+       "dataset": "audit",
+       "format": "csv",
+       "id": "<UUID>",
+       "path": "proj/reports/audit.csv",
+       "recorded_at": "<TS>",
+       "row_count": 10,
+       "sha256": null,
+       "source": {}
+      }
+     ],
+     "pagination": {
+      "total": 2,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null,
+      "previous_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 2,
+     "items": [
+      {
+       "byte_count": 512,
+       "dataset": "audit",
+       "format": "csv",
+       "id": "<UUID>",
+       "path": "proj/reports/audit.csv",
+       "recorded_at": "<TS>",
+       "row_count": 10,
+       "sha256": null,
+       "source": {}
+      }
+     ],
+     "pagination": {
+      "total": 2,
+      "offset": 1,
+      "limit": 1,
+      "next_offset": null,
+      "previous_offset": 0
+     }
+    }
+   },
+   {
+    "error": "ValueError: badly formed hexadecimal UUID string"
+   },
+   {
+    "error": "ValueError: badly formed hexadecimal UUID string"
+   },
+   {
+    "error": "ProjectExportError: invalid export history item"
+   },
+   {
+    "error": "ProjectExportError: dataset must be tasks, task_comments, task_history, or compare"
+   },
+   {
+    "error": "ProjectExportError: format must be json, csv, or xlsx"
+   }
+  ]
+ },
+ {
+  "name": "receipts",
+  "steps": [
+   {
+    "op": "receipts.reserve",
+    "args": {
+     "path": ".",
+     "job_id": "job-1",
+     "artifact_id": "art-1",
+     "destination": "file://out"
+    }
+   },
+   {
+    "op": "receipts.uncertain",
+    "args": {
+     "path": ".",
+     "job_id": "job-1",
+     "artifact_id": "art-1",
+     "destination": "file://out",
+     "receipt": "rcpt-1"
+    }
+   },
+   {
+    "op": "receipts.reconcile",
+    "args": {
+     "path": ".",
+     "receipt": "rcpt-1",
+     "provider_status": "ok"
+    }
+   },
+   {
+    "op": "receipts.delivered",
+    "args": {
+     "path": ".",
+     "job_id": "job-1",
+     "artifact_id": "art-1",
+     "destination": "file://out",
+     "receipt": "rcpt-2"
+    }
+   },
+   {
+    "op": "receipts.reconcile",
+    "args": {
+     "path": ".",
+     "receipt": "rcpt-missing",
+     "provider_status": "ok"
+    }
+   },
+   {
+    "op": "receipts.reconcile",
+    "args": {
+     "path": ".",
+     "receipt": "rcpt-2",
+     "provider_status": "failed",
+     "sender_stopped": true
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": [
+     "<ID>",
+     "claimed"
+    ]
+   },
+   {
+    "ok": null
+   },
+   {
+    "error": "ValueError: provider_status must be delivered, not_delivered, or unknown"
+   },
+   {
+    "error": "DeliveryUnavailable: delivery receipt changed while sending"
+   },
+   {
+    "error": "ValueError: provider_status must be delivered, not_delivered, or unknown"
+   },
+   {
+    "error": "ValueError: provider_status must be delivered, not_delivered, or unknown"
+   }
+  ]
+ },
+ {
+  "name": "competitor-scans",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "competitor_scans.has_active_run",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "competitor_scans.task_competitor_run_reference",
+    "args": {
+     "path": "proj",
+     "task_id": "t1",
+     "task": {
+      "definition": {
+       "kind": "custom"
+      }
+     }
+    }
+   },
+   {
+    "op": "competitor_scans.task_competitor_run_reference",
+    "args": {
+     "path": "proj",
+     "task_id": "t1",
+     "task": {
+      "definition": {
+       "kind": "builtin"
+      }
+     }
+    }
+   },
+   {
+    "op": "competitor_scans.get_competitor_scan_run",
+    "args": {
+     "path": "proj",
+     "run_id": "no-such-run"
+    }
+   },
+   {
+    "op": "competitor_scans.cancel_competitor_scan_run",
+    "args": {
+     "path": "proj",
+     "run_id": "no-such-run"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": false
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": null
+   },
+   {
+    "error": "CompetitorScanError: run_id must be a UUID"
+   },
+   {
+    "error": "CompetitorScanError: run_id must be a UUID"
+   }
+  ]
+ },
+ {
+  "name": "inbox",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "inbox.submit",
+    "args": {
+     "path": "proj",
+     "text": "first note"
+    }
+   },
+   {
+    "op": "inbox.submit",
+    "args": {
+     "path": "proj",
+     "text": "goal?",
+     "kind": "proposed_goal"
+    }
+   },
+   {
+    "op": "inbox.submit",
+    "args": {
+     "path": "proj",
+     "text": "bad",
+     "kind": "bogus"
+    }
+   },
+   {
+    "op": "inbox.list_entries",
+    "args": {
+     "path": "proj",
+     "consumer": "agent"
+    }
+   },
+   {
+    "op": "inbox.unread_summary",
+    "args": {
+     "path": "proj",
+     "consumer": "agent"
+    }
+   },
+   {
+    "op": "inbox.unread_goal_tasks",
+    "args": {
+     "path": "proj",
+     "consumer": "agent"
+    }
+   },
+   {
+    "op": "inbox.mark_read",
+    "args": {
+     "path": "proj",
+     "consumer": "agent",
+     "entry_ids": [
+      "inbox:1"
+     ]
+    }
+   },
+   {
+    "op": "inbox.acknowledge",
+    "args": {
+     "path": "proj",
+     "consumer": "agent",
+     "entry_ids": [
+      "inbox:1"
+     ]
+    }
+   },
+   {
+    "op": "inbox.triage",
+    "args": {
+     "path": "proj",
+     "entry_id": "inbox:2",
+     "outcome": "accepted"
+    }
+   },
+   {
+    "op": "inbox.triage",
+    "args": {
+     "path": "proj",
+     "entry_id": "inbox:2",
+     "outcome": "accepted"
+    }
+   },
+   {
+    "op": "inbox.set_goal_state",
+    "args": {
+     "path": "proj",
+     "entry_id": "inbox:2",
+     "state": "done"
+    }
+   },
+   {
+    "op": "inbox.goal_task_id",
+    "args": {
+     "entry_id": "inbox:2"
+    }
+   },
+   {
+    "op": "inbox.list_entries",
+    "args": {
+     "path": "proj",
+     "consumer": "agent"
+    }
+   },
+   {
+    "op": "inbox.mark_read",
+    "args": {
+     "path": "proj",
+     "consumer": "agent",
+     "entry_ids": [
+      "inbox:nope"
+     ]
+    }
+   },
+   {
+    "op": "inbox.submit",
+    "args": {
+     "path": "proj",
+     "text": "",
+     "kind": "note"
+    }
+   },
+   {
+    "op": "inbox.list_entries",
+    "args": {
+     "path": "proj",
+     "consumer": "agent",
+     "include_acknowledged": false
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 1,
+     "entry": {
+      "id": "inbox:<UUID>",
+      "kind": "note",
+      "text": "first note",
+      "references": [],
+      "author_role": "specialist",
+      "created_at": "<TS>",
+      "goal_state": null,
+      "accepted_at": null,
+      "completed_at": null,
+      "triage": []
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 2,
+     "entry": {
+      "id": "inbox:<UUID>",
+      "kind": "proposed_goal",
+      "text": "goal?",
+      "references": [],
+      "author_role": "specialist",
+      "created_at": "<TS>",
+      "goal_state": "proposed",
+      "accepted_at": null,
+      "completed_at": null,
+      "triage": []
+     }
+    }
+   },
+   {
+    "error": "ValueError: kind must be note, proposed_goal or question"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 2,
+     "entries": [
+      {
+       "id": "inbox:<UUID>",
+       "kind": "note",
+       "text": "first note",
+       "references": [],
+       "author_role": "specialist",
+       "created_at": "<TS>",
+       "goal_state": null,
+       "accepted_at": null,
+       "completed_at": null,
+       "triage": [],
+       "read_at": null,
+       "acknowledged_at": null
+      },
+      {
+       "id": "inbox:<UUID>",
+       "kind": "proposed_goal",
+       "text": "goal?",
+       "references": [],
+       "author_role": "specialist",
+       "created_at": "<TS>",
+       "goal_state": "proposed",
+       "accepted_at": null,
+       "completed_at": null,
+       "triage": [],
+       "read_at": null,
+       "acknowledged_at": null
+      }
+     ],
+     "pagination": {
+      "offset": 0,
+      "limit": 20,
+      "total": 2,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "count": 2,
+     "entries": [
+      {
+       "id": "inbox:<UUID>",
+       "kind": "note",
+       "references": []
+      },
+      {
+       "id": "inbox:<UUID>",
+       "kind": "proposed_goal",
+       "references": []
+      }
+     ],
+     "truncated": false
+    }
+   },
+   {
+    "ok": {
+     "count": 0,
+     "items": [],
+     "truncated": false
+    }
+   },
+   {
+    "error": "ValueError: unknown inbox entry"
+   },
+   {
+    "error": "ValueError: entry_ids must name unique existing inbox entries"
+   },
+   {
+    "error": "ValueError: triage outcome must be an object with a kind"
+   },
+   {
+    "error": "ValueError: triage outcome must be an object with a kind"
+   },
+   {
+    "error": "ValueError: goal state must be accepted or completed"
+   },
+   {
+    "ok": "custom:goal-2"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 2,
+     "entries": [
+      {
+       "id": "inbox:<UUID>",
+       "kind": "note",
+       "text": "first note",
+       "references": [],
+       "author_role": "specialist",
+       "created_at": "<TS>",
+       "goal_state": null,
+       "accepted_at": null,
+       "completed_at": null,
+       "triage": [],
+       "read_at": null,
+       "acknowledged_at": null
+      },
+      {
+       "id": "inbox:<UUID>",
+       "kind": "proposed_goal",
+       "text": "goal?",
+       "references": [],
+       "author_role": "specialist",
+       "created_at": "<TS>",
+       "goal_state": "proposed",
+       "accepted_at": null,
+       "completed_at": null,
+       "triage": [],
+       "read_at": null,
+       "acknowledged_at": null
+      }
+     ],
+     "pagination": {
+      "offset": 0,
+      "limit": 20,
+      "total": 2,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "error": "ValueError: unknown inbox entry"
+   },
+   {
+    "error": "ValueError: text must be nonempty text of at most 8000 characters"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 2,
+     "entries": [
+      {
+       "id": "inbox:<UUID>",
+       "kind": "note",
+       "text": "first note",
+       "references": [],
+       "author_role": "specialist",
+       "created_at": "<TS>",
+       "goal_state": null,
+       "accepted_at": null,
+       "completed_at": null,
+       "triage": [],
+       "read_at": null,
+       "acknowledged_at": null
+      },
+      {
+       "id": "inbox:<UUID>",
+       "kind": "proposed_goal",
+       "text": "goal?",
+       "references": [],
+       "author_role": "specialist",
+       "created_at": "<TS>",
+       "goal_state": "proposed",
+       "accepted_at": null,
+       "completed_at": null,
+       "triage": [],
+       "read_at": null,
+       "acknowledged_at": null
+      }
+     ],
+     "pagination": {
+      "offset": 0,
+      "limit": 20,
+      "total": 2,
+      "next_offset": null
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "projection",
+  "steps": [
+   {
+    "op": "projection.method_coverage",
+    "args": {
+     "checklist": {
+      "state": "initialized",
+      "items": [
+       {
+        "id": "a",
+        "kind": "scenario",
+        "state": "done"
+       },
+       {
+        "id": "b",
+        "kind": "skill",
+        "state": "open",
+        "applicability": "applicable"
+       },
+       {
+        "id": "c",
+        "kind": "scenario",
+        "state": "open",
+        "enabled": false
+       }
+      ]
+     }
+    }
+   },
+   {
+    "op": "projection.method_coverage",
+    "args": {
+     "checklist": {
+      "state": "unavailable",
+      "reason": "no checklist"
+     }
+    }
+   },
+   {
+    "op": "projection.coverage_summary",
+    "args": {
+     "checklist": {
+      "state": "initialized",
+      "complete": false,
+      "counts": {
+       "done": 1,
+       "open": 2
+      },
+      "coverage": {
+       "pages": {
+        "state": "partial",
+        "numerator": 1,
+        "denominator": 4
+       },
+       "bad": "not a dict"
+      }
+     }
+    }
+   },
+   {
+    "op": "projection.coverage_summary",
+    "args": {
+     "checklist": {}
+    }
+   },
+   {
+    "op": "projection.bounded_value",
+    "args": {
+     "item": {
+      "a": [
+       1,
+       {
+        "b": "x"
+       }
+      ],
+      "c": {
+       "d": {
+        "e": [
+         1,
+         2,
+         3
+        ]
+       }
+      }
+     }
+    }
+   },
+   {
+    "op": "projection.bounded_value",
+    "args": {
+     "item": {
+      "deep": {
+       "l1": {
+        "l2": {
+         "l3": {
+          "l4": {
+           "l5": "x"
+          }
+         }
+        }
+       }
+      }
+     },
+     "depth": 0
+    }
+   },
+   {
+    "op": "projection.pagination",
+    "args": {
+     "total": 95,
+     "offset": 0,
+     "limit": 50
+    }
+   },
+   {
+    "op": "projection.pagination",
+    "args": {
+     "total": 95,
+     "offset": 50,
+     "limit": 50
+    }
+   },
+   {
+    "op": "projection.pagination",
+    "args": {
+     "total": 0,
+     "offset": 10,
+     "limit": 50
+    }
+   },
+   {
+    "op": "projection.projection_truncated",
+    "args": {
+     "item": {
+      "a": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     }
+    }
+   },
+   {
+    "op": "projection.legacy_groups",
+    "args": {
+     "row": {
+      "check": "c1",
+      "severity": "high",
+      "url": "u"
+     }
+    }
+   },
+   {
+    "op": "file.copy_scan",
+    "args": {
+     "path": "scan-copy",
+     "site": "basic"
+    }
+   },
+   {
+    "op": "projection.legacy_groups",
+    "args": {
+     "row": {
+      "path": "scan-copy/scan.sqlite"
+     }
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "state": "available",
+     "reason": null,
+     "kinds": {
+      "scenario": {
+       "expected": null,
+       "applicable": 0,
+       "basis": "audit plan not recorded",
+       "completed": 0,
+       "states": {}
+      },
+      "skill": {
+       "expected": null,
+       "applicable": 1,
+       "basis": "audit plan not recorded",
+       "completed": 0,
+       "states": {
+        "open": 1
+       }
+      }
+     }
+    }
+   },
+   {
+    "ok": {
+     "state": "unavailable",
+     "reason": "no checklist",
+     "kinds": {}
+    }
+   },
+   {
+    "ok": {
+     "state": "initialized",
+     "reason": null,
+     "complete": false,
+     "counts": {
+      "done": 1,
+      "open": 2
+     },
+     "axes": {
+      "pages": {
+       "state": "partial",
+       "numerator": 1,
+       "denominator": 4
+      }
+     }
+    }
+   },
+   {
+    "ok": {
+     "state": "unavailable",
+     "reason": null,
+     "complete": null,
+     "counts": null,
+     "axes": {}
+    }
+   },
+   {
+    "ok": {
+     "a": [
+      1,
+      {
+       "b": "[nested evidence omitted]"
+      }
+     ],
+     "c": {
+      "d": {
+       "e": "[nested evidence omitted]"
+      }
+     }
+    }
+   },
+   {
+    "ok": {
+     "deep": {
+      "l1": {
+       "l2": "[nested evidence omitted]"
+      }
+     }
+    }
+   },
+   {
+    "ok": {
+     "total": 95,
+     "offset": 0,
+     "limit": 50,
+     "next_offset": 50,
+     "previous_offset": null
+    }
+   },
+   {
+    "ok": {
+     "total": 95,
+     "offset": 50,
+     "limit": 50,
+     "next_offset": null,
+     "previous_offset": 0
+    }
+   },
+   {
+    "ok": {
+     "total": 0,
+     "offset": 10,
+     "limit": 50,
+     "next_offset": null,
+     "previous_offset": 0
+    }
+   },
+   {
+    "ok": false
+   },
+   {
+    "error": "KeyError: 'path'"
+   },
+   {
+    "ok": [
+     "scan.sqlite",
+     "scan.sqlite.audit-v2.sqlite"
+    ]
+   },
+   {
+    "ok": [
+     {
+      "group_id": "GRP-LOW-0001",
+      "check": "LOW_TEXT_RATIO",
+      "value": null,
+      "count": 2,
+      "urls": [
+       "<BASE>/images.html",
+       "<BASE>/js.html"
+      ]
+     },
+     {
+      "group_id": "GRP-TITLE-0002",
+      "check": "TITLE_DUPLICATE",
+      "value": "Duplicate title",
+      "count": 2,
+      "urls": [
+       "<BASE>/dup-a.html",
+       "<BASE>/dup-b.html"
+      ]
+     },
+     {
+      "group_id": "GRP-DESC-0003",
+      "check": "DESC_DUPLICATE",
+      "value": "Duplicate description shared by two pages.",
+      "count": 2,
+      "urls": [
+       "<BASE>/dup-a.html",
+       "<BASE>/dup-b.html"
+      ]
+     },
+     {
+      "group_id": "GRP-H1-0004",
+      "check": "H1_DUPLICATE",
+      "value": "Duplicate title",
+      "count": 2,
+      "urls": [
+       "<BASE>/dup-a.html",
+       "<BASE>/dup-b.html"
+      ]
+     },
+     {
+      "group_id": "GRP-DUPLIC-0005",
+      "check": "DUPLICATE_BY_HASH",
+      "value": null,
+      "count": 2,
+      "urls": [
+       "<BASE>/dup-a.html",
+       "<BASE>/dup-b.html"
+      ]
+     },
+     {
+      "group_id": "GRP-SEMANT-0006",
+      "check": "SEMANTICALLY_SIMILAR",
+      "value": null,
+      "count": 2,
+      "urls": [
+       "<BASE>/dup-a.html",
+       "<BASE>/dup-b.html"
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "pyjson",
+  "steps": [
+   {
+    "op": "pyjson.dumps_compact",
+    "args": {
+     "value": {
+      "b": 1,
+      "a": [
+       true,
+       null,
+       "é"
+      ]
+     }
+    }
+   },
+   {
+    "op": "pyjson.dumps_indent2",
+    "args": {
+     "value": {
+      "x": 1.5
+     }
+    }
+   },
+   {
+    "op": "pyjson.dumps_default",
+    "args": {
+     "value": {
+      "k": "v",
+      "n": -0.0
+     }
+    }
+   },
+   {
+    "op": "pyjson.python_float_repr",
+    "args": {
+     "value": 0.1
+    }
+   },
+   {
+    "op": "pyjson.python_float_repr",
+    "args": {
+     "value": 1e+16
+    }
+   },
+   {
+    "op": "pyjson.python_float_repr",
+    "args": {
+     "value": 1.0
+    }
+   },
+   {
+    "op": "pyjson.python_float_repr",
+    "args": {
+     "value": -0.0001
+    }
+   },
+   {
+    "op": "pyjson.python_float_repr",
+    "args": {
+     "value": 123456789.12345679
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": "{\"a\":[true,null,\"é\"],\"b\":1}"
+   },
+   {
+    "ok": "{\n  \"x\": 1.5\n}"
+   },
+   {
+    "ok": "{\"k\": \"v\", \"n\": -0.0}"
+   },
+   {
+    "ok": "0.1"
+   },
+   {
+    "ok": "1e+16"
+   },
+   {
+    "ok": "1.0"
+   },
+   {
+    "ok": "-0.0001"
+   },
+   {
+    "ok": "123456789.12345679"
+   }
+  ]
+ }
+]

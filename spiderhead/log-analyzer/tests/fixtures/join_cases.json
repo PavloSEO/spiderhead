@@ -1,0 +1,4549 @@
+{
+ "scans": {
+  "complete": {},
+  "partial": {
+   "partial": true
+  },
+  "running": {
+   "lifecycle": "running"
+  },
+  "import_kind": {
+   "kind": "import"
+  },
+  "pages_missing": {
+   "pages_state": "missing"
+  },
+  "other_origin": {
+   "start": "https://other.example.test/"
+  }
+ },
+ "pages": [
+  [
+   "https://example.test/",
+   200,
+   "",
+   ""
+  ],
+  [
+   "https://example.test/catalog/pumps",
+   200,
+   "",
+   ""
+  ],
+  [
+   "https://example.test/catalog/pumps/cdm?page=2",
+   200,
+   "",
+   ""
+  ],
+  [
+   "https://example.test/blog/пост-о-насосах?x=1",
+   200,
+   "",
+   ""
+  ],
+  [
+   "https://example.test/old-page",
+   301,
+   "",
+   ""
+  ],
+  [
+   "https://example.test/trailing/",
+   200,
+   "noindex",
+   ""
+  ],
+  [
+   "https://example.test/UPPER/Case",
+   200,
+   "",
+   "none"
+  ],
+  [
+   "https://example.test/never-visited",
+   200,
+   "",
+   ""
+  ],
+  [
+   "https://example.test/also-never",
+   404,
+   "",
+   ""
+  ],
+  [
+   "https://example.test/img/photo.webp",
+   200,
+   "",
+   "Googlebot: NONE"
+  ],
+  [
+   "https://example.test/robots.txt",
+   200,
+   "nofollow",
+   ""
+  ],
+  [
+   "https://other.test/offsite",
+   200,
+   "",
+   ""
+  ],
+  [
+   "/relative-ref",
+   200,
+   "",
+   ""
+  ],
+  [
+   "https://example.test/unmeasured",
+   null,
+   "",
+   ""
+  ]
+ ],
+ "cases": [
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/robots.txt",
+      "visits": 14,
+      "redirects": 7,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 14,
+      "redirects": 4,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/old-page",
+      "visits": 15,
+      "redirects": 3,
+      "client_errors": 6,
+      "server_errors": 2
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 15,
+      "redirects": 0,
+      "client_errors": 6,
+      "server_errors": 3
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 14,
+      "redirects": 2,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/",
+      "visits": 11,
+      "redirects": 4,
+      "client_errors": 2,
+      "server_errors": 2
+     },
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 9,
+      "redirects": 3,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 12,
+      "redirects": 2,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 9,
+      "redirects": 2,
+      "client_errors": 1,
+      "server_errors": 4
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 11,
+      "redirects": 0,
+      "client_errors": 3,
+      "server_errors": 4
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 10,
+      "redirects": 4,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/trailing/",
+      "visits": 11,
+      "redirects": 3,
+      "client_errors": 2,
+      "server_errors": 1
+     },
+     {
+      "url": "/a%20b?c=%D0%B0",
+      "visits": 10,
+      "redirects": 3,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/img/photo.webp",
+      "visits": 9,
+      "redirects": 1,
+      "client_errors": 3,
+      "server_errors": 1
+     }
+    ],
+    "total": 14,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/robots.txt",
+      "visits": 14,
+      "redirects": 7,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 14,
+      "redirects": 4,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/old-page",
+      "visits": 15,
+      "redirects": 3,
+      "client_errors": 6,
+      "server_errors": 2
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 15,
+      "redirects": 0,
+      "client_errors": 6,
+      "server_errors": 3
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 14,
+      "redirects": 2,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/",
+      "visits": 11,
+      "redirects": 4,
+      "client_errors": 2,
+      "server_errors": 2
+     },
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 9,
+      "redirects": 3,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 12,
+      "redirects": 2,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 9,
+      "redirects": 2,
+      "client_errors": 1,
+      "server_errors": 4
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 11,
+      "redirects": 0,
+      "client_errors": 3,
+      "server_errors": 4
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 10,
+      "redirects": 4,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/trailing/",
+      "visits": 11,
+      "redirects": 3,
+      "client_errors": 2,
+      "server_errors": 1
+     },
+     {
+      "url": "/a%20b?c=%D0%B0",
+      "visits": 10,
+      "redirects": 3,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/img/photo.webp",
+      "visits": 9,
+      "redirects": 1,
+      "client_errors": 3,
+      "server_errors": 1
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 14,
+      "redirects": 4,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/old-page",
+      "visits": 15,
+      "redirects": 3,
+      "client_errors": 6,
+      "server_errors": 2
+     }
+    ],
+    "total": 14,
+    "limit": 2,
+    "offset": 1,
+    "has_more": true,
+    "next_offset": 3,
+    "status_waste": [
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 14,
+      "redirects": 4,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/old-page",
+      "visits": 15,
+      "redirects": 3,
+      "client_errors": 6,
+      "server_errors": 2
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/UPPER/Case",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 2
+     },
+     {
+      "url": "/trailing/",
+      "visits": 3,
+      "redirects": 1,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/",
+      "visits": 2,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     }
+    ],
+    "total": 8,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/UPPER/Case",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 2
+     },
+     {
+      "url": "/trailing/",
+      "visits": 3,
+      "redirects": 1,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/",
+      "visits": 2,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 3,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/old-page",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     }
+    ],
+    "total": 5,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 3,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/old-page",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 14,
+      "redirects": 4,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/old-page",
+      "visits": 13,
+      "redirects": 3,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 12,
+      "redirects": 7,
+      "client_errors": 2,
+      "server_errors": 1
+     },
+     {
+      "url": "/",
+      "visits": 10,
+      "redirects": 4,
+      "client_errors": 2,
+      "server_errors": 2
+     },
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 8,
+      "redirects": 3,
+      "client_errors": 3,
+      "server_errors": 1
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 10,
+      "redirects": 0,
+      "client_errors": 5,
+      "server_errors": 1
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 9,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 4
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 8,
+      "redirects": 4,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/a%20b?c=%D0%B0",
+      "visits": 8,
+      "redirects": 3,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/img/photo.webp",
+      "visits": 6,
+      "redirects": 1,
+      "client_errors": 2,
+      "server_errors": 1
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 6,
+      "redirects": 1,
+      "client_errors": 1,
+      "server_errors": 2
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 6,
+      "redirects": 0,
+      "client_errors": 3,
+      "server_errors": 1
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 5,
+      "redirects": 1,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/trailing/",
+      "visits": 6,
+      "redirects": 3,
+      "client_errors": 0,
+      "server_errors": 0
+     }
+    ],
+    "total": 14,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 14,
+      "redirects": 4,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/old-page",
+      "visits": 13,
+      "redirects": 3,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 12,
+      "redirects": 7,
+      "client_errors": 2,
+      "server_errors": 1
+     },
+     {
+      "url": "/",
+      "visits": 10,
+      "redirects": 4,
+      "client_errors": 2,
+      "server_errors": 2
+     },
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 8,
+      "redirects": 3,
+      "client_errors": 3,
+      "server_errors": 1
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 10,
+      "redirects": 0,
+      "client_errors": 5,
+      "server_errors": 1
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 9,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 4
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 8,
+      "redirects": 4,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/a%20b?c=%D0%B0",
+      "visits": 8,
+      "redirects": 3,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/img/photo.webp",
+      "visits": 6,
+      "redirects": 1,
+      "client_errors": 2,
+      "server_errors": 1
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 6,
+      "redirects": 1,
+      "client_errors": 1,
+      "server_errors": 2
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 6,
+      "redirects": 0,
+      "client_errors": 3,
+      "server_errors": 1
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 5,
+      "redirects": 1,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/trailing/",
+      "visits": 6,
+      "redirects": 3,
+      "client_errors": 0,
+      "server_errors": 0
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/robots.txt",
+      "visits": 14,
+      "redirects": 7,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 14,
+      "redirects": 4,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/old-page",
+      "visits": 15,
+      "redirects": 3,
+      "client_errors": 6,
+      "server_errors": 2
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 15,
+      "redirects": 0,
+      "client_errors": 6,
+      "server_errors": 3
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 14,
+      "redirects": 2,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/",
+      "visits": 11,
+      "redirects": 4,
+      "client_errors": 2,
+      "server_errors": 2
+     },
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 9,
+      "redirects": 3,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 12,
+      "redirects": 2,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 9,
+      "redirects": 2,
+      "client_errors": 1,
+      "server_errors": 4
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 11,
+      "redirects": 0,
+      "client_errors": 3,
+      "server_errors": 4
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 10,
+      "redirects": 4,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/trailing/",
+      "visits": 11,
+      "redirects": 3,
+      "client_errors": 2,
+      "server_errors": 1
+     },
+     {
+      "url": "/a%20b?c=%D0%B0",
+      "visits": 10,
+      "redirects": 3,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/img/photo.webp",
+      "visits": 9,
+      "redirects": 1,
+      "client_errors": 3,
+      "server_errors": 1
+     }
+    ],
+    "total": 14,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/robots.txt",
+      "visits": 14,
+      "redirects": 7,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 14,
+      "redirects": 4,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/old-page",
+      "visits": 15,
+      "redirects": 3,
+      "client_errors": 6,
+      "server_errors": 2
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 15,
+      "redirects": 0,
+      "client_errors": 6,
+      "server_errors": 3
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 14,
+      "redirects": 2,
+      "client_errors": 5,
+      "server_errors": 2
+     },
+     {
+      "url": "/",
+      "visits": 11,
+      "redirects": 4,
+      "client_errors": 2,
+      "server_errors": 2
+     },
+     {
+      "url": "/blog/пост-о-насосах?x=1",
+      "visits": 9,
+      "redirects": 3,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 12,
+      "redirects": 2,
+      "client_errors": 3,
+      "server_errors": 2
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 9,
+      "redirects": 2,
+      "client_errors": 1,
+      "server_errors": 4
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 11,
+      "redirects": 0,
+      "client_errors": 3,
+      "server_errors": 4
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 10,
+      "redirects": 4,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/trailing/",
+      "visits": 11,
+      "redirects": 3,
+      "client_errors": 2,
+      "server_errors": 1
+     },
+     {
+      "url": "/a%20b?c=%D0%B0",
+      "visits": 10,
+      "redirects": 3,
+      "client_errors": 1,
+      "server_errors": 1
+     },
+     {
+      "url": "/img/photo.webp",
+      "visits": 9,
+      "redirects": 1,
+      "client_errors": 3,
+      "server_errors": 1
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log import project origin differs from the native scan origin",
+    "error": "log import project origin differs from the native scan origin"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 15,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 11,
+      "last_visit": "2026-12-02T18:07:53+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 10,
+      "last_visit": "2026-12-21T04:40:44+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 9,
+      "last_visit": "2026-12-25T10:51:21+00:00"
+     }
+    ],
+    "total": 4,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 15,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 11,
+      "last_visit": "2026-12-02T18:07:53+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 10,
+      "last_visit": "2026-12-21T04:40:44+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 9,
+      "last_visit": "2026-12-25T10:51:21+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 11,
+      "last_visit": "2026-12-02T18:07:53+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 10,
+      "last_visit": "2026-12-21T04:40:44+00:00"
+     }
+    ],
+    "total": 4,
+    "limit": 2,
+    "offset": 1,
+    "has_more": true,
+    "next_offset": 3,
+    "nonindexable": [
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 11,
+      "last_visit": "2026-12-02T18:07:53+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 10,
+      "last_visit": "2026-12-21T04:40:44+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 3,
+      "last_visit": "2026-12-20T17:17:03+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 3,
+      "last_visit": "2026-10-24T02:53:43+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 2,
+      "last_visit": "2026-03-19T20:26:38+00:00"
+     }
+    ],
+    "total": 3,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 3,
+      "last_visit": "2026-12-20T17:17:03+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 3,
+      "last_visit": "2026-10-24T02:53:43+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 2,
+      "last_visit": "2026-03-19T20:26:38+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 2,
+      "last_visit": "2026-12-22T00:52:12+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-01-02T21:01:18+00:00"
+     }
+    ],
+    "total": 2,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 2,
+      "last_visit": "2026-12-22T00:52:12+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-01-02T21:01:18+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 13,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 8,
+      "last_visit": "2026-12-21T04:40:44+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 6,
+      "last_visit": "2026-12-25T10:51:21+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 6,
+      "last_visit": "2026-12-02T18:07:53+00:00"
+     }
+    ],
+    "total": 4,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 13,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 8,
+      "last_visit": "2026-12-21T04:40:44+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 6,
+      "last_visit": "2026-12-25T10:51:21+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 6,
+      "last_visit": "2026-12-02T18:07:53+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-full/logs/75e495cd-aa69-4bec-958c-7bf44bcc5c5a.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 15,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 11,
+      "last_visit": "2026-12-02T18:07:53+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 10,
+      "last_visit": "2026-12-21T04:40:44+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 9,
+      "last_visit": "2026-12-25T10:51:21+00:00"
+     }
+    ],
+    "total": 4,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 15,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 11,
+      "last_visit": "2026-12-02T18:07:53+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 10,
+      "last_visit": "2026-12-21T04:40:44+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 9,
+      "last_visit": "2026-12-25T10:51:21+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log import project origin differs from the native scan origin",
+    "error": "log import project origin differs from the native scan origin"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "partial",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "partial",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "running",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "running",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "import_kind",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "join requires a native scan",
+    "error": "join requires a native scan"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "import_kind",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "join requires a native scan",
+    "error": "join requires a native scan"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "pages_missing",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "pages_missing",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "other_origin",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "other_origin",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log import project origin differs from the native scan origin",
+    "error": "log import project origin differs from the native scan origin"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/old-page",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 2
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/",
+      "visits": 2,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     }
+    ],
+    "total": 10,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/old-page",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 2
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/",
+      "visits": 2,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/robots.txt",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 2
+     }
+    ],
+    "total": 10,
+    "limit": 2,
+    "offset": 1,
+    "has_more": true,
+    "next_offset": 3,
+    "status_waste": [
+     {
+      "url": "/robots.txt",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 2
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     }
+    ],
+    "total": 2,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [],
+    "total": 0,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/old-page",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/",
+      "visits": 2,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     }
+    ],
+    "total": 10,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/old-page",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/",
+      "visits": 2,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/old-page",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 2
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/",
+      "visits": 2,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     }
+    ],
+    "total": 10,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/old-page",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 3,
+      "redirects": 2,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/sitemap.xml",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 2
+     },
+     {
+      "url": "/ünïcode/路径",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 2,
+      "server_errors": 0
+     },
+     {
+      "url": "/",
+      "visits": 2,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/UPPER/Case",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/catalog/pumps/cdm?page=2",
+      "visits": 2,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     },
+     {
+      "url": "/search?q=насос+CDM",
+      "visits": 3,
+      "redirects": 0,
+      "client_errors": 0,
+      "server_errors": 1
+     },
+     {
+      "url": "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log import project origin differs from the native scan origin",
+    "error": "log import project origin differs from the native scan origin"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 2,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-20T20:12:20+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-01-02T05:43:00+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-12T15:43:39+00:00"
+     }
+    ],
+    "total": 4,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 2,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-20T20:12:20+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-01-02T05:43:00+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-12T15:43:39+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-20T20:12:20+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-01-02T05:43:00+00:00"
+     }
+    ],
+    "total": 4,
+    "limit": 2,
+    "offset": 1,
+    "has_more": true,
+    "next_offset": 3,
+    "nonindexable": [
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-20T20:12:20+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-01-02T05:43:00+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [],
+    "total": 0,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [],
+    "total": 0,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 2,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-20T20:12:20+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-12T15:43:39+00:00"
+     }
+    ],
+    "total": 3,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 2,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-20T20:12:20+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-12T15:43:39+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-truncated/logs/b72294cb-444d-4f64-a74d-7ad575c99444.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 2,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-20T20:12:20+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-01-02T05:43:00+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-12T15:43:39+00:00"
+     }
+    ],
+    "total": 4,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "visits": 2,
+      "last_visit": "2026-12-28T12:19:27+00:00"
+     },
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-20T20:12:20+00:00"
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-01-02T05:43:00+00:00"
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-12T15:43:39+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": false,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log import project origin differs from the native scan origin",
+    "error": "log import project origin differs from the native scan origin"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "limit": 2,
+    "offset": 1
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "bot": "Googlebot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "family": "bingbot"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "date_from": "2026-03-01"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "base_url": "https://example.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {
+    "base_url": "https://other.test"
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "partial",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "partial",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "running",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "running",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "import_kind",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "join requires a native scan",
+    "error": "join requires a native scan"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "import_kind",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "join requires a native scan",
+    "error": "join requires a native scan"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "pages_missing",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "pages_missing",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "native scan is incomplete; missing URLs cannot be inferred",
+    "error": "native scan is incomplete; missing URLs cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "other_origin",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "truncated",
+   "scan": "other_origin",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log import project origin differs from the native scan origin",
+    "error": "log import project origin differs from the native scan origin"
+   }
+  },
+  {
+   "store": "undated",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "scan_without_bot_visits",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-undated/logs/c5dd42be-45cf-406d-8b89-603d05eba0a0.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/relative-ref",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/also-never",
+      "status": 404,
+      "status_directives_indexable": 0
+     },
+     {
+      "url": "https://example.test/blog/пост-о-насосах?x=1",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/catalog/pumps",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "status_directives_indexable": 0
+     },
+     {
+      "url": "https://example.test/never-visited",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "status_directives_indexable": 0
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "status_directives_indexable": 0
+     },
+     {
+      "url": "https://example.test/unmeasured",
+      "status": null,
+      "status_directives_indexable": null
+     }
+    ],
+    "total": 10,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "scan_without_bot_visits": [
+     {
+      "url": "/relative-ref",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/also-never",
+      "status": 404,
+      "status_directives_indexable": 0
+     },
+     {
+      "url": "https://example.test/blog/пост-о-насосах?x=1",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/catalog/pumps",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/img/photo.webp",
+      "status": 200,
+      "status_directives_indexable": 0
+     },
+     {
+      "url": "https://example.test/never-visited",
+      "status": 200,
+      "status_directives_indexable": 1
+     },
+     {
+      "url": "https://example.test/old-page",
+      "status": 301,
+      "status_directives_indexable": 0
+     },
+     {
+      "url": "https://example.test/trailing/",
+      "status": 200,
+      "status_directives_indexable": 0
+     },
+     {
+      "url": "https://example.test/unmeasured",
+      "status": null,
+      "status_directives_indexable": null
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-04T03:17:03+00:00",
+     "to": "2026-12-03T03:34:02+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "undated",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "bot_urls_absent_scan",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-undated/logs/c5dd42be-45cf-406d-8b89-603d05eba0a0.sqlite",
+    "scan": "scan:complete",
+    "rows": [],
+    "total": 0,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "bot_urls_absent_scan": [],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-04T03:17:03+00:00",
+     "to": "2026-12-03T03:34:02+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "undated",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-undated/logs/c5dd42be-45cf-406d-8b89-603d05eba0a0.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "/UPPER/Case",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     }
+    ],
+    "total": 2,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [
+     {
+      "url": "/UPPER/Case",
+      "visits": 1,
+      "redirects": 1,
+      "client_errors": 0,
+      "server_errors": 0
+     },
+     {
+      "url": "/robots.txt",
+      "visits": 1,
+      "redirects": 0,
+      "client_errors": 1,
+      "server_errors": 0
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-04T03:17:03+00:00",
+     "to": "2026-12-03T03:34:02+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "undated",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-undated/logs/c5dd42be-45cf-406d-8b89-603d05eba0a0.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-02T07:59:01+00:00"
+     }
+    ],
+    "total": 1,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [
+     {
+      "url": "https://example.test/UPPER/Case",
+      "status": 200,
+      "visits": 1,
+      "last_visit": "2026-10-02T07:59:01+00:00"
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-04T03:17:03+00:00",
+     "to": "2026-12-03T03:34:02+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "undated",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "sections",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-undated/logs/c5dd42be-45cf-406d-8b89-603d05eba0a0.sqlite",
+    "scan": "scan:complete",
+    "rows": [
+     {
+      "section": "/UPPER",
+      "scan_urls": 1,
+      "bot_visited_urls": 1,
+      "visits": 1
+     },
+     {
+      "section": "/catalog",
+      "scan_urls": 2,
+      "bot_visited_urls": 1,
+      "visits": 1
+     },
+     {
+      "section": "/robots.txt",
+      "scan_urls": 1,
+      "bot_visited_urls": 1,
+      "visits": 1
+     },
+     {
+      "section": "/",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/also-never",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/blog",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/img",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/never-visited",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/old-page",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/relative-ref",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/trailing",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/unmeasured",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     }
+    ],
+    "total": 12,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "sections": [
+     {
+      "section": "/UPPER",
+      "scan_urls": 1,
+      "bot_visited_urls": 1,
+      "visits": 1
+     },
+     {
+      "section": "/catalog",
+      "scan_urls": 2,
+      "bot_visited_urls": 1,
+      "visits": 1
+     },
+     {
+      "section": "/robots.txt",
+      "scan_urls": 1,
+      "bot_visited_urls": 1,
+      "visits": 1
+     },
+     {
+      "section": "/",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/also-never",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/blog",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/img",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/never-visited",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/old-page",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/relative-ref",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/trailing",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     },
+     {
+      "section": "/unmeasured",
+      "scan_urls": 1,
+      "bot_visited_urls": 0,
+      "visits": 0
+     }
+    ],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-04T03:17:03+00:00",
+     "to": "2026-12-03T03:34:02+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "humans",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "humans",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "humans",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "status_waste",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-humans/logs/ad2fda82-798f-451b-829b-b4f27c02cd45.sqlite",
+    "scan": "scan:complete",
+    "rows": [],
+    "total": 0,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "status_waste": [],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-03T11:04:30+00:00",
+     "to": "2026-12-20T17:53:47+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "humans",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {},
+   "expected": {
+    "ok": true,
+    "available": true,
+    "view": "nonindexable",
+    "source": "/private/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/tmppasj1gyq/project-humans/logs/ad2fda82-798f-451b-829b-b4f27c02cd45.sqlite",
+    "scan": "scan:complete",
+    "rows": [],
+    "total": 0,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false,
+    "next_offset": null,
+    "nonindexable": [],
+    "scan_uuid": "uuid-1",
+    "evidence_revision": 7,
+    "period": {
+     "from": "2026-01-03T11:04:30+00:00",
+     "to": "2026-12-20T17:53:47+00:00"
+    },
+    "matching": "same origin, exact path and query; no case/slash/query normalization",
+    "limitations": [
+     "Bot identity is a user-agent claim",
+     "Absence refers only to the supplied logs and scan scope",
+     "Log-only URLs are discovery candidates, not proven orphans",
+     "Path-only logs are assumed to belong to the selected scan origin"
+    ],
+    "log_complete": true,
+    "indexability": {
+     "basis": "recorded HTTP status and meta/X-Robots noindex or none directives only; canonical and robots.txt are not inferred",
+     "unknown_urls": 1,
+     "state": "partial"
+    }
+   }
+  },
+  {
+   "store": "humans",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "other_origin",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "other_origin",
+   "scan": "complete",
+   "view": "bot_urls_absent_scan",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "other_origin",
+   "scan": "complete",
+   "view": "status_waste",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log import project origin differs from the native scan origin",
+    "error": "log import project origin differs from the native scan origin"
+   }
+  },
+  {
+   "store": "other_origin",
+   "scan": "complete",
+   "view": "nonindexable",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log import project origin differs from the native scan origin",
+    "error": "log import project origin differs from the native scan origin"
+   }
+  },
+  {
+   "store": "other_origin",
+   "scan": "complete",
+   "view": "sections",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "log bot observations are incomplete; absent visits cannot be inferred",
+    "error": "log bot observations are incomplete; absent visits cannot be inferred"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "missing",
+   "view": "scan_without_bot_visits",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "scan not found: scan:missing",
+    "error": "scan not found: scan:missing"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "nope",
+   "extra": {},
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "unsupported log/scan join view",
+    "error": "unsupported log/scan join view"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "limit": 0
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "limit must be an integer between 1 and 500",
+    "error": "limit must be an integer between 1 and 500"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "offset": -1
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "offset must be an integer between 0 and 100000000",
+    "error": "offset must be an integer between 0 and 100000000"
+   }
+  },
+  {
+   "store": "full",
+   "scan": "complete",
+   "view": "scan_without_bot_visits",
+   "extra": {
+    "limit": 501
+   },
+   "expected": {
+    "ok": false,
+    "available": false,
+    "reason": "limit must be an integer between 1 and 500",
+    "error": "limit must be an integer between 1 and 500"
+   }
+  }
+ ],
+ "stores": {
+  "full": {
+   "import": {
+    "ok": true,
+    "format": "logs.v1",
+    "project_target": "https://example.test/",
+    "lines": {
+     "total": 260,
+     "parsed": 260,
+     "skipped": 0,
+     "truncated": false,
+     "unknown_time": 0,
+     "unknown_user_agent": 24
+    },
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "complete": true,
+    "bot_detection_complete": false,
+    "files": {
+     "imported": 1,
+     "selected": 1
+    },
+    "log_format_variants": {
+     "combined-3-ident": 36,
+     "combined-2-ident": 14
+    },
+    "timezone": "UTC; missing Apache offsets and IIS timestamps assume UTC",
+    "bot_identity": "user-agent claim; DNS verification is separate"
+   }
+  },
+  "truncated": {
+   "import": {
+    "ok": true,
+    "format": "logs.v1",
+    "project_target": "https://example.test/",
+    "lines": {
+     "total": 40,
+     "parsed": 40,
+     "skipped": 0,
+     "truncated": true,
+     "unknown_time": 0,
+     "unknown_user_agent": 3
+    },
+    "period": {
+     "from": "2026-01-02T05:43:00+00:00",
+     "to": "2026-12-28T12:19:27+00:00"
+    },
+    "complete": false,
+    "bot_detection_complete": false,
+    "files": {
+     "imported": 1,
+     "selected": 1
+    },
+    "log_format_variants": {
+     "combined-3-ident": 28,
+     "combined-2-ident": 12
+    },
+    "timezone": "UTC; missing Apache offsets and IIS timestamps assume UTC",
+    "bot_identity": "user-agent claim; DNS verification is separate"
+   }
+  },
+  "undated": {
+   "import": {
+    "ok": true,
+    "format": "logs.v1",
+    "project_target": "https://example.test/",
+    "lines": {
+     "total": 7,
+     "parsed": 3,
+     "skipped": 0,
+     "truncated": false,
+     "unknown_time": 0,
+     "unknown_user_agent": 0
+    },
+    "period": {
+     "from": "2026-01-04T03:17:03+00:00",
+     "to": "2026-12-03T03:34:02+00:00"
+    },
+    "complete": true,
+    "bot_detection_complete": true,
+    "files": {
+     "imported": 1,
+     "selected": 1
+    },
+    "log_format_variants": {
+     "combined-3-ident": 3
+    },
+    "timezone": "UTC; missing Apache offsets and IIS timestamps assume UTC",
+    "bot_identity": "user-agent claim; DNS verification is separate"
+   }
+  },
+  "humans": {
+   "import": {
+    "ok": true,
+    "format": "logs.v1",
+    "project_target": "https://example.test/",
+    "lines": {
+     "total": 60,
+     "parsed": 60,
+     "skipped": 0,
+     "truncated": false,
+     "unknown_time": 0,
+     "unknown_user_agent": 60
+    },
+    "period": {
+     "from": "2026-01-03T11:04:30+00:00",
+     "to": "2026-12-20T17:53:47+00:00"
+    },
+    "complete": true,
+    "bot_detection_complete": false,
+    "files": {
+     "imported": 1,
+     "selected": 1
+    },
+    "log_format_variants": {
+     "common-2-ident": 18,
+     "common-3-ident": 32
+    },
+    "timezone": "UTC; missing Apache offsets and IIS timestamps assume UTC",
+    "bot_identity": "user-agent claim; DNS verification is separate"
+   }
+  },
+  "other_origin": {
+   "import": {
+    "ok": true,
+    "format": "logs.v1",
+    "project_target": "https://other.example.test/",
+    "lines": {
+     "total": 260,
+     "parsed": 260,
+     "skipped": 0,
+     "truncated": false,
+     "unknown_time": 0,
+     "unknown_user_agent": 24
+    },
+    "period": {
+     "from": "2025-12-31T23:33:56+00:00",
+     "to": "2026-12-28T17:00:11+00:00"
+    },
+    "complete": true,
+    "bot_detection_complete": false,
+    "files": {
+     "imported": 1,
+     "selected": 1
+    },
+    "log_format_variants": {
+     "combined-3-ident": 36,
+     "combined-2-ident": 14
+    },
+    "timezone": "UTC; missing Apache offsets and IIS timestamps assume UTC",
+    "bot_identity": "user-agent claim; DNS verification is separate"
+   }
+  }
+ }
+}

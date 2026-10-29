@@ -1,0 +1,30 @@
+{
+ "name": "tables",
+ "description": "Tables: how many, their row count and the header cells.",
+ "rules": [
+  {
+   "id": "table-count",
+   "kind": "count",
+   "selector": "table",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "row-count",
+   "kind": "count",
+   "selector": "tr",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "header-cells",
+   "kind": "text",
+   "selector": "th",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

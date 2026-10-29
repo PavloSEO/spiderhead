@@ -1,0 +1,1331 @@
+[
+ {
+  "args": {
+   "url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fexample.com%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 2,
+    "ok": true,
+    "snapshots": [
+     {
+      "archived_url": "https://web.archive.org/web/20240101000000/https://example.com/",
+      "mimetype": "text/html",
+      "original": "https://example.com/",
+      "statuscode": "200",
+      "timestamp": "20240101000000"
+     },
+     {
+      "archived_url": "https://web.archive.org/web/20250601000000/https://example.com/",
+      "mimetype": "text/html",
+      "original": "https://example.com/",
+      "statuscode": "404",
+      "timestamp": "20250601000000"
+     }
+    ],
+    "url": "https://example.com/"
+   }
+  },
+  "isolate_config": false,
+  "name": "snapshots with archived urls",
+  "responses": [
+   {
+    "body": [
+     [
+      "timestamp",
+      "original",
+      "statuscode",
+      "mimetype"
+     ],
+     [
+      "20240101000000",
+      "https://example.com/",
+      "200",
+      "text/html"
+     ],
+     [
+      "20250601000000",
+      "https://example.com/",
+      "404",
+      "text/html"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://none.example/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fnone.example%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://none.example/"
+   }
+  },
+  "isolate_config": false,
+  "name": "empty body means no snapshots",
+  "responses": [
+   {
+    "body": "",
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://none.example/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fnone.example%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://none.example/"
+   }
+  },
+  "isolate_config": false,
+  "name": "whitespace body",
+  "responses": [
+   {
+    "body": "  \n ",
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://none.example/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fnone.example%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://none.example/"
+   }
+  },
+  "isolate_config": false,
+  "name": "empty array",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://none.example/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fnone.example%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://none.example/"
+   }
+  },
+  "isolate_config": false,
+  "name": "recognized header without rows",
+  "responses": [
+   {
+    "body": [
+     [
+      "timestamp",
+      "original",
+      "statuscode",
+      "mimetype"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX response header row has an unexpected shape",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "error-shaped string array",
+  "responses": [
+   {
+    "body": [
+     [
+      "error",
+      "synthetic provider failure"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX response header row has an unexpected shape",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "malformed object row as only entry",
+  "responses": [
+   {
+    "body": [
+     {
+      "error": "synthetic provider failure"
+     }
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX returned a response that is not JSON",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "not json",
+  "responses": [
+   {
+    "body": "<html>down</html>",
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX returned a JSON body that is not an array",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "json object not array",
+  "responses": [
+   {
+    "body": {
+     "a": 1
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX response header row has an unexpected shape",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "header lacks required fields",
+  "responses": [
+   {
+    "body": [
+     [
+      "urlkey"
+     ],
+     [
+      "x"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX response header row has an unexpected shape",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "header not a list",
+  "responses": [
+   {
+    "body": [
+     "hdr",
+     [
+      "2024",
+      "u"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX response header row has an unexpected shape",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "header with non-str field",
+  "responses": [
+   {
+    "body": [
+     [
+      "timestamp",
+      5
+     ],
+     [
+      "2024",
+      "u"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX response contains a malformed row",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "row not a list",
+  "responses": [
+   {
+    "body": [
+     [
+      "timestamp",
+      "original"
+     ],
+     {
+      "a": 1
+     }
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 1,
+    "ok": true,
+    "snapshots": [
+     {
+      "archived_url": "https://web.archive.org/web/20240101/https://x/",
+      "original": "https://x/",
+      "timestamp": "20240101"
+     }
+    ],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "row shorter than header keeps subset",
+  "responses": [
+   {
+    "body": [
+     [
+      "timestamp",
+      "original",
+      "statuscode"
+     ],
+     [
+      "20240101",
+      "https://x/"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX response header row has an unexpected shape",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "row without original falls back to url",
+  "responses": [
+   {
+    "body": [
+     [
+      "timestamp",
+      "digest"
+     ],
+     [
+      "20240101",
+      "D"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "limit": 5,
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json&limit=5"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "limit int",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "limit": "7",
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json&limit=7"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "limit string coerced",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "limit": 1.9,
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json&limit=1"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "limit float truncated",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "limit": true,
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json&limit=1"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "limit bool true is int 1",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "limit": 0,
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "limit zero falsy skipped",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "limit": "many",
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "invalid literal for int() with base 10: 'many'"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "limit bad string raises",
+  "responses": []
+ },
+ {
+  "args": {
+   "limit": {
+    "n": 1
+   },
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "error": {
+    "class": "TypeError",
+    "message": "int() argument must be a string, a bytes-like object or a real number, not 'dict'"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "limit dict raises TypeError",
+  "responses": []
+ },
+ {
+  "args": {
+   "limit": 99999999999,
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json&limit=99999999999"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "limit huge int",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "from_date": "2024",
+   "to_date": "202506",
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json&from=2024&to=202506"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "from and to",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "from_date": "",
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 0,
+    "ok": true,
+    "snapshots": [],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "empty from skipped",
+  "responses": [
+   {
+    "body": [],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX request failed: HTTP Error 503: Service Unavailable",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "http 503 inside error text",
+  "responses": [
+   {
+    "body": "slow down",
+    "headers": {},
+    "status": 503
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX request failed: HTTP Error 404: Not Found",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "http 404",
+  "responses": [
+   {
+    "body": "",
+    "headers": {},
+    "status": 404
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX request failed: timed out",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "transport timeout",
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "error": "Wayback CDX request failed: <urlopen error reset>",
+    "ok": false,
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "transport reset",
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ],
+   "result": {
+    "count": 2,
+    "ok": true,
+    "snapshots": [
+     {
+      "archived_url": "https://web.archive.org/web/20240101000000/https://example.com/",
+      "mimetype": "text/html",
+      "original": "https://example.com/",
+      "statuscode": "200",
+      "timestamp": "20240101000000"
+     },
+     {
+      "archived_url": "https://web.archive.org/web/20250601000000/https://example.com/",
+      "mimetype": "text/html",
+      "original": "https://example.com/",
+      "statuscode": "404",
+      "timestamp": "20250601000000"
+     }
+    ],
+    "url": "https://x/"
+   }
+  },
+  "isolate_config": false,
+  "name": "redirect followed to success",
+  "responses": [
+   {
+    "body": "",
+    "headers": {
+     "Location": "/cdx?moved"
+    },
+    "status": 301
+   },
+   {
+    "body": [
+     [
+      "timestamp",
+      "original",
+      "statuscode",
+      "mimetype"
+     ],
+     [
+      "20240101000000",
+      "https://example.com/",
+      "200",
+      "text/html"
+     ],
+     [
+      "20250601000000",
+      "https://example.com/",
+      "404",
+      "text/html"
+     ]
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": "https://x/"
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "error": {
+    "class": "UnicodeDecodeError",
+    "message": "'utf-8' codec can't decode byte 0xff in position 0: invalid start byte"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "user-agent",
+       "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 20,
+     "url": "https://web.archive.org/cdx/search/cdx?url=https%3A%2F%2Fx%2F&output=json"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "invalid utf8 body raises UnicodeDecodeError",
+  "responses": [
+   {
+    "body": {
+     "$b64": "//4="
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "url": ""
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "url required"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "url required",
+  "responses": []
+ }
+]

@@ -1,0 +1,174 @@
+{
+ "cases": {
+  "link-gsc": {
+   "argv": [
+    "project-sources-link",
+    "--directory",
+    "{WORK}/p1",
+    "--service",
+    "gsc",
+    "--resource",
+    "accounts/1/sites/sc"
+   ],
+   "exit": 0,
+   "stderr": "seohead: project-sources-link\n",
+   "stdout": "{\n  \"ok\": true,\n  \"path\": \"<WORK>/p1\",\n  \"created\": true,\n  \"binding\": {\n    \"service\": \"gsc\",\n    \"resource\": \"accounts/1/sites/sc\",\n    \"label\": null,\n    \"origin\": \"manual\",\n    \"linked_at\": \"<TS>\",\n    \"status\": \"selected\"\n  }\n}\n",
+   "step": 4
+  },
+  "link-topvisor": {
+   "argv": [
+    "project-sources-link",
+    "--directory",
+    "{WORK}/p1",
+    "--service",
+    "topvisor",
+    "--resource",
+    "project/42"
+   ],
+   "exit": 0,
+   "stderr": "seohead: project-sources-link\n",
+   "stdout": "{\n  \"ok\": true,\n  \"path\": \"<WORK>/p1\",\n  \"created\": true,\n  \"binding\": {\n    \"service\": \"topvisor\",\n    \"resource\": \"project/42\",\n    \"label\": null,\n    \"origin\": \"manual\",\n    \"linked_at\": \"<TS>\",\n    \"status\": \"selected\"\n  }\n}\n",
+   "step": 5
+  },
+  "list": {
+   "argv": [
+    "project-sources-list",
+    "--directory",
+    "{WORK}/p1"
+   ],
+   "exit": 0,
+   "stderr": "seohead: project-sources-list\n",
+   "stdout": "{\n  \"ok\": true,\n  \"path\": \"<WORK>/p1\",\n  \"count\": 2,\n  \"bindings\": [\n    {\n      \"label\": null,\n      \"linked_at\": \"<TS>\",\n      \"origin\": \"manual\",\n      \"resource\": \"accounts/1/sites/sc\",\n      \"service\": \"gsc\",\n      \"status\": \"selected\",\n      \"readiness\": {\n        \"history_state\": \"no_history\",\n        \"data_28d\": null,\n        \"coverage_28d\": null,\n        \"data_days\": 0,\n        \"available_days\": 0,\n        \"expected_days\": 28,\n        \"access_state\": \"unknown\",\n        \"reason\": \"no local sync history for this binding\"\n      }\n    },\n    {\n      \"label\": null,\n      \"linked_at\": \"<TS>\",\n      \"origin\": \"manual\",\n      \"resource\": \"project/42\",\n      \"service\": \"topvisor\",\n      \"status\": \"selected\",\n      \"readiness\": {\n        \"history_state\": \"no_history\",\n        \"data_28d\": null,\n        \"coverage_28d\": null,\n        \"data_days\": 0,\n        \"available_days\": 0,\n        \"expected_days\": 28,\n        \"access_state\": \"unknown\",\n        \"reason\": \"no local sync history for this binding\"\n      }\n    }\n  ],\n  \"resources\": [],\n  \"resources_truncated\": false,\n  \"as_of\": \"<DATE>\"\n}\n",
+   "step": 6
+  },
+  "list-after": {
+   "argv": [
+    "project-sources-list",
+    "--directory",
+    "{WORK}/p1"
+   ],
+   "exit": 0,
+   "stderr": "seohead: project-sources-list\n",
+   "stdout": "{\n  \"ok\": true,\n  \"path\": \"<WORK>/p1\",\n  \"count\": 1,\n  \"bindings\": [\n    {\n      \"label\": null,\n      \"linked_at\": \"<TS>\",\n      \"origin\": \"manual\",\n      \"resource\": \"project/42\",\n      \"service\": \"topvisor\",\n      \"status\": \"selected\",\n      \"readiness\": {\n        \"history_state\": \"no_history\",\n        \"data_28d\": null,\n        \"coverage_28d\": null,\n        \"data_days\": 0,\n        \"available_days\": 0,\n        \"expected_days\": 28,\n        \"access_state\": \"unknown\",\n        \"reason\": \"no local sync history for this binding\"\n      }\n    }\n  ],\n  \"resources\": [],\n  \"resources_truncated\": false,\n  \"as_of\": \"<DATE>\"\n}\n",
+   "step": 8
+  },
+  "new": {
+   "argv": [
+    "project-new",
+    "--directory",
+    "{WORK}/p1",
+    "--target",
+    "https://example.org",
+    "--label",
+    "Demo"
+   ],
+   "exit": 0,
+   "stderr": "seohead: project-new\n",
+   "stdout": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"<WORK>/p1\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}\n",
+   "step": 0
+  },
+  "open": {
+   "argv": [
+    "project-open",
+    "--directory",
+    "{WORK}/p1"
+   ],
+   "exit": 0,
+   "stderr": "seohead: project-open\n",
+   "stdout": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"<WORK>/p1\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}\n",
+   "step": 1
+  },
+  "status": {
+   "argv": [
+    "project-status",
+    "--directory",
+    "{WORK}/p1"
+   ],
+   "exit": 0,
+   "stderr": "seohead: project-status\n",
+   "stdout": "{\n  \"ok\": true,\n  \"project\": {\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"settings_revision\": 0,\n    \"template_references\": [],\n    \"profile_references\": []\n  },\n  \"scans\": {\n    \"total\": 0,\n    \"offset\": 0,\n    \"items\": [],\n    \"has_more\": false,\n    \"errors\": [],\n    \"history_bytes\": 0,\n    \"history_warning_bytes\": 21474836480,\n    \"history_warning\": false\n  },\n  \"summary\": {\n    \"running_scan\": {\n      \"running\": null,\n      \"id\": null,\n      \"progress\": null,\n      \"reason\": \"no collector observation is recorded\"\n    },\n    \"open_tasks\": {\n      \"count\": null,\n      \"state\": \"unavailable\",\n      \"scope\": \"primary_project_custom_checklist\",\n      \"reason\": \"the project checklist is not initialized\"\n    },\n    \"latest_scan\": {\n      \"uuid\": null,\n      \"state\": null,\n      \"completeness\": null,\n      \"reason\": \"no retained scan is available\"\n    },\n    \"folder_health\": {\n      \"state\": \"ok\",\n      \"reason\": null\n    }\n  },\n  \"agent_state\": {\n    \"last_seen_at\": null,\n    \"connected\": null,\n    \"heartbeat_source\": null,\n    \"activity_source\": null,\n    \"reason\": \"no agent activity is recorded\"\n  },\n  \"storage\": {\n    \"state\": \"unavailable\",\n    \"relative_path\": \"scans\",\n    \"total_bytes\": null,\n    \"scan_count\": null,\n    \"measured_at\": null,\n    \"reason\": \"measurement has not been recorded\"\n  },\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  },\n  \"preparation\": {\n    \"state\": \"pending\",\n    \"reason\": \"bounded project preparation has not run\"\n  }\n}\n",
+   "step": 2
+  },
+  "unlink": {
+   "argv": [
+    "project-sources-unlink",
+    "--directory",
+    "{WORK}/p1",
+    "--service",
+    "gsc",
+    "--resource",
+    "accounts/1/sites/sc"
+   ],
+   "exit": 0,
+   "stderr": "seohead: project-sources-unlink\n",
+   "stdout": "{\n  \"ok\": true,\n  \"path\": \"<WORK>/p1\",\n  \"removed\": {\n    \"service\": \"gsc\",\n    \"resource\": \"accounts/1/sites/sc\"\n  }\n}\n",
+   "step": 7
+  },
+  "update": {
+   "argv": [
+    "project-update",
+    "--directory",
+    "{WORK}/p1",
+    "--label",
+    "Renamed",
+    "--expected-revision",
+    "1"
+   ],
+   "exit": 1,
+   "stderr": "seohead: project-update\nerror: project settings revision conflict: current revision is 0\n",
+   "stdout": "",
+   "step": 3
+  }
+ },
+ "mcp": {
+  "seo_project_new": {
+   "arguments": {
+    "directory": "{WORK}/p1",
+    "label": "Demo",
+    "target": "https://example.org"
+   },
+   "is_error": false,
+   "step": 0,
+   "text": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:2>\",\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"<WORK>/p1\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}",
+   "tool": "seo_project_new"
+  },
+  "seo_project_open": {
+   "arguments": {
+    "directory": "{WORK}/p1"
+   },
+   "is_error": false,
+   "step": 1,
+   "text": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:2>\",\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"<WORK>/p1\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}",
+   "tool": "seo_project_open"
+  },
+  "seo_project_sources_link": {
+   "arguments": {
+    "directory": "{WORK}/p1",
+    "resource": "accounts/1/sites/sc",
+    "service": "gsc"
+   },
+   "is_error": false,
+   "step": 3,
+   "text": "{\n  \"ok\": true,\n  \"path\": \"<WORK>/p1\",\n  \"created\": true,\n  \"binding\": {\n    \"service\": \"gsc\",\n    \"resource\": \"accounts/1/sites/sc\",\n    \"label\": null,\n    \"origin\": \"manual\",\n    \"linked_at\": \"<TS>\",\n    \"status\": \"selected\"\n  }\n}",
+   "tool": "seo_project_sources_link"
+  },
+  "seo_project_sources_list": {
+   "arguments": {
+    "directory": "{WORK}/p1"
+   },
+   "is_error": false,
+   "step": 4,
+   "text": "{\n  \"ok\": true,\n  \"path\": \"<WORK>/p1\",\n  \"count\": 1,\n  \"bindings\": [\n    {\n      \"label\": null,\n      \"linked_at\": \"<TS>\",\n      \"origin\": \"manual\",\n      \"resource\": \"accounts/1/sites/sc\",\n      \"service\": \"gsc\",\n      \"status\": \"selected\",\n      \"readiness\": {\n        \"history_state\": \"no_history\",\n        \"data_28d\": null,\n        \"coverage_28d\": null,\n        \"data_days\": 0,\n        \"available_days\": 0,\n        \"expected_days\": 28,\n        \"access_state\": \"unknown\",\n        \"reason\": \"no local sync history for this binding\"\n      }\n    }\n  ],\n  \"resources\": [],\n  \"resources_truncated\": false,\n  \"as_of\": \"<DATE>\"\n}",
+   "tool": "seo_project_sources_list"
+  },
+  "seo_project_status": {
+   "arguments": {
+    "directory": "{WORK}/p1"
+   },
+   "is_error": false,
+   "step": 2,
+   "text": "{\n  \"ok\": true,\n  \"project\": {\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"settings_revision\": 0,\n    \"template_references\": [],\n    \"profile_references\": []\n  },\n  \"scans\": {\n    \"total\": 0,\n    \"offset\": 0,\n    \"items\": [],\n    \"has_more\": false,\n    \"errors\": [],\n    \"history_bytes\": 0,\n    \"history_warning_bytes\": 21474836480,\n    \"history_warning\": false\n  },\n  \"summary\": {\n    \"running_scan\": {\n      \"running\": null,\n      \"id\": null,\n      \"progress\": null,\n      \"reason\": \"no collector observation is recorded\"\n    },\n    \"open_tasks\": {\n      \"count\": null,\n      \"state\": \"unavailable\",\n      \"scope\": \"primary_project_custom_checklist\",\n      \"reason\": \"the project checklist is not initialized\"\n    },\n    \"latest_scan\": {\n      \"uuid\": null,\n      \"state\": null,\n      \"completeness\": null,\n      \"reason\": \"no retained scan is available\"\n    },\n    \"folder_health\": {\n      \"state\": \"ok\",\n      \"reason\": null\n    }\n  },\n  \"agent_state\": {\n    \"last_seen_at\": null,\n    \"connected\": null,\n    \"heartbeat_source\": null,\n    \"activity_source\": null,\n    \"reason\": \"no agent activity is recorded\"\n  },\n  \"storage\": {\n    \"state\": \"unavailable\",\n    \"relative_path\": \"scans\",\n    \"total_bytes\": null,\n    \"scan_count\": null,\n    \"measured_at\": null,\n    \"reason\": \"measurement has not been recorded\"\n  },\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  },\n  \"preparation\": {\n    \"state\": \"pending\",\n    \"reason\": \"bounded project preparation has not run\"\n  }\n}",
+   "tool": "seo_project_status"
+  }
+ }
+}

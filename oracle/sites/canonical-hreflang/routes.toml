@@ -1,0 +1,3 @@
+[site]
+start = "/"
+description = "canonical self/cross/chain/missing/offsite; hreflang valid, missing return, invalid code, x-default"

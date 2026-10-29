@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "tech-detect",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "tech-detect",
+ "exit": 0,
+ "stderr": "seohead: tech-detect\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/\",\n  \"final_url\": \"{BASE}/\",\n  \"status_code\": 200,\n  \"generator\": null,\n  \"technologies\": [],\n  \"by_category\": {},\n  \"scripts_total\": 0,\n  \"third_party_hosts\": [],\n  \"malformed_cookies\": [],\n  \"external_db\": {\n    \"loaded\": false\n  },\n  \"measurement\": {\n    \"representation\": \"static_markup\",\n    \"script_executed\": false\n  },\n  \"findings\": [\n    \"No CMS or framework was detected; the site may be custom-built or rendered entirely by JavaScript.\",\n    \"No analytics integration was detected on the page.\"\n  ]\n}\n"
+}

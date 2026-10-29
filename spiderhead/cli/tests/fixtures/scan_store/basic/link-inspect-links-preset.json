@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-link-inspect\n",
+    "stdout": "{\n  \"ok\": true,\n  \"view\": \"links\",\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 10,\n  \"coverage\": {\n    \"state\": \"complete\",\n    \"reasons\": [],\n    \"internal_links_stored\": true,\n    \"external_links_stored\": true,\n    \"retained_attributes\": [\n      \"rel\",\n      \"target\",\n      \"anchor\",\n      \"position\",\n      \"raw_href\"\n    ],\n    \"not_retained_attributes\": [\n      \"hreflang\",\n      \"download\"\n    ]\n  },\n  \"url\": \"http://127.0.0.1:{PORT}/\",\n  \"direction\": \"out\",\n  \"representation\": \"all\",\n  \"filters\": {\n    \"link_type\": \"internal\",\n    \"follow\": \"all\",\n    \"status_class\": \"broken\",\n    \"contains\": null,\n    \"sort\": \"order\"\n  },\n  \"offset\": 0,\n  \"limit\": 100,\n  \"max_limit\": 200,\n  \"state\": \"complete\",\n  \"reason_code\": null,\n  \"items\": [\n    {\n      \"index\": 1,\n      \"link_id\": 9,\n      \"ordinal\": 8,\n      \"representation\": \"static\",\n      \"target_url\": \"http://127.0.0.1:{PORT}/missing-page.html\",\n      \"anchor\": \"Missing\",\n      \"anchor_source\": \"\",\n      \"rel\": null,\n      \"nofollow\": false,\n      \"sponsored\": false,\n      \"ugc\": false,\n      \"internal\": true,\n      \"target_scanned\": true,\n      \"target_status\": 404,\n      \"position\": null,\n      \"position_status\": \"not_classified\",\n      \"attributes\": {\n        \"target\": null\n      },\n      \"raw_href\": null\n    }\n  ],\n  \"returned\": 1,\n  \"has_more\": false,\n  \"next_offset\": null,\n  \"total\": 10,\n  \"total_capped\": false,\n  \"filtered_total\": 1,\n  \"filtered_total_state\": \"exact\",\n  \"page\": {\n    \"scanned\": true,\n    \"status\": 200\n  },\n  \"summary\": {\n    \"total\": 10,\n    \"internal\": 9,\n    \"external\": 1,\n    \"unknown_locality\": 0,\n    \"nofollow\": 0\n  },\n  \"preset\": \"broken_links\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"view\": \"links\",\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 10,\n  \"coverage\": {\n    \"state\": \"complete\",\n    \"reasons\": [],\n    \"internal_links_stored\": true,\n    \"external_links_stored\": true,\n    \"retained_attributes\": [\n      \"rel\",\n      \"target\",\n      \"anchor\",\n      \"position\",\n      \"raw_href\"\n    ],\n    \"not_retained_attributes\": [\n      \"hreflang\",\n      \"download\"\n    ]\n  },\n  \"url\": \"http://127.0.0.1:{PORT}/\",\n  \"direction\": \"out\",\n  \"representation\": \"all\",\n  \"filters\": {\n    \"link_type\": \"internal\",\n    \"follow\": \"all\",\n    \"status_class\": \"broken\",\n    \"contains\": null,\n    \"sort\": \"order\"\n  },\n  \"offset\": 0,\n  \"limit\": 100,\n  \"max_limit\": 200,\n  \"state\": \"complete\",\n  \"reason_code\": null,\n  \"items\": [\n    {\n      \"index\": 1,\n      \"link_id\": 9,\n      \"ordinal\": 8,\n      \"representation\": \"static\",\n      \"target_url\": \"http://127.0.0.1:{PORT}/missing-page.html\",\n      \"anchor\": \"Missing\",\n      \"anchor_source\": \"\",\n      \"rel\": null,\n      \"nofollow\": false,\n      \"sponsored\": false,\n      \"ugc\": false,\n      \"internal\": true,\n      \"target_scanned\": true,\n      \"target_status\": 404,\n      \"position\": null,\n      \"position_status\": \"not_classified\",\n      \"attributes\": {\n        \"target\": null\n      },\n      \"raw_href\": null\n    }\n  ],\n  \"returned\": 1,\n  \"has_more\": false,\n  \"next_offset\": null,\n  \"total\": 10,\n  \"total_capped\": false,\n  \"filtered_total\": 1,\n  \"filtered_total_state\": \"exact\",\n  \"page\": {\n    \"scanned\": true,\n    \"status\": 200\n  },\n  \"summary\": {\n    \"total\": 10,\n    \"internal\": 9,\n    \"external\": 1,\n    \"unknown_locality\": 0,\n    \"nofollow\": 0\n  },\n  \"preset\": \"broken_links\"\n}"
+   }
+  ]
+ }
+}

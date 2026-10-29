@@ -1,0 +1,349 @@
+[
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwAQAAAFoA",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mNearDuplicateChecking",
+  "expect": {
+   "ok": true
+  },
+  "name": "bool-on"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwAAAAAFoB",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mNearDuplicateChecking",
+  "expect": {
+   "ok": false
+  },
+  "name": "bool-off"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwAAAAAFoB",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mOnlyIndexableForDuplicates",
+  "expect": {
+   "ok": true
+  },
+  "name": "bool-after-int"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwBwAAAFoA",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mNearDuplicateChecking",
+  "expect": {
+   "error": "ValueError: seo.spider.config.DuplicateConfig.mNearDuplicateChecking holds 0x7, expected 0 or 1 \u2014 the layout does not match and the value cannot be trusted"
+  },
+  "name": "bool-bad-byte"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwAQAAAFoA",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mNearDuplicateThreshold",
+  "expect": {
+   "error": "ValueError: seo.spider.config.DuplicateConfig.mNearDuplicateThreshold is 'I', not a boolean"
+  },
+  "name": "int-as-bool"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwAQAAAFoA",
+  "class": "seo.spider.config.NoSuchConfig",
+  "field": "mAnything",
+  "expect": {
+   "error": "ValueError: seo.spider.config.NoSuchConfig is not present in this config"
+  },
+  "name": "class-missing"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwAQAAAFoA",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mNotThere",
+  "expect": {
+   "error": "ValueError: seo.spider.config.DuplicateConfig has no primitive field mNotThere"
+  },
+  "name": "field-missing"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hw",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mOnlyIndexableForDuplicates",
+  "expect": {
+   "error": "ValueError: config ends before the requested field"
+  },
+  "name": "truncated"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAAHhwAQAAAFoA",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mX",
+  "expect": {
+   "error": "ValueError: seo.spider.config.DuplicateConfig has no primitive field mX"
+  },
+  "name": "empty-descriptor"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyABtzZW8uc3BpZGVyLmNvbmZpZy5NaXhDb25maWcAAAAAAAAAAAIAA0wACG1BU3RyaW5ndAAQamF2YS5sYW5nLlN0cmluZztbAAhtQW5BcnJheXQAEGphdmEubGFuZy5PYmplY3Q7WgAFbUZsYWd4cAE=",
+  "class": "seo.spider.config.MixConfig",
+  "field": "mFlag",
+  "expect": {
+   "error": "ValueError: unknown field typecode ';'"
+  },
+  "name": "bool-after-objects"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyABtzZW8uc3BpZGVyLmNvbmZpZy5NaXhDb25maWcAAAAAAAAAAAIAA0wACG1BU3RyaW5ncFsACG1BbkFycmF5cQB+AABaAAVtRmxhZ3hwAA==",
+  "class": "seo.spider.config.MixConfig",
+  "field": "mFlag",
+  "expect": {
+   "error": "ValueError: unexpected type signature marker 0x70"
+  },
+  "name": "bool-after-null-and-ref-sigs"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyABtzZW8uc3BpZGVyLmNvbmZpZy5NaXhDb25maWcAAAAAAAAAAAIAAlEABG1PZGRaAAVtRmxhZ3hwAQ==",
+  "class": "seo.spider.config.MixConfig",
+  "field": "mFlag",
+  "expect": {
+   "error": "ValueError: unknown field typecode 'Q'"
+  },
+  "name": "bad-typecode"
+ },
+ {
+  "kind": "read_boolean_field",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3h0AAJoaQEAAABaAA==",
+  "class": "seo.spider.config.DuplicateConfig",
+  "field": "mNearDuplicateChecking",
+  "expect": {
+   "error": "ValueError: seo.spider.config.DuplicateConfig has a superclass or annotation data \u2014 offset is not computable"
+  },
+  "name": "superclass-data"
+ },
+ {
+  "kind": "read_module_flags",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwAAAAAFoB",
+  "expect": {
+   "ok": {
+    "structured_data_json_ld": null,
+    "structured_data_microdata": null,
+    "structured_data_rdfa": null,
+    "structured_data_google_validation": null,
+    "structured_data_schema_org_validation": null,
+    "spelling": null,
+    "grammar": null,
+    "store_html": null,
+    "store_rendered_html": null,
+    "crawl_linked_xml_sitemaps": null,
+    "auto_discover_sitemaps": null,
+    "near_duplicates": false,
+    "auto_crawl_analysis": null
+   }
+  },
+  "name": "flags-duplicate"
+ },
+ {
+  "kind": "read_module_flags",
+  "blob": "bm90IGEgc2VyaWFsaXplZCBzdHJlYW0gYXQgYWxs",
+  "expect": {
+   "ok": {
+    "structured_data_json_ld": null,
+    "structured_data_microdata": null,
+    "structured_data_rdfa": null,
+    "structured_data_google_validation": null,
+    "structured_data_schema_org_validation": null,
+    "spelling": null,
+    "grammar": null,
+    "store_html": null,
+    "store_rendered_html": null,
+    "crawl_linked_xml_sitemaps": null,
+    "auto_discover_sitemaps": null,
+    "near_duplicates": null,
+    "auto_crawl_analysis": null
+   }
+  },
+  "name": "flags-garbage"
+ },
+ {
+  "kind": "read_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAAAAAA==",
+  "expect": {
+   "ok": [
+    true,
+    2.0
+   ]
+  },
+  "name": "speed-on-2"
+ },
+ {
+  "kind": "read_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAA/4AAAAAAAAA==",
+  "expect": {
+   "ok": [
+    false,
+    0.5
+   ]
+  },
+  "name": "speed-off"
+ },
+ {
+  "kind": "read_speed",
+  "blob": "rO0ABQ==",
+  "expect": {
+   "error": "ValueError: config does not contain mUrlRequestsPerSecond \u2014 it is not a serialized Screaming Frog config or uses another format version"
+  },
+  "name": "speed-truncated"
+ },
+ {
+  "kind": "read_speed",
+  "blob": "rO0ABXNyACFzZW8uc3BpZGVyLmNvbmZpZy5EdXBsaWNhdGVDb25maWcAAAAAAAAAAAIAA1oAFm1OZWFyRHVwbGljYXRlQ2hlY2tpbmdJABdtTmVhckR1cGxpY2F0ZVRocmVzaG9sZFoAG21Pbmx5SW5kZXhhYmxlRm9yRHVwbGljYXRlc3hwAQ==",
+  "expect": {
+   "error": "ValueError: config does not contain mUrlRequestsPerSecond \u2014 it is not a serialized Screaming Frog config or uses another format version"
+  },
+  "name": "speed-no-class"
+ },
+ {
+  "kind": "read_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgABWgARbUxpbWl0UGVyZm9ybWFuY2V4cAE=",
+  "expect": {
+   "error": "ValueError: config does not contain mUrlRequestsPerSecond \u2014 it is not a serialized Screaming Frog config or uses another format version"
+  },
+  "name": "speed-no-field"
+ },
+ {
+  "kind": "read_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAA==",
+  "expect": {
+   "error": "ValueError: config ends inside the speed block \u2014 file is corrupt"
+  },
+  "name": "speed-short-values"
+ },
+ {
+  "kind": "patch_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAAAAAA==",
+  "rate": "0.5",
+  "expect": {
+   "ok": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAE/4AAAAAAAAA=="
+  },
+  "name": "patch-0.5"
+ },
+ {
+  "kind": "patch_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAAAAAA==",
+  "rate": "999.9",
+  "expect": {
+   "ok": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAjz8zMzMzMw=="
+  },
+  "name": "patch-999.9"
+ },
+ {
+  "kind": "patch_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAAAAAA==",
+  "rate": "0.05",
+  "expect": {
+   "error": "ValueError: rate 0.05 is outside the allowed 0.1..1000.0 URLs/s"
+  },
+  "name": "patch-low"
+ },
+ {
+  "kind": "patch_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAAAAAA==",
+  "rate": "1000.1",
+  "expect": {
+   "error": "ValueError: rate 1000.1 is outside the allowed 0.1..1000.0 URLs/s"
+  },
+  "name": "patch-high"
+ },
+ {
+  "kind": "patch_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAAAAAA==",
+  "rate": "-1.0",
+  "expect": {
+   "error": "ValueError: rate -1.0 is outside the allowed 0.1..1000.0 URLs/s"
+  },
+  "name": "patch-neg"
+ },
+ {
+  "kind": "patch_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAAAAAA==",
+  "rate": "nan",
+  "expect": {
+   "error": "ValueError: rate nan is outside the allowed 0.1..1000.0 URLs/s"
+  },
+  "name": "patch-nan"
+ },
+ {
+  "kind": "patch_speed",
+  "blob": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFAAAAAAAAAAA==",
+  "rate": "inf",
+  "expect": {
+   "error": "ValueError: rate inf is outside the allowed 0.1..1000.0 URLs/s"
+  },
+  "name": "patch-inf"
+ },
+ {
+  "kind": "find_base_config",
+  "explicit": null,
+  "patterns": [
+   "{root}/*/*.seospiderconfig",
+   "{root}/none/*.cfg"
+  ],
+  "expect": {
+   "ok": "{root}/out/throttle-ok.seospiderconfig"
+  },
+  "name": "find-glob-latest"
+ },
+ {
+  "kind": "find_base_config",
+  "explicit": "{root}/c1/crawl-a.seospiderconfig",
+  "patterns": [
+   "{root}/*/*.seospiderconfig",
+   "{root}/none/*.cfg"
+  ],
+  "expect": {
+   "ok": "{root}/c1/crawl-a.seospiderconfig"
+  },
+  "name": "find-explicit-hit"
+ },
+ {
+  "kind": "find_base_config",
+  "explicit": "{root}/nope.cfg",
+  "patterns": [
+   "{root}/none/*.cfg"
+  ],
+  "expect": {
+   "ok": null
+  },
+  "name": "find-explicit-miss-no-glob-hits"
+ },
+ {
+  "kind": "build_throttled_config",
+  "dest": "{root}/out/throttle-ok.seospiderconfig",
+  "rate": "2.5",
+  "base": "{root}/c1/crawl-a.seospiderconfig",
+  "expect": {
+   "ok": "{root}/out/throttle-ok.seospiderconfig",
+   "written": "rO0ABXNyAClzZW8uc3BpZGVyLmNvbmZpZy5TcGlkZXJQZXJmb3JtYW5jZUNvbmZpZwAAAAAAAAAAAgACWgARbUxpbWl0UGVyZm9ybWFuY2VEABVtVXJsUmVxdWVzdHNQZXJTZWNvbmR4cAFABAAAAAAAAA=="
+  },
+  "name": "throttle-ok"
+ },
+ {
+  "kind": "build_throttled_config",
+  "dest": "{root}/out/x.seospiderconfig",
+  "rate": "2.5",
+  "base": "{root}/none/none.cfg",
+  "expect": {
+   "error": "RuntimeError: cannot apply a crawl-rate limit because no base Screaming Frog config was found. Save any config from the GUI (Config \u2192 File \u2192 Config \u2192 Save As) and set its path as sf_cli.seospiderconfig in config.json, or run one crawl in the GUI so SF creates a reusable config automatically. Without a base file, the limit cannot be set; the toolkit will not crawl a third-party site at full speed after a rate limit was explicitly requested."
+  },
+  "name": "throttle-no-base"
+ }
+]

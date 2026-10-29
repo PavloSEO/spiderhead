@@ -1,0 +1,1790 @@
+{
+ "A11Y_FORM_LABEL_MISSING": {
+  "fix": "Associate a label with the control, or provide a valid aria-label or aria-labelledby reference.",
+  "message": "Form control has no static accessible label",
+  "severity": "notice",
+  "source": "crawl:markup_evidence"
+ },
+ "A11Y_HEADING_ORDER": {
+  "fix": "Review the heading outline and use nested heading levels consistently.",
+  "message": "Heading sequence skips a level in the static document",
+  "severity": "notice",
+  "source": "crawl:markup_evidence"
+ },
+ "A11Y_HTML_LANG_MISSING": {
+  "fix": "Declare the document language on html and review whether it matches the content.",
+  "message": "Root html element has no nonempty lang declaration",
+  "severity": "notice",
+  "source": "crawl:markup_evidence"
+ },
+ "A11Y_IMAGE_ALT_MISSING": {
+  "fix": "Provide meaningful alternative text; explicitly mark decorative images with empty alt text.",
+  "message": "Image has no alt attribute or static accessible name",
+  "severity": "notice",
+  "source": "crawl:markup_evidence"
+ },
+ "A11Y_MAIN_LANDMARK_MISSING": {
+  "fix": "Mark the primary page content with main or role=main and verify navigation with assistive technology.",
+  "message": "Document content has no main landmark",
+  "severity": "notice",
+  "source": "crawl:markup_evidence"
+ },
+ "AJAX_CRAWLING_SCHEME_META_FRAGMENT": {
+  "fix": "Remove the tag once the page is served as ordinary HTML (server-rendered or crawlable client-rendered). Nothing requests the _escaped_fragment_ companion URL it advertises any more, so the declaration is inert -- informational rather than broken.",
+  "message": "Page declares <meta name=\"fragment\"> -- the page-wide opt-in to the deprecated AJAX crawling scheme",
+  "severity": "notice",
+  "source": "crawl:meta_fragment"
+ },
+ "AJAX_CRAWLING_SCHEME_URL": {
+  "fix": "Serve the same content at ordinary URLs and link to those instead. Google deprecated the scheme in 2015 and stopped supporting it in 2018, so an _escaped_fragment_ companion URL is no longer requested by anything -- informational rather than broken, because a site may still keep it for a legacy client of its own.",
+  "message": "The deprecated AJAX crawling scheme (#! / _escaped_fragment_) is still used by this page's URL or by URLs it links to",
+  "severity": "notice",
+  "source": "crawl:ajax_scheme_outlinks"
+ },
+ "AMPHTML_PRESENT": {
+  "fix": "Confirm that the AMP version is still required, current, valid, and canonically linked.",
+  "message": "AMP version is declared",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "AMP_BOILERPLATE_INVALID": {
+  "fix": "Include the head style[amp-boilerplate] rules and the noscript fallback on the page the pairing declares.",
+  "message": "The AMP page declared by rel=amphtml lacks the AMP boilerplate declarations",
+  "severity": "notice",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_INDEXABLE": {
+  "fix": "Confirm the AMP page should compete in search; if the non-AMP page is canonical, the AMP page usually should not be.",
+  "message": "The AMP page is indexable",
+  "severity": "notice",
+  "source": "crawl:amp_pairing"
+ },
+ "AMP_INVALID_BOILERPLATE": {
+  "fix": "Include the required amp-boilerplate style and noscript fallback; validate their content with the official AMP validator.",
+  "message": "AMP document lacks the structural AMP boilerplate declarations",
+  "severity": "warning",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_INVALID_CHARSET": {
+  "fix": "Place <meta charset=\"utf-8\"> first in the AMP head.",
+  "message": "AMP head does not start with the required UTF-8 charset declaration",
+  "severity": "warning",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_INVALID_DOCTYPE": {
+  "fix": "Start the AMP source document with <!doctype html>.",
+  "message": "AMP document has a missing or invalid HTML5 doctype",
+  "severity": "warning",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_INVALID_RUNTIME": {
+  "fix": "Add <script async src=\"https://cdn.ampproject.org/v0.js\"></script> to the AMP head.",
+  "message": "AMP document lacks an async AMP runtime script in the head",
+  "severity": "warning",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_INVALID_VIEWPORT": {
+  "fix": "Declare a viewport containing width=device-width in the head.",
+  "message": "AMP document lacks the required device-width viewport",
+  "severity": "warning",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_MISSING_BODY": {
+  "fix": "Include an explicit body element in the AMP source.",
+  "message": "AMP source document has no explicit body element",
+  "severity": "warning",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_MISSING_CANONICAL": {
+  "fix": "Add a rel=canonical on the AMP page that points to the non-AMP version.",
+  "message": "The AMP page declares no rel=canonical",
+  "severity": "warning",
+  "source": "crawl:amp_pairing"
+ },
+ "AMP_MISSING_HEAD": {
+  "fix": "Include an explicit head element in the AMP source.",
+  "message": "AMP source document has no explicit head element",
+  "severity": "warning",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_MISSING_HTML_ATTRIBUTE": {
+  "fix": "Add the AMP attribute to the root html element, or correct the rel=amphtml target.",
+  "message": "AMP target does not declare the html amp or lightning attribute",
+  "severity": "warning",
+  "source": "crawl:markup_evidence"
+ },
+ "AMP_MISSING_RETURN_LINK": {
+  "fix": "Point the AMP page's rel=canonical at the non-AMP URL that declares rel=amphtml.",
+  "message": "The AMP page's rel=canonical does not point back to the page that declares it",
+  "severity": "warning",
+  "source": "crawl:amp_pairing"
+ },
+ "AMP_NON_200": {
+  "fix": "Serve the AMP URL with 200, or remove the rel=amphtml declaration that names it.",
+  "message": "The AMP page declared by rel=amphtml does not answer 200",
+  "severity": "warning",
+  "source": "crawl:amp_pairing"
+ },
+ "AMP_NON_INDEXABLE_CANONICAL": {
+  "fix": "Make the canonical target indexable, or correct the AMP page's rel=canonical.",
+  "message": "The AMP page's canonical target is not indexable",
+  "severity": "warning",
+  "source": "crawl:amp_pairing"
+ },
+ "AMP_SCRIPT_MISSING": {
+  "fix": "Add <script async src=\"https://cdn.ampproject.org/v0.js\"></script> to the head of the page the pairing declares.",
+  "message": "The AMP page declared by rel=amphtml has no AMP runtime script in its head",
+  "severity": "notice",
+  "source": "crawl:markup_evidence"
+ },
+ "ASSET_SHORT_CACHE": {
+  "fix": "Use an appropriate public max-age for versioned static assets; keep private and no-store policies where required.",
+  "message": "A captured resource has no long-lived public cache policy",
+  "severity": "notice",
+  "source": "native resource delivery"
+ },
+ "BAD_REDIRECT_TYPE": {
+  "fix": "Use a 301 redirect when the move is permanent.",
+  "message": "Temporary redirect (302, 303 or 307) used where a permanent redirect is expected",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "BLOCKED_BY_ROBOTS": {
+  "fix": "Confirm that the block is intentional; pages intended for indexing should remain crawlable.",
+  "message": "URL is blocked by robots.txt",
+  "severity": "warning",
+  "source": "SF:Response Codes:Blocked by Robots.txt"
+ },
+ "BODY_MIME_MISMATCH": {
+  "fix": "Serve the resource with a Content-Type that matches its body, or return the intended body.",
+  "message": "Retained response body does not match its declared Content-Type",
+  "severity": "warning",
+  "source": "crawl:body_mime"
+ },
+ "BODY_MISSING": {
+  "fix": "Add a <body> element; a browser inserts one implicitly around the visible content.",
+  "message": "Document has no <body> element",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "BODY_MULTIPLE": {
+  "fix": "Merge into a single <body>; a browser keeps both as siblings rather than combining their contents.",
+  "message": "Document has more than one <body> element",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "BOUNCE_RATE_ABOVE_70": {
+  "fix": "Review the measured URL and its traffic source; bounce rate is a diagnostic signal, not a ranking verdict.",
+  "message": "Yandex Metrika reports a bounce rate above 70 percent",
+  "severity": "notice",
+  "source": "provider:metrika_history"
+ },
+ "BROKEN_BOOKMARK": {
+  "fix": "Point the href at an element id or <a name> that exists in the destination document, or add the missing target; a different query string is a different document.",
+  "message": "Link fragment identifies no element on the destination page",
+  "severity": "warning",
+  "source": "crawl:fragment_links"
+ },
+ "BROKEN_EXTERNAL_LINK": {
+  "fix": "Update or remove the broken external link, while accounting for sites that intentionally return 403 responses to crawlers.",
+  "message": "External link points to a 4xx or 5xx URL",
+  "severity": "warning",
+  "source": "inlinks:Client Error (4xx) Inlinks"
+ },
+ "BROKEN_INTERNAL_LINK": {
+  "fix": "Update the link to the current URL or add an appropriate 301 redirect; if it appears in the footer or navigation, fix the shared template.",
+  "message": "Internal link points to a 4xx URL",
+  "severity": "critical",
+  "source": "inlinks:Client Error (4xx) Inlinks"
+ },
+ "BROKEN_PAGE_4XX": {
+  "fix": "Restore the page or redirect it with a 301 to a relevant URL; remove or update links that point to it.",
+  "message": "Page returns a 4xx response (broken page)",
+  "severity": "critical",
+  "source": "SF:Response Codes:4xx"
+ },
+ "CANONICALISED": {
+  "fix": "Confirm that cross-canonicalization is intentional and that the target is the preferred version.",
+  "message": "Canonical points to a different URL",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "CANONICAL_CHAIN": {
+  "fix": "Point the canonical directly to the final canonical URL in one step and break any canonical loops.",
+  "message": "Canonical chain: the target canonicalizes to another URL (two or more steps)",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "CANONICAL_CROSS_ORIGIN": {
+  "fix": "Confirm that cross-host or protocol consolidation is intentional and that the target is the preferred URL.",
+  "message": "Canonical changes the declaring URL host or protocol",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "CANONICAL_FRAGMENT": {
+  "fix": "Drop the fragment; the server never receives it, so a canonical pointing at one is meaningless.",
+  "message": "Canonical URL contains a #fragment",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "CANONICAL_HOMEPAGE_GROUP": {
+  "fix": "Review each listed page's canonical. Use a self-canonical for distinct indexable content, or configure an explicit pagination/filter policy when a landing canonical is intentional.",
+  "message": "Distinct indexable pages in multiple sections canonicalize to the homepage",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "CANONICAL_INVALID_ATTRIBUTE": {
+  "fix": "Remove hreflang, lang, media and type from the canonical link; declare alternates separately. Use an HTML whitespace-separated canonical relation and a non-empty HTTP(S) href. Raw attributes are included in the evidence.",
+  "message": "Canonical annotation contains unsupported alternate-version attributes or malformed rel/href",
+  "severity": "warning",
+  "source": "crawl:head_links"
+ },
+ "CANONICAL_MISMATCH": {
+  "fix": "Declare one stable canonical URL in the original response.",
+  "message": "Canonical URL changes after JavaScript rendering",
+  "severity": "warning",
+  "source": "native raw/rendered element comparison"
+ },
+ "CANONICAL_MISSING": {
+  "fix": "Add a valid <link rel=\"canonical\"> element.",
+  "message": "Indexable page has no canonical URL",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "CANONICAL_MULTIPLE": {
+  "fix": "Declare exactly one canonical URL for the page.",
+  "message": "Page declares multiple canonical URLs",
+  "severity": "warning",
+  "source": "SF:Canonicals:Multiple"
+ },
+ "CANONICAL_NON_INDEXABLE": {
+  "fix": "Point the canonical to an indexable preferred version.",
+  "message": "Canonical points to a non-indexable URL",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "CANONICAL_ONLY_IN_RENDERED_HTML": {
+  "fix": "Declare the canonical URL in the original response.",
+  "message": "Canonical URL is present only after JavaScript rendering",
+  "severity": "notice",
+  "source": "native raw/rendered element comparison"
+ },
+ "CANONICAL_OUTSIDE_HEAD": {
+  "fix": "Move whatever precedes it in <head> — usually an element the head content model does not allow — so the canonical is read from <head> again; Google ignores a canonical outside <head>.",
+  "message": "The canonical link is outside <head> once the parser resolves the document",
+  "severity": "critical",
+  "source": "SF-derived"
+ },
+ "CANONICAL_RELATIVE": {
+  "fix": "Use an absolute URL in the canonical element.",
+  "message": "Canonical URL is relative",
+  "severity": "notice",
+  "source": "SF:Canonicals:Canonical Is Relative"
+ },
+ "CANONICAL_TARGET_ERROR": {
+  "fix": "Point the canonical to a fetched, successful URL; restore the target or redirect it to the intended canonical page.",
+  "message": "Canonical points to a URL returning 4xx or 5xx",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "CANONICAL_TO_REDIRECT": {
+  "fix": "Point the canonical to the final 200-status URL; otherwise search engines must resolve conflicting canonical signals.",
+  "message": "Canonical points to a redirecting URL (3xx)",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "CONTENT_IN_IFRAME": {
+  "fix": "Serve the framed copy in the page's own HTML. A search engine attributes an iframe's text to the framed document, not to the page that frames it, so the copy exists and earns this URL nothing.",
+  "message": "The page's content sits inside an iframe and is not attributed to this URL",
+  "severity": "warning",
+  "source": "crawl:content_frames"
+ },
+ "DECLARED_MIME_MISMATCH": {
+  "fix": "Confirm the response Content-Type and URL extension describe the intended resource; this is a declaration consistency signal, not full MIME validation.",
+  "message": "Received Content-Type conflicts with an unambiguous URL filename extension",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "DEEP_CLICK_DEPTH": {
+  "fix": "Link the page from a hub, category or related page nearer the start URL. A page linked only by a chain of next-post links is reachable and still effectively invisible, which no orphan count reports.",
+  "message": "The page is more clicks from the crawl's start URL than the configured floor",
+  "severity": "warning",
+  "source": "inlinks:All Inlinks"
+ },
+ "DEEP_CRAWL_DEPTH": {
+  "fix": "Use relevant internal links to make the page reachable in fewer clicks from the home page or an authoritative hub.",
+  "message": "Page has excessive crawl depth",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "DEEP_DISCOVERY_PATH": {
+  "fix": "Add a shorter internal-linking route (e.g. from a hub or category page) so the page is reachable in fewer clicks.",
+  "message": "The shortest hyperlink route from the start page exceeds the configured depth",
+  "severity": "notice",
+  "source": "inlinks:All Inlinks"
+ },
+ "DESC_DUPLICATE": {
+  "fix": "Write a unique meta description for each page.",
+  "message": "Duplicate meta description",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "DESC_MISSING": {
+  "fix": "Add a useful meta description, typically up to about 160 characters.",
+  "message": "Meta description is missing",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "DESC_MULTIPLE": {
+  "fix": "Keep exactly one meta description element; a search engine reads only the first, so the rest are dead weight that hides which value is actually live.",
+  "message": "More than one <meta name=\"description\"> element is present",
+  "severity": "warning",
+  "source": "crawl:meta_description_count"
+ },
+ "DESC_OUTSIDE_HEAD": {
+  "fix": "Move whatever precedes it in <head> — usually an element the head content model does not allow — so the description is read from <head> again.",
+  "message": "The meta description is outside <head> once the parser resolves the document",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "DESC_PIXELS_BELOW": {
+  "fix": "Expand the description so it uses the available SERP width informatively.",
+  "message": "Meta description falls below the configured SERP pixel-width threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "DESC_PIXELS_OVER": {
+  "fix": "Shorten the description; SERP truncation follows rendered pixel width, not the character count.",
+  "message": "Meta description exceeds the configured SERP pixel-width threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "DESC_TOO_LONG": {
+  "fix": "Shorten the description while preserving its primary value proposition.",
+  "message": "Meta description exceeds the configured length threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "DESC_TOO_SHORT": {
+  "fix": "Expand the description with specific, useful page information.",
+  "message": "Meta description falls below the configured length threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "DIRECTIVES_OUTSIDE_HEAD": {
+  "fix": "Move whatever precedes it in <head> — usually an element the head content model does not allow — so the directive is read from <head> again; a noindex/nofollow outside <head> does not apply.",
+  "message": "A robots-directive meta tag is outside <head> once the parser resolves the document",
+  "severity": "critical",
+  "source": "SF-derived"
+ },
+ "DOM_TOO_DEEP": {
+  "fix": "Simplify the layout hierarchy and remove unnecessary wrapper elements.",
+  "message": "DOM nesting is too deep",
+  "severity": "opportunity",
+  "source": "heuristic"
+ },
+ "DOM_TOO_MANY_NODES": {
+  "fix": "Reduce the number of page elements and avoid rendering unnecessary or duplicated components.",
+  "message": "DOM contains too many nodes",
+  "severity": "opportunity",
+  "source": "heuristic"
+ },
+ "DUPLICATED_JS": {
+  "fix": "Load the identical script once; review the build and page template.",
+  "message": "Different script URLs on one page contain identical captured source bytes",
+  "severity": "notice",
+  "source": "native resource delivery"
+ },
+ "DUPLICATE_BY_HASH": {
+  "fix": "Consolidate duplicates with canonicalization or rewrite them to serve distinct search intent.",
+  "message": "Exact duplicate content (identical hash)",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "DUPLICATE_ID": {
+  "fix": "Give each element its own id; duplicate ids make fragment targets, scripts, and accessibility relationships ambiguous.",
+  "message": "HTML id value is repeated in the parsed document",
+  "severity": "warning",
+  "source": "crawl:duplicate_ids"
+ },
+ "DUPLICATE_INTERNAL_LINK": {
+  "fix": "Emit the block once. A layout element rendered twice (one copy hidden by CSS or removed by JavaScript) duplicates every link it contains, which inflates the internal link graph without adding a single new route.",
+  "message": "The page repeats the same link -- same destination, same anchor text -- more than once",
+  "severity": "notice",
+  "source": "inlinks:All Inlinks"
+ },
+ "DUPLICATE_SECURITY_HEADER": {
+  "fix": "Send each security header once. A repeated header can be ignored or applied next to the other copy, so the policy the browser enforces may not be the one intended.",
+  "message": "HTML page sends a security header more than once",
+  "severity": "notice",
+  "source": "crawl:security_headers"
+ },
+ "EXTERNAL_LINK_TO_REDIRECT": {
+  "fix": "This is often acceptable for external sites; optionally update the link to point directly to the final URL.",
+  "message": "External link points to a redirect (3xx)",
+  "severity": "notice",
+  "source": "inlinks:Redirection (3xx) Inlinks"
+ },
+ "EXTERNAL_NOFOLLOW": {
+  "fix": "Confirm each external nofollow link is intentional. Keep nofollow (or rel=sponsored/rel=ugc) on paid placements and user-generated content; an editorial link you vouch for does not need it.",
+  "message": "The page has external outlinks marked nofollow",
+  "severity": "notice",
+  "source": "crawl:link_findings"
+ },
+ "EXTERNAL_NO_RESPONSE": {
+  "fix": "Review the recorded timeout or connection failure and update or remove the link after confirming the destination is unavailable.",
+  "message": "An explicitly checked external destination did not answer",
+  "severity": "warning",
+  "source": "crawl:external_checks"
+ },
+ "FEW_CITATIONS": {
+  "fix": "Review whether the page should cite its sources. An outbound link inside the body copy is the only carrier a crawl can observe as a citation; the finding never asserts that any link is authoritative.",
+  "message": "Content-shaped page has no observable outbound reference in its body content",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "FILTER_CANONICAL_POLICY": {
+  "fix": "Review the canonical against the configured filter policy; the expected target is included in the evidence.",
+  "message": "Filtered URL canonical does not match the configured project policy",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "FOLLOW_AND_NOFOLLOW_INLINKS": {
+  "fix": "Decide deliberately whether the page should be crawl-priority or not, and make every internal link to it agree.",
+  "message": "The page receives both a followed and a nofollow internal link",
+  "severity": "notice",
+  "source": "crawl:link_findings"
+ },
+ "FONT_DISPLAY_MISSING": {
+  "fix": "Set font-display to swap, fallback or optional when appropriate for the font.",
+  "message": "An observed stylesheet font-face lacks an accepted font-display value",
+  "severity": "notice",
+  "source": "native resource delivery"
+ },
+ "FORCED_REFLOW": {
+  "fix": "Review the measured script stack and batch layout reads and writes.",
+  "message": "The supplied Lighthouse forced-reflow audit reports an opportunity",
+  "severity": "notice",
+  "source": "supplied Lighthouse JSON"
+ },
+ "FORM_ON_HTTP_URL": {
+  "fix": "Serve the page itself over HTTPS; an HTTPS form action does not protect input typed on an HTTP page.",
+  "message": "A form with a password field is served from a plain-HTTP page, so the credentials themselves travel unencrypted before the action URL is even reached",
+  "severity": "critical",
+  "source": "crawl:link_findings"
+ },
+ "FORM_URL_INSECURE": {
+  "fix": "Point the form's action at an https:// URL.",
+  "message": "A form submits to an http:// action, so its data leaves the browser unencrypted regardless of the page's own scheme",
+  "severity": "critical",
+  "source": "crawl:link_findings"
+ },
+ "GA_ORPHAN_URL": {
+  "fix": "Check whether the URL is intentionally retired, blocked, redirected, or missing from the crawl population.",
+  "message": "GA4 reports a landing URL absent from the crawl",
+  "severity": "warning",
+  "source": "provider:ga4_history"
+ },
+ "GENERIC_ANCHOR_TEXT": {
+  "fix": "Replace it with meaningful anchor text that describes the destination for both search engines and screen-reader users.",
+  "message": "Non-descriptive anchor text such as 'here', 'read more', or 'click here'",
+  "severity": "notice",
+  "source": "inlinks:Anchor Text"
+ },
+ "GRAMMAR_ERRORS": {
+  "fix": "Review and correct the flagged grammar issues in their full sentence context.",
+  "message": "Grammar errors detected",
+  "severity": "notice",
+  "source": "SF:Content:Grammar Errors"
+ },
+ "GSC_AMP_INVALID": {
+  "fix": "Review the AMP inspection result and repair or remove obsolete AMP markup.",
+  "message": "Search Console reports an invalid AMP result",
+  "severity": "warning",
+  "source": "provider:gsc_url_inspection"
+ },
+ "GSC_INDEXABLE_NOT_INDEXED": {
+  "fix": "Review Search Console's coverage state, canonical, fetch state, and indexing directives.",
+  "message": "Crawl reports an indexable URL that Search Console does not index",
+  "severity": "warning",
+  "source": "provider:gsc_url_inspection"
+ },
+ "GSC_INDEXED_WITH_ISSUES": {
+  "fix": "Review the specific AMP or rich-result inspection evidence for the sampled URL.",
+  "message": "Search Console reports an indexed URL with AMP or rich-result issues",
+  "severity": "warning",
+  "source": "provider:gsc_url_inspection"
+ },
+ "GSC_ORPHAN": {
+  "fix": "Check the retained page and crawl scope, then restore, redirect, or remove the URL from search when appropriate.",
+  "message": "Search Console reports impressions for a same-origin URL absent from the crawl",
+  "severity": "warning",
+  "source": "provider:gsc_search_analytics"
+ },
+ "GSC_RICH_RESULTS_INVALID": {
+  "fix": "Review the inspected rich-result item and correct errors reported by Search Console.",
+  "message": "Search Console reports invalid structured data for a rich result",
+  "severity": "warning",
+  "source": "provider:gsc_url_inspection"
+ },
+ "GSC_URL_NOT_ON_GOOGLE": {
+  "fix": "Review the sampled URL's Search Console coverage state and correct blocking or canonical issues where appropriate.",
+  "message": "Search Console reports that the inspected URL is not on Google",
+  "severity": "warning",
+  "source": "provider:gsc_url_inspection"
+ },
+ "GSC_USER_CANONICAL_NOT_SELECTED": {
+  "fix": "Align internal links, redirects, sitemap membership, and the declared canonical with the preferred URL.",
+  "message": "Google selected a different canonical URL than the declared canonical",
+  "severity": "warning",
+  "source": "provider:gsc_url_inspection"
+ },
+ "H1_ALT_TEXT_ONLY": {
+  "fix": "Add real, visible text to the H1 -- alt text describes an image to assistive technology, it is not a substitute for a heading a search engine reads as text.",
+  "message": "The H1 has no text of its own; its only content is an image's alt attribute",
+  "severity": "opportunity",
+  "source": "crawl:h1_alt_text"
+ },
+ "H1_DUPLICATE": {
+  "fix": "Use a unique, page-specific H1 on each URL.",
+  "message": "H1 is duplicated across multiple URLs",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "H1_LOW_SEMANTIC_RELEVANCE": {
+  "fix": "Review whether the heading describes the page's actual content and intent; the model score alone is not proof of irrelevance.",
+  "message": "H1 has low adapter-measured similarity to the page content; review candidate",
+  "severity": "notice",
+  "source": "heuristic:explicit_embedding_adapter"
+ },
+ "H1_MISSING": {
+  "fix": "Add one H1 that clearly states the page topic.",
+  "message": "H1 heading is missing",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "H1_MULTIPLE": {
+  "fix": "Keep one primary H1 and demote the remaining headings to H2 or H3 as appropriate.",
+  "message": "Multiple H1 headings on the page",
+  "severity": "warning",
+  "source": "SF:H1:Multiple"
+ },
+ "H1_ONLY_IN_RENDERED_HTML": {
+  "fix": "Serve the primary page heading in the original HTML response.",
+  "message": "H1 is present only after JavaScript rendering",
+  "severity": "notice",
+  "source": "native raw/rendered element comparison"
+ },
+ "H1_TOO_LONG": {
+  "fix": "Shorten the H1 while retaining the page's main topic.",
+  "message": "H1 exceeds the configured length threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "H1_UPDATED_BY_JAVASCRIPT": {
+  "fix": "Keep the initial and rendered primary page heading aligned.",
+  "message": "H1 changes after JavaScript rendering",
+  "severity": "notice",
+  "source": "native raw/rendered element comparison"
+ },
+ "H2_DUPLICATE": {
+  "fix": "Use a unique, page-specific H2 on each URL, or accept it for a shared boilerplate subheading that is genuinely meant to repeat.",
+  "message": "H2 is duplicated across multiple URLs",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "H2_MISSING": {
+  "fix": "Add meaningful H2 subheadings where needed to structure the content.",
+  "message": "Page has an H1 but no H2 headings",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "H2_MULTIPLE": {
+  "fix": "Multiple H2s are normal on structured pages; review the outline only when template furniture (menu labels, repeated card headings) dominates it and the page's own section headings drown.",
+  "message": "Page carries more than one H2 heading",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "H2_TOO_LONG": {
+  "fix": "Shorten the H2 while retaining what it introduces.",
+  "message": "H2 exceeds the configured length threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "HEADING_BEFORE_H1": {
+  "fix": "Move the H1 above the headings that precede it, or demote those headings to plain text or a non-heading element. A parser reading the outline meets them before it meets the page's subject, and a snippet built from early page text quotes them instead of the page.",
+  "message": "One or more headings appear before the page's first H1 in DOM order",
+  "severity": "notice",
+  "source": "crawl:heading_outline"
+ },
+ "HEADING_IN_PAGE_CHROME": {
+  "fix": "Mark template furniture up as what it is -- a menu label or a widget title is not a heading of this document, and repeating it on every page pushes the page's own headings down its outline.",
+  "message": "A heading sits in the page chrome (header, nav, sidebar or footer) rather than in the content",
+  "severity": "notice",
+  "source": "crawl:heading_outline"
+ },
+ "HEADING_SKIP": {
+  "fix": "Use the adjacent heading level in both directions: an H4 that follows an H2 becomes H3, and a heading returning up the outline steps back one level at a time so each open section closes in order (H3 -> H2 closes one section and starts a sibling, which is correct nesting).",
+  "message": "Content headings change by more than one level in DOM order, skipping a level down or jumping back up past an open section",
+  "severity": "notice",
+  "source": "crawl:heading_outline"
+ },
+ "HEAD_MISSING": {
+  "fix": "Add a <head> element; a browser inserts one implicitly, but every metadata tag then depends on exactly where it lands.",
+  "message": "Document has no <head> element",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "HEAD_MULTIPLE": {
+  "fix": "Merge into a single <head>; a browser keeps both as siblings rather than combining their contents.",
+  "message": "Document has more than one <head> element",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "HEAD_NOT_FIRST": {
+  "fix": "Fix the markup order so <head> opens immediately after <html>, before any <body> content.",
+  "message": "<head> is not the first element under <html> once the parser resolves the document",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "HEAVY_NETWORK_PAYLOAD": {
+  "fix": "Reduce the page's heaviest captured subresources; the total sums every declared resource that was actually fetched, so a real visit with a warm cache may transfer less.",
+  "message": "Captured page payload (document plus declared subresources) exceeds the configured content-decoded byte budget",
+  "severity": "warning",
+  "source": "native resource graph"
+ },
+ "HEAVY_PAGE_WEIGHT": {
+  "fix": "Reduce the measured document, images, fonts and scripts; keep raw-only and incomplete runtime coverage explicit.",
+  "message": "Observed navigation responses or HTML alone exceed the configured content-decoded byte budget",
+  "severity": "warning",
+  "source": "native render responses / HTML"
+ },
+ "HIGH_EXTERNAL_OUTLINKS": {
+  "fix": "Review the links for editorial relevance, spam, and unnecessary dilution of page focus.",
+  "message": "Page has a high number of external outlinks",
+  "severity": "notice",
+  "source": "SF:Links:Pages With High External Outlinks"
+ },
+ "HIGH_OUTLINKS": {
+  "fix": "Reduce unnecessary links to preserve clear navigation and crawl focus.",
+  "message": "Page has an excessive number of outlinks",
+  "severity": "notice",
+  "source": "SF:Links:Pages With High Outlinks"
+ },
+ "HREFLANG_BROKEN_TARGET": {
+  "fix": "Update hreflang to reference the final 200-status URL; redirecting or broken targets undermine localization signals and crawling.",
+  "message": "Hreflang points to a redirecting or broken URL (3xx, 4xx, or 5xx)",
+  "severity": "warning",
+  "source": "inlinks:All Hreflang"
+ },
+ "HREFLANG_ERROR": {
+  "fix": "Ensure hreflang annotations are reciprocal and reference canonical URLs.",
+  "message": "Hreflang implementation error",
+  "severity": "warning",
+  "source": "SF:Hreflang"
+ },
+ "HREFLANG_INCONSISTENT_CONFIRMATION": {
+  "fix": "Make the two declarations agree: either correct this page's hreflang value for that URL, or correct the counterpart's own self-referencing hreflang. Google reads a pair as valid only when both sides name the same code, so a mismatched pair is discarded exactly as a missing return link is.",
+  "message": "This page declares a counterpart under a language and region code the counterpart does not confirm for itself",
+  "severity": "warning",
+  "source": "inlinks:All Hreflang"
+ },
+ "HREFLANG_INVALID_CODE": {
+  "fix": "Use a valid language code, optionally followed by a valid region (e.g. en-GB, not en-UK).",
+  "message": "Hreflang value is not a valid ISO 639-1 language / ISO 3166-1 region code",
+  "severity": "warning",
+  "source": "inlinks:All Hreflang"
+ },
+ "HREFLANG_MISSING_RETURN_LINK": {
+  "fix": "Add a reciprocal hreflang annotation back to every page that names this one.",
+  "message": "Another page's hreflang points here, but this page does not point back",
+  "severity": "warning",
+  "source": "inlinks:All Hreflang"
+ },
+ "HREFLANG_MISSING_SELF_REFERENCE": {
+  "fix": "Every page in an hreflang set must include a self-referencing annotation for its own URL and language.",
+  "message": "Page declares hreflang alternates but does not reference itself",
+  "severity": "warning",
+  "source": "inlinks:All Hreflang"
+ },
+ "HREFLANG_MISSING_XDEFAULT": {
+  "fix": "Add an x-default annotation to catch users whose language/region does not match any declared alternate.",
+  "message": "Hreflang set has no x-default fallback",
+  "severity": "notice",
+  "source": "inlinks:All Hreflang"
+ },
+ "HREFLANG_MULTIPLE_ENTRIES": {
+  "fix": "Declare each language/region combination exactly once; conflicting duplicates make the annotation ambiguous.",
+  "message": "The same hreflang value is declared more than once on the page",
+  "severity": "warning",
+  "source": "inlinks:All Hreflang"
+ },
+ "HREFLANG_NOINDEX_TARGET": {
+  "fix": "Use an indexable alternate URL or remove the noindex directive if that page should appear in search.",
+  "message": "Hreflang alternate points to an observed noindex page",
+  "severity": "warning",
+  "source": "crawl:hreflang graph / SF:All Hreflang + Internal:All"
+ },
+ "HREFLANG_NOT_CANONICAL": {
+  "fix": "Point hreflang annotations at each target's canonical URL, not at a duplicate that canonicalizes elsewhere.",
+  "message": "Hreflang points to a URL that is not itself the canonical version",
+  "severity": "warning",
+  "source": "inlinks:All Hreflang"
+ },
+ "HREFLANG_OUTSIDE_HEAD": {
+  "fix": "Move whatever precedes it in <head> — usually an element the head content model does not allow — so the alternate is read from <head> again.",
+  "message": "An hreflang alternate link is outside <head> once the parser resolves the document",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "HREFLANG_UNLINKED_TARGET": {
+  "fix": "Add an ordinary internal link to the hreflang alternate, or confirm relying on the hreflang annotation alone for discovery is intentional.",
+  "message": "Hreflang alternate target has no hyperlink pointing to it anywhere in the crawl",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "HTML_BLOAT": {
+  "fix": "Reduce bytes per word by extracting styles and scripts, removing embedded base64 assets, and simplifying markup.",
+  "message": "HTML bloat: high document size relative to text content",
+  "severity": "opportunity",
+  "source": "heuristic"
+ },
+ "HTML_OVER_2MB": {
+  "fix": "Cut the document below 2 MB: remove inline data URIs and base64 assets, move inline CSS and scripts into cached files, and trim repeated markup.",
+  "message": "HTML document is larger than 2 MB",
+  "severity": "warning",
+  "source": "SF-derived+heuristic"
+ },
+ "HTTP1_ONLY": {
+  "fix": "Enable HTTP/2 or HTTP/3 on the origin server or CDN where supported.",
+  "message": "Response uses HTTP/1.x rather than HTTP/2 or newer",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "HTTP_LINK_ON_HTTPS": {
+  "fix": "Write the internal anchor as https:// or a relative URL. A fetched HTTP variant that already redirects to HTTPS is reported as converged, not as this finding.",
+  "message": "HTTPS page contains an ordinary internal http:// anchor",
+  "severity": "notice",
+  "source": "crawl:link_findings"
+ },
+ "HTTP_REFRESH_REDIRECT": {
+  "fix": "Replace it with a server-side 301/302 redirect (Location header); a search engine treats Refresh the same as a meta refresh -- an unreliable, delayed signal compared to a real HTTP redirect status code.",
+  "message": "Redirect is implemented with an HTTP Refresh response header",
+  "severity": "warning",
+  "source": "crawl:http_refresh"
+ },
+ "HTTP_URL": {
+  "fix": "Serve the URL over HTTPS and redirect the HTTP version with a 301.",
+  "message": "URL uses HTTP instead of HTTPS",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "IMAGE_DELIVERY": {
+  "fix": "Optimize the measured image size and encoding while preserving visual quality.",
+  "message": "The supplied Lighthouse image-delivery audit reports an opportunity",
+  "severity": "notice",
+  "source": "supplied Lighthouse JSON"
+ },
+ "IMAGE_LINK_WITHOUT_TEXT": {
+  "fix": "Give the image a descriptive alt attribute, or add anchor text beside it. Neither a reader using a screen reader nor a crawler can tell what this link points to.",
+  "message": "An image link carries no anchor text and no alt text, so nothing says where it goes",
+  "severity": "warning",
+  "source": "crawl:link_placement"
+ },
+ "IMG_ALT_TOO_LONG": {
+  "fix": "Shorten the alt text to a concise description; screen readers read the whole string aloud, and a search engine treats an overlong alt as a weaker signal.",
+  "message": "An image's alt text exceeds the configured length threshold",
+  "severity": "opportunity",
+  "source": "crawl:images"
+ },
+ "IMG_BROKEN": {
+  "fix": "Restore the file, or update the reference in the page template or CMS to a URL that answers 200.",
+  "message": "Image URL answered with an HTTP error, so the browser shows nothing",
+  "severity": "warning",
+  "source": "crawl:images"
+ },
+ "IMG_INTRINSIC_OVERSIZED": {
+  "fix": "Serve a responsive image sized for the observed viewport and device pixel ratio.",
+  "message": "A heavy image has more intrinsic width than its displayed device pixels need",
+  "severity": "opportunity",
+  "source": "native render layout"
+ },
+ "IMG_MISSING_ALT": {
+  "fix": "Add concise, descriptive alt text when the image conveys content; use an empty alt attribute for decorative images.",
+  "message": "Image is missing alt text",
+  "severity": "warning",
+  "source": "SF+native:retained-image-markup"
+ },
+ "IMG_MISSING_ALT_ATTRIBUTE": {
+  "fix": "Declare descriptive alt text for informative images, or alt=\"\" for decoration. An ARIA name can label an image for assistive technology, but does not supply the missing alt attribute.",
+  "message": "An <img> has no alt attribute at all (not even alt=\"\")",
+  "severity": "warning",
+  "source": "crawl:images"
+ },
+ "IMG_MISSING_DIMENSIONS": {
+  "fix": "Declare intrinsic width and height values to reserve layout space and reduce CLS.",
+  "message": "Image does not declare positive width and height attributes",
+  "severity": "notice",
+  "source": "SF+native:retained-image-markup"
+ },
+ "IMG_OVER_KB": {
+  "fix": "Compress the image and consider converting it to WebP or AVIF while preserving acceptable visual quality.",
+  "message": "Image exceeds the configured file-size threshold",
+  "severity": "warning",
+  "source": "SF:Images:Over X KB"
+ },
+ "IMG_UPSCALED": {
+  "fix": "Supply an image with enough intrinsic pixels for the observed viewport and device pixel ratio.",
+  "message": "An image has less intrinsic width than its displayed device pixels need",
+  "severity": "warning",
+  "source": "native render layout"
+ },
+ "IMPORTANT_URL_BLOCKED_BY_ROBOTS": {
+  "fix": "robots.txt blocks crawling, not indexing, so link discovery is lost. Make the URL crawlable with a more specific Allow rule than the matching Disallow, and control indexing with canonical or noindex. A common case is pagination such as /blog?page=N blocked by Disallow: /*?.",
+  "message": "Live page is blocked by robots.txt despite receiving internal links",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "INLINK_BOILERPLATE_ONLY": {
+  "fix": "Add a contextual link to the page from relevant body copy; a page reachable only through boilerplate is not linked the way a page in the content graph is.",
+  "message": "Page is linked only from navigation, header, sidebar, or footer, never from body content",
+  "severity": "warning",
+  "source": "crawl:link_position"
+ },
+ "INSECURE_SUBRESOURCE": {
+  "fix": "Serve every page resource over HTTPS and update its URL accordingly.",
+  "message": "An HTTPS page loads a resource (image, script, stylesheet, ...) over plain HTTP",
+  "severity": "warning",
+  "source": "inlinks:All Inlinks"
+ },
+ "INTERNALLY_LINKED_ROBOTS_BLOCKED": {
+  "fix": "Review the observed internal links and the blocking rule; allow crawling when this page should be discovered and indexed.",
+  "message": "An internally linked URL is blocked by robots.txt",
+  "severity": "warning",
+  "source": "crawl:robots_policy"
+ },
+ "INTERNAL_LINK_NO_ANCHOR": {
+  "fix": "Add descriptive text to the internal link, or provide an accessible label for an intentional image or icon link.",
+  "message": "Internal hyperlink has empty anchor text",
+  "severity": "warning",
+  "source": "crawl:retained_links"
+ },
+ "INTERNAL_LINK_SPONSORED_UGC": {
+  "fix": "Remove sponsored and ugc from links to pages of this site. Keep them only on links that really lead to paid placements or user-submitted content.",
+  "message": "An internal link carries rel=sponsored or rel=ugc",
+  "severity": "notice",
+  "source": "crawl:link_findings"
+ },
+ "INTERNAL_LINK_TO_REDIRECT": {
+  "fix": "Point the link directly to the final URL to eliminate the unnecessary redirect hop.",
+  "message": "Internal link points to a redirect (3xx)",
+  "severity": "warning",
+  "source": "inlinks:Redirection (3xx) Inlinks"
+ },
+ "INTERNAL_NOFOLLOW_OUTLINKS": {
+  "fix": "Confirm each internal nofollow link is intentional; links to pages that should be crawled and ranked should be followed. rel=sponsored and rel=ugc are not visible here and stay distinct.",
+  "message": "The page has internal outlinks marked nofollow",
+  "severity": "notice",
+  "source": "crawl:link_findings"
+ },
+ "INVALID_CHARSET": {
+  "fix": "Declare UTF-8: a <meta charset=\"utf-8\"> tag in the first 1024 bytes of the HTML, or charset=utf-8 in the Content-Type response header.",
+  "message": "The declared character encoding is not UTF-8",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "INVALID_DOCTYPE": {
+  "fix": "Replace the declaration with `<!DOCTYPE html>` — no PUBLIC or SYSTEM identifier.",
+  "message": "Document declares a legacy or malformed doctype instead of <!DOCTYPE html>, triggering quirks mode",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "INVALID_HEAD_ELEMENT": {
+  "fix": "Move title/base/link/meta/style/script/noscript/template content into <head> and everything else into <body>; an invalid element is what forces the parser to close <head> early.",
+  "message": "An element the head content model does not allow is written inside <head>",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "INVALID_LINK_TARGET": {
+  "fix": "Review each quoted href as written: a truncated or malformed URL passes no crawl equity and often signals a broken template; a non-http(s) scheme is only a finding when the link was meant to be a page. Recording is opt-in (discovery.record_invalid_targets); rejected targets never enter the crawl.",
+  "message": "The page points at hrefs that cannot become fetchable link targets (unparsable syntax or a non-http(s) scheme)",
+  "severity": "notice",
+  "source": "crawl:invalid_link_targets"
+ },
+ "INVALID_VIEWPORT": {
+  "fix": "Set the tag to `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">`.",
+  "message": "The <meta name=viewport> tag names no usable width or an initial-scale below 1",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "JS_CONSOLE_ERRORS": {
+  "fix": "Fix the script error the console reports; an uncaught exception can stop the page's content, links or metadata from being built in the browser.",
+  "message": "The page's browser console logged errors while it was rendered",
+  "severity": "warning",
+  "source": "crawl:browser_artifacts"
+ },
+ "JS_EXECUTION_TIME": {
+  "fix": "Reduce or defer the measured JavaScript execution work.",
+  "message": "The supplied Lighthouse bootup-time audit reports expensive script execution",
+  "severity": "notice",
+  "source": "supplied Lighthouse JSON"
+ },
+ "JS_REDIRECT": {
+  "fix": "Replace the script-initiated location change with a server-side 301/302 redirect where the move is permanent; a search engine only sees it after rendering, and anything that cannot run the script never moves at all.",
+  "message": "Redirect is implemented with JavaScript (script-initiated navigation)",
+  "severity": "warning",
+  "source": "crawl:navigation_evidence"
+ },
+ "LARGE_HTML": {
+  "fix": "Reduce HTML size by removing unnecessary markup, extracting inline styles or scripts, and avoiding embedded base64 assets.",
+  "message": "HTML document is large in absolute terms or relative to the site",
+  "severity": "warning",
+  "source": "SF-derived+heuristic"
+ },
+ "LAYOUT_SHIFT_CULPRITS": {
+  "fix": "Reserve layout space and correct the measured shift sources.",
+  "message": "The supplied Lighthouse layout-shift audit reports culprits",
+  "severity": "notice",
+  "source": "supplied Lighthouse JSON"
+ },
+ "LCP_DISCOVERY": {
+  "fix": "Review the recorded LCP element and make its image discoverable and appropriately prioritized.",
+  "message": "The supplied Lighthouse LCP discovery audit reports an opportunity",
+  "severity": "notice",
+  "source": "supplied Lighthouse JSON"
+ },
+ "LEGACY_JS": {
+  "fix": "Review target browser support before removing or splitting legacy code.",
+  "message": "Captured JavaScript has an unconditional legacy or polyfill marker (heuristic)",
+  "severity": "notice",
+  "source": "native resource delivery"
+ },
+ "LINK_INSIDE_HEADING": {
+  "fix": "Let the heading describe this page and put the link in the body copy beneath it. A heading that is a link stops naming the page's own subject and starts pointing away from it.",
+  "message": "A heading on the page is, or contains, a link to somewhere else",
+  "severity": "notice",
+  "source": "crawl:link_placement"
+ },
+ "LINK_TO_5XX": {
+  "fix": "Repair the destination page or remove the link.",
+  "message": "Internal link points to a 5xx URL",
+  "severity": "critical",
+  "source": "inlinks:Server Error (5xx) Inlinks"
+ },
+ "LONG_SENTENCES": {
+  "fix": "Break long sentences into shorter, focused statements.",
+  "message": "Average sentence length is too high",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "LOREM_IPSUM_PLACEHOLDER": {
+  "fix": "Replace the placeholder passage with real, reviewed copy before the page goes live or stays indexed.",
+  "message": "The Lorem Ipsum placeholder passage appears in the page's own content area",
+  "severity": "warning",
+  "source": "crawl:lorem_ipsum_count"
+ },
+ "LOW_LINK_SCORE": {
+  "fix": "Add internal, followed links to the page from well-linked pages elsewhere on the site.",
+  "message": "Internal link score is far below the site median",
+  "severity": "notice",
+  "source": "inlinks:All Inlinks"
+ },
+ "LOW_RELEVANCE_CONTENT": {
+  "fix": "Review whether the heading describes the page's actual content; lexical overlap alone is not proof of relevance or irrelevance.",
+  "message": "Title or H1 shares little vocabulary with the page's content area; review candidate",
+  "severity": "notice",
+  "source": "crawl:retained-content-area"
+ },
+ "LOW_TEXT_RATIO": {
+  "fix": "Increase the proportion of meaningful visible content or reduce unnecessary markup; a page with enough words is not missing copy, only carrying a heavy template.",
+  "message": "Low text-to-HTML ratio (a native crawl measures text against markup without script, style and JSON data blocks; pages above the thin-content word threshold are never reported)",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "META_DESCRIPTION_ONLY_IN_RENDERED_HTML": {
+  "fix": "Serve the meta description in the original HTML response.",
+  "message": "Meta description is present only after JavaScript rendering",
+  "severity": "notice",
+  "source": "native raw/rendered element comparison"
+ },
+ "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT": {
+  "fix": "Keep the initial and rendered meta description aligned.",
+  "message": "Meta description changes after JavaScript rendering",
+  "severity": "notice",
+  "source": "native raw/rendered element comparison"
+ },
+ "META_KEYWORDS_PRESENT": {
+  "fix": "Remove it if desired; modern search engines ignore meta keywords.",
+  "message": "Obsolete meta keywords element is present",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "META_REFRESH_REDIRECT": {
+  "fix": "Replace meta refresh with a server-side 301 redirect when the move is permanent.",
+  "message": "Redirect is implemented with meta refresh",
+  "severity": "warning",
+  "source": "SF:Directives:Refresh"
+ },
+ "METRIKA_BOUNCE_RATE_ABOVE_70": {
+  "fix": "Review the measured URL and its traffic source; bounce rate is a diagnostic signal, not a ranking verdict.",
+  "message": "Yandex Metrika reports a bounce rate above 70 percent",
+  "severity": "notice",
+  "source": "provider:metrika_history"
+ },
+ "METRIKA_ORPHAN_URL": {
+  "fix": "Check whether the URL is intentionally retired, blocked, redirected, or missing from the crawl population.",
+  "message": "Yandex Metrika reports a landing URL absent from the crawl",
+  "severity": "warning",
+  "source": "provider:metrika_history"
+ },
+ "MISSING_ABOUT_PAGE": {
+  "fix": "If an About page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all.",
+  "message": "No indexable About page was found in the crawl's scope",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "MISSING_CHARSET": {
+  "fix": "Declare charset in the Content-Type response header, or add a <meta charset> tag in the first 1024 bytes of the HTML.",
+  "message": "No character encoding declared via Content-Type or an early <meta> tag",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "MISSING_CONTACT_PAGE": {
+  "fix": "If a Contact page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all.",
+  "message": "No indexable Contact page was found in the crawl's scope",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "MISSING_CSP": {
+  "fix": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
+  "message": "HTML page has no Content-Security-Policy header",
+  "severity": "notice",
+  "source": "crawl:security_headers"
+ },
+ "MISSING_DOCTYPE": {
+  "fix": "Add `<!DOCTYPE html>` as the very first line of the document.",
+  "message": "Document has no doctype declaration, triggering quirks mode",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "MISSING_HSTS": {
+  "fix": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
+  "message": "HSTS header is missing",
+  "severity": "notice",
+  "source": "SF:Security:Missing HSTS Header"
+ },
+ "MISSING_HSTS_ON_REDIRECT_HOP": {
+  "fix": "Send Strict-Transport-Security on every redirect response, including the www and http hosts a browser can arrive on; an upgrade hop without it leaves the first plain-HTTP request unprotected.",
+  "message": "A redirect hop between the host variants of the start URL answers without HSTS",
+  "severity": "notice",
+  "source": "crawl:security_headers"
+ },
+ "MISSING_PRIVACY_POLICY": {
+  "fix": "If a privacy policy exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all.",
+  "message": "No indexable privacy policy page was found in the crawl's scope",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "MISSING_REFERRER_POLICY": {
+  "fix": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
+  "message": "HTML page has no Referrer-Policy header",
+  "severity": "notice",
+  "source": "crawl:security_headers"
+ },
+ "MISSING_TERMS_PAGE": {
+  "fix": "If a terms page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all.",
+  "message": "No indexable terms-of-use page was found in the crawl's scope",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "MISSING_X_CONTENT_TYPE_OPTIONS": {
+  "fix": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
+  "message": "HTML page has no X-Content-Type-Options header",
+  "severity": "notice",
+  "source": "crawl:security_headers"
+ },
+ "MISSING_X_FRAME_OPTIONS": {
+  "fix": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
+  "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
+  "severity": "notice",
+  "source": "crawl:security_headers"
+ },
+ "MIXED_CONTENT": {
+  "fix": "Serve every page resource over HTTPS and update its URL accordingly.",
+  "message": "Mixed content: HTTPS page loads resources over HTTP",
+  "severity": "warning",
+  "source": "SF:Security:Mixed Content"
+ },
+ "MIXED_LINK_REL": {
+  "fix": "The combination is valid. Review whether each qualifying token describes the placement; retain intentional combinations and the full rel token set.",
+  "message": "A link combines nofollow, sponsored or ugc tokens",
+  "severity": "notice",
+  "source": "crawl:link_findings"
+ },
+ "MOBILE_ALTERNATE_LINK": {
+  "fix": "Give the mobile alternate link an `href` pointing at the mobile URL, or remove the `<link rel=\"alternate\" media=...>` tag.",
+  "message": "A <link rel=alternate media=...> declaration names no URL",
+  "severity": "warning",
+  "source": "crawl:mobile_alternate"
+ },
+ "MOBILE_CONTENT_OVERFLOW": {
+  "fix": "Constrain the overflowing element or provide a mobile-width layout.",
+  "message": "Rendered content extends beyond the mobile viewport width",
+  "severity": "warning",
+  "source": "native rendered mobile layout"
+ },
+ "MOBILE_TARGET_TOO_SMALL": {
+  "fix": "Increase the interactive target's hit area and verify spacing at the target viewport.",
+  "message": "Rendered interactive target is smaller than 48 CSS pixels in at least one dimension",
+  "severity": "notice",
+  "source": "native rendered mobile layout"
+ },
+ "MOBILE_TEXT_TOO_SMALL": {
+  "fix": "Use a readable mobile text size and verify the page at its target viewport.",
+  "message": "Rendered text uses a computed font size below 12 CSS pixels",
+  "severity": "notice",
+  "source": "native rendered mobile layout"
+ },
+ "NEAR_DUPLICATE": {
+  "fix": "Differentiate the pages with substantive content or consolidate them into one canonical page.",
+  "message": "Near-duplicate content",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "NETWORK_DEPENDENCY_TREE": {
+  "fix": "Shorten the measured critical request chain; inspect the supplied lab trace evidence.",
+  "message": "The supplied Lighthouse dependency-tree audit reports a request-chain opportunity",
+  "severity": "notice",
+  "source": "supplied Lighthouse JSON"
+ },
+ "NOARCHIVE": {
+  "fix": "Confirm that preventing cached search-result copies is intentional.",
+  "message": "Page contains a noarchive directive",
+  "severity": "notice",
+  "source": "SF:Directives:NoArchive"
+ },
+ "NOFOLLOW_ONLY_IN_RAW_HTML": {
+  "fix": "Keep link-following directives consistent in the original response and rendered document.",
+  "message": "Nofollow appears in the original HTML but not in the rendered DOM",
+  "severity": "warning",
+  "source": "native raw/rendered element comparison"
+ },
+ "NOFOLLOW_PAGE": {
+  "fix": "Confirm the directive is intentional and review its effect on crawling and internal link equity.",
+  "message": "Page-level nofollow directive is present",
+  "severity": "notice",
+  "source": "SF:Directives:Nofollow"
+ },
+ "NOIMAGEINDEX": {
+  "fix": "Confirm that preventing images on this page from being indexed is intentional.",
+  "message": "Page contains a noimageindex directive",
+  "severity": "notice",
+  "source": "SF:Directives:NoImageIndex"
+ },
+ "NOINDEX": {
+  "fix": "Confirm that exclusion from indexing is intentional.",
+  "message": "Page contains a noindex directive",
+  "severity": "notice",
+  "source": "SF:Directives:Noindex"
+ },
+ "NOINDEX_ONLY_IN_RAW_HTML": {
+  "fix": "Keep indexing directives consistent in the original response and rendered document.",
+  "message": "Noindex appears in the original HTML but not in the rendered DOM",
+  "severity": "warning",
+  "source": "native raw/rendered element comparison"
+ },
+ "NON_INDEXABLE_LINKED": {
+  "fix": "Decide whether the page should be indexable; otherwise remove unnecessary internal links and account for crawl-budget impact.",
+  "message": "Internally linked page is non-indexable",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "NON_INDEXABLE_WITH_GA_DATA": {
+  "fix": "Review whether the URL should be indexable; keep its current state only when that is intentional.",
+  "message": "Non-indexable crawled URL has GA4 sessions",
+  "severity": "warning",
+  "source": "provider:ga4_history"
+ },
+ "NON_INDEXABLE_WITH_METRIKA_DATA": {
+  "fix": "Review whether the URL should be indexable; keep its current state only when that is intentional.",
+  "message": "Non-indexable crawled URL has Yandex Metrika visits",
+  "severity": "warning",
+  "source": "provider:metrika_history"
+ },
+ "NON_INDEXABLE_WITH_SEARCH_DATA": {
+  "fix": "Review the URL's indexability and canonical signals; keep the current state only when it is intentional.",
+  "message": "Non-indexable crawled URL has Search Console impressions",
+  "severity": "warning",
+  "source": "provider:gsc_search_analytics"
+ },
+ "NOODP": {
+  "fix": "Remove the retired noodp directive; the Open Directory Project closed in 2017 and the directive has no effect.",
+  "message": "Page contains a legacy noodp directive",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "NOSNIPPET": {
+  "fix": "Confirm that suppressing the page's search-result snippet is intentional.",
+  "message": "Page contains a nosnippet directive",
+  "severity": "notice",
+  "source": "SF:Directives:NoSnippet"
+ },
+ "NOTRANSLATE": {
+  "fix": "Confirm that opting out of translation-related Google Search features is intentional.",
+  "message": "Page contains a notranslate directive",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "NOYDIR": {
+  "fix": "Remove the retired noydir directive; the Yahoo Directory closed and the directive has no effect.",
+  "message": "Page contains a legacy noydir directive",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "NO_AUTHOR_BYLINE": {
+  "fix": "If the page's authorship should be attributable, declare it with a machine-readable carrier: meta author, rel=author, itemprop=author, or a JSON-LD author property.",
+  "message": "Content-shaped page declares no author or byline markup",
+  "severity": "notice",
+  "source": "crawl:trust_signals"
+ },
+ "NO_COMPRESSION": {
+  "fix": "Enable gzip, Brotli, or deflate compression for text responses on the origin server or CDN.",
+  "message": "HTML response is served uncompressed above the size where gzip/br would help",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "NO_CONTENT_DATES": {
+  "fix": "If the page should be dated, declare it machine-readably: article:published_time or datePublished markup, a <time datetime> element, or a Last-Modified response header.",
+  "message": "Content-shaped page declares no publication or update date",
+  "severity": "notice",
+  "source": "crawl:trust_signals"
+ },
+ "NO_GA_DATA": {
+  "fix": "Review the measured period and analytics tagging before treating the absence as a page defect.",
+  "message": "Indexable crawled URL has no retained GA4 sessions",
+  "severity": "notice",
+  "source": "provider:ga4_history"
+ },
+ "NO_INTERNAL_OUTLINKS": {
+  "fix": "Add relevant internal links to help users and crawlers continue through the site.",
+  "message": "Dead-end page has no internal outlinks",
+  "severity": "warning",
+  "source": "SF:Links:Pages Without Internal Outlinks"
+ },
+ "NO_METRIKA_DATA": {
+  "fix": "Review the measured period and Metrika tagging before treating the absence as a page defect.",
+  "message": "Indexable crawled URL has no retained Yandex Metrika visits",
+  "severity": "notice",
+  "source": "provider:metrika_history"
+ },
+ "NO_RESPONSE": {
+  "fix": "Check host availability, DNS resolution, connectivity, and timeout settings.",
+  "message": "No response (timeout, DNS, or connection failure)",
+  "severity": "critical",
+  "source": "SF:Response Codes:No Response"
+ },
+ "NO_SEARCH_DATA": {
+  "fix": "Review indexing, canonicalization, demand, and the measured reporting window before changing the page.",
+  "message": "Indexable crawled URL has no retained Search Console impressions",
+  "severity": "notice",
+  "source": "provider:gsc_search_analytics"
+ },
+ "OG_MISSING": {
+  "fix": "Add og:title, og:image, and og:url; at minimum, provide og:title and og:image for a useful preview.",
+  "message": "og:title is missing, so social previews may not render correctly",
+  "severity": "notice",
+  "source": "SF:Social:Open Graph"
+ },
+ "ONLY_NOFOLLOW_INLINKS": {
+  "fix": "Add at least one ordinary, followed internal link so link equity and crawl priority reach the page.",
+  "message": "Every internal link to this page is nofollow",
+  "severity": "warning",
+  "source": "inlinks:All Inlinks"
+ },
+ "ONLY_NONINDEXABLE_SOURCE_INLINKS": {
+  "fix": "Link to the page from at least one indexable page so it is reachable from the part of the site search engines actually rank.",
+  "message": "Every internal link to this page comes from a non-indexable source",
+  "severity": "warning",
+  "source": "inlinks:All Inlinks"
+ },
+ "ORPHAN_PAGE": {
+  "fix": "Add relevant internal links so users and crawlers can discover the page.",
+  "message": "Orphan page has no internal inlinks",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": {
+  "fix": "Review the retained local text and add a clear reader-facing disclosure when needed. This bounded English/Russian text-marker heuristic does not establish legal compliance; CSS visibility, other languages and remote disclosures require manual review.",
+  "message": "An outbound sponsored link has no recognized local disclosure text",
+  "severity": "notice",
+  "source": "crawl:link_findings"
+ },
+ "OUTLINK_TO_LOCALHOST": {
+  "fix": "Replace the development/staging reference with the production URL.",
+  "message": "A link points at a loopback address (localhost, 127.0.0.1, ::1, ...)",
+  "severity": "warning",
+  "source": "crawl:link_findings"
+ },
+ "PAGE_TITLE_ONLY_IN_RENDERED_HTML": {
+  "fix": "Serve the page title in the original HTML response.",
+  "message": "Page title is present only after JavaScript rendering",
+  "severity": "notice",
+  "source": "native raw/rendered element comparison"
+ },
+ "PAGE_TITLE_UPDATED_BY_JAVASCRIPT": {
+  "fix": "Keep the initial and rendered page title aligned.",
+  "message": "Page title changes after JavaScript rendering",
+  "severity": "notice",
+  "source": "native raw/rendered element comparison"
+ },
+ "PAGINATION_CANONICAL_POLICY": {
+  "fix": "Review the canonical against the configured pagination policy; the expected target is included in the evidence.",
+  "message": "Paginated URL canonical does not match the configured project policy",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "PAGINATION_LOOP": {
+  "fix": "Fix the rel=\"next\"/rel=\"prev\" values so the series terminates instead of cycling.",
+  "message": "A rel=\"next\" pagination series loops back on itself",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "PAGINATION_MULTIPLE": {
+  "fix": "Declare exactly one rel=\"next\" and one rel=\"prev\" URL per page; two different successors leave the series ambiguous, and a crawler picks one of them without telling anybody which.",
+  "message": "The page declares more than one rel=\"next\" (or more than one rel=\"prev\") URL",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "PAGINATION_NONINDEXABLE": {
+  "fix": "Pagination pages should generally remain crawlable and indexable unless a deliberate alternative architecture is in place.",
+  "message": "Pagination page is non-indexable",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "PAGINATION_SEQUENCE_ERROR": {
+  "fix": "Point each rel=\"next\" at the page that actually follows this one. A run that goes 1, 2, 3, 7 leaves pages 4 to 6 out of the chain entirely, so a crawler following it never reaches them.",
+  "message": "Pagination breaks an established numbered run or contradicts a reciprocal next/prev declaration",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "PAGINATION_URL_NOT_IN_ANCHOR": {
+  "fix": "Link the paginated URL from the page itself with an ordinary <a href> as well. Google stopped using rel=\"next\"/rel=\"prev\" for indexing in 2019, so an annotation with no anchor beside it is a route only some crawlers still take.",
+  "message": "A rel=\"next\"/rel=\"prev\" URL is not also linked from the same page with an anchor",
+  "severity": "notice",
+  "source": "inlinks:All Inlinks"
+ },
+ "PLACEHOLDER_MARKER": {
+  "fix": "Replace the observed marker with reviewed page-specific copy. This check only reports explicit bracketed template tokens, not ordinary wording such as 'coming soon'.",
+  "message": "Page declaration contains a literal TODO, TBD, or placeholder template marker",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "PROTOCOL_RELATIVE_LINK": {
+  "fix": "Write an explicit https:// href; a protocol-relative one silently follows whatever scheme served the current page, including a plain-HTTP embed.",
+  "message": "Link href is written in the protocol-relative \"//host/path\" form",
+  "severity": "notice",
+  "source": "crawl:link_findings"
+ },
+ "READABILITY_DIFFICULT": {
+  "fix": "Use clearer wording and shorter sentences while preserving technical accuracy.",
+  "message": "Text is difficult to read (low Flesch score)",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "REDIRECT_CHAIN": {
+  "fix": "Replace the chain with a single 301 redirect to the final URL.",
+  "message": "Redirect chain contains two or more hops",
+  "severity": "warning",
+  "source": "SF:report Redirect Chains"
+ },
+ "REDIRECT_LOOP": {
+  "fix": "Break the redirect cycle so every redirect path terminates at a valid destination.",
+  "message": "Redirect loop detected",
+  "severity": "critical",
+  "source": "SF:report Redirect Chains"
+ },
+ "RENDER_BLOCKING": {
+  "fix": "Add `defer` or `async` to the <script src>, move it out of <head>, or give the stylesheet a `media` value that the first render does not need.",
+  "message": "A <head> script or stylesheet blocks first paint (no async/defer, no non-matching media)",
+  "severity": "opportunity",
+  "source": "crawl:render_blocking"
+ },
+ "RENDER_RESOURCE_BLOCKED": {
+  "fix": "Review the recorded request reason and make required page resources available to the renderer.",
+  "message": "A rendered page resource was refused or returned an HTTP error",
+  "severity": "warning",
+  "source": "native rendered network log"
+ },
+ "RESOURCE_OVER_2MB": {
+  "fix": "Reduce or split the identified resource; the default budget is 2 MiB.",
+  "message": "A captured resource exceeds the configured individual byte budget",
+  "severity": "warning",
+  "source": "native resource graph"
+ },
+ "ROBOTS_BLOCKED_OUTLINK": {
+  "fix": "Review the Disallow rules that hid the quoted targets: a rule broad enough to block an internal link target removes that section from every robots-respecting crawler. Confirm each blocked target is intentionally excluded, or narrow the rule so the pages can be crawled and indexed on their own merits.",
+  "message": "The page links to URLs the crawl's robots policy kept out of the crawl",
+  "severity": "notice",
+  "source": "crawl:robots_policy"
+ },
+ "ROBOTS_BLOCKS_RESOURCES": {
+  "fix": "Do not block .js, .css, or _next/static resources in robots.txt; otherwise Google may render the page incompletely.",
+  "message": "robots.txt blocks JavaScript or CSS resources required for rendering",
+  "severity": "notice",
+  "source": "sitemap"
+ },
+ "SCHEMA_VALIDATION_ERROR": {
+  "fix": "Correct invalid JSON-LD or Microdata markup and retest it against the applicable vocabulary and rich-result requirements.",
+  "message": "Structured data validation errors",
+  "severity": "warning",
+  "source": "SF:Structured Data:Validation Errors"
+ },
+ "SEMANTICALLY_SIMILAR": {
+  "fix": "Review intent and useful internal linking. Lexical similarity alone does not prove duplicate content, cannibalization or topical equivalence.",
+  "message": "Pages have high lexical similarity in their content areas; review candidate",
+  "severity": "notice",
+  "source": "crawl:retained-content-area"
+ },
+ "SEMANTIC_SIMILARITY_CANDIDATE": {
+  "fix": "Review intent and useful internal linking. Semantic similarity alone does not prove duplicate content or cannibalization.",
+  "message": "Pages have adapter-measured topical similarity; review candidate",
+  "severity": "notice",
+  "source": "heuristic:explicit_embedding_adapter"
+ },
+ "SERVER_ERROR_5XX": {
+  "fix": "Investigate the server or application; this error makes the page unavailable to users and crawlers.",
+  "message": "Page returns a 5xx response (server error)",
+  "severity": "critical",
+  "source": "SF:Response Codes:5xx"
+ },
+ "SITEMAP_DESYNC": {
+  "fix": "Synchronize the sitemap with the site's actual set of canonical, indexable pages.",
+  "message": "Sitemap and crawl URL sets are out of sync",
+  "severity": "warning",
+  "source": "sitemap"
+ },
+ "SITEMAP_FETCH_INCOMPLETE": {
+  "fix": "Check that every child sitemap is reachable, retry in case the service was temporarily slow, and validate the XML -- a 200 response with malformed markup (e.g. an unescaped '&' in a URL) fails here the same way a network error does.",
+  "message": "Some child sitemaps could not be fetched or parsed",
+  "severity": "notice",
+  "source": "sitemap"
+ },
+ "SITEMAP_NOT_IN_ROBOTS": {
+  "fix": "Add a Sitemap directive to robots.txt with the absolute sitemap URL.",
+  "message": "robots.txt does not declare a Sitemap directive",
+  "severity": "notice",
+  "source": "sitemap"
+ },
+ "SITEMAP_ORPHAN": {
+  "fix": "Add relevant internal links to the page or remove it from the sitemap if it should not be discoverable.",
+  "message": "Sitemap URL has no internal inlinks",
+  "severity": "warning",
+  "source": "sitemap"
+ },
+ "SITEMAP_STALE_LASTMOD": {
+  "fix": "Generate each lastmod value from the page's actual meaningful modification date.",
+  "message": "Sitemap contains stale or boilerplate lastmod values",
+  "severity": "notice",
+  "source": "sitemap"
+ },
+ "SITEMAP_TOO_LARGE": {
+  "fix": "Split the sitemap so each file stays under 50 MB uncompressed. The limit is about the document a search engine parses, so compressing it does not help.",
+  "message": "Sitemap exceeds the protocol's uncompressed size limit",
+  "severity": "warning",
+  "source": "sitemap"
+ },
+ "SITEMAP_TOO_MANY_URLS": {
+  "fix": "Split the sitemap into files of at most 50,000 URLs each and list them in a sitemap index. Over the limit the file is invalid and a search engine may read part of it and discard the rest without reporting anything.",
+  "message": "Sitemap declares more URLs than the protocol allows",
+  "severity": "warning",
+  "source": "sitemap"
+ },
+ "SITEMAP_URL_3XX": {
+  "fix": "List the final 200-status URL in the sitemap instead of a redirecting URL.",
+  "message": "Sitemap URL returns a 3xx response",
+  "severity": "warning",
+  "source": "sitemap"
+ },
+ "SITEMAP_URL_4XX_5XX": {
+  "fix": "Remove broken URLs from the sitemap or restore them before listing them again.",
+  "message": "Sitemap URL returns a 4xx or 5xx response",
+  "severity": "critical",
+  "source": "sitemap"
+ },
+ "SITEMAP_URL_BLOCKED_ROBOTS": {
+  "fix": "Remove the intentionally blocked URL from the sitemap or allow crawling if the URL should be indexed.",
+  "message": "Sitemap URL is blocked by the retained robots policy",
+  "severity": "warning",
+  "source": "crawl:robots_policy"
+ },
+ "SITEMAP_URL_DUPLICATED": {
+  "fix": "Declare each URL in exactly one sitemap. A URL in two files is usually a generator that ran twice, and it distorts every count taken from the declared set.",
+  "message": "URL is declared in more than one sitemap",
+  "severity": "notice",
+  "source": "sitemap"
+ },
+ "SITEMAP_URL_NON_CANONICAL": {
+  "fix": "List the canonical destination in the sitemap and remove the non-canonical URL.",
+  "message": "Sitemap URL declares another canonical URL",
+  "severity": "warning",
+  "source": "crawl:sitemap_membership"
+ },
+ "SITEMAP_URL_NON_INDEXABLE": {
+  "fix": "Keep only canonical, indexable URLs in the sitemap.",
+  "message": "Sitemap contains a non-indexable URL",
+  "severity": "warning",
+  "source": "sitemap"
+ },
+ "SLOW_RESPONSE": {
+  "fix": "Improve TTFB by profiling the application and origin, then optimizing caching and infrastructure.",
+  "message": "Slow server response",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "SPELLING_ERRORS": {
+  "fix": "Review and correct spelling errors, accounting for valid product names and specialist terminology.",
+  "message": "Spelling errors detected",
+  "severity": "notice",
+  "source": "SF:Content:Spelling Errors"
+ },
+ "STRUCTURED_DATA_MISSING": {
+  "fix": "Add relevant, accurate Schema.org markup that reflects visible page content.",
+  "message": "Structured data is missing",
+  "severity": "notice",
+  "source": "SF:Structured Data:Missing"
+ },
+ "STRUCTURED_DATA_PARSE_ERROR": {
+  "fix": "Fix the malformed JSON-LD block (a stray comma, an unescaped quote, or an unclosed brace commonly voids the whole block); a search engine ignores structured data it cannot parse the same as if none were present.",
+  "message": "A JSON-LD block is present but did not parse as valid JSON",
+  "severity": "warning",
+  "source": "crawl:jsonld_blocks"
+ },
+ "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING": {
+  "fix": "Fill the required properties for the declared type and validate the result; local eligibility does not guarantee Google display.",
+  "message": "Structured data lacks required properties in the bundled local rich-result rules",
+  "severity": "warning",
+  "source": "crawl:structured_evidence"
+ },
+ "STRUCTURED_DATA_SCHEMA_ERROR": {
+  "fix": "Inspect the URL schema evidence and repair unknown types, properties, invalid values or unresolved references.",
+  "message": "Structured data contains errors under the bundled Schema.org vocabulary",
+  "severity": "warning",
+  "source": "crawl:structured_evidence"
+ },
+ "STRUCTURED_DATA_SCHEMA_WARNING": {
+  "fix": "Review the URL schema evidence and correct ambiguous values or graph relationships.",
+  "message": "Structured data contains warnings under the bundled Schema.org vocabulary",
+  "severity": "notice",
+  "source": "crawl:structured_evidence"
+ },
+ "THIN_CONTENT": {
+  "fix": "Add substantial, useful content or exclude the page from indexing when it has no standalone search value.",
+  "message": "Thin content (low word count)",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "TITLE_DUPLICATE": {
+  "fix": "Give each page a unique title element.",
+  "message": "Duplicate title element",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "TITLE_EQUALS_H1": {
+  "fix": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
+  "message": "Title is identical to the H1",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "TITLE_LOW_SEMANTIC_RELEVANCE": {
+  "fix": "Review whether the title describes the page's actual content and intent; the model score alone is not proof of irrelevance.",
+  "message": "Title has low adapter-measured similarity to the page content; review candidate",
+  "severity": "notice",
+  "source": "heuristic:explicit_embedding_adapter"
+ },
+ "TITLE_MISSING": {
+  "fix": "Add a unique, descriptive title element.",
+  "message": "Title element is missing",
+  "severity": "critical",
+  "source": "SF-derived"
+ },
+ "TITLE_MULTIPLE": {
+  "fix": "Keep exactly one <title> element in the document head.",
+  "message": "Multiple <title> elements",
+  "severity": "warning",
+  "source": "SF:Page Titles:Multiple"
+ },
+ "TITLE_OUTSIDE_HEAD": {
+  "fix": "Move whatever precedes it in <head> — usually an element the head content model does not allow — so <title> is read from <head> again.",
+  "message": "The <title> element is outside <head> once the parser resolves the document",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "TITLE_PIXELS_BELOW": {
+  "fix": "Expand the title so it uses the available SERP width informatively.",
+  "message": "Title falls below the configured SERP pixel-width threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "TITLE_PIXELS_OVER": {
+  "fix": "Shorten or reword the title; SERP truncation follows rendered pixel width, not the character count.",
+  "message": "Title exceeds the configured SERP pixel-width threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "TITLE_TEMPLATED": {
+  "fix": "Make the page-specific portion of each title distinctive; a shared brand suffix is acceptable, but duplicated core title text is not.",
+  "message": "Templated titles share a common prefix or suffix across most pages",
+  "severity": "opportunity",
+  "source": "heuristic"
+ },
+ "TITLE_TOO_LONG": {
+  "fix": "Shorten the title to fit the configured character limit.",
+  "message": "Title exceeds the configured length threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "TITLE_TOO_SHORT": {
+  "fix": "Expand the title to an informative length without padding it with boilerplate.",
+  "message": "Title falls below the configured length threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "UNAVAILABLE_AFTER": {
+  "fix": "Confirm the date is intentional and in the future; once it passes, the page is removed from the index automatically.",
+  "message": "Page carries an unavailable_after directive with a deindex date",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "UNLINKED_CANONICAL": {
+  "fix": "Add an ordinary internal link to the canonical target, or confirm relying on the canonical alone for discovery is intentional.",
+  "message": "Canonical target has no hyperlink pointing to it anywhere in the crawl",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "UNLINKED_PAGINATION_SERIES": {
+  "fix": "Add an ordinary internal link to the first page of the series so it does not depend on rel=\"next\" alone for discovery.",
+  "message": "A pagination series is reachable only by following rel=\"next\", never by a hyperlink",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "UNMINIFIED_CSS_JS": {
+  "fix": "Apply the existing production minifier and verify the result still works.",
+  "message": "Captured CSS or JavaScript does not look minified (heuristic)",
+  "severity": "notice",
+  "source": "native resource delivery"
+ },
+ "UNSAFE_CROSS_ORIGIN_LINK": {
+  "fix": "Add rel=\"noopener\" (or \"noreferrer\") so the opened page cannot reach back into this one through window.opener.",
+  "message": "A target=\"_blank\" link declares neither rel=\"noopener\" nor rel=\"noreferrer\"",
+  "severity": "warning",
+  "source": "crawl:link_findings"
+ },
+ "UNSUPPORTED_PLUGIN": {
+  "fix": "Replace the plugin-dependent element with a native equivalent (HTML5 <video>/<audio>, an <img>/<svg>, or a JavaScript-driven alternative) -- mobile browsers, and modern desktop ones, do not run plugins, so this content is simply invisible there.",
+  "message": "Page contains a legacy plugin-dependent element (<object>/<embed>/<applet>)",
+  "severity": "warning",
+  "source": "crawl:plugin_elements"
+ },
+ "UNUSED_CSS_JS": {
+  "fix": "Split or defer unused code after testing the interactions and routes that need it; lab coverage is not proof code is universally unused.",
+  "message": "CSS or JavaScript source is substantially unused in the captured navigation window",
+  "severity": "notice",
+  "source": "native render coverage"
+ },
+ "URL_CONTAINS_SPACE": {
+  "fix": "Encode literal spaces in links; do not mechanically remove percent-encoded values such as q=red%20shoes. Change a canonical path only after verifying equivalent content and planning redirects or canonicals.",
+  "message": "URL contains a space",
+  "severity": "warning",
+  "source": "SF:URL:Contains Space"
+ },
+ "URL_HAS_PARAMETERS": {
+  "fix": "Review whether the parameters create unique indexable content; keep internal links and sitemaps on the parameter-free URL where they do not.",
+  "message": "Internal URL contains query parameters",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "URL_HAS_PARAMS": {
+  "fix": "Point the canonical to the preferred parameter-free URL when the parameters do not create unique indexable content.",
+  "message": "Parameterized URL has no canonical",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "URL_INTERNAL_SEARCH": {
+  "fix": "Review whether internal search results should be linked or indexable; apply the intended crawl and indexing policy.",
+  "message": "URL is a recognized internal search route",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "URL_MULTIPLE_SLASHES": {
+  "fix": "Remove duplicate slashes and 301-redirect the malformed variant to the canonical path.",
+  "message": "URL path contains repeated slashes",
+  "severity": "opportunity",
+  "source": "SF:URL:Multiple Slashes"
+ },
+ "URL_NON_ASCII": {
+  "fix": "Consider a consistent ASCII transliteration for human-readable URLs where appropriate.",
+  "message": "URL contains non-ASCII characters",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "URL_NOT_IN_SITEMAP": {
+  "fix": "Add the canonical page URL to the appropriate sitemap.",
+  "message": "Indexable page is missing from the sitemap",
+  "severity": "opportunity",
+  "source": "sitemap"
+ },
+ "URL_REPETITIVE_PATH": {
+  "fix": "Simplify the URL structure so path segments are not duplicated.",
+  "message": "URL path contains a repeated segment",
+  "severity": "opportunity",
+  "source": "SF:URL:Repetitive Path"
+ },
+ "URL_SESSION_ID": {
+  "fix": "Prevent session identifiers from entering crawlable URLs and consolidate any indexed variants; the finding retains parameter names but redacts their values.",
+  "message": "Indexable URL contains a recognized session-token parameter",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "URL_TOO_LONG": {
+  "fix": "Shorten the URL while preserving a stable, descriptive path.",
+  "message": "URL exceeds the configured length threshold",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "URL_TRACKING_PARAMS": {
+  "fix": "Remove tracking parameters from public links; for parameterized URLs that still receive traffic, add a self-referencing canonical or manage crawling through robots.txt and Search Console as appropriate.",
+  "message": "Indexable URL contains a tracking parameter such as utm_, gclid, or fbclid",
+  "severity": "warning",
+  "source": "SF-derived"
+ },
+ "URL_TRAILING_SLASH_INCONSISTENT": {
+  "fix": "Choose and implement a documented URL policy if both variants are not intentional; redirect or canonical convergence already observed is not reported.",
+  "message": "Comparable trailing-slash URL variants both serve as separate indexable pages",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "URL_UNDERSCORES": {
+  "fix": "Use hyphens instead of underscores in URL path segments.",
+  "message": "URL contains underscores",
+  "severity": "opportunity",
+  "source": "SF:URL:Underscores"
+ },
+ "URL_UPPERCASE": {
+  "fix": "Normalize the path to lowercase and add a 301 redirect from the uppercase variant.",
+  "message": "URL path contains uppercase characters",
+  "severity": "opportunity",
+  "source": "SF-derived"
+ },
+ "VIEWPORT_MISSING": {
+  "fix": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
+  "message": "No <meta name=viewport> tag at all",
+  "severity": "notice",
+  "source": "SF-derived"
+ },
+ "YMYL_REVIEW_CANDIDATE": {
+  "fix": "Have a specialist confirm whether the page genuinely covers Your-Money-Your-Life topics; if it does, the attribution and trust-page evidence above deserves a closer look.",
+  "message": "URL path or title matches a YMYL-adjacent keyword — a review candidate only, not a classification",
+  "severity": "notice",
+  "source": "SF-derived"
+ }
+}

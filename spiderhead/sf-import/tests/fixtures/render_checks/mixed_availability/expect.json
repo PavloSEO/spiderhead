@@ -1,0 +1,62 @@
+{
+ "has_scan": true,
+ "issues": [
+  {
+   "check": "H1_UPDATED_BY_JAVASCRIPT",
+   "details": {
+    "field": "h1",
+    "raw": "a",
+    "rendered": "b"
+   },
+   "target_url": "https://example.test/a"
+  },
+  {
+   "check": "RENDER_RESOURCE_BLOCKED",
+   "details": {
+    "reason": "blocked_by_robots",
+    "resource_type": "script",
+    "source_page": "https://example.test/a",
+    "status_code": null
+   },
+   "target_url": "https://example.test/app.js"
+  }
+ ],
+ "skipped": [
+  {
+   "id": "NOINDEX_ONLY_IN_RAW_HTML",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  },
+  {
+   "id": "NOFOLLOW_ONLY_IN_RAW_HTML",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  },
+  {
+   "id": "CANONICAL_MISMATCH",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  },
+  {
+   "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  },
+  {
+   "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  },
+  {
+   "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  },
+  {
+   "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  },
+  {
+   "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  },
+  {
+   "id": "H1_ONLY_IN_RENDERED_HTML",
+   "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+  }
+ ]
+}

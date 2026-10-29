@@ -1,0 +1,1749 @@
+[
+ {
+  "name": "clean",
+  "pages": [
+   {
+    "url": "https://example.com/p0",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p1",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p2",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p3",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {
+     "THIN_CONTENT": 1
+    }
+   },
+   "issues": [
+    {
+     "check": "THIN_CONTENT",
+     "target_url": "https://example.com/p0"
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [],
+   "anomaly_count": 0,
+   "review": [],
+   "by_rule": {},
+   "read": {
+    "audit": true,
+    "pages": 4,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "ratio_over_100",
+  "pages": [
+   {
+    "url": "https://example.com/p0",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p1",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p2",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p3",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p4",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p5",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p6",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p7",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p8",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p9",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p10",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p11",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p12",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p13",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p14",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p15",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p16",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p17",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p18",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p19",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p20",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p21",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p22",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p23",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p24",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p25",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p26",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p27",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p28",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p29",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 150.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {}
+   },
+   "issues": []
+  },
+  "max_per_rule": 5,
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "text_ratio_is_a_percentage",
+     "message": "text ratio exceeds 100%: the text and the size were not measured alike",
+     "observed": 150.0,
+     "expected": "<= 100",
+     "target": "https://example.com/p0",
+     "sources": {
+      "observed": "pages.jsonl:text_ratio"
+     }
+    },
+    {
+     "rule": "text_ratio_is_a_percentage",
+     "message": "text ratio exceeds 100%: the text and the size were not measured alike",
+     "observed": 150.0,
+     "expected": "<= 100",
+     "target": "https://example.com/p1",
+     "sources": {
+      "observed": "pages.jsonl:text_ratio"
+     }
+    },
+    {
+     "rule": "text_ratio_is_a_percentage",
+     "message": "text ratio exceeds 100%: the text and the size were not measured alike",
+     "observed": 150.0,
+     "expected": "<= 100",
+     "target": "https://example.com/p2",
+     "sources": {
+      "observed": "pages.jsonl:text_ratio"
+     }
+    },
+    {
+     "rule": "text_ratio_is_a_percentage",
+     "message": "text ratio exceeds 100%: the text and the size were not measured alike",
+     "observed": 150.0,
+     "expected": "<= 100",
+     "target": "https://example.com/p3",
+     "sources": {
+      "observed": "pages.jsonl:text_ratio"
+     }
+    },
+    {
+     "rule": "text_ratio_is_a_percentage",
+     "message": "text ratio exceeds 100%: the text and the size were not measured alike",
+     "observed": 150.0,
+     "expected": "<= 100",
+     "target": "https://example.com/p4",
+     "sources": {
+      "observed": "pages.jsonl:text_ratio"
+     }
+    }
+   ],
+   "anomaly_count": 30,
+   "review": [],
+   "by_rule": {
+    "text_ratio_is_a_percentage": 30
+   },
+   "read": {
+    "audit": true,
+    "pages": 30,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "words_without_bytes",
+  "pages": [
+   {
+    "url": "https://example.com/",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 0,
+    "word_count": 250,
+    "text_ratio": null,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {}
+   },
+   "issues": []
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "words_without_bytes",
+     "message": "words were counted on a page recorded as zero bytes",
+     "observed": 250,
+     "expected": 0,
+     "target": "https://example.com/",
+     "sources": {
+      "observed": "pages.jsonl:word_count",
+      "expected": "pages.jsonl:size_bytes"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "words_without_bytes": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 1,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "zero_float_size",
+  "pages": [
+   {
+    "url": "https://example.com/",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 0.0,
+    "word_count": 2.5,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {}
+   },
+   "issues": []
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "words_without_bytes",
+     "message": "words were counted on a page recorded as zero bytes",
+     "observed": 2.5,
+     "expected": 0,
+     "target": "https://example.com/",
+     "sources": {
+      "observed": "pages.jsonl:word_count",
+      "expected": "pages.jsonl:size_bytes"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "words_without_bytes": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 1,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "uncrawled_finding",
+  "pages": [
+   {
+    "url": "https://example.com/",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {
+     "URL_NOT_IN_SITEMAP": 1
+    }
+   },
+   "issues": [
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://wa.me/123"
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "findings_are_about_crawled_urls",
+     "message": "URL_NOT_IN_SITEMAP reports a URL absent from this run's own page list",
+     "observed": "https://wa.me/123",
+     "expected": "a URL in pages.jsonl",
+     "target": "https://wa.me/123",
+     "sources": {
+      "observed": "audit.json:issues",
+      "expected": "pages.jsonl:url"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "findings_are_about_crawled_urls": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 1,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "population",
+  "pages": [
+   {
+    "url": "https://example.com/p0",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p1",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p2",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {
+     "URL_NOT_IN_SITEMAP": 9
+    }
+   },
+   "issues": [
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p0"
+    },
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p1"
+    },
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p2"
+    },
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p0"
+    },
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p1"
+    },
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p2"
+    },
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p0"
+    },
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p1"
+    },
+    {
+     "check": "URL_NOT_IN_SITEMAP",
+     "target_url": "https://example.com/p2"
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "check_within_its_population",
+     "message": "URL_NOT_IN_SITEMAP fired more often than there are HTML pages to fire on",
+     "observed": 9,
+     "expected": 3,
+     "target": "URL_NOT_IN_SITEMAP",
+     "sources": {
+      "observed": "audit.json:summary.by_check",
+      "expected": "pages.jsonl: pages with an HTML content type"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "check_within_its_population": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 3,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "exempt_checks",
+  "pages": [
+   {
+    "url": "https://example.com/",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {
+     "SITEMAP_ORPHAN": 1,
+     "FOLLOW_AND_NOFOLLOW_INLINKS": 1
+    }
+   },
+   "issues": [
+    {
+     "check": "SITEMAP_ORPHAN",
+     "target_url": "https://example.com/declared"
+    },
+    {
+     "check": "FOLLOW_AND_NOFOLLOW_INLINKS",
+     "target_url": "https://example.com/blog?tag=target"
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [],
+   "anomaly_count": 0,
+   "review": [],
+   "by_rule": {},
+   "read": {
+    "audit": true,
+    "pages": 1,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "canonical_twin",
+  "pages": [
+   {
+    "url": "https://example.com/post",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/author/name/",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/author/name",
+    "status_code": 301,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 0,
+    "word_count": 0,
+    "text_ratio": null,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {
+     "CANONICAL_TO_REDIRECT": 1
+    }
+   },
+   "issues": [
+    {
+     "check": "CANONICAL_TO_REDIRECT",
+     "target_url": "https://example.com/post",
+     "details": {
+      "canonical": "https://example.com/author/name/"
+     }
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "canonical_to_redirect_has_no_answering_twin",
+     "message": "canonical reported as a redirect, but that URL answered 2xx in this run",
+     "observed": "3xx",
+     "expected": "2xx",
+     "target": "https://example.com/author/name/",
+     "sources": {
+      "observed": "audit.json:issues[CANONICAL_TO_REDIRECT]",
+      "expected": "pages.jsonl:status_code"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "canonical_to_redirect_has_no_answering_twin": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 3,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "outside_host_same_host",
+  "pages": [
+   {
+    "url": "https://example.com/",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {}
+   },
+   "issues": []
+  },
+  "decisions": [
+   {
+    "type": "exclude",
+    "url": "https://example.com/off-by-mistake",
+    "reason": "outside_host",
+    "host": "example.com"
+   },
+   {
+    "type": "exclude",
+    "url": "https://other.example/x",
+    "reason": "outside_host",
+    "host": "example.com"
+   },
+   {
+    "type": "exclude",
+    "url": "https://EXAMPLE.com:8080/p",
+    "reason": "redirect_off_host",
+    "host": "Example.com"
+   },
+   {
+    "type": "include",
+    "url": "https://example.com/in",
+    "reason": "outside_host",
+    "host": "example.com"
+   },
+   {
+    "type": "exclude",
+    "url": "https://example.com/off-by-mistake",
+    "reason": "outside_host",
+    "host": "example.com"
+   }
+  ],
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "outside_host_exclusion_matches_its_own_host",
+     "message": "excluded as outside_host, but its host is the crawl's own host",
+     "observed": "example.com",
+     "expected": "a host other than 'example.com'",
+     "target": "https://example.com/off-by-mistake",
+     "sources": {
+      "observed": "decisions.jsonl:url",
+      "expected": "decisions.jsonl:host"
+     }
+    },
+    {
+     "rule": "outside_host_exclusion_matches_its_own_host",
+     "message": "excluded as redirect_off_host, but its host is the crawl's own host",
+     "observed": "example.com",
+     "expected": "a host other than 'example.com'",
+     "target": "https://EXAMPLE.com:8080/p",
+     "sources": {
+      "observed": "decisions.jsonl:url",
+      "expected": "decisions.jsonl:host"
+     }
+    }
+   ],
+   "anomaly_count": 2,
+   "review": [],
+   "by_rule": {
+    "outside_host_exclusion_matches_its_own_host": 2
+   },
+   "read": {
+    "audit": true,
+    "pages": 1,
+    "downloaded_files": 0,
+    "decisions": 5
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "summary_mismatch",
+  "pages": [
+   {
+    "url": "https://example.com/p0",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p1",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p2",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p3",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p4",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {
+     "THIN_CONTENT": 4,
+     "OTHER": "x"
+    }
+   },
+   "issues": [
+    {
+     "check": "THIN_CONTENT",
+     "target_url": "https://example.com/p0"
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "summary_matches_detail",
+     "message": "summary claims 4 THIN_CONTENT findings, the issue list holds 1",
+     "observed": 4,
+     "expected": 1,
+     "target": "THIN_CONTENT",
+     "sources": {
+      "observed": "audit.json:summary.by_check",
+      "expected": "audit.json:issues"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "summary_matches_detail": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 5,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "mixed_representation",
+  "pages": [
+   {
+    "url": "https://example.com/a",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/b",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": ""
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {}
+   },
+   "issues": []
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "representation_is_recorded",
+     "message": "some pages record how they were measured and some do not",
+     "observed": 1,
+     "expected": 0,
+     "target": "",
+     "sources": {
+      "observed": "pages.jsonl:representation"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "representation_is_recorded": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 2,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "implausible_review",
+  "pages": [],
+  "audit": {
+   "summary": {
+    "by_check": {
+     "URL_NOT_IN_SITEMAP": 392
+    },
+    "implausible_checks": [
+     {
+      "check": "URL_NOT_IN_SITEMAP",
+      "pages": 124,
+      "share": 0.743
+     },
+     {
+      "check": "X",
+      "pages": 1,
+      "share": 0.125
+     },
+     "junk"
+    ]
+   },
+   "issues": [],
+   "run": {}
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "summary_matches_detail",
+     "message": "summary claims 392 URL_NOT_IN_SITEMAP findings, the issue list holds 0",
+     "observed": 392,
+     "expected": 0,
+     "target": "URL_NOT_IN_SITEMAP",
+     "sources": {
+      "observed": "audit.json:summary.by_check",
+      "expected": "audit.json:issues"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [
+    {
+     "rule": "check_describes_most_of_the_site",
+     "message": "URL_NOT_IN_SITEMAP describes 74% of the crawled pages -- true of some sites, and what a broken check looks like on the rest",
+     "observed": 124,
+     "expected": "under 50% of pages, for a check about the unusual",
+     "target": "URL_NOT_IN_SITEMAP",
+     "sources": {
+      "observed": "audit.json:summary.implausible_checks"
+     }
+    },
+    {
+     "rule": "check_describes_most_of_the_site",
+     "message": "X describes 12% of the crawled pages -- true of some sites, and what a broken check looks like on the rest",
+     "observed": 1,
+     "expected": "under 50% of pages, for a check about the unusual",
+     "target": "X",
+     "sources": {
+      "observed": "audit.json:summary.implausible_checks"
+     }
+    }
+   ],
+   "by_rule": {
+    "summary_matches_detail": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 0,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "no_audit",
+  "pages": [
+   {
+    "url": "https://example.com/p0",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p1",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p2",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/p3",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": null,
+  "expected": {
+   "ok": true,
+   "anomalies": [],
+   "anomaly_count": 0,
+   "review": [],
+   "by_rule": {},
+   "read": {
+    "audit": false,
+    "pages": 4,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "no_pages",
+  "pages": [],
+  "audit": {
+   "summary": {
+    "by_check": {
+     "THIN_CONTENT": 1
+    }
+   },
+   "issues": [
+    {
+     "check": "THIN_CONTENT",
+     "target_url": "https://example.com/p0"
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [],
+   "anomaly_count": 0,
+   "review": [],
+   "by_rule": {},
+   "read": {
+    "audit": true,
+    "pages": 0,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "lastmod",
+  "pages": [
+   {
+    "url": "https://example.test/p/0",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "run": {
+    "source": "https://example.test/p/0"
+   },
+   "summary": {
+    "sitemap": {
+     "lastmod": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    }
+   },
+   "issues": [
+    {
+     "check": "SITEMAP_STALE_LASTMOD",
+     "source": "sitemap",
+     "target_url": "https://example.test",
+     "details": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    },
+    {
+     "check": "SITEMAP_STALE_LASTMOD",
+     "source": "sitemap",
+     "target_url": "https://example.test/uncrawled",
+     "details": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    },
+    {
+     "check": "SITEMAP_STALE_LASTMOD",
+     "source": "sitemap",
+     "target_url": "https://other.test",
+     "details": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    },
+    {
+     "check": "SITEMAP_STALE_LASTMOD",
+     "source": "SF-derived",
+     "target_url": "https://example.test",
+     "details": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    },
+    {
+     "check": "SITEMAP_STALE_LASTMOD",
+     "source": "sitemap",
+     "target_url": "https://example.test",
+     "details": {
+      "all_identical": false
+     }
+    },
+    {
+     "check": "TITLE_MISSING",
+     "target_url": "https://example.test"
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "findings_are_about_crawled_urls",
+     "message": "SITEMAP_STALE_LASTMOD reports a URL absent from this run's own page list",
+     "observed": "https://example.test/uncrawled",
+     "expected": "a URL in pages.jsonl",
+     "target": "https://example.test/uncrawled",
+     "sources": {
+      "observed": "audit.json:issues",
+      "expected": "pages.jsonl:url"
+     }
+    },
+    {
+     "rule": "findings_are_about_crawled_urls",
+     "message": "SITEMAP_STALE_LASTMOD reports a URL absent from this run's own page list",
+     "observed": "https://other.test",
+     "expected": "a URL in pages.jsonl",
+     "target": "https://other.test",
+     "sources": {
+      "observed": "audit.json:issues",
+      "expected": "pages.jsonl:url"
+     }
+    },
+    {
+     "rule": "findings_are_about_crawled_urls",
+     "message": "SITEMAP_STALE_LASTMOD reports a URL absent from this run's own page list",
+     "observed": "https://example.test",
+     "expected": "a URL in pages.jsonl",
+     "target": "https://example.test",
+     "sources": {
+      "observed": "audit.json:issues",
+      "expected": "pages.jsonl:url"
+     }
+    },
+    {
+     "rule": "findings_are_about_crawled_urls",
+     "message": "TITLE_MISSING reports a URL absent from this run's own page list",
+     "observed": "https://example.test",
+     "expected": "a URL in pages.jsonl",
+     "target": "https://example.test",
+     "sources": {
+      "observed": "audit.json:issues",
+      "expected": "pages.jsonl:url"
+     }
+    }
+   ],
+   "anomaly_count": 4,
+   "review": [],
+   "by_rule": {
+    "findings_are_about_crawled_urls": 4
+   },
+   "read": {
+    "audit": true,
+    "pages": 1,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "lastmod_export_source",
+  "pages": [
+   {
+    "url": "https://example.test/p/0",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "run": {
+    "source": "/some/dir"
+   },
+   "summary": {
+    "sitemap": {
+     "lastmod": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    }
+   },
+   "issues": [
+    {
+     "check": "SITEMAP_STALE_LASTMOD",
+     "source": "sitemap",
+     "target_url": "https://example.test",
+     "details": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [],
+   "anomaly_count": 0,
+   "review": [],
+   "by_rule": {},
+   "read": {
+    "audit": true,
+    "pages": 1,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "lastmod_export_source_unmatched",
+  "pages": [
+   {
+    "url": "https://elsewhere.test/p/0",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 1000,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "run": {
+    "source": "/some/dir"
+   },
+   "summary": {
+    "sitemap": {
+     "lastmod": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    }
+   },
+   "issues": [
+    {
+     "check": "SITEMAP_STALE_LASTMOD",
+     "source": "sitemap",
+     "target_url": "https://example.test",
+     "details": {
+      "all_identical": true,
+      "oldest": "2026-10-04"
+     }
+    }
+   ]
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "findings_are_about_crawled_urls",
+     "message": "SITEMAP_STALE_LASTMOD reports a URL absent from this run's own page list",
+     "observed": "https://example.test",
+     "expected": "a URL in pages.jsonl",
+     "target": "https://example.test",
+     "sources": {
+      "observed": "audit.json:issues",
+      "expected": "pages.jsonl:url"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "findings_are_about_crawled_urls": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 1,
+    "downloaded_files": 0,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ },
+ {
+  "name": "sizes",
+  "pages": [
+   {
+    "url": "https://example.com/photo.webp",
+    "status_code": 200,
+    "content_type": "image/webp",
+    "size_bytes": 1270855,
+    "word_count": 0,
+    "text_ratio": null,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/ok.png",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 10,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   },
+   {
+    "url": "https://example.com/float.png",
+    "status_code": 200,
+    "content_type": "text/html; charset=utf-8",
+    "size_bytes": 10.0,
+    "word_count": 100,
+    "text_ratio": 40.0,
+    "representation": "static"
+   }
+  ],
+  "audit": {
+   "summary": {
+    "by_check": {}
+   },
+   "issues": []
+  },
+  "images": {
+   "manifest": {
+    "images": [
+     {
+      "url": "https://example.com/photo.webp",
+      "path": "photo.webp"
+     },
+     {
+      "url": "https://example.com/ok.png",
+      "file": "ok.png"
+     },
+     {
+      "url": "https://example.com/float.png",
+      "path": "float.png"
+     },
+     {
+      "url": "https://example.com/gone.png",
+      "path": "gone.png"
+     },
+     {
+      "path": "x"
+     },
+     "junk"
+    ]
+   },
+   "files": {
+    "photo.webp": 738968,
+    "ok.png": 10,
+    "float.png": 11
+   }
+  },
+  "expected": {
+   "ok": true,
+   "anomalies": [
+    {
+     "rule": "size_matches_file",
+     "message": "recorded size differs from the downloaded file",
+     "observed": 1270855,
+     "expected": 738968,
+     "target": "https://example.com/photo.webp",
+     "sources": {
+      "observed": "pages.jsonl:size_bytes",
+      "expected": "downloaded file"
+     }
+    }
+   ],
+   "anomaly_count": 1,
+   "review": [],
+   "by_rule": {
+    "size_matches_file": 1
+   },
+   "read": {
+    "audit": true,
+    "pages": 3,
+    "downloaded_files": 3,
+    "decisions": 0
+   },
+   "rules_run": [
+    "recorded_size_matches_the_file",
+    "text_ratio_is_a_percentage",
+    "a_200_has_bytes",
+    "findings_are_about_crawled_urls",
+    "a_check_cannot_exceed_its_population",
+    "summary_matches_the_issue_rows",
+    "canonical_to_redirect_has_no_answering_twin",
+    "outside_host_exclusion_matches_its_own_host",
+    "representation_is_recorded"
+   ],
+   "limitations": []
+  }
+ }
+]

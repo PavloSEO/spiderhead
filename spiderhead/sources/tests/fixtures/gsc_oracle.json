@@ -1,0 +1,6785 @@
+[
+ {
+  "name": "analytics complete",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "dimensions": [
+    "query"
+   ],
+   "row_limit": 1000,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "seo tools"
+       ],
+       "clicks": 12,
+       "impressions": 340,
+       "ctr": 0.0353,
+       "position": 4.2
+      },
+      {
+       "keys": [
+        "site audit"
+       ],
+       "clicks": 5,
+       "impressions": 120,
+       "ctr": 0.0417,
+       "position": 6.8
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-10-01..2026-10-07",
+    "count": 2,
+    "rows": [
+     {
+      "keys": [
+       "seo tools"
+      ],
+      "clicks": 12,
+      "impressions": 340,
+      "ctr": 0.0353,
+      "position": 4.2
+     },
+     {
+      "keys": [
+       "site audit"
+      ],
+      "clicks": 5,
+      "impressions": 120,
+      "ctr": 0.0417,
+      "position": 6.8
+     }
+    ]
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics default period frozen",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "seo tools"
+       ],
+       "clicks": 12,
+       "impressions": 340,
+       "ctr": 0.0353,
+       "position": 4.2
+      },
+      {
+       "keys": [
+        "site audit"
+       ],
+       "clicks": 5,
+       "impressions": 120,
+       "ctr": 0.0417,
+       "position": 6.8
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-09-29\", \"endDate\": \"2026-10-26\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-09-29..2026-10-26",
+    "count": 2,
+    "rows": [
+     {
+      "keys": [
+       "seo tools"
+      ],
+      "clicks": 12,
+      "impressions": 340,
+      "ctr": 0.0353,
+      "position": 4.2
+     },
+     {
+      "keys": [
+       "site audit"
+      ],
+      "clicks": 5,
+      "impressions": 120,
+      "ctr": 0.0417,
+      "position": 6.8
+     }
+    ]
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics legacy labels",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "28daysAgo",
+   "end_date": "today",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-09-29\", \"endDate\": \"2026-10-26\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-09-29..2026-10-26",
+    "count": 0,
+    "rows": []
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics no rows key",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {}
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-10-01..2026-10-07",
+    "count": 0,
+    "rows": []
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics dimensions default query",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-10-01..2026-10-07",
+    "count": 0,
+    "rows": []
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics dimensions empty list defaults",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "dimensions": [],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-10-01..2026-10-07",
+    "count": 0,
+    "rows": []
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics env token",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07"
+  },
+  "env": {
+   "GSC_ACCESS_TOKEN": "env-token-9"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer env-token-9"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-10-01..2026-10-07",
+    "count": 0,
+    "rows": []
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics explicit token beats env",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {
+   "GSC_ACCESS_TOKEN": "env-token-9"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-10-01..2026-10-07",
+    "count": 0,
+    "rows": []
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics missing credential",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/gsc/access_token or set $GSC_ACCESS_TOKEN. See docs/SETUP.md for how to obtain a Search Console OAuth token."
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics empty site_url",
+  "args": {
+   "site_url": "",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url required"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics invalid date",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "10/01/2026",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "start_date and end_date must be YYYY-MM-DD calendar dates in Pacific Time, got '10/01/2026' and '2026-10-07'"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics non iso date",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-13-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "start_date and end_date must be YYYY-MM-DD calendar dates in Pacific Time, got '2026-13-01' and '2026-10-07'"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics reversed range",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-07",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "start_date must not be after end_date: '2026-10-07' > '2026-10-01'"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics legacy start only passthrough",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "28daysAgo",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "start_date and end_date must be YYYY-MM-DD calendar dates in Pacific Time, got '28daysAgo' and '2026-10-07'"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics 400 error.message",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": {
+     "error": {
+      "message": "Invalid value at 'start_date'"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Invalid value at 'start_date'",
+    "status": 400
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics 403 reason fallback",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": {
+     "error": {
+      "status": "PERMISSION_DENIED"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Forbidden",
+    "status": 403
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics error body non json",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 500,
+    "headers": {},
+    "body": "upstream broke"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Internal Server Error",
+    "status": 500
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics error non-dict member",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": {
+     "error": "plain string"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'str' object has no attribute 'get'"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics error body list",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": [
+     "x"
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics secret redacted",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": {
+     "error": {
+      "message": "denied for bearer test-token-123 now"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "denied for bearer [redacted] now",
+    "status": 400
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics timeout",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console request failed: timed out"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics reset",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console request failed: <urlopen error reset>"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics response too large",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body_zeros": 8388609
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console response exceeded the 8 MiB limit",
+    "state": "response_too_large"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics malformed body",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "{broken"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console malformed response"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics list body",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": [
+     1,
+     2
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console malformed response"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics rows not list",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": {
+      "a": 1
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console malformed response"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics rows non-dict member",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "x"
+       ]
+      },
+      "stray"
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console malformed response"
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "analytics rows missing metrics null",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "x"
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"query\"], \"rowLimit\": 1000}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "period": "2026-10-01..2026-10-07",
+    "count": 1,
+    "rows": [
+     {
+      "keys": [
+       "x"
+      ],
+      "clicks": null,
+      "impressions": null,
+      "ctr": null,
+      "position": null
+     }
+    ]
+   }
+  },
+  "call": "search_analytics",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect complete",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/page",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "googleCanonical": "https://example.com/",
+       "userCanonical": "https://example.com/"
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/page\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "inspection_url": "https://example.com/page",
+    "verdict": "PASS",
+    "coverage_state": "Submitted and indexed",
+    "indexing_state": "INDEXING_ALLOWED",
+    "last_crawl_time": "2026-10-20T03:04:05Z",
+    "google_canonical": "https://example.com/",
+    "user_canonical": "https://example.com/"
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect missing indexStatusResult",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {}
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "inspection_url": "https://example.com/p",
+    "verdict": null,
+    "coverage_state": null,
+    "indexing_state": null,
+    "last_crawl_time": null,
+    "google_canonical": null,
+    "user_canonical": null
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect null indexStatusResult",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": null
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "site_url": "https://example.com/",
+    "inspection_url": "https://example.com/p",
+    "verdict": null,
+    "coverage_state": null,
+    "indexing_state": null,
+    "last_crawl_time": null,
+    "google_canonical": null,
+    "user_canonical": null
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect non-dict indexStatusResult",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": "weird"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console malformed response"
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect missing inspectionResult",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {}
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console malformed response"
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect non-dict inspectionResult",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": 5
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console malformed response"
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect malformed body",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "not json"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console malformed response"
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect 429 api error",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 429,
+    "headers": {},
+    "body": {
+     "error": {
+      "message": "quota exceeded"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "quota exceeded",
+    "status": 429
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect transport timeout",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console request failed: timed out"
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect too large",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body_zeros": 8388609
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/p\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "Search Console response exceeded the 8 MiB limit",
+    "state": "response_too_large"
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect missing credential",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "https://example.com/p"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/gsc/access_token or set $GSC_ACCESS_TOKEN. See docs/SETUP.md for how to obtain a Search Console OAuth token."
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect empty args",
+  "args": {
+   "site_url": "https://example.com/",
+   "inspection_url": "",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and inspection_url required"
+   }
+  },
+  "call": "inspect_url",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover properties",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "siteEntry": [
+      {
+       "siteUrl": "https://example.com/",
+       "permissionLevel": "siteOwner"
+      },
+      {
+       "siteUrl": "sc-domain:example.org",
+       "permissionLevel": "siteFullUser"
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "verified": true,
+    "properties": [
+     {
+      "site_url": "https://example.com/",
+      "permission_level": "siteOwner"
+     },
+     {
+      "site_url": "sc-domain:example.org",
+      "permission_level": "siteFullUser"
+     }
+    ],
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover empty principal",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {}
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "verified": true,
+    "properties": [],
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover siteEntry not list",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "siteEntry": "x"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "verification_failed",
+    "verified": false,
+    "error": "malformed GSC property response"
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover siteEntry non-dict",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "siteEntry": [
+      1
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "verification_failed",
+    "verified": false,
+    "error": "malformed GSC property response"
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover malformed body",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "<html>"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "verification_failed",
+    "verified": false,
+    "error": "malformed GSC property response"
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover list body",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": [
+     1
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "verification_failed",
+    "verified": false,
+    "error": "malformed GSC property response"
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover 401",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 401,
+    "headers": {},
+    "body": {
+     "error": {
+      "message": "unauthorized"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "verification_failed",
+    "verified": false,
+    "error": "unauthorized",
+    "status": 401
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover transport error",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "verification_failed",
+    "verified": false,
+    "error": "<urlopen error reset>"
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover too large",
+  "args": {
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body_zeros": 8388609
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "verification_failed",
+    "verified": false,
+    "error": "Search Console response exceeded the 8 MiB limit"
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "discover missing credential",
+  "args": {},
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "not_configured",
+    "verified": false,
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/gsc/access_token or set $GSC_ACCESS_TOKEN. See docs/SETUP.md for how to obtain a Search Console OAuth token."
+   }
+  },
+  "call": "discover_properties",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages single page",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "row_limit": 1000,
+   "max_rows": 25000,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "https://example.com/a"
+       ],
+       "clicks": 9,
+       "impressions": 200,
+       "ctr": 0.045,
+       "position": 3.0
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "period": {
+     "start_date": "2026-10-01",
+     "end_date": "2026-10-07"
+    },
+    "dimensions": [
+     "page"
+    ],
+    "rows": [
+     {
+      "keys": [
+       "https://example.com/a"
+      ],
+      "clicks": 9,
+      "impressions": 200,
+      "ctr": 0.045,
+      "position": 3.0
+     }
+    ],
+    "returned": 1,
+    "truncated": false,
+    "quota_mode": "provider row limit; bounded locally"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages paginates two pages",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "row_limit": 2,
+   "max_rows": 25000,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "https://example.com/a"
+       ],
+       "clicks": 9,
+       "impressions": 200,
+       "ctr": 0.045,
+       "position": 3.0
+      },
+      {
+       "keys": [
+        "https://example.com/b"
+       ],
+       "clicks": 4,
+       "impressions": 90,
+       "ctr": 0.044,
+       "position": 7.1
+      }
+     ]
+    }
+   },
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "https://example.com/a"
+       ],
+       "clicks": 9,
+       "impressions": 200,
+       "ctr": 0.045,
+       "position": 3.0
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 2, \"startRow\": 0}",
+     "timeout": 30
+    },
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 2, \"startRow\": 2}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "period": {
+     "start_date": "2026-10-01",
+     "end_date": "2026-10-07"
+    },
+    "dimensions": [
+     "page"
+    ],
+    "rows": [
+     {
+      "keys": [
+       "https://example.com/a"
+      ],
+      "clicks": 9,
+      "impressions": 200,
+      "ctr": 0.045,
+      "position": 3.0
+     },
+     {
+      "keys": [
+       "https://example.com/b"
+      ],
+      "clicks": 4,
+      "impressions": 90,
+      "ctr": 0.044,
+      "position": 7.1
+     },
+     {
+      "keys": [
+       "https://example.com/a"
+      ],
+      "clicks": 9,
+      "impressions": 200,
+      "ctr": 0.045,
+      "position": 3.0
+     }
+    ],
+    "returned": 3,
+    "truncated": false,
+    "quota_mode": "provider row limit; bounded locally"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages stops at max_rows",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "row_limit": 2,
+   "max_rows": 2,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "https://example.com/a"
+       ],
+       "clicks": 9,
+       "impressions": 200,
+       "ctr": 0.045,
+       "position": 3.0
+      },
+      {
+       "keys": [
+        "https://example.com/b"
+       ],
+       "clicks": 4,
+       "impressions": 90,
+       "ctr": 0.044,
+       "position": 7.1
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 2, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "partial",
+    "period": {
+     "start_date": "2026-10-01",
+     "end_date": "2026-10-07"
+    },
+    "dimensions": [
+     "page"
+    ],
+    "rows": [
+     {
+      "keys": [
+       "https://example.com/a"
+      ],
+      "clicks": 9,
+      "impressions": 200,
+      "ctr": 0.045,
+      "position": 3.0
+     },
+     {
+      "keys": [
+       "https://example.com/b"
+      ],
+      "clicks": 4,
+      "impressions": 90,
+      "ctr": 0.044,
+      "position": 7.1
+     }
+    ],
+    "returned": 2,
+    "truncated": true,
+    "quota_mode": "provider row limit; bounded locally"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages dimensions default page",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "period": {
+     "start_date": "2026-10-01",
+     "end_date": "2026-10-07"
+    },
+    "dimensions": [
+     "page"
+    ],
+    "rows": [],
+    "returned": 0,
+    "truncated": false,
+    "quota_mode": "provider row limit; bounded locally"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages empty batch ends",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "period": {
+     "start_date": "2026-10-01",
+     "end_date": "2026-10-07"
+    },
+    "dimensions": [
+     "page"
+    ],
+    "rows": [],
+    "returned": 0,
+    "truncated": false,
+    "quota_mode": "provider row limit; bounded locally"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages malformed rows",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": "text"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "malformed GSC analytics response"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages malformed body",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "{"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "malformed GSC analytics response"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages http error mid-run",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "row_limit": 1,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "https://example.com/a"
+       ],
+       "clicks": 9,
+       "impressions": 200,
+       "ctr": 0.045,
+       "position": 3.0
+      }
+     ]
+    }
+   },
+   {
+    "status": 403,
+    "headers": {},
+    "body": {
+     "error": {
+      "message": "denied"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 1, \"startRow\": 0}",
+     "timeout": 30
+    },
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 1, \"startRow\": 1}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "HTTP Error 403: Forbidden",
+    "returned": 1
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages transport error",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-07\", \"dimensions\": [\"page\"], \"rowLimit\": 1000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "timed out",
+    "returned": 0
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages missing credential",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "not_configured",
+    "verified": false,
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/gsc/access_token or set $GSC_ACCESS_TOKEN. See docs/SETUP.md for how to obtain a Search Console OAuth token."
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages row_limit zero",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "row_limit": 0,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and bounded row limits are required"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages row_limit over",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "row_limit": 25001,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and bounded row limits are required"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages max_rows over",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "max_rows": 25001,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and bounded row limits are required"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages empty site_url",
+  "args": {
+   "site_url": "",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-07",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and bounded row limits are required"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "pages reversed dates",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-07",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "start_date must not be after end_date: '2026-10-07' > '2026-10-01'"
+   }
+  },
+  "call": "search_analytics_pages",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page ok",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "date",
+    "page"
+   ],
+   "row_limit": 25000,
+   "start_row": 0,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "2026-10-01",
+        "https://example.com/a"
+       ],
+       "clicks": 3,
+       "impressions": 40,
+       "ctr": 0.075,
+       "position": 5.5
+      }
+     ],
+     "responseAggregationType": "byPage",
+     "metadata": {
+      "dataState": "ALL"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [\"date\", \"page\"], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "rows": [
+     {
+      "keys": [
+       "2026-10-01",
+       "https://example.com/a"
+      ],
+      "clicks": 3,
+      "impressions": 40,
+      "ctr": 0.075,
+      "position": 5.5
+     }
+    ],
+    "response_aggregation_type": "byPage",
+    "metadata": {
+     "dataState": "ALL"
+    },
+    "error": null,
+    "status": 200,
+    "reason": null
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page empty dimensions property totals",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [],
+       "clicks": 3,
+       "impressions": 40
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "rows": [
+     {
+      "keys": [],
+      "clicks": 3,
+      "impressions": 40,
+      "ctr": null,
+      "position": null
+     }
+    ],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": null,
+    "status": 200,
+    "reason": null
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page ctr position null kept",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "page"
+   ],
+   "search_type": "discover",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "https://example.com/"
+       ],
+       "clicks": 1,
+       "impressions": 9,
+       "ctr": null,
+       "position": null
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [\"page\"], \"type\": \"discover\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "rows": [
+     {
+      "keys": [
+       "https://example.com/"
+      ],
+      "clicks": 1,
+      "impressions": 9,
+      "ctr": null,
+      "position": null
+     }
+    ],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": null,
+    "status": 200,
+    "reason": null
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter groups ok",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "query"
+   ],
+   "dimension_filter_groups": [
+    {
+     "groupType": "and",
+     "filters": [
+      {
+       "dimension": "query",
+       "operator": "equals",
+       "expression": "seo"
+      }
+     ]
+    }
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [\"query\"], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0, \"dimensionFilterGroups\": [{\"groupType\": \"and\", \"filters\": [{\"dimension\": \"query\", \"operator\": \"equals\", \"expression\": \"seo\"}]}]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": null,
+    "status": 200,
+    "reason": null
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter group extra key",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimension_filter_groups": [
+    {
+     "groupType": "and",
+     "filters": [
+      {
+       "dimension": "query",
+       "operator": "equals",
+       "expression": "x"
+      }
+     ],
+     "extra": 1
+    }
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: malformed filter group",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter group or rejected",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimension_filter_groups": [
+    {
+     "groupType": "or",
+     "filters": [
+      {
+       "dimension": "query",
+       "operator": "equals",
+       "expression": "x"
+      }
+     ]
+    }
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: malformed filter group",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter empty filters",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimension_filter_groups": [
+    {
+     "filters": []
+    }
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: malformed filter group",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter bad operator",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimension_filter_groups": [
+    {
+     "filters": [
+      {
+       "dimension": "query",
+       "operator": "regexBad",
+       "expression": "x"
+      }
+     ]
+    }
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: malformed dimension filter",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter missing operator",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimension_filter_groups": [
+    {
+     "filters": [
+      {
+       "dimension": "query",
+       "expression": "x"
+      }
+     ]
+    }
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: malformed dimension filter",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter bad dimension",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimension_filter_groups": [
+    {
+     "filters": [
+      {
+       "dimension": "weird",
+       "operator": "equals",
+       "expression": "x"
+      }
+     ]
+    }
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: malformed dimension filter",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter expression non-str",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimension_filter_groups": [
+    {
+     "filters": [
+      {
+       "dimension": "query",
+       "operator": "equals",
+       "expression": 5
+      }
+     ]
+    }
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: malformed dimension filter",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page filter groups not list",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimension_filter_groups": {
+    "a": 1
+   },
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: filter groups must be a JSON list",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page invalid dimension",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "banana"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: invalid or repeated dimensions",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page duplicate dimension",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "page",
+    "page"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: invalid or repeated dimensions",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page dimension non-str",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "page",
+    4
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: invalid or repeated dimensions",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page dimensions not list",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": "page",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: invalid or repeated dimensions",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page search type invalid",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "search_type": "banana",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: unsupported type, aggregation, or data state",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page discover byProperty rejected",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "search_type": "discover",
+   "aggregation_type": "byProperty",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: unsupported type, aggregation, or data state",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page googleNews byProperty rejected",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "search_type": "googleNews",
+   "aggregation_type": "byProperty",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: unsupported type, aggregation, or data state",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page data_state all",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "data_state": "all",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"all\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": null,
+    "status": 200,
+    "reason": null
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page data_state invalid",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "data_state": "hourly",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: unsupported type, aggregation, or data state",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page aggregation invalid",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "aggregation_type": "byHour",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: unsupported type, aggregation, or data state",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page row_limit bounds",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "row_limit": 0,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: row_limit is 1..25000; start_row is 0..50000",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page row_limit type",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "row_limit": "many",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: row_limit is 1..25000; start_row is 0..50000",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page row_limit bool",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "row_limit": true,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: row_limit is 1..25000; start_row is 0..50000",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page start_row negative",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "start_row": -1,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: row_limit is 1..25000; start_row is 0..50000",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page start_row over",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "start_row": 50001,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: row_limit is 1..25000; start_row is 0..50000",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page reversed dates",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-02",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: use an ordered YYYY-MM-DD date range",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page bad date",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "Oct 1",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: use an ordered YYYY-MM-DD date range",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page token non-str",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": 42
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: token must be a string",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page empty site_url",
+  "args": {
+   "site_url": " ",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Invalid Search Console page request: site_url is required",
+    "status": null,
+    "reason": "invalid_argument"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page missing credential",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console authentication is unavailable",
+    "status": null,
+    "reason": "not_configured"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page 429 quotaExceeded reason",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 429,
+    "headers": {},
+    "body": {
+     "error": {
+      "errors": [
+       {
+        "reason": "quotaExceeded"
+       }
+      ],
+      "message": "quota",
+      "code": 429
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console API request failed",
+    "status": 429,
+    "reason": "quotaExceeded"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page 403 forbidden reason",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": {
+     "error": {
+      "errors": [
+       {
+        "reason": "forbidden"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console API request failed",
+    "status": 403,
+    "reason": "forbidden"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page unknown reason stays api_error",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": {
+     "error": {
+      "errors": [
+       {
+        "reason": "weirdNew"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console API request failed",
+    "status": 400,
+    "reason": "api_error"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page http error non-json body",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 503,
+    "headers": {},
+    "body": "oops"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console API request failed",
+    "status": 503,
+    "reason": "api_error"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page 200 with error member",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "error": {
+      "code": 401,
+      "errors": [
+       {
+        "reason": "authError"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console API request failed",
+    "status": 401,
+    "reason": "authError"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page error code supplies status",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "error": {
+      "code": 500,
+      "message": "x"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console API request failed",
+    "status": 500,
+    "reason": "api_error"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page transport error",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console request failed before a valid response",
+    "status": null,
+    "reason": "transport_error"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page malformed body",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "["
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console malformed analytics response",
+    "status": 200,
+    "reason": "malformed_response"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page rows over row_limit",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "page"
+   ],
+   "row_limit": 1,
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "a"
+       ],
+       "clicks": 1,
+       "impressions": 1
+      },
+      {
+       "keys": [
+        "b"
+       ],
+       "clicks": 1,
+       "impressions": 1
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [\"page\"], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 1, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console malformed analytics response",
+    "status": 200,
+    "reason": "malformed_response"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page keys length mismatch",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "page"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "a",
+        "b"
+       ],
+       "clicks": 1,
+       "impressions": 1
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [\"page\"], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console malformed analytics response",
+    "status": 200,
+    "reason": "malformed_response"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page keys non-str member",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "page"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        5
+       ],
+       "clicks": 1,
+       "impressions": 1
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [\"page\"], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console malformed analytics response",
+    "status": 200,
+    "reason": "malformed_response"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page metric negative",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "page"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "a"
+       ],
+       "clicks": -1,
+       "impressions": 1
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [\"page\"], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console malformed analytics response",
+    "status": 200,
+    "reason": "malformed_response"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page metric non-number",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "dimensions": [
+    "page"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "rows": [
+      {
+       "keys": [
+        "a"
+       ],
+       "clicks": "x",
+       "impressions": 1
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [\"page\"], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console malformed analytics response",
+    "status": 200,
+    "reason": "malformed_response"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page metadata non-dict",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "metadata": 4
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console malformed analytics response",
+    "status": 200,
+    "reason": "malformed_response"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "page responseAggregationType invalid",
+  "args": {
+   "site_url": "https://example.com/",
+   "start_date": "2026-10-01",
+   "end_date": "2026-10-01",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "responseAggregationType": "weird"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/searchAnalytics/query",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"startDate\": \"2026-10-01\", \"endDate\": \"2026-10-01\", \"dimensions\": [], \"type\": \"web\", \"aggregationType\": \"auto\", \"dataState\": \"final\", \"rowLimit\": 25000, \"startRow\": 0}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "rows": [],
+    "response_aggregation_type": null,
+    "metadata": {},
+    "error": "Search Console malformed analytics response",
+    "status": 200,
+    "reason": "malformed_response"
+   }
+  },
+  "call": "search_analytics_page",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls two complete",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://example.com/canon",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      }
+     }
+    }
+   },
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://example.com/canon",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      },
+      "ampResult": {
+       "verdict": "PASS",
+       "ampIndexStatusVerdict": "PASS"
+      },
+      "richResultsResult": {
+       "verdict": "PASS",
+       "detectedItems": [
+        {
+         "richResultType": "Breadcrumb",
+         "items": [
+          {}
+         ]
+        }
+       ]
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/a\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    },
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/b\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "scope": "bounded URL diagnostic; not an index census",
+    "requests_made": 2,
+    "urls": [
+     {
+      "url": "https://example.com/a",
+      "state": "complete",
+      "index_status": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://example.com/canon",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      }
+     },
+     {
+      "url": "https://example.com/b",
+      "state": "complete",
+      "index_status": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://example.com/canon",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      },
+      "amp_result": {
+       "verdict": "PASS",
+       "ampIndexStatusVerdict": "PASS"
+      },
+      "rich_results_result": {
+       "verdict": "PASS",
+       "detected_items": [
+        {
+         "type": "Breadcrumb",
+         "items": 1
+        }
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls one http error",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://example.com/canon",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      }
+     }
+    }
+   },
+   {
+    "status": 500,
+    "headers": {},
+    "body": "broke"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/a\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    },
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/b\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "scope": "bounded URL diagnostic; not an index census",
+    "requests_made": 2,
+    "urls": [
+     {
+      "url": "https://example.com/a",
+      "state": "complete",
+      "index_status": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://example.com/canon",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      }
+     },
+     {
+      "url": "https://example.com/b",
+      "state": "failed",
+      "error": "Search Console inspection request failed"
+     }
+    ]
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls malformed then ok",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "nope"
+   },
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://example.com/canon",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/a\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    },
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/b\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "scope": "bounded URL diagnostic; not an index census",
+    "requests_made": 2,
+    "urls": [
+     {
+      "url": "https://example.com/a",
+      "state": "failed",
+      "error": "Search Console malformed inspection response"
+     },
+     {
+      "url": "https://example.com/b",
+      "state": "complete",
+      "index_status": {
+       "verdict": "PASS",
+       "coverageState": "Submitted and indexed",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://example.com/canon",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      }
+     }
+    ]
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls verdict invalid",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": {
+       "verdict": "PARTIAL"
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/a\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "scope": "bounded URL diagnostic; not an index census",
+    "requests_made": 1,
+    "urls": [
+     {
+      "url": "https://example.com/a",
+      "state": "failed",
+      "error": "Search Console malformed inspection response"
+     }
+    ]
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls verdict non-str",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": {
+       "verdict": 7
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/a\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "scope": "bounded URL diagnostic; not an index census",
+    "requests_made": 1,
+    "urls": [
+     {
+      "url": "https://example.com/a",
+      "state": "failed",
+      "error": "Search Console malformed inspection response"
+     }
+    ]
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls missing inspectionResult",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {}
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/a\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "scope": "bounded URL diagnostic; not an index census",
+    "requests_made": 1,
+    "urls": [
+     {
+      "url": "https://example.com/a",
+      "state": "failed",
+      "error": "Search Console malformed inspection response"
+     }
+    ]
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls transport error",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/a\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "scope": "bounded URL diagnostic; not an index census",
+    "requests_made": 1,
+    "urls": [
+     {
+      "url": "https://example.com/a",
+      "state": "failed",
+      "error": "Search Console inspection request failed"
+     }
+    ]
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls missing credential",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ]
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "not_configured",
+    "verified": false,
+    "requests_made": 0,
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/gsc/access_token or set $GSC_ACCESS_TOKEN. See docs/SETUP.md for how to obtain a Search Console OAuth token."
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls empty list",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and 1..50 inspection URLs are required"
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls too many",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u",
+    "u"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and 1..50 inspection URLs are required"
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls non-str member",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "ok",
+    5
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and 1..50 inspection URLs are required"
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls empty member",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    ""
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and 1..50 inspection URLs are required"
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls empty site",
+  "args": {
+   "site_url": "",
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url and 1..50 inspection URLs are required"
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "inspect_urls canonical truncation",
+  "args": {
+   "site_url": "https://example.com/",
+   "urls": [
+    "https://example.com/a"
+   ],
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "inspectionResult": {
+      "indexStatusResult": {
+       "verdict": "PASS",
+       "coverageState": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://x/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"inspectionUrl\": \"https://example.com/a\", \"siteUrl\": \"https://example.com/\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "scope": "bounded URL diagnostic; not an index census",
+    "requests_made": 1,
+    "urls": [
+     {
+      "url": "https://example.com/a",
+      "state": "complete",
+      "index_status": {
+       "verdict": "PASS",
+       "coverageState": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+       "indexingState": "INDEXING_ALLOWED",
+       "robotsTxtState": "ALLOWED",
+       "pageFetchState": "SUCCESSFUL",
+       "googleCanonical": "https://x/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+       "userCanonical": "https://example.com/usercanon",
+       "lastCrawlTime": "2026-10-20T03:04:05Z",
+       "crawledAs": "MOBILE"
+      }
+     }
+    ]
+   }
+  },
+  "call": "inspect_urls",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap complete",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "sitemap": [
+      {
+       "path": "https://example.com/sitemap.xml",
+       "lastSubmitted": "2026-10-01T00:00:00Z",
+       "isPending": false,
+       "warnings": "0",
+       "errors": "0"
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/sitemaps",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "sitemaps": [
+     {
+      "path": "https://example.com/sitemap.xml",
+      "lastSubmitted": "2026-10-01T00:00:00Z",
+      "isPending": false,
+      "warnings": "0",
+      "errors": "0"
+     }
+    ],
+    "returned": 1
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap missing key malformed",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {}
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/sitemaps",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "malformed GSC sitemap response"
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap non-list",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "sitemap": "x"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/sitemaps",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "malformed GSC sitemap response"
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap non-dict member",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "body": {
+     "sitemap": [
+      1
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/sitemaps",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "malformed GSC sitemap response"
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap malformed body",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "{"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/sitemaps",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "malformed GSC sitemap response"
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap 403 str error",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": {
+     "error": {
+      "message": "forbidden"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/sitemaps",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "HTTP Error 403: Forbidden"
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap transport error",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/sitemaps",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "<urlopen error reset>"
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap too large",
+  "args": {
+   "site_url": "https://example.com/",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body_zeros": 8388609
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/webmasters/v3/sites/https%3A%2F%2Fexample.com%2F/sitemaps",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Search Console response exceeded the 8 MiB limit"
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap missing credential",
+  "args": {
+   "site_url": "https://example.com/"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "not_configured",
+    "verified": false,
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/gsc/access_token or set $GSC_ACCESS_TOKEN. See docs/SETUP.md for how to obtain a Search Console OAuth token."
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ },
+ {
+  "name": "sitemap empty site_url",
+  "args": {
+   "site_url": "",
+   "token": "test-token-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "site_url required"
+   }
+  },
+  "call": "sitemap_status",
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000
+ }
+]

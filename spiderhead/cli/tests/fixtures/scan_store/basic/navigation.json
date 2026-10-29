@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-navigation\n",
+    "stdout": "{\n  \"ok\": true,\n  \"schema\": \"spiderhead.navigation-report.v1\",\n  \"state\": \"unavailable\",\n  \"scope\": \"selected_retained_documents\",\n  \"items\": [],\n  \"offset\": 0,\n  \"has_more\": false,\n  \"next_offset\": 0,\n  \"output_byte_limit\": 2097152,\n  \"event_counts\": {},\n  \"document_states\": {},\n  \"events_omitted\": 0,\n  \"interpretation\": \"Observed navigation within the recorded render window; anchor cause does not prove a human click. Missing or partial capture is not a clean result.\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"schema\": \"spiderhead.navigation-report.v1\",\n  \"state\": \"unavailable\",\n  \"scope\": \"selected_retained_documents\",\n  \"items\": [],\n  \"offset\": 0,\n  \"has_more\": false,\n  \"next_offset\": 0,\n  \"output_byte_limit\": 2097152,\n  \"event_counts\": {},\n  \"document_states\": {},\n  \"events_omitted\": 0,\n  \"interpretation\": \"Observed navigation within the recorded render window; anchor cause does not prove a human click. Missing or partial capture is not a clean result.\"\n}"
+   }
+  ]
+ }
+}

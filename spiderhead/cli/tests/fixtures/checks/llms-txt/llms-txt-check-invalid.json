@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "llms-txt-check",
+  "--url",
+  "ftp://x.test"
+ ],
+ "command": "llms-txt-check",
+ "exit": 1,
+ "stderr": "seohead: llms-txt-check\n",
+ "stdout": "{\n  \"ok\": false,\n  \"error\": \"Not a valid HTTP(S) URL: 'ftp://x.test'\"\n}\n"
+}

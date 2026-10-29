@@ -1,0 +1,3317 @@
+{
+"urlsplit": [
+{
+"input": "",
+"scheme": "",
+"netloc": "",
+"path": "",
+"query": "",
+"fragment": ""
+},
+{
+"input": "/",
+"scheme": "",
+"netloc": "",
+"path": "/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "//",
+"scheme": "",
+"netloc": "",
+"path": "",
+"query": "",
+"fragment": ""
+},
+{
+"input": "///",
+"scheme": "",
+"netloc": "",
+"path": "/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "a",
+"scheme": "",
+"netloc": "",
+"path": "a",
+"query": "",
+"fragment": ""
+},
+{
+"input": "a:",
+"scheme": "a",
+"netloc": "",
+"path": "",
+"query": "",
+"fragment": ""
+},
+{
+"input": "a:b",
+"scheme": "a",
+"netloc": "",
+"path": "b",
+"query": "",
+"fragment": ""
+},
+{
+"input": "http:",
+"scheme": "http",
+"netloc": "",
+"path": "",
+"query": "",
+"fragment": ""
+},
+{
+"input": "http://",
+"scheme": "http",
+"netloc": "",
+"path": "",
+"query": "",
+"fragment": ""
+},
+{
+"input": "http:///x",
+"scheme": "http",
+"netloc": "",
+"path": "/x",
+"query": "",
+"fragment": ""
+},
+{
+"input": "http://ex.com",
+"scheme": "http",
+"netloc": "ex.com",
+"path": "",
+"query": "",
+"fragment": ""
+},
+{
+"input": "http://ex.com/",
+"scheme": "http",
+"netloc": "ex.com",
+"path": "/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "HTTP://Ex.COM:80/A/B?x=1#frag",
+"scheme": "http",
+"netloc": "Ex.COM:80",
+"path": "/A/B",
+"query": "x=1",
+"fragment": "frag"
+},
+{
+"input": "https://ex.com/p;params?q=1;2#f;g",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/p;params",
+"query": "q=1;2",
+"fragment": "f;g"
+},
+{
+"input": "https://ex.com/a/b;c",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a/b;c",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://ex.com/a;b/c",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a;b/c",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://ex.com/a;b",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a;b",
+"query": "",
+"fragment": ""
+},
+{
+"input": "ftp://u:p@h:21/d/;x",
+"scheme": "ftp",
+"netloc": "u:p@h:21",
+"path": "/d/;x",
+"query": "",
+"fragment": ""
+},
+{
+"input": "mailto:x@y.z",
+"scheme": "mailto",
+"netloc": "",
+"path": "x@y.z",
+"query": "",
+"fragment": ""
+},
+{
+"input": "tel:+1;2",
+"scheme": "tel",
+"netloc": "",
+"path": "+1;2",
+"query": "",
+"fragment": ""
+},
+{
+"input": "urn:a:b/",
+"scheme": "urn",
+"netloc": "",
+"path": "a:b/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "file:///C:/x/",
+"scheme": "file",
+"netloc": "",
+"path": "/C:/x/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "file://host/x/",
+"scheme": "file",
+"netloc": "host",
+"path": "/x/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "git+ssh://h/r/",
+"scheme": "git+ssh",
+"netloc": "h",
+"path": "/r/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "unknown://H/P/",
+"scheme": "unknown",
+"netloc": "H",
+"path": "/P/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "unknown:H/P/",
+"scheme": "unknown",
+"netloc": "",
+"path": "H/P/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "\t\n https://ex.com/p\r\n",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/p",
+"query": "",
+"fragment": ""
+},
+{
+"input": "\u0000https://ex.com",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "",
+"query": "",
+"fragment": ""
+},
+{
+"input": "  a:b",
+"scheme": "a",
+"netloc": "",
+"path": "b",
+"query": "",
+"fragment": ""
+},
+{
+"input": "+a://x",
+"scheme": "",
+"netloc": "",
+"path": "+a://x",
+"query": "",
+"fragment": ""
+},
+{
+"input": "a+:/x",
+"scheme": "a+",
+"netloc": "",
+"path": "/x",
+"query": "",
+"fragment": ""
+},
+{
+"input": "a_b://x",
+"scheme": "",
+"netloc": "",
+"path": "a_b://x",
+"query": "",
+"fragment": ""
+},
+{
+"input": "1a://x",
+"scheme": "",
+"netloc": "",
+"path": "1a://x",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://[::1]:8080/x?y#z",
+"scheme": "https",
+"netloc": "[::1]:8080",
+"path": "/x",
+"query": "y",
+"fragment": "z"
+},
+{
+"input": "https://[::1",
+"err": true
+},
+{
+"input": "https://::1]",
+"err": true
+},
+{
+"input": "https://[::1]]",
+"err": true
+},
+{
+"input": "https://a/[b",
+"scheme": "https",
+"netloc": "a",
+"path": "/[b",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://ex.com/?a=1#b?c",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/",
+"query": "a=1",
+"fragment": "b?c"
+},
+{
+"input": "https://ex.com#a#b",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "",
+"query": "",
+"fragment": "a#b"
+},
+{
+"input": "https://ex.com/a?b=c=d",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a",
+"query": "b=c=d",
+"fragment": ""
+},
+{
+"input": "http://ex.com/%2F?%20#%",
+"scheme": "http",
+"netloc": "ex.com",
+"path": "/%2F",
+"query": "%20",
+"fragment": "%"
+},
+{
+"input": "https://user:pa%40ss@ex.com/",
+"scheme": "https",
+"netloc": "user:pa%40ss@ex.com",
+"path": "/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://ex.com:/",
+"scheme": "https",
+"netloc": "ex.com:",
+"path": "/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://:80/",
+"scheme": "https",
+"netloc": ":80",
+"path": "/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://@/",
+"scheme": "https",
+"netloc": "@",
+"path": "/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://ex.com/a b/",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a b/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://xn--e1afmkfd.xn--p1ai/\u043f\u0443\u0442\u044c/",
+"scheme": "https",
+"netloc": "xn--e1afmkfd.xn--p1ai",
+"path": "/\u043f\u0443\u0442\u044c/",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https://\u043f\u0440\u0438\u043c\u0435\u0440.\u0440\u0444/\u043f\u0443\u0442\u044c?x=1",
+"scheme": "https",
+"netloc": "\u043f\u0440\u0438\u043c\u0435\u0440.\u0440\u0444",
+"path": "/\u043f\u0443\u0442\u044c",
+"query": "x=1",
+"fragment": ""
+},
+{
+"input": "https:/ex.com",
+"scheme": "https",
+"netloc": "",
+"path": "/ex.com",
+"query": "",
+"fragment": ""
+},
+{
+"input": "https:ex.com/x",
+"scheme": "https",
+"netloc": "",
+"path": "ex.com/x",
+"query": "",
+"fragment": ""
+},
+{
+"input": "javascript:alert(1)",
+"scheme": "javascript",
+"netloc": "",
+"path": "alert(1)",
+"query": "",
+"fragment": ""
+},
+{
+"input": "data:text/plain;base64,AAA=",
+"scheme": "data",
+"netloc": "",
+"path": "text/plain;base64,AAA=",
+"query": "",
+"fragment": ""
+},
+{
+"input": "ws://h:1/x;y",
+"scheme": "ws",
+"netloc": "h:1",
+"path": "/x;y",
+"query": "",
+"fragment": ""
+},
+{
+"input": "wss://h/x;y?z",
+"scheme": "wss",
+"netloc": "h",
+"path": "/x;y",
+"query": "z",
+"fragment": ""
+}
+],
+"urlparse": [
+{
+"input": "",
+"scheme": "",
+"netloc": "",
+"path": "",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": ""
+},
+{
+"input": "/",
+"scheme": "",
+"netloc": "",
+"path": "/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "/"
+},
+{
+"input": "//",
+"scheme": "",
+"netloc": "",
+"path": "",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": ""
+},
+{
+"input": "///",
+"scheme": "",
+"netloc": "",
+"path": "/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "/"
+},
+{
+"input": "a",
+"scheme": "",
+"netloc": "",
+"path": "a",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "a"
+},
+{
+"input": "a:",
+"scheme": "a",
+"netloc": "",
+"path": "",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "a:"
+},
+{
+"input": "a:b",
+"scheme": "a",
+"netloc": "",
+"path": "b",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "a:b"
+},
+{
+"input": "http:",
+"scheme": "http",
+"netloc": "",
+"path": "",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "http://"
+},
+{
+"input": "http://",
+"scheme": "http",
+"netloc": "",
+"path": "",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "http://"
+},
+{
+"input": "http:///x",
+"scheme": "http",
+"netloc": "",
+"path": "/x",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "http:///x"
+},
+{
+"input": "http://ex.com",
+"scheme": "http",
+"netloc": "ex.com",
+"path": "",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "http://ex.com"
+},
+{
+"input": "http://ex.com/",
+"scheme": "http",
+"netloc": "ex.com",
+"path": "/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "http://ex.com/"
+},
+{
+"input": "HTTP://Ex.COM:80/A/B?x=1#frag",
+"scheme": "http",
+"netloc": "Ex.COM:80",
+"path": "/A/B",
+"params": "",
+"query": "x=1",
+"fragment": "frag",
+"unparse": "http://Ex.COM:80/A/B?x=1#frag"
+},
+{
+"input": "https://ex.com/p;params?q=1;2#f;g",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/p",
+"params": "params",
+"query": "q=1;2",
+"fragment": "f;g",
+"unparse": "https://ex.com/p;params?q=1;2#f;g"
+},
+{
+"input": "https://ex.com/a/b;c",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a/b",
+"params": "c",
+"query": "",
+"fragment": "",
+"unparse": "https://ex.com/a/b;c"
+},
+{
+"input": "https://ex.com/a;b/c",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a;b/c",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://ex.com/a;b/c"
+},
+{
+"input": "https://ex.com/a;b",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a",
+"params": "b",
+"query": "",
+"fragment": "",
+"unparse": "https://ex.com/a;b"
+},
+{
+"input": "ftp://u:p@h:21/d/;x",
+"scheme": "ftp",
+"netloc": "u:p@h:21",
+"path": "/d/",
+"params": "x",
+"query": "",
+"fragment": "",
+"unparse": "ftp://u:p@h:21/d/;x"
+},
+{
+"input": "mailto:x@y.z",
+"scheme": "mailto",
+"netloc": "",
+"path": "x@y.z",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "mailto:x@y.z"
+},
+{
+"input": "tel:+1;2",
+"scheme": "tel",
+"netloc": "",
+"path": "+1",
+"params": "2",
+"query": "",
+"fragment": "",
+"unparse": "tel:+1;2"
+},
+{
+"input": "urn:a:b/",
+"scheme": "urn",
+"netloc": "",
+"path": "a:b/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "urn:a:b/"
+},
+{
+"input": "file:///C:/x/",
+"scheme": "file",
+"netloc": "",
+"path": "/C:/x/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "file:///C:/x/"
+},
+{
+"input": "file://host/x/",
+"scheme": "file",
+"netloc": "host",
+"path": "/x/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "file://host/x/"
+},
+{
+"input": "git+ssh://h/r/",
+"scheme": "git+ssh",
+"netloc": "h",
+"path": "/r/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "git+ssh://h/r/"
+},
+{
+"input": "unknown://H/P/",
+"scheme": "unknown",
+"netloc": "H",
+"path": "/P/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "unknown://H/P/"
+},
+{
+"input": "unknown:H/P/",
+"scheme": "unknown",
+"netloc": "",
+"path": "H/P/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "unknown:H/P/"
+},
+{
+"input": "\t\n https://ex.com/p\r\n",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/p",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://ex.com/p"
+},
+{
+"input": "\u0000https://ex.com",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://ex.com"
+},
+{
+"input": "  a:b",
+"scheme": "a",
+"netloc": "",
+"path": "b",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "a:b"
+},
+{
+"input": "+a://x",
+"scheme": "",
+"netloc": "",
+"path": "+a://x",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "+a://x"
+},
+{
+"input": "a+:/x",
+"scheme": "a+",
+"netloc": "",
+"path": "/x",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "a+:/x"
+},
+{
+"input": "a_b://x",
+"scheme": "",
+"netloc": "",
+"path": "a_b://x",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "a_b://x"
+},
+{
+"input": "1a://x",
+"scheme": "",
+"netloc": "",
+"path": "1a://x",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "1a://x"
+},
+{
+"input": "https://[::1]:8080/x?y#z",
+"scheme": "https",
+"netloc": "[::1]:8080",
+"path": "/x",
+"params": "",
+"query": "y",
+"fragment": "z",
+"unparse": "https://[::1]:8080/x?y#z"
+},
+{
+"input": "https://[::1",
+"err": true
+},
+{
+"input": "https://::1]",
+"err": true
+},
+{
+"input": "https://[::1]]",
+"err": true
+},
+{
+"input": "https://a/[b",
+"scheme": "https",
+"netloc": "a",
+"path": "/[b",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://a/[b"
+},
+{
+"input": "https://ex.com/?a=1#b?c",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/",
+"params": "",
+"query": "a=1",
+"fragment": "b?c",
+"unparse": "https://ex.com/?a=1#b?c"
+},
+{
+"input": "https://ex.com#a#b",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "",
+"params": "",
+"query": "",
+"fragment": "a#b",
+"unparse": "https://ex.com#a#b"
+},
+{
+"input": "https://ex.com/a?b=c=d",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a",
+"params": "",
+"query": "b=c=d",
+"fragment": "",
+"unparse": "https://ex.com/a?b=c=d"
+},
+{
+"input": "http://ex.com/%2F?%20#%",
+"scheme": "http",
+"netloc": "ex.com",
+"path": "/%2F",
+"params": "",
+"query": "%20",
+"fragment": "%",
+"unparse": "http://ex.com/%2F?%20#%"
+},
+{
+"input": "https://user:pa%40ss@ex.com/",
+"scheme": "https",
+"netloc": "user:pa%40ss@ex.com",
+"path": "/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://user:pa%40ss@ex.com/"
+},
+{
+"input": "https://ex.com:/",
+"scheme": "https",
+"netloc": "ex.com:",
+"path": "/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://ex.com:/"
+},
+{
+"input": "https://:80/",
+"scheme": "https",
+"netloc": ":80",
+"path": "/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://:80/"
+},
+{
+"input": "https://@/",
+"scheme": "https",
+"netloc": "@",
+"path": "/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://@/"
+},
+{
+"input": "https://ex.com/a b/",
+"scheme": "https",
+"netloc": "ex.com",
+"path": "/a b/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://ex.com/a b/"
+},
+{
+"input": "https://xn--e1afmkfd.xn--p1ai/\u043f\u0443\u0442\u044c/",
+"scheme": "https",
+"netloc": "xn--e1afmkfd.xn--p1ai",
+"path": "/\u043f\u0443\u0442\u044c/",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https://xn--e1afmkfd.xn--p1ai/\u043f\u0443\u0442\u044c/"
+},
+{
+"input": "https://\u043f\u0440\u0438\u043c\u0435\u0440.\u0440\u0444/\u043f\u0443\u0442\u044c?x=1",
+"scheme": "https",
+"netloc": "\u043f\u0440\u0438\u043c\u0435\u0440.\u0440\u0444",
+"path": "/\u043f\u0443\u0442\u044c",
+"params": "",
+"query": "x=1",
+"fragment": "",
+"unparse": "https://\u043f\u0440\u0438\u043c\u0435\u0440.\u0440\u0444/\u043f\u0443\u0442\u044c?x=1"
+},
+{
+"input": "https:/ex.com",
+"scheme": "https",
+"netloc": "",
+"path": "/ex.com",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https:///ex.com"
+},
+{
+"input": "https:ex.com/x",
+"scheme": "https",
+"netloc": "",
+"path": "ex.com/x",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "https:ex.com/x"
+},
+{
+"input": "javascript:alert(1)",
+"scheme": "javascript",
+"netloc": "",
+"path": "alert(1)",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "javascript:alert(1)"
+},
+{
+"input": "data:text/plain;base64,AAA=",
+"scheme": "data",
+"netloc": "",
+"path": "text/plain;base64,AAA=",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "data:text/plain;base64,AAA="
+},
+{
+"input": "ws://h:1/x;y",
+"scheme": "ws",
+"netloc": "h:1",
+"path": "/x;y",
+"params": "",
+"query": "",
+"fragment": "",
+"unparse": "ws://h:1/x;y"
+},
+{
+"input": "wss://h/x;y?z",
+"scheme": "wss",
+"netloc": "h",
+"path": "/x;y",
+"params": "",
+"query": "z",
+"fragment": "",
+"unparse": "wss://h/x;y?z"
+}
+],
+"urljoin": [
+{
+"base": "https://example.com/app",
+"url": "https://example.com/app/x",
+"out": "https://example.com/app/x"
+},
+{
+"base": "https://example.com/a/b/c",
+"url": "../../d?q#f",
+"out": "https://example.com/d?q#f"
+},
+{
+"base": "https://example.com/a/b/c",
+"url": "./d/./e/../f",
+"out": "https://example.com/a/b/d/f"
+},
+{
+"base": "https://example.com/a/b/c",
+"url": "/root/x",
+"out": "https://example.com/root/x"
+},
+{
+"base": "https://example.com/a/b/c",
+"url": "//other.org/x",
+"out": "https://other.org/x"
+},
+{
+"base": "https://example.com/a/b/c",
+"url": "?q=1",
+"out": "https://example.com/a/b/c?q=1"
+},
+{
+"base": "https://example.com/a/b/c",
+"url": "#frag",
+"out": "https://example.com/a/b/c#frag"
+},
+{
+"base": "https://example.com/a/b/c",
+"url": "",
+"out": "https://example.com/a/b/c"
+},
+{
+"base": "https://example.com/a/b/c",
+"url": ";p",
+"out": "https://example.com/a/b/;p"
+},
+{
+"base": "https://example.com/a/b/",
+"url": "x/../../../y",
+"out": "https://example.com/y"
+},
+{
+"base": "https://example.com",
+"url": "x",
+"out": "https://example.com/x"
+},
+{
+"base": "https://example.com/",
+"url": "http://other.com/z",
+"out": "http://other.com/z"
+},
+{
+"base": "http://example.com/x",
+"url": "https://example.com/y",
+"out": "https://example.com/y"
+},
+{
+"base": "mailto:a@b",
+"url": "c@d",
+"out": "c@d"
+},
+{
+"base": "https://example.com/a?x=1",
+"url": "?y=2",
+"out": "https://example.com/a?y=2"
+},
+{
+"base": "https://example.com/a?x=1",
+"url": ";p?",
+"out": "https://example.com/;p?"
+},
+{
+"base": "https://example.com/a/b",
+"url": "..//c//d/",
+"out": "https://example.com/c/d/"
+},
+{
+"base": "https://ex.com/a",
+"url": "http:relative",
+"out": "http:relative"
+},
+{
+"base": "https://ex.com/a/b",
+"url": "https:c",
+"out": "https://ex.com/a/c"
+},
+{
+"base": "https://ex.com/a;p/b",
+"url": "c",
+"out": "https://ex.com/a;p/c"
+},
+{
+"base": "https://ex.com/a/b",
+"url": "%2e%2e/c",
+"out": "https://ex.com/a/%2e%2e/c"
+},
+{
+"base": "",
+"url": "rel/x",
+"out": "rel/x"
+},
+{
+"base": "https://ex.com/",
+"url": "",
+"out": "https://ex.com/"
+},
+{
+"base": "https://ex.com/p?a=1",
+"url": "?",
+"out": "https://ex.com/p?"
+},
+{
+"base": "https://ex.com/p?a=1#b",
+"url": "?",
+"out": "https://ex.com/p?"
+},
+{
+"base": "https://ex.com/p?a=1#b",
+"url": "#x",
+"out": "https://ex.com/p?a=1#x"
+}
+],
+"parse_qsl": [
+{
+"input": "",
+"out": []
+},
+{
+"input": "a",
+"out": []
+},
+{
+"input": "a=",
+"out": []
+},
+{
+"input": "a=1",
+"out": [
+[
+"a",
+"1"
+]
+]
+},
+{
+"input": "a=1&a=2",
+"out": [
+[
+"a",
+"1"
+],
+[
+"a",
+"2"
+]
+]
+},
+{
+"input": "a=1&b=&c",
+"out": [
+[
+"a",
+"1"
+]
+]
+},
+{
+"input": "&&a=1&&",
+"out": [
+[
+"a",
+"1"
+]
+]
+},
+{
+"input": "d=%E2%82%AC+x",
+"out": [
+[
+"d",
+"\u20ac x"
+]
+]
+},
+{
+"input": "e=%zz%C3\u00e9%A9",
+"out": [
+[
+"e",
+"%zz\ufffd\u00e9\ufffd"
+]
+]
+},
+{
+"input": "k+y=v+w",
+"out": [
+[
+"k y",
+"v w"
+]
+]
+},
+{
+"input": "x=%41%42%4",
+"out": [
+[
+"x",
+"AB%4"
+]
+]
+},
+{
+"input": "=v",
+"out": [
+[
+"",
+"v"
+]
+]
+},
+{
+"input": "a==b",
+"out": [
+[
+"a",
+"=b"
+]
+]
+},
+{
+"input": "a=b=c",
+"out": [
+[
+"a",
+"b=c"
+]
+]
+},
+{
+"input": "%20=%2B",
+"out": [
+[
+" ",
+"+"
+]
+]
+},
+{
+"input": "n=%F0%9F%98%80",
+"out": [
+[
+"n",
+"\ud83d\ude00"
+]
+]
+},
+{
+"input": "q=%C3%28",
+"out": [
+[
+"q",
+"\ufffd("
+]
+]
+},
+{
+"input": "s=%FF%FE",
+"out": [
+[
+"s",
+"\ufffd\ufffd"
+]
+]
+},
+{
+"input": "\u00e9=\u00fc",
+"out": [
+[
+"\u00e9",
+"\u00fc"
+]
+]
+},
+{
+"input": "a=%c3%a9",
+"out": [
+[
+"a",
+"\u00e9"
+]
+]
+},
+{
+"input": "p=1;2&q=3",
+"out": [
+[
+"p",
+"1;2"
+],
+[
+"q",
+"3"
+]
+]
+},
+{
+"input": "x=%%41",
+"out": [
+[
+"x",
+"%A"
+]
+]
+},
+{
+"input": "x=%4%41",
+"out": [
+[
+"x",
+"%4A"
+]
+]
+},
+{
+"input": "x=a%2Fb&x=c",
+"out": [
+[
+"x",
+"a/b"
+],
+[
+"x",
+"c"
+]
+]
+}
+],
+"unquote": [
+{
+"input": "",
+"out": ""
+},
+{
+"input": "abc",
+"out": "abc"
+},
+{
+"input": "%41%42",
+"out": "AB"
+},
+{
+"input": "%4",
+"out": "%4"
+},
+{
+"input": "%zz",
+"out": "%zz"
+},
+{
+"input": "%",
+"out": "%"
+},
+{
+"input": "%%41",
+"out": "%A"
+},
+{
+"input": "%C3%A9",
+"out": "\u00e9"
+},
+{
+"input": "%C3",
+"out": "\ufffd"
+},
+{
+"input": "%C3\u00e9%A9",
+"out": "\ufffd\u00e9\ufffd"
+},
+{
+"input": "\u00e9%C3%A9",
+"out": "\u00e9\u00e9"
+},
+{
+"input": "%E2%82",
+"out": "\ufffd"
+},
+{
+"input": "%F0%9F%98%80x",
+"out": "\ud83d\ude00x"
+},
+{
+"input": "%ff%fe",
+"out": "\ufffd\ufffd"
+},
+{
+"input": "a+b%20c",
+"out": "a+b c"
+},
+{
+"input": "%2F%2f",
+"out": "//"
+},
+{
+"input": "%e2%82%ac%e2",
+"out": "\u20ac\ufffd"
+},
+{
+"input": "x%41y%42z",
+"out": "xAyBz"
+},
+{
+"input": "%C3%28",
+"out": "\ufffd("
+},
+{
+"input": "%E0%80%80",
+"out": "\ufffd\ufffd\ufffd"
+}
+],
+"quote_plus": [
+{
+"input": "",
+"out": ""
+},
+{
+"input": "a b",
+"out": "a+b"
+},
+{
+"input": "a+b",
+"out": "a%2Bb"
+},
+{
+"input": "\u00e9/&=?",
+"out": "%C3%A9%2F%26%3D%3F"
+},
+{
+"input": "~-._*",
+"out": "~-._%2A"
+},
+{
+"input": "abc123",
+"out": "abc123"
+},
+{
+"input": "\u20ac",
+"out": "%E2%82%AC"
+},
+{
+"input": "\ud83d\ude00",
+"out": "%F0%9F%98%80"
+},
+{
+"input": "a\tb",
+"out": "a%09b"
+},
+{
+"input": "%",
+"out": "%25"
+},
+{
+"input": "a/b c",
+"out": "a%2Fb+c"
+},
+{
+"input": "+",
+"out": "%2B"
+}
+],
+"urlencode": [
+{
+"pairs": [
+[
+"k y",
+"\u00e9/&"
+]
+],
+"out": "k+y=%C3%A9%2F%26"
+},
+{
+"pairs": [
+[
+"a",
+"1"
+],
+[
+"a",
+"2"
+]
+],
+"out": "a=1&a=2"
+},
+{
+"pairs": [
+[
+"x",
+""
+],
+[
+"y",
+"z"
+]
+],
+"out": "x=&y=z"
+},
+{
+"pairs": [],
+"out": ""
+},
+{
+"pairs": [
+[
+"",
+""
+]
+],
+"out": "="
+}
+],
+"fragment_target": [
+{
+"url": "https://example.com/app#!/product/1",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!/product/1",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fproduct%2F1"
+},
+{
+"url": "https://example.com/app#!",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#!",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#/x",
+"html": "",
+"out": null
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": null
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": null
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": null
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": null
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": null
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": null
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": null
+},
+{
+"url": "https://example.com/app#/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=fragment content=\"!\">",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_="
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": null
+},
+{
+"url": "https://example.com/app",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": null
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?lang=en#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?lang=en&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1&a=2#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?a=2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?b=&c#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app?_escaped_fragment_=old&z=1#!/new",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fnew&z=1"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app;p=1#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "https://example.com/a;p?x=1#!a b",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/a?x=1&_escaped_fragment_=a+b"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "HTTPS://EXAMPLE.COM/app#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://EXAMPLE.COM/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/p%20q/\u00e9?x=\u00fc",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fp%2520q%2F%C3%A9%3Fx%3D%C3%BC"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a+b",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%2Bb"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://example.com/app#!/a=b&c",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fa%3Db%26c"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://[::1]:8080/app#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://[::1]:8080/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "//example.com/app#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "//example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "example.com/app#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://example.com/app#!#x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%23x"
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"err": true
+},
+{
+"url": "https://[::1/app#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"err": true
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?x=%zz#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?x=%25zz&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?+=+#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?+=+&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?k=v#!?",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?k=v&_escaped_fragment_=%3F"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?a=1;b=2#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?a=1%3Bb%3D2&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"fragment\" content=\"!\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<META NAME='FRAGMENT' CONTENT='!'>",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta content=\"!\" name=\"fragment\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"fragment\" content=\"x\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"fragment\"content=\"!\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=fragment content=\"!\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"fragment\"\n content=\"!\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"fragment\" content=\"!\"><meta name=\"x\" content=\"y\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"description\" content=\"fragment!\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"fragment\" content=\"!\" a=\">\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"fragment\" ><meta content=\"!\">",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<meta name=\"fragment\" content=\"!",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+},
+{
+"url": "https://example.com/app?%E2%82%AC=1#!/x",
+"html": "<p>name=\"fragment\" content=\"!\"</p>",
+"out": "https://example.com/app?%E2%82%AC=1&_escaped_fragment_=%2Fx"
+}
+]
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": "third_party_crawl_manifest.v1",
+  "source": {
+    "product": "FixtureSpider",
+    "version": "1.2",
+    "format": "csv_bundle",
+    "format_version": "1",
+    "exported_at": "2026-10-03T10:00:00Z",
+    "crawl_state": "complete",
+    "crawl_state_reason": "synthetic fixture source claim"
+  },
+  "datasets": {
+    "pages": {
+      "file": "pages.csv",
+      "columns": {
+        "url": "Address",
+        "status_code": "Response Code",
+        "content_type": "Content Type",
+        "title": "Title",
+        "canonical_url": "Canonical",
+        "indexability": "Indexability"
+      }
+    },
+    "links": {
+      "file": "links.csv",
+      "columns": {
+        "source_url": "From",
+        "destination_url": "To",
+        "anchor": "Anchor",
+        "rel": "Rel",
+        "position": "Link Position",
+        "status_code": "Destination Status"
+      }
+    },
+    "statuses": {
+      "file": "statuses.csv",
+      "columns": {
+        "url": "URL",
+        "status_code": "Status",
+        "status_text": "Status Text"
+      }
+    },
+    "redirects": {
+      "file": "redirects.csv",
+      "columns": {
+        "source_url": "From",
+        "destination_url": "To",
+        "status_code": "Code",
+        "hop": "Hop"
+      }
+    }
+  }
+}

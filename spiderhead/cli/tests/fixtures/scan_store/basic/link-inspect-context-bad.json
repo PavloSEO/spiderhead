@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "seohead: scan-link-inspect\n",
+    "stdout": "{\n  \"ok\": false,\n  \"view\": \"context\",\n  \"error\": \"context view requires exactly one of link_id or document_id\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_scan_link_inspect: {\"ok\": false, \"view\": \"context\", \"error\": \"context view requires exactly one of link_id or document_id\"}"
+   }
+  ]
+ }
+}

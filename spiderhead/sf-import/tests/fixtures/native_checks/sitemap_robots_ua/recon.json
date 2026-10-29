@@ -1,0 +1,26 @@
+{
+ "available": false,
+ "bucket_counts": {
+  "in_sitemap_and_linked": 0,
+  "in_sitemap_not_linked": 0,
+  "linked_not_comparable": 0,
+  "linked_not_in_sitemap": 0
+ },
+ "buckets": {
+  "in_sitemap_and_linked": [],
+  "in_sitemap_not_linked": [],
+  "linked_not_comparable": [],
+  "linked_not_in_sitemap": []
+ },
+ "counts": {},
+ "crawl_partial": false,
+ "declared_facts": [],
+ "has_names": false,
+ "missing_canonical": [],
+ "orphan_facts": [],
+ "reason": "no saved sitemap declarations",
+ "summary": {
+  "available": false,
+  "reason": "no saved sitemap declarations"
+ }
+}

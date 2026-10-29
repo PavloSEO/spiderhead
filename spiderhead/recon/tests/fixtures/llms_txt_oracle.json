@@ -1,0 +1,226 @@
+{
+ "cases": [
+  {
+   "brand": "Acme",
+   "expected": {
+    "checks": [
+     {
+      "name": "H1 heading names the project (Acme)",
+      "passed": true
+     },
+     {
+      "name": "At least 3 H2 sections",
+      "passed": true
+     },
+     {
+      "name": "At least 3 Markdown links",
+      "passed": true
+     },
+     {
+      "name": "Brand mention (Acme)",
+      "passed": true
+     },
+     {
+      "name": "Product or service category mention",
+      "passed": true
+     },
+     {
+      "name": "Product or pricing page",
+      "passed": true
+     },
+     {
+      "name": "Proof: cases, testimonials, reviews, or customers",
+      "passed": true
+     },
+     {
+      "name": "Documentation, API, or guide",
+      "passed": true
+     },
+     {
+      "name": "Size at most 60 KiB",
+      "passed": true
+     }
+    ],
+    "exists": true,
+    "grade": "A",
+    "ok": true,
+    "passed": 9,
+    "score": 10.0,
+    "stats": {
+     "h1": true,
+     "links": 5,
+     "mentions_brand": true,
+     "sections": 3,
+     "size_bytes": 508,
+     "size_ok": true
+    },
+    "status_code": 200,
+    "total": 9,
+    "url": "https://llms.example/llms.txt"
+   },
+   "name": "good_file_scored",
+   "responses": {
+    "https://llms.example/llms.txt": {
+     "body": "# Acme Analytics Platform\n\n> Acme helps teams understand user behavior through real-time dashboards,\n> audience segments, and API reports.\n\n## Product\n- [Acme Analytics](https://example.com/product): the core analytics platform\n- [Pricing](https://example.com/pricing): plans for teams of every size\n\n## Evidence\n- [Customer cases](https://example.com/cases): how Acme accelerates growth\n\n## Documentation\n- [Docs](https://example.com/docs): integration guide\n- [API](https://example.com/api): API reference\n",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://llms.example/llms.txt"
+    }
+   },
+   "url": "https://llms.example/"
+  },
+  {
+   "brand": null,
+   "expected": {
+    "checks": [
+     {
+      "name": "H1 heading is present",
+      "passed": true
+     },
+     {
+      "name": "At least 3 H2 sections",
+      "passed": true
+     },
+     {
+      "name": "At least 3 Markdown links",
+      "passed": true
+     },
+     {
+      "name": "Brand mention",
+      "passed": false
+     },
+     {
+      "name": "Product or service category mention",
+      "passed": true
+     },
+     {
+      "name": "Product or pricing page",
+      "passed": true
+     },
+     {
+      "name": "Proof: cases, testimonials, reviews, or customers",
+      "passed": true
+     },
+     {
+      "name": "Documentation, API, or guide",
+      "passed": true
+     },
+     {
+      "name": "Size at most 60 KiB",
+      "passed": true
+     }
+    ],
+    "exists": true,
+    "grade": "A",
+    "ok": true,
+    "passed": 8,
+    "score": 8.9,
+    "stats": {
+     "h1": true,
+     "links": 5,
+     "mentions_brand": false,
+     "sections": 3,
+     "size_bytes": 508,
+     "size_ok": true
+    },
+    "status_code": 200,
+    "total": 9,
+    "url": "https://llms.example/llms.txt"
+   },
+   "name": "path_discarded_manifest_lives_at_root",
+   "responses": {
+    "https://llms.example/llms.txt": {
+     "body": "# Acme Analytics Platform\n\n> Acme helps teams understand user behavior through real-time dashboards,\n> audience segments, and API reports.\n\n## Product\n- [Acme Analytics](https://example.com/product): the core analytics platform\n- [Pricing](https://example.com/pricing): plans for teams of every size\n\n## Evidence\n- [Customer cases](https://example.com/cases): how Acme accelerates growth\n\n## Documentation\n- [Docs](https://example.com/docs): integration guide\n- [API](https://example.com/api): API reference\n",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://llms.example/llms.txt"
+    }
+   },
+   "url": "https://llms.example/deep/page"
+  },
+  {
+   "brand": null,
+   "expected": {
+    "exists": false,
+    "findings": [
+     "llms.txt is missing, so the site provides no curated context for AI systems; models must infer the project from whichever pages they encounter"
+    ],
+    "grade": "F",
+    "ok": true,
+    "passed": 0,
+    "score": 0,
+    "status_code": 404,
+    "url": "https://llms.example/llms.txt"
+   },
+   "name": "missing_404_is_measured",
+   "responses": {
+    "https://llms.example/llms.txt": {
+     "body": "gone",
+     "headers": {},
+     "status_code": 404,
+     "url": "https://llms.example/llms.txt"
+    }
+   },
+   "url": "https://llms.example/"
+  },
+  {
+   "brand": null,
+   "expected": {
+    "error": "llms.txt could not be measured: server returned 401",
+    "ok": false,
+    "status_code": 401,
+    "url": "https://llms.example/llms.txt"
+   },
+   "name": "gated_401_is_unmeasured",
+   "responses": {
+    "https://llms.example/llms.txt": {
+     "body": "no",
+     "headers": {},
+     "status_code": 401,
+     "url": "https://llms.example/llms.txt"
+    }
+   },
+   "url": "https://llms.example/"
+  },
+  {
+   "brand": null,
+   "expected": {
+    "error": "llms.txt could not be measured: server returned 500",
+    "ok": false,
+    "status_code": 500,
+    "url": "https://llms.example/llms.txt"
+   },
+   "name": "server_500_is_unmeasured",
+   "responses": {
+    "https://llms.example/llms.txt": {
+     "body": "no",
+     "headers": {},
+     "status_code": 500,
+     "url": "https://llms.example/llms.txt"
+    }
+   },
+   "url": "https://llms.example/"
+  },
+  {
+   "brand": null,
+   "expected": {
+    "error": "no route to https://down.example/llms.txt",
+    "ok": false,
+    "url": "https://down.example/llms.txt"
+   },
+   "name": "network_failure",
+   "responses": {},
+   "url": "https://down.example/"
+  },
+  {
+   "brand": null,
+   "expected": {
+    "error": "Not a valid HTTP(S) URL: 'ftp://x.test'",
+    "ok": false
+   },
+   "name": "invalid_url_reported",
+   "responses": {},
+   "url": "ftp://x.test"
+  }
+ ]
+}

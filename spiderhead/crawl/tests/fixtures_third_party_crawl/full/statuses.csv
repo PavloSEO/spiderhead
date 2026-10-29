@@ -1,0 +1,4 @@
+URL,Status,Status Text
+https://example.test/,200,OK
+https://example.test/products,200,OK
+https://example.test/products,200,OK duplicate observation

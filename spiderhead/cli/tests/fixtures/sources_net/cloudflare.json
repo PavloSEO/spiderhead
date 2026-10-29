@@ -1,0 +1,526 @@
+{
+ "group": "cloudflare",
+ "cases": [
+  {
+   "name": "traffic-zone",
+   "cli": {
+    "argv": [
+     "cloudflare-traffic",
+     "--zone",
+     "example.test",
+     "--since",
+     "{DAY-2}",
+     "--until",
+     "{DAY-1}"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_cloudflare_traffic",
+    "arguments": {
+     "zone": "example.test",
+     "since": "{DAY-1}",
+     "until": "{DAY-1}"
+    }
+   },
+   "relative_dates": true,
+   "seed": [
+    {
+     "path": ".config/cloudflare/api-token",
+     "text": "test-cloudflare-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api.cloudflare.com",
+     "method": "GET",
+     "path": "/client/v4/zones",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "success": true,
+        "result": [
+         {
+          "id": "zone123",
+          "name": "example.test",
+          "account": {
+           "id": "acc9"
+          },
+          "plan": {
+           "name": "Free"
+          },
+          "status": "active"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "api.cloudflare.com",
+     "method": "POST",
+     "path": "/client/v4/graphql",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "data": {
+         "viewer": {
+          "accounts": [
+           {
+            "httpRequestsAdaptiveGroups": [
+             {
+              "count": 40,
+              "avg": {
+               "sampleInterval": 1
+              },
+              "dimensions": {
+               "userAgent": "Mozilla/5.0 (Windows NT 10.0) Chrome/120 Safari/537.36",
+               "verifiedBotCategory": "",
+               "clientRequestPath": "/",
+               "edgeResponseStatus": 200,
+               "originResponseStatus": 200,
+               "cacheStatus": "hit",
+               "date": "{DAY-1}",
+               "clientRequestHTTPHost": "example.test"
+              }
+             },
+             {
+              "count": 12,
+              "avg": {
+               "sampleInterval": 1
+              },
+              "dimensions": {
+               "userAgent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+               "verifiedBotCategory": "Search Engine Crawler",
+               "clientRequestPath": "/blog/post",
+               "edgeResponseStatus": 200,
+               "originResponseStatus": 200,
+               "cacheStatus": "hit",
+               "date": "{DAY-1}",
+               "clientRequestHTTPHost": "example.test"
+              }
+             },
+             {
+              "count": 3,
+              "avg": {
+               "sampleInterval": 1
+              },
+              "dimensions": {
+               "userAgent": "Mozilla/5.0 (compatible; GPTBot/1.0; +https://openai.com/gptbot)",
+               "verifiedBotCategory": "AI Crawler",
+               "clientRequestPath": "/missing",
+               "edgeResponseStatus": 404,
+               "originResponseStatus": 404,
+               "cacheStatus": "miss",
+               "date": "{DAY-1}",
+               "clientRequestHTTPHost": "example.test"
+              }
+             }
+            ]
+           }
+          ]
+         }
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"source\": \"cloudflare-aggregated\",\n  \"note\": \"Aggregated Cloudflare edge analytics, not raw server logs: grouped counts per day, no client IPs, so bot authenticity (reverse DNS) cannot be verified; adaptive sampling applies on busy zones.\",\n  \"zone_id\": \"zone123\",\n  \"zone\": \"example.test\",\n  \"plan\": \"Free\",\n  \"period\": {\n    \"from\": \"<DATE>\",\n    \"to\": \"<DATE>\"\n  },\n  \"queries\": 2,\n  \"sampled\": false,\n  \"truncated_days\": [],\n  \"requests\": 110,\n  \"by_family\": {\n    \"human\": {\n      \"human\": 80\n    },\n    \"googlebot\": {\n      \"Googlebot\": 24\n    },\n    \"ai\": {\n      \"GPTBot (OpenAI)\": 6\n    }\n  },\n  \"bots\": [\n    {\n      \"name\": \"Googlebot\",\n      \"hits\": 24,\n      \"verified_bot_categories\": {\n        \"Search Engine Crawler\": 24\n      }\n    },\n    {\n      \"name\": \"GPTBot (OpenAI)\",\n      \"hits\": 6,\n      \"verified_bot_categories\": {\n        \"AI Crawler\": 6\n      }\n    }\n  ],\n  \"status_by_family\": {\n    \"human\": {\n      \"200\": 80\n    },\n    \"googlebot\": {\n      \"200\": 24\n    },\n    \"ai\": {\n      \"404\": 6\n    }\n  },\n  \"sections_by_family\": {\n    \"human\": {\n      \"/\": 80\n    },\n    \"googlebot\": {\n      \"/blog\": 24\n    },\n    \"ai\": {\n      \"/missing\": 6\n    }\n  },\n  \"top_paths_by_family\": {\n    \"human\": {\n      \"/\": 80\n    },\n    \"googlebot\": {\n      \"/blog/post\": 24\n    },\n    \"ai\": {\n      \"/missing\": 6\n    }\n  },\n  \"cache_by_family\": {\n    \"human\": {\n      \"hit\": 80\n    },\n    \"googlebot\": {\n      \"hit\": 24\n    },\n    \"ai\": {\n      \"miss\": 6\n    }\n  },\n  \"edge_origin_status\": {\n    \"200/200\": 104,\n    \"404/404\": 6\n  },\n  \"hosts\": {\n    \"example.test\": 110\n  },\n  \"daily\": {\n    \"<DATE>\": 110\n  },\n  \"url_facts\": [\n    {\n      \"host\": \"example.test\",\n      \"path\": \"/\",\n      \"date\": \"<DATE>\",\n      \"bot_family\": \"human\",\n      \"bot_name\": \"human\",\n      \"verified_bot_category\": null,\n      \"edge_status\": 200,\n      \"origin_status\": 200,\n      \"cache_status\": \"hit\",\n      \"edge_redirect\": false,\n      \"requests\": 80\n    },\n    {\n      \"host\": \"example.test\",\n      \"path\": \"/blog/post\",\n      \"date\": \"<DATE>\",\n      \"bot_family\": \"googlebot\",\n      \"bot_name\": \"Googlebot\",\n      \"verified_bot_category\": \"Search Engine Crawler\",\n      \"edge_status\": 200,\n      \"origin_status\": 200,\n      \"cache_status\": \"hit\",\n      \"edge_redirect\": false,\n      \"requests\": 24\n    },\n    {\n      \"host\": \"example.test\",\n      \"path\": \"/missing\",\n      \"date\": \"<DATE>\",\n      \"bot_family\": \"ai\",\n      \"bot_name\": \"GPTBot (OpenAI)\",\n      \"verified_bot_category\": \"AI Crawler\",\n      \"edge_status\": 404,\n      \"origin_status\": 404,\n      \"cache_status\": \"miss\",\n      \"edge_redirect\": false,\n      \"requests\": 6\n    }\n  ],\n  \"url_facts_truncated\": false,\n  \"url_facts_omitted\": 0,\n  \"bots_daily\": {\n    \"Googlebot\": {\n      \"<DATE>\": 24\n    },\n    \"GPTBot (OpenAI)\": {\n      \"<DATE>\": 6\n    }\n  },\n  \"bot_url_status\": {\n    \"Googlebot\": [\n      {\n        \"path\": \"/blog/post\",\n        \"status\": 200,\n        \"hits\": 24\n      }\n    ],\n    \"GPTBot (OpenAI)\": [\n      {\n        \"path\": \"/missing\",\n        \"status\": 404,\n        \"hits\": 6\n      }\n    ]\n  },\n  \"verification\": {\n    \"checked\": false,\n    \"reason\": \"Aggregated edge data carries no client IPs; reverse-DNS verification is impossible. verified_bot_categories is Cloudflare's own verdict where present.\"\n  },\n  \"findings\": [\n    \"Aggregated Cloudflare edge analytics, not raw server logs: grouped counts per day, no client IPs, so bot authenticity (reverse DNS) cannot be verified; adaptive sampling applies on busy zones.\",\n    \"yandexbot does not appear in the period\",\n    \"bingbot does not appear in the period\",\n    \"AI crawlers made 6 requests\",\n    \"ai: 6 of 6 requests returned errors (100%)\"\n  ],\n  \"state\": \"complete\"\n}\n",
+     "stderr": "seohead: cloudflare-traffic\n",
+     "requests": [
+      {
+       "host": "api.cloudflare.com",
+       "method": "GET",
+       "path": "/client/v4/zones",
+       "query": "name=example.test",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-cloudflare-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.cloudflare.com",
+       "method": "POST",
+       "path": "/client/v4/graphql",
+       "query": "",
+       "body": "{\"query\": \"\\nquery($account: String!, $zone: String!, $from: Time!, $to: Time!, $limit: Int!) {\\n  viewer { accounts(filter: {accountTag: $account}) {\\n    httpRequestsAdaptiveGroups(limit: $limit, orderBy: [count_DESC],\\n        filter: {zoneTag: $zone, datetime_geq: $from, datetime_lt: $to}) {\\n      count\\n      avg { sampleInterval }\\n      dimensions {\\n        date userAgent verifiedBotCategory clientRequestHTTPHost clientRequestPath\\n        edgeResponseStatus originResponseStatus cacheStatus\\n      }\\n    }\\n  } }\\n}\\n\", \"variables\": {\"account\": \"acc9\", \"zone\": \"zone123\", \"from\": \"<TS>\", \"to\": \"<TS>\", \"limit\": 10000}}",
+       "headers": {
+        "authorization": "Bearer test-cloudflare-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.cloudflare.com",
+       "method": "POST",
+       "path": "/client/v4/graphql",
+       "query": "",
+       "body": "{\"query\": \"\\nquery($account: String!, $zone: String!, $from: Time!, $to: Time!, $limit: Int!) {\\n  viewer { accounts(filter: {accountTag: $account}) {\\n    httpRequestsAdaptiveGroups(limit: $limit, orderBy: [count_DESC],\\n        filter: {zoneTag: $zone, datetime_geq: $from, datetime_lt: $to}) {\\n      count\\n      avg { sampleInterval }\\n      dimensions {\\n        date userAgent verifiedBotCategory clientRequestHTTPHost clientRequestPath\\n        edgeResponseStatus originResponseStatus cacheStatus\\n      }\\n    }\\n  } }\\n}\\n\", \"variables\": {\"account\": \"acc9\", \"zone\": \"zone123\", \"from\": \"<TS>\", \"to\": \"<TS>\", \"limit\": 10000}}",
+       "headers": {
+        "authorization": "Bearer test-cloudflare-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"source\": \"cloudflare-aggregated\",\n  \"note\": \"Aggregated Cloudflare edge analytics, not raw server logs: grouped counts per day, no client IPs, so bot authenticity (reverse DNS) cannot be verified; adaptive sampling applies on busy zones.\",\n  \"zone_id\": \"zone123\",\n  \"zone\": \"example.test\",\n  \"plan\": \"Free\",\n  \"period\": {\n    \"from\": \"<DATE>\",\n    \"to\": \"<DATE>\"\n  },\n  \"queries\": 1,\n  \"sampled\": false,\n  \"truncated_days\": [],\n  \"requests\": 55,\n  \"by_family\": {\n    \"human\": {\n      \"human\": 40\n    },\n    \"googlebot\": {\n      \"Googlebot\": 12\n    },\n    \"ai\": {\n      \"GPTBot (OpenAI)\": 3\n    }\n  },\n  \"bots\": [\n    {\n      \"name\": \"Googlebot\",\n      \"hits\": 12,\n      \"verified_bot_categories\": {\n        \"Search Engine Crawler\": 12\n      }\n    },\n    {\n      \"name\": \"GPTBot (OpenAI)\",\n      \"hits\": 3,\n      \"verified_bot_categories\": {\n        \"AI Crawler\": 3\n      }\n    }\n  ],\n  \"status_by_family\": {\n    \"human\": {\n      \"200\": 40\n    },\n    \"googlebot\": {\n      \"200\": 12\n    },\n    \"ai\": {\n      \"404\": 3\n    }\n  },\n  \"sections_by_family\": {\n    \"human\": {\n      \"/\": 40\n    },\n    \"googlebot\": {\n      \"/blog\": 12\n    },\n    \"ai\": {\n      \"/missing\": 3\n    }\n  },\n  \"top_paths_by_family\": {\n    \"human\": {\n      \"/\": 40\n    },\n    \"googlebot\": {\n      \"/blog/post\": 12\n    },\n    \"ai\": {\n      \"/missing\": 3\n    }\n  },\n  \"cache_by_family\": {\n    \"human\": {\n      \"hit\": 40\n    },\n    \"googlebot\": {\n      \"hit\": 12\n    },\n    \"ai\": {\n      \"miss\": 3\n    }\n  },\n  \"edge_origin_status\": {\n    \"200/200\": 52,\n    \"404/404\": 3\n  },\n  \"hosts\": {\n    \"example.test\": 55\n  },\n  \"daily\": {\n    \"<DATE>\": 55\n  },\n  \"url_facts\": [\n    {\n      \"host\": \"example.test\",\n      \"path\": \"/\",\n      \"date\": \"<DATE>\",\n      \"bot_family\": \"human\",\n      \"bot_name\": \"human\",\n      \"verified_bot_category\": null,\n      \"edge_status\": 200,\n      \"origin_status\": 200,\n      \"cache_status\": \"hit\",\n      \"edge_redirect\": false,\n      \"requests\": 40\n    },\n    {\n      \"host\": \"example.test\",\n      \"path\": \"/blog/post\",\n      \"date\": \"<DATE>\",\n      \"bot_family\": \"googlebot\",\n      \"bot_name\": \"Googlebot\",\n      \"verified_bot_category\": \"Search Engine Crawler\",\n      \"edge_status\": 200,\n      \"origin_status\": 200,\n      \"cache_status\": \"hit\",\n      \"edge_redirect\": false,\n      \"requests\": 12\n    },\n    {\n      \"host\": \"example.test\",\n      \"path\": \"/missing\",\n      \"date\": \"<DATE>\",\n      \"bot_family\": \"ai\",\n      \"bot_name\": \"GPTBot (OpenAI)\",\n      \"verified_bot_category\": \"AI Crawler\",\n      \"edge_status\": 404,\n      \"origin_status\": 404,\n      \"cache_status\": \"miss\",\n      \"edge_redirect\": false,\n      \"requests\": 3\n    }\n  ],\n  \"url_facts_truncated\": false,\n  \"url_facts_omitted\": 0,\n  \"bots_daily\": {\n    \"Googlebot\": {\n      \"<DATE>\": 12\n    },\n    \"GPTBot (OpenAI)\": {\n      \"<DATE>\": 3\n    }\n  },\n  \"bot_url_status\": {\n    \"Googlebot\": [\n      {\n        \"path\": \"/blog/post\",\n        \"status\": 200,\n        \"hits\": 12\n      }\n    ],\n    \"GPTBot (OpenAI)\": [\n      {\n        \"path\": \"/missing\",\n        \"status\": 404,\n        \"hits\": 3\n      }\n    ]\n  },\n  \"verification\": {\n    \"checked\": false,\n    \"reason\": \"Aggregated edge data carries no client IPs; reverse-DNS verification is impossible. verified_bot_categories is Cloudflare's own verdict where present.\"\n  },\n  \"findings\": [\n    \"Aggregated Cloudflare edge analytics, not raw server logs: grouped counts per day, no client IPs, so bot authenticity (reverse DNS) cannot be verified; adaptive sampling applies on busy zones.\",\n    \"yandexbot does not appear in the period\",\n    \"bingbot does not appear in the period\",\n    \"AI crawlers made 3 requests\",\n    \"ai: 3 of 3 requests returned errors (100%)\"\n  ],\n  \"state\": \"complete\"\n}",
+     "requests": [
+      {
+       "host": "api.cloudflare.com",
+       "method": "GET",
+       "path": "/client/v4/zones",
+       "query": "name=example.test",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-cloudflare-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.cloudflare.com",
+       "method": "POST",
+       "path": "/client/v4/graphql",
+       "query": "",
+       "body": "{\"query\": \"\\nquery($account: String!, $zone: String!, $from: Time!, $to: Time!, $limit: Int!) {\\n  viewer { accounts(filter: {accountTag: $account}) {\\n    httpRequestsAdaptiveGroups(limit: $limit, orderBy: [count_DESC],\\n        filter: {zoneTag: $zone, datetime_geq: $from, datetime_lt: $to}) {\\n      count\\n      avg { sampleInterval }\\n      dimensions {\\n        date userAgent verifiedBotCategory clientRequestHTTPHost clientRequestPath\\n        edgeResponseStatus originResponseStatus cacheStatus\\n      }\\n    }\\n  } }\\n}\\n\", \"variables\": {\"account\": \"acc9\", \"zone\": \"zone123\", \"from\": \"<TS>\", \"to\": \"<TS>\", \"limit\": 10000}}",
+       "headers": {
+        "authorization": "Bearer test-cloudflare-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "traffic-zone-not-visible",
+   "cli": {
+    "argv": [
+     "cloudflare-traffic",
+     "--zone",
+     "example.test",
+     "--since",
+     "{DAY-1}",
+     "--until",
+     "{DAY-1}"
+    ]
+   },
+   "relative_dates": true,
+   "seed": [
+    {
+     "path": ".config/cloudflare/api-token",
+     "text": "test-cloudflare-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api.cloudflare.com",
+     "method": "GET",
+     "path": "/client/v4/zones",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "success": true,
+        "result": []
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"source\": \"cloudflare-aggregated\",\n  \"zone\": \"example.test\",\n  \"error\": \"zone 'example.test' is not visible to this token\"\n}\n",
+     "stderr": "seohead: cloudflare-traffic\n",
+     "requests": [
+      {
+       "host": "api.cloudflare.com",
+       "method": "GET",
+       "path": "/client/v4/zones",
+       "query": "name=example.test",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-cloudflare-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "traffic-graphql-error",
+   "cli": {
+    "argv": [
+     "cloudflare-traffic",
+     "--zone",
+     "example.test",
+     "--since",
+     "{DAY-1}",
+     "--until",
+     "{DAY-1}"
+    ]
+   },
+   "relative_dates": true,
+   "seed": [
+    {
+     "path": ".config/cloudflare/api-token",
+     "text": "test-cloudflare-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api.cloudflare.com",
+     "method": "GET",
+     "path": "/client/v4/zones",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "success": true,
+        "result": [
+         {
+          "id": "zone123",
+          "name": "example.test",
+          "account": {
+           "id": "acc9"
+          },
+          "plan": {
+           "name": "Free"
+          },
+          "status": "active"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "api.cloudflare.com",
+     "method": "POST",
+     "path": "/client/v4/graphql",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "errors": [
+         {
+          "message": "not entitled"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"source\": \"cloudflare-aggregated\",\n  \"zone\": \"example.test\",\n  \"error\": \"GraphQL error: not entitled\"\n}\n",
+     "stderr": "seohead: cloudflare-traffic\n",
+     "requests": [
+      {
+       "host": "api.cloudflare.com",
+       "method": "GET",
+       "path": "/client/v4/zones",
+       "query": "name=example.test",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-cloudflare-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "api.cloudflare.com",
+       "method": "POST",
+       "path": "/client/v4/graphql",
+       "query": "",
+       "body": "{\"query\": \"\\nquery($account: String!, $zone: String!, $from: Time!, $to: Time!, $limit: Int!) {\\n  viewer { accounts(filter: {accountTag: $account}) {\\n    httpRequestsAdaptiveGroups(limit: $limit, orderBy: [count_DESC],\\n        filter: {zoneTag: $zone, datetime_geq: $from, datetime_lt: $to}) {\\n      count\\n      avg { sampleInterval }\\n      dimensions {\\n        date userAgent verifiedBotCategory clientRequestHTTPHost clientRequestPath\\n        edgeResponseStatus originResponseStatus cacheStatus\\n      }\\n    }\\n  } }\\n}\\n\", \"variables\": {\"account\": \"acc9\", \"zone\": \"zone123\", \"from\": \"<TS>\", \"to\": \"<TS>\", \"limit\": 10000}}",
+       "headers": {
+        "authorization": "Bearer test-cloudflare-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "traffic-no-token",
+   "cli": {
+    "argv": [
+     "cloudflare-traffic",
+     "--zone",
+     "example.test"
+    ]
+   },
+   "relative_dates": true,
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"source\": \"cloudflare-aggregated\",\n  \"zone\": \"example.test\",\n  \"error\": \"Cloudflare token not found: set $CLOUDFLARE_API_TOKEN or store it in <WORK>/.config/cloudflare/api-token (or name the file in $SEOHEAD_CLOUDFLARE_TOKEN_FILE)\"\n}\n",
+     "stderr": "seohead: cloudflare-traffic\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "traffic-both-targets",
+   "cli": {
+    "argv": [
+     "cloudflare-traffic",
+     "--zone",
+     "example.test",
+     "--project",
+     "{WORK}/p"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: cloudflare-traffic\nerror: pass exactly one of zone or project\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "traffic-neither-target",
+   "cli": {
+    "argv": [
+     "cloudflare-traffic"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: cloudflare-traffic\nerror: pass exactly one of zone or project\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "traffic-too-old",
+   "cli": {
+    "argv": [
+     "cloudflare-traffic",
+     "--zone",
+     "example.test",
+     "--since",
+     "2020-01-01",
+     "--until",
+     "2020-01-02"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/cloudflare/api-token",
+     "text": "test-cloudflare-token"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: cloudflare-traffic\nerror: since is older than the 32-day history this dataset keeps on the Free plan\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "history-empty",
+   "cli": {
+    "argv": [
+     "cloudflare-history",
+     "--project",
+     "{WORK}/proj"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_cloudflare_history",
+    "arguments": {
+     "project": "{WORK}/proj",
+     "limit": 5
+    }
+   },
+   "seed": [
+    {
+     "path": "proj/project.json",
+     "text": "{}"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: cloudflare-history\nerror: [Errno 2] No such file or directory: '<WORK>/proj/cloudflare.sqlite'\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": true,
+     "text": "Error executing tool seo_cloudflare_history: [Errno 2] No such file or directory: '<WORK>/proj/cloudflare.sqlite'",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "history-not-a-project",
+   "cli": {
+    "argv": [
+     "cloudflare-history",
+     "--project",
+     "{WORK}/nowhere"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: cloudflare-history\nerror: project must be a regular directory\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "history-no-project",
+   "cli": {
+    "argv": [
+     "cloudflare-history",
+     "--project",
+     ""
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: cloudflare-history\nerror: project required\n",
+     "requests": []
+    }
+   }
+  }
+ ]
+}

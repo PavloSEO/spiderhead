@@ -1,0 +1,5174 @@
+[
+{
+"input": "https://[::1]",
+"ok": "https://[::1]"
+},
+{
+"input": "https://[::1]:80",
+"ok": "https://[::1]:80"
+},
+{
+"input": "https://[::1]:",
+"ok": "https://[::1]:"
+},
+{
+"input": "https://[::1]:abc",
+"ok": "https://[::1]:abc"
+},
+{
+"input": "https://[::1]x",
+"err": true
+},
+{
+"input": "https://[::1]/p",
+"ok": "https://[::1]/p"
+},
+{
+"input": "https://[::1]/p/",
+"ok": "https://[::1]/p"
+},
+{
+"input": "https://[::1]?q",
+"ok": "https://[::1]?q"
+},
+{
+"input": "https://[::1]#f",
+"ok": "https://[::1]#f"
+},
+{
+"input": "https://[::1]:80/p/",
+"ok": "https://[::1]:80/p"
+},
+{
+"input": "https://[::1]]",
+"err": true
+},
+{
+"input": "https://[::1]]:80",
+"err": true
+},
+{
+"input": "https://[::1]@h",
+"err": true
+},
+{
+"input": "https://[::1]:80x",
+"ok": "https://[::1]:80x"
+},
+{
+"input": "https://[::]",
+"ok": "https://[::]"
+},
+{
+"input": "https://[::]:80",
+"ok": "https://[::]:80"
+},
+{
+"input": "https://[::]:",
+"ok": "https://[::]:"
+},
+{
+"input": "https://[::]:abc",
+"ok": "https://[::]:abc"
+},
+{
+"input": "https://[::]x",
+"err": true
+},
+{
+"input": "https://[::]/p",
+"ok": "https://[::]/p"
+},
+{
+"input": "https://[::]/p/",
+"ok": "https://[::]/p"
+},
+{
+"input": "https://[::]?q",
+"ok": "https://[::]?q"
+},
+{
+"input": "https://[::]#f",
+"ok": "https://[::]#f"
+},
+{
+"input": "https://[::]:80/p/",
+"ok": "https://[::]:80/p"
+},
+{
+"input": "https://[::]]",
+"err": true
+},
+{
+"input": "https://[::]]:80",
+"err": true
+},
+{
+"input": "https://[::]@h",
+"err": true
+},
+{
+"input": "https://[::]:80x",
+"ok": "https://[::]:80x"
+},
+{
+"input": "https://[1::]",
+"ok": "https://[1::]"
+},
+{
+"input": "https://[1::]:80",
+"ok": "https://[1::]:80"
+},
+{
+"input": "https://[1::]:",
+"ok": "https://[1::]:"
+},
+{
+"input": "https://[1::]:abc",
+"ok": "https://[1::]:abc"
+},
+{
+"input": "https://[1::]x",
+"err": true
+},
+{
+"input": "https://[1::]/p",
+"ok": "https://[1::]/p"
+},
+{
+"input": "https://[1::]/p/",
+"ok": "https://[1::]/p"
+},
+{
+"input": "https://[1::]?q",
+"ok": "https://[1::]?q"
+},
+{
+"input": "https://[1::]#f",
+"ok": "https://[1::]#f"
+},
+{
+"input": "https://[1::]:80/p/",
+"ok": "https://[1::]:80/p"
+},
+{
+"input": "https://[1::]]",
+"err": true
+},
+{
+"input": "https://[1::]]:80",
+"err": true
+},
+{
+"input": "https://[1::]@h",
+"err": true
+},
+{
+"input": "https://[1::]:80x",
+"ok": "https://[1::]:80x"
+},
+{
+"input": "https://[2001:db8::1]",
+"ok": "https://[2001:db8::1]"
+},
+{
+"input": "https://[2001:db8::1]:80",
+"ok": "https://[2001:db8::1]:80"
+},
+{
+"input": "https://[2001:db8::1]:",
+"ok": "https://[2001:db8::1]:"
+},
+{
+"input": "https://[2001:db8::1]:abc",
+"ok": "https://[2001:db8::1]:abc"
+},
+{
+"input": "https://[2001:db8::1]x",
+"err": true
+},
+{
+"input": "https://[2001:db8::1]/p",
+"ok": "https://[2001:db8::1]/p"
+},
+{
+"input": "https://[2001:db8::1]/p/",
+"ok": "https://[2001:db8::1]/p"
+},
+{
+"input": "https://[2001:db8::1]?q",
+"ok": "https://[2001:db8::1]?q"
+},
+{
+"input": "https://[2001:db8::1]#f",
+"ok": "https://[2001:db8::1]#f"
+},
+{
+"input": "https://[2001:db8::1]:80/p/",
+"ok": "https://[2001:db8::1]:80/p"
+},
+{
+"input": "https://[2001:db8::1]]",
+"err": true
+},
+{
+"input": "https://[2001:db8::1]]:80",
+"err": true
+},
+{
+"input": "https://[2001:db8::1]@h",
+"err": true
+},
+{
+"input": "https://[2001:db8::1]:80x",
+"ok": "https://[2001:db8::1]:80x"
+},
+{
+"input": "https://[2001:DB8::ff]",
+"ok": "https://[2001:db8::ff]"
+},
+{
+"input": "https://[2001:DB8::ff]:80",
+"ok": "https://[2001:db8::ff]:80"
+},
+{
+"input": "https://[2001:DB8::ff]:",
+"ok": "https://[2001:db8::ff]:"
+},
+{
+"input": "https://[2001:DB8::ff]:abc",
+"ok": "https://[2001:db8::ff]:abc"
+},
+{
+"input": "https://[2001:DB8::ff]x",
+"err": true
+},
+{
+"input": "https://[2001:DB8::ff]/p",
+"ok": "https://[2001:db8::ff]/p"
+},
+{
+"input": "https://[2001:DB8::ff]/p/",
+"ok": "https://[2001:db8::ff]/p"
+},
+{
+"input": "https://[2001:DB8::ff]?q",
+"ok": "https://[2001:db8::ff]?q"
+},
+{
+"input": "https://[2001:DB8::ff]#f",
+"ok": "https://[2001:db8::ff]#f"
+},
+{
+"input": "https://[2001:DB8::ff]:80/p/",
+"ok": "https://[2001:db8::ff]:80/p"
+},
+{
+"input": "https://[2001:DB8::ff]]",
+"err": true
+},
+{
+"input": "https://[2001:DB8::ff]]:80",
+"err": true
+},
+{
+"input": "https://[2001:DB8::ff]@h",
+"err": true
+},
+{
+"input": "https://[2001:DB8::ff]:80x",
+"ok": "https://[2001:db8::ff]:80x"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]",
+"ok": "https://[1:2:3:4:5:6:7:8]"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]:80",
+"ok": "https://[1:2:3:4:5:6:7:8]:80"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]:",
+"ok": "https://[1:2:3:4:5:6:7:8]:"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]:abc",
+"ok": "https://[1:2:3:4:5:6:7:8]:abc"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]x",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]/p",
+"ok": "https://[1:2:3:4:5:6:7:8]/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]/p/",
+"ok": "https://[1:2:3:4:5:6:7:8]/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]?q",
+"ok": "https://[1:2:3:4:5:6:7:8]?q"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]#f",
+"ok": "https://[1:2:3:4:5:6:7:8]#f"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]:80/p/",
+"ok": "https://[1:2:3:4:5:6:7:8]:80/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]@h",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8]:80x",
+"ok": "https://[1:2:3:4:5:6:7:8]:80x"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]:",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]:abc",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]x",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]/p",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]/p/",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]?q",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]#f",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]:80/p/",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]@h",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:8:9]:80x",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]:",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]:abc",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]x",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]/p",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]/p/",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]?q",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]#f",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]:80/p/",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]@h",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7]:80x",
+"err": true
+},
+{
+"input": "https://[::ffff:1.2.3.4]",
+"ok": "https://[::ffff:1.2.3.4]"
+},
+{
+"input": "https://[::ffff:1.2.3.4]:80",
+"ok": "https://[::ffff:1.2.3.4]:80"
+},
+{
+"input": "https://[::ffff:1.2.3.4]:",
+"ok": "https://[::ffff:1.2.3.4]:"
+},
+{
+"input": "https://[::ffff:1.2.3.4]:abc",
+"ok": "https://[::ffff:1.2.3.4]:abc"
+},
+{
+"input": "https://[::ffff:1.2.3.4]x",
+"err": true
+},
+{
+"input": "https://[::ffff:1.2.3.4]/p",
+"ok": "https://[::ffff:1.2.3.4]/p"
+},
+{
+"input": "https://[::ffff:1.2.3.4]/p/",
+"ok": "https://[::ffff:1.2.3.4]/p"
+},
+{
+"input": "https://[::ffff:1.2.3.4]?q",
+"ok": "https://[::ffff:1.2.3.4]?q"
+},
+{
+"input": "https://[::ffff:1.2.3.4]#f",
+"ok": "https://[::ffff:1.2.3.4]#f"
+},
+{
+"input": "https://[::ffff:1.2.3.4]:80/p/",
+"ok": "https://[::ffff:1.2.3.4]:80/p"
+},
+{
+"input": "https://[::ffff:1.2.3.4]]",
+"err": true
+},
+{
+"input": "https://[::ffff:1.2.3.4]]:80",
+"err": true
+},
+{
+"input": "https://[::ffff:1.2.3.4]@h",
+"err": true
+},
+{
+"input": "https://[::ffff:1.2.3.4]:80x",
+"ok": "https://[::ffff:1.2.3.4]:80x"
+},
+{
+"input": "https://[::1.2.3.4]",
+"ok": "https://[::1.2.3.4]"
+},
+{
+"input": "https://[::1.2.3.4]:80",
+"ok": "https://[::1.2.3.4]:80"
+},
+{
+"input": "https://[::1.2.3.4]:",
+"ok": "https://[::1.2.3.4]:"
+},
+{
+"input": "https://[::1.2.3.4]:abc",
+"ok": "https://[::1.2.3.4]:abc"
+},
+{
+"input": "https://[::1.2.3.4]x",
+"err": true
+},
+{
+"input": "https://[::1.2.3.4]/p",
+"ok": "https://[::1.2.3.4]/p"
+},
+{
+"input": "https://[::1.2.3.4]/p/",
+"ok": "https://[::1.2.3.4]/p"
+},
+{
+"input": "https://[::1.2.3.4]?q",
+"ok": "https://[::1.2.3.4]?q"
+},
+{
+"input": "https://[::1.2.3.4]#f",
+"ok": "https://[::1.2.3.4]#f"
+},
+{
+"input": "https://[::1.2.3.4]:80/p/",
+"ok": "https://[::1.2.3.4]:80/p"
+},
+{
+"input": "https://[::1.2.3.4]]",
+"err": true
+},
+{
+"input": "https://[::1.2.3.4]]:80",
+"err": true
+},
+{
+"input": "https://[::1.2.3.4]@h",
+"err": true
+},
+{
+"input": "https://[::1.2.3.4]:80x",
+"ok": "https://[::1.2.3.4]:80x"
+},
+{
+"input": "https://[1::1.2.3.4.5]",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]:80",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]:",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]:abc",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]x",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]/p",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]/p/",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]?q",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]#f",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]:80/p/",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]]",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]]:80",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]@h",
+"err": true
+},
+{
+"input": "https://[1::1.2.3.4.5]:80x",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]:80",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]:",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]:abc",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]x",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]/p",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]/p/",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]?q",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]#f",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]:80/p/",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]]",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]]:80",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]@h",
+"err": true
+},
+{
+"input": "https://[::ffff:01.2.3.4]:80x",
+"err": true
+},
+{
+"input": "https://[fe80::1%eth0]",
+"ok": "https://[fe80::1%eth0]"
+},
+{
+"input": "https://[fe80::1%eth0]:80",
+"ok": "https://[fe80::1%eth0]:80"
+},
+{
+"input": "https://[fe80::1%eth0]:",
+"ok": "https://[fe80::1%eth0]:"
+},
+{
+"input": "https://[fe80::1%eth0]:abc",
+"ok": "https://[fe80::1%eth0]:abc"
+},
+{
+"input": "https://[fe80::1%eth0]x",
+"err": true
+},
+{
+"input": "https://[fe80::1%eth0]/p",
+"ok": "https://[fe80::1%eth0]/p"
+},
+{
+"input": "https://[fe80::1%eth0]/p/",
+"ok": "https://[fe80::1%eth0]/p"
+},
+{
+"input": "https://[fe80::1%eth0]?q",
+"ok": "https://[fe80::1%eth0]?q"
+},
+{
+"input": "https://[fe80::1%eth0]#f",
+"ok": "https://[fe80::1%eth0]#f"
+},
+{
+"input": "https://[fe80::1%eth0]:80/p/",
+"ok": "https://[fe80::1%eth0]:80/p"
+},
+{
+"input": "https://[fe80::1%eth0]]",
+"err": true
+},
+{
+"input": "https://[fe80::1%eth0]]:80",
+"err": true
+},
+{
+"input": "https://[fe80::1%eth0]@h",
+"err": true
+},
+{
+"input": "https://[fe80::1%eth0]:80x",
+"ok": "https://[fe80::1%eth0]:80x"
+},
+{
+"input": "https://[fe80::1%]",
+"err": true
+},
+{
+"input": "https://[fe80::1%]:80",
+"err": true
+},
+{
+"input": "https://[fe80::1%]:",
+"err": true
+},
+{
+"input": "https://[fe80::1%]:abc",
+"err": true
+},
+{
+"input": "https://[fe80::1%]x",
+"err": true
+},
+{
+"input": "https://[fe80::1%]/p",
+"err": true
+},
+{
+"input": "https://[fe80::1%]/p/",
+"err": true
+},
+{
+"input": "https://[fe80::1%]?q",
+"err": true
+},
+{
+"input": "https://[fe80::1%]#f",
+"err": true
+},
+{
+"input": "https://[fe80::1%]:80/p/",
+"err": true
+},
+{
+"input": "https://[fe80::1%]]",
+"err": true
+},
+{
+"input": "https://[fe80::1%]]:80",
+"err": true
+},
+{
+"input": "https://[fe80::1%]@h",
+"err": true
+},
+{
+"input": "https://[fe80::1%]:80x",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]:80",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]:",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]:abc",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]x",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]/p",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]/p/",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]?q",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]#f",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]:80/p/",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]]",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]]:80",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]@h",
+"err": true
+},
+{
+"input": "https://[fe80::1%a%b]:80x",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]:80",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]:",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]:abc",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]x",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]/p",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]/p/",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]?q",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]#f",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]:80/p/",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]]",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]]:80",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]@h",
+"err": true
+},
+{
+"input": "https://[fe80::1%a/b]:80x",
+"err": true
+},
+{
+"input": "https://[fe80::1%25eth0]",
+"ok": "https://[fe80::1%25eth0]"
+},
+{
+"input": "https://[fe80::1%25eth0]:80",
+"ok": "https://[fe80::1%25eth0]:80"
+},
+{
+"input": "https://[fe80::1%25eth0]:",
+"ok": "https://[fe80::1%25eth0]:"
+},
+{
+"input": "https://[fe80::1%25eth0]:abc",
+"ok": "https://[fe80::1%25eth0]:abc"
+},
+{
+"input": "https://[fe80::1%25eth0]x",
+"err": true
+},
+{
+"input": "https://[fe80::1%25eth0]/p",
+"ok": "https://[fe80::1%25eth0]/p"
+},
+{
+"input": "https://[fe80::1%25eth0]/p/",
+"ok": "https://[fe80::1%25eth0]/p"
+},
+{
+"input": "https://[fe80::1%25eth0]?q",
+"ok": "https://[fe80::1%25eth0]?q"
+},
+{
+"input": "https://[fe80::1%25eth0]#f",
+"ok": "https://[fe80::1%25eth0]#f"
+},
+{
+"input": "https://[fe80::1%25eth0]:80/p/",
+"ok": "https://[fe80::1%25eth0]:80/p"
+},
+{
+"input": "https://[fe80::1%25eth0]]",
+"err": true
+},
+{
+"input": "https://[fe80::1%25eth0]]:80",
+"err": true
+},
+{
+"input": "https://[fe80::1%25eth0]@h",
+"err": true
+},
+{
+"input": "https://[fe80::1%25eth0]:80x",
+"ok": "https://[fe80::1%25eth0]:80x"
+},
+{
+"input": "https://[:::]",
+"err": true
+},
+{
+"input": "https://[:::]:80",
+"err": true
+},
+{
+"input": "https://[:::]:",
+"err": true
+},
+{
+"input": "https://[:::]:abc",
+"err": true
+},
+{
+"input": "https://[:::]x",
+"err": true
+},
+{
+"input": "https://[:::]/p",
+"err": true
+},
+{
+"input": "https://[:::]/p/",
+"err": true
+},
+{
+"input": "https://[:::]?q",
+"err": true
+},
+{
+"input": "https://[:::]#f",
+"err": true
+},
+{
+"input": "https://[:::]:80/p/",
+"err": true
+},
+{
+"input": "https://[:::]]",
+"err": true
+},
+{
+"input": "https://[:::]]:80",
+"err": true
+},
+{
+"input": "https://[:::]@h",
+"err": true
+},
+{
+"input": "https://[:::]:80x",
+"err": true
+},
+{
+"input": "https://[1:::2]",
+"err": true
+},
+{
+"input": "https://[1:::2]:80",
+"err": true
+},
+{
+"input": "https://[1:::2]:",
+"err": true
+},
+{
+"input": "https://[1:::2]:abc",
+"err": true
+},
+{
+"input": "https://[1:::2]x",
+"err": true
+},
+{
+"input": "https://[1:::2]/p",
+"err": true
+},
+{
+"input": "https://[1:::2]/p/",
+"err": true
+},
+{
+"input": "https://[1:::2]?q",
+"err": true
+},
+{
+"input": "https://[1:::2]#f",
+"err": true
+},
+{
+"input": "https://[1:::2]:80/p/",
+"err": true
+},
+{
+"input": "https://[1:::2]]",
+"err": true
+},
+{
+"input": "https://[1:::2]]:80",
+"err": true
+},
+{
+"input": "https://[1:::2]@h",
+"err": true
+},
+{
+"input": "https://[1:::2]:80x",
+"err": true
+},
+{
+"input": "https://[12345::]",
+"err": true
+},
+{
+"input": "https://[12345::]:80",
+"err": true
+},
+{
+"input": "https://[12345::]:",
+"err": true
+},
+{
+"input": "https://[12345::]:abc",
+"err": true
+},
+{
+"input": "https://[12345::]x",
+"err": true
+},
+{
+"input": "https://[12345::]/p",
+"err": true
+},
+{
+"input": "https://[12345::]/p/",
+"err": true
+},
+{
+"input": "https://[12345::]?q",
+"err": true
+},
+{
+"input": "https://[12345::]#f",
+"err": true
+},
+{
+"input": "https://[12345::]:80/p/",
+"err": true
+},
+{
+"input": "https://[12345::]]",
+"err": true
+},
+{
+"input": "https://[12345::]]:80",
+"err": true
+},
+{
+"input": "https://[12345::]@h",
+"err": true
+},
+{
+"input": "https://[12345::]:80x",
+"err": true
+},
+{
+"input": "https://[g::1]",
+"err": true
+},
+{
+"input": "https://[g::1]:80",
+"err": true
+},
+{
+"input": "https://[g::1]:",
+"err": true
+},
+{
+"input": "https://[g::1]:abc",
+"err": true
+},
+{
+"input": "https://[g::1]x",
+"err": true
+},
+{
+"input": "https://[g::1]/p",
+"err": true
+},
+{
+"input": "https://[g::1]/p/",
+"err": true
+},
+{
+"input": "https://[g::1]?q",
+"err": true
+},
+{
+"input": "https://[g::1]#f",
+"err": true
+},
+{
+"input": "https://[g::1]:80/p/",
+"err": true
+},
+{
+"input": "https://[g::1]]",
+"err": true
+},
+{
+"input": "https://[g::1]]:80",
+"err": true
+},
+{
+"input": "https://[g::1]@h",
+"err": true
+},
+{
+"input": "https://[g::1]:80x",
+"err": true
+},
+{
+"input": "https://[]",
+"err": true
+},
+{
+"input": "https://[]:80",
+"err": true
+},
+{
+"input": "https://[]:",
+"err": true
+},
+{
+"input": "https://[]:abc",
+"err": true
+},
+{
+"input": "https://[]x",
+"err": true
+},
+{
+"input": "https://[]/p",
+"err": true
+},
+{
+"input": "https://[]/p/",
+"err": true
+},
+{
+"input": "https://[]?q",
+"err": true
+},
+{
+"input": "https://[]#f",
+"err": true
+},
+{
+"input": "https://[]:80/p/",
+"err": true
+},
+{
+"input": "https://[]]",
+"err": true
+},
+{
+"input": "https://[]]:80",
+"err": true
+},
+{
+"input": "https://[]@h",
+"err": true
+},
+{
+"input": "https://[]:80x",
+"err": true
+},
+{
+"input": "https://[ ]",
+"err": true
+},
+{
+"input": "https://[ ]:80",
+"err": true
+},
+{
+"input": "https://[ ]:",
+"err": true
+},
+{
+"input": "https://[ ]:abc",
+"err": true
+},
+{
+"input": "https://[ ]x",
+"err": true
+},
+{
+"input": "https://[ ]/p",
+"err": true
+},
+{
+"input": "https://[ ]/p/",
+"err": true
+},
+{
+"input": "https://[ ]?q",
+"err": true
+},
+{
+"input": "https://[ ]#f",
+"err": true
+},
+{
+"input": "https://[ ]:80/p/",
+"err": true
+},
+{
+"input": "https://[ ]]",
+"err": true
+},
+{
+"input": "https://[ ]]:80",
+"err": true
+},
+{
+"input": "https://[ ]@h",
+"err": true
+},
+{
+"input": "https://[ ]:80x",
+"err": true
+},
+{
+"input": "https://[::1 ]",
+"err": true
+},
+{
+"input": "https://[::1 ]:80",
+"err": true
+},
+{
+"input": "https://[::1 ]:",
+"err": true
+},
+{
+"input": "https://[::1 ]:abc",
+"err": true
+},
+{
+"input": "https://[::1 ]x",
+"err": true
+},
+{
+"input": "https://[::1 ]/p",
+"err": true
+},
+{
+"input": "https://[::1 ]/p/",
+"err": true
+},
+{
+"input": "https://[::1 ]?q",
+"err": true
+},
+{
+"input": "https://[::1 ]#f",
+"err": true
+},
+{
+"input": "https://[::1 ]:80/p/",
+"err": true
+},
+{
+"input": "https://[::1 ]]",
+"err": true
+},
+{
+"input": "https://[::1 ]]:80",
+"err": true
+},
+{
+"input": "https://[::1 ]@h",
+"err": true
+},
+{
+"input": "https://[::1 ]:80x",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]:80",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]:",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]:abc",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]x",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]/p",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]/p/",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]?q",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]#f",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]:80/p/",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]]",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]]:80",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]@h",
+"err": true
+},
+{
+"input": "https://[1.2.3.4]:80x",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]:80",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]:",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]:abc",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]x",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]/p",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]/p/",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]?q",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]#f",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]:80/p/",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]]",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]]:80",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]@h",
+"err": true
+},
+{
+"input": "https://[01.2.3.4]:80x",
+"err": true
+},
+{
+"input": "https://[example.com]",
+"err": true
+},
+{
+"input": "https://[example.com]:80",
+"err": true
+},
+{
+"input": "https://[example.com]:",
+"err": true
+},
+{
+"input": "https://[example.com]:abc",
+"err": true
+},
+{
+"input": "https://[example.com]x",
+"err": true
+},
+{
+"input": "https://[example.com]/p",
+"err": true
+},
+{
+"input": "https://[example.com]/p/",
+"err": true
+},
+{
+"input": "https://[example.com]?q",
+"err": true
+},
+{
+"input": "https://[example.com]#f",
+"err": true
+},
+{
+"input": "https://[example.com]:80/p/",
+"err": true
+},
+{
+"input": "https://[example.com]]",
+"err": true
+},
+{
+"input": "https://[example.com]]:80",
+"err": true
+},
+{
+"input": "https://[example.com]@h",
+"err": true
+},
+{
+"input": "https://[example.com]:80x",
+"err": true
+},
+{
+"input": "https://[v1.x]",
+"ok": "https://[v1.x]"
+},
+{
+"input": "https://[v1.x]:80",
+"ok": "https://[v1.x]:80"
+},
+{
+"input": "https://[v1.x]:",
+"ok": "https://[v1.x]:"
+},
+{
+"input": "https://[v1.x]:abc",
+"ok": "https://[v1.x]:abc"
+},
+{
+"input": "https://[v1.x]x",
+"err": true
+},
+{
+"input": "https://[v1.x]/p",
+"ok": "https://[v1.x]/p"
+},
+{
+"input": "https://[v1.x]/p/",
+"ok": "https://[v1.x]/p"
+},
+{
+"input": "https://[v1.x]?q",
+"ok": "https://[v1.x]?q"
+},
+{
+"input": "https://[v1.x]#f",
+"ok": "https://[v1.x]#f"
+},
+{
+"input": "https://[v1.x]:80/p/",
+"ok": "https://[v1.x]:80/p"
+},
+{
+"input": "https://[v1.x]]",
+"err": true
+},
+{
+"input": "https://[v1.x]]:80",
+"err": true
+},
+{
+"input": "https://[v1.x]@h",
+"err": true
+},
+{
+"input": "https://[v1.x]:80x",
+"ok": "https://[v1.x]:80x"
+},
+{
+"input": "https://[v7.a:b]",
+"ok": "https://[v7.a:b]"
+},
+{
+"input": "https://[v7.a:b]:80",
+"ok": "https://[v7.a:b]:80"
+},
+{
+"input": "https://[v7.a:b]:",
+"ok": "https://[v7.a:b]:"
+},
+{
+"input": "https://[v7.a:b]:abc",
+"ok": "https://[v7.a:b]:abc"
+},
+{
+"input": "https://[v7.a:b]x",
+"err": true
+},
+{
+"input": "https://[v7.a:b]/p",
+"ok": "https://[v7.a:b]/p"
+},
+{
+"input": "https://[v7.a:b]/p/",
+"ok": "https://[v7.a:b]/p"
+},
+{
+"input": "https://[v7.a:b]?q",
+"ok": "https://[v7.a:b]?q"
+},
+{
+"input": "https://[v7.a:b]#f",
+"ok": "https://[v7.a:b]#f"
+},
+{
+"input": "https://[v7.a:b]:80/p/",
+"ok": "https://[v7.a:b]:80/p"
+},
+{
+"input": "https://[v7.a:b]]",
+"err": true
+},
+{
+"input": "https://[v7.a:b]]:80",
+"err": true
+},
+{
+"input": "https://[v7.a:b]@h",
+"err": true
+},
+{
+"input": "https://[v7.a:b]:80x",
+"ok": "https://[v7.a:b]:80x"
+},
+{
+"input": "https://[vFF.z]",
+"ok": "https://[vff.z]"
+},
+{
+"input": "https://[vFF.z]:80",
+"ok": "https://[vff.z]:80"
+},
+{
+"input": "https://[vFF.z]:",
+"ok": "https://[vff.z]:"
+},
+{
+"input": "https://[vFF.z]:abc",
+"ok": "https://[vff.z]:abc"
+},
+{
+"input": "https://[vFF.z]x",
+"err": true
+},
+{
+"input": "https://[vFF.z]/p",
+"ok": "https://[vff.z]/p"
+},
+{
+"input": "https://[vFF.z]/p/",
+"ok": "https://[vff.z]/p"
+},
+{
+"input": "https://[vFF.z]?q",
+"ok": "https://[vff.z]?q"
+},
+{
+"input": "https://[vFF.z]#f",
+"ok": "https://[vff.z]#f"
+},
+{
+"input": "https://[vFF.z]:80/p/",
+"ok": "https://[vff.z]:80/p"
+},
+{
+"input": "https://[vFF.z]]",
+"err": true
+},
+{
+"input": "https://[vFF.z]]:80",
+"err": true
+},
+{
+"input": "https://[vFF.z]@h",
+"err": true
+},
+{
+"input": "https://[vFF.z]:80x",
+"ok": "https://[vff.z]:80x"
+},
+{
+"input": "https://[v.x]",
+"err": true
+},
+{
+"input": "https://[v.x]:80",
+"err": true
+},
+{
+"input": "https://[v.x]:",
+"err": true
+},
+{
+"input": "https://[v.x]:abc",
+"err": true
+},
+{
+"input": "https://[v.x]x",
+"err": true
+},
+{
+"input": "https://[v.x]/p",
+"err": true
+},
+{
+"input": "https://[v.x]/p/",
+"err": true
+},
+{
+"input": "https://[v.x]?q",
+"err": true
+},
+{
+"input": "https://[v.x]#f",
+"err": true
+},
+{
+"input": "https://[v.x]:80/p/",
+"err": true
+},
+{
+"input": "https://[v.x]]",
+"err": true
+},
+{
+"input": "https://[v.x]]:80",
+"err": true
+},
+{
+"input": "https://[v.x]@h",
+"err": true
+},
+{
+"input": "https://[v.x]:80x",
+"err": true
+},
+{
+"input": "https://[v1.]",
+"err": true
+},
+{
+"input": "https://[v1.]:80",
+"err": true
+},
+{
+"input": "https://[v1.]:",
+"err": true
+},
+{
+"input": "https://[v1.]:abc",
+"err": true
+},
+{
+"input": "https://[v1.]x",
+"err": true
+},
+{
+"input": "https://[v1.]/p",
+"err": true
+},
+{
+"input": "https://[v1.]/p/",
+"err": true
+},
+{
+"input": "https://[v1.]?q",
+"err": true
+},
+{
+"input": "https://[v1.]#f",
+"err": true
+},
+{
+"input": "https://[v1.]:80/p/",
+"err": true
+},
+{
+"input": "https://[v1.]]",
+"err": true
+},
+{
+"input": "https://[v1.]]:80",
+"err": true
+},
+{
+"input": "https://[v1.]@h",
+"err": true
+},
+{
+"input": "https://[v1.]:80x",
+"err": true
+},
+{
+"input": "https://[v1]",
+"err": true
+},
+{
+"input": "https://[v1]:80",
+"err": true
+},
+{
+"input": "https://[v1]:",
+"err": true
+},
+{
+"input": "https://[v1]:abc",
+"err": true
+},
+{
+"input": "https://[v1]x",
+"err": true
+},
+{
+"input": "https://[v1]/p",
+"err": true
+},
+{
+"input": "https://[v1]/p/",
+"err": true
+},
+{
+"input": "https://[v1]?q",
+"err": true
+},
+{
+"input": "https://[v1]#f",
+"err": true
+},
+{
+"input": "https://[v1]:80/p/",
+"err": true
+},
+{
+"input": "https://[v1]]",
+"err": true
+},
+{
+"input": "https://[v1]]:80",
+"err": true
+},
+{
+"input": "https://[v1]@h",
+"err": true
+},
+{
+"input": "https://[v1]:80x",
+"err": true
+},
+{
+"input": "https://[V1.x]",
+"err": true
+},
+{
+"input": "https://[V1.x]:80",
+"err": true
+},
+{
+"input": "https://[V1.x]:",
+"err": true
+},
+{
+"input": "https://[V1.x]:abc",
+"err": true
+},
+{
+"input": "https://[V1.x]x",
+"err": true
+},
+{
+"input": "https://[V1.x]/p",
+"err": true
+},
+{
+"input": "https://[V1.x]/p/",
+"err": true
+},
+{
+"input": "https://[V1.x]?q",
+"err": true
+},
+{
+"input": "https://[V1.x]#f",
+"err": true
+},
+{
+"input": "https://[V1.x]:80/p/",
+"err": true
+},
+{
+"input": "https://[V1.x]]",
+"err": true
+},
+{
+"input": "https://[V1.x]]:80",
+"err": true
+},
+{
+"input": "https://[V1.x]@h",
+"err": true
+},
+{
+"input": "https://[V1.x]:80x",
+"err": true
+},
+{
+"input": "https://[vg.x]",
+"err": true
+},
+{
+"input": "https://[vg.x]:80",
+"err": true
+},
+{
+"input": "https://[vg.x]:",
+"err": true
+},
+{
+"input": "https://[vg.x]:abc",
+"err": true
+},
+{
+"input": "https://[vg.x]x",
+"err": true
+},
+{
+"input": "https://[vg.x]/p",
+"err": true
+},
+{
+"input": "https://[vg.x]/p/",
+"err": true
+},
+{
+"input": "https://[vg.x]?q",
+"err": true
+},
+{
+"input": "https://[vg.x]#f",
+"err": true
+},
+{
+"input": "https://[vg.x]:80/p/",
+"err": true
+},
+{
+"input": "https://[vg.x]]",
+"err": true
+},
+{
+"input": "https://[vg.x]]:80",
+"err": true
+},
+{
+"input": "https://[vg.x]@h",
+"err": true
+},
+{
+"input": "https://[vg.x]:80x",
+"err": true
+},
+{
+"input": "https://[::0001]",
+"ok": "https://[::0001]"
+},
+{
+"input": "https://[::0001]:80",
+"ok": "https://[::0001]:80"
+},
+{
+"input": "https://[::0001]:",
+"ok": "https://[::0001]:"
+},
+{
+"input": "https://[::0001]:abc",
+"ok": "https://[::0001]:abc"
+},
+{
+"input": "https://[::0001]x",
+"err": true
+},
+{
+"input": "https://[::0001]/p",
+"ok": "https://[::0001]/p"
+},
+{
+"input": "https://[::0001]/p/",
+"ok": "https://[::0001]/p"
+},
+{
+"input": "https://[::0001]?q",
+"ok": "https://[::0001]?q"
+},
+{
+"input": "https://[::0001]#f",
+"ok": "https://[::0001]#f"
+},
+{
+"input": "https://[::0001]:80/p/",
+"ok": "https://[::0001]:80/p"
+},
+{
+"input": "https://[::0001]]",
+"err": true
+},
+{
+"input": "https://[::0001]]:80",
+"err": true
+},
+{
+"input": "https://[::0001]@h",
+"err": true
+},
+{
+"input": "https://[::0001]:80x",
+"ok": "https://[::0001]:80x"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]",
+"ok": "https://[0:0:0:0:0:0:0:1]"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]:80",
+"ok": "https://[0:0:0:0:0:0:0:1]:80"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]:",
+"ok": "https://[0:0:0:0:0:0:0:1]:"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]:abc",
+"ok": "https://[0:0:0:0:0:0:0:1]:abc"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]x",
+"err": true
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]/p",
+"ok": "https://[0:0:0:0:0:0:0:1]/p"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]/p/",
+"ok": "https://[0:0:0:0:0:0:0:1]/p"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]?q",
+"ok": "https://[0:0:0:0:0:0:0:1]?q"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]#f",
+"ok": "https://[0:0:0:0:0:0:0:1]#f"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]:80/p/",
+"ok": "https://[0:0:0:0:0:0:0:1]:80/p"
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]]",
+"err": true
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]]:80",
+"err": true
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]@h",
+"err": true
+},
+{
+"input": "https://[0:0:0:0:0:0:0:1]:80x",
+"ok": "https://[0:0:0:0:0:0:0:1]:80x"
+},
+{
+"input": "https://[1::2::3]",
+"err": true
+},
+{
+"input": "https://[1::2::3]:80",
+"err": true
+},
+{
+"input": "https://[1::2::3]:",
+"err": true
+},
+{
+"input": "https://[1::2::3]:abc",
+"err": true
+},
+{
+"input": "https://[1::2::3]x",
+"err": true
+},
+{
+"input": "https://[1::2::3]/p",
+"err": true
+},
+{
+"input": "https://[1::2::3]/p/",
+"err": true
+},
+{
+"input": "https://[1::2::3]?q",
+"err": true
+},
+{
+"input": "https://[1::2::3]#f",
+"err": true
+},
+{
+"input": "https://[1::2::3]:80/p/",
+"err": true
+},
+{
+"input": "https://[1::2::3]]",
+"err": true
+},
+{
+"input": "https://[1::2::3]]:80",
+"err": true
+},
+{
+"input": "https://[1::2::3]@h",
+"err": true
+},
+{
+"input": "https://[1::2::3]:80x",
+"err": true
+},
+{
+"input": "https://[::\u0663]",
+"err": true
+},
+{
+"input": "https://[::\u0663]:80",
+"err": true
+},
+{
+"input": "https://[::\u0663]:",
+"err": true
+},
+{
+"input": "https://[::\u0663]:abc",
+"err": true
+},
+{
+"input": "https://[::\u0663]x",
+"err": true
+},
+{
+"input": "https://[::\u0663]/p",
+"err": true
+},
+{
+"input": "https://[::\u0663]/p/",
+"err": true
+},
+{
+"input": "https://[::\u0663]?q",
+"err": true
+},
+{
+"input": "https://[::\u0663]#f",
+"err": true
+},
+{
+"input": "https://[::\u0663]:80/p/",
+"err": true
+},
+{
+"input": "https://[::\u0663]]",
+"err": true
+},
+{
+"input": "https://[::\u0663]]:80",
+"err": true
+},
+{
+"input": "https://[::\u0663]@h",
+"err": true
+},
+{
+"input": "https://[::\u0663]:80x",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]:80",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]:",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]:abc",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]x",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]/p",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]/p/",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]?q",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]#f",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]:80/p/",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]]",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]]:80",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]@h",
+"err": true
+},
+{
+"input": "https://[\uff12001:db8::1]:80x",
+"err": true
+},
+{
+"input": "https://[::1/128]",
+"err": true
+},
+{
+"input": "https://[::1/128]:80",
+"err": true
+},
+{
+"input": "https://[::1/128]:",
+"err": true
+},
+{
+"input": "https://[::1/128]:abc",
+"err": true
+},
+{
+"input": "https://[::1/128]x",
+"err": true
+},
+{
+"input": "https://[::1/128]/p",
+"err": true
+},
+{
+"input": "https://[::1/128]/p/",
+"err": true
+},
+{
+"input": "https://[::1/128]?q",
+"err": true
+},
+{
+"input": "https://[::1/128]#f",
+"err": true
+},
+{
+"input": "https://[::1/128]:80/p/",
+"err": true
+},
+{
+"input": "https://[::1/128]]",
+"err": true
+},
+{
+"input": "https://[::1/128]]:80",
+"err": true
+},
+{
+"input": "https://[::1/128]@h",
+"err": true
+},
+{
+"input": "https://[::1/128]:80x",
+"err": true
+},
+{
+"input": "https://[::1@x]",
+"err": true
+},
+{
+"input": "https://[::1@x]:80",
+"err": true
+},
+{
+"input": "https://[::1@x]:",
+"err": true
+},
+{
+"input": "https://[::1@x]:abc",
+"err": true
+},
+{
+"input": "https://[::1@x]x",
+"err": true
+},
+{
+"input": "https://[::1@x]/p",
+"err": true
+},
+{
+"input": "https://[::1@x]/p/",
+"err": true
+},
+{
+"input": "https://[::1@x]?q",
+"err": true
+},
+{
+"input": "https://[::1@x]#f",
+"err": true
+},
+{
+"input": "https://[::1@x]:80/p/",
+"err": true
+},
+{
+"input": "https://[::1@x]]",
+"err": true
+},
+{
+"input": "https://[::1@x]]:80",
+"err": true
+},
+{
+"input": "https://[::1@x]@h",
+"err": true
+},
+{
+"input": "https://[::1@x]:80x",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]",
+"ok": "https://[1:2:3:4:5:6:7::]"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]:80",
+"ok": "https://[1:2:3:4:5:6:7::]:80"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]:",
+"ok": "https://[1:2:3:4:5:6:7::]:"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]:abc",
+"ok": "https://[1:2:3:4:5:6:7::]:abc"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]x",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]/p",
+"ok": "https://[1:2:3:4:5:6:7::]/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]/p/",
+"ok": "https://[1:2:3:4:5:6:7::]/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]?q",
+"ok": "https://[1:2:3:4:5:6:7::]?q"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]#f",
+"ok": "https://[1:2:3:4:5:6:7::]#f"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]:80/p/",
+"ok": "https://[1:2:3:4:5:6:7::]:80/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]@h",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7::]:80x",
+"ok": "https://[1:2:3:4:5:6:7::]:80x"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]",
+"ok": "https://[::2:3:4:5:6:7:8]"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]:80",
+"ok": "https://[::2:3:4:5:6:7:8]:80"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]:",
+"ok": "https://[::2:3:4:5:6:7:8]:"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]:abc",
+"ok": "https://[::2:3:4:5:6:7:8]:abc"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]x",
+"err": true
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]/p",
+"ok": "https://[::2:3:4:5:6:7:8]/p"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]/p/",
+"ok": "https://[::2:3:4:5:6:7:8]/p"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]?q",
+"ok": "https://[::2:3:4:5:6:7:8]?q"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]#f",
+"ok": "https://[::2:3:4:5:6:7:8]#f"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]:80/p/",
+"ok": "https://[::2:3:4:5:6:7:8]:80/p"
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]]",
+"err": true
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]]:80",
+"err": true
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]@h",
+"err": true
+},
+{
+"input": "https://[::2:3:4:5:6:7:8]:80x",
+"ok": "https://[::2:3:4:5:6:7:8]:80x"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]:80",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]:80"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]:",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]:"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]:abc",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]:abc"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]x",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]/p",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]/p/",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]?q",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]?q"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]#f",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]#f"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]:80/p/",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]:80/p"
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]@h",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:1.2.3.4]:80x",
+"ok": "https://[1:2:3:4:5:6:1.2.3.4]:80x"
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]:",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]:abc",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]x",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]/p",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]/p/",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]?q",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]#f",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]:80/p/",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]]",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]]:80",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]@h",
+"err": true
+},
+{
+"input": "https://[1:2:3:4:5:6:7:1.2.3.4]:80x",
+"err": true
+},
+{
+"input": "https://x[::1]",
+"err": true
+},
+{
+"input": "https://x[::1]:8080/a/",
+"err": true
+},
+{
+"input": "https://x[::1]x",
+"err": true
+},
+{
+"input": "https://u@[::1]",
+"ok": "https://u@[::1]"
+},
+{
+"input": "https://u@[::1]:8080/a/",
+"ok": "https://u@[::1]:8080/a"
+},
+{
+"input": "https://u@[::1]x",
+"err": true
+},
+{
+"input": "https://u:p@[::1]",
+"ok": "https://u:p@[::1]"
+},
+{
+"input": "https://u:p@[::1]:8080/a/",
+"ok": "https://u:p@[::1]:8080/a"
+},
+{
+"input": "https://u:p@[::1]x",
+"err": true
+},
+{
+"input": "https://a@b@[::1]",
+"ok": "https://a@b@[::1]"
+},
+{
+"input": "https://a@b@[::1]:8080/a/",
+"ok": "https://a@b@[::1]:8080/a"
+},
+{
+"input": "https://a@b@[::1]x",
+"err": true
+},
+{
+"input": "https://[[::1]",
+"err": true
+},
+{
+"input": "https://[[::1]:8080/a/",
+"err": true
+},
+{
+"input": "https://[[::1]x",
+"err": true
+},
+{
+"input": "https://x@[[::1]",
+"err": true
+},
+{
+"input": "https://x@[[::1]:8080/a/",
+"err": true
+},
+{
+"input": "https://x@[[::1]x",
+"err": true
+},
+{
+"input": "https://[::1",
+"err": true
+},
+{
+"input": "https://::1]",
+"err": true
+},
+{
+"input": "https://[[::1]]",
+"err": true
+},
+{
+"input": "https://[::1][::2]",
+"err": true
+},
+{
+"input": "https://[",
+"err": true
+},
+{
+"input": "https://]",
+"err": true
+},
+{
+"input": "http://[::1]:80/x/",
+"ok": "http://[::1]:80/x"
+},
+{
+"input": "//[::1]/x",
+"ok": "//[::1]/x"
+},
+{
+"input": "[::1]",
+"ok": "[::1]"
+},
+{
+"input": "a:[::1]",
+"ok": "a:[::1]"
+},
+{
+"input": "https:[::1]",
+"ok": "https:[::1]"
+},
+{
+"input": "https://a/[b",
+"ok": "https://a/[b"
+},
+{
+"input": "https://a/b]",
+"ok": "https://a/b]"
+},
+{
+"input": "https://a?[",
+"ok": "https://a?["
+},
+{
+"input": "https://a#]",
+"ok": "https://a#]"
+},
+{
+"input": "https://u[x@h]/",
+"err": true
+},
+{
+"input": "https://u@[::1]@[::2]/",
+"ok": "https://u@[::1]@[::2]"
+},
+{
+"input": "https://h@[::1]",
+"ok": "https://h@[::1]"
+},
+{
+"input": "ws://[v1.x]:1/",
+"ok": "ws://[v1.x]:1"
+},
+{
+"input": "https://ex\u2100.com/p/",
+"err": true
+},
+{
+"input": "https://\u2100ex.com",
+"err": true
+},
+{
+"input": "https://u\u2100p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\u2100",
+"err": true
+},
+{
+"input": "https://ex.com:80\u2100/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\u2100/",
+"ok": "https://ex.com/p\u2100"
+},
+{
+"input": "https://ex.com/?q\u2100",
+"ok": "https://ex.com?q\u2100"
+},
+{
+"input": "https://ex\u2101.com/p/",
+"err": true
+},
+{
+"input": "https://\u2101ex.com",
+"err": true
+},
+{
+"input": "https://u\u2101p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\u2101",
+"err": true
+},
+{
+"input": "https://ex.com:80\u2101/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\u2101/",
+"ok": "https://ex.com/p\u2101"
+},
+{
+"input": "https://ex.com/?q\u2101",
+"ok": "https://ex.com?q\u2101"
+},
+{
+"input": "https://ex\u2105.com/p/",
+"err": true
+},
+{
+"input": "https://\u2105ex.com",
+"err": true
+},
+{
+"input": "https://u\u2105p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\u2105",
+"err": true
+},
+{
+"input": "https://ex.com:80\u2105/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\u2105/",
+"ok": "https://ex.com/p\u2105"
+},
+{
+"input": "https://ex.com/?q\u2105",
+"ok": "https://ex.com?q\u2105"
+},
+{
+"input": "https://ex\u2106.com/p/",
+"err": true
+},
+{
+"input": "https://\u2106ex.com",
+"err": true
+},
+{
+"input": "https://u\u2106p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\u2106",
+"err": true
+},
+{
+"input": "https://ex.com:80\u2106/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\u2106/",
+"ok": "https://ex.com/p\u2106"
+},
+{
+"input": "https://ex.com/?q\u2106",
+"ok": "https://ex.com?q\u2106"
+},
+{
+"input": "https://ex\uff0f.com/p/",
+"err": true
+},
+{
+"input": "https://\uff0fex.com",
+"err": true
+},
+{
+"input": "https://u\uff0fp@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\uff0f",
+"err": true
+},
+{
+"input": "https://ex.com:80\uff0f/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\uff0f/",
+"ok": "https://ex.com/p\uff0f"
+},
+{
+"input": "https://ex.com/?q\uff0f",
+"ok": "https://ex.com?q\uff0f"
+},
+{
+"input": "https://ex\uff1a.com/p/",
+"err": true
+},
+{
+"input": "https://\uff1aex.com",
+"err": true
+},
+{
+"input": "https://u\uff1ap@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\uff1a",
+"err": true
+},
+{
+"input": "https://ex.com:80\uff1a/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\uff1a/",
+"ok": "https://ex.com/p\uff1a"
+},
+{
+"input": "https://ex.com/?q\uff1a",
+"ok": "https://ex.com?q\uff1a"
+},
+{
+"input": "https://ex\uff20.com/p/",
+"err": true
+},
+{
+"input": "https://\uff20ex.com",
+"err": true
+},
+{
+"input": "https://u\uff20p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\uff20",
+"err": true
+},
+{
+"input": "https://ex.com:80\uff20/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\uff20/",
+"ok": "https://ex.com/p\uff20"
+},
+{
+"input": "https://ex.com/?q\uff20",
+"ok": "https://ex.com?q\uff20"
+},
+{
+"input": "https://ex\uff03.com/p/",
+"err": true
+},
+{
+"input": "https://\uff03ex.com",
+"err": true
+},
+{
+"input": "https://u\uff03p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\uff03",
+"err": true
+},
+{
+"input": "https://ex.com:80\uff03/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\uff03/",
+"ok": "https://ex.com/p\uff03"
+},
+{
+"input": "https://ex.com/?q\uff03",
+"ok": "https://ex.com?q\uff03"
+},
+{
+"input": "https://ex\uff1f.com/p/",
+"err": true
+},
+{
+"input": "https://\uff1fex.com",
+"err": true
+},
+{
+"input": "https://u\uff1fp@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\uff1f",
+"err": true
+},
+{
+"input": "https://ex.com:80\uff1f/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\uff1f/",
+"ok": "https://ex.com/p\uff1f"
+},
+{
+"input": "https://ex.com/?q\uff1f",
+"ok": "https://ex.com?q\uff1f"
+},
+{
+"input": "https://ex\u2025.com/p/",
+"ok": "https://ex\u2025.com/p"
+},
+{
+"input": "https://\u2025ex.com",
+"ok": "https://\u2025ex.com"
+},
+{
+"input": "https://u\u2025p@ex.com/",
+"ok": "https://u\u2025p@ex.com"
+},
+{
+"input": "https://ex.com\u2025",
+"ok": "https://ex.com\u2025"
+},
+{
+"input": "https://ex.com:80\u2025/p",
+"ok": "https://ex.com:80\u2025/p"
+},
+{
+"input": "https://ex.com/p\u2025/",
+"ok": "https://ex.com/p\u2025"
+},
+{
+"input": "https://ex.com/?q\u2025",
+"ok": "https://ex.com?q\u2025"
+},
+{
+"input": "https://ex\u2026.com/p/",
+"ok": "https://ex\u2026.com/p"
+},
+{
+"input": "https://\u2026ex.com",
+"ok": "https://\u2026ex.com"
+},
+{
+"input": "https://u\u2026p@ex.com/",
+"ok": "https://u\u2026p@ex.com"
+},
+{
+"input": "https://ex.com\u2026",
+"ok": "https://ex.com\u2026"
+},
+{
+"input": "https://ex.com:80\u2026/p",
+"ok": "https://ex.com:80\u2026/p"
+},
+{
+"input": "https://ex.com/p\u2026/",
+"ok": "https://ex.com/p\u2026"
+},
+{
+"input": "https://ex.com/?q\u2026",
+"ok": "https://ex.com?q\u2026"
+},
+{
+"input": "https://ex\ufe13.com/p/",
+"err": true
+},
+{
+"input": "https://\ufe13ex.com",
+"err": true
+},
+{
+"input": "https://u\ufe13p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\ufe13",
+"err": true
+},
+{
+"input": "https://ex.com:80\ufe13/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\ufe13/",
+"ok": "https://ex.com/p\ufe13"
+},
+{
+"input": "https://ex.com/?q\ufe13",
+"ok": "https://ex.com?q\ufe13"
+},
+{
+"input": "https://ex\ufe55.com/p/",
+"err": true
+},
+{
+"input": "https://\ufe55ex.com",
+"err": true
+},
+{
+"input": "https://u\ufe55p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\ufe55",
+"err": true
+},
+{
+"input": "https://ex.com:80\ufe55/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\ufe55/",
+"ok": "https://ex.com/p\ufe55"
+},
+{
+"input": "https://ex.com/?q\ufe55",
+"ok": "https://ex.com?q\ufe55"
+},
+{
+"input": "https://ex\u00e9.com/p/",
+"ok": "https://ex\u00e9.com/p"
+},
+{
+"input": "https://\u00e9ex.com",
+"ok": "https://\u00e9ex.com"
+},
+{
+"input": "https://u\u00e9p@ex.com/",
+"ok": "https://u\u00e9p@ex.com"
+},
+{
+"input": "https://ex.com\u00e9",
+"ok": "https://ex.com\u00e9"
+},
+{
+"input": "https://ex.com:80\u00e9/p",
+"ok": "https://ex.com:80\u00e9/p"
+},
+{
+"input": "https://ex.com/p\u00e9/",
+"ok": "https://ex.com/p\u00e9"
+},
+{
+"input": "https://ex.com/?q\u00e9",
+"ok": "https://ex.com?q\u00e9"
+},
+{
+"input": "https://ex\u212b.com/p/",
+"ok": "https://ex\u00e5.com/p"
+},
+{
+"input": "https://\u212bex.com",
+"ok": "https://\u00e5ex.com"
+},
+{
+"input": "https://u\u212bp@ex.com/",
+"ok": "https://u\u00e5p@ex.com"
+},
+{
+"input": "https://ex.com\u212b",
+"ok": "https://ex.com\u00e5"
+},
+{
+"input": "https://ex.com:80\u212b/p",
+"ok": "https://ex.com:80\u00e5/p"
+},
+{
+"input": "https://ex.com/p\u212b/",
+"ok": "https://ex.com/p\u212b"
+},
+{
+"input": "https://ex.com/?q\u212b",
+"ok": "https://ex.com?q\u212b"
+},
+{
+"input": "https://ex\ufb01.com/p/",
+"ok": "https://ex\ufb01.com/p"
+},
+{
+"input": "https://\ufb01ex.com",
+"ok": "https://\ufb01ex.com"
+},
+{
+"input": "https://u\ufb01p@ex.com/",
+"ok": "https://u\ufb01p@ex.com"
+},
+{
+"input": "https://ex.com\ufb01",
+"ok": "https://ex.com\ufb01"
+},
+{
+"input": "https://ex.com:80\ufb01/p",
+"ok": "https://ex.com:80\ufb01/p"
+},
+{
+"input": "https://ex.com/p\ufb01/",
+"ok": "https://ex.com/p\ufb01"
+},
+{
+"input": "https://ex.com/?q\ufb01",
+"ok": "https://ex.com?q\ufb01"
+},
+{
+"input": "https://ex\u00b2.com/p/",
+"ok": "https://ex\u00b2.com/p"
+},
+{
+"input": "https://\u00b2ex.com",
+"ok": "https://\u00b2ex.com"
+},
+{
+"input": "https://u\u00b2p@ex.com/",
+"ok": "https://u\u00b2p@ex.com"
+},
+{
+"input": "https://ex.com\u00b2",
+"ok": "https://ex.com\u00b2"
+},
+{
+"input": "https://ex.com:80\u00b2/p",
+"ok": "https://ex.com:80\u00b2/p"
+},
+{
+"input": "https://ex.com/p\u00b2/",
+"ok": "https://ex.com/p\u00b2"
+},
+{
+"input": "https://ex.com/?q\u00b2",
+"ok": "https://ex.com?q\u00b2"
+},
+{
+"input": "https://ex\u2460.com/p/",
+"ok": "https://ex\u2460.com/p"
+},
+{
+"input": "https://\u2460ex.com",
+"ok": "https://\u2460ex.com"
+},
+{
+"input": "https://u\u2460p@ex.com/",
+"ok": "https://u\u2460p@ex.com"
+},
+{
+"input": "https://ex.com\u2460",
+"ok": "https://ex.com\u2460"
+},
+{
+"input": "https://ex.com:80\u2460/p",
+"ok": "https://ex.com:80\u2460/p"
+},
+{
+"input": "https://ex.com/p\u2460/",
+"ok": "https://ex.com/p\u2460"
+},
+{
+"input": "https://ex.com/?q\u2460",
+"ok": "https://ex.com?q\u2460"
+},
+{
+"input": "https://ex\uff21.com/p/",
+"ok": "https://ex\uff41.com/p"
+},
+{
+"input": "https://\uff21ex.com",
+"ok": "https://\uff41ex.com"
+},
+{
+"input": "https://u\uff21p@ex.com/",
+"ok": "https://u\uff41p@ex.com"
+},
+{
+"input": "https://ex.com\uff21",
+"ok": "https://ex.com\uff41"
+},
+{
+"input": "https://ex.com:80\uff21/p",
+"ok": "https://ex.com:80\uff41/p"
+},
+{
+"input": "https://ex.com/p\uff21/",
+"ok": "https://ex.com/p\uff21"
+},
+{
+"input": "https://ex.com/?q\uff21",
+"ok": "https://ex.com?q\uff21"
+},
+{
+"input": "https://ex\u1e9e.com/p/",
+"ok": "https://ex\u00df.com/p"
+},
+{
+"input": "https://\u1e9eex.com",
+"ok": "https://\u00dfex.com"
+},
+{
+"input": "https://u\u1e9ep@ex.com/",
+"ok": "https://u\u00dfp@ex.com"
+},
+{
+"input": "https://ex.com\u1e9e",
+"ok": "https://ex.com\u00df"
+},
+{
+"input": "https://ex.com:80\u1e9e/p",
+"ok": "https://ex.com:80\u00df/p"
+},
+{
+"input": "https://ex.com/p\u1e9e/",
+"ok": "https://ex.com/p\u1e9e"
+},
+{
+"input": "https://ex.com/?q\u1e9e",
+"ok": "https://ex.com?q\u1e9e"
+},
+{
+"input": "https://ex\u0130.com/p/",
+"ok": "https://exi\u0307.com/p"
+},
+{
+"input": "https://\u0130ex.com",
+"ok": "https://i\u0307ex.com"
+},
+{
+"input": "https://u\u0130p@ex.com/",
+"ok": "https://ui\u0307p@ex.com"
+},
+{
+"input": "https://ex.com\u0130",
+"ok": "https://ex.comi\u0307"
+},
+{
+"input": "https://ex.com:80\u0130/p",
+"ok": "https://ex.com:80i\u0307/p"
+},
+{
+"input": "https://ex.com/p\u0130/",
+"ok": "https://ex.com/p\u0130"
+},
+{
+"input": "https://ex.com/?q\u0130",
+"ok": "https://ex.com?q\u0130"
+},
+{
+"input": "https://ex\u2f00.com/p/",
+"ok": "https://ex\u2f00.com/p"
+},
+{
+"input": "https://\u2f00ex.com",
+"ok": "https://\u2f00ex.com"
+},
+{
+"input": "https://u\u2f00p@ex.com/",
+"ok": "https://u\u2f00p@ex.com"
+},
+{
+"input": "https://ex.com\u2f00",
+"ok": "https://ex.com\u2f00"
+},
+{
+"input": "https://ex.com:80\u2f00/p",
+"ok": "https://ex.com:80\u2f00/p"
+},
+{
+"input": "https://ex.com/p\u2f00/",
+"ok": "https://ex.com/p\u2f00"
+},
+{
+"input": "https://ex.com/?q\u2f00",
+"ok": "https://ex.com?q\u2f00"
+},
+{
+"input": "https://ex\u3002.com/p/",
+"ok": "https://ex\u3002.com/p"
+},
+{
+"input": "https://\u3002ex.com",
+"ok": "https://\u3002ex.com"
+},
+{
+"input": "https://u\u3002p@ex.com/",
+"ok": "https://u\u3002p@ex.com"
+},
+{
+"input": "https://ex.com\u3002",
+"ok": "https://ex.com\u3002"
+},
+{
+"input": "https://ex.com:80\u3002/p",
+"ok": "https://ex.com:80\u3002/p"
+},
+{
+"input": "https://ex.com/p\u3002/",
+"ok": "https://ex.com/p\u3002"
+},
+{
+"input": "https://ex.com/?q\u3002",
+"ok": "https://ex.com?q\u3002"
+},
+{
+"input": "https://ex\uff0e.com/p/",
+"ok": "https://ex\uff0e.com/p"
+},
+{
+"input": "https://\uff0eex.com",
+"ok": "https://\uff0eex.com"
+},
+{
+"input": "https://u\uff0ep@ex.com/",
+"ok": "https://u\uff0ep@ex.com"
+},
+{
+"input": "https://ex.com\uff0e",
+"ok": "https://ex.com\uff0e"
+},
+{
+"input": "https://ex.com:80\uff0e/p",
+"ok": "https://ex.com:80\uff0e/p"
+},
+{
+"input": "https://ex.com/p\uff0e/",
+"ok": "https://ex.com/p\uff0e"
+},
+{
+"input": "https://ex.com/?q\uff0e",
+"ok": "https://ex.com?q\uff0e"
+},
+{
+"input": "https://ex\u00a0.com/p/",
+"ok": "https://ex\u00a0.com/p"
+},
+{
+"input": "https://\u00a0ex.com",
+"ok": "https://\u00a0ex.com"
+},
+{
+"input": "https://u\u00a0p@ex.com/",
+"ok": "https://u\u00a0p@ex.com"
+},
+{
+"input": "https://ex.com\u00a0",
+"ok": "https://ex.com"
+},
+{
+"input": "https://ex.com:80\u00a0/p",
+"ok": "https://ex.com:80\u00a0/p"
+},
+{
+"input": "https://ex.com/p\u00a0/",
+"ok": "https://ex.com/p\u00a0"
+},
+{
+"input": "https://ex.com/?q\u00a0",
+"ok": "https://ex.com?q"
+},
+{
+"input": "https://ex\u2215.com/p/",
+"ok": "https://ex\u2215.com/p"
+},
+{
+"input": "https://\u2215ex.com",
+"ok": "https://\u2215ex.com"
+},
+{
+"input": "https://u\u2215p@ex.com/",
+"ok": "https://u\u2215p@ex.com"
+},
+{
+"input": "https://ex.com\u2215",
+"ok": "https://ex.com\u2215"
+},
+{
+"input": "https://ex.com:80\u2215/p",
+"ok": "https://ex.com:80\u2215/p"
+},
+{
+"input": "https://ex.com/p\u2215/",
+"ok": "https://ex.com/p\u2215"
+},
+{
+"input": "https://ex.com/?q\u2215",
+"ok": "https://ex.com?q\u2215"
+},
+{
+"input": "https://ex\u2044.com/p/",
+"ok": "https://ex\u2044.com/p"
+},
+{
+"input": "https://\u2044ex.com",
+"ok": "https://\u2044ex.com"
+},
+{
+"input": "https://u\u2044p@ex.com/",
+"ok": "https://u\u2044p@ex.com"
+},
+{
+"input": "https://ex.com\u2044",
+"ok": "https://ex.com\u2044"
+},
+{
+"input": "https://ex.com:80\u2044/p",
+"ok": "https://ex.com:80\u2044/p"
+},
+{
+"input": "https://ex.com/p\u2044/",
+"ok": "https://ex.com/p\u2044"
+},
+{
+"input": "https://ex.com/?q\u2044",
+"ok": "https://ex.com?q\u2044"
+},
+{
+"input": "https://ex\uff3b.com/p/",
+"ok": "https://ex\uff3b.com/p"
+},
+{
+"input": "https://\uff3bex.com",
+"ok": "https://\uff3bex.com"
+},
+{
+"input": "https://u\uff3bp@ex.com/",
+"ok": "https://u\uff3bp@ex.com"
+},
+{
+"input": "https://ex.com\uff3b",
+"ok": "https://ex.com\uff3b"
+},
+{
+"input": "https://ex.com:80\uff3b/p",
+"ok": "https://ex.com:80\uff3b/p"
+},
+{
+"input": "https://ex.com/p\uff3b/",
+"ok": "https://ex.com/p\uff3b"
+},
+{
+"input": "https://ex.com/?q\uff3b",
+"ok": "https://ex.com?q\uff3b"
+},
+{
+"input": "https://ex\uff3d.com/p/",
+"ok": "https://ex\uff3d.com/p"
+},
+{
+"input": "https://\uff3dex.com",
+"ok": "https://\uff3dex.com"
+},
+{
+"input": "https://u\uff3dp@ex.com/",
+"ok": "https://u\uff3dp@ex.com"
+},
+{
+"input": "https://ex.com\uff3d",
+"ok": "https://ex.com\uff3d"
+},
+{
+"input": "https://ex.com:80\uff3d/p",
+"ok": "https://ex.com:80\uff3d/p"
+},
+{
+"input": "https://ex.com/p\uff3d/",
+"ok": "https://ex.com/p\uff3d"
+},
+{
+"input": "https://ex.com/?q\uff3d",
+"ok": "https://ex.com?q\uff3d"
+},
+{
+"input": "https://ex\u037e.com/p/",
+"ok": "https://ex\u037e.com/p"
+},
+{
+"input": "https://\u037eex.com",
+"ok": "https://\u037eex.com"
+},
+{
+"input": "https://u\u037ep@ex.com/",
+"ok": "https://u\u037ep@ex.com"
+},
+{
+"input": "https://ex.com\u037e",
+"ok": "https://ex.com\u037e"
+},
+{
+"input": "https://ex.com:80\u037e/p",
+"ok": "https://ex.com:80\u037e/p"
+},
+{
+"input": "https://ex.com/p\u037e/",
+"ok": "https://ex.com/p\u037e"
+},
+{
+"input": "https://ex.com/?q\u037e",
+"ok": "https://ex.com?q\u037e"
+},
+{
+"input": "https://ex\u2a74.com/p/",
+"err": true
+},
+{
+"input": "https://\u2a74ex.com",
+"err": true
+},
+{
+"input": "https://u\u2a74p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\u2a74",
+"err": true
+},
+{
+"input": "https://ex.com:80\u2a74/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\u2a74/",
+"ok": "https://ex.com/p\u2a74"
+},
+{
+"input": "https://ex.com/?q\u2a74",
+"ok": "https://ex.com?q\u2a74"
+},
+{
+"input": "https://ex\u2478.com/p/",
+"ok": "https://ex\u2478.com/p"
+},
+{
+"input": "https://\u2478ex.com",
+"ok": "https://\u2478ex.com"
+},
+{
+"input": "https://u\u2478p@ex.com/",
+"ok": "https://u\u2478p@ex.com"
+},
+{
+"input": "https://ex.com\u2478",
+"ok": "https://ex.com\u2478"
+},
+{
+"input": "https://ex.com:80\u2478/p",
+"ok": "https://ex.com:80\u2478/p"
+},
+{
+"input": "https://ex.com/p\u2478/",
+"ok": "https://ex.com/p\u2478"
+},
+{
+"input": "https://ex.com/?q\u2478",
+"ok": "https://ex.com?q\u2478"
+},
+{
+"input": "https://ex\ufe6b.com/p/",
+"err": true
+},
+{
+"input": "https://\ufe6bex.com",
+"err": true
+},
+{
+"input": "https://u\ufe6bp@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\ufe6b",
+"err": true
+},
+{
+"input": "https://ex.com:80\ufe6b/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\ufe6b/",
+"ok": "https://ex.com/p\ufe6b"
+},
+{
+"input": "https://ex.com/?q\ufe6b",
+"ok": "https://ex.com?q\ufe6b"
+},
+{
+"input": "https://ex\ufe5f.com/p/",
+"err": true
+},
+{
+"input": "https://\ufe5fex.com",
+"err": true
+},
+{
+"input": "https://u\ufe5fp@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\ufe5f",
+"err": true
+},
+{
+"input": "https://ex.com:80\ufe5f/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\ufe5f/",
+"ok": "https://ex.com/p\ufe5f"
+},
+{
+"input": "https://ex.com/?q\ufe5f",
+"ok": "https://ex.com?q\ufe5f"
+},
+{
+"input": "https://ex\ufe56.com/p/",
+"err": true
+},
+{
+"input": "https://\ufe56ex.com",
+"err": true
+},
+{
+"input": "https://u\ufe56p@ex.com/",
+"err": true
+},
+{
+"input": "https://ex.com\ufe56",
+"err": true
+},
+{
+"input": "https://ex.com:80\ufe56/p",
+"err": true
+},
+{
+"input": "https://ex.com/p\ufe56/",
+"ok": "https://ex.com/p\ufe56"
+},
+{
+"input": "https://ex.com/?q\ufe56",
+"ok": "https://ex.com?q\ufe56"
+},
+{
+"input": "https://b\u00fccher.example/\u00dc/",
+"ok": "https://b\u00fccher.example/\u00dc"
+},
+{
+"input": "https://B\u00dcCHER.de",
+"ok": "https://b\u00fccher.de"
+},
+{
+"input": "https://\u041f\u0420\u0418\u041c\u0415\u0420.\u0440\u0444/\u041f\u0443\u0442\u044c/",
+"ok": "https://\u043f\u0440\u0438\u043c\u0435\u0440.\u0440\u0444/\u041f\u0443\u0442\u044c"
+},
+{
+"input": "https://\u4f8b\u3048.jp/",
+"ok": "https://\u4f8b\u3048.jp"
+},
+{
+"input": "https://ex\u0301.com",
+"ok": "https://ex\u0301.com"
+},
+{
+"input": "https://\uff21.com",
+"ok": "https://\uff41.com"
+},
+{
+"input": "https://ex.com\u3000",
+"ok": "https://ex.com"
+},
+{
+"input": "https://\uff11\uff12\uff17.\uff10.\uff10.\uff11/",
+"ok": "https://\uff11\uff12\uff17.\uff10.\uff10.\uff11"
+},
+{
+"input": "https://ex\u200b.com",
+"ok": "https://ex\u200b.com"
+},
+{
+"input": "https://fa\u00df.de",
+"ok": "https://fa\u00df.de"
+},
+{
+"input": "https://\u2100.example/",
+"err": true
+},
+{
+"input": "https://[\u2100]/",
+"err": true
+},
+{
+"input": "https://[::1]\u2100",
+"err": true
+},
+{
+"input": "https://\u2100[::1]",
+"err": true
+},
+{
+"input": "https://user\uff20host.com/",
+"err": true
+},
+{
+"input": "https://h\uff1a80/",
+"err": true
+},
+{
+"input": "https://ex.com/a/",
+"ok": "https://ex.com/a"
+},
+{
+"input": "https://ex.com:/a/",
+"ok": "https://ex.com:/a"
+},
+{
+"input": "https://ex.com:0/a/",
+"ok": "https://ex.com:0/a"
+},
+{
+"input": "https://ex.com:80/a/",
+"ok": "https://ex.com:80/a"
+},
+{
+"input": "https://ex.com:65535/a/",
+"ok": "https://ex.com:65535/a"
+},
+{
+"input": "https://ex.com:65536/a/",
+"ok": "https://ex.com:65536/a"
+},
+{
+"input": "https://ex.com:-1/a/",
+"ok": "https://ex.com:-1/a"
+},
+{
+"input": "https://EX.com/a/",
+"ok": "https://ex.com/a"
+},
+{
+"input": "https://EX.com:/a/",
+"ok": "https://ex.com:/a"
+},
+{
+"input": "https://EX.com:0/a/",
+"ok": "https://ex.com:0/a"
+},
+{
+"input": "https://EX.com:80/a/",
+"ok": "https://ex.com:80/a"
+},
+{
+"input": "https://EX.com:65535/a/",
+"ok": "https://ex.com:65535/a"
+},
+{
+"input": "https://EX.com:65536/a/",
+"ok": "https://ex.com:65536/a"
+},
+{
+"input": "https://EX.com:-1/a/",
+"ok": "https://ex.com:-1/a"
+},
+{
+"input": "https:///a/",
+"ok": "https:///a"
+},
+{
+"input": "https://:/a/",
+"ok": "https://:/a"
+},
+{
+"input": "https://:0/a/",
+"ok": "https://:0/a"
+},
+{
+"input": "https://:80/a/",
+"ok": "https://:80/a"
+},
+{
+"input": "https://:65535/a/",
+"ok": "https://:65535/a"
+},
+{
+"input": "https://:65536/a/",
+"ok": "https://:65536/a"
+},
+{
+"input": "https://:-1/a/",
+"ok": "https://:-1/a"
+},
+{
+"input": "https://1.2.3.4/a/",
+"ok": "https://1.2.3.4/a"
+},
+{
+"input": "https://1.2.3.4:/a/",
+"ok": "https://1.2.3.4:/a"
+},
+{
+"input": "https://1.2.3.4:0/a/",
+"ok": "https://1.2.3.4:0/a"
+},
+{
+"input": "https://1.2.3.4:80/a/",
+"ok": "https://1.2.3.4:80/a"
+},
+{
+"input": "https://1.2.3.4:65535/a/",
+"ok": "https://1.2.3.4:65535/a"
+},
+{
+"input": "https://1.2.3.4:65536/a/",
+"ok": "https://1.2.3.4:65536/a"
+},
+{
+"input": "https://1.2.3.4:-1/a/",
+"ok": "https://1.2.3.4:-1/a"
+},
+{
+"input": "https://ex.com./a/",
+"ok": "https://ex.com./a"
+},
+{
+"input": "https://ex.com.:/a/",
+"ok": "https://ex.com.:/a"
+},
+{
+"input": "https://ex.com.:0/a/",
+"ok": "https://ex.com.:0/a"
+},
+{
+"input": "https://ex.com.:80/a/",
+"ok": "https://ex.com.:80/a"
+},
+{
+"input": "https://ex.com.:65535/a/",
+"ok": "https://ex.com.:65535/a"
+},
+{
+"input": "https://ex.com.:65536/a/",
+"ok": "https://ex.com.:65536/a"
+},
+{
+"input": "https://ex.com.:-1/a/",
+"ok": "https://ex.com.:-1/a"
+},
+{
+"input": "https://u@ex.com/a/",
+"ok": "https://u@ex.com/a"
+},
+{
+"input": "https://u@ex.com:/a/",
+"ok": "https://u@ex.com:/a"
+},
+{
+"input": "https://u@ex.com:0/a/",
+"ok": "https://u@ex.com:0/a"
+},
+{
+"input": "https://u@ex.com:80/a/",
+"ok": "https://u@ex.com:80/a"
+},
+{
+"input": "https://u@ex.com:65535/a/",
+"ok": "https://u@ex.com:65535/a"
+},
+{
+"input": "https://u@ex.com:65536/a/",
+"ok": "https://u@ex.com:65536/a"
+},
+{
+"input": "https://u@ex.com:-1/a/",
+"ok": "https://u@ex.com:-1/a"
+},
+{
+"input": "https://u@EX.com/a/",
+"ok": "https://u@ex.com/a"
+},
+{
+"input": "https://u@EX.com:/a/",
+"ok": "https://u@ex.com:/a"
+},
+{
+"input": "https://u@EX.com:0/a/",
+"ok": "https://u@ex.com:0/a"
+},
+{
+"input": "https://u@EX.com:80/a/",
+"ok": "https://u@ex.com:80/a"
+},
+{
+"input": "https://u@EX.com:65535/a/",
+"ok": "https://u@ex.com:65535/a"
+},
+{
+"input": "https://u@EX.com:65536/a/",
+"ok": "https://u@ex.com:65536/a"
+},
+{
+"input": "https://u@EX.com:-1/a/",
+"ok": "https://u@ex.com:-1/a"
+},
+{
+"input": "https://u@/a/",
+"ok": "https://u@/a"
+},
+{
+"input": "https://u@:/a/",
+"ok": "https://u@:/a"
+},
+{
+"input": "https://u@:0/a/",
+"ok": "https://u@:0/a"
+},
+{
+"input": "https://u@:80/a/",
+"ok": "https://u@:80/a"
+},
+{
+"input": "https://u@:65535/a/",
+"ok": "https://u@:65535/a"
+},
+{
+"input": "https://u@:65536/a/",
+"ok": "https://u@:65536/a"
+},
+{
+"input": "https://u@:-1/a/",
+"ok": "https://u@:-1/a"
+},
+{
+"input": "https://u@1.2.3.4/a/",
+"ok": "https://u@1.2.3.4/a"
+},
+{
+"input": "https://u@1.2.3.4:/a/",
+"ok": "https://u@1.2.3.4:/a"
+},
+{
+"input": "https://u@1.2.3.4:0/a/",
+"ok": "https://u@1.2.3.4:0/a"
+},
+{
+"input": "https://u@1.2.3.4:80/a/",
+"ok": "https://u@1.2.3.4:80/a"
+},
+{
+"input": "https://u@1.2.3.4:65535/a/",
+"ok": "https://u@1.2.3.4:65535/a"
+},
+{
+"input": "https://u@1.2.3.4:65536/a/",
+"ok": "https://u@1.2.3.4:65536/a"
+},
+{
+"input": "https://u@1.2.3.4:-1/a/",
+"ok": "https://u@1.2.3.4:-1/a"
+},
+{
+"input": "https://u@ex.com./a/",
+"ok": "https://u@ex.com./a"
+},
+{
+"input": "https://u@ex.com.:/a/",
+"ok": "https://u@ex.com.:/a"
+},
+{
+"input": "https://u@ex.com.:0/a/",
+"ok": "https://u@ex.com.:0/a"
+},
+{
+"input": "https://u@ex.com.:80/a/",
+"ok": "https://u@ex.com.:80/a"
+},
+{
+"input": "https://u@ex.com.:65535/a/",
+"ok": "https://u@ex.com.:65535/a"
+},
+{
+"input": "https://u@ex.com.:65536/a/",
+"ok": "https://u@ex.com.:65536/a"
+},
+{
+"input": "https://u@ex.com.:-1/a/",
+"ok": "https://u@ex.com.:-1/a"
+},
+{
+"input": "https://u:p@ex.com/a/",
+"ok": "https://u:p@ex.com/a"
+},
+{
+"input": "https://u:p@ex.com:/a/",
+"ok": "https://u:p@ex.com:/a"
+},
+{
+"input": "https://u:p@ex.com:0/a/",
+"ok": "https://u:p@ex.com:0/a"
+},
+{
+"input": "https://u:p@ex.com:80/a/",
+"ok": "https://u:p@ex.com:80/a"
+},
+{
+"input": "https://u:p@ex.com:65535/a/",
+"ok": "https://u:p@ex.com:65535/a"
+},
+{
+"input": "https://u:p@ex.com:65536/a/",
+"ok": "https://u:p@ex.com:65536/a"
+},
+{
+"input": "https://u:p@ex.com:-1/a/",
+"ok": "https://u:p@ex.com:-1/a"
+},
+{
+"input": "https://u:p@EX.com/a/",
+"ok": "https://u:p@ex.com/a"
+},
+{
+"input": "https://u:p@EX.com:/a/",
+"ok": "https://u:p@ex.com:/a"
+},
+{
+"input": "https://u:p@EX.com:0/a/",
+"ok": "https://u:p@ex.com:0/a"
+},
+{
+"input": "https://u:p@EX.com:80/a/",
+"ok": "https://u:p@ex.com:80/a"
+},
+{
+"input": "https://u:p@EX.com:65535/a/",
+"ok": "https://u:p@ex.com:65535/a"
+},
+{
+"input": "https://u:p@EX.com:65536/a/",
+"ok": "https://u:p@ex.com:65536/a"
+},
+{
+"input": "https://u:p@EX.com:-1/a/",
+"ok": "https://u:p@ex.com:-1/a"
+},
+{
+"input": "https://u:p@/a/",
+"ok": "https://u:p@/a"
+},
+{
+"input": "https://u:p@:/a/",
+"ok": "https://u:p@:/a"
+},
+{
+"input": "https://u:p@:0/a/",
+"ok": "https://u:p@:0/a"
+},
+{
+"input": "https://u:p@:80/a/",
+"ok": "https://u:p@:80/a"
+},
+{
+"input": "https://u:p@:65535/a/",
+"ok": "https://u:p@:65535/a"
+},
+{
+"input": "https://u:p@:65536/a/",
+"ok": "https://u:p@:65536/a"
+},
+{
+"input": "https://u:p@:-1/a/",
+"ok": "https://u:p@:-1/a"
+},
+{
+"input": "https://u:p@1.2.3.4/a/",
+"ok": "https://u:p@1.2.3.4/a"
+},
+{
+"input": "https://u:p@1.2.3.4:/a/",
+"ok": "https://u:p@1.2.3.4:/a"
+},
+{
+"input": "https://u:p@1.2.3.4:0/a/",
+"ok": "https://u:p@1.2.3.4:0/a"
+},
+{
+"input": "https://u:p@1.2.3.4:80/a/",
+"ok": "https://u:p@1.2.3.4:80/a"
+},
+{
+"input": "https://u:p@1.2.3.4:65535/a/",
+"ok": "https://u:p@1.2.3.4:65535/a"
+},
+{
+"input": "https://u:p@1.2.3.4:65536/a/",
+"ok": "https://u:p@1.2.3.4:65536/a"
+},
+{
+"input": "https://u:p@1.2.3.4:-1/a/",
+"ok": "https://u:p@1.2.3.4:-1/a"
+},
+{
+"input": "https://u:p@ex.com./a/",
+"ok": "https://u:p@ex.com./a"
+},
+{
+"input": "https://u:p@ex.com.:/a/",
+"ok": "https://u:p@ex.com.:/a"
+},
+{
+"input": "https://u:p@ex.com.:0/a/",
+"ok": "https://u:p@ex.com.:0/a"
+},
+{
+"input": "https://u:p@ex.com.:80/a/",
+"ok": "https://u:p@ex.com.:80/a"
+},
+{
+"input": "https://u:p@ex.com.:65535/a/",
+"ok": "https://u:p@ex.com.:65535/a"
+},
+{
+"input": "https://u:p@ex.com.:65536/a/",
+"ok": "https://u:p@ex.com.:65536/a"
+},
+{
+"input": "https://u:p@ex.com.:-1/a/",
+"ok": "https://u:p@ex.com.:-1/a"
+},
+{
+"input": "https://@ex.com/a/",
+"ok": "https://@ex.com/a"
+},
+{
+"input": "https://@ex.com:/a/",
+"ok": "https://@ex.com:/a"
+},
+{
+"input": "https://@ex.com:0/a/",
+"ok": "https://@ex.com:0/a"
+},
+{
+"input": "https://@ex.com:80/a/",
+"ok": "https://@ex.com:80/a"
+},
+{
+"input": "https://@ex.com:65535/a/",
+"ok": "https://@ex.com:65535/a"
+},
+{
+"input": "https://@ex.com:65536/a/",
+"ok": "https://@ex.com:65536/a"
+},
+{
+"input": "https://@ex.com:-1/a/",
+"ok": "https://@ex.com:-1/a"
+},
+{
+"input": "https://@EX.com/a/",
+"ok": "https://@ex.com/a"
+},
+{
+"input": "https://@EX.com:/a/",
+"ok": "https://@ex.com:/a"
+},
+{
+"input": "https://@EX.com:0/a/",
+"ok": "https://@ex.com:0/a"
+},
+{
+"input": "https://@EX.com:80/a/",
+"ok": "https://@ex.com:80/a"
+},
+{
+"input": "https://@EX.com:65535/a/",
+"ok": "https://@ex.com:65535/a"
+},
+{
+"input": "https://@EX.com:65536/a/",
+"ok": "https://@ex.com:65536/a"
+},
+{
+"input": "https://@EX.com:-1/a/",
+"ok": "https://@ex.com:-1/a"
+},
+{
+"input": "https://@/a/",
+"ok": "https://@/a"
+},
+{
+"input": "https://@:/a/",
+"ok": "https://@:/a"
+},
+{
+"input": "https://@:0/a/",
+"ok": "https://@:0/a"
+},
+{
+"input": "https://@:80/a/",
+"ok": "https://@:80/a"
+},
+{
+"input": "https://@:65535/a/",
+"ok": "https://@:65535/a"
+},
+{
+"input": "https://@:65536/a/",
+"ok": "https://@:65536/a"
+},
+{
+"input": "https://@:-1/a/",
+"ok": "https://@:-1/a"
+},
+{
+"input": "https://@1.2.3.4/a/",
+"ok": "https://@1.2.3.4/a"
+},
+{
+"input": "https://@1.2.3.4:/a/",
+"ok": "https://@1.2.3.4:/a"
+},
+{
+"input": "https://@1.2.3.4:0/a/",
+"ok": "https://@1.2.3.4:0/a"
+},
+{
+"input": "https://@1.2.3.4:80/a/",
+"ok": "https://@1.2.3.4:80/a"
+},
+{
+"input": "https://@1.2.3.4:65535/a/",
+"ok": "https://@1.2.3.4:65535/a"
+},
+{
+"input": "https://@1.2.3.4:65536/a/",
+"ok": "https://@1.2.3.4:65536/a"
+},
+{
+"input": "https://@1.2.3.4:-1/a/",
+"ok": "https://@1.2.3.4:-1/a"
+},
+{
+"input": "https://@ex.com./a/",
+"ok": "https://@ex.com./a"
+},
+{
+"input": "https://@ex.com.:/a/",
+"ok": "https://@ex.com.:/a"
+},
+{
+"input": "https://@ex.com.:0/a/",
+"ok": "https://@ex.com.:0/a"
+},
+{
+"input": "https://@ex.com.:80/a/",
+"ok": "https://@ex.com.:80/a"
+},
+{
+"input": "https://@ex.com.:65535/a/",
+"ok": "https://@ex.com.:65535/a"
+},
+{
+"input": "https://@ex.com.:65536/a/",
+"ok": "https://@ex.com.:65536/a"
+},
+{
+"input": "https://@ex.com.:-1/a/",
+"ok": "https://@ex.com.:-1/a"
+},
+{
+"input": "https://:@ex.com/a/",
+"ok": "https://:@ex.com/a"
+},
+{
+"input": "https://:@ex.com:/a/",
+"ok": "https://:@ex.com:/a"
+},
+{
+"input": "https://:@ex.com:0/a/",
+"ok": "https://:@ex.com:0/a"
+},
+{
+"input": "https://:@ex.com:80/a/",
+"ok": "https://:@ex.com:80/a"
+},
+{
+"input": "https://:@ex.com:65535/a/",
+"ok": "https://:@ex.com:65535/a"
+},
+{
+"input": "https://:@ex.com:65536/a/",
+"ok": "https://:@ex.com:65536/a"
+},
+{
+"input": "https://:@ex.com:-1/a/",
+"ok": "https://:@ex.com:-1/a"
+},
+{
+"input": "https://:@EX.com/a/",
+"ok": "https://:@ex.com/a"
+},
+{
+"input": "https://:@EX.com:/a/",
+"ok": "https://:@ex.com:/a"
+},
+{
+"input": "https://:@EX.com:0/a/",
+"ok": "https://:@ex.com:0/a"
+},
+{
+"input": "https://:@EX.com:80/a/",
+"ok": "https://:@ex.com:80/a"
+},
+{
+"input": "https://:@EX.com:65535/a/",
+"ok": "https://:@ex.com:65535/a"
+},
+{
+"input": "https://:@EX.com:65536/a/",
+"ok": "https://:@ex.com:65536/a"
+},
+{
+"input": "https://:@EX.com:-1/a/",
+"ok": "https://:@ex.com:-1/a"
+},
+{
+"input": "https://:@/a/",
+"ok": "https://:@/a"
+},
+{
+"input": "https://:@:/a/",
+"ok": "https://:@:/a"
+},
+{
+"input": "https://:@:0/a/",
+"ok": "https://:@:0/a"
+},
+{
+"input": "https://:@:80/a/",
+"ok": "https://:@:80/a"
+},
+{
+"input": "https://:@:65535/a/",
+"ok": "https://:@:65535/a"
+},
+{
+"input": "https://:@:65536/a/",
+"ok": "https://:@:65536/a"
+},
+{
+"input": "https://:@:-1/a/",
+"ok": "https://:@:-1/a"
+},
+{
+"input": "https://:@1.2.3.4/a/",
+"ok": "https://:@1.2.3.4/a"
+},
+{
+"input": "https://:@1.2.3.4:/a/",
+"ok": "https://:@1.2.3.4:/a"
+},
+{
+"input": "https://:@1.2.3.4:0/a/",
+"ok": "https://:@1.2.3.4:0/a"
+},
+{
+"input": "https://:@1.2.3.4:80/a/",
+"ok": "https://:@1.2.3.4:80/a"
+},
+{
+"input": "https://:@1.2.3.4:65535/a/",
+"ok": "https://:@1.2.3.4:65535/a"
+},
+{
+"input": "https://:@1.2.3.4:65536/a/",
+"ok": "https://:@1.2.3.4:65536/a"
+},
+{
+"input": "https://:@1.2.3.4:-1/a/",
+"ok": "https://:@1.2.3.4:-1/a"
+},
+{
+"input": "https://:@ex.com./a/",
+"ok": "https://:@ex.com./a"
+},
+{
+"input": "https://:@ex.com.:/a/",
+"ok": "https://:@ex.com.:/a"
+},
+{
+"input": "https://:@ex.com.:0/a/",
+"ok": "https://:@ex.com.:0/a"
+},
+{
+"input": "https://:@ex.com.:80/a/",
+"ok": "https://:@ex.com.:80/a"
+},
+{
+"input": "https://:@ex.com.:65535/a/",
+"ok": "https://:@ex.com.:65535/a"
+},
+{
+"input": "https://:@ex.com.:65536/a/",
+"ok": "https://:@ex.com.:65536/a"
+},
+{
+"input": "https://:@ex.com.:-1/a/",
+"ok": "https://:@ex.com.:-1/a"
+},
+{
+"input": "https://u:p:q@ex.com/a/",
+"ok": "https://u:p:q@ex.com/a"
+},
+{
+"input": "https://u:p:q@ex.com:/a/",
+"ok": "https://u:p:q@ex.com:/a"
+},
+{
+"input": "https://u:p:q@ex.com:0/a/",
+"ok": "https://u:p:q@ex.com:0/a"
+},
+{
+"input": "https://u:p:q@ex.com:80/a/",
+"ok": "https://u:p:q@ex.com:80/a"
+},
+{
+"input": "https://u:p:q@ex.com:65535/a/",
+"ok": "https://u:p:q@ex.com:65535/a"
+},
+{
+"input": "https://u:p:q@ex.com:65536/a/",
+"ok": "https://u:p:q@ex.com:65536/a"
+},
+{
+"input": "https://u:p:q@ex.com:-1/a/",
+"ok": "https://u:p:q@ex.com:-1/a"
+},
+{
+"input": "https://u:p:q@EX.com/a/",
+"ok": "https://u:p:q@ex.com/a"
+},
+{
+"input": "https://u:p:q@EX.com:/a/",
+"ok": "https://u:p:q@ex.com:/a"
+},
+{
+"input": "https://u:p:q@EX.com:0/a/",
+"ok": "https://u:p:q@ex.com:0/a"
+},
+{
+"input": "https://u:p:q@EX.com:80/a/",
+"ok": "https://u:p:q@ex.com:80/a"
+},
+{
+"input": "https://u:p:q@EX.com:65535/a/",
+"ok": "https://u:p:q@ex.com:65535/a"
+},
+{
+"input": "https://u:p:q@EX.com:65536/a/",
+"ok": "https://u:p:q@ex.com:65536/a"
+},
+{
+"input": "https://u:p:q@EX.com:-1/a/",
+"ok": "https://u:p:q@ex.com:-1/a"
+},
+{
+"input": "https://u:p:q@/a/",
+"ok": "https://u:p:q@/a"
+},
+{
+"input": "https://u:p:q@:/a/",
+"ok": "https://u:p:q@:/a"
+},
+{
+"input": "https://u:p:q@:0/a/",
+"ok": "https://u:p:q@:0/a"
+},
+{
+"input": "https://u:p:q@:80/a/",
+"ok": "https://u:p:q@:80/a"
+},
+{
+"input": "https://u:p:q@:65535/a/",
+"ok": "https://u:p:q@:65535/a"
+},
+{
+"input": "https://u:p:q@:65536/a/",
+"ok": "https://u:p:q@:65536/a"
+},
+{
+"input": "https://u:p:q@:-1/a/",
+"ok": "https://u:p:q@:-1/a"
+},
+{
+"input": "https://u:p:q@1.2.3.4/a/",
+"ok": "https://u:p:q@1.2.3.4/a"
+},
+{
+"input": "https://u:p:q@1.2.3.4:/a/",
+"ok": "https://u:p:q@1.2.3.4:/a"
+},
+{
+"input": "https://u:p:q@1.2.3.4:0/a/",
+"ok": "https://u:p:q@1.2.3.4:0/a"
+},
+{
+"input": "https://u:p:q@1.2.3.4:80/a/",
+"ok": "https://u:p:q@1.2.3.4:80/a"
+},
+{
+"input": "https://u:p:q@1.2.3.4:65535/a/",
+"ok": "https://u:p:q@1.2.3.4:65535/a"
+},
+{
+"input": "https://u:p:q@1.2.3.4:65536/a/",
+"ok": "https://u:p:q@1.2.3.4:65536/a"
+},
+{
+"input": "https://u:p:q@1.2.3.4:-1/a/",
+"ok": "https://u:p:q@1.2.3.4:-1/a"
+},
+{
+"input": "https://u:p:q@ex.com./a/",
+"ok": "https://u:p:q@ex.com./a"
+},
+{
+"input": "https://u:p:q@ex.com.:/a/",
+"ok": "https://u:p:q@ex.com.:/a"
+},
+{
+"input": "https://u:p:q@ex.com.:0/a/",
+"ok": "https://u:p:q@ex.com.:0/a"
+},
+{
+"input": "https://u:p:q@ex.com.:80/a/",
+"ok": "https://u:p:q@ex.com.:80/a"
+},
+{
+"input": "https://u:p:q@ex.com.:65535/a/",
+"ok": "https://u:p:q@ex.com.:65535/a"
+},
+{
+"input": "https://u:p:q@ex.com.:65536/a/",
+"ok": "https://u:p:q@ex.com.:65536/a"
+},
+{
+"input": "https://u:p:q@ex.com.:-1/a/",
+"ok": "https://u:p:q@ex.com.:-1/a"
+},
+{
+"input": "https://u%40x@ex.com/a/",
+"ok": "https://u%40x@ex.com/a"
+},
+{
+"input": "https://u%40x@ex.com:/a/",
+"ok": "https://u%40x@ex.com:/a"
+},
+{
+"input": "https://u%40x@ex.com:0/a/",
+"ok": "https://u%40x@ex.com:0/a"
+},
+{
+"input": "https://u%40x@ex.com:80/a/",
+"ok": "https://u%40x@ex.com:80/a"
+},
+{
+"input": "https://u%40x@ex.com:65535/a/",
+"ok": "https://u%40x@ex.com:65535/a"
+},
+{
+"input": "https://u%40x@ex.com:65536/a/",
+"ok": "https://u%40x@ex.com:65536/a"
+},
+{
+"input": "https://u%40x@ex.com:-1/a/",
+"ok": "https://u%40x@ex.com:-1/a"
+},
+{
+"input": "https://u%40x@EX.com/a/",
+"ok": "https://u%40x@ex.com/a"
+},
+{
+"input": "https://u%40x@EX.com:/a/",
+"ok": "https://u%40x@ex.com:/a"
+},
+{
+"input": "https://u%40x@EX.com:0/a/",
+"ok": "https://u%40x@ex.com:0/a"
+},
+{
+"input": "https://u%40x@EX.com:80/a/",
+"ok": "https://u%40x@ex.com:80/a"
+},
+{
+"input": "https://u%40x@EX.com:65535/a/",
+"ok": "https://u%40x@ex.com:65535/a"
+},
+{
+"input": "https://u%40x@EX.com:65536/a/",
+"ok": "https://u%40x@ex.com:65536/a"
+},
+{
+"input": "https://u%40x@EX.com:-1/a/",
+"ok": "https://u%40x@ex.com:-1/a"
+},
+{
+"input": "https://u%40x@/a/",
+"ok": "https://u%40x@/a"
+},
+{
+"input": "https://u%40x@:/a/",
+"ok": "https://u%40x@:/a"
+},
+{
+"input": "https://u%40x@:0/a/",
+"ok": "https://u%40x@:0/a"
+},
+{
+"input": "https://u%40x@:80/a/",
+"ok": "https://u%40x@:80/a"
+},
+{
+"input": "https://u%40x@:65535/a/",
+"ok": "https://u%40x@:65535/a"
+},
+{
+"input": "https://u%40x@:65536/a/",
+"ok": "https://u%40x@:65536/a"
+},
+{
+"input": "https://u%40x@:-1/a/",
+"ok": "https://u%40x@:-1/a"
+},
+{
+"input": "https://u%40x@1.2.3.4/a/",
+"ok": "https://u%40x@1.2.3.4/a"
+},
+{
+"input": "https://u%40x@1.2.3.4:/a/",
+"ok": "https://u%40x@1.2.3.4:/a"
+},
+{
+"input": "https://u%40x@1.2.3.4:0/a/",
+"ok": "https://u%40x@1.2.3.4:0/a"
+},
+{
+"input": "https://u%40x@1.2.3.4:80/a/",
+"ok": "https://u%40x@1.2.3.4:80/a"
+},
+{
+"input": "https://u%40x@1.2.3.4:65535/a/",
+"ok": "https://u%40x@1.2.3.4:65535/a"
+},
+{
+"input": "https://u%40x@1.2.3.4:65536/a/",
+"ok": "https://u%40x@1.2.3.4:65536/a"
+},
+{
+"input": "https://u%40x@1.2.3.4:-1/a/",
+"ok": "https://u%40x@1.2.3.4:-1/a"
+},
+{
+"input": "https://u%40x@ex.com./a/",
+"ok": "https://u%40x@ex.com./a"
+},
+{
+"input": "https://u%40x@ex.com.:/a/",
+"ok": "https://u%40x@ex.com.:/a"
+},
+{
+"input": "https://u%40x@ex.com.:0/a/",
+"ok": "https://u%40x@ex.com.:0/a"
+},
+{
+"input": "https://u%40x@ex.com.:80/a/",
+"ok": "https://u%40x@ex.com.:80/a"
+},
+{
+"input": "https://u%40x@ex.com.:65535/a/",
+"ok": "https://u%40x@ex.com.:65535/a"
+},
+{
+"input": "https://u%40x@ex.com.:65536/a/",
+"ok": "https://u%40x@ex.com.:65536/a"
+},
+{
+"input": "https://u%40x@ex.com.:-1/a/",
+"ok": "https://u%40x@ex.com.:-1/a"
+},
+{
+"input": "https://ex.com/%2F",
+"ok": "https://ex.com/%2F"
+},
+{
+"input": "https://ex.com/%2f/",
+"ok": "https://ex.com/%2f"
+},
+{
+"input": "https://ex.com/%",
+"ok": "https://ex.com/%"
+},
+{
+"input": "https://ex.com/%zz",
+"ok": "https://ex.com/%zz"
+},
+{
+"input": "https://ex.com/%E2%82%AC/",
+"ok": "https://ex.com/%E2%82%AC"
+},
+{
+"input": "https://ex.com/a%20b/",
+"ok": "https://ex.com/a%20b"
+},
+{
+"input": "https://ex.com/a b/",
+"ok": "https://ex.com/a b"
+},
+{
+"input": "https://ex.com/a//b//",
+"ok": "https://ex.com/a//b"
+},
+{
+"input": "https://ex.com/%00",
+"ok": "https://ex.com/%00"
+},
+{
+"input": "https://ex.com/?",
+"ok": "https://ex.com"
+},
+{
+"input": "https://ex.com/?/",
+"ok": "https://ex.com?/"
+},
+{
+"input": "https://ex.com/#",
+"ok": "https://ex.com"
+},
+{
+"input": "https://ex.com/#/",
+"ok": "https://ex.com#/"
+},
+{
+"input": "https://ex.com/?#",
+"ok": "https://ex.com"
+},
+{
+"input": "https://ex.com/?a=%20&b#c/",
+"ok": "https://ex.com?a=%20&b#c/"
+},
+{
+"input": "https://%65x.com/",
+"ok": "https://%65x.com"
+},
+{
+"input": "https://ex%2Ecom/",
+"ok": "https://ex%2ecom"
+},
+{
+"input": "https://ex.com%2F",
+"ok": "https://ex.com%2f"
+},
+{
+"input": "%68ttps://ex.com",
+"ok": "%68ttps://ex.com"
+},
+{
+"input": "HTTP://EX.COM:80/",
+"ok": "http://ex.com:80"
+},
+{
+"input": "https://ex.com:/",
+"ok": "https://ex.com:"
+},
+{
+"input": "https://:80/",
+"ok": "https://:80"
+},
+{
+"input": "https://@/",
+"ok": "https://@"
+},
+{
+"input": "https://:@/",
+"ok": "https://:@"
+},
+{
+"input": "",
+"ok": ""
+},
+{
+"input": " ",
+"ok": ""
+},
+{
+"input": "/",
+"ok": ""
+},
+{
+"input": "//",
+"ok": ""
+},
+{
+"input": "///",
+"ok": ""
+},
+{
+"input": "////",
+"ok": ""
+},
+{
+"input": "http:",
+"ok": "http://"
+},
+{
+"input": "http:/",
+"ok": "http://"
+},
+{
+"input": "http://",
+"ok": "http://"
+},
+{
+"input": "http:///",
+"ok": "http://"
+},
+{
+"input": "https://?",
+"ok": "https://"
+},
+{
+"input": "https://#",
+"ok": "https://"
+},
+{
+"input": "https://?/",
+"ok": "https://?/"
+},
+{
+"input": "https://#/",
+"ok": "https://#/"
+},
+{
+"input": "://x",
+"ok": "://x"
+},
+{
+"input": ":x",
+"ok": ":x"
+},
+{
+"input": "a:",
+"ok": "a:"
+},
+{
+"input": "a::",
+"ok": "a::"
+},
+{
+"input": "1:2",
+"ok": "1:2"
+},
+{
+"input": "+a://x",
+"ok": "+a://x"
+},
+{
+"input": "a+:/x",
+"ok": "a+:/x"
+},
+{
+"input": "a_b://x",
+"ok": "a_b://x"
+},
+{
+"input": "\u00e4://x",
+"ok": "\u00e4://x"
+},
+{
+"input": "mailto:x@y.z",
+"ok": "mailto:x@y.z"
+},
+{
+"input": "tel:+1",
+"ok": "tel:+1"
+},
+{
+"input": "urn:a:b/",
+"ok": "urn:a:b"
+},
+{
+"input": "file:///C:/x/",
+"ok": "file:///C:/x"
+},
+{
+"input": "file://host/x/",
+"ok": "file://host/x"
+},
+{
+"input": "ftp://u:p@h:21/d/",
+"ok": "ftp://u:p@h:21/d"
+},
+{
+"input": "git+ssh://h/r/",
+"ok": "git+ssh://h/r"
+},
+{
+"input": "unknown://H/P/",
+"ok": "unknown://h/P"
+},
+{
+"input": "unknown:H/P/",
+"ok": "unknown:H/P"
+},
+{
+"input": "\thttps://ex.com/p",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\thttps://ex.com/p/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\thttps://ex.com/p\n",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\thttps://ex.com/p\r/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\thttps://ex.com/p\t",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\nhttps://ex.com/p",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\nhttps://ex.com/p/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\nhttps://ex.com/p\n",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\nhttps://ex.com/p\r/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\nhttps://ex.com/p\t",
+"ok": "https://ex.com/p"
+},
+{
+"input": " https://ex.com/p",
+"ok": "https://ex.com/p"
+},
+{
+"input": " https://ex.com/p/",
+"ok": "https://ex.com/p"
+},
+{
+"input": " https://ex.com/p\n",
+"ok": "https://ex.com/p"
+},
+{
+"input": " https://ex.com/p\r/",
+"ok": "https://ex.com/p"
+},
+{
+"input": " https://ex.com/p\t",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0000https://ex.com/p",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0000https://ex.com/p/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0000https://ex.com/p\n",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0000https://ex.com/p\r/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0000https://ex.com/p\t",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u001fhttps://ex.com/p",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u001fhttps://ex.com/p/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u001fhttps://ex.com/p\n",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u001fhttps://ex.com/p\r/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u001fhttps://ex.com/p\t",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u007fhttps://ex.com/p",
+"ok": "\u007fhttps://ex.com/p"
+},
+{
+"input": "\u007fhttps://ex.com/p/",
+"ok": "\u007fhttps://ex.com/p"
+},
+{
+"input": "\u007fhttps://ex.com/p\n",
+"ok": "\u007fhttps://ex.com/p"
+},
+{
+"input": "\u007fhttps://ex.com/p\r/",
+"ok": "\u007fhttps://ex.com/p"
+},
+{
+"input": "\u007fhttps://ex.com/p\t",
+"ok": "\u007fhttps://ex.com/p"
+},
+{
+"input": "\u00a0https://ex.com/p",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u00a0https://ex.com/p/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u00a0https://ex.com/p\n",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u00a0https://ex.com/p\r/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u00a0https://ex.com/p\t",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u2003https://ex.com/p",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u2003https://ex.com/p/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u2003https://ex.com/p\n",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u2003https://ex.com/p\r/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u2003https://ex.com/p\t",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0085https://ex.com/p",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0085https://ex.com/p/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0085https://ex.com/p\n",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0085https://ex.com/p\r/",
+"ok": "https://ex.com/p"
+},
+{
+"input": "\u0085https://ex.com/p\t",
+"ok": "https://ex.com/p"
+},
+{
+"input": "https://ex.\tcom/",
+"ok": "https://ex.com"
+},
+{
+"input": "https://e\nx.com/a",
+"ok": "https://ex.com/a"
+},
+{
+"input": "ht\ttps://ex.com",
+"ok": "https://ex.com"
+},
+{
+"input": "https://[::\n1]/",
+"ok": "https://[::1]"
+},
+{
+"input": "https://[\t::1]/",
+"ok": "https://[::1]"
+}
+]

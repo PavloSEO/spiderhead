@@ -1,0 +1,1524 @@
+{
+ "config": {
+  "thresholds": {
+   "sitemap_desync_pct_warn": 20
+  }
+ },
+ "issues": [
+  {
+   "check": "URL_NOT_IN_SITEMAP",
+   "details": {
+    "evidence_source": "retained_scan",
+    "reason": "canonical indexable HTML page absent from retained sitemap",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": 200,
+    "target_url": "https://example.test/"
+   },
+   "status_code": 200,
+   "target_url": "https://example.test/"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-0"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-0"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-1"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-1"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-10"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-10"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-100"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-100"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-11"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-11"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-12"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-12"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-13"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-13"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-14"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-14"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-15"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-15"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-16"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-16"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-17"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-17"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-18"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-18"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-19"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-19"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-2"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-2"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-20"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-20"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-21"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-21"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-22"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-22"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-23"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-23"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-24"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-24"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-25"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-25"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-26"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-26"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-27"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-27"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-28"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-28"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-29"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-29"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-3"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-3"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-30"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-30"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-31"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-31"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-32"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-32"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-33"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-33"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-34"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-34"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-35"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-35"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-36"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-36"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-37"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-37"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-38"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-38"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-39"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-39"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-4"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-4"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-40"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-40"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-41"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-41"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-42"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-42"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-43"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-43"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-44"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-44"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-45"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-45"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-46"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-46"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-47"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-47"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-48"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-48"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-49"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-49"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-5"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-5"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-50"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-50"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-51"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-51"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-52"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-52"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-53"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-53"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-54"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-54"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-55"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-55"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-56"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-56"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-57"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-57"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-58"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-58"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-59"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-59"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-6"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-6"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-60"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-60"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-61"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-61"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-62"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-62"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-63"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-63"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-64"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-64"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-65"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-65"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-66"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-66"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-67"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-67"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-68"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-68"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-69"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-69"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-7"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-7"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-70"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-70"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-71"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-71"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-72"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-72"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-73"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-73"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-74"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-74"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-75"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-75"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-76"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-76"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-77"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-77"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-78"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-78"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-79"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-79"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-8"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-8"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-80"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-80"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-81"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-81"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-82"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-82"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-83"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-83"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-84"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-84"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-85"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-85"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-86"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-86"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-87"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-87"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-88"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-88"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-89"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-89"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-9"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-9"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-90"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-90"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-91"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-91"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-92"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-92"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-93"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-93"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-94"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-94"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-95"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-95"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-96"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-96"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-97"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-97"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-98"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-98"
+  },
+  {
+   "check": "SITEMAP_ORPHAN",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "no retained internal link",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": null,
+    "target_url": "https://example.test/unvisited-99"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/unvisited-99"
+  },
+  {
+   "check": "SITEMAP_DESYNC",
+   "details": {
+    "crawl_not_in_sitemap_pct": 0.0,
+    "evidence_source": "retained_scan",
+    "examples_in_sitemap_not_crawled": [
+     "https://example.test/unvisited-0",
+     "https://example.test/unvisited-1",
+     "https://example.test/unvisited-10",
+     "https://example.test/unvisited-100",
+     "https://example.test/unvisited-11",
+     "https://example.test/unvisited-12",
+     "https://example.test/unvisited-13",
+     "https://example.test/unvisited-14",
+     "https://example.test/unvisited-15",
+     "https://example.test/unvisited-16",
+     "https://example.test/unvisited-17",
+     "https://example.test/unvisited-18",
+     "https://example.test/unvisited-19",
+     "https://example.test/unvisited-2",
+     "https://example.test/unvisited-20",
+     "https://example.test/unvisited-21",
+     "https://example.test/unvisited-22",
+     "https://example.test/unvisited-23",
+     "https://example.test/unvisited-24",
+     "https://example.test/unvisited-25"
+    ],
+    "examples_missing_from_sitemap": [],
+    "in_crawl_not_in_sitemap": 0,
+    "in_sitemap_not_in_crawl": 101,
+    "sitemap_not_in_crawl_pct": 100.0
+   },
+   "status_code": null,
+   "target_url": "https://example.test/"
+  }
+ ],
+ "module": "native_sitemap",
+ "skip_unsupported": {
+  "available": [],
+  "native": [
+   "BODY_MIME_MISMATCH",
+   "BROKEN_INTERNAL_LINK",
+   "CANONICAL_MISMATCH",
+   "CANONICAL_ONLY_IN_RENDERED_HTML",
+   "EXTERNAL_NO_RESPONSE",
+   "H1_ONLY_IN_RENDERED_HTML",
+   "H1_UPDATED_BY_JAVASCRIPT",
+   "HREFLANG_ERROR",
+   "IMG_MISSING_ALT",
+   "IMG_MISSING_DIMENSIONS",
+   "IMG_OVER_KB",
+   "INTERNAL_LINK_NO_ANCHOR",
+   "INTERNAL_LINK_TO_REDIRECT",
+   "LINK_TO_5XX",
+   "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+   "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+   "MISSING_HSTS",
+   "MOBILE_CONTENT_OVERFLOW",
+   "MOBILE_TARGET_TOO_SMALL",
+   "MOBILE_TEXT_TOO_SMALL",
+   "NOFOLLOW_ONLY_IN_RAW_HTML",
+   "NOINDEX_ONLY_IN_RAW_HTML",
+   "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+   "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+   "REDIRECT_CHAIN",
+   "REDIRECT_LOOP",
+   "RENDER_RESOURCE_BLOCKED",
+   "SITEMAP_URL_3XX",
+   "SITEMAP_URL_4XX_5XX",
+   "SITEMAP_URL_NON_INDEXABLE"
+  ]
+ },
+ "skipped": [
+  {
+   "id": "PAGINATION_CANONICAL_POLICY",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "FILTER_CANONICAL_POLICY",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "MIXED_CONTENT",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "STRUCTURED_DATA_MISSING",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "HREFLANG_BROKEN_TARGET",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "SITEMAP_TOO_MANY_URLS",
+   "reason": "retained sitemap membership does not include protocol size or lastmod evidence"
+  },
+  {
+   "id": "SITEMAP_TOO_LARGE",
+   "reason": "retained sitemap membership does not include protocol size or lastmod evidence"
+  },
+  {
+   "id": "SITEMAP_URL_DUPLICATED",
+   "reason": "retained sitemap membership does not include protocol size or lastmod evidence"
+  },
+  {
+   "id": "SITEMAP_STALE_LASTMOD",
+   "reason": "retained sitemap membership does not include protocol size or lastmod evidence"
+  },
+  {
+   "id": "SITEMAP_NOT_IN_ROBOTS",
+   "reason": "no retained fetched robots.txt policy"
+  },
+  {
+   "id": "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+   "reason": "no retained fetched robots.txt policy"
+  },
+  {
+   "id": "ROBOTS_BLOCKS_RESOURCES",
+   "reason": "no retained fetched robots.txt policy or blocked dependency"
+  },
+  {
+   "id": "SITEMAP_URL_3XX",
+   "reason": "101 declared sitemap URL(s) have no retained response"
+  },
+  {
+   "id": "SITEMAP_URL_4XX_5XX",
+   "reason": "101 declared sitemap URL(s) have no retained response"
+  },
+  {
+   "id": "SITEMAP_URL_NON_INDEXABLE",
+   "reason": "101 declared sitemap URL(s) have no retained response"
+  },
+  {
+   "id": "SITEMAP_URL_NON_CANONICAL",
+   "reason": "101 declared sitemap URL(s) have no retained response"
+  },
+  {
+   "id": "SITEMAP_URL_BLOCKED_ROBOTS",
+   "reason": "no retained fetched robots.txt policy"
+  }
+ ],
+ "summary": {
+  "available": true,
+  "canonical_pages_not_in_sitemap_count": 1,
+  "crawl_partial": false,
+  "evidence_source": "retained_scan",
+  "examples_limit": 20,
+  "in_crawl_not_in_sitemap": 0,
+  "in_sitemap_and_linked": [],
+  "in_sitemap_and_linked_count": 0,
+  "in_sitemap_not_in_crawl": 101,
+  "in_sitemap_not_linked": [
+   "https://example.test/unvisited-0",
+   "https://example.test/unvisited-1",
+   "https://example.test/unvisited-10",
+   "https://example.test/unvisited-100",
+   "https://example.test/unvisited-11",
+   "https://example.test/unvisited-12",
+   "https://example.test/unvisited-13",
+   "https://example.test/unvisited-14",
+   "https://example.test/unvisited-15",
+   "https://example.test/unvisited-16",
+   "https://example.test/unvisited-17",
+   "https://example.test/unvisited-18",
+   "https://example.test/unvisited-19",
+   "https://example.test/unvisited-2",
+   "https://example.test/unvisited-20",
+   "https://example.test/unvisited-21",
+   "https://example.test/unvisited-22",
+   "https://example.test/unvisited-23",
+   "https://example.test/unvisited-24",
+   "https://example.test/unvisited-25"
+  ],
+  "in_sitemap_not_linked_count": 101,
+  "linked_not_comparable": [],
+  "linked_not_comparable_count": 0,
+  "linked_not_in_sitemap": [],
+  "linked_not_in_sitemap_count": 0,
+  "offline": true,
+  "reason": "",
+  "reconciliation_available": true,
+  "sitemap_orphan_findings_count": 101,
+  "sitemap_status_unmeasured": 101,
+  "sitemap_url": "https://example.test/sitemap.xml",
+  "sitemap_urls": [
+   "https://example.test/sitemap.xml"
+  ],
+  "urls_in_sitemap": 101,
+  "urls_reached_by_links": 0
+ }
+}

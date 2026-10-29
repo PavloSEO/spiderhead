@@ -1,0 +1,39 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-content-search\n",
+    "stdout": "{\n  \"ok\": true,\n  \"status\": \"complete\",\n  \"format\": \"spiderhead.retained-content-search.v1\",\n  \"out_dir\": \"<WORK>/pkg\",\n  \"manifest\": \"<WORK>/pkg/manifest.json\",\n  \"records\": 10,\n  \"package_bytes\": 8708,\n  \"source\": {\n    \"kind\": \"scan.v1.retained-content-search\",\n    \"search_id\": \"<UUID:1>\",\n    \"scan_uuid\": \"<UUID:2>\",\n    \"evidence_revision\": 10,\n    \"lifecycle\": \"finished\",\n    \"active\": false,\n    \"query_sha256\": \"aaf2320646108059a87ab5017a86aee454f5378ed95003dbb2e12f4ca5266e0e\",\n    \"writer_revision\": \"b9847831b9127a88504eabb4cd345f4b8f4bfea9\"\n  },\n  \"coverage\": {\n    \"state\": \"complete\",\n    \"url_pages_selected\": 10,\n    \"documents_selected\": 10,\n    \"documents_measured\": 10,\n    \"filter_matching_documents\": 10,\n    \"present_documents\": 10,\n    \"absent_documents\": 0,\n    \"unavailable_documents\": 0,\n    \"non_html_documents\": 0,\n    \"unavailable_reasons\": {},\n    \"partial_reasons\": [],\n    \"stream_error\": null,\n    \"body_byte_limit\": 5242880,\n    \"occurrence_output_limit_per_document\": 10000,\n    \"serialized_record_byte_limit\": 65536,\n    \"window_character_limit\": 4000,\n    \"occurrence_truncated_documents\": 0,\n    \"occurrence_truncation_reasons\": {},\n    \"record_consumer_stopped\": false,\n    \"url_filter\": null\n  },\n  \"absence_confirmed\": false,\n  \"search_completed\": true,\n  \"capabilities\": {\n    \"retained_content_search\": true\n  }\n}\n"
+   },
+   {
+    "exit": 1,
+    "stderr": "seohead: scan-content-search-page\nerror: offset must be nonnegative and limit must be 1..100\n",
+    "stdout": ""
+   },
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-content-search-page\n",
+    "stdout": "{\n  \"ok\": true,\n  \"format\": \"spiderhead.retained-content-search.v1\",\n  \"source\": {\n    \"active\": false,\n    \"evidence_revision\": 10,\n    \"kind\": \"scan.v1.retained-content-search\",\n    \"lifecycle\": \"finished\",\n    \"query_sha256\": \"aaf2320646108059a87ab5017a86aee454f5378ed95003dbb2e12f4ca5266e0e\",\n    \"scan_uuid\": \"<UUID:2>\",\n    \"search_id\": \"<UUID:1>\",\n    \"writer_revision\": \"b9847831b9127a88504eabb4cd345f4b8f4bfea9\"\n  },\n  \"offset\": 99,\n  \"records\": [],\n  \"has_more\": false,\n  \"next_offset\": 99\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"status\": \"complete\",\n  \"format\": \"spiderhead.retained-content-search.v1\",\n  \"out_dir\": \"<WORK>/pkg\",\n  \"manifest\": \"<WORK>/pkg/manifest.json\",\n  \"records\": 10,\n  \"package_bytes\": 8708,\n  \"source\": {\n    \"kind\": \"scan.v1.retained-content-search\",\n    \"search_id\": \"<UUID:1>\",\n    \"scan_uuid\": \"<UUID:2>\",\n    \"evidence_revision\": 10,\n    \"lifecycle\": \"finished\",\n    \"active\": false,\n    \"query_sha256\": \"aaf2320646108059a87ab5017a86aee454f5378ed95003dbb2e12f4ca5266e0e\",\n    \"writer_revision\": \"b9847831b9127a88504eabb4cd345f4b8f4bfea9\"\n  },\n  \"coverage\": {\n    \"state\": \"complete\",\n    \"url_pages_selected\": 10,\n    \"documents_selected\": 10,\n    \"documents_measured\": 10,\n    \"filter_matching_documents\": 10,\n    \"present_documents\": 10,\n    \"absent_documents\": 0,\n    \"unavailable_documents\": 0,\n    \"non_html_documents\": 0,\n    \"unavailable_reasons\": {},\n    \"partial_reasons\": [],\n    \"stream_error\": null,\n    \"body_byte_limit\": 5242880,\n    \"occurrence_output_limit_per_document\": 10000,\n    \"serialized_record_byte_limit\": 65536,\n    \"window_character_limit\": 4000,\n    \"occurrence_truncated_documents\": 0,\n    \"occurrence_truncation_reasons\": {},\n    \"record_consumer_stopped\": false,\n    \"url_filter\": null\n  },\n  \"absence_confirmed\": false,\n  \"search_completed\": true,\n  \"capabilities\": {\n    \"retained_content_search\": true\n  }\n}"
+   },
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_scan_content_search_page: offset must be nonnegative and limit must be 1..100"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"format\": \"spiderhead.retained-content-search.v1\",\n  \"source\": {\n    \"active\": false,\n    \"evidence_revision\": 10,\n    \"kind\": \"scan.v1.retained-content-search\",\n    \"lifecycle\": \"finished\",\n    \"query_sha256\": \"aaf2320646108059a87ab5017a86aee454f5378ed95003dbb2e12f4ca5266e0e\",\n    \"scan_uuid\": \"<UUID:2>\",\n    \"search_id\": \"<UUID:1>\",\n    \"writer_revision\": \"b9847831b9127a88504eabb4cd345f4b8f4bfea9\"\n  },\n  \"offset\": 99,\n  \"records\": [],\n  \"has_more\": false,\n  \"next_offset\": 99\n}"
+   }
+  ]
+ }
+}

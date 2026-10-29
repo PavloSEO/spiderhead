@@ -1,0 +1,309 @@
+{
+ "cases": [
+  {
+   "expected": {
+    "broken": [
+     {
+      "external": false,
+      "href": "https://links.example/gone",
+      "status": 404
+     }
+    ],
+    "checked": 5,
+    "links_found": 6,
+    "ok": true,
+    "ok_count": 3,
+    "redirects": [
+     {
+      "external": false,
+      "href": "https://links.example/moved",
+      "location": "https://links.example/final",
+      "status": 301
+     }
+    ],
+    "truncated": false,
+    "url": "https://links.example/page"
+   },
+   "internal_only": false,
+   "limit": 200,
+   "name": "mixed_statuses_dedup_and_filters",
+   "responses": {
+    "https://external.example/fine": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://external.example/fine"
+    },
+    "https://links.example/gone": {
+     "body": "",
+     "headers": {},
+     "status_code": 404,
+     "url": "https://links.example/gone"
+    },
+    "https://links.example/moved": {
+     "body": "",
+     "headers": {
+      "location": "https://links.example/final"
+     },
+     "status_code": 301,
+     "url": "https://links.example/moved"
+    },
+    "https://links.example/ok": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/ok"
+    },
+    "https://links.example/page": {
+     "body": "<html><head><title>Links page</title></head><body><a href='https://links.example/ok'>ok</a><a href='https://links.example/moved'>moved</a><a href='https://links.example/gone'>gone</a><a href='https://external.example/fine'>external ok</a><a href='https://links.example/ok#frag'>dedup by fragment</a><a href='/relative'>relative</a><a href='mailto:hello@links.example'>mail</a></body></html>",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/page"
+    },
+    "https://links.example/relative": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/relative"
+    }
+   },
+   "url": "https://links.example/page"
+  },
+  {
+   "expected": {
+    "broken": [
+     {
+      "external": false,
+      "href": "https://links.example/gone",
+      "status": 404
+     }
+    ],
+    "checked": 4,
+    "links_found": 5,
+    "ok": true,
+    "ok_count": 2,
+    "redirects": [
+     {
+      "external": false,
+      "href": "https://links.example/moved",
+      "location": "https://links.example/final",
+      "status": 301
+     }
+    ],
+    "truncated": false,
+    "url": "https://links.example/page"
+   },
+   "internal_only": true,
+   "limit": 200,
+   "name": "internal_only_drops_external_targets",
+   "responses": {
+    "https://links.example/gone": {
+     "body": "",
+     "headers": {},
+     "status_code": 404,
+     "url": "https://links.example/gone"
+    },
+    "https://links.example/moved": {
+     "body": "",
+     "headers": {
+      "location": "https://links.example/final"
+     },
+     "status_code": 301,
+     "url": "https://links.example/moved"
+    },
+    "https://links.example/ok": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/ok"
+    },
+    "https://links.example/page": {
+     "body": "<html><head><title>Links page</title></head><body><a href='https://links.example/ok'>ok</a><a href='https://links.example/moved'>moved</a><a href='https://links.example/gone'>gone</a><a href='https://external.example/fine'>external ok</a><a href='https://links.example/ok#frag'>dedup by fragment</a><a href='/relative'>relative</a><a href='mailto:hello@links.example'>mail</a></body></html>",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/page"
+    },
+    "https://links.example/relative": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/relative"
+    }
+   },
+   "url": "https://links.example/page"
+  },
+  {
+   "expected": {
+    "broken": [
+     {
+      "error": "no route to https://links.example/moved",
+      "external": false,
+      "href": "https://links.example/moved",
+      "status": 0
+     },
+     {
+      "error": "no route to https://links.example/gone",
+      "external": false,
+      "href": "https://links.example/gone",
+      "status": 0
+     },
+     {
+      "error": "no route to https://external.example/fine",
+      "external": true,
+      "href": "https://external.example/fine",
+      "status": 0
+     },
+     {
+      "error": "no route to https://links.example/relative",
+      "external": false,
+      "href": "https://links.example/relative",
+      "status": 0
+     }
+    ],
+    "checked": 5,
+    "links_found": 6,
+    "ok": true,
+    "ok_count": 1,
+    "redirects": [],
+    "truncated": false,
+    "url": "https://links.example/page"
+   },
+   "internal_only": false,
+   "limit": 200,
+   "name": "head_405_falls_back_to_get",
+   "responses": {
+    "GET|https://links.example/ok": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/ok"
+    },
+    "HEAD|https://links.example/ok": {
+     "body": "",
+     "headers": {},
+     "status_code": 405,
+     "url": "https://links.example/ok"
+    },
+    "https://links.example/page": {
+     "body": "<html><head><title>Links page</title></head><body><a href='https://links.example/ok'>ok</a><a href='https://links.example/moved'>moved</a><a href='https://links.example/gone'>gone</a><a href='https://external.example/fine'>external ok</a><a href='https://links.example/ok#frag'>dedup by fragment</a><a href='/relative'>relative</a><a href='mailto:hello@links.example'>mail</a></body></html>",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/page"
+    }
+   },
+   "url": "https://links.example/page"
+  },
+  {
+   "expected": {
+    "broken": [],
+    "checked": 2,
+    "links_found": 6,
+    "ok": true,
+    "ok_count": 1,
+    "redirects": [
+     {
+      "external": false,
+      "href": "https://links.example/moved",
+      "location": "https://links.example/final",
+      "status": 301
+     }
+    ],
+    "truncated": true,
+    "url": "https://links.example/page"
+   },
+   "internal_only": false,
+   "limit": 2,
+   "name": "truncated_at_limit",
+   "responses": {
+    "https://links.example/moved": {
+     "body": "",
+     "headers": {
+      "location": "https://links.example/final"
+     },
+     "status_code": 301,
+     "url": "https://links.example/moved"
+    },
+    "https://links.example/ok": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/ok"
+    },
+    "https://links.example/page": {
+     "body": "<html><head><title>Links page</title></head><body><a href='https://links.example/ok'>ok</a><a href='https://links.example/moved'>moved</a><a href='https://links.example/gone'>gone</a><a href='https://external.example/fine'>external ok</a><a href='https://links.example/ok#frag'>dedup by fragment</a><a href='/relative'>relative</a><a href='mailto:hello@links.example'>mail</a></body></html>",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/page"
+    }
+   },
+   "url": "https://links.example/page"
+  },
+  {
+   "expected": {
+    "broken": [
+     {
+      "error": "no route to https://links.example/moved",
+      "external": false,
+      "href": "https://links.example/moved",
+      "status": 0
+     },
+     {
+      "error": "no route to https://links.example/gone",
+      "external": false,
+      "href": "https://links.example/gone",
+      "status": 0
+     },
+     {
+      "error": "no route to https://external.example/fine",
+      "external": true,
+      "href": "https://external.example/fine",
+      "status": 0
+     },
+     {
+      "error": "no route to https://links.example/relative",
+      "external": false,
+      "href": "https://links.example/relative",
+      "status": 0
+     }
+    ],
+    "checked": 5,
+    "links_found": 6,
+    "ok": true,
+    "ok_count": 1,
+    "redirects": [],
+    "truncated": false,
+    "url": "https://links.example/page"
+   },
+   "internal_only": false,
+   "limit": 200,
+   "name": "probe_transport_error_becomes_broken",
+   "responses": {
+    "https://links.example/ok": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/ok"
+    },
+    "https://links.example/page": {
+     "body": "<html><head><title>Links page</title></head><body><a href='https://links.example/ok'>ok</a><a href='https://links.example/moved'>moved</a><a href='https://links.example/gone'>gone</a><a href='https://external.example/fine'>external ok</a><a href='https://links.example/ok#frag'>dedup by fragment</a><a href='/relative'>relative</a><a href='mailto:hello@links.example'>mail</a></body></html>",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://links.example/page"
+    }
+   },
+   "url": "https://links.example/page"
+  },
+  {
+   "expected": {
+    "error": "no route to https://down.example/page",
+    "ok": false,
+    "url": "https://down.example/page"
+   },
+   "internal_only": false,
+   "limit": 200,
+   "name": "page_fetch_failure",
+   "responses": {},
+   "url": "https://down.example/page"
+  }
+ ]
+}

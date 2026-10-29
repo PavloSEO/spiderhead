@@ -1,0 +1,5172 @@
+{
+  "cases": [
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": null
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "reason": "project bindings are unavailable",
+          "schema_version": "provider_findings.v1",
+          "sources": {},
+          "state": "unavailable"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "GA_ORPHAN_URL",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "NO_GA_DATA",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_GA_DATA",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "project bindings are unavailable"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "project bindings are unavailable"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_bindings_unavailable",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "gsc": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "metrika": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            }
+          },
+          "state": "unavailable"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_not_configured",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [
+            {
+              "resource": "sc-domain:gen.example",
+              "service": "gsc",
+              "status": "selected"
+            }
+          ],
+          "history": [
+            {
+              "doc": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 3,
+                "rows": [
+                  {
+                    "clicks": 1,
+                    "ctr": 0.1,
+                    "date": "2026-01-10",
+                    "impressions": 10,
+                    "page": "https://gen.example/a",
+                    "position": 5.0,
+                    "query": "q one"
+                  },
+                  {
+                    "clicks": 0,
+                    "ctr": 0.0,
+                    "date": "2026-01-11",
+                    "impressions": 4,
+                    "page": "https://gen.example/c",
+                    "position": 8.0,
+                    "query": "q two"
+                  },
+                  {
+                    "clicks": 0,
+                    "ctr": 0.0,
+                    "date": "2026-01-11",
+                    "impressions": 7,
+                    "page": "https://gen.example/d",
+                    "position": 6.0,
+                    "query": "q three"
+                  }
+                ],
+                "truncated": false
+              },
+              "resource": "sc-domain:gen.example",
+              "source": "gsc"
+            }
+          ],
+          "inspection_rows": [
+            {
+              "index_status": {
+                "coverageState": "Indexed",
+                "googleCanonical": "https://gen.example/other",
+                "userCanonical": "https://gen.example/a",
+                "verdict": "PASS"
+              },
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "rich_results_result": {
+                "verdict": "FAIL"
+              },
+              "state": "complete",
+              "url": "https://gen.example/a"
+            },
+            {
+              "amp_result": {
+                "verdict": "FAIL"
+              },
+              "index_status": {
+                "coverageState": "Discovered - currently not indexed",
+                "verdict": "FAIL"
+              },
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "state": "complete",
+              "url": "https://gen.example/b"
+            },
+            {
+              "index_status": {
+                "coverageState": "Crawled - currently not indexed",
+                "verdict": "NEUTRAL"
+              },
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "state": "complete",
+              "url": "https://gen.example/notcrawled"
+            }
+          ],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "GSC_ORPHAN",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 3,
+                "truncated": false
+              },
+              "evidence_scope": "retained project-bound Search Analytics history",
+              "evidence_truncated": false,
+              "impressions": 7.0,
+              "operation": "search_analytics",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "gsc",
+              "safe_url": "https://gen.example/d",
+              "url_id": "url:v1:b3ac3543824600be6fde2b6c"
+            },
+            "fingerprint": null,
+            "fix_hint": "Check the retained page and crawl scope, then restore, redirect, or remove the URL from search when appropriate.",
+            "id": null,
+            "message": "Search Console reports impressions for a same-origin URL absent from the crawl",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "retained GSC Search Analytics",
+            "status_code": null,
+            "target_url": "https://gen.example/d"
+          },
+          {
+            "check": "NO_SEARCH_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 3,
+                "truncated": false
+              },
+              "evidence_scope": "retained project-bound Search Analytics history",
+              "evidence_truncated": false,
+              "impressions": 0,
+              "operation": "search_analytics",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "gsc",
+              "safe_url": "https://gen.example/b",
+              "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review indexing, canonicalization, demand, and the measured reporting window before changing the page.",
+            "id": null,
+            "message": "Indexable crawled URL has no retained Search Console impressions",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "retained GSC Search Analytics",
+            "status_code": null,
+            "target_url": "https://gen.example/b"
+          },
+          {
+            "check": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 3,
+                "truncated": false
+              },
+              "crawl_partial": false,
+              "evidence_scope": "retained project-bound Search Analytics history",
+              "evidence_truncated": false,
+              "impressions": 4.0,
+              "operation": "search_analytics",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "gsc",
+              "safe_url": "https://gen.example/c",
+              "url_id": "url:v1:5a48e8f294c0d0a50803855e"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the URL's indexability and canonical signals; keep the current state only when it is intentional.",
+            "id": null,
+            "message": "Non-indexable crawled URL has Search Console impressions",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "retained GSC Search Analytics",
+            "status_code": null,
+            "target_url": "https://gen.example/c"
+          },
+          {
+            "check": "GSC_INDEXED_WITH_ISSUES",
+            "details": {
+              "amp_verdict": null,
+              "crawl_pages": 3,
+              "crawl_urls_inspected": 2,
+              "deferred": 0,
+              "failed": 0,
+              "inspected": 3,
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "operation": "url_inspection",
+              "provider": "gsc",
+              "requests_made": 0,
+              "rich_results_verdict": "FAIL",
+              "safe_url": "https://gen.example/a",
+              "sample_population_complete": false,
+              "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+              "url_id": "url:v1:d1abbc67cfafe841d9bec6de"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the specific AMP or rich-result inspection evidence for the sampled URL.",
+            "id": null,
+            "message": "Search Console reports an indexed URL with AMP or rich-result issues",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "sampled Search Console URL Inspection",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "GSC_AMP_INVALID",
+            "details": {
+              "amp_verdict": "FAIL",
+              "crawl_pages": 3,
+              "crawl_urls_inspected": 2,
+              "deferred": 0,
+              "failed": 0,
+              "inspected": 3,
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "operation": "url_inspection",
+              "provider": "gsc",
+              "requests_made": 0,
+              "safe_url": "https://gen.example/b",
+              "sample_population_complete": false,
+              "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+              "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the AMP inspection result and repair or remove obsolete AMP markup.",
+            "id": null,
+            "message": "Search Console reports an invalid AMP result",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "sampled Search Console URL Inspection",
+            "status_code": null,
+            "target_url": "https://gen.example/b"
+          },
+          {
+            "check": "GSC_RICH_RESULTS_INVALID",
+            "details": {
+              "crawl_pages": 3,
+              "crawl_urls_inspected": 2,
+              "deferred": 0,
+              "failed": 0,
+              "inspected": 3,
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "operation": "url_inspection",
+              "provider": "gsc",
+              "requests_made": 0,
+              "rich_results_verdict": "FAIL",
+              "safe_url": "https://gen.example/a",
+              "sample_population_complete": false,
+              "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+              "url_id": "url:v1:d1abbc67cfafe841d9bec6de"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the inspected rich-result item and correct errors reported by Search Console.",
+            "id": null,
+            "message": "Search Console reports invalid structured data for a rich result",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "sampled Search Console URL Inspection",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "GSC_INDEXABLE_NOT_INDEXED",
+            "details": {
+              "coverage_state": "Discovered - currently not indexed",
+              "crawl_pages": 3,
+              "crawl_urls_inspected": 2,
+              "deferred": 0,
+              "failed": 0,
+              "inspected": 3,
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "operation": "url_inspection",
+              "provider": "gsc",
+              "requests_made": 0,
+              "safe_url": "https://gen.example/b",
+              "sample_population_complete": false,
+              "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+              "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2",
+              "verdict": "FAIL"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review Search Console's coverage state, canonical, fetch state, and indexing directives.",
+            "id": null,
+            "message": "Crawl reports an indexable URL that Search Console does not index",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "sampled Search Console URL Inspection",
+            "status_code": null,
+            "target_url": "https://gen.example/b"
+          },
+          {
+            "check": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "details": {
+              "crawl_pages": 3,
+              "crawl_urls_inspected": 2,
+              "deferred": 0,
+              "failed": 0,
+              "google_canonical": "https://gen.example/other",
+              "inspected": 3,
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "operation": "url_inspection",
+              "provider": "gsc",
+              "requests_made": 0,
+              "safe_google_canonical": "https://gen.example/other",
+              "safe_url": "https://gen.example/a",
+              "safe_user_canonical": "https://gen.example/a",
+              "sample_population_complete": false,
+              "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+              "url_id": "url:v1:d1abbc67cfafe841d9bec6de",
+              "user_canonical": "https://gen.example/a"
+            },
+            "fingerprint": null,
+            "fix_hint": "Align internal links, redirects, sitemap membership, and the declared canonical with the preferred URL.",
+            "id": null,
+            "message": "Google selected a different canonical URL than the declared canonical",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "sampled Search Console URL Inspection",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "GSC_URL_NOT_ON_GOOGLE",
+            "details": {
+              "coverage_state": "Discovered - currently not indexed",
+              "crawl_pages": 3,
+              "crawl_urls_inspected": 2,
+              "deferred": 0,
+              "failed": 0,
+              "inspected": 3,
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "operation": "url_inspection",
+              "provider": "gsc",
+              "requests_made": 0,
+              "safe_url": "https://gen.example/b",
+              "sample_population_complete": false,
+              "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+              "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2",
+              "verdict": "FAIL"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the sampled URL's Search Console coverage state and correct blocking or canonical issues where appropriate.",
+            "id": null,
+            "message": "Search Console reports that the inspected URL is not on Google",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "sampled Search Console URL Inspection",
+            "status_code": null,
+            "target_url": "https://gen.example/b"
+          },
+          {
+            "check": "GSC_URL_NOT_ON_GOOGLE",
+            "details": {
+              "coverage_state": "Crawled - currently not indexed",
+              "crawl_pages": 3,
+              "crawl_urls_inspected": 2,
+              "deferred": 0,
+              "failed": 0,
+              "inspected": 3,
+              "inspected_at": "2026-01-14T10:00:00Z",
+              "operation": "url_inspection",
+              "provider": "gsc",
+              "requests_made": 0,
+              "safe_url": "https://gen.example/notcrawled",
+              "sample_population_complete": false,
+              "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+              "url_id": "url:v1:6fcf1c79cdd8c453dac3445c",
+              "verdict": "NEUTRAL"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the sampled URL's Search Console coverage state and correct blocking or canonical issues where appropriate.",
+            "id": null,
+            "message": "Search Console reports that the inspected URL is not on Google",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "sampled Search Console URL Inspection",
+            "status_code": null,
+            "target_url": "https://gen.example/notcrawled"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/c": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "gsc": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 3,
+                "truncated": false
+              },
+              "findings": {
+                "GSC_ORPHAN": [
+                  {
+                    "details": {
+                      "impressions": 7.0
+                    },
+                    "safe_url": "https://gen.example/d",
+                    "url": "https://gen.example/d",
+                    "url_id": "url:v1:b3ac3543824600be6fde2b6c"
+                  }
+                ],
+                "NON_INDEXABLE_WITH_SEARCH_DATA": [
+                  {
+                    "details": {
+                      "crawl_partial": false,
+                      "impressions": 4.0
+                    },
+                    "safe_url": "https://gen.example/c",
+                    "url": "https://gen.example/c",
+                    "url_id": "url:v1:5a48e8f294c0d0a50803855e"
+                  }
+                ],
+                "NO_SEARCH_DATA": [
+                  {
+                    "details": {
+                      "impressions": 0
+                    },
+                    "safe_url": "https://gen.example/b",
+                    "url": "https://gen.example/b",
+                    "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2"
+                  }
+                ],
+                "_skipped": {}
+              },
+              "inspection": {
+                "coverage": "bounded URL sample; unsampled pages are unknown",
+                "crawl_pages": 3,
+                "crawl_urls_inspected": 2,
+                "daily_budget": null,
+                "deferred": 0,
+                "failed": 0,
+                "findings": {
+                  "GSC_AMP_INVALID": [
+                    {
+                      "details": {
+                        "amp_verdict": "FAIL",
+                        "inspected_at": "2026-01-14T10:00:00Z"
+                      },
+                      "safe_url": "https://gen.example/b",
+                      "url": "https://gen.example/b",
+                      "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2"
+                    }
+                  ],
+                  "GSC_INDEXABLE_NOT_INDEXED": [
+                    {
+                      "details": {
+                        "coverage_state": "Discovered - currently not indexed",
+                        "inspected_at": "2026-01-14T10:00:00Z",
+                        "verdict": "FAIL"
+                      },
+                      "safe_url": "https://gen.example/b",
+                      "url": "https://gen.example/b",
+                      "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2"
+                    }
+                  ],
+                  "GSC_INDEXED_WITH_ISSUES": [
+                    {
+                      "details": {
+                        "amp_verdict": null,
+                        "inspected_at": "2026-01-14T10:00:00Z",
+                        "rich_results_verdict": "FAIL"
+                      },
+                      "safe_url": "https://gen.example/a",
+                      "url": "https://gen.example/a",
+                      "url_id": "url:v1:d1abbc67cfafe841d9bec6de"
+                    }
+                  ],
+                  "GSC_RICH_RESULTS_INVALID": [
+                    {
+                      "details": {
+                        "inspected_at": "2026-01-14T10:00:00Z",
+                        "rich_results_verdict": "FAIL"
+                      },
+                      "safe_url": "https://gen.example/a",
+                      "url": "https://gen.example/a",
+                      "url_id": "url:v1:d1abbc67cfafe841d9bec6de"
+                    }
+                  ],
+                  "GSC_URL_NOT_ON_GOOGLE": [
+                    {
+                      "details": {
+                        "coverage_state": "Discovered - currently not indexed",
+                        "inspected_at": "2026-01-14T10:00:00Z",
+                        "verdict": "FAIL"
+                      },
+                      "safe_url": "https://gen.example/b",
+                      "url": "https://gen.example/b",
+                      "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2"
+                    },
+                    {
+                      "details": {
+                        "coverage_state": "Crawled - currently not indexed",
+                        "inspected_at": "2026-01-14T10:00:00Z",
+                        "verdict": "NEUTRAL"
+                      },
+                      "safe_url": "https://gen.example/notcrawled",
+                      "url": "https://gen.example/notcrawled",
+                      "url_id": "url:v1:6fcf1c79cdd8c453dac3445c"
+                    }
+                  ],
+                  "GSC_USER_CANONICAL_NOT_SELECTED": [
+                    {
+                      "details": {
+                        "google_canonical": "https://gen.example/other",
+                        "inspected_at": "2026-01-14T10:00:00Z",
+                        "safe_google_canonical": "https://gen.example/other",
+                        "safe_user_canonical": "https://gen.example/a",
+                        "user_canonical": "https://gen.example/a"
+                      },
+                      "safe_url": "https://gen.example/a",
+                      "url": "https://gen.example/a",
+                      "url_id": "url:v1:d1abbc67cfafe841d9bec6de"
+                    }
+                  ]
+                },
+                "history_urls": 3,
+                "inspected": 3,
+                "reason": null,
+                "requested": 0,
+                "requests_made": 0,
+                "sample_population_complete": false,
+                "sampled": true,
+                "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+                "sf_checks": {
+                  "GSC_AMP_INVALID": "AMP URL is Invalid",
+                  "GSC_INDEXABLE_NOT_INDEXED": "Indexable URL Not Indexed",
+                  "GSC_INDEXED_WITH_ISSUES": "URL is on Google, But Has Issues",
+                  "GSC_RICH_RESULTS_INVALID": "Rich Result is Invalid",
+                  "GSC_URL_NOT_ON_GOOGLE": "URL Is Not on Google",
+                  "GSC_USER_CANONICAL_NOT_SELECTED": "User-Declared Canonical Not Selected"
+                },
+                "state": "cached",
+                "truncated_findings": false
+              },
+              "schema_version": "search_console_findings.v1",
+              "state": "complete",
+              "truncated_findings": false
+            },
+            "metrika": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            }
+          },
+          "state": "complete"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_gsc_complete",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Non-Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/c",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Non-Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/c",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/c"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [
+            {
+              "resource": "sc-domain:gen.example",
+              "service": "gsc",
+              "status": "selected"
+            }
+          ],
+          "history": [
+            {
+              "doc": {
+                "coverage_complete": false,
+                "days_complete": 20,
+                "days_empty": 2,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 1,
+                "rows": [
+                  {
+                    "clicks": 0,
+                    "ctr": 0.0,
+                    "date": "2026-01-10",
+                    "impressions": 4,
+                    "page": "https://gen.example/c",
+                    "position": 8.0,
+                    "query": "q"
+                  }
+                ],
+                "truncated": false
+              },
+              "resource": "sc-domain:gen.example",
+              "source": "gsc"
+            }
+          ],
+          "inspection_rows": [],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": false,
+                "days_complete": 20,
+                "days_empty": 2,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 1,
+                "truncated": false
+              },
+              "crawl_partial": false,
+              "evidence_scope": "retained project-bound Search Analytics history",
+              "evidence_truncated": false,
+              "impressions": 4.0,
+              "operation": "search_analytics",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "gsc",
+              "safe_url": "https://gen.example/c",
+              "url_id": "url:v1:5a48e8f294c0d0a50803855e"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the URL's indexability and canonical signals; keep the current state only when it is intentional.",
+            "id": null,
+            "message": "Non-indexable crawled URL has Search Console impressions",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "retained GSC Search Analytics",
+            "status_code": null,
+            "target_url": "https://gen.example/c"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/c": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "gsc": {
+              "coverage": {
+                "coverage_complete": false,
+                "days_complete": 20,
+                "days_empty": 2,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 1,
+                "truncated": false
+              },
+              "findings": {
+                "GSC_ORPHAN": [],
+                "NON_INDEXABLE_WITH_SEARCH_DATA": [
+                  {
+                    "details": {
+                      "crawl_partial": false,
+                      "impressions": 4.0
+                    },
+                    "safe_url": "https://gen.example/c",
+                    "url": "https://gen.example/c",
+                    "url_id": "url:v1:5a48e8f294c0d0a50803855e"
+                  }
+                ],
+                "NO_SEARCH_DATA": [],
+                "_skipped": {
+                  "GSC_ORPHAN": "reporting window is incomplete",
+                  "NO_SEARCH_DATA": "reporting window is incomplete"
+                }
+              },
+              "inspection": {
+                "coverage": "bounded URL sample; unsampled pages are unknown",
+                "crawl_pages": 3,
+                "crawl_urls_inspected": 0,
+                "daily_budget": null,
+                "deferred": 0,
+                "failed": 0,
+                "findings": {
+                  "GSC_AMP_INVALID": [],
+                  "GSC_INDEXABLE_NOT_INDEXED": [],
+                  "GSC_INDEXED_WITH_ISSUES": [],
+                  "GSC_RICH_RESULTS_INVALID": [],
+                  "GSC_URL_NOT_ON_GOOGLE": [],
+                  "GSC_USER_CANONICAL_NOT_SELECTED": []
+                },
+                "history_urls": 0,
+                "inspected": 0,
+                "reason": "no retained URL Inspection sample",
+                "requested": 0,
+                "requests_made": 0,
+                "sample_population_complete": false,
+                "sampled": false,
+                "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+                "sf_checks": {
+                  "GSC_AMP_INVALID": "AMP URL is Invalid",
+                  "GSC_INDEXABLE_NOT_INDEXED": "Indexable URL Not Indexed",
+                  "GSC_INDEXED_WITH_ISSUES": "URL is on Google, But Has Issues",
+                  "GSC_RICH_RESULTS_INVALID": "Rich Result is Invalid",
+                  "GSC_URL_NOT_ON_GOOGLE": "URL Is Not on Google",
+                  "GSC_USER_CANONICAL_NOT_SELECTED": "User-Declared Canonical Not Selected"
+                },
+                "state": "not_requested",
+                "truncated_findings": false
+              },
+              "schema_version": "search_console_findings.v1",
+              "state": "partial",
+              "truncated_findings": false
+            },
+            "metrika": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            }
+          },
+          "state": "partial"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "reporting window is incomplete"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "reporting window is incomplete"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_gsc_partial",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Non-Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/c",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Non-Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/c",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/c"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [
+            {
+              "resource": "properties/123",
+              "service": "ga4",
+              "status": "selected"
+            }
+          ],
+          "history": [
+            {
+              "doc": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 4,
+                "rows": [
+                  {
+                    "landing_page": "/a",
+                    "sessions": 5
+                  },
+                  {
+                    "landing_page": "https://gen.example/c",
+                    "sessions": 3
+                  },
+                  {
+                    "landing_page": "https://gen.example/ext",
+                    "sessions": 2
+                  },
+                  {
+                    "landing_page": "https://gen.example/e?x=1",
+                    "sessions": 1
+                  }
+                ],
+                "truncated": false
+              },
+              "resource": "properties/123",
+              "source": "ga4"
+            }
+          ],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "GA_ORPHAN_URL",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 4,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "evidence_scope": "retained project-bound ga4 landing-page history",
+              "evidence_truncated": false,
+              "finding_state": "reported",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "ga4",
+              "safe_url": "https://gen.example/e",
+              "unreadable_metrics": 0,
+              "url_id": "url:v1:ff385c26a09700a59d69dfbf"
+            },
+            "fingerprint": null,
+            "fix_hint": "Check whether the URL is intentionally retired, blocked, redirected, or missing from the crawl population.",
+            "id": null,
+            "message": "GA4 reports a landing URL absent from the crawl",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "retained ga4 history",
+            "status_code": null,
+            "target_url": "https://gen.example/e?x=1"
+          },
+          {
+            "check": "GA_ORPHAN_URL",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 4,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "evidence_scope": "retained project-bound ga4 landing-page history",
+              "evidence_truncated": false,
+              "finding_state": "reported",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "ga4",
+              "safe_url": "https://gen.example/ext",
+              "unreadable_metrics": 0,
+              "url_id": "url:v1:b9c331858850a2555d541dff"
+            },
+            "fingerprint": null,
+            "fix_hint": "Check whether the URL is intentionally retired, blocked, redirected, or missing from the crawl population.",
+            "id": null,
+            "message": "GA4 reports a landing URL absent from the crawl",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "retained ga4 history",
+            "status_code": null,
+            "target_url": "https://gen.example/ext"
+          },
+          {
+            "check": "NO_GA_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 4,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "evidence_scope": "retained project-bound ga4 landing-page history",
+              "evidence_truncated": false,
+              "finding_state": "reported",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "ga4",
+              "safe_url": "https://gen.example/b",
+              "unreadable_metrics": 0,
+              "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the measured period and analytics tagging before treating the absence as a page defect.",
+            "id": null,
+            "message": "Indexable crawled URL has no retained GA4 sessions",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "retained ga4 history",
+            "status_code": null,
+            "target_url": "https://gen.example/b"
+          },
+          {
+            "check": "NON_INDEXABLE_WITH_GA_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 4,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "evidence_scope": "retained project-bound ga4 landing-page history",
+              "evidence_truncated": false,
+              "finding_state": "reported",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "ga4",
+              "safe_url": "https://gen.example/c",
+              "unreadable_metrics": 0,
+              "url_id": "url:v1:5a48e8f294c0d0a50803855e"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review whether the URL should be indexable; keep its current state only when that is intentional.",
+            "id": null,
+            "message": "Non-indexable crawled URL has GA4 sessions",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "retained ga4 history",
+            "status_code": null,
+            "target_url": "https://gen.example/c"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/c": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 4,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "findings": {
+                "BOUNCE_RATE_ABOVE_70": {
+                  "reason": "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)",
+                  "safe_urls": [],
+                  "state": "skipped",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "GA_ORPHAN_URL": {
+                  "reason": "crawl completed; external-only same-origin URLs",
+                  "safe_urls": [
+                    "https://gen.example/e",
+                    "https://gen.example/ext"
+                  ],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [
+                    "url:v1:ff385c26a09700a59d69dfbf",
+                    "url:v1:b9c331858850a2555d541dff"
+                  ],
+                  "urls": [
+                    "https://gen.example/e?x=1",
+                    "https://gen.example/ext"
+                  ]
+                },
+                "NON_INDEXABLE_WITH_GA_DATA": {
+                  "reason": "non-indexable crawled pages with visits above zero",
+                  "safe_urls": [
+                    "https://gen.example/c"
+                  ],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [
+                    "url:v1:5a48e8f294c0d0a50803855e"
+                  ],
+                  "urls": [
+                    "https://gen.example/c"
+                  ]
+                },
+                "NO_GA_DATA": {
+                  "reason": "indexable crawled pages with no analytics row",
+                  "safe_urls": [
+                    "https://gen.example/b"
+                  ],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [
+                    "url:v1:b0c9f0e0c39b58e6c6df20b2"
+                  ],
+                  "urls": [
+                    "https://gen.example/b"
+                  ]
+                }
+              },
+              "schema_version": "analytics_findings.v1",
+              "state": "complete",
+              "truncated_findings": false
+            },
+            "gsc": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "metrika": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            }
+          },
+          "state": "complete"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_ga4",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Non-Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/c",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Non-Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/c",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/c"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [
+            {
+              "resource": "counter/777",
+              "service": "metrika",
+              "status": "selected"
+            }
+          ],
+          "history": [
+            {
+              "doc": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 4,
+                "rows": [
+                  {
+                    "bounce_rate": 0.9,
+                    "landing_page": "https://gen.example/a",
+                    "visits": 4
+                  },
+                  {
+                    "bounce_rate": 0.5,
+                    "landing_page": "https://gen.example/b",
+                    "visits": 2
+                  },
+                  {
+                    "bounce_rate": 0.8,
+                    "landing_page": "https://gen.example/c",
+                    "visits": 3
+                  },
+                  {
+                    "bounce_rate": 0.8,
+                    "landing_page": "https://gen.example/ext",
+                    "visits": 1
+                  }
+                ],
+                "truncated": false
+              },
+              "resource": "counter/777",
+              "source": "metrika"
+            }
+          ],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/c": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "gsc": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "metrika": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 4,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "findings": {
+                "METRIKA_BOUNCE_RATE_ABOVE_70": {
+                  "reason": "matched pages with bounce rate above 70%",
+                  "safe_urls": [
+                    "https://gen.example/a",
+                    "https://gen.example/c"
+                  ],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [
+                    "url:v1:d1abbc67cfafe841d9bec6de",
+                    "url:v1:5a48e8f294c0d0a50803855e"
+                  ],
+                  "urls": [
+                    "https://gen.example/a",
+                    "https://gen.example/c"
+                  ]
+                },
+                "METRIKA_ORPHAN_URL": {
+                  "reason": "crawl completed; external-only same-origin URLs",
+                  "safe_urls": [
+                    "https://gen.example/ext"
+                  ],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [
+                    "url:v1:b9c331858850a2555d541dff"
+                  ],
+                  "urls": [
+                    "https://gen.example/ext"
+                  ]
+                },
+                "NON_INDEXABLE_WITH_METRIKA_DATA": {
+                  "reason": "non-indexable crawled pages with visits above zero",
+                  "safe_urls": [
+                    "https://gen.example/c"
+                  ],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [
+                    "url:v1:5a48e8f294c0d0a50803855e"
+                  ],
+                  "urls": [
+                    "https://gen.example/c"
+                  ]
+                },
+                "NO_METRIKA_DATA": {
+                  "reason": "indexable crawled pages with no analytics row",
+                  "safe_urls": [],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                }
+              },
+              "schema_version": "analytics_findings.v1",
+              "state": "complete",
+              "truncated_findings": false
+            }
+          },
+          "state": "complete"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_metrika",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Non-Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/c",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Non-Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/c",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/c"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [
+            {
+              "resource": "counter/777",
+              "service": "metrika",
+              "status": "selected"
+            }
+          ],
+          "history": [
+            {
+              "doc": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "rows": [
+                  {
+                    "landing_page": "https://gen.example/a",
+                    "visits": 4
+                  },
+                  {
+                    "landing_page": "https://gen.example/b",
+                    "visits": "bogus"
+                  }
+                ],
+                "truncated": false
+              },
+              "resource": "counter/777",
+              "source": "metrika"
+            }
+          ],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "gsc": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "metrika": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "truncated": false,
+                "unusable_history_rows": 2
+              },
+              "findings": {
+                "METRIKA_BOUNCE_RATE_ABOVE_70": {
+                  "reason": "retained Metrika history contains no readable per-URL bounce values",
+                  "safe_urls": [],
+                  "state": "skipped",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "METRIKA_ORPHAN_URL": {
+                  "reason": "retained analytics coverage has gaps, truncation, or unusable URL/metric rows",
+                  "safe_urls": [],
+                  "state": "withheld",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "NON_INDEXABLE_WITH_METRIKA_DATA": {
+                  "reason": "non-indexable crawled pages with visits above zero",
+                  "safe_urls": [],
+                  "state": "reported",
+                  "unreadable": 1,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "NO_METRIKA_DATA": {
+                  "reason": "retained analytics coverage has gaps, truncation, or unusable URL/metric rows",
+                  "safe_urls": [],
+                  "state": "withheld",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                }
+              },
+              "schema_version": "analytics_findings.v1",
+              "state": "partial",
+              "truncated_findings": false
+            }
+          },
+          "state": "partial"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_GA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "retained metrika coverage is partial; absence is not established"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "retained metrika coverage is partial; absence is not established"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "retained metrika coverage is partial; absence is not established"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "retained metrika coverage is partial; absence is not established"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_metrika_no_bounce",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [
+            {
+              "resource": "sc-domain:gen.example",
+              "service": "gsc",
+              "status": "selected"
+            },
+            {
+              "resource": "properties/123",
+              "service": "ga4",
+              "status": "selected"
+            }
+          ],
+          "crawl_partial": true,
+          "history": [
+            {
+              "doc": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "rows": [
+                  {
+                    "clicks": 0,
+                    "ctr": 0.0,
+                    "date": "2026-01-10",
+                    "impressions": 5,
+                    "page": "https://gen.example/c",
+                    "position": 7.0,
+                    "query": "q"
+                  },
+                  {
+                    "clicks": 0,
+                    "ctr": 0.0,
+                    "date": "2026-01-10",
+                    "impressions": 9,
+                    "page": "https://gen.example/ext",
+                    "position": 3.0,
+                    "query": "q"
+                  }
+                ],
+                "truncated": false
+              },
+              "resource": "sc-domain:gen.example",
+              "source": "gsc"
+            },
+            {
+              "doc": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "rows": [
+                  {
+                    "landing_page": "https://gen.example/c",
+                    "sessions": 3
+                  },
+                  {
+                    "landing_page": "https://gen.example/ext",
+                    "sessions": 2
+                  }
+                ],
+                "truncated": false
+              },
+              "resource": "properties/123",
+              "source": "ga4"
+            }
+          ],
+          "inspection_rows": [],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "truncated": false
+              },
+              "crawl_partial": true,
+              "evidence_scope": "retained project-bound Search Analytics history",
+              "evidence_truncated": false,
+              "impressions": 5.0,
+              "operation": "search_analytics",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "gsc",
+              "safe_url": "https://gen.example/c",
+              "url_id": "url:v1:5a48e8f294c0d0a50803855e"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the URL's indexability and canonical signals; keep the current state only when it is intentional.",
+            "id": null,
+            "message": "Non-indexable crawled URL has Search Console impressions",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "retained GSC Search Analytics",
+            "status_code": null,
+            "target_url": "https://gen.example/c"
+          },
+          {
+            "check": "NON_INDEXABLE_WITH_GA_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "evidence_scope": "retained project-bound ga4 landing-page history",
+              "evidence_truncated": false,
+              "finding_state": "reported",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "ga4",
+              "safe_url": "https://gen.example/c",
+              "unreadable_metrics": 0,
+              "url_id": "url:v1:5a48e8f294c0d0a50803855e"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review whether the URL should be indexable; keep its current state only when that is intentional.",
+            "id": null,
+            "message": "Non-indexable crawled URL has GA4 sessions",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "retained ga4 history",
+            "status_code": null,
+            "target_url": "https://gen.example/c"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/c": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "findings": {
+                "BOUNCE_RATE_ABOVE_70": {
+                  "reason": "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)",
+                  "safe_urls": [],
+                  "state": "skipped",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "GA_ORPHAN_URL": {
+                  "reason": "crawl is partial; an external-only URL cannot be proven an orphan",
+                  "safe_urls": [],
+                  "state": "withheld",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "NON_INDEXABLE_WITH_GA_DATA": {
+                  "reason": "non-indexable crawled pages with visits above zero",
+                  "safe_urls": [
+                    "https://gen.example/c"
+                  ],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [
+                    "url:v1:5a48e8f294c0d0a50803855e"
+                  ],
+                  "urls": [
+                    "https://gen.example/c"
+                  ]
+                },
+                "NO_GA_DATA": {
+                  "reason": "crawl is partial; absence of analytics data cannot be established",
+                  "safe_urls": [],
+                  "state": "withheld",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                }
+              },
+              "schema_version": "analytics_findings.v1",
+              "state": "complete",
+              "truncated_findings": false
+            },
+            "gsc": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "truncated": false
+              },
+              "findings": {
+                "GSC_ORPHAN": [],
+                "NON_INDEXABLE_WITH_SEARCH_DATA": [
+                  {
+                    "details": {
+                      "crawl_partial": true,
+                      "impressions": 5.0
+                    },
+                    "safe_url": "https://gen.example/c",
+                    "url": "https://gen.example/c",
+                    "url_id": "url:v1:5a48e8f294c0d0a50803855e"
+                  }
+                ],
+                "NO_SEARCH_DATA": [],
+                "_skipped": {
+                  "GSC_ORPHAN": "crawl is partial",
+                  "NO_SEARCH_DATA": "crawl is partial"
+                }
+              },
+              "inspection": {
+                "coverage": "bounded URL sample; unsampled pages are unknown",
+                "crawl_pages": 3,
+                "crawl_urls_inspected": 0,
+                "daily_budget": null,
+                "deferred": 0,
+                "failed": 0,
+                "findings": {
+                  "GSC_AMP_INVALID": [],
+                  "GSC_INDEXABLE_NOT_INDEXED": [],
+                  "GSC_INDEXED_WITH_ISSUES": [],
+                  "GSC_RICH_RESULTS_INVALID": [],
+                  "GSC_URL_NOT_ON_GOOGLE": [],
+                  "GSC_USER_CANONICAL_NOT_SELECTED": []
+                },
+                "history_urls": 0,
+                "inspected": 0,
+                "reason": "no retained URL Inspection sample",
+                "requested": 0,
+                "requests_made": 0,
+                "sample_population_complete": false,
+                "sampled": false,
+                "scope": "bounded Search Console URL Inspection sample; not a site-wide census",
+                "sf_checks": {
+                  "GSC_AMP_INVALID": "AMP URL is Invalid",
+                  "GSC_INDEXABLE_NOT_INDEXED": "Indexable URL Not Indexed",
+                  "GSC_INDEXED_WITH_ISSUES": "URL is on Google, But Has Issues",
+                  "GSC_RICH_RESULTS_INVALID": "Rich Result is Invalid",
+                  "GSC_URL_NOT_ON_GOOGLE": "URL Is Not on Google",
+                  "GSC_USER_CANONICAL_NOT_SELECTED": "User-Declared Canonical Not Selected"
+                },
+                "state": "not_requested",
+                "truncated_findings": false
+              },
+              "schema_version": "search_console_findings.v1",
+              "state": "complete",
+              "truncated_findings": false
+            },
+            "metrika": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            }
+          },
+          "state": "partial"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "crawl is partial"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "crawl is partial"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "no retained URL Inspection sample"
+          },
+          {
+            "id": "GA_ORPHAN_URL",
+            "reason": "crawl is partial; an external-only URL cannot be proven an orphan"
+          },
+          {
+            "id": "NO_GA_DATA",
+            "reason": "crawl is partial; absence of analytics data cannot be established"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_crawl_partial",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Non-Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/c",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Non-Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/c",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/c"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [
+            {
+              "resource": "properties/123",
+              "service": "ga4",
+              "status": "selected"
+            }
+          ],
+          "history": [
+            {
+              "doc": {
+                "coverage_complete": true,
+                "days_complete": 0,
+                "days_empty": 28,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 0,
+                "rows": [],
+                "truncated": false
+              },
+              "resource": "properties/123",
+              "source": "ga4"
+            }
+          ],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "NO_GA_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 0,
+                "days_empty": 28,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 0,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "evidence_scope": "retained project-bound ga4 landing-page history",
+              "evidence_truncated": false,
+              "finding_state": "reported",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "ga4",
+              "safe_url": "https://gen.example/a",
+              "unreadable_metrics": 0,
+              "url_id": "url:v1:d1abbc67cfafe841d9bec6de"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the measured period and analytics tagging before treating the absence as a page defect.",
+            "id": null,
+            "message": "Indexable crawled URL has no retained GA4 sessions",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "retained ga4 history",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "NO_GA_DATA",
+            "details": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 0,
+                "days_empty": 28,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 0,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "evidence_scope": "retained project-bound ga4 landing-page history",
+              "evidence_truncated": false,
+              "finding_state": "reported",
+              "period": {
+                "from": "2025-12-18",
+                "to": "2026-01-14"
+              },
+              "provider": "ga4",
+              "safe_url": "https://gen.example/b",
+              "unreadable_metrics": 0,
+              "url_id": "url:v1:b0c9f0e0c39b58e6c6df20b2"
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the measured period and analytics tagging before treating the absence as a page defect.",
+            "id": null,
+            "message": "Indexable crawled URL has no retained GA4 sessions",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "retained ga4 history",
+            "status_code": null,
+            "target_url": "https://gen.example/b"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 0,
+                "days_empty": 28,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 0,
+                "truncated": false,
+                "unusable_history_rows": 0
+              },
+              "findings": {
+                "BOUNCE_RATE_ABOVE_70": {
+                  "reason": "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)",
+                  "safe_urls": [],
+                  "state": "skipped",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "GA_ORPHAN_URL": {
+                  "reason": "crawl completed; external-only same-origin URLs",
+                  "safe_urls": [],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "NON_INDEXABLE_WITH_GA_DATA": {
+                  "reason": "non-indexable crawled pages with visits above zero",
+                  "safe_urls": [],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "NO_GA_DATA": {
+                  "reason": "indexable crawled pages with no analytics row",
+                  "safe_urls": [
+                    "https://gen.example/a",
+                    "https://gen.example/b"
+                  ],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [
+                    "url:v1:d1abbc67cfafe841d9bec6de",
+                    "url:v1:b0c9f0e0c39b58e6c6df20b2"
+                  ],
+                  "urls": [
+                    "https://gen.example/a",
+                    "https://gen.example/b"
+                  ]
+                }
+              },
+              "schema_version": "analytics_findings.v1",
+              "state": "complete",
+              "truncated_findings": false
+            },
+            "gsc": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "metrika": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            }
+          },
+          "state": "complete"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_empty_complete",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "provider_findings"
+      ],
+      "config": {},
+      "ctx": {
+        "provider_fixture": {
+          "bindings": [
+            {
+              "resource": "properties/123",
+              "service": "ga4",
+              "status": "selected"
+            }
+          ],
+          "history": [
+            {
+              "doc": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "rows": [
+                  {
+                    "landing_page": 42,
+                    "sessions": 5
+                  },
+                  {
+                    "landing_page": "https://gen.example/a",
+                    "sessions": 2
+                  }
+                ],
+                "truncated": false
+              },
+              "resource": "properties/123",
+              "source": "ga4"
+            }
+          ],
+          "origin": "https://gen.example"
+        }
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "provider_evidence": {
+          "crawl_pages_omitted": 0,
+          "network_requests": false,
+          "period_days": 28,
+          "period_scope": [
+            "gsc",
+            "ga4",
+            "metrika"
+          ],
+          "schema_version": "provider_findings.v1",
+          "source": "project-bound provider history",
+          "sources": {
+            "cloudflare": {
+              "reason": "no unique selected Cloudflare zone binding",
+              "state": "not_configured"
+            },
+            "ga4": {
+              "coverage": {
+                "coverage_complete": true,
+                "days_complete": 28,
+                "days_empty": 0,
+                "days_expected": 28,
+                "omitted_rows_lower_bound": 0,
+                "period": {
+                  "from": "2025-12-18",
+                  "to": "2026-01-14"
+                },
+                "row_count": 2,
+                "truncated": false,
+                "unusable_history_rows": 1
+              },
+              "findings": {
+                "BOUNCE_RATE_ABOVE_70": {
+                  "reason": "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)",
+                  "safe_urls": [],
+                  "state": "skipped",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "GA_ORPHAN_URL": {
+                  "reason": "retained analytics coverage has gaps, truncation, or unusable URL/metric rows",
+                  "safe_urls": [],
+                  "state": "withheld",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "NON_INDEXABLE_WITH_GA_DATA": {
+                  "reason": "non-indexable crawled pages with visits above zero",
+                  "safe_urls": [],
+                  "state": "reported",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                },
+                "NO_GA_DATA": {
+                  "reason": "retained analytics coverage has gaps, truncation, or unusable URL/metric rows",
+                  "safe_urls": [],
+                  "state": "withheld",
+                  "unreadable": 0,
+                  "url_ids": [],
+                  "urls": []
+                }
+              },
+              "schema_version": "analytics_findings.v1",
+              "state": "partial",
+              "truncated_findings": false
+            },
+            "gsc": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            },
+            "metrika": {
+              "reason": "no unique selected provider binding",
+              "state": "not_configured"
+            }
+          },
+          "state": "partial"
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "GSC_ORPHAN",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_SEARCH_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "GSC_INDEXED_WITH_ISSUES",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_AMP_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_RICH_RESULTS_INVALID",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_INDEXABLE_NOT_INDEXED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_USER_CANONICAL_NOT_SELECTED",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GSC_URL_NOT_ON_GOOGLE",
+            "reason": "no complete Search Console URL Inspection sample covers this check"
+          },
+          {
+            "id": "GA_ORPHAN_URL",
+            "reason": "retained analytics coverage has gaps, truncation, or unusable URL/metric rows"
+          },
+          {
+            "id": "NO_GA_DATA",
+            "reason": "retained analytics coverage has gaps, truncation, or unusable URL/metric rows"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_GA_DATA",
+            "reason": "retained ga4 coverage is partial; absence is not established"
+          },
+          {
+            "id": "BOUNCE_RATE_ABOVE_70",
+            "reason": "bounce_column not given; per-URL bounce needs a per-URL export (#990, #984)"
+          },
+          {
+            "id": "METRIKA_ORPHAN_URL",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NO_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "NON_INDEXABLE_WITH_METRIKA_DATA",
+            "reason": "no unique selected provider binding"
+          },
+          {
+            "id": "METRIKA_BOUNCE_RATE_ABOVE_70",
+            "reason": "no unique selected provider binding"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "provider_unreadable_rows",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        }
+      ]
+    }
+  ],
+  "format": "gen-audit-case.v1",
+  "group": "provider"
+}

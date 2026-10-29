@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-evidence\n",
+    "stdout": "{\n  \"ok\": true,\n  \"section\": \"browser\",\n  \"evidence\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"requested evidence was not retained\",\n    \"total\": 0,\n    \"offset\": 0,\n    \"limit\": 1000,\n    \"has_more\": false,\n    \"items\": []\n  }\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"section\": \"browser\",\n  \"evidence\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"requested evidence was not retained\",\n    \"total\": 0,\n    \"offset\": 0,\n    \"limit\": 1000,\n    \"has_more\": false,\n    \"items\": []\n  }\n}"
+   }
+  ]
+ }
+}

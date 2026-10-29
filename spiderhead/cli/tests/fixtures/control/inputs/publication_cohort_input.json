@@ -1,0 +1,47 @@
+{
+  "format": "seohead.publication-cohort-input.v1",
+  "content": [
+    {
+      "url": "https://example.test/guide",
+      "publication": {"raw": "2026-01-05", "value": "2026-01-05", "state": "measured", "source": "jsonld"},
+      "modified": {"raw": "2026-02-01", "value": "2026-02-01", "state": "measured", "source": "visible"},
+      "first_observed": {"raw": "2026-01-10", "value": "2026-01-10", "state": "measured", "source": "crawl"},
+      "authors": ["Ada", "Bea"],
+      "word_count": {"value": 1200, "state": "measured"}
+    },
+    {
+      "url": "https://example.test/uncertain",
+      "publication": {"raw": "Spring 2026", "value": null, "state": "ambiguous", "source": "visible"},
+      "modified": null,
+      "first_observed": {"raw": "2026-03-01", "value": "2026-03-01", "state": "measured", "source": "crawl"},
+      "word_count": {"value": null, "state": "unknown", "reason": "body was not retained"}
+    }
+  ],
+  "evidence": [
+    {
+      "format": "seohead.normalized-evidence.v1",
+      "mapping": {
+        "source": {"provider": "gsc", "timezone": "America/Los_Angeles", "search_type": "web"},
+        "period": {"start_date": "2026-02-01", "end_date": "2026-02-28"},
+        "collection": {"state": "partial", "sampled": false, "thresholded": true, "truncated": false},
+        "dimensions": ["page", "date"]
+      },
+      "rows": [
+        {"url": {"normalized": "https://example.test/guide"}, "dimensions": {"page": "https://example.test/guide", "date": "2026-02-01"}, "metrics": {"clicks": {"value": 0, "state": "measured"}, "impressions": {"value": 9, "state": "measured"}}, "ambiguous": false},
+        {"url": {"normalized": "https://example.test/uncertain"}, "dimensions": {"page": "https://example.test/uncertain", "date": "2026-02-01"}, "metrics": {"clicks": {"value": null, "state": "unknown", "reason": "suppressed"}}, "ambiguous": false}
+      ]
+    },
+    {
+      "format": "seohead.normalized-evidence.v1",
+      "mapping": {
+        "source": {"provider": "ga4", "timezone": "Europe/Minsk", "attribution": "last_click"},
+        "period": {"start_date": "2026-02-01", "end_date": "2026-02-28"},
+        "collection": {"state": "complete", "sampled": false, "thresholded": false, "truncated": false},
+        "dimensions": ["page"]
+      },
+      "rows": [
+        {"url": {"normalized": "https://example.test/guide"}, "dimensions": {"page": "https://example.test/guide"}, "metrics": {"sessions": {"value": 4, "state": "measured"}}, "ambiguous": false}
+      ]
+    }
+  ]
+}

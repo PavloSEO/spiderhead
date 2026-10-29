@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 10,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Error executing tool seo_scan_pin: scan file is unavailable: [Errno 2] No such file or directory: '/spiderhead-missing/no-such-scan.db'"
+      }
+    ],
+    "isError": true
+  }
+}

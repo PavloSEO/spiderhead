@@ -1,0 +1,50 @@
+{
+ "has_scan": false,
+ "issues": [],
+ "skipped": [
+  {
+   "id": "NOINDEX_ONLY_IN_RAW_HTML",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "NOFOLLOW_ONLY_IN_RAW_HTML",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "CANONICAL_MISMATCH",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "H1_ONLY_IN_RENDERED_HTML",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "H1_UPDATED_BY_JAVASCRIPT",
+   "reason": "requires retained native rendered evidence"
+  },
+  {
+   "id": "RENDER_RESOURCE_BLOCKED",
+   "reason": "requires retained native rendered evidence"
+  }
+ ]
+}

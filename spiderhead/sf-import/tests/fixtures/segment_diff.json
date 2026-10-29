@@ -1,0 +1,3262 @@
+[
+ {
+  "name": "declared_slug",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/a-propos",
+       "url": "https://x.tld/fr/a-propos"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/about"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/a-propos"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 1,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 1,
+    "inference_enabled": false,
+    "mirror_pairs": 1,
+    "mirror_rate": 0.0,
+    "mirror_rate_reason": "measured mirror rate 0% over 1 declared pair(s), below the 90% threshold; path inference is switched off",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/a-propos",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/about"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/about": "en",
+   "https://x.tld/fr/a-propos": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "declared_case",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "HTTPS://X.TLD/fr/a-propos",
+       "url": "HTTPS://X.TLD/fr/a-propos"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/about"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/a-propos"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 1,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 1,
+    "inference_enabled": false,
+    "mirror_pairs": 1,
+    "mirror_rate": 0.0,
+    "mirror_rate_reason": "measured mirror rate 0% over 1 declared pair(s), below the 90% threshold; path inference is switched off",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "HTTPS://X.TLD/fr/a-propos",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/about"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "HTTPS://X.TLD/fr/a-propos": "fr",
+   "https://x.tld/en/about": "en",
+   "https://x.tld/fr/a-propos": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "path_case_distinct",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://X.TLD/fr/About",
+       "url": "https://X.TLD/fr/About"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/about"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/about"
+   }
+  ],
+  "partial": false,
+  "rejection": {
+   "https://X.TLD/fr/About": ""
+  },
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 0,
+     "declared_not_crawled": 1,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 1,
+    "inference_enabled": false,
+    "mirror_pairs": 1,
+    "mirror_rate": 0.0,
+    "mirror_rate_reason": "measured mirror rate 0% over 1 declared pair(s), below the 90% threshold; path inference is switched off",
+    "pages": [
+     {
+      "class": "declared_not_crawled",
+      "counterpart": "https://X.TLD/fr/About",
+      "method": "hreflang",
+      "reason": "hreflang names 'https://X.TLD/fr/About' but it was not found among crawled pages",
+      "url": "https://x.tld/en/about"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://X.TLD/fr/About": "fr",
+   "https://x.tld/en/about": "en",
+   "https://x.tld/fr/about": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "query_case_distinct",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://X.TLD/fr/about?Q=A",
+       "url": "https://X.TLD/fr/about?Q=A"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/about"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/about?q=a"
+   }
+  ],
+  "partial": false,
+  "rejection": {
+   "https://X.TLD/fr/about?Q=A": ""
+  },
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 0,
+     "declared_not_crawled": 1,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 1,
+    "inference_enabled": false,
+    "mirror_pairs": 1,
+    "mirror_rate": 0.0,
+    "mirror_rate_reason": "measured mirror rate 0% over 1 declared pair(s), below the 90% threshold; path inference is switched off",
+    "pages": [
+     {
+      "class": "declared_not_crawled",
+      "counterpart": "https://X.TLD/fr/about?Q=A",
+      "method": "hreflang",
+      "reason": "hreflang names 'https://X.TLD/fr/about?Q=A' but it was not found among crawled pages",
+      "url": "https://x.tld/en/about"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://X.TLD/fr/about?Q=A": "fr",
+   "https://x.tld/en/about": "en",
+   "https://x.tld/fr/about?q=a": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "inferred_absent",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/contact",
+       "url": "https://x.tld/fr/contact"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/contact"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "en",
+       "raw_href": "https://x.tld/en/contact",
+       "url": "https://x.tld/en/contact"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/contact"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/shop",
+       "url": "https://x.tld/fr/shop"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/shop"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "en",
+       "raw_href": "https://x.tld/en/shop",
+       "url": "https://x.tld/en/shop"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/shop"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/blog",
+       "url": "https://x.tld/fr/blog"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/blog"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "en",
+       "raw_href": "https://x.tld/en/blog",
+       "url": "https://x.tld/en/blog"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/blog"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/news",
+       "url": "https://x.tld/fr/news"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/news"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "en",
+       "raw_href": "https://x.tld/en/news",
+       "url": "https://x.tld/en/news"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/news"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/about"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 1,
+     "declared": 4,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 5,
+    "inference_enabled": true,
+    "mirror_pairs": 4,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 4 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/contact",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/contact"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/shop",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/shop"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/blog",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/blog"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/news",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/news"
+     },
+     {
+      "class": "absent",
+      "counterpart": "https://x.tld/fr/about",
+      "method": "mirrored_path",
+      "reason": null,
+      "url": "https://x.tld/en/about"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/about": "en",
+   "https://x.tld/en/blog": "en",
+   "https://x.tld/en/contact": "en",
+   "https://x.tld/en/news": "en",
+   "https://x.tld/en/shop": "en",
+   "https://x.tld/fr/blog": "fr",
+   "https://x.tld/fr/contact": "fr",
+   "https://x.tld/fr/news": "fr",
+   "https://x.tld/fr/shop": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "inferred_case",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/contact",
+       "url": "https://x.tld/fr/contact"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/contact"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/contact"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/about"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "HTTPS://X.TLD/fr/about"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 1,
+     "declared_not_crawled": 0,
+     "inferred": 1,
+     "undetermined": 0
+    },
+    "eligible_pages": 2,
+    "inference_enabled": true,
+    "mirror_pairs": 1,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 1 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/contact",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/contact"
+     },
+     {
+      "class": "inferred",
+      "counterpart": "https://x.tld/fr/about",
+      "method": "mirrored_path",
+      "reason": null,
+      "url": "https://x.tld/en/about"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "HTTPS://X.TLD/fr/about": "fr",
+   "https://x.tld/en/about": "en",
+   "https://x.tld/en/contact": "en",
+   "https://x.tld/fr/about": "fr",
+   "https://x.tld/fr/contact": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "counts_sum",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/a",
+       "url": "https://x.tld/fr/a"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/never-crawled",
+       "url": "https://x.tld/fr/never-crawled"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/b"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/c"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [],
+     "meta_robots": "noindex, follow"
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/noindexed"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 404,
+    "url": "https://x.tld/en/broken"
+   },
+   {
+    "content_type": "application/pdf",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/pdf"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [],
+     "x_robots": "NOINDEX"
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/xr"
+   }
+  ],
+  "partial": false,
+  "rejection": {
+   "https://x.tld/fr/never-crawled": ""
+  },
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 1,
+     "declared_not_crawled": 1,
+     "inferred": 0,
+     "undetermined": 1
+    },
+    "eligible_pages": 3,
+    "inference_enabled": false,
+    "mirror_pairs": 2,
+    "mirror_rate": 0.5,
+    "mirror_rate_reason": "measured mirror rate 50% over 2 declared pair(s), below the 90% threshold; path inference is switched off",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/a",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/a"
+     },
+     {
+      "class": "declared_not_crawled",
+      "counterpart": "https://x.tld/fr/never-crawled",
+      "method": "hreflang",
+      "reason": "hreflang names 'https://x.tld/fr/never-crawled' but it was not found among crawled pages",
+      "url": "https://x.tld/en/b"
+     },
+     {
+      "class": "undetermined",
+      "counterpart": null,
+      "method": "mirror_disabled",
+      "reason": "measured mirror rate 50% over 2 declared pair(s), below the 90% threshold; path inference is switched off",
+      "url": "https://x.tld/en/c"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/a": "en",
+   "https://x.tld/en/b": "en",
+   "https://x.tld/en/broken": "en",
+   "https://x.tld/en/c": "en",
+   "https://x.tld/en/noindexed": "en",
+   "https://x.tld/en/pdf": "en",
+   "https://x.tld/en/xr": "en",
+   "https://x.tld/fr/a": "fr",
+   "https://x.tld/fr/never-crawled": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "rate_low",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p0",
+       "url": "https://x.tld/fr/p0"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p0"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p0"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p1-different",
+       "url": "https://x.tld/fr/p1-different"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p1"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p1-different"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p2-different",
+       "url": "https://x.tld/fr/p2-different"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p2"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p2-different"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p3-different",
+       "url": "https://x.tld/fr/p3-different"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p3"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p3-different"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/undeclared"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 4,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 1
+    },
+    "eligible_pages": 5,
+    "inference_enabled": false,
+    "mirror_pairs": 4,
+    "mirror_rate": 0.25,
+    "mirror_rate_reason": "measured mirror rate 25% over 4 declared pair(s), below the 90% threshold; path inference is switched off",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p0",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p0"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p1-different",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p1"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p2-different",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p2"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p3-different",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p3"
+     },
+     {
+      "class": "undetermined",
+      "counterpart": null,
+      "method": "mirror_disabled",
+      "reason": "measured mirror rate 25% over 4 declared pair(s), below the 90% threshold; path inference is switched off",
+      "url": "https://x.tld/en/undeclared"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/p0": "en",
+   "https://x.tld/en/p1": "en",
+   "https://x.tld/en/p2": "en",
+   "https://x.tld/en/p3": "en",
+   "https://x.tld/en/undeclared": "en",
+   "https://x.tld/fr/p0": "fr",
+   "https://x.tld/fr/p1-different": "fr",
+   "https://x.tld/fr/p2-different": "fr",
+   "https://x.tld/fr/p3-different": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "rate_boundary_9_10",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p0",
+       "url": "https://x.tld/fr/p0"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p0"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p0"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p1",
+       "url": "https://x.tld/fr/p1"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p1"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p1"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p2",
+       "url": "https://x.tld/fr/p2"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p2"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p2"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p3",
+       "url": "https://x.tld/fr/p3"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p3"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p3"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p4",
+       "url": "https://x.tld/fr/p4"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p4"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p4"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p5",
+       "url": "https://x.tld/fr/p5"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p5"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p5"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p6",
+       "url": "https://x.tld/fr/p6"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p6"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p6"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p7",
+       "url": "https://x.tld/fr/p7"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p7"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p7"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p8",
+       "url": "https://x.tld/fr/p8"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p8"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p8"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p9-different",
+       "url": "https://x.tld/fr/p9-different"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p9"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p9-different"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 10,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 10,
+    "inference_enabled": true,
+    "mirror_pairs": 10,
+    "mirror_rate": 0.9,
+    "mirror_rate_reason": "measured mirror rate 90% over 10 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p0",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p0"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p1",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p1"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p2",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p2"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p3",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p3"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p4",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p4"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p5",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p5"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p6",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p6"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p7",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p7"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p8",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p8"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p9-different",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p9"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/p0": "en",
+   "https://x.tld/en/p1": "en",
+   "https://x.tld/en/p2": "en",
+   "https://x.tld/en/p3": "en",
+   "https://x.tld/en/p4": "en",
+   "https://x.tld/en/p5": "en",
+   "https://x.tld/en/p6": "en",
+   "https://x.tld/en/p7": "en",
+   "https://x.tld/en/p8": "en",
+   "https://x.tld/en/p9": "en",
+   "https://x.tld/fr/p0": "fr",
+   "https://x.tld/fr/p1": "fr",
+   "https://x.tld/fr/p2": "fr",
+   "https://x.tld/fr/p3": "fr",
+   "https://x.tld/fr/p4": "fr",
+   "https://x.tld/fr/p5": "fr",
+   "https://x.tld/fr/p6": "fr",
+   "https://x.tld/fr/p7": "fr",
+   "https://x.tld/fr/p8": "fr",
+   "https://x.tld/fr/p9-different": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "rate_boundary_8_9",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p0",
+       "url": "https://x.tld/fr/p0"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p0"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p0"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p1",
+       "url": "https://x.tld/fr/p1"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p1"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p1"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p2",
+       "url": "https://x.tld/fr/p2"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p2"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p2"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p3",
+       "url": "https://x.tld/fr/p3"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p3"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p3"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p4",
+       "url": "https://x.tld/fr/p4"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p4"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p4"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p5",
+       "url": "https://x.tld/fr/p5"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p5"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p5"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p6",
+       "url": "https://x.tld/fr/p6"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p6"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p6"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p7",
+       "url": "https://x.tld/fr/p7"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p7"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p7"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/p8-different",
+       "url": "https://x.tld/fr/p8-different"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/p8"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/p8-different"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 9,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 9,
+    "inference_enabled": false,
+    "mirror_pairs": 9,
+    "mirror_rate": 0.8888888888888888,
+    "mirror_rate_reason": "measured mirror rate 89% over 9 declared pair(s), below the 90% threshold; path inference is switched off",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p0",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p0"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p1",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p1"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p2",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p2"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p3",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p3"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p4",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p4"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p5",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p5"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p6",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p6"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p7",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p7"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/p8-different",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/p8"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/p0": "en",
+   "https://x.tld/en/p1": "en",
+   "https://x.tld/en/p2": "en",
+   "https://x.tld/en/p3": "en",
+   "https://x.tld/en/p4": "en",
+   "https://x.tld/en/p5": "en",
+   "https://x.tld/en/p6": "en",
+   "https://x.tld/en/p7": "en",
+   "https://x.tld/en/p8": "en",
+   "https://x.tld/fr/p0": "fr",
+   "https://x.tld/fr/p1": "fr",
+   "https://x.tld/fr/p2": "fr",
+   "https://x.tld/fr/p3": "fr",
+   "https://x.tld/fr/p4": "fr",
+   "https://x.tld/fr/p5": "fr",
+   "https://x.tld/fr/p6": "fr",
+   "https://x.tld/fr/p7": "fr",
+   "https://x.tld/fr/p8-different": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "no_pairs",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 0,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 1
+    },
+    "eligible_pages": 1,
+    "inference_enabled": false,
+    "mirror_pairs": 0,
+    "mirror_rate": null,
+    "mirror_rate_reason": "no declared hreflang pairs from 'en' to 'fr' to measure a mirror rate from; path inference stays off",
+    "pages": [
+     {
+      "class": "undetermined",
+      "counterpart": null,
+      "method": "mirror_disabled",
+      "reason": "no declared hreflang pairs from 'en' to 'fr' to measure a mirror rate from; path inference stays off",
+      "url": "https://x.tld/en/a"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/a": "en"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "segments_only",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/a",
+       "url": "https://x.tld/fr/a"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/b"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 1,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 1
+    },
+    "eligible_pages": 2,
+    "inference_enabled": true,
+    "mirror_pairs": 1,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 1 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/a",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/a"
+     },
+     {
+      "class": "undetermined",
+      "counterpart": "https://x.tld/fr/b",
+      "method": "target_unreachable",
+      "reason": "target segment 'fr' is excluded from this crawl by scope.segments_only; absence cannot be confirmed",
+      "url": "https://x.tld/en/b"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/a": "en",
+   "https://x.tld/en/b": "en",
+   "https://x.tld/fr/a": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [
+   "en"
+  ],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "segments_only_with_rate",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/contact",
+       "url": "https://x.tld/fr/contact"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/contact"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "en",
+       "raw_href": "https://x.tld/en/contact",
+       "url": "https://x.tld/en/contact"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/contact"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/shop",
+       "url": "https://x.tld/fr/shop"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/shop"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "en",
+       "raw_href": "https://x.tld/en/shop",
+       "url": "https://x.tld/en/shop"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/shop"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/blog",
+       "url": "https://x.tld/fr/blog"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/blog"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "en",
+       "raw_href": "https://x.tld/en/blog",
+       "url": "https://x.tld/en/blog"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/blog"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/news",
+       "url": "https://x.tld/fr/news"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/news"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "en",
+       "raw_href": "https://x.tld/en/news",
+       "url": "https://x.tld/en/news"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/news"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/b"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 4,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 1
+    },
+    "eligible_pages": 5,
+    "inference_enabled": true,
+    "mirror_pairs": 4,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 4 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/contact",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/contact"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/shop",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/shop"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/blog",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/blog"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/news",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/news"
+     },
+     {
+      "class": "undetermined",
+      "counterpart": "https://x.tld/fr/b",
+      "method": "target_unreachable",
+      "reason": "target segment 'fr' is excluded from this crawl by scope.segments_only; absence cannot be confirmed",
+      "url": "https://x.tld/en/b"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/b": "en",
+   "https://x.tld/en/blog": "en",
+   "https://x.tld/en/contact": "en",
+   "https://x.tld/en/news": "en",
+   "https://x.tld/en/shop": "en",
+   "https://x.tld/fr/blog": "fr",
+   "https://x.tld/fr/contact": "fr",
+   "https://x.tld/fr/news": "fr",
+   "https://x.tld/fr/shop": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [
+   "en"
+  ],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "partial_crawl",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/x",
+       "url": "https://x.tld/fr/x"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/x"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/x"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/fr/y",
+       "url": "https://x.tld/fr/y"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/y"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/y"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": true,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 2,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 1
+    },
+    "eligible_pages": 3,
+    "inference_enabled": true,
+    "mirror_pairs": 2,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 2 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/x",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/x"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/y",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/y"
+     },
+     {
+      "class": "undetermined",
+      "counterpart": "https://x.tld/fr/a",
+      "method": "target_unreachable",
+      "reason": "the crawl is partial and may not have fully reached the target segment; absence cannot be confirmed",
+      "url": "https://x.tld/en/a"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/a": "en",
+   "https://x.tld/en/x": "en",
+   "https://x.tld/en/y": "en",
+   "https://x.tld/fr/x": "fr",
+   "https://x.tld/fr/y": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "unknown_target",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "error": "SegmentDiffError: unknown target segment 'es'; declared: ['de', 'en', 'fr']"
+  },
+  "segment_for": {},
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "es"
+ },
+ {
+  "name": "unknown_source",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "error": "SegmentDiffError: unknown source segment 'xx'; declared: ['de', 'en', 'fr']"
+  },
+  "segment_for": {},
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "xx",
+  "target": "fr"
+ },
+ {
+  "name": "same",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "error": "SegmentDiffError: source and target segment are both 'en'"
+  },
+  "segment_for": {},
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "en"
+ },
+ {
+  "name": "no_segments",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "error": "SegmentDiffError: no segments declared anywhere; scope.segments is empty"
+  },
+  "segment_for": {},
+  "segments": [],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "no_hreflang_field",
+  "pages": [
+   {
+    "content_type": "text/html",
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "error": "SegmentDiffError: page schema carries no hreflang field at all; the cross-segment diff depends on #357's declared alternates and cannot classify anything without them"
+  },
+  "segment_for": {},
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "empty_hreflang_ok",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 0,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 1
+    },
+    "eligible_pages": 1,
+    "inference_enabled": false,
+    "mirror_pairs": 0,
+    "mirror_rate": null,
+    "mirror_rate_reason": "no declared hreflang pairs from 'en' to 'fr' to measure a mirror rate from; path inference stays off",
+    "pages": [
+     {
+      "class": "undetermined",
+      "counterpart": null,
+      "method": "mirror_disabled",
+      "reason": "no declared hreflang pairs from 'en' to 'fr' to measure a mirror rate from; path inference stays off",
+      "url": "https://x.tld/en/a"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/a": "en"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "no_pages",
+  "pages": [],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 0,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 0,
+    "inference_enabled": false,
+    "mirror_pairs": 0,
+    "mirror_rate": null,
+    "mirror_rate_reason": "no declared hreflang pairs from 'en' to 'fr' to measure a mirror rate from; path inference stays off",
+    "pages": [],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {},
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "top_level_hreflang",
+  "pages": [
+   {
+    "content_type": "text/html",
+    "hreflang": [
+     {
+      "lang": "fr",
+      "raw_href": "https://x.tld/fr/top",
+      "url": "https://x.tld/fr/top"
+     }
+    ],
+    "metrics": {},
+    "status_code": 200,
+    "url": "https://x.tld/en/top"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/top"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 1,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 1,
+    "inference_enabled": true,
+    "mirror_pairs": 1,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 1 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/top",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/top"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/top": "en",
+   "https://x.tld/fr/top": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "host_mirror",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld:8443/a",
+       "url": "https://shop.x.tld:8443/a"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld:8443/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld:8443/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/b",
+       "url": "https://shop.x.tld/b"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/b"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/b"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/c"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 1,
+     "declared": 2,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 3,
+    "inference_enabled": true,
+    "mirror_pairs": 2,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 2 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld:8443/a",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld:8443/a"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/b",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/b"
+     },
+     {
+      "class": "absent",
+      "counterpart": "https://shop.x.tld/c",
+      "method": "mirrored_path",
+      "reason": null,
+      "url": "https://x.tld/c"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "main",
+    "target": "shop"
+   }
+  },
+  "segment_for": {
+   "https://shop.x.tld/b": "shop",
+   "https://shop.x.tld:8443/a": "shop",
+   "https://x.tld/b": "main",
+   "https://x.tld/c": "main",
+   "https://x.tld:8443/a": "main"
+  },
+  "segments": [
+   {
+    "host": "x.tld",
+    "name": "main"
+   },
+   {
+    "host": "shop.x.tld",
+    "name": "shop"
+   },
+   {
+    "name": "regex",
+    "pattern": "/blog/"
+   }
+  ],
+  "segments_only": [],
+  "source": "main",
+  "target": "shop"
+ },
+ {
+  "name": "host_mirror_enabled_absent",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p0",
+       "url": "https://shop.x.tld/p0"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p0"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p1",
+       "url": "https://shop.x.tld/p1"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p1"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p2",
+       "url": "https://shop.x.tld/p2"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p2"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p3",
+       "url": "https://shop.x.tld/p3"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p3"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p4",
+       "url": "https://shop.x.tld/p4"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p4"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p5",
+       "url": "https://shop.x.tld/p5"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p5"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p6",
+       "url": "https://shop.x.tld/p6"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p6"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p7",
+       "url": "https://shop.x.tld/p7"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p7"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p8",
+       "url": "https://shop.x.tld/p8"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p8"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://shop.x.tld/p9",
+       "url": "https://shop.x.tld/p9"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/p9"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p0"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p1"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p2"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p3"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p4"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p5"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p6"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p7"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p8"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://shop.x.tld/p9"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/new"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 1,
+     "declared": 10,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 11,
+    "inference_enabled": true,
+    "mirror_pairs": 10,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 10 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p0",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p0"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p1",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p1"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p2",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p2"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p3",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p3"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p4",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p4"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p5",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p5"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p6",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p6"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p7",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p7"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p8",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p8"
+     },
+     {
+      "class": "declared",
+      "counterpart": "https://shop.x.tld/p9",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/p9"
+     },
+     {
+      "class": "absent",
+      "counterpart": "https://shop.x.tld/new",
+      "method": "mirrored_path",
+      "reason": null,
+      "url": "https://x.tld/new"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "main",
+    "target": "shop"
+   }
+  },
+  "segment_for": {
+   "https://shop.x.tld/p0": "shop",
+   "https://shop.x.tld/p1": "shop",
+   "https://shop.x.tld/p2": "shop",
+   "https://shop.x.tld/p3": "shop",
+   "https://shop.x.tld/p4": "shop",
+   "https://shop.x.tld/p5": "shop",
+   "https://shop.x.tld/p6": "shop",
+   "https://shop.x.tld/p7": "shop",
+   "https://shop.x.tld/p8": "shop",
+   "https://shop.x.tld/p9": "shop",
+   "https://x.tld/new": "main",
+   "https://x.tld/p0": "main",
+   "https://x.tld/p1": "main",
+   "https://x.tld/p2": "main",
+   "https://x.tld/p3": "main",
+   "https://x.tld/p4": "main",
+   "https://x.tld/p5": "main",
+   "https://x.tld/p6": "main",
+   "https://x.tld/p7": "main",
+   "https://x.tld/p8": "main",
+   "https://x.tld/p9": "main"
+  },
+  "segments": [
+   {
+    "host": "x.tld",
+    "name": "main"
+   },
+   {
+    "host": "shop.x.tld",
+    "name": "shop"
+   },
+   {
+    "name": "regex",
+    "pattern": "/blog/"
+   }
+  ],
+  "segments_only": [],
+  "source": "main",
+  "target": "shop"
+ },
+ {
+  "name": "regex_only",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://x.tld/blog/a",
+       "url": "https://x.tld/blog/a"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/blog/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/b"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 0,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 3
+    },
+    "eligible_pages": 3,
+    "inference_enabled": false,
+    "mirror_pairs": 0,
+    "mirror_rate": null,
+    "mirror_rate_reason": "no declared hreflang pairs from 'main' to 'regex' to measure a mirror rate from; path inference stays off",
+    "pages": [
+     {
+      "class": "undetermined",
+      "counterpart": null,
+      "method": "mirror_disabled",
+      "reason": "no declared hreflang pairs from 'main' to 'regex' to measure a mirror rate from; path inference stays off",
+      "url": "https://x.tld/a"
+     },
+     {
+      "class": "undetermined",
+      "counterpart": null,
+      "method": "mirror_disabled",
+      "reason": "no declared hreflang pairs from 'main' to 'regex' to measure a mirror rate from; path inference stays off",
+      "url": "https://x.tld/blog/a"
+     },
+     {
+      "class": "undetermined",
+      "counterpart": null,
+      "method": "mirror_disabled",
+      "reason": "no declared hreflang pairs from 'main' to 'regex' to measure a mirror rate from; path inference stays off",
+      "url": "https://x.tld/b"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "main",
+    "target": "regex"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/a": "main",
+   "https://x.tld/b": "main",
+   "https://x.tld/blog/a": "main"
+  },
+  "segments": [
+   {
+    "host": "x.tld",
+    "name": "main"
+   },
+   {
+    "host": "shop.x.tld",
+    "name": "shop"
+   },
+   {
+    "name": "regex",
+    "pattern": "/blog/"
+   }
+  ],
+  "segments_only": [],
+  "source": "main",
+  "target": "regex"
+ },
+ {
+  "name": "declared_rejected",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "https://elsewhere.test/fr/a",
+       "url": "https://elsewhere.test/fr/a"
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {
+   "https://elsewhere.test/fr/a": "outside_host"
+  },
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 0,
+     "declared_not_crawled": 1,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 1,
+    "inference_enabled": false,
+    "mirror_pairs": 1,
+    "mirror_rate": 0.0,
+    "mirror_rate_reason": "measured mirror rate 0% over 1 declared pair(s), below the 90% threshold; path inference is switched off",
+    "pages": [
+     {
+      "class": "declared_not_crawled",
+      "counterpart": "https://elsewhere.test/fr/a",
+      "method": "hreflang",
+      "reason": "hreflang names 'https://elsewhere.test/fr/a' but it was not found among crawled pages (would be rejected: outside_host)",
+      "url": "https://x.tld/en/a"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://elsewhere.test/fr/a": "fr",
+   "https://x.tld/en/a": "en"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ },
+ {
+  "name": "alt_blank",
+  "pages": [
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": [
+      {
+       "lang": "fr",
+       "raw_href": "",
+       "url": "  "
+      },
+      null,
+      {},
+      {
+       "raw_href": " https://x.tld/fr/a "
+      }
+     ]
+    },
+    "status_code": 200,
+    "url": "https://x.tld/en/a"
+   },
+   {
+    "content_type": "text/html; charset=utf-8",
+    "metrics": {
+     "hreflang": []
+    },
+    "status_code": 200,
+    "url": "https://x.tld/fr/a"
+   }
+  ],
+  "partial": false,
+  "rejection": {},
+  "result": {
+   "ok": {
+    "counts": {
+     "absent": 0,
+     "declared": 1,
+     "declared_not_crawled": 0,
+     "inferred": 0,
+     "undetermined": 0
+    },
+    "eligible_pages": 1,
+    "inference_enabled": true,
+    "mirror_pairs": 1,
+    "mirror_rate": 1.0,
+    "mirror_rate_reason": "measured mirror rate 100% over 1 declared pair(s); path inference is enabled",
+    "pages": [
+     {
+      "class": "declared",
+      "counterpart": "https://x.tld/fr/a",
+      "method": "hreflang",
+      "reason": null,
+      "url": "https://x.tld/en/a"
+     }
+    ],
+    "schema_version": "segment_diff.v1",
+    "source": "en",
+    "target": "fr"
+   }
+  },
+  "segment_for": {
+   "https://x.tld/en/a": "en",
+   "https://x.tld/fr/a": "fr"
+  },
+  "segments": [
+   {
+    "name": "en",
+    "prefix": "/en/"
+   },
+   {
+    "name": "fr",
+    "prefix": "/fr/"
+   },
+   {
+    "name": "de",
+    "prefix": "/de/"
+   }
+  ],
+  "segments_only": [],
+  "source": "en",
+  "target": "fr"
+ }
+]

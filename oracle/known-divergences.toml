@@ -1,0 +1,44 @@
+# Registry of approved Rust-vs-reference-oracle divergences (spec ch.06 §6.3 item 6, ch.04 §4.2).
+# Empty by default: every divergence is a bug until a reviewed commit adds it here.
+#
+# Each entry is a [[divergence]] table:
+#   id           = "D-0001"                      # unique, never reused
+#   site         = "basic"                       # golden-set site, or "*"
+#   file         = "scan-export.json"            # baseline file (path relative to baselines/<site>/)
+#   path         = "records.pages[3].title"      # JSON path of the field (or check id for audit.v2: "check:TITLE_TOO_LONG")
+#   example      = "<input URL / snippet that triggers it>"
+#   python_value = "<what the oracle produced>"
+#   rust_value   = "<what Rust produces>"
+#   reason       = "why the difference is accepted (bug in reference spec, floating point contract, ...)"
+#   approved_by  = "name of the reviewer"
+#   approved_on  = "YYYY-MM-DD"
+#
+# `check` is accepted as an alias of `file`; `site` defaults to "*". id, file, path, reason, approved_by
+# and approved_on are required. The file is valid TOML with zero entries.
+# New entries only through a reviewed commit. The diff tool matches on (site, file, path);
+# an entry that no longer matches any difference is reported as stale.
+
+[[divergence]]
+id = "D-0001"
+site = "*"
+file = "issue_map"
+path = "notes[*]"
+example = "rows Internal Redirection (JavaScript), Broken Bookmark, Multiple (H2), Spelling Errors, Grammar Errors, Near Duplicates, Missing Alt Attribute, Internal Outlinks With No Anchor Text, Non-Indexable URLs In Sitemap, Optimize DOM Size"
+python_value = "10 coverage-map note strings name the catalogue vendor by its abbreviation (for example 'from an SF export column; not computed')"
+rust_value = "the same notes say 'crawler' instead (for example 'from a crawler export column; not computed')"
+reason = "Vendor name must not appear in repository code (book ch.10 rule 10.7); only the note wording differs, statuses and check references are identical."
+approved_by = "Павел (правило гл. 10 §10.7, 27.10)"
+approved_on = "2026-10-27"
+
+
+[[divergence]]
+id = "D-0002"
+site = "basic"
+file = "scan-export.json"
+path = "records.pages[7].title"
+example = "legacy.html: Content-Type declares iso-8859-1 (a server default), <meta http-equiv> declares windows-1251, bytes are windows-1251"
+python_value = "'Ñòàðàÿ êîäèðîâêà' (bytes read as Latin-1)"
+rust_value = "'Старая кодировка'"
+reason = "Text fields are stored as UTF-8. A Latin-1/ASCII HTTP charset is overridden by a differing <meta> declaration; the oracle trusted the header and produced mojibake. Same for pages[7].h1, pages[7].heading_outline[0].text, pages[7].meta_description, findings[145].details.value and findings[153].details.title. Knock-on effects on live crawls of this page: content hashes change and LOW_RELEVANCE_CONTENT fires (title/h1 compared with the real Cyrillic body); the crawl baselines (scan.tables.json, CLI/MCP crawl-site and reanalysis fixtures) were updated for these."
+approved_by = "Павел (решение 28.10: всё текстовое в UTF-8)"
+approved_on = "2026-10-28"

@@ -1,0 +1,7 @@
+url,visits,bounce
+https://example.test/,100,45%
+https://example.test/a,5,80
+https://example.test/A?x=1,2,"65,5 %"
+https://example.test/orphan,7,0.9
+https://other.test/x,1,1
+,3,abc

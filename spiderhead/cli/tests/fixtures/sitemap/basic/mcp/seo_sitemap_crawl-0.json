@@ -1,0 +1,8 @@
+{
+ "arguments": {
+  "url": "{BASE}/"
+ },
+ "is_error": true,
+ "text": "Error executing tool seo_sitemap_crawl: {\"ok\": false, \"root\": \"{BASE}/\", \"count\": 0, \"urls\": [], \"sitemaps\": [], \"duplicates\": [], \"duplicate_sources\": {}, \"errors\": [{\"url\": \"{BASE}/sitemap.xml\", \"error\": \"HTTP 404\"}], \"truncated\": false, \"loc_entries\": 0, \"image_entries\": 0, \"news_entries\": 0, \"video_entries\": 0, \"discovery\": {\"robots_url\": \"{BASE}/robots.txt\", \"fallback\": \"{BASE}/sitemap.xml\"}}",
+ "tool": "seo_sitemap_crawl"
+}

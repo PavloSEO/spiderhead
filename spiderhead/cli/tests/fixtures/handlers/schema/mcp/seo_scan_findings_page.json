@@ -1,0 +1,5 @@
+{
+ "is_error": true,
+ "text": "Error executing tool seo_scan_findings_page: project scans directory is missing or unsafe",
+ "tool": "seo_scan_findings_page"
+}

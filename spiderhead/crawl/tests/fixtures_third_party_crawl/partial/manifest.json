@@ -1,0 +1,43 @@
+{
+  "schema_version": "third_party_crawl_manifest.v1",
+  "source": {
+    "product": "FixtureSpider",
+    "version": "0.9",
+    "format": "csv_bundle",
+    "format_version": "1",
+    "crawl_state": "partial",
+    "crawl_state_reason": "synthetic row and field gaps"
+  },
+  "datasets": {
+    "pages": {
+      "file": "pages.csv",
+      "columns": {
+        "url": "URL",
+        "status_code": "Status",
+        "title": "Title",
+        "canonical_url": "Canonical"
+      }
+    },
+    "links": {
+      "file": "links.csv",
+      "columns": {
+        "source_url": "Source",
+        "destination_url": "Destination",
+        "anchor": "Anchor"
+      }
+    },
+    "statuses": {
+      "file": null,
+      "reason": "source did not export response status rows"
+    },
+    "redirects": {
+      "file": "redirects.csv",
+      "columns": {
+        "source_url": "From",
+        "destination_url": "To",
+        "status_code": "Status",
+        "hop": "Hop"
+      }
+    }
+  }
+}

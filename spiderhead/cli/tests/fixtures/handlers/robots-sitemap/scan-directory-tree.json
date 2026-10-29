@@ -1,0 +1,6 @@
+{
+ "command": "scan-directory-tree",
+ "exit": 0,
+ "stderr": "seohead: scan-directory-tree\n",
+ "stdout": "{\n  \"ok\": true,\n  \"state\": \"available\",\n  \"reason\": \"\",\n  \"source\": {\n    \"scan_uuid\": \"<UUID:1>\",\n    \"evidence_revision\": 5,\n    \"lifecycle\": \"finished\"\n  },\n  \"validation\": \"light\",\n  \"scope\": {\n    \"origin\": \"127.0.0.1:{PORT}\",\n    \"total_pages\": 5,\n    \"included_pages\": 5,\n    \"excluded_other_origins\": 0\n  },\n  \"max_depth\": 3,\n  \"max_children\": 50,\n  \"max_nodes\": 10000,\n  \"tree\": {\n    \"name\": \"/\",\n    \"pages\": 5,\n    \"children\": []\n  }\n}\n"
+}

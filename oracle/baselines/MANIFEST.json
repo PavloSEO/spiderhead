@@ -1,0 +1,600 @@
+{
+ "cli": "spiderhead (frozen oracle); env SEOHEAD_ALLOW_PRIVATE_HOSTS=127.0.0.1",
+ "commands": {
+  "basic": [
+   [
+    "crawl-site",
+    "--url",
+    "{BASE}/",
+    "--scan-out",
+    "{SCAN}",
+    "-q",
+    "--max-urls-per-second",
+    "50",
+    "--max-urls",
+    "200"
+   ],
+   [
+    "scan-export",
+    "--scan",
+    "{SCAN}",
+    "--format",
+    "json",
+    "--out",
+    "{OUT}"
+   ],
+   [
+    "scan-status",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-url-query",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "500"
+   ],
+   [
+    "scan-url-counts",
+    "--scan",
+    "{SCAN}",
+    "--filter-sets",
+    "[[]]"
+   ],
+   [
+    "scan-graph",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-directory-tree",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "duplicate-check",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-findings-page",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "100"
+   ],
+   [
+    "links-check",
+    "--url",
+    "{BASE}/"
+   ],
+   [
+    "headers-check",
+    "--url",
+    "{BASE}/"
+   ],
+   [
+    "security-check",
+    "--url",
+    "{BASE}/"
+   ]
+  ],
+  "canonical-hreflang": [
+   [
+    "crawl-site",
+    "--url",
+    "{BASE}/",
+    "--scan-out",
+    "{SCAN}",
+    "-q",
+    "--max-urls-per-second",
+    "50",
+    "--max-urls",
+    "200"
+   ],
+   [
+    "scan-export",
+    "--scan",
+    "{SCAN}",
+    "--format",
+    "json",
+    "--out",
+    "{OUT}"
+   ],
+   [
+    "scan-status",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-url-query",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "500"
+   ],
+   [
+    "scan-url-counts",
+    "--scan",
+    "{SCAN}",
+    "--filter-sets",
+    "[[]]"
+   ],
+   [
+    "scan-graph",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-directory-tree",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "duplicate-check",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-findings-page",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "100"
+   ],
+   [
+    "hreflang-check",
+    "--url",
+    "{BASE}/en/"
+   ],
+   [
+    "hreflang-check",
+    "--url",
+    "{BASE}/de/"
+   ],
+   [
+    "hreflang-check",
+    "--url",
+    "{BASE}/fr/"
+   ]
+  ],
+  "errors": [
+   [
+    "crawl-site",
+    "--url",
+    "{BASE}/",
+    "--scan-out",
+    "{SCAN}",
+    "-q",
+    "--max-urls-per-second",
+    "50",
+    "--max-urls",
+    "200"
+   ],
+   [
+    "scan-export",
+    "--scan",
+    "{SCAN}",
+    "--format",
+    "json",
+    "--out",
+    "{OUT}"
+   ],
+   [
+    "scan-status",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-url-query",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "500"
+   ],
+   [
+    "scan-url-counts",
+    "--scan",
+    "{SCAN}",
+    "--filter-sets",
+    "[[]]"
+   ],
+   [
+    "scan-graph",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-directory-tree",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "duplicate-check",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-findings-page",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "100"
+   ],
+   [
+    "links-check",
+    "--url",
+    "{BASE}/"
+   ]
+  ],
+  "redirects": [
+   [
+    "crawl-site",
+    "--url",
+    "{BASE}/",
+    "--scan-out",
+    "{SCAN}",
+    "-q",
+    "--max-urls-per-second",
+    "50",
+    "--max-urls",
+    "200"
+   ],
+   [
+    "scan-export",
+    "--scan",
+    "{SCAN}",
+    "--format",
+    "json",
+    "--out",
+    "{OUT}"
+   ],
+   [
+    "scan-status",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-url-query",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "500"
+   ],
+   [
+    "scan-url-counts",
+    "--scan",
+    "{SCAN}",
+    "--filter-sets",
+    "[[]]"
+   ],
+   [
+    "scan-graph",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-directory-tree",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "duplicate-check",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-findings-page",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "100"
+   ],
+   [
+    "redirects-check",
+    "--url",
+    "{BASE}/chain-a"
+   ],
+   [
+    "redirects-check",
+    "--url",
+    "{BASE}/loop-a"
+   ],
+   [
+    "redirects-check",
+    "--url",
+    "{BASE}/r301"
+   ],
+   [
+    "redirects-check",
+    "--url",
+    "{BASE}/to-404"
+   ],
+   [
+    "redirects-check",
+    "--url",
+    "{BASE}/final.html"
+   ]
+  ],
+  "robots-sitemap": [
+   [
+    "crawl-site",
+    "--url",
+    "{BASE}/",
+    "--scan-out",
+    "{SCAN}",
+    "-q",
+    "--max-urls-per-second",
+    "50",
+    "--max-urls",
+    "200",
+    "--sitemap",
+    "{BASE}/sitemap-ok.xml"
+   ],
+   [
+    "scan-export",
+    "--scan",
+    "{SCAN}",
+    "--format",
+    "json",
+    "--out",
+    "{OUT}"
+   ],
+   [
+    "scan-status",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-url-query",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "500"
+   ],
+   [
+    "scan-url-counts",
+    "--scan",
+    "{SCAN}",
+    "--filter-sets",
+    "[[]]"
+   ],
+   [
+    "scan-graph",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-directory-tree",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "duplicate-check",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-findings-page",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "100"
+   ],
+   [
+    "robots-check",
+    "--url",
+    "{BASE}/"
+   ],
+   [
+    "sitemap-crawl",
+    "--url",
+    "{BASE}/"
+   ]
+  ],
+  "schema": [
+   [
+    "crawl-site",
+    "--url",
+    "{BASE}/",
+    "--scan-out",
+    "{SCAN}",
+    "-q",
+    "--max-urls-per-second",
+    "50",
+    "--max-urls",
+    "200"
+   ],
+   [
+    "scan-export",
+    "--scan",
+    "{SCAN}",
+    "--format",
+    "json",
+    "--out",
+    "{OUT}"
+   ],
+   [
+    "scan-status",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-url-query",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "500"
+   ],
+   [
+    "scan-url-counts",
+    "--scan",
+    "{SCAN}",
+    "--filter-sets",
+    "[[]]"
+   ],
+   [
+    "scan-graph",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-directory-tree",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "duplicate-check",
+    "--scan",
+    "{SCAN}"
+   ],
+   [
+    "scan-findings-page",
+    "--scan",
+    "{SCAN}",
+    "--limit",
+    "100"
+   ],
+   [
+    "schema-check",
+    "--url",
+    "{BASE}/"
+   ],
+   [
+    "schema-check",
+    "--url",
+    "{BASE}/article-valid.html"
+   ],
+   [
+    "schema-check",
+    "--url",
+    "{BASE}/broken-json.html"
+   ],
+   [
+    "schema-check",
+    "--url",
+    "{BASE}/missing-fields.html"
+   ],
+   [
+    "schema-check",
+    "--url",
+    "{BASE}/product.html"
+   ],
+   [
+    "schema-check",
+    "--url",
+    "{BASE}/no-schema.html"
+   ]
+  ]
+ },
+ "files_sha256": {
+  "basic/audit.v2.json": "6e2939f072a34005589d08ae0ea02313e4ddcceae5c8511beb2ee511a9f70aa0",
+  "basic/checks/headers-check__root.json": "9f23d3564e7f1864b5b8c97af1163f13e5a3a40599afba1998c349ec857ab3cd",
+  "basic/checks/links-check__root.json": "8a1a85e6a5392f2a3fd822bf4fda63cd0388388b369da0a39b73586d258235a1",
+  "basic/checks/security-check__root.json": "abd07c624e1709ba6b548a9d5c6f74f6e9e225d8d4a6fdc1e19f8f26eec67311",
+  "basic/crawl-site.json": "95f3bfdb7ec1f323a74a1ac7fc9f429ed4e8e69ee440af68cc2558eec38668d8",
+  "basic/duplicate-check.json": "9ec22ad785d5df3623c4a646eb5d024dee2d4454232ed427d12efc72ad46e7f5",
+  "basic/scan-directory-tree.json": "f65424f94863d782f954316428ef2beff8402ff22756053ecb8d5b53992ce573",
+  "basic/scan-export.json": "190368e3970402cb4826f9e7b4e9c7771d04492115c102d60721c244bf13a7c7",
+  "basic/scan-findings-page.json": "fa96a9b59c011ff52237af6e166028be6c5b5228df9d9e0ca2568b3f1a01441a",
+  "basic/scan-graph.json": "199ecd19138a591bef94f94a63e41bb7aee8ee4ec233227341cf622cbcbbc028",
+  "basic/scan-status.json": "459a5a7d039a9b09519a1ef96afdddd8b1b1a5e75a2c2796150e6b261be63fda",
+  "basic/scan-url-counts.json": "1daee72fbf2d756f4a31bc70f438f36cd73c8d42545e8f6604face010ecb4f9a",
+  "basic/scan-url-query.json": "ce08479795125385943546a2366c95a62886ac1261a876d737373bf6f923675c",
+  "basic/scan.tables.json": "fd3df3eac23a92f32c1e79fd94fa3db8b5af4a5cad921d958fd9b7d8c747a377",
+  "canonical-hreflang/audit.v2.json": "d647b778c38e2d9f331044d3ca638ca615c9990f083debce1b226067b33b45a2",
+  "canonical-hreflang/checks/hreflang-check__de.json": "a46d51efb4811e2a9396b73fb5a061763898c784e1ca767c0f7abaa1cecd39ef",
+  "canonical-hreflang/checks/hreflang-check__en.json": "d6c0b88c6faf4970861a7cbbb81d91e3ce68e07ec353b77b54d25b245cabc4b8",
+  "canonical-hreflang/checks/hreflang-check__fr.json": "2b15746a86587e1254bcc1b8a13ab532b07fa021e7f157008ab07cef43a43801",
+  "canonical-hreflang/crawl-site.json": "7d6f2acfd5052bd944e167f1996ff100519e3d5dd04fbe7da730e8db6bb9d34f",
+  "canonical-hreflang/duplicate-check.json": "1ae5148f147f5e03757dcba34fa941759d054d561f6a5f68c113a66cc673892d",
+  "canonical-hreflang/scan-directory-tree.json": "d1fdcd9a12a55f9ec6e23b2e3e8f2c5b54f91e38b12963b2f263fce5c07de13e",
+  "canonical-hreflang/scan-export.json": "284f97bef7df02a3ee83529b986ccbf46c32736b54b3521b572b85313468567b",
+  "canonical-hreflang/scan-findings-page.json": "fa96a9b59c011ff52237af6e166028be6c5b5228df9d9e0ca2568b3f1a01441a",
+  "canonical-hreflang/scan-graph.json": "08cea8af3e9cb0e36e8212482d1499e1f53b17e2bfd8cbcc5e08f944504fbf4d",
+  "canonical-hreflang/scan-status.json": "0effa87c3a65680b8e4fe05cc5814d5fcd79b6523ed9bbaec58cb2736207fa16",
+  "canonical-hreflang/scan-url-counts.json": "1daee72fbf2d756f4a31bc70f438f36cd73c8d42545e8f6604face010ecb4f9a",
+  "canonical-hreflang/scan-url-query.json": "ce08479795125385943546a2366c95a62886ac1261a876d737373bf6f923675c",
+  "canonical-hreflang/scan.tables.json": "a00838e43362148a34e8fe91eda0a7296284214d0ce6f9f06bf6a545d9c3a8cf",
+  "errors/audit.v2.json": "3b0c69a6aee5cd864527da435d06df89d3cec539aa1195c35ed43b70d24d2287",
+  "errors/checks/links-check__root.json": "91daa4bac212f81c408733621aa2928883b128aa3d0844c18652ca4286ce8405",
+  "errors/crawl-site.json": "86c04f806ee46adf7e66fedc995ccfb8a736c01ad161e095994f28ce9cabb5bd",
+  "errors/duplicate-check.json": "77fd079c1fdea8d9b9703081f00050160fe07aca557665935cd762fe56fdfbb5",
+  "errors/scan-directory-tree.json": "25db226b13fe49c71320da7a639ccce869877447720cbe9d30f3687ceb3341d6",
+  "errors/scan-export.json": "728b04e2ca0aa971787894149196cf83efd52dcb6c13ee3836e426be4a87b6a6",
+  "errors/scan-findings-page.json": "fa96a9b59c011ff52237af6e166028be6c5b5228df9d9e0ca2568b3f1a01441a",
+  "errors/scan-graph.json": "ea9d00aa2dcb016d5e4ed2a38ee406571455696fb8c456cb3663a82e1e51ea4f",
+  "errors/scan-status.json": "f0bd2221dd37d68a8a0525a483e23b4a0cd6e84dfb41d076d7aa38616fa3e417",
+  "errors/scan-url-counts.json": "444ebef424e15de0298b00bcbd96dc603093ccf96dc7988272c1429e216934fb",
+  "errors/scan-url-query.json": "ce08479795125385943546a2366c95a62886ac1261a876d737373bf6f923675c",
+  "errors/scan.tables.json": "f9777e246346868d32b1812a6c2777ec1c05f61afee5e9b2f5efa05714b06058",
+  "redirects/audit.v2.json": "eb3d0027b7cc0bdb61c0e399d48792129aa383df82403c3b86ce1102dcf7009a",
+  "redirects/checks/redirects-check__chain-a.json": "c9d5f6857a98083ba8052785db60b5b252e44e3bb606e60d0f295e4c2569b6d7",
+  "redirects/checks/redirects-check__final-html.json": "75965bc24aeec7ff00896ac93deda069c3c668f2eea8c531695d9f690efdbffc",
+  "redirects/checks/redirects-check__loop-a.json": "3c174eb605d12dd6b7a8e1b4cf7b163fe416d20c0aa38ef2992353522ae9db88",
+  "redirects/checks/redirects-check__r301.json": "7b98061957448feecf33c23f8e242e4566285054d2a0fa4e3eeb9d71d08d6ba1",
+  "redirects/checks/redirects-check__to-404.json": "c333ecfade648d129fad8cb882e5e235a60e60fde543de45e5f59210bc14ac81",
+  "redirects/crawl-site.json": "c229148f7a2e80f36137c39ce652dedb39d8d2e47323725fcf99700e76c0aa21",
+  "redirects/duplicate-check.json": "6b0fe2aa26e90e392e5c3c00b00fa2f44a1697322567f82592d1054536b0e617",
+  "redirects/scan-directory-tree.json": "a6e8497d1dbe07209e91f6e5ab8d6b8c2ecd8ee4e18095bdf3543f8285e544fe",
+  "redirects/scan-export.json": "729d0796bc090a6865e837b35b4dffcfa6ed43dd89bc6102cf08c15d9bc37b02",
+  "redirects/scan-findings-page.json": "fa96a9b59c011ff52237af6e166028be6c5b5228df9d9e0ca2568b3f1a01441a",
+  "redirects/scan-graph.json": "445eb97b5c759f1c392a0e6de3b3f78eea85918d0d08d6901283d96cc308da5a",
+  "redirects/scan-status.json": "d1d5269c368bf8757a30071143fdf0ee39af294027eb09db738ceb823e89935a",
+  "redirects/scan-url-counts.json": "a8f7e4850923ae824fe025d23ce3c31a78007df903bdcd7098da564f5ff9c27a",
+  "redirects/scan-url-query.json": "ce08479795125385943546a2366c95a62886ac1261a876d737373bf6f923675c",
+  "redirects/scan.tables.json": "45810aad59e4080bd265283180b77833ba9bc7d0317f103e94c864eeb7597884",
+  "robots-sitemap/audit.v2.json": "c8bb360d900e8ad7f653d93d8b45905e90714500e7ebf10d0e0a6581924d84b1",
+  "robots-sitemap/checks/robots-check__root.json": "84aacb3d995fbb579fab4a7bd68ac91f6605e7706fad27aecaf0d70d83857582",
+  "robots-sitemap/checks/sitemap-crawl__root.json": "23a2007979269bffd51e5b3a5979209ff236698cdbefd37498c23e28c1f0ebe9",
+  "robots-sitemap/crawl-site.json": "3273648015d5a2023f8ab25447d7d2249eac36aafbdcd135eb94e8642913b6d7",
+  "robots-sitemap/duplicate-check.json": "33f51b363601a384005512aa1f9f506d062bf903b3fea85f304c833f38a96e11",
+  "robots-sitemap/scan-directory-tree.json": "b30a25d792478fc8f2c9ed4c16952afb4874b6d60cde890c60e01bd0bf32bf6b",
+  "robots-sitemap/scan-export.json": "4a805daf76241a7f5540d143165ec2cc3663738a365fa5ea137ab18e108b32a7",
+  "robots-sitemap/scan-findings-page.json": "fa96a9b59c011ff52237af6e166028be6c5b5228df9d9e0ca2568b3f1a01441a",
+  "robots-sitemap/scan-graph.json": "dd1a0db2b07f01bc1e9ddf4e809332f221ae6256827ae297ba4fdbb17b78820c",
+  "robots-sitemap/scan-status.json": "862d03f6ba65980d3609b1a903517a65c94327c6ac9d0e4fa66fe5000e16ebc4",
+  "robots-sitemap/scan-url-counts.json": "699d609ef4b806a54281c7bf600173c473542f48686add3f5902ffaeca638e05",
+  "robots-sitemap/scan-url-query.json": "ce08479795125385943546a2366c95a62886ac1261a876d737373bf6f923675c",
+  "robots-sitemap/scan.tables.json": "649e5b7e616068cb27bee8c471be94ba26a5e481e153f9c266d1c0d2df4510e3",
+  "schema/audit.v2.json": "1b9aa2a1e370605a919472b00f52a8ecf4547ea20a75712979472ffdb898a756",
+  "schema/checks/schema-check__article-valid-html.json": "4ebcaa1ba67e3332123b34f634ac09ee0a7350a980965c5dab94c264f5a308ad",
+  "schema/checks/schema-check__broken-json-html.json": "a46a830d48292242619dcd14a3bf0df0b9a5e4ef275dd9458b3f8733ef48edf1",
+  "schema/checks/schema-check__missing-fields-html.json": "33ac23a6f6eebc529502f0e7726dce4a1bd8c03fa8af9a5ba332f59de59a0400",
+  "schema/checks/schema-check__no-schema-html.json": "a03135629a61a8fdf349bfd2785b3eaf96bf6c0cc7827ec66d8c2a7f77d7779e",
+  "schema/checks/schema-check__product-html.json": "7c9e5b3d658ad2686ba874efa3307f288e3712792b31c002b810988e16c048c4",
+  "schema/checks/schema-check__root.json": "4f855b010b0a0012c3a602bf7fe3684022815f12bc8cca43beab099b78088e6e",
+  "schema/crawl-site.json": "69977e7ada042e0587f0b040008640f018e0b7c8bcfdc6127d3bef81030eece8",
+  "schema/duplicate-check.json": "5ef51fff577014b7f6f1ad20d4276f10db7da47d9733b44524aa716d64acb21f",
+  "schema/scan-directory-tree.json": "1fe7e03227c10bdd6bd5b4be9fc26e3a5b3608c7cfbd0f04abe7c012e35821c4",
+  "schema/scan-export.json": "540a2ca87e6075163a74f98f7e2fc2f7e40a8ad6bcadf57015ec6d99b1f2c7e6",
+  "schema/scan-findings-page.json": "fa96a9b59c011ff52237af6e166028be6c5b5228df9d9e0ca2568b3f1a01441a",
+  "schema/scan-graph.json": "57dcadf5bf05decf8fe00d521d21b2129e1307d9ebbc56d972c91dfe4cf58390",
+  "schema/scan-status.json": "4446449cbe99c3b73344f5bc04b334be2e9b89fb2f327d4f737b42e024a786ea",
+  "schema/scan-url-counts.json": "f90519b0a1c71d32d6cd97e819fca59a2e0f7a143c46b3ee89f0a42e0fee52c3",
+  "schema/scan-url-query.json": "ce08479795125385943546a2366c95a62886ac1261a876d737373bf6f923675c",
+  "schema/scan.tables.json": "337299313bbdeee1196d07723235120b6b952d601d37b706304d00881cb502fe"
+ },
+ "ports": {
+  "basic": 18701,
+  "canonical-hreflang": 18704,
+  "errors": 18702,
+  "redirects": 18703,
+  "robots-sitemap": 18706,
+  "schema": 18705
+ },
+ "python_oracle": {
+  "commit": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
+  "repo": "reference",
+  "tag": "oracle-baseline"
+ },
+ "sites": [
+  "basic",
+  "errors",
+  "redirects",
+  "canonical-hreflang",
+  "schema",
+  "robots-sitemap"
+ ]
+}

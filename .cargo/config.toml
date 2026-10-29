@@ -1,0 +1,8 @@
+[alias]
+xtask = "run --quiet --package xtask --"
+
+# Shared compile cache across all worktrees (deps build once per machine).
+[build]
+rustc-wrapper = "sccache"
+# Incremental dirs double target/ per worktree; sccache already reuses deps.
+incremental = false

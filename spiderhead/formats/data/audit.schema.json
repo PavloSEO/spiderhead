@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/PavloSEO/seohead-tools/schema/audit.schema.json",
+  "title": "Export Analyzer audit.json",
+  "type": "object",
+  "required": ["schema_version", "tool", "run", "summary", "issues", "pages", "groups"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "tool": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "generated_by": {"type": "string"}
+      }
+    },
+    "run": {
+      "type": "object",
+      "required": ["input_mode", "generated_at"],
+      "properties": {
+        "project": {"type": "string"},
+        "input_mode": {"type": "string",
+          "enum": ["crawl", "crawl-list", "load-crawl", "parse-exports", "reanalysis"]},
+        "source": {"type": ["string", "null"]},
+        "exports_dir": {"type": ["string", "null"]},
+        "sf_version_detected": {"type": ["string", "null"]},
+        "generated_at": {"type": "string"},
+        "profile": {"type": ["string", "null"]},
+        "profile_requested": {"type": ["string", "null"]},
+        "exports_used": {"type": "array", "items": {"type": "string"}},
+        "exports_encodings": {"type": "object"},
+        "exports_derived": {"type": "object", "additionalProperties": {"type": "string"}},
+        "sf_export_manifest": {
+          "type": "object",
+          "required": ["format", "state", "requested_profile", "resolved_profile", "requests"],
+          "properties": {
+            "format": {"enum": ["seohead.sf-export-manifest.v1", "spiderhead.sf-export-manifest.v1"]},
+            "state": {"enum": ["files_present", "complete"]},
+            "requested_profile": {"type": "string"},
+            "resolved_profile": {"type": "string"},
+            "uses_full_manifest": {"type": "boolean"},
+            "requests": {"type": "array", "items": {"type": "object"}},
+            "derived_keys": {"type": "object", "additionalProperties": {"type": "string"}},
+            "loaded_keys": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "sf_capability": {
+          "type": "object",
+          "required": ["state", "requests"],
+          "properties": {
+            "state": {"enum": ["help_verified", "no_exports_requested"]},
+            "version": {"type": ["string", "null"]},
+            "fingerprint": {"type": "string"},
+            "requests": {"type": "array", "items": {"type": "object"}}
+          }
+        },
+        "sf_rate_limit": {
+          "type": "object",
+          "required": ["state"],
+          "properties": {
+            "state": {"type": "string"},
+            "requested_urls_per_second": {"type": ["number", "null"]},
+            "effective_urls_per_second": {"type": ["number", "null"]},
+            "base_source": {"type": "string"},
+            "base_config_sha256": {"type": ["string", "null"]},
+            "derived_config_sha256": {"type": ["string", "null"]}
+          }
+        },
+        "crawl_valid": {"type": "boolean"},
+        "crawl_invalid_reason": {"type": ["string", "null"]},
+        "crawl_partial": {"type": "boolean"},
+        "crawl_config": {"type": "object"},
+        "finding_exclusion_policy": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "required": ["id", "pattern", "checks", "reason"],
+            "properties": {
+              "id": {"type": "string", "maxLength": 64},
+              "pattern": {"type": "string", "maxLength": 500},
+              "checks": {"type": "array", "maxItems": 200, "items": {"type": "string"}},
+              "reason": {"type": "string", "maxLength": 500}
+            }
+          }
+        },
+        "effective_max_requests_per_second": {"type": ["number", "string", "null"]},
+        "crawl_stopped_reason": {"type": ["string", "null"]},
+        "collector": {"type": "string"},
+        "scan_uuid": {"type": "string"},
+        "exports_missing": {"type": "array", "items": {"type": "string"}},
+        "checks_skipped": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "reason"],
+            "properties": {
+              "id": {"type": "string"},
+              "reason": {"type": "string"}
+            }
+          }
+        },
+        "checks_disabled": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "reason"],
+            "properties": {
+              "id": {"type": "string"},
+              "reason": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["totals", "by_severity", "by_check", "health_score"],
+      "properties": {
+        "totals": {"type": "object"},
+        "by_severity": {
+          "type": "object",
+          "required": ["critical", "warning", "notice"],
+          "properties": {
+            "critical": {"type": "integer"},
+            "warning": {"type": "integer"},
+            "notice": {"type": "integer"}
+          }
+        },
+        "by_check": {"type": "object"},
+        "health_score": {
+          "description": "null when the crawl produced nothing worth scoring; see health_score_reason",
+          "type": ["integer", "null"], "minimum": 0, "maximum": 100
+        },
+        "health_score_reason": {"type": "string"},
+        "health_score_basis": {"type": "string"},
+        "check_coverage": {"type": "object"},
+        "health_score_scope": {"type": "string"},
+        "size_stats_bytes": {"type": "object"},
+        "internal_linking": {"type": "object"},
+        "sitemap": {"type": "object"},
+        "provider_findings": {
+          "type": "object",
+          "description": "Optional typed source periods, coverage, quota, and sampled-history provenance; registered per-URL provider findings also appear in the ordinary issues array."
+        },
+        "evidence_contract": {"type": "object"},
+        "saved_corpus_derivations": {"type": "object"},
+        "finding_exclusions": {
+          "type": "object",
+          "required": ["rules_configured", "suppressed_total", "by_rule", "by_check", "by_severity"],
+          "properties": {
+            "rules_configured": {"type": "integer", "minimum": 0},
+            "suppressed_total": {"type": "integer", "minimum": 0},
+            "by_rule": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "reason", "suppressed_findings", "suppressed_occurrences"],
+                "properties": {
+                  "id": {"type": "string"},
+                  "reason": {"type": "string"},
+                  "suppressed_findings": {"type": "integer", "minimum": 0},
+                  "suppressed_occurrences": {"type": "integer", "minimum": 0}
+                }
+              }
+            },
+            "by_check": {"type": "object"},
+            "by_severity": {"type": "object"}
+          }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "check", "severity", "source", "message", "occurrences_count"],
+        "properties": {
+          "id": {"type": "string"},
+          "fingerprint": {"type": ["string", "null"]},
+          "check": {"type": "string"},
+          "severity": {"type": "string", "enum": ["critical", "warning", "notice", "opportunity"]},
+          "source": {"type": "string"},
+          "message": {"type": "string"},
+          "target_url": {"type": ["string", "null"]},
+          "status_code": {"type": ["integer", "null"]},
+          "occurrences_count": {"type": "integer", "minimum": 0},
+          "locations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source_url": {"type": ["string", "null"]},
+                "anchor": {"type": ["string", "null"]},
+                "alt_text": {"type": ["string", "null"]},
+                "link_position": {"type": ["string", "null"]},
+                "link_path": {"type": ["string", "null"]},
+                "follow": {"type": ["boolean", "null"]},
+                "rel": {"type": ["string", "null"]},
+                "target": {"type": ["string", "null"]}
+              }
+            }
+          },
+          "details": {"type": "object"},
+          "group_id": {"type": ["string", "null"]},
+          "fix_hint": {"type": ["string", "null"]},
+          "evidence": {"type": "object"}
+        }
+      }
+    },
+    "suppressed_issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "check", "severity", "source", "message", "occurrences_count", "suppression"],
+        "properties": {
+          "id": {"type": "string"},
+          "fingerprint": {"type": ["string", "null"]},
+          "check": {"type": "string"},
+          "severity": {"type": "string", "enum": ["critical", "warning", "notice", "opportunity"]},
+          "source": {"type": "string"},
+          "message": {"type": "string"},
+          "target_url": {"type": ["string", "null"]},
+          "status_code": {"type": ["integer", "null"]},
+          "occurrences_count": {"type": "integer", "minimum": 0},
+          "locations": {"type": "array", "items": {"type": "object"}},
+          "details": {"type": "object"},
+          "group_id": {"type": ["string", "null"]},
+          "fix_hint": {"type": ["string", "null"]},
+          "evidence": {"type": "object"},
+          "suppression": {
+            "type": "object",
+            "required": ["rule_id", "pattern", "reason", "matched_url"],
+            "properties": {
+              "rule_id": {"type": "string", "maxLength": 64},
+              "pattern": {"type": "string", "maxLength": 500},
+              "reason": {"type": "string", "maxLength": 500},
+              "matched_url": {"type": ["string", "null"]}
+            }
+          }
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["url"],
+        "properties": {
+          "url": {"type": "string"},
+          "status_code": {"type": ["integer", "null"]},
+          "indexability": {"type": ["string", "null"]},
+          "indexability_status": {"type": ["string", "null"]},
+          "content_type": {"type": ["string", "null"]},
+          "metrics": {"type": "object"},
+          "issues": {"type": "array", "items": {"type": "string"}},
+          "issue_ids": {"type": "array", "items": {"type": "string"}},
+          "suppressed_issue_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["group_id", "check", "urls", "count"],
+        "properties": {
+          "group_id": {"type": "string"},
+          "check": {"type": "string"},
+          "value": {"type": ["string", "null"]},
+          "urls": {"type": "array", "items": {"type": "string"}},
+          "count": {"type": "integer"}
+        }
+      }
+    }
+  }
+}

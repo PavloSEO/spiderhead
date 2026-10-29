@@ -1,0 +1,344 @@
+{
+ "inject_after_step": 14,
+ "inject_sql": [
+  "INSERT INTO clusters(id,name,intent,is_real,coherence,landing_url) VALUES(1,'диван купить','transactional',1,0.82,NULL)",
+  "INSERT INTO clusters(id,name,intent,is_real,coherence,landing_url) VALUES(2,'обивка','informational',1,0.71,NULL)",
+  "UPDATE phrases SET cluster_id=1, status='kept' WHERE norm LIKE 'купить%'",
+  "UPDATE phrases SET cluster_id=2, status='review' WHERE norm LIKE 'обивка%'",
+  "INSERT INTO serp(phrase_norm,pos,url,domain,title,fetched_at) VALUES('купить диван',1,'https://divan.ru/x','divan.ru','Диваны','2026-01-05T10:00:00Z')",
+  "INSERT INTO serp(phrase_norm,pos,url,domain,title,fetched_at) VALUES('купить диван',2,'https://www.divan.ru/y','www.divan.ru','Ещё','2026-01-05T10:00:00Z')",
+  "INSERT INTO serp(phrase_norm,pos,url,domain,title,fetched_at) VALUES('купить диван в рассрочку',1,'https://divan.ru/x','divan.ru','Диваны','2026-01-05T10:00:00Z')",
+  "INSERT INTO serp(phrase_norm,pos,url,domain,title,fetched_at) VALUES('обивка дивана',3,'https://mebel-other.ru/z','mebel-other.ru','Обивка','2026-01-05T10:00:00Z')",
+  "INSERT INTO landing_candidates(cluster_id,url,score,evidence_json,computed_at) VALUES(1,'https://divan.ru/x',0.5,'{\"method\": \"serp_phrase_coverage.v1\", \"matched_phrases\": 1, \"cluster_phrases\": 2, \"positions\": [1], \"score_interpretation\": \"share of cluster phrases where this own-domain URL appeared in retained top 10\"}','2026-01-05T10:00:00Z')"
+ ],
+ "mcp": [
+  {
+   "arguments": {
+    "project": "{PROJECT}"
+   },
+   "is_error": false,
+   "text": "{\n  \"ok\": true,\n  \"result\": {\n    \"contract\": \"spiderhead.semantics.operation.v1\",\n    \"mode\": \"read\",\n    \"state\": \"complete\",\n    \"project\": \"<WORK>/p\",\n    \"database\": \"<WORK>/p/sya.db\",\n    \"counts\": {\n      \"kept\": 3,\n      \"review\": 1,\n      \"_total\": 4,\n      \"_exact\": 0,\n      \"_expanded\": 0,\n      \"_clusters\": 2\n    },\n    \"spend\": {\n      \"yandex_requests\": 0,\n      \"arsenkin\": 0\n    },\n    \"next_stage\": \"exact\",\n    \"stages\": {\n      \"latest\": {\n        \"set-landing\": {\n          \"stage\": \"set-landing\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"format\": \"spiderhead.semantics.landing-update.v1\",\n            \"cluster_id\": 1,\n            \"landing_url\": \"https://divan.ru/x\",\n            \"audit_recorded\": true\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        \"competitors\": {\n          \"stage\": \"competitors\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"domains\": 0\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        \"report\": {\n          \"stage\": \"report\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"clusters\": 0\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        \"graph\": {\n          \"stage\": \"graph\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"homonyms\": 0,\n            \"flagged\": 0,\n            \"clusters\": 0\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        \"clean\": {\n          \"stage\": \"clean\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"changed\": 4,\n            \"lemma_groups\": 4\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        \"import\": {\n          \"stage\": \"import\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"contract\": \"spiderhead.semantics.operation.v1\",\n            \"mode\": \"preview\",\n            \"state\": \"complete\",\n            \"format\": \"spiderhead.semantics.import-plan.v1\",\n            \"file_type\": \"csv\",\n            \"sheet\": null,\n            \"merge\": \"add\",\n            \"applied_mapping\": {\n              \"query\": \"query\",\n              \"frequency\": \"base\"\n            },\n            \"input_rows\": 4,\n            \"unique_queries\": 4,\n            \"new\": 4,\n            \"already_in_core\": 0,\n            \"duplicates_in_input\": 0,\n            \"group_counts\": {\n              \"(ungrouped)\": 4\n            },\n            \"preview\": [\n              {\n                \"query\": \"купить диван\",\n                \"values\": {\n                  \"base\": 120\n                },\n                \"duplicate_in_file\": false\n              },\n              {\n                \"query\": \"купить диван в рассрочку\",\n                \"values\": {\n                  \"base\": 45\n                },\n                \"duplicate_in_file\": false\n              },\n              {\n                \"query\": \"обивка дивана\",\n                \"values\": {\n                  \"base\": 30\n                },\n                \"duplicate_in_file\": false\n              },\n              {\n                \"query\": \"куда пожаловаться\",\n                \"values\": {\n                  \"base\": 80\n                },\n                \"duplicate_in_file\": false\n              }\n            ],\n            \"replacement_rows\": null,\n            \"added\": 4,\n            \"updated\": 0,\n            \"skipped_existing\": 0\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        \"init\": {\n          \"stage\": \"init\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"directory\": \"p\"\n          },\n          \"last_run_at\": \"<TS>\"\n        }\n      },\n      \"history\": [\n        {\n          \"stage\": \"set-landing\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"format\": \"spiderhead.semantics.landing-update.v1\",\n            \"cluster_id\": 1,\n            \"landing_url\": \"https://divan.ru/x\",\n            \"audit_recorded\": true\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        {\n          \"stage\": \"competitors\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"domains\": 0\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        {\n          \"stage\": \"report\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"clusters\": 0\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        {\n          \"stage\": \"graph\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"homonyms\": 0,\n            \"flagged\": 0,\n            \"clusters\": 0\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        {\n          \"stage\": \"clean\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"changed\": 4,\n            \"lemma_groups\": 4\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        {\n          \"stage\": \"import\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"contract\": \"spiderhead.semantics.operation.v1\",\n            \"mode\": \"preview\",\n            \"state\": \"complete\",\n            \"format\": \"spiderhead.semantics.import-plan.v1\",\n            \"file_type\": \"csv\",\n            \"sheet\": null,\n            \"merge\": \"add\",\n            \"applied_mapping\": {\n              \"query\": \"query\",\n              \"frequency\": \"base\"\n            },\n            \"input_rows\": 4,\n            \"unique_queries\": 4,\n            \"new\": 4,\n            \"already_in_core\": 0,\n            \"duplicates_in_input\": 0,\n            \"group_counts\": {\n              \"(ungrouped)\": 4\n            },\n            \"preview\": [\n              {\n                \"query\": \"купить диван\",\n                \"values\": {\n                  \"base\": 120\n                },\n                \"duplicate_in_file\": false\n              },\n              {\n                \"query\": \"купить диван в рассрочку\",\n                \"values\": {\n                  \"base\": 45\n                },\n                \"duplicate_in_file\": false\n              },\n              {\n                \"query\": \"обивка дивана\",\n                \"values\": {\n                  \"base\": 30\n                },\n                \"duplicate_in_file\": false\n              },\n              {\n                \"query\": \"куда пожаловаться\",\n                \"values\": {\n                  \"base\": 80\n                },\n                \"duplicate_in_file\": false\n              }\n            ],\n            \"replacement_rows\": null,\n            \"added\": 4,\n            \"updated\": 0,\n            \"skipped_existing\": 0\n          },\n          \"last_run_at\": \"<TS>\"\n        },\n        {\n          \"stage\": \"init\",\n          \"state\": \"done\",\n          \"started_at\": \"<TS>\",\n          \"finished_at\": \"<TS>\",\n          \"error\": null,\n          \"estimate\": null,\n          \"result\": {\n            \"directory\": \"p\"\n          },\n          \"last_run_at\": \"<TS>\"\n        }\n      ],\n      \"limit\": 200,\n      \"total\": 7,\n      \"has_more\": false\n    },\n    \"stages_unavailable_reason\": null\n  },\n  \"logs\": \"\"\n}",
+   "tool": "seo_semantics_status"
+  },
+  {
+   "arguments": {
+    "project": "{PROJECT}",
+    "stage": "init"
+   },
+   "is_error": false,
+   "text": "{\n  \"ok\": true,\n  \"result\": {\n    \"project\": \"<WORK>/p\",\n    \"stage\": \"init\",\n    \"directory\": \"<WORK>/p\"\n  },\n  \"logs\": \"init OK: <WORK>/p\\n\"\n}",
+   "tool": "seo_semantics_run"
+  },
+  {
+   "arguments": {
+    "dry_run": true,
+    "project": "{PROJECT}",
+    "stage": "export"
+   },
+   "is_error": false,
+   "text": "{\n  \"ok\": true,\n  \"result\": {\n    \"project\": \"<WORK>/p\",\n    \"stage\": \"export\",\n    \"contract\": \"spiderhead.semantics.operation.v1\",\n    \"mode\": \"preview\",\n    \"state\": \"complete\",\n    \"scope\": \"all\",\n    \"rows\": 4,\n    \"planned_files\": [\n      \"<WORK>/p/pool.csv\",\n      \"<WORK>/p/pool.json\"\n    ]\n  },\n  \"logs\": \"\"\n}",
+   "tool": "seo_semantics_run"
+  },
+  {
+   "arguments": {
+    "project": "{PROJECT}",
+    "stage": "collect"
+   },
+   "is_error": false,
+   "text": "{\n  \"ok\": true,\n  \"result\": {\n    \"stage\": \"collect\",\n    \"paid\": true,\n    \"estimate\": {\n      \"contract\": \"spiderhead.semantics.operation.v1\",\n      \"mode\": \"estimate\",\n      \"state\": \"complete\",\n      \"format\": \"spiderhead.semantics.paid-estimate.v1\",\n      \"stage\": \"collect\",\n      \"provider\": \"yandex_wordstat\",\n      \"request_estimate\": {\n        \"unit\": \"requests\",\n        \"count\": null,\n        \"kind\": \"bounded_range\",\n        \"minimum\": 0,\n        \"known_initial_requests\": 0,\n        \"maximum\": 100000\n      },\n      \"item_estimate\": 0,\n      \"choices\": {\n        \"region\": {\n          \"selected\": \"225\",\n          \"available\": [\n            \"225\"\n          ]\n        },\n        \"engine\": {\n          \"selected\": \"yandex_wordstat\",\n          \"available\": [\n            \"yandex_wordstat\"\n          ]\n        },\n        \"query_source\": {\n          \"selected\": \"seeds_file\",\n          \"available\": [\n            \"seeds_file\",\n            \"synonyms_file\",\n            \"kept_phrases\"\n          ]\n        }\n      },\n      \"money_estimate\": null,\n      \"money_unavailable_reason\": \"provider pricing is not available from this offline preflight\",\n      \"paid_calls_made\": 0,\n      \"estimate_kind\": \"upper_bound\",\n      \"blocked_items\": 0,\n      \"blocked_reason\": null\n    },\n    \"requires_confirmation\": true,\n    \"paid_calls_made\": 0\n  },\n  \"logs\": \"\"\n}",
+   "tool": "seo_semantics_paid"
+  },
+  {
+   "arguments": {
+    "dry_run": true,
+    "project": "{PROJECT}",
+    "stage": "exact"
+   },
+   "is_error": false,
+   "text": "{\n  \"ok\": true,\n  \"result\": {\n    \"stage\": \"exact\",\n    \"paid\": true,\n    \"estimate\": {\n      \"contract\": \"spiderhead.semantics.operation.v1\",\n      \"mode\": \"estimate\",\n      \"state\": \"complete\",\n      \"format\": \"spiderhead.semantics.paid-estimate.v1\",\n      \"stage\": \"exact\",\n      \"provider\": \"arsenkin_wordstat\",\n      \"request_estimate\": {\n        \"unit\": \"tasks\",\n        \"count\": 1,\n        \"kind\": \"upper_bound\"\n      },\n      \"item_estimate\": 3,\n      \"choices\": {\n        \"region\": {\n          \"selected\": \"225\",\n          \"available\": [\n            \"225\"\n          ]\n        },\n        \"engine\": {\n          \"selected\": \"arsenkin_wordstat\",\n          \"available\": [\n            \"arsenkin_wordstat\"\n          ]\n        },\n        \"query_source\": {\n          \"selected\": \"kept_phrases\",\n          \"available\": [\n            \"seeds_file\",\n            \"synonyms_file\",\n            \"kept_phrases\"\n          ]\n        }\n      },\n      \"money_estimate\": null,\n      \"money_unavailable_reason\": \"provider pricing is not available from this offline preflight\",\n      \"paid_calls_made\": 0,\n      \"estimate_kind\": \"upper_bound\",\n      \"blocked_items\": 0,\n      \"blocked_reason\": null\n    },\n    \"requires_confirmation\": true,\n    \"paid_calls_made\": 0\n  },\n  \"logs\": \"\"\n}",
+   "tool": "seo_semantics_paid"
+  }
+ ],
+ "phrases_csv": "query,base\nкупить диван,120\nкупить диван в рассрочку,45\nобивка дивана,30\nкуда пожаловаться,80\n",
+ "steps": [
+  {
+   "argv": [
+    "semantics",
+    "init",
+    "--project",
+    "{PROJECT}"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "init OK: p\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "import",
+    "--project",
+    "{PROJECT}",
+    "--file",
+    "{CSV}",
+    "--map",
+    "query=query",
+    "--map",
+    "base=base"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "import: rows=4 added=4 updated=0 skipped_existing=0\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "clean",
+    "--project",
+    "{PROJECT}"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "clean: kept=4 review=0 dropped=0 | lemma groups=4 (median base=62, outlier>3125)\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "graph",
+    "--project",
+    "{PROJECT}"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "graph: homonyms=0, to review=0, candidate clusters=0 -> anomalies.md\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "report",
+    "--project",
+    "{PROJECT}"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "report: 0 clusters -> report.md + clusters.csv\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "competitors",
+    "--project",
+    "{PROJECT}"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "competitors: no collected SERP (run cluster first)\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "status",
+    "--project",
+    "{PROJECT}"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "=== p ===\nkept=4 | _total=4 | _exact=0 | _expanded=0 | _clusters=0\nprovider units: {'yandex_requests': 0, 'arsenkin': 0}\nnext: seohead semantics graph --project p\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "status",
+    "--project",
+    "{PROJECT}",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"read\", \"state\": \"complete\", \"project\": \"p\", \"database\": \"p/sya.db\", \"counts\": {\"kept\": 4, \"_total\": 4, \"_exact\": 0, \"_expanded\": 0, \"_clusters\": 0}, \"spend\": {\"yandex_requests\": 0, \"arsenkin\": 0}, \"next_stage\": \"graph\", \"stages\": {\"latest\": {\"competitors\": {\"stage\": \"competitors\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"domains\": 0}, \"last_run_at\": \"<TS>\"}, \"report\": {\"stage\": \"report\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"clusters\": 0}, \"last_run_at\": \"<TS>\"}, \"graph\": {\"stage\": \"graph\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"homonyms\": 0, \"flagged\": 0, \"clusters\": 0}, \"last_run_at\": \"<TS>\"}, \"clean\": {\"stage\": \"clean\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"changed\": 4, \"lemma_groups\": 4}, \"last_run_at\": \"<TS>\"}, \"import\": {\"stage\": \"import\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"preview\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.import-plan.v1\", \"file_type\": \"csv\", \"sheet\": null, \"merge\": \"add\", \"applied_mapping\": {\"query\": \"query\", \"frequency\": \"base\"}, \"input_rows\": 4, \"unique_queries\": 4, \"new\": 4, \"already_in_core\": 0, \"duplicates_in_input\": 0, \"group_counts\": {\"(ungrouped)\": 4}, \"preview\": [{\"query\": \"купить диван\", \"values\": {\"base\": 120}, \"duplicate_in_file\": false}, {\"query\": \"купить диван в рассрочку\", \"values\": {\"base\": 45}, \"duplicate_in_file\": false}, {\"query\": \"обивка дивана\", \"values\": {\"base\": 30}, \"duplicate_in_file\": false}, {\"query\": \"куда пожаловаться\", \"values\": {\"base\": 80}, \"duplicate_in_file\": false}], \"replacement_rows\": null, \"added\": 4, \"updated\": 0, \"skipped_existing\": 0}, \"last_run_at\": \"<TS>\"}, \"init\": {\"stage\": \"init\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"directory\": \"p\"}, \"last_run_at\": \"<TS>\"}}, \"history\": [{\"stage\": \"competitors\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"domains\": 0}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"report\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"clusters\": 0}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"graph\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"homonyms\": 0, \"flagged\": 0, \"clusters\": 0}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"clean\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"changed\": 4, \"lemma_groups\": 4}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"import\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"preview\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.import-plan.v1\", \"file_type\": \"csv\", \"sheet\": null, \"merge\": \"add\", \"applied_mapping\": {\"query\": \"query\", \"frequency\": \"base\"}, \"input_rows\": 4, \"unique_queries\": 4, \"new\": 4, \"already_in_core\": 0, \"duplicates_in_input\": 0, \"group_counts\": {\"(ungrouped)\": 4}, \"preview\": [{\"query\": \"купить диван\", \"values\": {\"base\": 120}, \"duplicate_in_file\": false}, {\"query\": \"купить диван в рассрочку\", \"values\": {\"base\": 45}, \"duplicate_in_file\": false}, {\"query\": \"обивка дивана\", \"values\": {\"base\": 30}, \"duplicate_in_file\": false}, {\"query\": \"куда пожаловаться\", \"values\": {\"base\": 80}, \"duplicate_in_file\": false}], \"replacement_rows\": null, \"added\": 4, \"updated\": 0, \"skipped_existing\": 0}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"init\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"directory\": \"p\"}, \"last_run_at\": \"<TS>\"}], \"limit\": 200, \"total\": 6, \"has_more\": false}, \"stages_unavailable_reason\": null, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "collect",
+    "--project",
+    "{PROJECT}",
+    "--dry-run",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"estimate\", \"state\": \"complete\", \"project\": \"p\", \"stage\": \"collect\", \"paid\": true, \"estimate\": {\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"estimate\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.paid-estimate.v1\", \"stage\": \"collect\", \"provider\": \"yandex_wordstat\", \"request_estimate\": {\"unit\": \"requests\", \"count\": null, \"kind\": \"bounded_range\", \"minimum\": 0, \"known_initial_requests\": 0, \"maximum\": 100000}, \"item_estimate\": 0, \"choices\": {\"region\": {\"selected\": \"225\", \"available\": [\"225\"]}, \"engine\": {\"selected\": \"yandex_wordstat\", \"available\": [\"yandex_wordstat\"]}, \"query_source\": {\"selected\": \"seeds_file\", \"available\": [\"seeds_file\", \"synonyms_file\", \"kept_phrases\"]}}, \"money_estimate\": null, \"money_unavailable_reason\": \"provider pricing is not available from this offline preflight\", \"paid_calls_made\": 0, \"estimate_kind\": \"upper_bound\", \"blocked_items\": 0, \"blocked_reason\": null}, \"requires_confirmation\": false, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "synonyms",
+    "--project",
+    "{PROJECT}",
+    "--dry-run",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"estimate\", \"state\": \"complete\", \"project\": \"p\", \"stage\": \"synonyms\", \"paid\": true, \"estimate\": {\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"estimate\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.paid-estimate.v1\", \"stage\": \"synonyms\", \"provider\": \"yandex_wordstat\", \"request_estimate\": {\"unit\": \"requests\", \"count\": 0, \"kind\": \"upper_bound\"}, \"item_estimate\": 0, \"choices\": {\"region\": {\"selected\": \"225\", \"available\": [\"225\"]}, \"engine\": {\"selected\": \"yandex_wordstat\", \"available\": [\"yandex_wordstat\"]}, \"query_source\": {\"selected\": \"synonyms_file\", \"available\": [\"seeds_file\", \"synonyms_file\", \"kept_phrases\"]}}, \"money_estimate\": null, \"money_unavailable_reason\": \"provider pricing is not available from this offline preflight\", \"paid_calls_made\": 0, \"estimate_kind\": \"upper_bound\", \"blocked_items\": 0, \"blocked_reason\": null}, \"requires_confirmation\": false, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "cluster",
+    "--project",
+    "{PROJECT}",
+    "--dry-run",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"estimate\", \"state\": \"complete\", \"project\": \"p\", \"stage\": \"cluster\", \"paid\": true, \"estimate\": {\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"estimate\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.paid-estimate.v1\", \"stage\": \"cluster\", \"provider\": \"yandex_search\", \"request_estimate\": {\"unit\": \"requests\", \"count\": 4, \"kind\": \"upper_bound\"}, \"item_estimate\": 4, \"choices\": {\"region\": {\"selected\": \"225\", \"available\": [\"225\"]}, \"engine\": {\"selected\": \"yandex_search\", \"available\": [\"yandex_search\"]}, \"query_source\": {\"selected\": \"kept_phrases\", \"available\": [\"seeds_file\", \"synonyms_file\", \"kept_phrases\"]}}, \"money_estimate\": null, \"money_unavailable_reason\": \"provider pricing is not available from this offline preflight\", \"paid_calls_made\": 0, \"estimate_kind\": \"upper_bound\", \"blocked_items\": 0, \"blocked_reason\": null}, \"requires_confirmation\": false, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "exact",
+    "--project",
+    "{PROJECT}",
+    "--dry-run",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"estimate\", \"state\": \"complete\", \"project\": \"p\", \"stage\": \"exact\", \"paid\": true, \"estimate\": {\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"estimate\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.paid-estimate.v1\", \"stage\": \"exact\", \"provider\": \"arsenkin_wordstat\", \"request_estimate\": {\"unit\": \"tasks\", \"count\": 1, \"kind\": \"upper_bound\"}, \"item_estimate\": 4, \"choices\": {\"region\": {\"selected\": \"225\", \"available\": [\"225\"]}, \"engine\": {\"selected\": \"arsenkin_wordstat\", \"available\": [\"arsenkin_wordstat\"]}, \"query_source\": {\"selected\": \"kept_phrases\", \"available\": [\"seeds_file\", \"synonyms_file\", \"kept_phrases\"]}}, \"money_estimate\": null, \"money_unavailable_reason\": \"provider pricing is not available from this offline preflight\", \"paid_calls_made\": 0, \"estimate_kind\": \"upper_bound\", \"blocked_items\": 0, \"blocked_reason\": null}, \"requires_confirmation\": false, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "export",
+    "--project",
+    "{PROJECT}",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"project\": \"p\", \"stage\": \"export\", \"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"write\", \"state\": \"complete\", \"scope\": \"all\", \"rows\": 4, \"files\": [\"p/pool.csv\", \"p/pool.json\"], \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "excel",
+    "--project",
+    "{PROJECT}",
+    "--dry-run",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"preview\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.export-plan.v1\", \"scope\": \"all\", \"rows\": 4, \"planned_files\": [\"p/p_semantic_core.xlsx\"], \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "clusters",
+    "--project",
+    "{PROJECT}",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"format\": \"spiderhead.semantics.clusters.v1\", \"items\": [{\"id\": 1, \"name\": \"диван купить\", \"intent\": \"transactional\", \"source\": null, \"coherence\": 0.82, \"landing_url\": null, \"phrase_count\": 2, \"base_sum\": 165, \"exact_sum\": null, \"exact_measured\": 0, \"unavailable_fields\": [], \"landing_score\": null, \"landing_score_unavailable_reason\": \"no stored score for the selected landing URL\"}, {\"id\": 2, \"name\": \"обивка\", \"intent\": \"informational\", \"source\": null, \"coherence\": 0.71, \"landing_url\": null, \"phrase_count\": 1, \"base_sum\": 30, \"exact_sum\": null, \"exact_measured\": 0, \"unavailable_fields\": [], \"landing_score\": null, \"landing_score_unavailable_reason\": \"no stored score for the selected landing URL\"}], \"offset\": 0, \"limit\": 50, \"total\": 2, \"has_more\": false, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "cluster-show",
+    "--project",
+    "{PROJECT}",
+    "--cluster",
+    "1",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"format\": \"spiderhead.semantics.cluster.v1\", \"cluster\": {\"id\": 1, \"name\": \"диван купить\", \"marker_norm\": null, \"coherence\": 0.82, \"is_real\": 1, \"note\": null, \"landing_url\": null, \"intent\": \"transactional\", \"source\": null, \"page_types\": null, \"level\": null}, \"landing_url_unavailable_reason\": null, \"aggregate\": {\"id\": 1, \"name\": \"диван купить\", \"intent\": \"transactional\", \"source\": null, \"coherence\": 0.82, \"landing_url\": null, \"phrase_count\": 2, \"base_sum\": 165, \"exact_sum\": null, \"exact_measured\": 0}, \"landing_candidates\": [{\"url\": \"https://divan.ru/x\", \"score\": 0.5, \"evidence_json\": \"{\\\"method\\\": \\\"serp_phrase_coverage.v1\\\", \\\"matched_phrases\\\": 1, \\\"cluster_phrases\\\": 2, \\\"positions\\\": [1], \\\"score_interpretation\\\": \\\"share of cluster phrases where this own-domain URL appeared in retained top 10\\\"}\", \"computed_at\": \"<TS>\", \"evidence\": {\"method\": \"serp_phrase_coverage.v1\", \"matched_phrases\": 1, \"cluster_phrases\": 2, \"positions\": [1], \"score_interpretation\": \"share of cluster phrases where this own-domain URL appeared in retained top 10\"}}], \"landing_candidates_unavailable_reason\": null, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "cluster-queries",
+    "--project",
+    "{PROJECT}",
+    "--cluster",
+    "1",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"format\": \"spiderhead.semantics.cluster-queries.v1\", \"cluster\": {\"id\": 1, \"name\": \"диван купить\"}, \"items\": [{\"norm\": \"купить диван\", \"base\": 120, \"quoted\": null, \"exact\": null, \"impr\": null, \"pos_y\": null, \"pos_g\": null, \"status\": \"kept\", \"route\": \"commercial\", \"group_name\": null, \"subgroup\": null, \"url\": null, \"comment\": null, \"yandex_top10\": {\"results\": [{\"pos\": 1, \"url\": \"https://divan.ru/x\", \"domain\": \"divan.ru\", \"title\": \"Диваны\"}, {\"pos\": 2, \"url\": \"https://www.divan.ru/y\", \"domain\": \"www.divan.ru\", \"title\": \"Ещё\"}], \"region\": null, \"fetched_at\": \"<TS>\", \"state\": \"legacy_cache\", \"unavailable_reason\": null, \"region_unavailable_reason\": \"legacy SERP rows do not retain region\", \"fetch_date_unavailable_reason\": null}}, {\"norm\": \"купить диван в рассрочку\", \"base\": 45, \"quoted\": null, \"exact\": null, \"impr\": null, \"pos_y\": null, \"pos_g\": null, \"status\": \"kept\", \"route\": \"commercial\", \"group_name\": null, \"subgroup\": null, \"url\": null, \"comment\": null, \"yandex_top10\": {\"results\": [{\"pos\": 1, \"url\": \"https://divan.ru/x\", \"domain\": \"divan.ru\", \"title\": \"Диваны\"}], \"region\": null, \"fetched_at\": \"<TS>\", \"state\": \"legacy_cache\", \"unavailable_reason\": null, \"region_unavailable_reason\": \"legacy SERP rows do not retain region\", \"fetch_date_unavailable_reason\": null}}], \"unavailable_fields\": [], \"offset\": 0, \"limit\": 50, \"total\": 2, \"has_more\": false, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "set-landing",
+    "--project",
+    "{PROJECT}",
+    "--cluster",
+    "1",
+    "--url",
+    "https://divan.ru/x",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"format\": \"spiderhead.semantics.landing-update.v1\", \"cluster_id\": 1, \"landing_url\": \"https://divan.ru/x\", \"audit_recorded\": true, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "cluster-show",
+    "--project",
+    "{PROJECT}",
+    "--cluster",
+    "1",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"format\": \"spiderhead.semantics.cluster.v1\", \"cluster\": {\"id\": 1, \"name\": \"диван купить\", \"marker_norm\": null, \"coherence\": 0.82, \"is_real\": 1, \"note\": null, \"landing_url\": \"https://divan.ru/x\", \"intent\": \"transactional\", \"source\": null, \"page_types\": null, \"level\": null}, \"landing_url_unavailable_reason\": null, \"aggregate\": {\"id\": 1, \"name\": \"диван купить\", \"intent\": \"transactional\", \"source\": null, \"coherence\": 0.82, \"landing_url\": \"https://divan.ru/x\", \"phrase_count\": 2, \"base_sum\": 165, \"exact_sum\": null, \"exact_measured\": 0}, \"landing_candidates\": [{\"url\": \"https://divan.ru/x\", \"score\": 0.5, \"evidence_json\": \"{\\\"method\\\": \\\"serp_phrase_coverage.v1\\\", \\\"matched_phrases\\\": 1, \\\"cluster_phrases\\\": 2, \\\"positions\\\": [1], \\\"score_interpretation\\\": \\\"share of cluster phrases where this own-domain URL appeared in retained top 10\\\"}\", \"computed_at\": \"<TS>\", \"evidence\": {\"method\": \"serp_phrase_coverage.v1\", \"matched_phrases\": 1, \"cluster_phrases\": 2, \"positions\": [1], \"score_interpretation\": \"share of cluster phrases where this own-domain URL appeared in retained top 10\"}}], \"landing_candidates_unavailable_reason\": null, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "status",
+    "--project",
+    "{PROJECT}",
+    "--json"
+   ],
+   "exit": 0,
+   "stderr": "",
+   "stdout": "{\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"read\", \"state\": \"complete\", \"project\": \"p\", \"database\": \"p/sya.db\", \"counts\": {\"kept\": 3, \"review\": 1, \"_total\": 4, \"_exact\": 0, \"_expanded\": 0, \"_clusters\": 2}, \"spend\": {\"yandex_requests\": 0, \"arsenkin\": 0}, \"next_stage\": \"exact\", \"stages\": {\"latest\": {\"set-landing\": {\"stage\": \"set-landing\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"format\": \"spiderhead.semantics.landing-update.v1\", \"cluster_id\": 1, \"landing_url\": \"https://divan.ru/x\", \"audit_recorded\": true}, \"last_run_at\": \"<TS>\"}, \"competitors\": {\"stage\": \"competitors\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"domains\": 0}, \"last_run_at\": \"<TS>\"}, \"report\": {\"stage\": \"report\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"clusters\": 0}, \"last_run_at\": \"<TS>\"}, \"graph\": {\"stage\": \"graph\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"homonyms\": 0, \"flagged\": 0, \"clusters\": 0}, \"last_run_at\": \"<TS>\"}, \"clean\": {\"stage\": \"clean\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"changed\": 4, \"lemma_groups\": 4}, \"last_run_at\": \"<TS>\"}, \"import\": {\"stage\": \"import\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"preview\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.import-plan.v1\", \"file_type\": \"csv\", \"sheet\": null, \"merge\": \"add\", \"applied_mapping\": {\"query\": \"query\", \"frequency\": \"base\"}, \"input_rows\": 4, \"unique_queries\": 4, \"new\": 4, \"already_in_core\": 0, \"duplicates_in_input\": 0, \"group_counts\": {\"(ungrouped)\": 4}, \"preview\": [{\"query\": \"купить диван\", \"values\": {\"base\": 120}, \"duplicate_in_file\": false}, {\"query\": \"купить диван в рассрочку\", \"values\": {\"base\": 45}, \"duplicate_in_file\": false}, {\"query\": \"обивка дивана\", \"values\": {\"base\": 30}, \"duplicate_in_file\": false}, {\"query\": \"куда пожаловаться\", \"values\": {\"base\": 80}, \"duplicate_in_file\": false}], \"replacement_rows\": null, \"added\": 4, \"updated\": 0, \"skipped_existing\": 0}, \"last_run_at\": \"<TS>\"}, \"init\": {\"stage\": \"init\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"directory\": \"p\"}, \"last_run_at\": \"<TS>\"}}, \"history\": [{\"stage\": \"set-landing\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"format\": \"spiderhead.semantics.landing-update.v1\", \"cluster_id\": 1, \"landing_url\": \"https://divan.ru/x\", \"audit_recorded\": true}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"competitors\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"domains\": 0}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"report\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"clusters\": 0}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"graph\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"homonyms\": 0, \"flagged\": 0, \"clusters\": 0}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"clean\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"changed\": 4, \"lemma_groups\": 4}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"import\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"contract\": \"spiderhead.semantics.operation.v1\", \"mode\": \"preview\", \"state\": \"complete\", \"format\": \"spiderhead.semantics.import-plan.v1\", \"file_type\": \"csv\", \"sheet\": null, \"merge\": \"add\", \"applied_mapping\": {\"query\": \"query\", \"frequency\": \"base\"}, \"input_rows\": 4, \"unique_queries\": 4, \"new\": 4, \"already_in_core\": 0, \"duplicates_in_input\": 0, \"group_counts\": {\"(ungrouped)\": 4}, \"preview\": [{\"query\": \"купить диван\", \"values\": {\"base\": 120}, \"duplicate_in_file\": false}, {\"query\": \"купить диван в рассрочку\", \"values\": {\"base\": 45}, \"duplicate_in_file\": false}, {\"query\": \"обивка дивана\", \"values\": {\"base\": 30}, \"duplicate_in_file\": false}, {\"query\": \"куда пожаловаться\", \"values\": {\"base\": 80}, \"duplicate_in_file\": false}], \"replacement_rows\": null, \"added\": 4, \"updated\": 0, \"skipped_existing\": 0}, \"last_run_at\": \"<TS>\"}, {\"stage\": \"init\", \"state\": \"done\", \"started_at\": \"<TS>\", \"finished_at\": \"<TS>\", \"error\": null, \"estimate\": null, \"result\": {\"directory\": \"p\"}, \"last_run_at\": \"<TS>\"}], \"limit\": 200, \"total\": 7, \"has_more\": false}, \"stages_unavailable_reason\": null, \"logs\": \"\"}\n"
+  },
+  {
+   "argv": [
+    "semantics",
+    "status",
+    "--project",
+    "absent"
+   ],
+   "exit": 1,
+   "stderr": "seohead semantics: semantic database not found: absent/sya.db\nInitialize it with: seohead semantics init --project absent\n",
+   "stdout": ""
+  },
+  {
+   "argv": [
+    "semantics",
+    "cluster-show",
+    "--project",
+    "{PROJECT}",
+    "--cluster",
+    "404",
+    "--json"
+   ],
+   "exit": 1,
+   "stderr": "seohead semantics: cluster not found: 404\n",
+   "stdout": ""
+  }
+ ]
+}

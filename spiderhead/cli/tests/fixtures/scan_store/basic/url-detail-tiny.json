@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "seohead: scan-url-detail\n",
+    "stdout": "{\n  \"validation\": \"light\",\n  \"ok\": false,\n  \"state\": \"limit_reached\",\n  \"reason\": \"output_byte_limit_exceeded\",\n  \"source\": {\n    \"scan_uuid\": \"<UUID:1>\",\n    \"format_version\": \"scan.v1\",\n    \"source_kind\": \"native\",\n    \"evidence_revision\": 10,\n    \"lifecycle\": \"finished\",\n    \"finish_reason\": \"finished\",\n    \"crawl_partial\": false,\n    \"corpus_partial\": false\n  },\n  \"url\": \"http://127.0.0.1:{PORT}/\",\n  \"max_bytes\": 4096,\n  \"bytes_required\": 5400\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_scan_url_detail: {\"validation\": \"light\", \"ok\": false, \"state\": \"limit_reached\", \"reason\": \"output_byte_limit_exceeded\", \"source\": {\"scan_uuid\": \"<UUID:1>\", \"format_version\": \"scan.v1\", \"source_kind\": \"native\", \"evidence_revision\": 10, \"lifecycle\": \"finished\", \"finish_reason\": \"finished\", \"crawl_partial\": false, \"corpus_partial\": false}, \"url\": \"http://127.0.0.1:{PORT}/\", \"max_bytes\": 4096, \"bytes_required\": 5400}"
+   }
+  ]
+ }
+}

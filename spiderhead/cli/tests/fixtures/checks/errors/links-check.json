@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "links-check",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "links-check",
+ "exit": 0,
+ "stderr": "seohead: links-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/\",\n  \"links_found\": 8,\n  \"checked\": 8,\n  \"truncated\": false,\n  \"ok_count\": 3,\n  \"broken\": [\n    {\n      \"href\": \"{BASE}/gone.html\",\n      \"status\": 410,\n      \"external\": false\n    },\n    {\n      \"href\": \"{BASE}/boom.html\",\n      \"status\": 500,\n      \"external\": false\n    },\n    {\n      \"href\": \"{BASE}/unavailable.html\",\n      \"status\": 503,\n      \"external\": false\n    },\n    {\n      \"href\": \"{BASE}/nope.html\",\n      \"status\": 404,\n      \"external\": false\n    },\n    {\n      \"href\": \"{BASE}/forbidden.html\",\n      \"status\": 403,\n      \"external\": false\n    }\n  ],\n  \"redirects\": []\n}\n"
+}

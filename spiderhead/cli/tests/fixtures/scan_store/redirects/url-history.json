@@ -1,0 +1,39 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: project-new\n",
+    "stdout": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"site\": {\n      \"host\": \"example.com\",\n      \"label\": null,\n      \"target\": \"https://example.com/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"/private<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-snapshot\n",
+    "stdout": "{\n  \"snapshot\": \"<WORK>/proj/scans/<TS>_127.0.0.1_9dfa0cbd.sqlite\"\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-url-history\n",
+    "stdout": "{\n  \"ok\": true,\n  \"state\": \"available\",\n  \"format\": \"spiderhead.scan-url-history.v1\",\n  \"url\": \"http://127.0.0.1:{PORT}/\",\n  \"scan_total\": 1,\n  \"limit\": 50,\n  \"returned\": 1,\n  \"has_more\": false,\n  \"scans\": [\n    {\n      \"scan_uuid\": \"<UUID:2>\",\n      \"number\": 1,\n      \"finished_at\": \"<TS>\",\n      \"state\": \"present\",\n      \"status_code\": 200,\n      \"indexability\": true,\n      \"title\": \"Redirects site home\",\n      \"title_hash\": \"25f351596c49f44d2097c4f8a1214bffd6f7fc69b5f0a5c6a42e2ecc753dde92\",\n      \"meta_description\": \"Home of the redirect test site.\",\n      \"h1\": \"Redirects site home\",\n      \"canonical\": null,\n      \"redirect_target\": null,\n      \"content_hash\": \"75828d8b9a89d87945576787056428c48ef40c5de4cee00d3083f3194cfa9c9e\",\n      \"word_count\": 5,\n      \"inlinks\": 1,\n      \"outlinks\": 9,\n      \"response_time_seconds\": 0.001,\n      \"html_size_bytes\": 575,\n      \"field_states\": {\n        \"status_code\": {\n          \"state\": \"measured\"\n        },\n        \"indexability\": {\n          \"state\": \"measured\"\n        },\n        \"title\": {\n          \"state\": \"measured\"\n        },\n        \"meta_description\": {\n          \"state\": \"measured\"\n        },\n        \"h1\": {\n          \"state\": \"measured\"\n        },\n        \"word_count\": {\n          \"state\": \"measured\"\n        },\n        \"canonical\": {\n          \"state\": \"absent\"\n        },\n        \"redirect_target\": {\n          \"state\": \"absent\"\n        },\n        \"content_hash\": {\n          \"state\": \"measured\"\n        },\n        \"response_time_seconds\": {\n          \"state\": \"measured\"\n        },\n        \"html_size_bytes\": {\n          \"state\": \"measured\"\n        },\n        \"inlinks\": {\n          \"state\": \"measured\"\n        },\n        \"outlinks\": {\n          \"state\": \"measured\"\n        },\n        \"external_link_response_codes\": {\n          \"state\": \"measured\",\n          \"external_targets\": 0,\n          \"external_targets_observed\": 0,\n          \"responses_measured\": 0,\n          \"codes\": {}\n        }\n      },\n      \"external_link_response_codes\": {\n        \"state\": \"measured\",\n        \"external_targets\": 0,\n        \"external_targets_observed\": 0,\n        \"responses_measured\": 0,\n        \"codes\": {}\n      }\n    }\n  ],\n  \"transitions\": [],\n  \"errors\": []\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"site\": {\n      \"host\": \"example.com\",\n      \"label\": null,\n      \"target\": \"https://example.com/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"/private<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"snapshot\": \"<WORK>/proj/scans/<TS>_127.0.0.1_9dfa0cbd.sqlite\"\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"state\": \"available\",\n  \"format\": \"spiderhead.scan-url-history.v1\",\n  \"url\": \"http://127.0.0.1:{PORT}/\",\n  \"scan_total\": 1,\n  \"limit\": 50,\n  \"returned\": 1,\n  \"has_more\": false,\n  \"scans\": [\n    {\n      \"scan_uuid\": \"<UUID:2>\",\n      \"number\": 1,\n      \"finished_at\": \"<TS>\",\n      \"state\": \"present\",\n      \"status_code\": 200,\n      \"indexability\": true,\n      \"title\": \"Redirects site home\",\n      \"title_hash\": \"25f351596c49f44d2097c4f8a1214bffd6f7fc69b5f0a5c6a42e2ecc753dde92\",\n      \"meta_description\": \"Home of the redirect test site.\",\n      \"h1\": \"Redirects site home\",\n      \"canonical\": null,\n      \"redirect_target\": null,\n      \"content_hash\": \"75828d8b9a89d87945576787056428c48ef40c5de4cee00d3083f3194cfa9c9e\",\n      \"word_count\": 5,\n      \"inlinks\": 1,\n      \"outlinks\": 9,\n      \"response_time_seconds\": 0.001,\n      \"html_size_bytes\": 575,\n      \"field_states\": {\n        \"status_code\": {\n          \"state\": \"measured\"\n        },\n        \"indexability\": {\n          \"state\": \"measured\"\n        },\n        \"title\": {\n          \"state\": \"measured\"\n        },\n        \"meta_description\": {\n          \"state\": \"measured\"\n        },\n        \"h1\": {\n          \"state\": \"measured\"\n        },\n        \"word_count\": {\n          \"state\": \"measured\"\n        },\n        \"canonical\": {\n          \"state\": \"absent\"\n        },\n        \"redirect_target\": {\n          \"state\": \"absent\"\n        },\n        \"content_hash\": {\n          \"state\": \"measured\"\n        },\n        \"response_time_seconds\": {\n          \"state\": \"measured\"\n        },\n        \"html_size_bytes\": {\n          \"state\": \"measured\"\n        },\n        \"inlinks\": {\n          \"state\": \"measured\"\n        },\n        \"outlinks\": {\n          \"state\": \"measured\"\n        },\n        \"external_link_response_codes\": {\n          \"state\": \"measured\",\n          \"external_targets\": 0,\n          \"external_targets_observed\": 0,\n          \"responses_measured\": 0,\n          \"codes\": {}\n        }\n      },\n      \"external_link_response_codes\": {\n        \"state\": \"measured\",\n        \"external_targets\": 0,\n        \"external_targets_observed\": 0,\n        \"responses_measured\": 0,\n        \"codes\": {}\n      }\n    }\n  ],\n  \"transitions\": [],\n  \"errors\": []\n}"
+   }
+  ]
+ }
+}

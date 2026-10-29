@@ -1,0 +1,4 @@
+﻿Address,Content Type,Status Code,Indexability
+https://example.com/,text/html,200,Indexable
+https://example.com/linked,text/html,200,Indexable
+https://example.com/orphaned,text/html,200,Indexable

@@ -1,0 +1,39 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: project-new\n",
+    "stdout": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"site\": {\n      \"host\": \"example.com\",\n      \"label\": null,\n      \"target\": \"https://example.com/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"/private<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-snapshot\n",
+    "stdout": "{\n  \"snapshot\": \"<WORK>/proj/scans/<TS>_127.0.0.1_ea01145e.sqlite\"\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-url-history\n",
+    "stdout": "{\n  \"ok\": true,\n  \"state\": \"available\",\n  \"format\": \"spiderhead.scan-url-history.v1\",\n  \"url\": \"http://127.0.0.1:{PORT}/\",\n  \"scan_total\": 1,\n  \"limit\": 50,\n  \"returned\": 1,\n  \"has_more\": false,\n  \"scans\": [\n    {\n      \"scan_uuid\": \"<UUID:2>\",\n      \"number\": 1,\n      \"finished_at\": \"<TS>\",\n      \"state\": \"present\",\n      \"status_code\": 200,\n      \"indexability\": true,\n      \"title\": \"Basic site home\",\n      \"title_hash\": \"eb52cb7557cd043aefb8a422a1ef0f46544c86e6b042abf651a2f59d6c810bf7\",\n      \"meta_description\": \"Home page of the basic synthetic site for oracle tests.\",\n      \"h1\": \"Basic site home\",\n      \"canonical\": null,\n      \"redirect_target\": null,\n      \"content_hash\": \"f43eca2644875f130633498eaef97347753e0a7568da6d16b15a76d2e95795a9\",\n      \"word_count\": 9,\n      \"inlinks\": 8,\n      \"outlinks\": 10,\n      \"response_time_seconds\": 0.001,\n      \"html_size_bytes\": 672,\n      \"field_states\": {\n        \"status_code\": {\n          \"state\": \"measured\"\n        },\n        \"indexability\": {\n          \"state\": \"measured\"\n        },\n        \"title\": {\n          \"state\": \"measured\"\n        },\n        \"meta_description\": {\n          \"state\": \"measured\"\n        },\n        \"h1\": {\n          \"state\": \"measured\"\n        },\n        \"word_count\": {\n          \"state\": \"measured\"\n        },\n        \"canonical\": {\n          \"state\": \"absent\"\n        },\n        \"redirect_target\": {\n          \"state\": \"absent\"\n        },\n        \"content_hash\": {\n          \"state\": \"measured\"\n        },\n        \"response_time_seconds\": {\n          \"state\": \"measured\"\n        },\n        \"html_size_bytes\": {\n          \"state\": \"measured\"\n        },\n        \"inlinks\": {\n          \"state\": \"measured\"\n        },\n        \"outlinks\": {\n          \"state\": \"measured\"\n        },\n        \"external_link_response_codes\": {\n          \"state\": \"partial\",\n          \"external_targets\": 1,\n          \"external_targets_observed\": 1,\n          \"responses_measured\": 0,\n          \"codes\": {},\n          \"reason\": \"one or more linked external targets have no retained page response\"\n        }\n      },\n      \"external_link_response_codes\": {\n        \"state\": \"partial\",\n        \"external_targets\": 1,\n        \"external_targets_observed\": 1,\n        \"responses_measured\": 0,\n        \"codes\": {},\n        \"reason\": \"one or more linked external targets have no retained page response\"\n      }\n    }\n  ],\n  \"transitions\": [],\n  \"errors\": []\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"site\": {\n      \"host\": \"example.com\",\n      \"label\": null,\n      \"target\": \"https://example.com/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"/private<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"snapshot\": \"<WORK>/proj/scans/<TS>_127.0.0.1_ea01145e.sqlite\"\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"state\": \"available\",\n  \"format\": \"spiderhead.scan-url-history.v1\",\n  \"url\": \"http://127.0.0.1:{PORT}/\",\n  \"scan_total\": 1,\n  \"limit\": 50,\n  \"returned\": 1,\n  \"has_more\": false,\n  \"scans\": [\n    {\n      \"scan_uuid\": \"<UUID:2>\",\n      \"number\": 1,\n      \"finished_at\": \"<TS>\",\n      \"state\": \"present\",\n      \"status_code\": 200,\n      \"indexability\": true,\n      \"title\": \"Basic site home\",\n      \"title_hash\": \"eb52cb7557cd043aefb8a422a1ef0f46544c86e6b042abf651a2f59d6c810bf7\",\n      \"meta_description\": \"Home page of the basic synthetic site for oracle tests.\",\n      \"h1\": \"Basic site home\",\n      \"canonical\": null,\n      \"redirect_target\": null,\n      \"content_hash\": \"f43eca2644875f130633498eaef97347753e0a7568da6d16b15a76d2e95795a9\",\n      \"word_count\": 9,\n      \"inlinks\": 8,\n      \"outlinks\": 10,\n      \"response_time_seconds\": 0.001,\n      \"html_size_bytes\": 672,\n      \"field_states\": {\n        \"status_code\": {\n          \"state\": \"measured\"\n        },\n        \"indexability\": {\n          \"state\": \"measured\"\n        },\n        \"title\": {\n          \"state\": \"measured\"\n        },\n        \"meta_description\": {\n          \"state\": \"measured\"\n        },\n        \"h1\": {\n          \"state\": \"measured\"\n        },\n        \"word_count\": {\n          \"state\": \"measured\"\n        },\n        \"canonical\": {\n          \"state\": \"absent\"\n        },\n        \"redirect_target\": {\n          \"state\": \"absent\"\n        },\n        \"content_hash\": {\n          \"state\": \"measured\"\n        },\n        \"response_time_seconds\": {\n          \"state\": \"measured\"\n        },\n        \"html_size_bytes\": {\n          \"state\": \"measured\"\n        },\n        \"inlinks\": {\n          \"state\": \"measured\"\n        },\n        \"outlinks\": {\n          \"state\": \"measured\"\n        },\n        \"external_link_response_codes\": {\n          \"state\": \"partial\",\n          \"external_targets\": 1,\n          \"external_targets_observed\": 1,\n          \"responses_measured\": 0,\n          \"codes\": {},\n          \"reason\": \"one or more linked external targets have no retained page response\"\n        }\n      },\n      \"external_link_response_codes\": {\n        \"state\": \"partial\",\n        \"external_targets\": 1,\n        \"external_targets_observed\": 1,\n        \"responses_measured\": 0,\n        \"codes\": {},\n        \"reason\": \"one or more linked external targets have no retained page response\"\n      }\n    }\n  ],\n  \"transitions\": [],\n  \"errors\": []\n}"
+   }
+  ]
+ }
+}

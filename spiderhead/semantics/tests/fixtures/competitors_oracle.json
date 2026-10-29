@@ -1,0 +1,304 @@
+{
+ "stage": "competitors",
+ "scenarios": [
+  {
+   "name": "full",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/competitors-oracle-zf66xpfs",
+    "_project": "test-proj",
+    "preset": "generic",
+    "intent": "seo|аудит|продвижен|замок|установк|сайт|онлайн|бесплатн|сервис|инструмент",
+    "stop": "бесплатно",
+    "info": ""
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [
+     [
+      "upsert",
+      "seo аудит сайта",
+      100,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "upsert",
+      "замок врезной",
+      100,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "add_serp",
+      "seo аудит сайта",
+      [
+       {
+        "pos": 0,
+        "url": "https://a.ru/1",
+        "domain": "a.ru",
+        "title": "SEO аудит сайта онлайн | MegaTools"
+       },
+       {
+        "pos": 0,
+        "url": "https://a.ru/2",
+        "domain": "a.ru",
+        "title": "SEO аудит сайта онлайн | MegaTools"
+       },
+       {
+        "pos": 0,
+        "url": "https://a.ru/3",
+        "domain": "a.ru",
+        "title": "Аудит сайта онлайн бесплатно — SEOtools"
+       },
+       {
+        "pos": 0,
+        "url": "https://a.ru/4",
+        "domain": "",
+        "title": "No domain row"
+       }
+      ]
+     ],
+     [
+      "add_serp",
+      "замок врезной",
+      [
+       {
+        "pos": 0,
+        "url": "https://b.ru/1",
+        "domain": "b.ru",
+        "title": "Замок врезной установка двери"
+       },
+       {
+        "pos": 0,
+        "url": "https://b.ru/2",
+        "domain": "b.ru",
+        "title": "Продвижение сайта цена услуги • TopSEO"
+       },
+       {
+        "pos": 0,
+        "url": "https://b.ru/3",
+        "domain": "b.ru",
+        "title": "Random English Title"
+       },
+       {
+        "pos": 0,
+        "url": "https://b.ru/4",
+        "domain": "c.ru",
+        "title": null
+       }
+      ]
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {},
+   "args": {
+    "out_dir": "report"
+   },
+   "files": {
+    "synonyms.txt": "seo аудит\nзаметка аналитика\n"
+   },
+   "expect": {
+    "result": {
+     "domains": 3,
+     "candidates": 12
+    },
+    "calls": {},
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "seo аудит сайта",
+       "base": 100,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "замок врезной",
+       "base": 100,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "competitors",
+       "n_requests": 0,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "domains=3, candidates=12"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": [
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 0,
+       "url": "https://a.ru/1",
+       "domain": "a.ru",
+       "title": "SEO аудит сайта онлайн | MegaTools",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 0,
+       "url": "https://a.ru/2",
+       "domain": "a.ru",
+       "title": "SEO аудит сайта онлайн | MegaTools",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 0,
+       "url": "https://a.ru/3",
+       "domain": "a.ru",
+       "title": "Аудит сайта онлайн бесплатно — SEOtools",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "seo аудит сайта",
+       "pos": 0,
+       "url": "https://a.ru/4",
+       "domain": "",
+       "title": "No domain row",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной",
+       "pos": 0,
+       "url": "https://b.ru/1",
+       "domain": "b.ru",
+       "title": "Замок врезной установка двери",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной",
+       "pos": 0,
+       "url": "https://b.ru/2",
+       "domain": "b.ru",
+       "title": "Продвижение сайта цена услуги • TopSEO",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной",
+       "pos": 0,
+       "url": "https://b.ru/3",
+       "domain": "b.ru",
+       "title": "Random English Title",
+       "fetched_at": "__ts__"
+      },
+      {
+       "phrase_norm": "замок врезной",
+       "pos": 0,
+       "url": "https://b.ru/4",
+       "domain": "c.ru",
+       "title": null,
+       "fetched_at": "__ts__"
+      }
+     ]
+    },
+    "files": {
+     "report/competitors.md": "# Semantic core competitors — test-proj\n\nSERP positions collected: 7. Competitor domains:\n\n| # | Domain | Top appearances |\n|---|---|---:|\n| 1 | a.ru | 3 |\n| 2 | b.ru | 3 |\n| 3 | c.ru | 1 |\n\n## Candidate phrases from competitor titles (12)\n\nAppended to `synonyms.txt`; the `synonyms` stage checks them in Wordstat:\n\n- аудит сайта (×3)\n- сайта онлайн (×3)\n- аудит сайта онлайн (×3)\n- seo аудит (×2)\n- врезной установка (×1)\n- установка двери (×1)\n- замок врезной установка (×1)\n- врезной установка двери (×1)\n- продвижение сайта (×1)\n- сайта цена (×1)\n- продвижение сайта цена (×1)\n- сайта цена услуги (×1)\n",
+     "synonyms.txt": "seo аудит\nзаметка аналитика\nаудит сайта\nсайта онлайн\nаудит сайта онлайн\nврезной установка\nустановка двери\nзамок врезной установка\nврезной установка двери\nпродвижение сайта\nсайта цена\nпродвижение сайта цена\nсайта цена услуги\n"
+    }
+   }
+  },
+  {
+   "name": "empty",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/competitors-empty-q0ys_a82",
+    "_project": "p",
+    "preset": "generic"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {}
+   },
+   "providers": {},
+   "args": {
+    "out_dir": "report"
+   },
+   "files": {},
+   "expect": {
+    "result": {
+     "domains": 0
+    },
+    "calls": {},
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {}
+   }
+  }
+ ]
+}

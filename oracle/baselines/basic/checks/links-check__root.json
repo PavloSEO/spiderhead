@@ -1,0 +1,19 @@
+{
+ "exit": 0,
+ "stdout": {
+  "broken": [
+   {
+    "external": false,
+    "href": "{BASE}/missing-page.html",
+    "status": 404
+   }
+  ],
+  "checked": 10,
+  "links_found": 10,
+  "ok": true,
+  "ok_count": 9,
+  "redirects": [],
+  "truncated": false,
+  "url": "{BASE}/"
+ }
+}

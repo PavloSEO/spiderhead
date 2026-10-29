@@ -1,0 +1,1604 @@
+{
+  "tools": [
+    {
+      "name": "seo_redirects_check",
+      "description": "Follow a live redirect chain for a URL and report each hop (status, location).",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Options"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_redirects_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_redirects_checkDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_robots_check",
+      "description": "Fetch and analyze a site's robots.txt: user-agent groups, declared\nsitemaps, and whether given paths are crawlable.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "user_agent": {
+            "default": "*",
+            "title": "User Agent",
+            "type": "string"
+          },
+          "paths": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Paths"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_robots_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "RobotsCheckError": {
+            "description": "`robots.check_robots` when fetching robots.txt itself failed.",
+            "properties": {
+              "status_code": {
+                "title": "Status Code",
+                "type": "integer"
+              },
+              "ok": {
+                "const": false,
+                "title": "Ok",
+                "type": "boolean"
+              },
+              "robots_url": {
+                "title": "Robots Url",
+                "type": "string"
+              },
+              "error": {
+                "title": "Error",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ok",
+              "robots_url",
+              "error"
+            ],
+            "title": "RobotsCheckError",
+            "type": "object"
+          },
+          "RobotsCheckFound": {
+            "description": "`robots.check_robots` once the robots.txt request itself succeeded\n(whether or not a robots.txt actually exists — see `exists`).",
+            "properties": {
+              "note": {
+                "title": "Note",
+                "type": "string"
+              },
+              "state": {
+                "title": "State",
+                "type": "string"
+              },
+              "path_checks": {
+                "items": {
+                  "$ref": "#/$defs/RobotsPathCheck"
+                },
+                "title": "Path Checks",
+                "type": "array"
+              },
+              "ok": {
+                "const": true,
+                "title": "Ok",
+                "type": "boolean"
+              },
+              "robots_url": {
+                "title": "Robots Url",
+                "type": "string"
+              },
+              "status_code": {
+                "title": "Status Code",
+                "type": "integer"
+              },
+              "exists": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Exists"
+              },
+              "groups": {
+                "items": {
+                  "$ref": "#/$defs/RobotsGroup"
+                },
+                "title": "Groups",
+                "type": "array"
+              },
+              "sitemaps": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Sitemaps",
+                "type": "array"
+              }
+            },
+            "required": [
+              "ok",
+              "robots_url",
+              "status_code",
+              "exists",
+              "groups",
+              "sitemaps"
+            ],
+            "title": "RobotsCheckFound",
+            "type": "object"
+          },
+          "RobotsGroup": {
+            "description": "One `User-agent:` group from a parsed robots.txt.",
+            "properties": {
+              "user_agents": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "User Agents",
+                "type": "array"
+              },
+              "allow": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Allow",
+                "type": "array"
+              },
+              "disallow": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Disallow",
+                "type": "array"
+              },
+              "crawl_delay": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Crawl Delay"
+              },
+              "request_rate_delay": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request Rate Delay"
+              },
+              "_line_of": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "title": "Line Of",
+                "type": "object"
+              }
+            },
+            "required": [
+              "user_agents",
+              "allow",
+              "disallow",
+              "crawl_delay",
+              "request_rate_delay",
+              "_line_of"
+            ],
+            "title": "RobotsGroup",
+            "type": "object"
+          },
+          "RobotsPathCheck": {
+            "properties": {
+              "path": {
+                "title": "Path",
+                "type": "string"
+              },
+              "allowed": {
+                "title": "Allowed",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "path",
+              "allowed"
+            ],
+            "title": "RobotsPathCheck",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/RobotsCheckFound"
+              },
+              {
+                "$ref": "#/$defs/RobotsCheckError"
+              }
+            ],
+            "title": "Result"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "seo_robots_checkOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_headers_check",
+      "description": "Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link,\nCache-Control, HSTS, ...), HTTP version, TTFB, and body size.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "method": {
+            "default": "GET",
+            "enum": [
+              "GET",
+              "HEAD"
+            ],
+            "title": "Method",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_headers_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_headers_checkDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_hreflang_check",
+      "description": "Extract and validate a page's hreflang alternates (x-default,\nself-reference, duplicates, malformed codes).",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_hreflang_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_hreflang_checkDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_schema_check",
+      "description": "Validate a page's structured data in two layers. Layer one is the Schema.org\nvocabulary itself (1010 types, 1676 properties, shipped with the toolkit): does\nthe type exist, is the property allowed on it once inheritance is resolved, does\nthe value type match, is the term deprecated or still in the pending layer.\nLayer two is Google rich-result eligibility per type. Also analyses the JSON-LD\nas a GRAPH: which entities carry @id, which are linked, which hang as islands,\nand whether any @id reference dangles. Pass html to check markup offline.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "default": "",
+            "title": "Url",
+            "type": "string"
+          },
+          "html": {
+            "default": "",
+            "title": "Html",
+            "type": "string"
+          }
+        },
+        "title": "seo_schema_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_schema_checkDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_url_check_batch",
+      "description": "Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or a page of retained scan URLs. Per-pair network errors remain attached to their input URL.",
+      "inputSchema": {
+        "properties": {
+          "urls": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Urls"
+          },
+          "checks": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Checks"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Options"
+          },
+          "scan": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Scan"
+          },
+          "offset": {
+            "default": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "max_urls": {
+            "default": 50,
+            "title": "Max Urls",
+            "type": "integer"
+          }
+        },
+        "title": "seo_url_check_batchArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_url_check_batchDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_doctor",
+      "description": "Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.\n\nThis is a local read-only diagnostic. It does not write a probe file, launch a browser,\ncrawl a site, or establish Screaming Frog licence validity.\n",
+      "inputSchema": {
+        "properties": {
+          "projects_directory": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Projects Directory"
+          },
+          "config_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Config Path"
+          },
+          "sf_cli": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sf Cli"
+          }
+        },
+        "title": "seo_doctorArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_doctorDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "seo_tool_catalog",
+      "description": "Search source-derived tool metadata with categories, project awareness, and bounded offset paging.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "default": "",
+            "title": "Query",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "include_arguments": {
+            "default": false,
+            "title": "Include Arguments",
+            "type": "boolean"
+          }
+        },
+        "title": "seo_tool_catalogArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_tool_catalogDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "seo_parse",
+      "description": "Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6,\nJSON-LD, links, visible text, word count) from one URL or a list of URLs.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "default": "",
+            "title": "Url",
+            "type": "string"
+          },
+          "urls": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Urls"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Options"
+          }
+        },
+        "title": "seo_parseArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "DocumentPosition": {
+            "description": "Where key elements sit relative to `<head>`, as `parser.parse_html`'s\nparse tree resolved them -- not as the source text suggests (issue #123).\n\nA browser closes `<head>` at the first element that does not belong there,\nso a canonical or robots directive placed after one silently stops\napplying; the page still reads fine in the source. Each `*_outside_head`\nflag is `None` when the element is simply absent -- a different, already\ncovered finding -- and a bool only once it exists.",
+            "properties": {
+              "head_count": {
+                "title": "Head Count",
+                "type": "integer"
+              },
+              "body_count": {
+                "title": "Body Count",
+                "type": "integer"
+              },
+              "head_not_first": {
+                "title": "Head Not First",
+                "type": "boolean"
+              },
+              "invalid_head_elements": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Invalid Head Elements",
+                "type": "array"
+              },
+              "title_outside_head": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Title Outside Head"
+              },
+              "meta_description_outside_head": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Meta Description Outside Head"
+              },
+              "canonical_outside_head": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Canonical Outside Head"
+              },
+              "directives_outside_head": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Directives Outside Head"
+              },
+              "hreflang_outside_head": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Hreflang Outside Head"
+              }
+            },
+            "required": [
+              "head_count",
+              "body_count",
+              "head_not_first",
+              "invalid_head_elements",
+              "title_outside_head",
+              "meta_description_outside_head",
+              "canonical_outside_head",
+              "directives_outside_head",
+              "hreflang_outside_head"
+            ],
+            "title": "DocumentPosition",
+            "type": "object"
+          },
+          "DuplicateId": {
+            "description": "One repeated HTML id value and its observed occurrence count.",
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "count": {
+                "title": "Count",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "count"
+            ],
+            "title": "DuplicateId",
+            "type": "object"
+          },
+          "FormInfo": {
+            "description": "One `<form>` extracted from a page (issue #125).",
+            "properties": {
+              "method": {
+                "title": "Method",
+                "type": "string"
+              },
+              "action": {
+                "title": "Action",
+                "type": "string"
+              },
+              "has_password": {
+                "title": "Has Password",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "method",
+              "action",
+              "has_password"
+            ],
+            "title": "FormInfo",
+            "type": "object"
+          },
+          "FrameInfo": {
+            "description": "One `<iframe>` extracted from a page (issue #360).\n\nA framed document is not part of the parent DOM, so every text-derived\nmeasurement -- word count, headings, the content area -- describes the shell\naround the content rather than the content. Recording what a page frames is\nwhat lets a check say \"the copy is in an iframe\" instead of \"this page is\nthin\", which is the same fact read the wrong way round.",
+            "properties": {
+              "src": {
+                "title": "Src",
+                "type": "string"
+              },
+              "raw_src": {
+                "title": "Raw Src",
+                "type": "string"
+              },
+              "same_origin": {
+                "title": "Same Origin",
+                "type": "boolean"
+              },
+              "in_content_area": {
+                "title": "In Content Area",
+                "type": "boolean"
+              },
+              "title": {
+                "title": "Title",
+                "type": "string"
+              },
+              "loading": {
+                "title": "Loading",
+                "type": "string"
+              },
+              "sandbox": {
+                "title": "Sandbox",
+                "type": "string"
+              }
+            },
+            "required": [
+              "src",
+              "raw_src",
+              "same_origin",
+              "in_content_area",
+              "title",
+              "loading",
+              "sandbox"
+            ],
+            "title": "FrameInfo",
+            "type": "object"
+          },
+          "HeadingLinkRef": {
+            "description": "One anchor wrapped in an `<h1>`-`<h6>` (issue #634).\n\n``level`` is the *nearest* heading ancestor's level, which is what a reader\nsees; ``anchor`` is the link's own collapsed text, which on this defect is\nusually the whole heading.",
+            "properties": {
+              "level": {
+                "title": "Level",
+                "type": "integer"
+              },
+              "destination": {
+                "title": "Destination",
+                "type": "string"
+              },
+              "anchor": {
+                "title": "Anchor",
+                "type": "string"
+              }
+            },
+            "required": [
+              "level",
+              "destination",
+              "anchor"
+            ],
+            "title": "HeadingLinkRef",
+            "type": "object"
+          },
+          "HeadingRef": {
+            "description": "One `<h1>`-`<h6>` in document order, with where on the page it sits (issue #632).\n\n``level`` and ``text`` are what the eight existing heading checks read as an\nunordered set; keeping them in a sequence is what lets a check ask whether a\nheading precedes the page's first H1. ``region`` reuses the link-position\ntaxonomy (``seohead.checks.link_position.POSITIONS``) so \"in the header\"\nmeans the same thing about a heading as it already does about a link, and is\n``\"\"`` when the document offered nothing to place the heading against --\nunmeasured, which is neither chrome nor content.",
+            "properties": {
+              "level": {
+                "title": "Level",
+                "type": "integer"
+              },
+              "text": {
+                "title": "Text",
+                "type": "string"
+              },
+              "region": {
+                "title": "Region",
+                "type": "string"
+              }
+            },
+            "required": [
+              "level",
+              "text",
+              "region"
+            ],
+            "title": "HeadingRef",
+            "type": "object"
+          },
+          "HreflangAlternate": {
+            "description": "One `<link rel=\"alternate\" hreflang=\"...\">` declaration (issue #357).\n\nThe code and the href are kept exactly as the document wrote them: a code\nwith the wrong case or a malformed region is itself a finding, and\nnormalising on capture would hide it. ``url`` is that same href resolved\nagainst the document base -- what a browser does -- so a reciprocity check\ncan compare targets without the original being lost.",
+            "properties": {
+              "lang": {
+                "title": "Lang",
+                "type": "string"
+              },
+              "raw_href": {
+                "title": "Raw Href",
+                "type": "string"
+              },
+              "url": {
+                "title": "Url",
+                "type": "string"
+              }
+            },
+            "required": [
+              "lang",
+              "raw_href",
+              "url"
+            ],
+            "title": "HreflangAlternate",
+            "type": "object"
+          },
+          "ImageInfo": {
+            "description": "One `<img>` as the coverage checks need it (issues #385, #386).\n\n``has_alt`` is whether the attribute is present at all, which is a different\nfact from its length: ``alt=\"\"`` is a deliberate mark on a decorative image\nand must stay silent, while a missing attribute is the finding. Collapsing\nthe two into one truthy value is how a correctly marked-up site gets told to\nadd alt text it already declined on purpose.",
+            "properties": {
+              "has_alt": {
+                "title": "Has Alt",
+                "type": "boolean"
+              },
+              "alt_length": {
+                "title": "Alt Length",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "has_alt",
+              "alt_length"
+            ],
+            "title": "ImageInfo",
+            "type": "object"
+          },
+          "ImageLinkRef": {
+            "description": "One image link that names nothing about where it goes (issue #634).",
+            "properties": {
+              "destination": {
+                "title": "Destination",
+                "type": "string"
+              }
+            },
+            "required": [
+              "destination"
+            ],
+            "title": "ImageLinkRef",
+            "type": "object"
+          },
+          "InvalidLinkTarget": {
+            "description": "One href the parser rejected, exactly as written plus the reason.",
+            "properties": {
+              "raw_href": {
+                "title": "Raw Href",
+                "type": "string"
+              },
+              "reason": {
+                "title": "Reason",
+                "type": "string"
+              }
+            },
+            "required": [
+              "raw_href",
+              "reason"
+            ],
+            "title": "InvalidLinkTarget",
+            "type": "object"
+          },
+          "LinkInfo": {
+            "description": "One `<a href>` extracted from a page.",
+            "properties": {
+              "position": {
+                "title": "Position",
+                "type": "string"
+              },
+              "anchor_source": {
+                "title": "Anchor Source",
+                "type": "string"
+              },
+              "href": {
+                "title": "Href",
+                "type": "string"
+              },
+              "raw_href": {
+                "title": "Raw Href",
+                "type": "string"
+              },
+              "text": {
+                "title": "Text",
+                "type": "string"
+              },
+              "rel": {
+                "title": "Rel",
+                "type": "string"
+              },
+              "target": {
+                "title": "Target",
+                "type": "string"
+              },
+              "nofollow": {
+                "title": "Nofollow",
+                "type": "boolean"
+              },
+              "external": {
+                "title": "External",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "href",
+              "raw_href",
+              "text",
+              "rel",
+              "target",
+              "nofollow",
+              "external"
+            ],
+            "title": "LinkInfo",
+            "type": "object"
+          },
+          "LinkPlacement": {
+            "description": "The two link defects a page region cannot show (issue #634).\n\n``seohead.checks.link_position`` answers \"which part of the template is this\nlink in\". A link wrapped in the page's own H1 can sit squarely in ``content``\nand still point the heading away from the page, and an image link with nothing\nto read is a property of what the anchor contains rather than of where it sits.\nBoth lists are capped (``parser._MAX_PLACEMENT_ITEMS``); the ``*_total`` counts\nbeside them are the whole counts, so a truncated list reads as truncated.",
+            "properties": {
+              "in_heading": {
+                "items": {
+                  "$ref": "#/$defs/HeadingLinkRef"
+                },
+                "title": "In Heading",
+                "type": "array"
+              },
+              "in_heading_total": {
+                "title": "In Heading Total",
+                "type": "integer"
+              },
+              "image_no_text": {
+                "items": {
+                  "$ref": "#/$defs/ImageLinkRef"
+                },
+                "title": "Image No Text",
+                "type": "array"
+              },
+              "image_no_text_total": {
+                "title": "Image No Text Total",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "in_heading",
+              "in_heading_total",
+              "image_no_text",
+              "image_no_text_total"
+            ],
+            "title": "LinkPlacement",
+            "type": "object"
+          },
+          "ParseFailed": {
+            "description": "`parser.parse_url` when the request itself raised (network, timeout,\ninvalid URL, ...) before any response existed to parse.",
+            "properties": {
+              "url": {
+                "title": "Url",
+                "type": "string"
+              },
+              "ok": {
+                "const": false,
+                "title": "Ok",
+                "type": "boolean"
+              },
+              "error": {
+                "title": "Error",
+                "type": "string"
+              }
+            },
+            "required": [
+              "url",
+              "ok",
+              "error"
+            ],
+            "title": "ParseFailed",
+            "type": "object"
+          },
+          "ParseFetched": {
+            "description": "`parser.parse_url` once the request itself completed: page fields plus\nfetch metadata. ``ok`` mirrors the HTTP response (``response.is_success``)\nand can be ``False`` here too — e.g. a clean 404 still parses the body.",
+            "properties": {
+              "url_sources": {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "title": "Url Sources",
+                "type": "array"
+              },
+              "resource_declarations": {
+                "items": {
+                  "$ref": "#/$defs/ResourceDeclaration"
+                },
+                "title": "Resource Declarations",
+                "type": "array"
+              },
+              "resource_declarations_omitted": {
+                "title": "Resource Declarations Omitted",
+                "type": "integer"
+              },
+              "invalid_link_targets": {
+                "items": {
+                  "$ref": "#/$defs/InvalidLinkTarget"
+                },
+                "title": "Invalid Link Targets",
+                "type": "array"
+              },
+              "title": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Title"
+              },
+              "meta_description": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Meta Description"
+              },
+              "robots": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Robots"
+              },
+              "robots_meta": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Robots Meta",
+                "type": "array"
+              },
+              "robots_meta_scoped": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Robots Meta Scoped",
+                "type": "array"
+              },
+              "canonical": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Canonical"
+              },
+              "head_links": {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "title": "Head Links",
+                "type": "array"
+              },
+              "position": {
+                "$ref": "#/$defs/DocumentPosition"
+              },
+              "charset": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Charset"
+              },
+              "doctype": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Doctype"
+              },
+              "viewport": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Viewport"
+              },
+              "html_amp": {
+                "title": "Html Amp",
+                "type": "boolean"
+              },
+              "render_blocking": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Render Blocking",
+                "type": "array"
+              },
+              "html_lang": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "title": "Html Lang",
+                "type": "object"
+              },
+              "markup": {
+                "additionalProperties": true,
+                "title": "Markup",
+                "type": "object"
+              },
+              "document_base_url": {
+                "title": "Document Base Url",
+                "type": "string"
+              },
+              "meta_refresh": {
+                "title": "Meta Refresh",
+                "type": "string"
+              },
+              "og": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "title": "Og",
+                "type": "object"
+              },
+              "twitter": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "title": "Twitter",
+                "type": "object"
+              },
+              "headings": {
+                "additionalProperties": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "title": "Headings",
+                "type": "object"
+              },
+              "heading_outline": {
+                "items": {
+                  "$ref": "#/$defs/HeadingRef"
+                },
+                "title": "Heading Outline",
+                "type": "array"
+              },
+              "jsonld": {
+                "items": {},
+                "title": "Jsonld",
+                "type": "array"
+              },
+              "jsonld_invalid": {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "title": "Jsonld Invalid",
+                "type": "array"
+              },
+              "links": {
+                "items": {
+                  "$ref": "#/$defs/LinkInfo"
+                },
+                "title": "Links",
+                "type": "array"
+              },
+              "link_placement": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/LinkPlacement"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "forms": {
+                "items": {
+                  "$ref": "#/$defs/FormInfo"
+                },
+                "title": "Forms",
+                "type": "array"
+              },
+              "text": {
+                "title": "Text",
+                "type": "string"
+              },
+              "content_text": {
+                "title": "Content Text",
+                "type": "string"
+              },
+              "content_area_strategy": {
+                "title": "Content Area Strategy",
+                "type": "string"
+              },
+              "word_count": {
+                "title": "Word Count",
+                "type": "integer"
+              },
+              "readability": {
+                "anyOf": [
+                  {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Readability"
+              },
+              "hreflang": {
+                "items": {
+                  "$ref": "#/$defs/HreflangAlternate"
+                },
+                "title": "Hreflang",
+                "type": "array"
+              },
+              "frames": {
+                "items": {
+                  "$ref": "#/$defs/FrameInfo"
+                },
+                "title": "Frames",
+                "type": "array"
+              },
+              "plugin_elements_count": {
+                "title": "Plugin Elements Count",
+                "type": "integer"
+              },
+              "mobile_alternate_broken": {
+                "title": "Mobile Alternate Broken",
+                "type": "integer"
+              },
+              "images": {
+                "items": {
+                  "$ref": "#/$defs/ImageInfo"
+                },
+                "title": "Images",
+                "type": "array"
+              },
+              "lorem_ipsum_count": {
+                "title": "Lorem Ipsum Count",
+                "type": "integer"
+              },
+              "h1_alt_only_text": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "H1 Alt Only Text"
+              },
+              "trust_signals": {
+                "$ref": "#/$defs/TrustSignals"
+              },
+              "duplicate_ids": {
+                "items": {
+                  "$ref": "#/$defs/DuplicateId"
+                },
+                "title": "Duplicate Ids",
+                "type": "array"
+              },
+              "meta_description_count": {
+                "title": "Meta Description Count",
+                "type": "integer"
+              },
+              "meta_fragment": {
+                "title": "Meta Fragment",
+                "type": "string"
+              },
+              "amphtml": {
+                "title": "Amphtml",
+                "type": "string"
+              },
+              "mobile_alternates": {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "title": "Mobile Alternates",
+                "type": "array"
+              },
+              "blocked_by_waf": {
+                "title": "Blocked By Waf",
+                "type": "string"
+              },
+              "url": {
+                "title": "Url",
+                "type": "string"
+              },
+              "final_url": {
+                "title": "Final Url",
+                "type": "string"
+              },
+              "status_code": {
+                "title": "Status Code",
+                "type": "integer"
+              },
+              "ok": {
+                "title": "Ok",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "title",
+              "meta_description",
+              "robots",
+              "robots_meta",
+              "robots_meta_scoped",
+              "canonical",
+              "head_links",
+              "position",
+              "charset",
+              "doctype",
+              "viewport",
+              "html_amp",
+              "render_blocking",
+              "html_lang",
+              "markup",
+              "document_base_url",
+              "meta_refresh",
+              "og",
+              "twitter",
+              "headings",
+              "heading_outline",
+              "jsonld",
+              "jsonld_invalid",
+              "links",
+              "link_placement",
+              "forms",
+              "text",
+              "content_text",
+              "content_area_strategy",
+              "word_count",
+              "readability",
+              "hreflang",
+              "frames",
+              "plugin_elements_count",
+              "mobile_alternate_broken",
+              "images",
+              "lorem_ipsum_count",
+              "h1_alt_only_text",
+              "trust_signals",
+              "duplicate_ids",
+              "meta_description_count",
+              "meta_fragment",
+              "amphtml",
+              "mobile_alternates",
+              "url",
+              "final_url",
+              "status_code",
+              "ok"
+            ],
+            "title": "ParseFetched",
+            "type": "object"
+          },
+          "ResourceDeclaration": {
+            "description": "One direct script or stylesheet declaration in source order.",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "script",
+                  "stylesheet"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "url": {
+                "title": "Url",
+                "type": "string"
+              },
+              "raw_url": {
+                "title": "Raw Url",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "url",
+              "raw_url"
+            ],
+            "title": "ResourceDeclaration",
+            "type": "object"
+          },
+          "TrustSignal": {
+            "description": "One objective authorship/date markup observation (issue #823).\n\n``signal`` names the carrier exactly -- e.g. ``meta_author``,\n``jsonld_date:datePublished``, ``time_element``, ``url_path_date`` -- so an\nauditor can review which markup produced the evidence rather than trusting a\nblended verdict. ``confidence`` is ``high`` for an explicit machine-readable\ndeclaration and ``medium`` for a conventional carrier (a ``byline`` class, a\n``<time>`` element, a date-shaped URL path). ``value`` is the declared\nstring the markup carried (an author name, a datetime, the matched path\nfragment), truncated by the parser; ``\"\"`` when the carrier holds no value.",
+            "properties": {
+              "signal": {
+                "title": "Signal",
+                "type": "string"
+              },
+              "confidence": {
+                "title": "Confidence",
+                "type": "string"
+              },
+              "value": {
+                "title": "Value",
+                "type": "string"
+              }
+            },
+            "required": [
+              "signal",
+              "confidence",
+              "value"
+            ],
+            "title": "TrustSignal",
+            "type": "object"
+          },
+          "TrustSignals": {
+            "description": "A page's authorship/date/article-scope markup evidence (issue #823).\n\nAn empty list is a measured absence: the page was parsed and declared no\nsuch signal. ``article`` holds the markers that place the page in the\nauthorship checks' scope (a JSON-LD article ``@type``, ``og:type=article``,\nan ``<article>`` element) -- the page declaring itself content-shaped, which\nis a fact about its markup, never a judgement about its quality.",
+            "properties": {
+              "author": {
+                "items": {
+                  "$ref": "#/$defs/TrustSignal"
+                },
+                "title": "Author",
+                "type": "array"
+              },
+              "dates": {
+                "items": {
+                  "$ref": "#/$defs/TrustSignal"
+                },
+                "title": "Dates",
+                "type": "array"
+              },
+              "article": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Article",
+                "type": "array"
+              }
+            },
+            "required": [
+              "author",
+              "dates",
+              "article"
+            ],
+            "title": "TrustSignals",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "results": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/ParseFetched"
+                },
+                {
+                  "$ref": "#/$defs/ParseFailed"
+                }
+              ]
+            },
+            "title": "Results",
+            "type": "array"
+          }
+        },
+        "required": [
+          "count",
+          "results"
+        ],
+        "title": "ParseManyResult",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_inspect_url",
+      "description": "Inspect one URL with bounded metadata/header/robots/redirect/structured/render steps.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "checks": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Checks"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_inspect_urlArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_inspect_urlDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ]
+}

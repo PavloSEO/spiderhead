@@ -1,0 +1,59 @@
+{
+ "exit": 0,
+ "stdout": {
+  "cookies": [],
+  "exposed_paths": null,
+  "final_url": "{BASE}/",
+  "findings": [
+   "missing strict-transport-security: forces browsers to use HTTPS",
+   "missing content-security-policy: controls allowed script and style sources",
+   "missing x-content-type-options: prevents MIME type sniffing",
+   "missing x-frame-options: prevents clickjacking, or use frame-ancestors in CSP",
+   "missing referrer-policy: limits URL information sent to other sites",
+   "missing permissions-policy: controls access to camera, geolocation, and other APIs",
+   "http does not redirect to https; some traffic and signals remain unencrypted"
+  ],
+  "grade": "F",
+  "headers_missing": [
+   {
+    "header": "strict-transport-security",
+    "purpose": "forces browsers to use HTTPS"
+   },
+   {
+    "header": "content-security-policy",
+    "purpose": "controls allowed script and style sources"
+   },
+   {
+    "header": "x-content-type-options",
+    "purpose": "prevents MIME type sniffing"
+   },
+   {
+    "header": "x-frame-options",
+    "purpose": "prevents clickjacking, or use frame-ancestors in CSP"
+   },
+   {
+    "header": "referrer-policy",
+    "purpose": "limits URL information sent to other sites"
+   },
+   {
+    "header": "permissions-policy",
+    "purpose": "controls access to camera, geolocation, and other APIs"
+   }
+  ],
+  "headers_present": {},
+  "https_redirect": {
+   "checked": true,
+   "final_url": "{BASE}/",
+   "status_code": 200,
+   "upgrades": false
+  },
+  "ok": true,
+  "probed": false,
+  "score": 0,
+  "status_code": 200,
+  "url": "{BASE}/",
+  "version_disclosure": {
+   "server": "oracle-fixture"
+  }
+ }
+}

@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 9,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Error executing tool seo_logs_bots: 1 validation error for seo_logs_botsArguments\nlimit\n  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='abc', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_parsing"
+      }
+    ],
+    "isError": true
+  }
+}

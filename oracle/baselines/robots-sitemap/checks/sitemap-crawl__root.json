@@ -1,0 +1,82 @@
+{
+ "exit": 0,
+ "stdout": {
+  "count": 6,
+  "discovery": {
+   "fallback": "{BASE}/sitemap.xml",
+   "robots_url": "{BASE}/robots.txt"
+  },
+  "duplicate_sources": {},
+  "duplicates": [],
+  "errors": [],
+  "image_entries": 0,
+  "loc_entries": 6,
+  "news_entries": 0,
+  "ok": true,
+  "root": "{BASE}/",
+  "sitemaps": [
+   {
+    "bytes": 224,
+    "count": 1,
+    "declared": 1,
+    "source": "robots.txt",
+    "type": "index",
+    "url": "{BASE}/sitemap.xml"
+   },
+   {
+    "bytes": 640,
+    "count": 6,
+    "declared": 6,
+    "source": "{BASE}/sitemap.xml",
+    "type": "urlset",
+    "url": "{BASE}/sitemap-pages.xml"
+   }
+  ],
+  "truncated": false,
+  "urls": [
+   {
+    "changefreq": null,
+    "lastmod": "2026-01-01",
+    "loc": "{BASE}/",
+    "loc_normalized": "{BASE}/",
+    "priority": null
+   },
+   {
+    "changefreq": null,
+    "lastmod": "2026-01-02",
+    "loc": "{BASE}/a.html",
+    "loc_normalized": "{BASE}/a.html",
+    "priority": null
+   },
+   {
+    "changefreq": null,
+    "lastmod": "2026-01-03",
+    "loc": "{BASE}/orphan.html",
+    "loc_normalized": "{BASE}/orphan.html",
+    "priority": null
+   },
+   {
+    "changefreq": null,
+    "lastmod": "2026-01-04",
+    "loc": "{BASE}/private/secret.html",
+    "loc_normalized": "{BASE}/private/secret.html",
+    "priority": null
+   },
+   {
+    "changefreq": null,
+    "lastmod": "2026-01-05",
+    "loc": "{BASE}/gone-from-sitemap.html",
+    "loc_normalized": "{BASE}/gone-from-sitemap.html",
+    "priority": null
+   },
+   {
+    "changefreq": null,
+    "lastmod": "2026-01-06",
+    "loc": "{BASE}/moved.html",
+    "loc_normalized": "{BASE}/moved.html",
+    "priority": null
+   }
+  ],
+  "video_entries": 0
+ }
+}

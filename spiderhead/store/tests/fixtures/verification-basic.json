@@ -1,0 +1,36 @@
+{
+ "baseline": {
+  "audit_sha256": "39abfc0501493d2d74003b0ef17df5a5a82d5ce820419d2bb008a48b8065ca44",
+  "results_policy_fingerprint": "2467d4b15b00f98c",
+  "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+ },
+ "collection": {
+  "state": "measured"
+ },
+ "findings": [
+  {
+   "after": null,
+   "after_page": {
+    "status_code": 200,
+    "url": "http://127.0.0.1:18701/images.html"
+   },
+   "before": {
+    "check": "A11Y_IMAGE_ALT_MISSING"
+   },
+   "before_page": {
+    "status_code": 200,
+    "url": "http://127.0.0.1:18701/images.html"
+   },
+   "check": "A11Y_IMAGE_ALT_MISSING",
+   "reason": "fixed in test",
+   "status": "resolved",
+   "url": "http://127.0.0.1:18701/images.html"
+  }
+ ],
+ "schema_version": "verification.v1",
+ "selection": {
+  "checks": [
+   "A11Y_IMAGE_ALT_MISSING"
+  ]
+ }
+}

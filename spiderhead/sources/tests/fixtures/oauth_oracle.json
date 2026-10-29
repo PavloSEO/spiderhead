@@ -1,0 +1,1926 @@
+[
+ {
+  "name": "status bare",
+  "args": {},
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": false,
+    "access_verified": false
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "status configured",
+  "args": {},
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": true,
+    "access_verified": false
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "status waiting flow",
+  "args": {},
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": false,
+    "access_verified": false,
+    "flow": {
+     "flow_id": "flow-0001",
+     "status": "waiting",
+     "expires_at": "2026-10-27T12:05:00+00:00",
+     "connected_at": null,
+     "token_expires_at": null
+    }
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "status expired flow",
+  "args": {},
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T11:59:00+00:00"
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": false,
+    "access_verified": false,
+    "flow": {
+     "flow_id": "flow-0001",
+     "status": "expired",
+     "expires_at": "2026-10-27T11:59:00+00:00",
+     "connected_at": null,
+     "token_expires_at": null
+    }
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T11:59:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "status connected flow",
+  "args": {},
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "connected",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00",
+    "connected_at": "2026-10-27T11:58:00+00:00",
+    "token_expires_at": "2026-10-27T12:58:00+00:00"
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": false,
+    "access_verified": false,
+    "flow": {
+     "flow_id": "flow-0001",
+     "status": "connected",
+     "expires_at": "2026-10-27T12:05:00+00:00",
+     "connected_at": "2026-10-27T11:58:00+00:00",
+     "token_expires_at": "2026-10-27T12:58:00+00:00"
+    }
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"connected\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\", \"connected_at\": \"2026-10-27T11:58:00+00:00\", \"token_expires_at\": \"2026-10-27T12:58:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "start ok",
+  "args": {
+   "action": "start"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "flow": {
+     "flow_id": "deterministic-16-0002-abcdef",
+     "status": "waiting",
+     "expires_at": "2026-10-27T12:10:00+00:00"
+    },
+    "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=cid-456&redirect_uri=https%3A%2F%2Fapp.example%2Foauth%2Fcallback&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fwebmasters.readonly&access_type=offline&prompt=consent&state=deterministic-24-0001-abcdef"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"connected_at\": null, \"created_at\": \"2026-10-27T12:00:00+00:00\", \"expires_at\": \"2026-10-27T12:10:00+00:00\", \"flow_id\": \"deterministic-16-0002-abcdef\", \"state_sha256\": \"b9ad2fd54edae710542ccea6aa120b14c9e6ee39b709a686ae582e15d4946dc1\", \"status\": \"waiting\", \"token_expires_at\": null}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "start redirect default port",
+  "args": {
+   "action": "start"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "http://localhost:8080/cb"
+  },
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "flow": {
+     "flow_id": "deterministic-16-0004-abcdef",
+     "status": "waiting",
+     "expires_at": "2026-10-27T12:10:00+00:00"
+    },
+    "authorization_url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=cid-456&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fcb&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fwebmasters.readonly&access_type=offline&prompt=consent&state=deterministic-24-0003-abcdef"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"connected_at\": null, \"created_at\": \"2026-10-27T12:00:00+00:00\", \"expires_at\": \"2026-10-27T12:10:00+00:00\", \"flow_id\": \"deterministic-16-0004-abcdef\", \"state_sha256\": \"0cb6874c047024f7a70b53d1343af2696db9f53171f745b2dd20513c345978e3\", \"status\": \"waiting\", \"token_expires_at\": null}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "start http non loopback rejected",
+  "args": {
+   "action": "start"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "http://app.example/cb"
+  },
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "OAuth redirect URI must use HTTPS outside loopback"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "start no client id",
+  "args": {
+   "action": "start"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "GSC OAuth client ID and redirect URI must be configured"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "start redirect with userinfo",
+  "args": {
+   "action": "start"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://u:p@app.example/cb"
+  },
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "GSC OAuth client ID and redirect URI must be configured"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "start existing grant refused",
+  "args": {
+   "action": "start"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "a durable OAuth grant already exists; disconnect it before reconnecting"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "cancel no flow",
+  "args": {
+   "action": "cancel"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": false,
+    "error": "no_active_flow"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    }
+   }
+  }
+ },
+ {
+  "name": "cancel waiting flow",
+  "args": {
+   "action": "cancel"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "flow": {
+     "flow_id": "flow-0001",
+     "status": "cancelled"
+    }
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"connected_at\": null, \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\", \"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"cancelled\", \"token_expires_at\": null}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "cancel connected flow",
+  "args": {
+   "action": "cancel"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "connected",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00",
+    "connected_at": "2026-10-27T11:58:00+00:00",
+    "token_expires_at": "2026-10-27T12:58:00+00:00"
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": false,
+    "error": "flow_not_waiting"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"connected\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\", \"connected_at\": \"2026-10-27T11:58:00+00:00\", \"token_expires_at\": \"2026-10-27T12:58:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "callback happy",
+  "args": {
+   "action": "callback",
+   "state": "raw-state-abc",
+   "code": "auth-code-1"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "access_token": "ya29.test-access",
+     "refresh_token": "test-refresh-new",
+     "scope": "https://www.googleapis.com/auth/webmasters.readonly",
+     "expires_in": 3599
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": true,
+    "access_verified": false,
+    "flow": {
+     "flow_id": "flow-0001",
+     "status": "connected",
+     "connected_at": "2026-10-27T12:00:00+00:00",
+     "token_expires_at": "2026-10-27T12:59:59+00:00"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=authorization_code&code=auth-code-1&client_id=cid-456&client_secret=csec-789&redirect_uri=https%3A%2F%2Fapp.example%2Foauth%2Fcallback",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"connected_at\": \"2026-10-27T12:00:00+00:00\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\", \"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"connected\", \"token_expires_at\": \"2026-10-27T12:59:59+00:00\"}",
+     "mode": "0o600"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"refresh_token\": \"test-refresh-new\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "callback state mismatch",
+  "args": {
+   "action": "callback",
+   "state": "wrong",
+   "code": "auth-code-1"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "oauth_state_mismatch"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "callback no flow",
+  "args": {
+   "action": "callback",
+   "state": "s",
+   "code": "c"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "no_active_flow"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "callback bad code control char",
+  "args": {
+   "action": "callback",
+   "state": "s",
+   "code": "a\nb"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "OAuth callback requires state and authorization code"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "callback missing secret env",
+  "args": {
+   "action": "callback",
+   "state": "raw-state-abc",
+   "code": "auth-code-1"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "GSC OAuth client credentials and redirect URI must be configured"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "callback exchange http error",
+  "args": {
+   "action": "callback",
+   "state": "raw-state-abc",
+   "code": "auth-code-1"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": {
+     "error": "access_denied"
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Google OAuth code exchange failed; flow remains unconnected"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=authorization_code&code=auth-code-1&client_id=cid-456&client_secret=csec-789&redirect_uri=https%3A%2F%2Fapp.example%2Foauth%2Fcallback",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "callback exchange transport fail",
+  "args": {
+   "action": "callback",
+   "state": "raw-state-abc",
+   "code": "auth-code-1"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Google OAuth code exchange failed; flow remains unconnected"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=authorization_code&code=auth-code-1&client_id=cid-456&client_secret=csec-789&redirect_uri=https%3A%2F%2Fapp.example%2Foauth%2Fcallback",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "callback scope mismatch",
+  "args": {
+   "action": "callback",
+   "state": "raw-state-abc",
+   "code": "auth-code-1"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "access_token": "ya29.test-access",
+     "refresh_token": "test-refresh-new",
+     "scope": "https://www.googleapis.com/auth/webmasters",
+     "expires_in": 3599
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Google OAuth response did not grant the required read-only scope"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=authorization_code&code=auth-code-1&client_id=cid-456&client_secret=csec-789&redirect_uri=https%3A%2F%2Fapp.example%2Foauth%2Fcallback",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "callback no refresh token",
+  "args": {
+   "action": "callback",
+   "state": "raw-state-abc",
+   "code": "auth-code-1"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "access_token": "x",
+     "scope": "https://www.googleapis.com/auth/webmasters.readonly",
+     "expires_in": 100
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Google OAuth response did not grant the required read-only scope"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=authorization_code&code=auth-code-1&client_id=cid-456&client_secret=csec-789&redirect_uri=https%3A%2F%2Fapp.example%2Foauth%2Fcallback",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "callback expires_in too big",
+  "args": {
+   "action": "callback",
+   "state": "raw-state-abc",
+   "code": "auth-code-1"
+  },
+  "env": {
+   "GSC_OAUTH_CLIENT_ID": "cid-456",
+   "GSC_OAUTH_CLIENT_SECRET": "csec-789",
+   "GSC_OAUTH_REDIRECT_URI": "https://app.example/oauth/callback"
+  },
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "waiting",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "access_token": "x",
+     "refresh_token": "r",
+     "scope": "https://www.googleapis.com/auth/webmasters.readonly",
+     "expires_in": 99999
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Google OAuth response did not grant the required read-only scope"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=authorization_code&code=auth-code-1&client_id=cid-456&client_secret=csec-789&redirect_uri=https%3A%2F%2Fapp.example%2Foauth%2Fcallback",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"waiting\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "connect ok",
+  "args": {
+   "action": "connect",
+   "grant_file": "$ext:{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": true,
+    "access_verified": false
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"refresh_token\": \"test-refresh-123\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "connect bad shape",
+  "args": {
+   "action": "connect",
+   "grant_file": "$ext:{\"refresh_token\": \"x\"}"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "OAuth grant has an unsupported shape"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "connect bad scopes",
+  "args": {
+   "action": "connect",
+   "grant_file": "$ext:{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"other\"]}"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "GSC grants must have only the webmasters.readonly scope"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "connect invalid json",
+  "args": {
+   "action": "connect",
+   "grant_file": "$ext:{broken"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "grant_file is unreadable or invalid JSON"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "connect missing file",
+  "args": {
+   "action": "connect",
+   "grant_file": "/nonexistent-grant-file.json"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "grant_file must be a private bounded regular JSON file"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "connect symlink file",
+  "args": {
+   "action": "connect",
+   "grant_file": "$ext:symlink={\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "grant_file must be a private bounded regular JSON file"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "connect existing grant refused",
+  "args": {
+   "action": "connect",
+   "grant_file": "$ext:{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "OAuth grant already exists; revoke or disconnect it before reconnecting"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "refresh ok",
+  "args": {
+   "action": "refresh"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "access_token": "ya29.test-refresh",
+     "expires_in": 3600
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "refreshed": true,
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ],
+    "expires_in": 3600,
+    "property_access_verified": false
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=refresh_token&refresh_token=test-refresh-123&client_id=cid-456&client_secret=csec-789",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "refresh invalid_grant http",
+  "args": {
+   "action": "refresh"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   },
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "connected",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00",
+    "connected_at": "2026-10-27T11:58:00+00:00",
+    "token_expires_at": "2026-10-27T12:58:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": {
+     "error": "invalid_grant"
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": false,
+    "refreshed": false,
+    "state": "invalid_grant",
+    "error": "stored OAuth grant was rejected; reconnect through consent"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=refresh_token&refresh_token=test-refresh-123&client_id=cid-456&client_secret=csec-789",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"connected_at\": \"2026-10-27T11:58:00+00:00\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\", \"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"invalid\", \"token_expires_at\": \"2026-10-27T12:58:00+00:00\"}",
+     "mode": "0o600"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "refresh invalid_grant 200 body",
+  "args": {
+   "action": "refresh"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   },
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "connected",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00",
+    "connected_at": "2026-10-27T11:58:00+00:00",
+    "token_expires_at": "2026-10-27T12:58:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "error": "invalid_grant"
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": false,
+    "refreshed": false,
+    "state": "invalid_grant",
+    "error": "stored OAuth grant was rejected; reconnect through consent"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=refresh_token&refresh_token=test-refresh-123&client_id=cid-456&client_secret=csec-789",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"connected_at\": \"2026-10-27T11:58:00+00:00\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\", \"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"invalid\", \"token_expires_at\": \"2026-10-27T12:58:00+00:00\"}",
+     "mode": "0o600"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "refresh other http error",
+  "args": {
+   "action": "refresh"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [
+   {
+    "status": 503,
+    "headers": {},
+    "body": {
+     "error": "temporarily_unavailable"
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": false,
+    "refreshed": false,
+    "state": "verification_failed",
+    "error": "stored OAuth grant could not be refreshed"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=refresh_token&refresh_token=test-refresh-123&client_id=cid-456&client_secret=csec-789",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "refresh missing token member",
+  "args": {
+   "action": "refresh"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "expires_in": 5
+    }
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": false,
+    "refreshed": false,
+    "state": "verification_failed",
+    "error": "stored OAuth grant could not be refreshed"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=refresh_token&refresh_token=test-refresh-123&client_id=cid-456&client_secret=csec-789",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "refresh transport error",
+  "args": {
+   "action": "refresh"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "TimeoutError",
+    "message": "timed out"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/token",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "grant_type=refresh_token&refresh_token=test-refresh-123&client_id=cid-456&client_secret=csec-789",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "refresh no grant",
+  "args": {
+   "action": "refresh"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": false,
+    "refreshed": false,
+    "state": "verification_failed",
+    "error": "stored OAuth grant could not be refreshed"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "disconnect needs confirm",
+  "args": {
+   "action": "disconnect"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "disconnect/revoke requires confirm=true"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "disconnect ok",
+  "args": {
+   "action": "disconnect",
+   "confirm": true
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   },
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "connected",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00",
+    "connected_at": "2026-10-27T11:58:00+00:00",
+    "token_expires_at": "2026-10-27T12:58:00+00:00"
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": false,
+    "remote_revoked": false,
+    "scope": "stored OAuth grant only; environment bearers and service accounts are unchanged"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"connected_at\": \"2026-10-27T11:58:00+00:00\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\", \"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"revoked\", \"token_expires_at\": \"2026-10-27T12:58:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "revoke needs confirm",
+  "args": {
+   "action": "revoke"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "disconnect/revoke requires confirm=true"
+   },
+   "requests": [],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "revoke ok",
+  "args": {
+   "action": "revoke",
+   "confirm": true
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   },
+   "gsc/oauth-flow.json": {
+    "flow_id": "flow-0001",
+    "state_sha256": "a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff",
+    "status": "connected",
+    "created_at": "2026-10-27T11:55:00+00:00",
+    "expires_at": "2026-10-27T12:05:00+00:00",
+    "connected_at": "2026-10-27T11:58:00+00:00",
+    "token_expires_at": "2026-10-27T12:58:00+00:00"
+   }
+  },
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "result": {
+    "ok": true,
+    "configured": false,
+    "remote_revoked": true,
+    "scope": "stored OAuth grant only; environment bearers and service accounts are unchanged"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/revoke",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "token=test-refresh-123",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth-flow.json": {
+     "content": "{\"connected_at\": \"2026-10-27T11:58:00+00:00\", \"created_at\": \"2026-10-27T11:55:00+00:00\", \"expires_at\": \"2026-10-27T12:05:00+00:00\", \"flow_id\": \"flow-0001\", \"state_sha256\": \"a45241484f52f11ab8d4c066f0ddab4c7a2e1afb3c8d72ccac7206aa901526ff\", \"status\": \"revoked\", \"token_expires_at\": \"2026-10-27T12:58:00+00:00\"}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "revoke remote rejected keeps grant",
+  "args": {
+   "action": "revoke",
+   "confirm": true
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": "denied"
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Google revocation failed; local grant preserved"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/revoke",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "token=test-refresh-123",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "revoke transport fail keeps grant",
+  "args": {
+   "action": "revoke",
+   "confirm": true
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {
+   "gsc/oauth.json": {
+    "refresh_token": "test-refresh-123",
+    "client_id": "cid-456",
+    "client_secret": "csec-789",
+    "scopes": [
+     "https://www.googleapis.com/auth/webmasters.readonly"
+    ]
+   }
+  },
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Google revocation failed; local grant preserved"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://oauth2.googleapis.com/revoke",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "token=test-refresh-123",
+     "timeout": 30
+    }
+   ],
+   "files": {
+    "gsc/": {
+     "mode": "0o700"
+    },
+    "gsc/oauth.json": {
+     "content": "{\"refresh_token\": \"test-refresh-123\", \"client_id\": \"cid-456\", \"client_secret\": \"csec-789\", \"scopes\": [\"https://www.googleapis.com/auth/webmasters.readonly\"]}",
+     "mode": "0o600"
+    }
+   }
+  }
+ },
+ {
+  "name": "revoke no grant",
+  "args": {
+   "action": "revoke",
+   "confirm": true
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "MissingCredential",
+    "message": "durable OAuth grant is not configured"
+   },
+   "requests": [],
+   "files": {}
+  }
+ },
+ {
+  "name": "unknown action",
+  "args": {
+   "action": "frobnicate"
+  },
+  "env": {},
+  "clear_env": [],
+  "seed": {},
+  "responses": [],
+  "frozen_now": "2026-10-27T12:00:00+00:00",
+  "frozen_now_micros": 1793102400000000,
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "action must be status, start, callback, connect, refresh, cancel, disconnect, or revoke"
+   },
+   "requests": [],
+   "files": {}
+  }
+ }
+]

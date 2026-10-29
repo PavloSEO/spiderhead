@@ -1,0 +1,24 @@
+{
+ "exit": 0,
+ "stdout": {
+  "bytes": 672,
+  "final_url": "{BASE}/",
+  "findings": [
+   "served over HTTP/1.1 (consider HTTP/2)",
+   "no Cache-Control header"
+  ],
+  "http_version": "HTTP/1.1",
+  "http_version_measurable": true,
+  "ok": true,
+  "redirected": false,
+  "seo_headers": {
+   "content-length": "672",
+   "content-type": "text/html; charset=utf-8",
+   "last-modified": "Mon, 01 Jan 2026 00:00:00 GMT",
+   "server": "oracle-fixture"
+  },
+  "status_code": 200,
+  "ttfb_ms": "<DURATION>",
+  "url": "{BASE}/"
+ }
+}

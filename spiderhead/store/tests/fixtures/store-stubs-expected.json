@@ -1,0 +1,3797 @@
+{
+ "extract": [
+  {
+   "base": "https://example.test/current/page",
+   "html": "<base href=\"https://cdn.example.test/assets/\"><script src=\"app.js\"></script><style>.hero{background:url(hero.png)}</style>",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "script[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "script",
+     "raw_url": "app.js",
+     "resolved_url": "https://cdn.example.test/assets/app.js"
+    },
+    {
+     "carrier": "style",
+     "integrity": null,
+     "integrity_state": "unknown",
+     "kind": "css_url",
+     "raw_url": "hero.png",
+     "resolved_url": "https://cdn.example.test/assets/hero.png"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/d/",
+   "html": "<link rel=\"stylesheet\" href=\"/a.css\" integrity=\"sha384-x\"><link rel=\"Manifest\" href=\"m.json\"><link rel=\"modulepreload\" href=\"/m.js\"><link rel=\"icon\" href=\"/i.ico\"><link rel=\"stylesheet preload\" href=\"b.css\">",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "link[href]",
+     "integrity": "sha384-x",
+     "integrity_state": "declared",
+     "kind": "stylesheet",
+     "raw_url": "/a.css",
+     "resolved_url": "https://example.test/a.css"
+    },
+    {
+     "carrier": "link[href]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "manifest",
+     "raw_url": "m.json",
+     "resolved_url": "https://example.test/d/m.json"
+    },
+    {
+     "carrier": "link[href]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "module",
+     "raw_url": "/m.js",
+     "resolved_url": "https://example.test/m.js"
+    },
+    {
+     "carrier": "link[href]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "stylesheet",
+     "raw_url": "b.css",
+     "resolved_url": "https://example.test/d/b.css"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/",
+   "html": "<img src=\"a.png\" srcset=\"b.png 1x, c.png 2x ,  ,d.png\"><source src=\"v.mp4\" srcset=\"s.webp 480w\"><video src=\"v.mp4\" poster=\"p.jpg\"></video><audio src=\"a.mp3\"></audio><track src=\"t.vtt\"><iframe src=\"/f\"></iframe><embed src=\"/e\"><object data=\"/o\"></object>",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "a.png",
+     "resolved_url": "https://example.test/a.png"
+    },
+    {
+     "carrier": "srcset",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "b.png",
+     "resolved_url": "https://example.test/b.png"
+    },
+    {
+     "carrier": "srcset",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "c.png",
+     "resolved_url": "https://example.test/c.png"
+    },
+    {
+     "carrier": "srcset",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "d.png",
+     "resolved_url": "https://example.test/d.png"
+    },
+    {
+     "carrier": "source[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "media",
+     "raw_url": "v.mp4",
+     "resolved_url": "https://example.test/v.mp4"
+    },
+    {
+     "carrier": "srcset",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "s.webp",
+     "resolved_url": "https://example.test/s.webp"
+    },
+    {
+     "carrier": "video[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "media",
+     "raw_url": "v.mp4",
+     "resolved_url": "https://example.test/v.mp4"
+    },
+    {
+     "carrier": "video[poster]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "p.jpg",
+     "resolved_url": "https://example.test/p.jpg"
+    },
+    {
+     "carrier": "audio[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "media",
+     "raw_url": "a.mp3",
+     "resolved_url": "https://example.test/a.mp3"
+    },
+    {
+     "carrier": "track[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "media",
+     "raw_url": "t.vtt",
+     "resolved_url": "https://example.test/t.vtt"
+    },
+    {
+     "carrier": "iframe[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "document",
+     "raw_url": "/f",
+     "resolved_url": "https://example.test/f"
+    },
+    {
+     "carrier": "embed[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "document",
+     "raw_url": "/e",
+     "resolved_url": "https://example.test/e"
+    },
+    {
+     "carrier": "object[data]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "document",
+     "raw_url": "/o",
+     "resolved_url": "https://example.test/o"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/",
+   "html": "<script src=\"/a.js\"></script><script type=\"module\" src=\"/m.js\" integrity=\"sha256-q\"></script><script type=\"text/javascript\" src=\"/t.js\"></script><script type=\"MODULE\" src=\"/u.js\"></script>",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "script[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "script",
+     "raw_url": "/a.js",
+     "resolved_url": "https://example.test/a.js"
+    },
+    {
+     "carrier": "script[src]",
+     "integrity": "sha256-q",
+     "integrity_state": "declared",
+     "kind": "module",
+     "raw_url": "/m.js",
+     "resolved_url": "https://example.test/m.js"
+    },
+    {
+     "carrier": "script[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "script",
+     "raw_url": "/t.js",
+     "resolved_url": "https://example.test/t.js"
+    },
+    {
+     "carrier": "script[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "module",
+     "raw_url": "/u.js",
+     "resolved_url": "https://example.test/u.js"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/",
+   "html": "<div style=\"background:url('/bg.png')\"></div><style>@import \"x.css\"; @import url(\"y.css\"); @font-face{src:url(f.woff2) format(\"woff2\"),url(g.TTF?v=1)}</style>",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "div[style]",
+     "integrity": null,
+     "integrity_state": "unknown",
+     "kind": "css_url",
+     "raw_url": "/bg.png",
+     "resolved_url": "https://example.test/bg.png"
+    },
+    {
+     "carrier": "style",
+     "integrity": null,
+     "integrity_state": "unknown",
+     "kind": "css_import",
+     "raw_url": "x.css",
+     "resolved_url": "https://example.test/x.css"
+    },
+    {
+     "carrier": "style",
+     "integrity": null,
+     "integrity_state": "unknown",
+     "kind": "css_import",
+     "raw_url": "y.css",
+     "resolved_url": "https://example.test/y.css"
+    },
+    {
+     "carrier": "style",
+     "integrity": null,
+     "integrity_state": "unknown",
+     "kind": "css_url",
+     "raw_url": "y.css",
+     "resolved_url": "https://example.test/y.css"
+    },
+    {
+     "carrier": "style",
+     "integrity": null,
+     "integrity_state": "unknown",
+     "kind": "font",
+     "raw_url": "f.woff2",
+     "resolved_url": "https://example.test/f.woff2"
+    },
+    {
+     "carrier": "style",
+     "integrity": null,
+     "integrity_state": "unknown",
+     "kind": "font",
+     "raw_url": "g.TTF?v=1",
+     "resolved_url": "https://example.test/g.TTF?v=1"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/dir/page",
+   "html": "<img src=\"data:image/png;base64,AAAA\"><img src=\"mailto:x@y\"><img src=\"//other.test/p.png\"><img src=\"javascript:0\"><img src=\"\"><img src=\"  ./x.png  \">",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "//other.test/p.png",
+     "resolved_url": "https://other.test/p.png"
+    },
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "./x.png",
+     "resolved_url": "https://example.test/dir/x.png"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/dir/",
+   "html": "<template><base href=\"https://bad.test/\"></template><img src=\"a.png\">",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "a.png",
+     "resolved_url": "https://example.test/dir/a.png"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/",
+   "html": "<IMG SRC=\"Upper.PNG\"><LINK REL=STYLESHEET HREF=\"/u.css\">",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "Upper.PNG",
+     "resolved_url": "https://example.test/Upper.PNG"
+    },
+    {
+     "carrier": "link[href]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "stylesheet",
+     "raw_url": "/u.css",
+     "resolved_url": "https://example.test/u.css"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/",
+   "html": "<img src=\"https://ok.test:8080/x.png\"><img src=\"HTTPS://UP.test/Y\">",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "https://ok.test:8080/x.png",
+     "resolved_url": "https://ok.test:8080/x.png"
+    },
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "HTTPS://UP.test/Y",
+     "resolved_url": "https://UP.test/Y"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/",
+   "html": "<img src=\"1.png\"><img src=\"2.png\"><img src=\"3.png\"><img src=\"4.png\">",
+   "max": 2,
+   "omitted": 2,
+   "rows": [
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "1.png",
+     "resolved_url": "https://example.test/1.png"
+    },
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "2.png",
+     "resolved_url": "https://example.test/2.png"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/",
+   "html": "<p>no resources</p>",
+   "max": 20000,
+   "omitted": 0,
+   "rows": []
+  },
+  {
+   "base": "https://example.test/a/b",
+   "html": "<html><head><base href=\"/sub/\"><base href=\"/ignored/\"></head><body><img src=\"x.png\"></body></html>",
+   "max": 20000,
+   "omitted": 0,
+   "rows": [
+    {
+     "carrier": "img[src]",
+     "integrity": null,
+     "integrity_state": "absent",
+     "kind": "image",
+     "raw_url": "x.png",
+     "resolved_url": "https://example.test/sub/x.png"
+    }
+   ]
+  },
+  {
+   "base": "https://example.test/",
+   "html": null,
+   "max": 20000,
+   "omitted": 0,
+   "rows": []
+  }
+ ],
+ "images": [
+  {
+   "dims": [
+    3,
+    2
+   ],
+   "hex": "89504e470d0a1a0a0000000d49484452000000030000000208020000001216f14d0000001449444154789c633cc1c5c500064c108a81810100107200e02e14377e0000000049454e44ae426082",
+   "name": "png"
+  },
+  {
+   "dims": [
+    null,
+    null
+   ],
+   "hex": "89504e470d0a1a0a0000000d4948445200000003",
+   "name": "png_truncated"
+  },
+  {
+   "dims": [
+    null,
+    null
+   ],
+   "hex": "89504e470d0a1a0a0000000d49484452000000030000000208020000001216f14d0000001449444154789c633cc1c5c500064c108a81810100107200e02e14377e",
+   "name": "png_no_iend"
+  },
+  {
+   "dims": [
+    2,
+    3
+   ],
+   "hex": "89504e470d0a1a0a0000000d49484452000000030000000208020000001216f14d0000001449444154789c633cc1c5c500064c108a81810100107200e02e14377e0000001a655849664d4d002a00000008000101120003000000010006000000000000000000000000000049454e44ae426082",
+   "name": "png_exif_after_idat_6"
+  },
+  {
+   "dims": [
+    3,
+    2
+   ],
+   "hex": "89504e470d0a1a0a0000000d49484452000000030000000208020000001216f14d0000001449444154789c633cc1c5c500064c108a81810100107200e02e14377e0000001a655849664d4d002a00000008000101120003000000010001000000000000000000000000000049454e44ae426082",
+   "name": "png_exif_after_idat_1"
+  },
+  {
+   "dims": [
+    null,
+    null
+   ],
+   "hex": "89504e470d0a1a0a0000000d49484452000000030000000208020000001216f14d0000001449444154789c633cc1c5c500064c108a81810100107200e02e14377e0000001a655849664d4d002a00000008000101120003000000010009000000000000000000000000000049454e44ae426082",
+   "name": "png_exif_after_idat_9"
+  },
+  {
+   "dims": [
+    null,
+    null
+   ],
+   "hex": "89504e470d0a1a0a0000000d49484452000186a0000186a0080200000000000000",
+   "name": "png_huge_header"
+  },
+  {
+   "dims": [
+    3,
+    2
+   ],
+   "hex": "ffd8ffe000104a46494600010100000100010000ffdb004300080606070605080707070909080a0c140d0c0b0b0c1912130f141d1a1f1e1d1a1c1c20242e2720222c231c1c2837292c30313434341f27393d38323c2e333432ffdb0043010909090c0b0c180d0d1832211c213232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232ffc00011080002000303012200021101031101ffc4001f0000010501010101010100000000000000000102030405060708090a0bffc400b5100002010303020403050504040000017d01020300041105122131410613516107227114328191a1082342b1c11552d1f02433627282090a161718191a25262728292a3435363738393a434445464748494a535455565758595a636465666768696a737475767778797a838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae1e2e3e4e5e6e7e8e9eaf1f2f3f4f5f6f7f8f9faffc4001f0100030101010101010101010000000000000102030405060708090a0bffc400b51100020102040403040705040400010277000102031104052131061241510761711322328108144291a1b1c109233352f0156272d10a162434e125f11718191a262728292a35363738393a434445464748494a535455565758595a636465666768696a737475767778797a82838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae2e3e4e5e6e7e8e9eaf2f3f4f5f6f7f8f9faffda000c03010002110311003f00e0a8a28af0cfd50fffd9",
+   "name": "jpeg"
+  },
+  {
+   "dims": [
+    2,
+    3
+   ],
+   "hex": "ffd8ffe000104a46494600010100000100010000ffe100224578696600004d4d002a00000008000101120003000000010006000000000000ffdb004300080606070605080707070909080a0c140d0c0b0b0c1912130f141d1a1f1e1d1a1c1c20242e2720222c231c1c2837292c30313434341f27393d38323c2e333432ffdb0043010909090c0b0c180d0d1832211c213232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232ffc00011080002000303012200021101031101ffc4001f0000010501010101010100000000000000000102030405060708090a0bffc400b5100002010303020403050504040000017d01020300041105122131410613516107227114328191a1082342b1c11552d1f02433627282090a161718191a25262728292a3435363738393a434445464748494a535455565758595a636465666768696a737475767778797a838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae1e2e3e4e5e6e7e8e9eaf1f2f3f4f5f6f7f8f9faffc4001f0100030101010101010101010000000000000102030405060708090a0bffc400b51100020102040403040705040400010277000102031104052131061241510761711322328108144291a1b1c109233352f0156272d10a162434e125f11718191a262728292a35363738393a434445464748494a535455565758595a636465666768696a737475767778797a82838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae2e3e4e5e6e7e8e9eaf2f3f4f5f6f7f8f9faffda000c03010002110311003f00e0a8a28af0cfd50fffd9",
+   "name": "jpeg_o6"
+  },
+  {
+   "dims": [
+    3,
+    2
+   ],
+   "hex": "ffd8ffe000104a46494600010100000100010000ffe100224578696600004d4d002a00000008000101120003000000010003000000000000ffdb004300080606070605080707070909080a0c140d0c0b0b0c1912130f141d1a1f1e1d1a1c1c20242e2720222c231c1c2837292c30313434341f27393d38323c2e333432ffdb0043010909090c0b0c180d0d1832211c213232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232ffc00011080002000303012200021101031101ffc4001f0000010501010101010100000000000000000102030405060708090a0bffc400b5100002010303020403050504040000017d01020300041105122131410613516107227114328191a1082342b1c11552d1f02433627282090a161718191a25262728292a3435363738393a434445464748494a535455565758595a636465666768696a737475767778797a838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae1e2e3e4e5e6e7e8e9eaf1f2f3f4f5f6f7f8f9faffc4001f0100030101010101010101010000000000000102030405060708090a0bffc400b51100020102040403040705040400010277000102031104052131061241510761711322328108144291a1b1c109233352f0156272d10a162434e125f11718191a262728292a35363738393a434445464748494a535455565758595a636465666768696a737475767778797a82838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae2e3e4e5e6e7e8e9eaf2f3f4f5f6f7f8f9faffda000c03010002110311003f00e0a8a28af0cfd50fffd9",
+   "name": "jpeg_o3"
+  },
+  {
+   "dims": [
+    4,
+    7
+   ],
+   "hex": "ffd8ffe000104a46494600010100000100010000ffe100224578696600004d4d002a00000008000101120003000000010008000000000000ffdb004300080606070605080707070909080a0c140d0c0b0b0c1912130f141d1a1f1e1d1a1c1c20242e2720222c231c1c2837292c30313434341f27393d38323c2e333432ffdb0043010909090c0b0c180d0d1832211c213232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232ffc00011080004000703012200021101031101ffc4001f0000010501010101010100000000000000000102030405060708090a0bffc400b5100002010303020403050504040000017d01020300041105122131410613516107227114328191a1082342b1c11552d1f02433627282090a161718191a25262728292a3435363738393a434445464748494a535455565758595a636465666768696a737475767778797a838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae1e2e3e4e5e6e7e8e9eaf1f2f3f4f5f6f7f8f9faffc4001f0100030101010101010101010000000000000102030405060708090a0bffc400b51100020102040403040705040400010277000102031104052131061241510761711322328108144291a1b1c109233352f0156272d10a162434e125f11718191a262728292a35363738393a434445464748494a535455565758595a636465666768696a737475767778797a82838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae2e3e4e5e6e7e8e9eaf2f3f4f5f6f7f8f9faffda000c03010002110311003f00e0a8a28af0cfd50fffd9",
+   "name": "jpeg_o8"
+  },
+  {
+   "dims": [
+    null,
+    null
+   ],
+   "hex": "ffd8ffe000104a46494600010100000100010000ffe100224578696600004d4d002a00000008000101120003000000010009000000000000ffdb004300080606070605080707070909080a0c140d0c0b0b0c1912130f141d1a1f1e1d1a1c1c20242e2720222c231c1c2837292c30313434341f27393d38323c2e333432ffdb0043010909090c0b0c180d0d1832211c213232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232323232ffc00011080002000303012200021101031101ffc4001f0000010501010101010100000000000000000102030405060708090a0bffc400b5100002010303020403050504040000017d01020300041105122131410613516107227114328191a1082342b1c11552d1f02433627282090a161718191a25262728292a3435363738393a434445464748494a535455565758595a636465666768696a737475767778797a838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae1e2e3e4e5e6e7e8e9eaf1f2f3f4f5f6f7f8f9faffc4001f0100030101010101010101010000000000000102030405060708090a0bffc400b51100020102040403040705040400010277000102031104052131061241510761711322328108144291a1b1c109233352f0156272d10a162434e125f11718191a262728292a35363738393a434445464748494a535455565758595a636465666768696a737475767778797a82838485868788898a92939495969798999aa2a3a4a5a6a7a8a9aab2b3b4b5b6b7b8b9bac2c3c4c5c6c7c8c9cad2d3d4d5d6d7d8d9dae2e3e4e5e6e7e8e9eaf2f3f4f5f6f7f8f9faffda000c03010002110311003f00e0a8a28af0cfd50fffd9",
+   "name": "jpeg_o9"
+  },
+  {
+   "dims": [
+    5,
+    7
+   ],
+   "hex": "47494638376105000700810000c80a0a0000000000000000002c000000000500070000080c0001081c48b0a0c183070302003b",
+   "name": "gif"
+  },
+  {
+   "dims": [
+    4,
+    9
+   ],
+   "hex": "424da2000000000000003600000028000000040000000900000001001800000000006c000000c40e0000c40e000000000000000000000a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac80a0ac8",
+   "name": "bmp"
+  },
+  {
+   "dims": [
+    11,
+    6
+   ],
+   "hex": "524946463c000000574542505650382030000000d001009d012a0b00060001402625a00274ba01f80003b000fef6135ffe2ce4623b3cdffe04efc09df813bff000000000",
+   "name": "webp_lossy"
+  },
+  {
+   "dims": [
+    11,
+    6
+   ],
+   "hex": "524946461e000000574542505650384c110000002f0a4001000750852257a1ff8188e87f0000",
+   "name": "webp_lossless"
+  },
+  {
+   "dims": [
+    6,
+    11
+   ],
+   "hex": "524946467000000057454250565038580a000000080000000a00000500005650382030000000d001009d012a0b00060001402625a00274ba01f80003b000fef6135ffe2ce4623b3cdffe04efc09df813bff000000000455849461a0000004d4d002a00000008000101120003000000010006000000000000",
+   "name": "webp_o6"
+  },
+  {
+   "dims": [
+    null,
+    null
+   ],
+   "hex": "6e6f7420616e20696d61676520617420616c6c",
+   "name": "garbage"
+  },
+  {
+   "dims": [
+    null,
+    null
+   ],
+   "hex": "",
+   "name": "empty"
+  },
+  {
+   "dims": [
+    null,
+    null
+   ],
+   "hex": null,
+   "name": "none"
+  }
+ ],
+ "link_context": [
+  {
+   "cap": 100,
+   "evidence": {},
+   "html": "<html><body><nav><a href=\"/menu\">Menu</a></nav><main><h2>Intro</h2><p>See <a href=\"/a\" rel=\"nofollow\">alpha</a> and <a href=\"https://ext.test/x\" target=\"_blank\" rel=\"sponsored\">ext</a>.</p></main><footer><a href=\"#top\">top</a></footer></body></html>",
+   "result": {
+    "eligible_omitted": 0,
+    "eligible_total": 3,
+    "occurrences": [
+     {
+      "anchor": "Menu",
+      "content_root_strategy": "auto_main",
+      "disclosure": null,
+      "dom_path": "body:nth-of-type(1) > nav:nth-of-type(1) > a:nth-of-type(1)",
+      "dom_path_truncated": false,
+      "external": false,
+      "heading": null,
+      "heading_relation": "not_content_link",
+      "href": "https://example.test/menu",
+      "matched_selector": "nav, [role='navigation'], .nav, .navbar, .menu, .main-menu, .primary-menu",
+      "matched_selector_truncated": false,
+      "nofollow": false,
+      "placement_basis": "matched_selector",
+      "position": "nav",
+      "raw_href": "/menu",
+      "rel": [],
+      "target": ""
+     },
+     {
+      "anchor": "alpha",
+      "content_root_strategy": "auto_main",
+      "disclosure": null,
+      "dom_path": "body:nth-of-type(1) > main:nth-of-type(1) > p:nth-of-type(1) > a:nth-of-type(1)",
+      "dom_path_truncated": false,
+      "external": false,
+      "heading": {
+       "dom_path": "body:nth-of-type(1) > main:nth-of-type(1) > h2:nth-of-type(1)",
+       "dom_path_truncated": false,
+       "level": 2,
+       "text": "Intro",
+       "text_truncated": false
+      },
+      "heading_relation": "preceding_content",
+      "href": "https://example.test/a",
+      "matched_selector": null,
+      "matched_selector_truncated": false,
+      "nofollow": true,
+      "placement_basis": "content_root_inference",
+      "position": "content",
+      "raw_href": "/a",
+      "rel": [
+       "nofollow"
+      ],
+      "target": ""
+     },
+     {
+      "anchor": "ext",
+      "content_root_strategy": "auto_main",
+      "disclosure": {
+       "basis": "local_text_marker",
+       "context": "Intro See alpha and ext .",
+       "context_truncated": false,
+       "detected": false,
+       "heuristic": true,
+       "marker": null,
+       "state": "measured"
+      },
+      "dom_path": "body:nth-of-type(1) > main:nth-of-type(1) > p:nth-of-type(1) > a:nth-of-type(2)",
+      "dom_path_truncated": false,
+      "external": true,
+      "heading": {
+       "dom_path": "body:nth-of-type(1) > main:nth-of-type(1) > h2:nth-of-type(1)",
+       "dom_path_truncated": false,
+       "level": 2,
+       "text": "Intro",
+       "text_truncated": false
+      },
+      "heading_relation": "preceding_content",
+      "href": "https://ext.test/x",
+      "matched_selector": null,
+      "matched_selector_truncated": false,
+      "nofollow": false,
+      "placement_basis": "content_root_inference",
+      "position": "content",
+      "raw_href": "https://ext.test/x",
+      "rel": [
+       "sponsored"
+      ],
+      "target": "_blank"
+     }
+    ],
+    "schema_version": "link_occurrence_context.v1"
+   },
+   "url": "https://example.test/page"
+  },
+  {
+   "cap": 100,
+   "evidence": {},
+   "html": "<body><base href=\"https://cdn.test/b/\"><a href=\"rel.html\">r</a><a href=\"mailto:x@y\">m</a></body>",
+   "result": {
+    "eligible_omitted": 0,
+    "eligible_total": 1,
+    "occurrences": [
+     {
+      "anchor": "r",
+      "content_root_strategy": "default_body",
+      "disclosure": null,
+      "dom_path": "body:nth-of-type(1) > a:nth-of-type(1)",
+      "dom_path_truncated": false,
+      "external": true,
+      "heading": null,
+      "heading_relation": "no_preceding_heading",
+      "href": "https://cdn.test/b/rel.html",
+      "matched_selector": null,
+      "matched_selector_truncated": false,
+      "nofollow": false,
+      "placement_basis": "content_root_inference",
+      "position": "content",
+      "raw_href": "rel.html",
+      "rel": [],
+      "target": ""
+     }
+    ],
+    "schema_version": "link_occurrence_context.v1"
+   },
+   "url": "https://example.test/"
+  },
+  {
+   "cap": 2,
+   "evidence": {
+    "content_area": {
+     "include_selector": "article"
+    }
+   },
+   "html": "<body><article><a href=\"/1\">1</a><a href=\"/2\">2</a><a href=\"/3\">3</a></article></body>",
+   "result": {
+    "eligible_omitted": 1,
+    "eligible_total": 3,
+    "occurrences": [
+     {
+      "anchor": "1",
+      "content_root_strategy": "include_selector",
+      "disclosure": null,
+      "dom_path": "body:nth-of-type(1) > article:nth-of-type(1) > a:nth-of-type(1)",
+      "dom_path_truncated": false,
+      "external": false,
+      "heading": null,
+      "heading_relation": "no_preceding_heading",
+      "href": "https://example.test/1",
+      "matched_selector": null,
+      "matched_selector_truncated": false,
+      "nofollow": false,
+      "placement_basis": "content_root_inference",
+      "position": "content",
+      "raw_href": "/1",
+      "rel": [],
+      "target": ""
+     },
+     {
+      "anchor": "2",
+      "content_root_strategy": "include_selector",
+      "disclosure": null,
+      "dom_path": "body:nth-of-type(1) > article:nth-of-type(1) > a:nth-of-type(2)",
+      "dom_path_truncated": false,
+      "external": false,
+      "heading": null,
+      "heading_relation": "no_preceding_heading",
+      "href": "https://example.test/2",
+      "matched_selector": null,
+      "matched_selector_truncated": false,
+      "nofollow": false,
+      "placement_basis": "content_root_inference",
+      "position": "content",
+      "raw_href": "/2",
+      "rel": [],
+      "target": ""
+     }
+    ],
+    "schema_version": "link_occurrence_context.v1"
+   },
+   "url": "https://example.test/"
+  }
+ ],
+ "links": {
+  "default": {
+   "all": [
+    {
+     "check": "BROKEN_INTERNAL_LINK",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 9,
+      "locations_omitted": 0,
+      "source_pages": 2
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "first",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      },
+      {
+       "anchor": "second",
+       "destination_url": "https://example.test/missing#part",
+       "follow": false,
+       "link_position": "nav",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 0",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 1",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 2",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 3",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 4",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 5",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 6",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      }
+     ],
+     "occurrences_count": 2,
+     "status_code": 404,
+     "target_url": "https://example.test/missing"
+    },
+    {
+     "check": "LINK_TO_5XX",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "descriptive",
+       "destination_url": "https://example.test/server",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 503,
+     "target_url": "https://example.test/server"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old",
+       "destination_url": "https://example.test/moved",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/moved"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": " \t ",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/a"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": "",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/gone-source"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/gone-source"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/chain3",
+      "hop_list": [
+       {
+        "location": "https://example.test/chain2",
+        "status_code": 301,
+        "url": "https://example.test/chain1"
+       },
+       {
+        "location": "https://example.test/chain3",
+        "status_code": 302,
+        "url": "https://example.test/chain2"
+       },
+       {
+        "location": "",
+        "status_code": 404,
+        "url": "https://example.test/chain3"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [
+       {
+        "anchor": "old product",
+        "destination_url": "https://example.test/chain1",
+        "follow": true,
+        "link_position": "body",
+        "source_url": "https://example.test/source"
+       }
+      ],
+      "inbound_links_count": 1,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/chain1",
+       "https://example.test/chain2",
+       "https://example.test/chain3"
+      ],
+      "reason": "redirect target has an HTTP error",
+      "source_pages": 1,
+      "terminal_status": 404,
+      "unresolved": false
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop1",
+       "https://example.test/loop2",
+       "https://example.test/loop1"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 301,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/loop1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop2",
+       "https://example.test/loop1",
+       "https://example.test/loop2"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 302,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 302,
+     "target_url": "https://example.test/loop2"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/list-end",
+      "hop_list": [
+       {
+        "location": "https://example.test/list-mid",
+        "status_code": 301,
+        "url": "https://example.test/list-start"
+       },
+       {
+        "location": "/list-end",
+        "status_code": 302,
+        "url": "https://example.test/list-mid"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/list-end"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/list-start",
+       "https://example.test/list-mid",
+       "https://example.test/list-end"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/list-start"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-b",
+        "status_code": 301,
+        "url": "https://example.test/hop-a"
+       },
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 3,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-a",
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-a"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-b"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://outside.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://outside.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "connection",
+      "failure_url": "https://r.test/2",
+      "hop_list": [
+       {
+        "status_code": 500,
+        "url": "https://r.test/2"
+       }
+      ],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://r.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://zero.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 0
+     },
+     "locations": [],
+     "occurrences_count": 1,
+     "target_url": "https://zero.test/"
+    }
+   ],
+   "empty_anchor": [
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": " \t ",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/a"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": "",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/gone-source"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/gone-source"
+    }
+   ],
+   "external": [
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://outside.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://outside.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "connection",
+      "failure_url": "https://r.test/2",
+      "hop_list": [
+       {
+        "status_code": 500,
+        "url": "https://r.test/2"
+       }
+      ],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://r.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://zero.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 0
+     },
+     "locations": [],
+     "occurrences_count": 1,
+     "target_url": "https://zero.test/"
+    }
+   ],
+   "redirect": [
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/chain3",
+      "hop_list": [
+       {
+        "location": "https://example.test/chain2",
+        "status_code": 301,
+        "url": "https://example.test/chain1"
+       },
+       {
+        "location": "https://example.test/chain3",
+        "status_code": 302,
+        "url": "https://example.test/chain2"
+       },
+       {
+        "location": "",
+        "status_code": 404,
+        "url": "https://example.test/chain3"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [
+       {
+        "anchor": "old product",
+        "destination_url": "https://example.test/chain1",
+        "follow": true,
+        "link_position": "body",
+        "source_url": "https://example.test/source"
+       }
+      ],
+      "inbound_links_count": 1,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/chain1",
+       "https://example.test/chain2",
+       "https://example.test/chain3"
+      ],
+      "reason": "redirect target has an HTTP error",
+      "source_pages": 1,
+      "terminal_status": 404,
+      "unresolved": false
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop1",
+       "https://example.test/loop2",
+       "https://example.test/loop1"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 301,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/loop1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop2",
+       "https://example.test/loop1",
+       "https://example.test/loop2"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 302,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 302,
+     "target_url": "https://example.test/loop2"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/list-end",
+      "hop_list": [
+       {
+        "location": "https://example.test/list-mid",
+        "status_code": 301,
+        "url": "https://example.test/list-start"
+       },
+       {
+        "location": "/list-end",
+        "status_code": 302,
+        "url": "https://example.test/list-mid"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/list-end"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/list-start",
+       "https://example.test/list-mid",
+       "https://example.test/list-end"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/list-start"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-b",
+        "status_code": 301,
+        "url": "https://example.test/hop-a"
+       },
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 3,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-a",
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-a"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-b"
+    }
+   ],
+   "status": [
+    {
+     "check": "BROKEN_INTERNAL_LINK",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 9,
+      "locations_omitted": 0,
+      "source_pages": 2
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "first",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      },
+      {
+       "anchor": "second",
+       "destination_url": "https://example.test/missing#part",
+       "follow": false,
+       "link_position": "nav",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 0",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 1",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 2",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 3",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 4",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 5",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      },
+      {
+       "anchor": "many 6",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/b"
+      }
+     ],
+     "occurrences_count": 2,
+     "status_code": 404,
+     "target_url": "https://example.test/missing"
+    },
+    {
+     "check": "LINK_TO_5XX",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "descriptive",
+       "destination_url": "https://example.test/server",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 503,
+     "target_url": "https://example.test/server"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old",
+       "destination_url": "https://example.test/moved",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/moved"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    }
+   ]
+  },
+  "limit1_hops3": {
+   "all": [
+    {
+     "check": "BROKEN_INTERNAL_LINK",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 9,
+      "locations_omitted": 8,
+      "source_pages": 2
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "first",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 2,
+     "status_code": 404,
+     "target_url": "https://example.test/missing"
+    },
+    {
+     "check": "LINK_TO_5XX",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "descriptive",
+       "destination_url": "https://example.test/server",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 503,
+     "target_url": "https://example.test/server"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old",
+       "destination_url": "https://example.test/moved",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/moved"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": " \t ",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/a"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": "",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/gone-source"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/gone-source"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/chain3",
+      "hop_list": [
+       {
+        "location": "https://example.test/chain2",
+        "status_code": 301,
+        "url": "https://example.test/chain1"
+       },
+       {
+        "location": "https://example.test/chain3",
+        "status_code": 302,
+        "url": "https://example.test/chain2"
+       },
+       {
+        "location": "",
+        "status_code": 404,
+        "url": "https://example.test/chain3"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [
+       {
+        "anchor": "old product",
+        "destination_url": "https://example.test/chain1",
+        "follow": true,
+        "link_position": "body",
+        "source_url": "https://example.test/source"
+       }
+      ],
+      "inbound_links_count": 1,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/chain1",
+       "https://example.test/chain2",
+       "https://example.test/chain3"
+      ],
+      "reason": "redirect target has an HTTP error",
+      "source_pages": 1,
+      "terminal_status": 404,
+      "unresolved": false
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop1",
+       "https://example.test/loop2",
+       "https://example.test/loop1"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 301,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/loop1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop2",
+       "https://example.test/loop1",
+       "https://example.test/loop2"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 302,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 302,
+     "target_url": "https://example.test/loop2"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/list-end",
+      "hop_list": [
+       {
+        "location": "https://example.test/list-mid",
+        "status_code": 301,
+        "url": "https://example.test/list-start"
+       },
+       {
+        "location": "/list-end",
+        "status_code": 302,
+        "url": "https://example.test/list-mid"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/list-end"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/list-start",
+       "https://example.test/list-mid",
+       "https://example.test/list-end"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/list-start"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-b",
+        "status_code": 301,
+        "url": "https://example.test/hop-a"
+       },
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 3,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-a",
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-a"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-b"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://outside.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://outside.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "connection",
+      "failure_url": "https://r.test/2",
+      "hop_list": [
+       {
+        "status_code": 500,
+        "url": "https://r.test/2"
+       }
+      ],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://r.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://zero.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 0
+     },
+     "locations": [],
+     "occurrences_count": 1,
+     "target_url": "https://zero.test/"
+    }
+   ],
+   "empty_anchor": [
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": " \t ",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/a"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": "",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/gone-source"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/gone-source"
+    }
+   ],
+   "external": [
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://outside.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://outside.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "connection",
+      "failure_url": "https://r.test/2",
+      "hop_list": [
+       {
+        "status_code": 500,
+        "url": "https://r.test/2"
+       }
+      ],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://r.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://zero.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 0
+     },
+     "locations": [],
+     "occurrences_count": 1,
+     "target_url": "https://zero.test/"
+    }
+   ],
+   "redirect": [
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/chain3",
+      "hop_list": [
+       {
+        "location": "https://example.test/chain2",
+        "status_code": 301,
+        "url": "https://example.test/chain1"
+       },
+       {
+        "location": "https://example.test/chain3",
+        "status_code": 302,
+        "url": "https://example.test/chain2"
+       },
+       {
+        "location": "",
+        "status_code": 404,
+        "url": "https://example.test/chain3"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [
+       {
+        "anchor": "old product",
+        "destination_url": "https://example.test/chain1",
+        "follow": true,
+        "link_position": "body",
+        "source_url": "https://example.test/source"
+       }
+      ],
+      "inbound_links_count": 1,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/chain1",
+       "https://example.test/chain2",
+       "https://example.test/chain3"
+      ],
+      "reason": "redirect target has an HTTP error",
+      "source_pages": 1,
+      "terminal_status": 404,
+      "unresolved": false
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop1",
+       "https://example.test/loop2",
+       "https://example.test/loop1"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 301,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/loop1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop2",
+       "https://example.test/loop1",
+       "https://example.test/loop2"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 302,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 302,
+     "target_url": "https://example.test/loop2"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/list-end",
+      "hop_list": [
+       {
+        "location": "https://example.test/list-mid",
+        "status_code": 301,
+        "url": "https://example.test/list-start"
+       },
+       {
+        "location": "/list-end",
+        "status_code": 302,
+        "url": "https://example.test/list-mid"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/list-end"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/list-start",
+       "https://example.test/list-mid",
+       "https://example.test/list-end"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/list-start"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-b",
+        "status_code": 301,
+        "url": "https://example.test/hop-a"
+       },
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 3,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-a",
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-a"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-b"
+    }
+   ],
+   "status": [
+    {
+     "check": "BROKEN_INTERNAL_LINK",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 9,
+      "locations_omitted": 8,
+      "source_pages": 2
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "first",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 2,
+     "status_code": 404,
+     "target_url": "https://example.test/missing"
+    },
+    {
+     "check": "LINK_TO_5XX",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "descriptive",
+       "destination_url": "https://example.test/server",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 503,
+     "target_url": "https://example.test/server"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old",
+       "destination_url": "https://example.test/moved",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/moved"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    }
+   ]
+  },
+  "limit2_hops2": {
+   "all": [
+    {
+     "check": "BROKEN_INTERNAL_LINK",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 9,
+      "locations_omitted": 7,
+      "source_pages": 2
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "first",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      },
+      {
+       "anchor": "second",
+       "destination_url": "https://example.test/missing#part",
+       "follow": false,
+       "link_position": "nav",
+       "source_url": "https://example.test/b"
+      }
+     ],
+     "occurrences_count": 2,
+     "status_code": 404,
+     "target_url": "https://example.test/missing"
+    },
+    {
+     "check": "LINK_TO_5XX",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "descriptive",
+       "destination_url": "https://example.test/server",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 503,
+     "target_url": "https://example.test/server"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old",
+       "destination_url": "https://example.test/moved",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/moved"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": " \t ",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/a"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": "",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/gone-source"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/gone-source"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/chain3",
+      "hop_list": [
+       {
+        "location": "https://example.test/chain2",
+        "status_code": 301,
+        "url": "https://example.test/chain1"
+       },
+       {
+        "location": "https://example.test/chain3",
+        "status_code": 302,
+        "url": "https://example.test/chain2"
+       },
+       {
+        "location": "",
+        "status_code": 404,
+        "url": "https://example.test/chain3"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [
+       {
+        "anchor": "old product",
+        "destination_url": "https://example.test/chain1",
+        "follow": true,
+        "link_position": "body",
+        "source_url": "https://example.test/source"
+       }
+      ],
+      "inbound_links_count": 1,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/chain1",
+       "https://example.test/chain2",
+       "https://example.test/chain3"
+      ],
+      "reason": "redirect target has an HTTP error",
+      "source_pages": 1,
+      "terminal_status": 404,
+      "unresolved": false
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop1",
+       "https://example.test/loop2",
+       "https://example.test/loop1"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 301,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/loop1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop2",
+       "https://example.test/loop1",
+       "https://example.test/loop2"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 302,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 302,
+     "target_url": "https://example.test/loop2"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/list-end",
+      "hop_list": [
+       {
+        "location": "https://example.test/list-mid",
+        "status_code": 301,
+        "url": "https://example.test/list-start"
+       },
+       {
+        "location": "/list-end",
+        "status_code": 302,
+        "url": "https://example.test/list-mid"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/list-end"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/list-start",
+       "https://example.test/list-mid",
+       "https://example.test/list-end"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/list-start"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-b",
+        "status_code": 301,
+        "url": "https://example.test/hop-a"
+       },
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-a",
+       "https://example.test/hop-b",
+       "https://example.test/hop-c"
+      ],
+      "reason": "retained redirect hop budget exhausted",
+      "source_pages": 0,
+      "terminal_status": 301,
+      "unresolved": true
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-a"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-b"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://outside.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://outside.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "connection",
+      "failure_url": "https://r.test/2",
+      "hop_list": [
+       {
+        "status_code": 500,
+        "url": "https://r.test/2"
+       }
+      ],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://r.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://zero.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 0
+     },
+     "locations": [],
+     "occurrences_count": 1,
+     "target_url": "https://zero.test/"
+    }
+   ],
+   "empty_anchor": [
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": " \t ",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/a"
+    },
+    {
+     "check": "INTERNAL_LINK_NO_ANCHOR",
+     "details": {
+      "locations_omitted": 0,
+      "reason": "internal hyperlink has empty retained anchor text"
+     },
+     "locations": [
+      {
+       "anchor": "",
+       "destination_url": "https://example.test/b",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/gone-source"
+      }
+     ],
+     "occurrences_count": 1,
+     "target_url": "https://example.test/gone-source"
+    }
+   ],
+   "external": [
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://outside.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://outside.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "connection",
+      "failure_url": "https://r.test/2",
+      "hop_list": [
+       {
+        "status_code": 500,
+        "url": "https://r.test/2"
+       }
+      ],
+      "reason": "request failed",
+      "sources_omitted": 1
+     },
+     "locations": [
+      {
+       "source_url": "https://example.test/"
+      },
+      {
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 3,
+     "target_url": "https://r.test/"
+    },
+    {
+     "check": "EXTERNAL_NO_RESPONSE",
+     "details": {
+      "error": "timed out",
+      "error_kind": "timeout",
+      "failure_url": "https://zero.test/",
+      "hop_list": [],
+      "reason": "request failed",
+      "sources_omitted": 0
+     },
+     "locations": [],
+     "occurrences_count": 1,
+     "target_url": "https://zero.test/"
+    }
+   ],
+   "redirect": [
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/chain3",
+      "hop_list": [
+       {
+        "location": "https://example.test/chain2",
+        "status_code": 301,
+        "url": "https://example.test/chain1"
+       },
+       {
+        "location": "https://example.test/chain3",
+        "status_code": 302,
+        "url": "https://example.test/chain2"
+       },
+       {
+        "location": "",
+        "status_code": 404,
+        "url": "https://example.test/chain3"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [
+       {
+        "anchor": "old product",
+        "destination_url": "https://example.test/chain1",
+        "follow": true,
+        "link_position": "body",
+        "source_url": "https://example.test/source"
+       }
+      ],
+      "inbound_links_count": 1,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/chain1",
+       "https://example.test/chain2",
+       "https://example.test/chain3"
+      ],
+      "reason": "redirect target has an HTTP error",
+      "source_pages": 1,
+      "terminal_status": 404,
+      "unresolved": false
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop1",
+       "https://example.test/loop2",
+       "https://example.test/loop1"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 301,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/loop1"
+    },
+    {
+     "check": "REDIRECT_LOOP",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       },
+       {
+        "location": "https://example.test/loop2",
+        "status_code": 301,
+        "url": "https://example.test/loop1"
+       },
+       {
+        "location": "https://example.test/loop1",
+        "status_code": 302,
+        "url": "https://example.test/loop2"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/loop2",
+       "https://example.test/loop1",
+       "https://example.test/loop2"
+      ],
+      "reason": "retained redirect path revisits a URL",
+      "source_pages": 0,
+      "terminal_status": 302,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 302,
+     "target_url": "https://example.test/loop2"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/list-end",
+      "hop_list": [
+       {
+        "location": "https://example.test/list-mid",
+        "status_code": 301,
+        "url": "https://example.test/list-start"
+       },
+       {
+        "location": "/list-end",
+        "status_code": 302,
+        "url": "https://example.test/list-mid"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/list-end"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": true,
+      "path": [
+       "https://example.test/list-start",
+       "https://example.test/list-mid",
+       "https://example.test/list-end"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/list-start"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": null,
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-b",
+        "status_code": 301,
+        "url": "https://example.test/hop-a"
+       },
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-a",
+       "https://example.test/hop-b",
+       "https://example.test/hop-c"
+      ],
+      "reason": "retained redirect hop budget exhausted",
+      "source_pages": 0,
+      "terminal_status": 301,
+      "unresolved": true
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-a"
+    },
+    {
+     "check": "REDIRECT_CHAIN",
+     "details": {
+      "final_url": "https://example.test/hop-d",
+      "hop_list": [
+       {
+        "location": "https://example.test/hop-c",
+        "status_code": 301,
+        "url": "https://example.test/hop-b"
+       },
+       {
+        "location": "https://example.test/hop-d",
+        "status_code": 301,
+        "url": "https://example.test/hop-c"
+       },
+       {
+        "location": "",
+        "status_code": 200,
+        "url": "https://example.test/hop-d"
+       }
+      ],
+      "hops": 2,
+      "inbound_links": [],
+      "inbound_links_count": 0,
+      "locations_omitted": 0,
+      "mixed_permanent_temporary": false,
+      "path": [
+       "https://example.test/hop-b",
+       "https://example.test/hop-c",
+       "https://example.test/hop-d"
+      ],
+      "reason": "",
+      "source_pages": 0,
+      "terminal_status": 200,
+      "unresolved": false
+     },
+     "locations": [],
+     "status_code": 301,
+     "target_url": "https://example.test/hop-b"
+    }
+   ],
+   "status": [
+    {
+     "check": "BROKEN_INTERNAL_LINK",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 9,
+      "locations_omitted": 7,
+      "source_pages": 2
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "first",
+       "destination_url": "https://example.test/missing",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      },
+      {
+       "anchor": "second",
+       "destination_url": "https://example.test/missing#part",
+       "follow": false,
+       "link_position": "nav",
+       "source_url": "https://example.test/b"
+      }
+     ],
+     "occurrences_count": 2,
+     "status_code": 404,
+     "target_url": "https://example.test/missing"
+    },
+    {
+     "check": "LINK_TO_5XX",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "descriptive",
+       "destination_url": "https://example.test/server",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 503,
+     "target_url": "https://example.test/server"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old",
+       "destination_url": "https://example.test/moved",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/a"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/moved"
+    },
+    {
+     "check": "INTERNAL_LINK_TO_REDIRECT",
+     "details": {
+      "destination_scope": "internal",
+      "link_occurrences": 1,
+      "locations_omitted": 0,
+      "source_pages": 1
+     },
+     "evidence": {
+      "all_locations": "scan-url-links --direction in",
+      "source": "retained hyperlinks and fetched target"
+     },
+     "locations": [
+      {
+       "anchor": "old product",
+       "destination_url": "https://example.test/chain1",
+       "follow": true,
+       "link_position": "body",
+       "source_url": "https://example.test/source"
+      }
+     ],
+     "occurrences_count": 1,
+     "status_code": 301,
+     "target_url": "https://example.test/chain1"
+    }
+   ]
+  }
+ },
+ "store_document": {
+  "context_items": [
+   {
+    "completeness": "complete",
+    "item_key": "document:1",
+    "kind": "resource_graph_coverage",
+    "payload_json": "{\"observed\":2,\"omitted\":0,\"page_url_id\":1,\"reason\":\"\",\"representation\":\"static\",\"schema_version\":\"resource_graph.v1\",\"source_document_id\":1,\"state\":\"complete\"}",
+    "payload_version": "scan_context.v1",
+    "reason": ""
+   }
+  ],
+  "occurrences": [
+   {
+    "carrier": "img[src]",
+    "integrity": null,
+    "integrity_state": "absent",
+    "kind": "image",
+    "nesting_depth": 0,
+    "occurrence_id": 1,
+    "ordinal": 0,
+    "page_url_id": 1,
+    "raw_url": "/z.png",
+    "reason": "resource fetch is disabled",
+    "representation": "static",
+    "resolved_url": "https://example.test/z.png",
+    "source_document_id": 1,
+    "state": "disabled"
+   },
+   {
+    "carrier": "srcset",
+    "integrity": null,
+    "integrity_state": "absent",
+    "kind": "image",
+    "nesting_depth": 0,
+    "occurrence_id": 2,
+    "ordinal": 1,
+    "page_url_id": 1,
+    "raw_url": "y.png",
+    "reason": "resource fetch is disabled",
+    "representation": "static",
+    "resolved_url": "https://example.test/y.png",
+    "source_document_id": 1,
+    "state": "disabled"
+   }
+  ],
+  "steps": [
+   {
+    "name": "complete",
+    "ok": true,
+    "payload": {
+     "observed": 2,
+     "omitted": 0,
+     "page_url_id": 1,
+     "reason": "",
+     "representation": "static",
+     "schema_version": "resource_graph.v1",
+     "source_document_id": 1,
+     "state": "complete"
+    }
+   },
+   {
+    "name": "replace",
+    "ok": true,
+    "payload": {
+     "observed": 1,
+     "omitted": 0,
+     "page_url_id": 1,
+     "reason": "",
+     "representation": "static",
+     "schema_version": "resource_graph.v1",
+     "source_document_id": 1,
+     "state": "complete"
+    }
+   },
+   {
+    "name": "empty",
+    "ok": true,
+    "payload": {
+     "observed": 0,
+     "omitted": 0,
+     "page_url_id": 1,
+     "reason": "",
+     "representation": "static",
+     "schema_version": "resource_graph.v1",
+     "source_document_id": 1,
+     "state": "empty"
+    }
+   },
+   {
+    "name": "unavailable",
+    "ok": true,
+    "payload": {
+     "observed": 0,
+     "omitted": 0,
+     "page_url_id": 1,
+     "reason": "document body was not available",
+     "representation": "static",
+     "schema_version": "resource_graph.v1",
+     "source_document_id": 1,
+     "state": "unavailable"
+    }
+   },
+   {
+    "error": "resource graph representation is invalid",
+    "name": "bad_representation",
+    "ok": false
+   },
+   {
+    "error": "resource graph document binding is invalid",
+    "name": "bad_binding",
+    "ok": false
+   },
+   {
+    "name": "final",
+    "ok": true,
+    "payload": {
+     "observed": 2,
+     "omitted": 0,
+     "page_url_id": 1,
+     "reason": "",
+     "representation": "static",
+     "schema_version": "resource_graph.v1",
+     "source_document_id": 1,
+     "state": "complete"
+    }
+   }
+  ]
+ }
+}

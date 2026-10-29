@@ -1,0 +1,203 @@
+{
+  "version": "2026-10-23",
+  "rules": {
+    "Article": {
+      "google_feature": "Article",
+      "required": [],
+      "recommended": [
+        "image",
+        "datePublished",
+        "dateModified",
+        "author",
+        "headline"
+      ]
+    },
+    "NewsArticle": {
+      "google_feature": "Article",
+      "required": [],
+      "recommended": [
+        "image",
+        "datePublished",
+        "dateModified",
+        "author",
+        "headline"
+      ]
+    },
+    "BlogPosting": {
+      "google_feature": "Article",
+      "required": [],
+      "recommended": [
+        "image",
+        "datePublished",
+        "dateModified",
+        "author",
+        "headline"
+      ]
+    },
+    "Product": {
+      "google_feature": "Product snippets",
+      "required": [
+        "name"
+      ],
+      "required_any": [
+        "review",
+        "aggregateRating",
+        "offers"
+      ],
+      "recommended": [
+        "image",
+        "description",
+        "brand"
+      ]
+    },
+    "BreadcrumbList": {
+      "google_feature": "Breadcrumb",
+      "required": [
+        "itemListElement"
+      ],
+      "recommended": []
+    },
+    "Organization": {
+      "required": [
+        "name"
+      ],
+      "recommended": [
+        "url",
+        "logo",
+        "sameAs",
+        "contactPoint"
+      ]
+    },
+    "LocalBusiness": {
+      "required": [
+        "name",
+        "address"
+      ],
+      "recommended": [
+        "telephone",
+        "openingHoursSpecification",
+        "geo",
+        "priceRange"
+      ]
+    },
+    "Event": {
+      "required": [
+        "name",
+        "startDate",
+        "location"
+      ],
+      "recommended": [
+        "endDate",
+        "offers",
+        "performer",
+        "eventStatus"
+      ]
+    },
+    "Recipe": {
+      "required": [
+        "name",
+        "image"
+      ],
+      "recommended": [
+        "recipeIngredient",
+        "recipeInstructions",
+        "cookTime",
+        "nutrition"
+      ]
+    },
+    "JobPosting": {
+      "required": [
+        "title",
+        "datePosted",
+        "hiringOrganization",
+        "jobLocation"
+      ],
+      "recommended": [
+        "baseSalary",
+        "employmentType",
+        "validThrough"
+      ]
+    },
+    "VideoObject": {
+      "required": [
+        "name",
+        "thumbnailUrl",
+        "uploadDate"
+      ],
+      "recommended": [
+        "description",
+        "duration",
+        "contentUrl"
+      ]
+    },
+    "Course": {
+      "required": [
+        "name",
+        "description",
+        "provider"
+      ],
+      "recommended": [
+        "hasCourseInstance"
+      ]
+    },
+    "SoftwareApplication": {
+      "required": [
+        "name",
+        "offers"
+      ],
+      "required_any": [
+        "aggregateRating",
+        "review"
+      ],
+      "recommended": [
+        "applicationCategory",
+        "operatingSystem"
+      ]
+    },
+    "Service": {
+      "required": [
+        "name"
+      ],
+      "recommended": [
+        "provider",
+        "areaServed",
+        "offers",
+        "serviceType"
+      ]
+    },
+    "WebSite": {
+      "required": [
+        "name",
+        "url"
+      ],
+      "recommended": [
+        "potentialAction"
+      ]
+    },
+    "WebPage": {
+      "required": [],
+      "recommended": [
+        "name",
+        "url",
+        "isPartOf",
+        "breadcrumb",
+        "primaryImageOfPage"
+      ]
+    },
+    "FAQPage": {
+      "required": [
+        "mainEntity"
+      ],
+      "recommended": [],
+      "deprecated_for_rich": true
+    },
+    "HowTo": {
+      "required": [
+        "name",
+        "step"
+      ],
+      "recommended": [],
+      "deprecated_for_rich": true
+    }
+  }
+}

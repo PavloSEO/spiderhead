@@ -1,0 +1,260 @@
+{
+  "tools": [
+    {
+      "name": "seo_doctor",
+      "description": "Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.\n\nThis is a local read-only diagnostic. It does not write a probe file, launch a browser,\ncrawl a site, or establish Screaming Frog licence validity.\n",
+      "inputSchema": {
+        "properties": {
+          "projects_directory": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Projects Directory"
+          },
+          "config_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Config Path"
+          },
+          "sf_cli": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sf Cli"
+          }
+        },
+        "title": "seo_doctorArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_doctorDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "seo_tool_catalog",
+      "description": "Search source-derived tool metadata with categories, project awareness, and bounded offset paging.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "default": "",
+            "title": "Query",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "include_arguments": {
+            "default": false,
+            "title": "Include Arguments",
+            "type": "boolean"
+          }
+        },
+        "title": "seo_tool_catalogArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_tool_catalogDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "seo_inspect_url",
+      "description": "Inspect one URL with bounded metadata/header/robots/redirect/structured/render steps.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "checks": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Checks"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_inspect_urlArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_inspect_urlDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_audit_workflow",
+      "description": "Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report.\n\nA report without ``audit`` is built from the project's latest complete audited scan.\n",
+      "inputSchema": {
+        "properties": {
+          "directory": {
+            "title": "Directory",
+            "type": "string"
+          },
+          "action": {
+            "default": "status",
+            "enum": [
+              "status",
+              "start",
+              "prepare",
+              "report"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Target"
+          },
+          "competitors": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Competitors"
+          },
+          "template": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Template"
+          },
+          "audit": {
+            "default": null,
+            "title": "Audit"
+          },
+          "fmt": {
+            "default": "md",
+            "title": "Fmt",
+            "type": "string"
+          },
+          "out": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Out"
+          },
+          "approve_large_crawl": {
+            "default": false,
+            "title": "Approve Large Crawl",
+            "type": "boolean"
+          },
+          "max_urls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Urls"
+          }
+        },
+        "required": [
+          "directory"
+        ],
+        "title": "seo_audit_workflowArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_audit_workflowDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    }
+  ]
+}

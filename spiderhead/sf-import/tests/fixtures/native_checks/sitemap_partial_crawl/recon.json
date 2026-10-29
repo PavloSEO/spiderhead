@@ -1,0 +1,61 @@
+{
+ "available": true,
+ "bucket_counts": {
+  "in_sitemap_and_linked": 0,
+  "in_sitemap_not_linked": 1,
+  "linked_not_comparable": 0,
+  "linked_not_in_sitemap": 0
+ },
+ "buckets": {
+  "in_sitemap_and_linked": [],
+  "in_sitemap_not_linked": [
+   "https://example.test/unvisited"
+  ],
+  "linked_not_comparable": [],
+  "linked_not_in_sitemap": []
+ },
+ "counts": {
+  "in_crawl_not_in_sitemap": 0,
+  "in_sitemap_not_in_crawl": 1,
+  "urls_in_sitemap": 1,
+  "urls_reached_by_links": 0
+ },
+ "crawl_partial": true,
+ "declared_facts": [
+  {
+   "blocked": 0,
+   "canonical": null,
+   "final_url": null,
+   "meta_robots": null,
+   "redirect_url": null,
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": null,
+   "url": "https://example.test/unvisited",
+   "x_robots": null
+  }
+ ],
+ "has_names": true,
+ "missing_canonical": [
+  {
+   "status_code": 200,
+   "url": "https://example.test/"
+  }
+ ],
+ "orphan_facts": [
+  {
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": null,
+   "url": "https://example.test/unvisited"
+  }
+ ],
+ "reason": "",
+ "summary": {
+  "available": true,
+  "crawl_partial": true,
+  "in_crawl_not_in_sitemap": 0,
+  "in_sitemap_not_in_crawl": 1,
+  "reason": "",
+  "urls_in_sitemap": 1,
+  "urls_reached_by_links": 0
+ }
+}

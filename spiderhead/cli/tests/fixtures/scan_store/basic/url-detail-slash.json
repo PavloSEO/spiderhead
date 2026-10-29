@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-url-detail\n",
+    "stdout": "{\n  \"ok\": true,\n  \"state\": \"not_found\",\n  \"source\": {\n    \"scan_uuid\": \"<UUID:1>\",\n    \"format_version\": \"scan.v1\",\n    \"source_kind\": \"native\",\n    \"evidence_revision\": 10,\n    \"lifecycle\": \"finished\",\n    \"finish_reason\": \"finished\",\n    \"crawl_partial\": false,\n    \"corpus_partial\": false\n  },\n  \"url\": \"http://127.0.0.1:{PORT}/about.html/\",\n  \"validation\": \"light\",\n  \"hint\": {\n    \"scan_hosts\": [\n      \"127.0.0.1:{PORT}\"\n    ],\n    \"variant_present\": \"http://127.0.0.1:{PORT}/about.html\"\n  }\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"state\": \"not_found\",\n  \"source\": {\n    \"scan_uuid\": \"<UUID:1>\",\n    \"format_version\": \"scan.v1\",\n    \"source_kind\": \"native\",\n    \"evidence_revision\": 10,\n    \"lifecycle\": \"finished\",\n    \"finish_reason\": \"finished\",\n    \"crawl_partial\": false,\n    \"corpus_partial\": false\n  },\n  \"url\": \"http://127.0.0.1:{PORT}/about.html/\",\n  \"validation\": \"light\",\n  \"hint\": {\n    \"scan_hosts\": [\n      \"127.0.0.1:{PORT}\"\n    ],\n    \"variant_present\": \"http://127.0.0.1:{PORT}/about.html\"\n  }\n}"
+   }
+  ]
+ }
+}

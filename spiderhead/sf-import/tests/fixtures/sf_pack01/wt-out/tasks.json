@@ -1,0 +1,36 @@
+{
+  "schema_version": "snippet_tasks.v1",
+  "source_artifact": {
+    "kind": "snippet_csv",
+    "content_sha256": "daf9da22848a913fc7b3d7c9b73924c3307aa58cee8092ad7a3740f7f257b3c4"
+  },
+  "summary": {
+    "tasks": 1,
+    "rejected_rows": 0
+  },
+  "tasks": [
+    {
+      "id": "SNIPPET-1c3bef1aa60b",
+      "type": "snippet_edit_review",
+      "state": "candidate",
+      "target_url": "https://example.test/p",
+      "source_line": 2,
+      "source_artifact": {
+        "kind": "snippet_csv",
+        "content_sha256": "daf9da22848a913fc7b3d7c9b73924c3307aa58cee8092ad7a3740f7f257b3c4"
+      },
+      "edits": {
+        "title": "New title"
+      },
+      "goal_proposal": {
+        "title": "Review search snippet for https://example.test/p",
+        "summary": "Review the proposed snippet for https://example.test/p: title: New title. Source CSV line: 2; content SHA-256: daf9da22848a913fc7b3d7c9b73924c3307aa58cee8092ad7a3740f7f257b3c4.",
+        "references": [
+          "section:snippet-snippet-1c3bef1aa60b"
+        ]
+      },
+      "instruction": "Review the proposed title and description; apply only after approval."
+    }
+  ],
+  "errors": []
+}

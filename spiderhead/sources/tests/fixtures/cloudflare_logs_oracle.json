@@ -1,0 +1,5804 @@
+[
+ {
+  "name": "logpush-import",
+  "ops": [
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     },
+     {
+      "write": [
+       "$BASE/in.ndjson",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": true,
+      "complete": true,
+      "lines": {
+       "parsed": 1
+      }
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "imported": 1,
+      "complete": true,
+      "log_import": {
+       "ok": true,
+       "complete": true,
+       "lines": {
+        "parsed": 1
+       }
+      }
+     }
+    },
+    "calls": {
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 1,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n"
+      }
+     ]
+    }
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": ""
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "project is required for local Logpush retention"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "p",
+     "max_events": 0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_events must be between 1 and 10000"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "p",
+     "max_events": 10001
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_events must be between 1 and 10000"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "p",
+     "max_events": 5.0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_events must be between 1 and 10000"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "p",
+     "max_events": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_events must be between 1 and 10000"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/missing.ndjson",
+     "project": "p"
+    },
+    "outcome": {
+     "error": {
+      "class": "FileNotFoundError",
+      "message": "[Errno 2] No such file or directory: '$BASE/missing.ndjson'"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/dir",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "mkdir": "$BASE/dir"
+     }
+    ],
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Logpush input must be an unaliased regular file no larger than 16 MiB"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/link",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/real",
+       "x",
+       384
+      ]
+     },
+     {
+      "symlink": [
+       "$BASE/real",
+       "$BASE/link"
+      ]
+     }
+    ],
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Logpush input must be an unaliased regular file no larger than 16 MiB"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/hard",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/real",
+       "x",
+       384
+      ]
+     },
+     {
+      "hardlink": [
+       "$BASE/real",
+       "$BASE/hard"
+      ]
+     }
+    ],
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Logpush input must be an unaliased regular file no larger than 16 MiB"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/big",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/big",
+       [
+        "b64",
+        "eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eA=="
+       ],
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/bad-utf8",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/bad-utf8",
+       [
+        "b64",
+        "//4="
+       ],
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Logpush input must be UTF-8 JSON Lines"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/many",
+     "project": "p",
+     "max_events": 1
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/many",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Logpush input exceeds max_events"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/empty",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/empty",
+       "",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": true,
+      "complete": true
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "empty",
+      "imported": 0,
+      "complete": true
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/notjson",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/notjson",
+       "not json\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/listrow",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/listrow",
+       "[1,2]\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "Logpush line must contain a JSON object"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/badip",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/badip",
+       "{\"ClientIP\": \"nope\", \"ClientRequestURI\": \"/page\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record has an invalid client IP"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/noip",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/noip",
+       "{\"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record is missing required HTTP request fields"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/badstamp",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/badstamp",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page\", \"EdgeStartTimestamp\": \"n\", \"EdgeResponseStatus\": 200}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record has an invalid edge timestamp"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/naivestamp",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/naivestamp",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10\", \"EdgeResponseStatus\": 200}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record timestamp must include a timezone"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/intstamp",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/intstamp",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page\", \"EdgeStartTimestamp\": 5, \"EdgeResponseStatus\": 200}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record has an invalid edge timestamp"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/badstatus",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/badstatus",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 99}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record has an invalid HTTP status"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/strstatus",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/strstatus",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": \"404\"}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record has an invalid HTTP status"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/negbytes",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/negbytes",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"EdgeResponseBytes\": -1}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record has invalid response bytes"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/strbytes",
+     "project": "p"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/strbytes",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"EdgeResponseBytes\": \"123\"}\n",
+       384
+      ]
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "record has invalid response bytes"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/multi",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     },
+     {
+      "write": [
+       "$BASE/multi",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n{\"ClientIP\": \"2001:db8::1\", \"ClientRequestURI\": \"/space path?q=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 404}\n",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": true,
+      "complete": true,
+      "lines": {
+       "parsed": 2
+      }
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "complete",
+      "imported": 2,
+      "complete": true,
+      "log_import": {
+       "ok": true,
+       "complete": true,
+       "lines": {
+        "parsed": 2
+       }
+      }
+     }
+    },
+    "calls": {
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 2,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n2001:db8::1 - - [12/Oct/2026:00:00:10 +0000] \"GET /space%20path?q=1 HTTP/1.1\" 404 - \"-\" \"-\"\n"
+      }
+     ]
+    }
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     },
+     {
+      "write": [
+       "$BASE/in.ndjson",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": false,
+      "error": "store full"
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "reason": "store full"
+     }
+    },
+    "calls": {
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 1,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n"
+      }
+     ]
+    }
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "write": [
+       "$BASE/in.ndjson",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     },
+     {
+      "mkdir": "$BASE/proj"
+     },
+     {
+      "write": [
+       "$BASE/proj/logs",
+       "file",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": true
+     }
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "project logs directory is unsafe"
+     }
+    },
+    "calls": {
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     },
+     {
+      "write": [
+       "$BASE/in.ndjson",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "raise": {
+      "class": "OSError",
+      "message": "disk"
+     }
+    },
+    "outcome": {
+     "error": {
+      "class": "OSError",
+      "message": "disk"
+     }
+    },
+    "calls": {
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 1,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n"
+      }
+     ]
+    }
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     },
+     {
+      "write": [
+       "$BASE/in.ndjson",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "raise": {
+      "class": "KeyError",
+      "message": "no project"
+     }
+    },
+    "outcome": {
+     "error": {
+      "class": "KeyError",
+      "message": "'no project'"
+     }
+    },
+    "calls": {
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     },
+     {
+      "write": [
+       "$BASE/in.ndjson",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "json": {
+      "other": 1
+     }
+    },
+    "outcome": {
+     "error": {
+      "class": "KeyError",
+      "message": "'path'"
+     }
+    },
+    "calls": {
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": "$BASE/in.ndjson",
+     "project": "$BASE/proj"
+    },
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     },
+     {
+      "write": [
+       "$BASE/in.ndjson",
+       "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}\n",
+       384
+      ]
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": 5
+     }
+    },
+    "outcome": {
+     "error": {
+      "class": "TypeError",
+      "message": "argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'int'"
+     }
+    },
+    "calls": {
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "import_logpush_file",
+    "args": {
+     "input_path": 5,
+     "project": "p"
+    },
+    "outcome": {
+     "error": {
+      "class": "TypeError",
+      "message": "argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'int'"
+     }
+    },
+    "calls": {}
+   }
+  ]
+ },
+ {
+  "name": "instant-validation",
+  "ops": [
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "confirm_live_capture=true is required to start an Instant Logs session"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": 1
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "confirm_live_capture=true is required to start an Instant Logs session"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "",
+     "confirm_live_capture": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "project is required for local log retention"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "max_seconds": 0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_seconds must be between 1 and 60"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "max_seconds": 61
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_seconds must be between 1 and 60"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "max_seconds": 1.0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_seconds must be between 1 and 60"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "max_events": 0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_events must be between 1 and 1000"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "max_events": 1001
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_events must be between 1 and 1000"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "max_bytes": 0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_bytes must be between 1 and 8388608"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "max_bytes": 8388609
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "max_bytes must be between 1 and 8388608"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "sample": 0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "sample must be between 1 and 100"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "sample": 101
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "sample must be between 1 and 100"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "sample": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "sample must be between 1 and 100"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true
+    },
+    "socket": {
+     "absent": true
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "reason": "selected Cloudflare zone is unavailable"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": ""
+    },
+    "env": {
+     "CLOUDFLARE_API_TOKEN": null
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "reason": "selected Cloudflare zone is unavailable"
+     }
+    },
+    "calls": {}
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "bindings": {
+     "raise": {
+      "class": "CloudflareError",
+      "message": "no bindings"
+     }
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "reason": "selected Cloudflare zone is unavailable"
+     }
+    },
+    "calls": {
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "bindings": {
+     "raise": {
+      "class": "OSError",
+      "message": "io"
+     }
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "reason": "selected Cloudflare zone is unavailable"
+     }
+    },
+    "calls": {
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "bindings": {
+     "raise": {
+      "class": "ValueError",
+      "message": "bad"
+     }
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "reason": "selected Cloudflare zone is unavailable"
+     }
+    },
+    "calls": {
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {}
+      ]
+     }
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "error": {
+      "class": "KeyError",
+      "message": "'service'"
+     }
+    },
+    "calls": {
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "name": "instant-gates",
+  "ops": [
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Free Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "plan": "unsupported",
+      "reason": "Instant Logs requires a confirmed Business or Enterprise zone plan"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Pro Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "plan": "unsupported",
+      "reason": "Instant Logs requires a confirmed Business or Enterprise zone plan"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": ""
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "plan": "unknown",
+      "reason": "Instant Logs requires a confirmed Business or Enterprise zone plan"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": 5,
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "error": {
+      "class": "AttributeError",
+      "message": "'int' object has no attribute 'get'"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Business Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "raise": {
+       "class": "URLError",
+       "message": "dns"
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "plan": "business",
+      "reason": "could not check for an active zone session"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": false,
+       "result": []
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "plan": "enterprise",
+      "reason": "Instant Logs session list is unavailable"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "a": 1
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "plan": "enterprise",
+      "reason": "Instant Logs session list is unavailable"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": [
+       1,
+       2
+      ]
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "plan": "enterprise",
+      "reason": "Instant Logs session list is unavailable"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": [
+        {
+         "session_id": "foreign"
+        }
+       ]
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "unavailable",
+      "plan": "enterprise",
+      "reason": "a zone Instant Logs session is already active"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     }
+    ],
+    "cancel": {
+     "initial": true
+    },
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "cancelled",
+      "plan": "enterprise",
+      "reason": "capture cancelled before session creation",
+      "stop_reason": "cancelled"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "raise": {
+       "class": "CloudflareError",
+       "message": "denied"
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs session creation failed"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": false,
+       "result": {}
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs did not return a WebSocket endpoint"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": 5
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs did not return a WebSocket endpoint"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": "x"
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs did not return a WebSocket endpoint"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": [
+       1
+      ]
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "error": {
+      "class": "AttributeError",
+      "message": "'list' object has no attribute 'get'"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "name": "instant-endpoints",
+  "ops": [
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "https://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://evil.example/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com:444/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://u@logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?x=1"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#f"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/short"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/gggggggggggggggggggggggggggggggg"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "session_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "now": [
+     0.0,
+     0.5,
+     0.6,
+     60.0
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com:443/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "now": [
+     0.0,
+     0.5,
+     0.6,
+     60.0
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 0,
+      "captured_bytes": 0,
+      "malformed_events": 0,
+      "truncated": false,
+      "stop_reason": "timeout",
+      "local_import": {
+       "ok": true,
+       "state": "empty",
+       "imported": 0,
+       "complete": false
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.5,
+      0.6,
+      60.0
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com:443/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://LOGS.CLOUDFLARE.COM/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "now": [
+     0.0,
+     0.5,
+     0.6,
+     60.0
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 0,
+      "captured_bytes": 0,
+      "malformed_events": 0,
+      "truncated": false,
+      "stop_reason": "timeout",
+      "local_import": {
+       "ok": true,
+       "state": "empty",
+       "imported": 0,
+       "complete": false
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.5,
+      0.6,
+      60.0
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://LOGS.CLOUDFLARE.COM/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "kind": "other"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "session_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "session_id": 5
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs returned an unexpected WebSocket endpoint",
+      "provider_session": "created session will expire after five idle minutes; no stop endpoint exists"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com:notaport/x"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Port could not be cast to integer value as 'notaport'"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com:99999/x"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": []
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "Port out of range 0-65535"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "name": "instant-capture",
+  "ops": [
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "$BASE/proj",
+     "confirm_live_capture": true,
+     "max_seconds": 1,
+     "max_events": 1,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "text": "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}"
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2,
+     0.3
+    ],
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": true,
+      "complete": true,
+      "lines": {
+       "parsed": 1
+      }
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 1,
+      "captured_bytes": 232,
+      "malformed_events": 0,
+      "truncated": true,
+      "stop_reason": "event_limit",
+      "local_import": {
+       "ok": true,
+       "state": "partial",
+       "imported": 1,
+       "complete": false,
+       "log_import": {
+        "ok": true,
+        "complete": true,
+        "lines": {
+         "parsed": 1
+        }
+       }
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      0.8
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2,
+      0.3
+     ],
+     "bindings": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 1,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n\n"
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 1,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "$BASE/proj",
+     "confirm_live_capture": true,
+     "max_seconds": 1,
+     "max_bytes": 32,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "text": "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}"
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 0,
+      "captured_bytes": 0,
+      "malformed_events": 0,
+      "truncated": true,
+      "stop_reason": "byte_limit",
+      "local_import": {
+       "ok": true,
+       "state": "empty",
+       "imported": 0,
+       "complete": false
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      0.8
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2
+     ],
+     "bindings": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 1,
+        "close_timeout": 2,
+        "max_size": 32,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "closed": true
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2,
+     0.3
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 0,
+      "captured_bytes": 0,
+      "malformed_events": 0,
+      "truncated": false,
+      "stop_reason": "stream_closed",
+      "local_import": {
+       "ok": true,
+       "state": "empty",
+       "imported": 0,
+       "complete": false
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "$BASE/proj",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "text": "bad\n{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}"
+      },
+      {
+       "other": [
+        1
+       ]
+      },
+      {
+       "bytes_b64": "eHg="
+      },
+      {
+       "closed": true
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2,
+     0.30000000000000004,
+     0.4,
+     0.5,
+     0.6000000000000001,
+     0.7000000000000001,
+     0.8,
+     0.9,
+     1.0,
+     1.1
+    ],
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": true,
+      "complete": true,
+      "lines": {
+       "parsed": 1
+      }
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 1,
+      "captured_bytes": 238,
+      "malformed_events": 3,
+      "truncated": false,
+      "stop_reason": "stream_closed",
+      "local_import": {
+       "ok": true,
+       "state": "partial",
+       "imported": 1,
+       "complete": false,
+       "log_import": {
+        "ok": true,
+        "complete": true,
+        "lines": {
+         "parsed": 1
+        }
+       }
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2,
+      0.30000000000000004,
+      0.4,
+      0.5,
+      0.6000000000000001,
+      0.7000000000000001,
+      0.8
+     ],
+     "bindings": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 1,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n\n"
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "raise": {
+        "class": "OSError",
+        "message": "reset"
+       }
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs WebSocket capture failed",
+      "stop_reason": "stream_unavailable",
+      "provider_session": "socket closed or connection unavailable; Cloudflare idle expiry is at most five minutes"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "$BASE/proj",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "text": "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}"
+      },
+      {
+       "raise": {
+        "class": "OSError",
+        "message": "reset"
+       }
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2,
+     0.3,
+     0.35,
+     99.0
+    ],
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": true,
+      "complete": true,
+      "lines": {
+       "parsed": 1
+      }
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 1,
+      "captured_bytes": 232,
+      "malformed_events": 0,
+      "truncated": false,
+      "stop_reason": "stream_unavailable",
+      "local_import": {
+       "ok": true,
+       "state": "partial",
+       "imported": 1,
+       "complete": false,
+       "log_import": {
+        "ok": true,
+        "complete": true,
+        "lines": {
+         "parsed": 1
+        }
+       }
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0,
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.35
+     ],
+     "bindings": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 1,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n\n"
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [],
+     "factory_raise": {
+      "class": "OSError",
+      "message": "connect"
+     }
+    },
+    "now": [
+     0.0
+    ],
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "Instant Logs WebSocket capture failed",
+      "stop_reason": "stream_unavailable",
+      "provider_session": "socket closed or connection unavailable; Cloudflare idle expiry is at most five minutes"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "clock": [
+      0.0
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ],
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "p",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "text": ""
+      }
+     ]
+    },
+    "cancel": {
+     "set_after_recv": 1
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2,
+     0.3
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 0,
+      "captured_bytes": 0,
+      "malformed_events": 0,
+      "truncated": false,
+      "stop_reason": "cancelled",
+      "local_import": {
+       "ok": true,
+       "state": "empty",
+       "imported": 0,
+       "complete": false
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2,
+      0.3
+     ],
+     "bindings": [
+      {
+       "args": [
+        "p"
+       ]
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "$BASE/proj",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "text": "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}"
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2,
+     0.3,
+     0.35,
+     99.0
+    ],
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "raise": {
+      "class": "OSError",
+      "message": "disk"
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "local logstore import failed after capture",
+      "stop_reason": "timeout",
+      "provider_session": "socket is closed; Cloudflare auto-stops the owned session after five idle minutes"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0,
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.35,
+      99.0
+     ],
+     "bindings": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 1,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n\n"
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "$BASE/proj",
+     "confirm_live_capture": true,
+     "token": "t"
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "text": "{\"ClientIP\": \"203.0.113.1\", \"ClientRequestURI\": \"/page?x=1\", \"EdgeStartTimestamp\": \"2026-10-12T00:00:10Z\", \"EdgeResponseStatus\": 200, \"ClientRequestMethod\": \"GET\", \"ClientRequestUserAgent\": \"Googlebot/2.1\", \"EdgeResponseBytes\": 123}"
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2,
+     0.3,
+     0.35,
+     99.0
+    ],
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     }
+    ],
+    "open_project": {
+     "json": {
+      "path": "$BASE/proj"
+     }
+    },
+    "import_logs": {
+     "json": {
+      "ok": false,
+      "error": "store full"
+     }
+    },
+    "outcome": {
+     "result": {
+      "ok": false,
+      "state": "failed",
+      "plan": "enterprise",
+      "reason": "store full"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 10,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0,
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.35,
+      99.0
+     ],
+     "bindings": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "open_project": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "import": [
+      {
+       "path": "$TMP",
+       "project": "$BASE/proj",
+       "max_lines": 1,
+       "content": "203.0.113.1 - - [12/Oct/2026:00:00:10 +0000] \"GET /page?x=1 HTTP/1.1\" 200 123 \"-\" \"Googlebot/2.1\"\n\n"
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   },
+   {
+    "fn": "instant_logs_capture",
+    "args": {
+     "project": "$BASE/proj",
+     "confirm_live_capture": true,
+     "token": "t",
+     "sample": 25
+    },
+    "resolve_zone_id": {
+     "json": {
+      "id": "zone-id-1",
+      "name": "example.test",
+      "plan": {
+       "name": "Enterprise Website"
+      },
+      "status": "active",
+      "account": {
+       "id": "acc-1"
+      }
+     }
+    },
+    "bindings": {
+     "json": {
+      "bindings": [
+       {
+        "service": "cloudflare",
+        "status": "selected",
+        "resource": "zone-id-1"
+       }
+      ]
+     }
+    },
+    "responses": [
+     {
+      "json": {
+       "success": true,
+       "result": []
+      }
+     },
+     {
+      "json": {
+       "success": true,
+       "result": {
+        "destination_conf": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+       }
+      }
+     }
+    ],
+    "socket": {
+     "recv": [
+      {
+       "timeout": true
+      },
+      {
+       "closed": true
+      }
+     ]
+    },
+    "now": [
+     0.0,
+     0.1,
+     0.2,
+     0.3,
+     0.4
+    ],
+    "fs": [
+     {
+      "mkdir": "$BASE/proj"
+     }
+    ],
+    "outcome": {
+     "result": {
+      "ok": true,
+      "state": "partial",
+      "plan": "enterprise",
+      "captured_events": 0,
+      "captured_bytes": 0,
+      "malformed_events": 0,
+      "truncated": false,
+      "stop_reason": "stream_closed",
+      "local_import": {
+       "ok": true,
+       "state": "empty",
+       "imported": 0,
+       "complete": false
+      },
+      "provider_session": "socket closed; Cloudflare auto-stops sessions after five idle minutes",
+      "api_cleanup_endpoint": "not available for Instant Logs sessions"
+     }
+    },
+    "calls": {
+     "send": [
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1",
+       "body": null
+      },
+      {
+       "method": "GET",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": null
+      },
+      {
+       "method": "POST",
+       "url": "https://api.cloudflare.com/client/v4/zones/zone-id-1/logpush/edge/jobs",
+       "body": {
+        "fields": "ClientIP,ClientRequestURI,EdgeStartTimestamp,EdgeResponseStatus,ClientRequestMethod,ClientRequestUserAgent,EdgeResponseBytes",
+        "filter": "",
+        "sample": 25,
+        "kind": "instant-logs"
+       }
+      }
+     ],
+     "recv": [
+      1.0,
+      1.0
+     ],
+     "clock": [
+      0.0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+     ],
+     "bindings": [
+      {
+       "args": [
+        "$BASE/proj"
+       ]
+      }
+     ],
+     "closed": true,
+     "factory": [
+      {
+       "url": "wss://logs.cloudflare.com/instant-logs/ws/sessions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+       "kwargs": {
+        "open_timeout": 5,
+        "close_timeout": 2,
+        "max_size": 1048576,
+        "max_queue": 1,
+        "compression": null,
+        "ping_interval": null,
+        "proxy": null,
+        "server_hostname": "logs.cloudflare.com"
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+]

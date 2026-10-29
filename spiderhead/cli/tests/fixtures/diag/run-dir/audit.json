@@ -1,0 +1,51 @@
+{
+ "run": {
+  "input_mode": "crawl",
+  "source": "https://example.test/",
+  "crawl_finish_reason": "url_limit",
+  "crawl_partial": true,
+  "requires_rendering": true,
+  "crawl_config": {
+   "limits": {
+    "max_urls": 10,
+    "max_depth": 2
+   },
+   "scope": {
+    "exclude_patterns": [
+     "/tmp/"
+    ],
+    "internal": [
+     "example.test"
+    ]
+   },
+   "robots": {
+    "policy": "respect",
+    "user_agent_token": "spiderhead"
+   },
+   "http.user_agent": "Mozilla/5.0 test",
+   "discovery": {
+    "redirects": {
+     "crawl": true
+    }
+   },
+   "rendering": {
+    "mode": "raw"
+   }
+  },
+  "render_escalation": {
+   "render_requests": 2,
+   "patterns_unprobed": [
+    "a"
+   ],
+   "patterns_unprobed_reasons": {
+    "a": "browser unavailable"
+   },
+   "render_budget_exhausted": true
+  },
+  "checks_skipped": [
+   1,
+   2
+  ]
+ },
+ "pages": []
+}

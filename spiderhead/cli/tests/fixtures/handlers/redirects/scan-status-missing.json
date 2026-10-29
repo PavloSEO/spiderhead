@@ -1,0 +1,6 @@
+{
+ "command": "scan-status-missing",
+ "exit": 1,
+ "stderr": "seohead: scan-status\n",
+ "stdout": "{\n  \"ok\": false,\n  \"error\": \"scan artifact is missing\",\n  \"state\": \"unavailable\",\n  \"path\": \"<WORK>/absent.sqlite\"\n}\n"
+}

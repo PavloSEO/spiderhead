@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-link-inspect\n",
+    "stdout": "{\n  \"ok\": true,\n  \"view\": \"inlinks\",\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 9,\n  \"coverage\": {\n    \"state\": \"observed_scope_only\",\n    \"reasons\": [],\n    \"global_reachability\": \"unknown\",\n    \"scope\": \"retained links in this scan and selected representation\"\n  },\n  \"target\": \"http://127.0.0.1:{PORT}/about.html\",\n  \"representation\": \"all\",\n  \"identity\": \"exact destination URL plus its fragment occurrences\",\n  \"cursor\": null,\n  \"limit\": 100,\n  \"max_bytes\": 1048576,\n  \"bytes\": 0,\n  \"state\": \"complete\",\n  \"reason\": \"\",\n  \"items\": [],\n  \"returned\": 0,\n  \"has_more\": false,\n  \"next_cursor\": null,\n  \"validation\": \"light\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"view\": \"inlinks\",\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 9,\n  \"coverage\": {\n    \"state\": \"observed_scope_only\",\n    \"reasons\": [],\n    \"global_reachability\": \"unknown\",\n    \"scope\": \"retained links in this scan and selected representation\"\n  },\n  \"target\": \"http://127.0.0.1:{PORT}/about.html\",\n  \"representation\": \"all\",\n  \"identity\": \"exact destination URL plus its fragment occurrences\",\n  \"cursor\": null,\n  \"limit\": 100,\n  \"max_bytes\": 1048576,\n  \"bytes\": 0,\n  \"state\": \"complete\",\n  \"reason\": \"\",\n  \"items\": [],\n  \"returned\": 0,\n  \"has_more\": false,\n  \"next_cursor\": null,\n  \"validation\": \"light\"\n}"
+   }
+  ]
+ }
+}

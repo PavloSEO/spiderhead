@@ -1,0 +1,1571 @@
+[
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "form_factor": "PHONE",
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    },
+    "retrieved_at": "2026-10-01T00:00:00Z",
+    "target": "https://example.com/",
+    "target_kind": "url"
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "PHONE",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": 0.05,
+      "reason": null,
+      "state": "good",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": 180.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": 2200.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [],
+    "overall": "good",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": "https://example.com/",
+    "retrieved_at": "2026-10-01T00:00:00Z",
+    "schema": "spiderhead.field-cwv/1",
+    "target": "https://example.com/",
+    "target_kind": "url"
+   }
+  },
+  "isolate_config": false,
+  "name": "all good",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {},
+     "interaction_to_next_paint": {
+      "p75": 300
+     },
+     "largest_contentful_paint": {
+      "p75": 4500
+     }
+    },
+    "target": "https://example.com/"
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": 300.0,
+      "reason": null,
+      "state": "needs_improvement",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": 4500.0,
+      "reason": null,
+      "state": "poor",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "cumulative_layout_shift"
+    ],
+    "overall": "partial",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": "https://example.com/",
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": "https://example.com/",
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "mixed states partial",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {},
+    "target": "t"
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": "t",
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": "t",
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "all unavailable",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    },
+    "state": "not_configured"
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "not_configured",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "not_configured",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "not_configured",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "not_configured shortcircuits",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    },
+    "ok": false
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "provider_failed",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "provider_failed",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "provider_failed",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "provider failed",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": null,
+     "last_date": null
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "missing period",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-28",
+     "last_date": "2026-09-01"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "inverted period",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "endDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     },
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": 0.05,
+      "reason": null,
+      "state": "good",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": 180.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": 2200.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [],
+    "overall": "good",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "endDate fallback",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "endDate": {
+      "day": 2,
+      "month": 9,
+      "year": 2026
+     },
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {}
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-02"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": 0.05,
+      "reason": null,
+      "state": "good",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": 180.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": 2200.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [],
+    "overall": "good",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "falsy lastDate falls to endDate",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 13,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": null,
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "invalid date parts",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": true
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": null,
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "bool date part rejected",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 29,
+      "month": 2,
+      "year": 2024
+     },
+     "lastDate": {
+      "day": 1,
+      "month": 3,
+      "year": 2024
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2024-02-29",
+     "last_date": "2024-03-01"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": 0.05,
+      "reason": null,
+      "state": "good",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": 180.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": 2200.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [],
+    "overall": "good",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "leap day valid",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 29,
+      "month": 2,
+      "year": 2025
+     },
+     "lastDate": {
+      "day": 1,
+      "month": 3,
+      "year": 2025
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": null,
+     "last_date": "2025-03-01"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "missing_or_invalid_collection_period",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "leap day invalid on non-leap",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": true
+     },
+     "interaction_to_next_paint": {
+      "p75": "oops"
+     },
+     "largest_contentful_paint": {
+      "p75": "2400.5"
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": 2400.5,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "partial",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "p75 string number",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.2
+     },
+     "interaction_to_next_paint": {
+      "p75": "nan"
+     },
+     "largest_contentful_paint": {
+      "p75": -5
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": 0.2,
+      "reason": null,
+      "state": "needs_improvement",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint"
+    ],
+    "overall": "partial",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "p75 negative and nan-ish",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": [
+     1,
+     2
+    ]
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": null,
+      "reason": "missing_or_invalid_p75",
+      "state": "unavailable",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [
+     "largest_contentful_paint",
+     "interaction_to_next_paint",
+     "cumulative_layout_shift"
+    ],
+    "overall": "unavailable",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "metrics not dict",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "metric_source": "lab",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "CWV findings require CrUX current field data"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "wrong metric source raises",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "form_factor": "",
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.05
+     },
+     "interaction_to_next_paint": {
+      "p75": 180
+     },
+     "largest_contentful_paint": {
+      "p75": 2200
+     }
+    },
+    "record_target": "https://rt/",
+    "target": "https://x/",
+    "target_kind": "origin"
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": 0.05,
+      "reason": null,
+      "state": "good",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": 180.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": 2200.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [],
+    "overall": "good",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": "https://rt/",
+    "requested_target": "https://x/",
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": "https://rt/",
+    "target_kind": "origin"
+   }
+  },
+  "isolate_config": false,
+  "name": "record_target wins over target",
+  "responses": []
+ },
+ {
+  "args": {
+   "record": {
+    "collection_period": {
+     "firstDate": {
+      "day": 1,
+      "month": 9,
+      "year": 2026
+     },
+     "lastDate": {
+      "day": 28,
+      "month": 9,
+      "year": 2026
+     }
+    },
+    "metric_source": "CrUX current field data",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "p75": 0.1
+     },
+     "interaction_to_next_paint": {
+      "p75": 500
+     },
+     "largest_contentful_paint": {
+      "p75": 2500
+     }
+    }
+   }
+  },
+  "clear_env": [],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "collection_period": {
+     "first_date": "2026-09-01",
+     "last_date": "2026-09-28"
+    },
+    "cost_mode": "free_within_quota",
+    "form_factor": "ALL_FORM_FACTORS",
+    "metric_source": "field",
+    "metrics": {
+     "cumulative_layout_shift": {
+      "label": "CLS",
+      "p75": 0.1,
+      "reason": null,
+      "state": "good",
+      "unit": "score"
+     },
+     "interaction_to_next_paint": {
+      "label": "INP",
+      "p75": 500.0,
+      "reason": null,
+      "state": "needs_improvement",
+      "unit": "ms"
+     },
+     "largest_contentful_paint": {
+      "label": "LCP",
+      "p75": 2500.0,
+      "reason": null,
+      "state": "good",
+      "unit": "ms"
+     }
+    },
+    "missing_metrics": [],
+    "overall": "needs_improvement",
+    "policy": "web-vitals-2024-03",
+    "policy_url": "https://web.dev/articles/defining-core-web-vitals-thresholds",
+    "provider": "crux",
+    "provider_access": "read_only",
+    "quota_mode": "Google Cloud API quota",
+    "record_target": null,
+    "requested_target": null,
+    "retrieved_at": null,
+    "schema": "spiderhead.field-cwv/1",
+    "target": null,
+    "target_kind": null
+   }
+  },
+  "isolate_config": false,
+  "name": "threshold boundaries",
+  "responses": []
+ }
+]

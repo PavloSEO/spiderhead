@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "seohead: scan-link-inspect\n",
+    "stdout": "{\n  \"ok\": false,\n  \"view\": \"path\",\n  \"error\": \"path view requires seed and target URLs\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_scan_link_inspect: {\"ok\": false, \"view\": \"path\", \"error\": \"path view requires seed and target URLs\"}"
+   }
+  ]
+ }
+}

@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-fragment-links\n",
+    "stdout": "{\n  \"analysis\": \"fragment_links.v1\",\n  \"total\": 1,\n  \"offset\": 0,\n  \"limit\": 100,\n  \"returned\": 1,\n  \"next_offset\": null,\n  \"states\": {\n    \"resolved\": 1,\n    \"missing\": 0,\n    \"skipped\": 0\n  },\n  \"coverage\": {\n    \"state\": \"complete\",\n    \"source_documents_evaluated\": 10,\n    \"source_documents_unavailable\": 0,\n    \"source_documents_non_html\": 0,\n    \"unavailable_sources\": [],\n    \"unavailable_sources_omitted\": 0,\n    \"anchors_seen\": 1,\n    \"anchors_omitted\": 0,\n    \"occurrences_seen\": 1,\n    \"occurrences_omitted\": 0,\n    \"occurrences_skipped\": 0,\n    \"skip_reasons\": {},\n    \"target_ids_recorded\": 2,\n    \"target_names_recorded\": 0,\n    \"target_inventory_truncated_documents\": 0,\n    \"limits\": {\n      \"max_decoded_bytes\": 8388608,\n      \"max_occurrences\": 100000,\n      \"max_anchors_per_document\": 10000,\n      \"max_targets_per_document\": 100000\n    }\n  },\n  \"occurrences\": [\n    {\n      \"source_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"source_representation\": \"static\",\n      \"ordinal\": 0,\n      \"raw_href\": \"/about.html#team\",\n      \"resolved_url\": \"http://127.0.0.1:{PORT}/about.html#team\",\n      \"fragment\": \"team\",\n      \"decoded_fragment\": \"team\",\n      \"destination_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"destination_document_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"destination_representation\": \"static\",\n      \"state\": \"resolved\",\n      \"match\": {\n        \"kind\": \"element_id\",\n        \"value\": \"team\"\n      },\n      \"reason\": \"\",\n      \"note\": \"\"\n    }\n  ],\n  \"ok\": true,\n  \"scope\": \"retained complete HTML/DOM only; missing or incomplete evidence is skipped by name, never reported as a broken fragment\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"analysis\": \"fragment_links.v1\",\n  \"total\": 1,\n  \"offset\": 0,\n  \"limit\": 100,\n  \"returned\": 1,\n  \"next_offset\": null,\n  \"states\": {\n    \"resolved\": 1,\n    \"missing\": 0,\n    \"skipped\": 0\n  },\n  \"coverage\": {\n    \"state\": \"complete\",\n    \"source_documents_evaluated\": 10,\n    \"source_documents_unavailable\": 0,\n    \"source_documents_non_html\": 0,\n    \"unavailable_sources\": [],\n    \"unavailable_sources_omitted\": 0,\n    \"anchors_seen\": 1,\n    \"anchors_omitted\": 0,\n    \"occurrences_seen\": 1,\n    \"occurrences_omitted\": 0,\n    \"occurrences_skipped\": 0,\n    \"skip_reasons\": {},\n    \"target_ids_recorded\": 2,\n    \"target_names_recorded\": 0,\n    \"target_inventory_truncated_documents\": 0,\n    \"limits\": {\n      \"max_decoded_bytes\": 8388608,\n      \"max_occurrences\": 100000,\n      \"max_anchors_per_document\": 10000,\n      \"max_targets_per_document\": 100000\n    }\n  },\n  \"occurrences\": [\n    {\n      \"source_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"source_representation\": \"static\",\n      \"ordinal\": 0,\n      \"raw_href\": \"/about.html#team\",\n      \"resolved_url\": \"http://127.0.0.1:{PORT}/about.html#team\",\n      \"fragment\": \"team\",\n      \"decoded_fragment\": \"team\",\n      \"destination_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"destination_document_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"destination_representation\": \"static\",\n      \"state\": \"resolved\",\n      \"match\": {\n        \"kind\": \"element_id\",\n        \"value\": \"team\"\n      },\n      \"reason\": \"\",\n      \"note\": \"\"\n    }\n  ],\n  \"ok\": true,\n  \"scope\": \"retained complete HTML/DOM only; missing or incomplete evidence is skipped by name, never reported as a broken fragment\"\n}"
+   }
+  ]
+ }
+}

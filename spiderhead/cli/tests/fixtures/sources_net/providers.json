@@ -1,0 +1,676 @@
+{
+ "group": "providers",
+ "cases": [
+  {
+   "name": "credential-status",
+   "cli": {
+    "argv": [
+     "provider-credential",
+     "--provider",
+     "gsc",
+     "--component",
+     "access_token"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_provider_credential",
+    "arguments": {
+     "provider": "gsc",
+     "component": "access_token"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: provider-credential\nerror: 'access_token' is not a stored credential component of 'gsc'\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": true,
+     "text": "Error executing tool seo_provider_credential: 'access_token' is not a stored credential component of 'gsc'",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "credential-status-missing",
+   "cli": {
+    "argv": [
+     "provider-credential",
+     "--provider",
+     "crux",
+     "--component",
+     "api_key"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"provider\": \"crux\",\n  \"component\": \"api_key\",\n  \"source_reference\": \"config:crux/api_key\",\n  \"env_reference\": \"env:CRUX_API_KEY\",\n  \"env_shadowed\": false,\n  \"accepted_source_references\": [\n    \"env:CRUX_API_KEY\",\n    \"config:crux/api_key\"\n  ],\n  \"state\": \"missing\",\n  \"updated_at\": null\n}\n",
+     "stderr": "seohead: provider-credential\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "credential-unknown",
+   "cli": {
+    "argv": [
+     "provider-credential",
+     "--provider",
+     "nope",
+     "--component",
+     "x"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: provider-credential\nerror: unknown provider\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "credential-revoke-needs-confirm",
+   "cli": {
+    "argv": [
+     "provider-credential",
+     "--provider",
+     "crux",
+     "--component",
+     "api_key",
+     "--action",
+     "revoke"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/crux/api_key",
+     "text": "k"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: provider-credential\nerror: credential revocation requires confirm=true\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "credential-revoke",
+   "cli": {
+    "argv": [
+     "provider-credential",
+     "--provider",
+     "crux",
+     "--component",
+     "api_key",
+     "--action",
+     "revoke",
+     "--confirm"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/crux/api_key",
+     "text": "k"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"provider\": \"crux\",\n  \"component\": \"api_key\",\n  \"source_reference\": \"config:crux/api_key\",\n  \"env_shadowed\": false,\n  \"revoked\": true\n}\n",
+     "stderr": "seohead: provider-credential\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "auth-status",
+   "cli": {
+    "argv": [
+     "provider-auth",
+     "--provider",
+     "gsc"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_provider_auth",
+    "arguments": {
+     "provider": "gsc",
+     "action": "status"
+    }
+   },
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"configured\": false,\n  \"access_verified\": false\n}\n",
+     "stderr": "seohead: provider-auth\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"configured\": false,\n  \"access_verified\": false\n}",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "auth-disconnect-needs-confirm",
+   "cli": {
+    "argv": [
+     "provider-auth",
+     "--provider",
+     "gsc",
+     "--action",
+     "disconnect"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: provider-auth\nerror: disconnect/revoke requires confirm=true\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "auth-unknown-provider",
+   "cli": {
+    "argv": [
+     "provider-auth",
+     "--provider",
+     "nope"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: provider-auth\nerror: unsupported OAuth provider\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "discover-google",
+   "cli": {
+    "argv": [
+     "provider-discover",
+     "--provider",
+     "google"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_provider_discover",
+    "arguments": {
+     "provider": "google"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "www.googleapis.com",
+     "method": "GET",
+     "path": "/webmasters/v3/sites",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "siteEntry": [
+         {
+          "siteUrl": "sc-domain:example.test",
+          "permissionLevel": "siteOwner"
+         },
+         {
+          "siteUrl": "https://example.org/",
+          "permissionLevel": "siteFullUser"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"provider\": \"google\",\n  \"resources\": [\n    {\n      \"service\": \"gsc\",\n      \"resource\": \"sc-domain:example.test\",\n      \"label\": \"sc-domain:example.test\"\n    },\n    {\n      \"service\": \"gsc\",\n      \"resource\": \"https://example.org/\",\n      \"label\": \"https://example.org/\"\n    }\n  ],\n  \"count\": 2,\n  \"truncated\": false,\n  \"selected\": false,\n  \"error\": null,\n  \"note\": \"discovery lists visible resources only; it does not bind or select one\"\n}\n",
+     "stderr": "seohead: provider-discover\n",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "GET",
+       "path": "/webmasters/v3/sites",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"provider\": \"google\",\n  \"resources\": [\n    {\n      \"service\": \"gsc\",\n      \"resource\": \"sc-domain:example.test\",\n      \"label\": \"sc-domain:example.test\"\n    },\n    {\n      \"service\": \"gsc\",\n      \"resource\": \"https://example.org/\",\n      \"label\": \"https://example.org/\"\n    }\n  ],\n  \"count\": 2,\n  \"truncated\": false,\n  \"selected\": false,\n  \"error\": null,\n  \"note\": \"discovery lists visible resources only; it does not bind or select one\"\n}",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "GET",
+       "path": "/webmasters/v3/sites",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "discover-bad-provider",
+   "cli": {
+    "argv": [
+     "provider-discover",
+     "--provider",
+     "nope"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 2,
+     "stdout": "",
+     "stderr": "usage: spiderhead provider-discover [-h] [--input INPUT]\n                                    --provider {google,yandex,topvisor}\n                                    [--domain DOMAIN]\nspiderhead provider-discover: error: argument --provider: invalid choice: 'nope' (choose from 'google', 'yandex', 'topvisor')\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "verify-gsc",
+   "cli": {
+    "argv": [
+     "provider-verify",
+     "--provider",
+     "gsc"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_provider_verify",
+    "arguments": {
+     "provider": "gsc"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "www.googleapis.com",
+     "method": "GET",
+     "path": "/webmasters/v3/sites",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "siteEntry": [
+         {
+          "siteUrl": "sc-domain:example.test",
+          "permissionLevel": "siteOwner"
+         },
+         {
+          "siteUrl": "https://example.org/",
+          "permissionLevel": "siteFullUser"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"provider\": \"gsc\",\n  \"state\": \"authenticated\",\n  \"readiness_state\": \"configured_unverified\",\n  \"permission_state\": \"authenticated_account\",\n  \"authenticated_account\": true,\n  \"target_access\": \"not_requested\",\n  \"verified\": false,\n  \"credential_components\": {\n    \"oauth_bearer\": true,\n    \"service_account\": false,\n    \"durable_oauth\": false\n  },\n  \"credential_sources\": {\n    \"oauth_bearer\": {\n      \"state\": \"configured_unverified\",\n      \"source_reference\": \"config:gsc/access_token\",\n      \"accepted_source_references\": [\n        \"env:GSC_ACCESS_TOKEN\",\n        \"config:gsc/access_token\"\n      ]\n    },\n    \"service_account\": {\n      \"state\": \"missing\",\n      \"source_reference\": null,\n      \"accepted_source_references\": [\n        \"env:GSC_SERVICE_ACCOUNT_FILE\",\n        \"config:gsc/service-account.json\"\n      ]\n    },\n    \"durable_oauth\": {\n      \"state\": \"missing\",\n      \"source_reference\": null,\n      \"accepted_source_references\": [\n        \"local-grant:gsc\"\n      ]\n    }\n  },\n  \"operations\": [\n    {\n      \"name\": \"verify\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"verify\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    },\n    {\n      \"name\": \"properties\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"properties\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    },\n    {\n      \"name\": \"search_analytics\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"search_analytics\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    },\n    {\n      \"name\": \"inspection\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"inspection\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    },\n    {\n      \"name\": \"sitemaps\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"sitemaps\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    }\n  ],\n  \"selected_reference\": null,\n  \"granted_scopes\": [\n    \"https://www.googleapis.com/auth/webmasters.readonly\"\n  ],\n  \"quota_mode\": \"Google Search Console row and request limits\",\n  \"quota_state\": \"unknown\",\n  \"response_time_ms\": <MS>,\n  \"contract_compatible\": true,\n  \"error\": null\n}\n",
+     "stderr": "seohead: provider-verify\n",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "GET",
+       "path": "/webmasters/v3/sites",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"provider\": \"gsc\",\n  \"state\": \"authenticated\",\n  \"readiness_state\": \"configured_unverified\",\n  \"permission_state\": \"authenticated_account\",\n  \"authenticated_account\": true,\n  \"target_access\": \"not_requested\",\n  \"verified\": false,\n  \"credential_components\": {\n    \"oauth_bearer\": true,\n    \"service_account\": false,\n    \"durable_oauth\": false\n  },\n  \"credential_sources\": {\n    \"oauth_bearer\": {\n      \"state\": \"configured_unverified\",\n      \"source_reference\": \"config:gsc/access_token\",\n      \"accepted_source_references\": [\n        \"env:GSC_ACCESS_TOKEN\",\n        \"config:gsc/access_token\"\n      ]\n    },\n    \"service_account\": {\n      \"state\": \"missing\",\n      \"source_reference\": null,\n      \"accepted_source_references\": [\n        \"env:GSC_SERVICE_ACCOUNT_FILE\",\n        \"config:gsc/service-account.json\"\n      ]\n    },\n    \"durable_oauth\": {\n      \"state\": \"missing\",\n      \"source_reference\": null,\n      \"accepted_source_references\": [\n        \"local-grant:gsc\"\n      ]\n    }\n  },\n  \"operations\": [\n    {\n      \"name\": \"verify\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"verify\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    },\n    {\n      \"name\": \"properties\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"properties\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    },\n    {\n      \"name\": \"search_analytics\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"search_analytics\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    },\n    {\n      \"name\": \"inspection\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"inspection\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    },\n    {\n      \"name\": \"sitemaps\",\n      \"state\": \"supported\",\n      \"surface\": \"provider-collect\",\n      \"input_schema\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"provider\",\n          \"operation\",\n          \"request\"\n        ],\n        \"properties\": {\n          \"provider\": {\n            \"type\": \"string\",\n            \"const\": \"gsc\"\n          },\n          \"operation\": {\n            \"type\": \"string\",\n            \"const\": \"sitemaps\"\n          },\n          \"request\": {\n            \"type\": \"object\",\n            \"additionalProperties\": true,\n            \"description\": \"Provider-specific fields are validated by the selected operation adapter.\"\n          }\n        }\n      }\n    }\n  ],\n  \"selected_reference\": null,\n  \"granted_scopes\": [\n    \"https://www.googleapis.com/auth/webmasters.readonly\"\n  ],\n  \"quota_mode\": \"Google Search Console row and request limits\",\n  \"quota_state\": \"unknown\",\n  \"response_time_ms\": <MS>,\n  \"contract_compatible\": true,\n  \"error\": null\n}",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "GET",
+       "path": "/webmasters/v3/sites",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "verify-unconfigured",
+   "cli": {
+    "argv": [
+     "provider-verify",
+     "--provider",
+     "topvisor"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"provider\": \"topvisor\",\n  \"state\": \"unsupported\",\n  \"readiness_state\": \"unsupported\",\n  \"permission_state\": \"unsupported\",\n  \"target_access\": \"not_requested\",\n  \"verified\": false,\n  \"error\": \"unsupported provider\"\n}\n",
+     "stderr": "seohead: provider-verify\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "verify-unsupported",
+   "cli": {
+    "argv": [
+     "provider-verify",
+     "--provider",
+     "nope"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"provider\": \"nope\",\n  \"state\": \"unsupported\",\n  \"readiness_state\": \"unsupported\",\n  \"permission_state\": \"unsupported\",\n  \"target_access\": \"not_requested\",\n  \"verified\": false,\n  \"error\": \"unsupported provider\"\n}\n",
+     "stderr": "seohead: provider-verify\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "collect-gsc-properties",
+   "cli": {
+    "argv": [
+     "provider-collect",
+     "--provider",
+     "gsc",
+     "--operation",
+     "properties",
+     "--input",
+     "{\"request\": {}}"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_provider_collect",
+    "arguments": {
+     "provider": "gsc",
+     "operation": "properties",
+     "request": {}
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "www.googleapis.com",
+     "method": "GET",
+     "path": "/webmasters/v3/sites",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "siteEntry": [
+         {
+          "siteUrl": "sc-domain:example.test",
+          "permissionLevel": "siteOwner"
+         },
+         {
+          "siteUrl": "https://example.org/",
+          "permissionLevel": "siteFullUser"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"evidence\": {\n    \"format\": \"spiderhead.provider-evidence.v1\",\n    \"provider\": \"gsc\",\n    \"operation\": \"properties\",\n    \"retrieved_at\": \"<TS>\",\n    \"period\": null,\n    \"dimensions\": [],\n    \"filters\": {\n      \"state\": \"not_supplied\",\n      \"keys\": []\n    },\n    \"target_reference\": null,\n    \"pagination\": {\n      \"returned\": 0,\n      \"truncated\": false\n    },\n    \"row_counts\": {\n      \"returned\": 0\n    },\n    \"sampling\": \"unknown\",\n    \"privacy_thresholds\": \"unknown\",\n    \"timezone\": null,\n    \"attribution\": null,\n    \"quota_state\": \"Google Search Console row and request limits\",\n    \"status\": \"complete\",\n    \"complete\": true,\n    \"artifact_reference\": null,\n    \"redaction\": \"target identifiers, filter values, and raw provider rows are restricted local artifacts by default\",\n    \"error\": null,\n    \"failure_kind\": null\n  },\n  \"result\": null\n}\n",
+     "stderr": "seohead: provider-collect\n",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "GET",
+       "path": "/webmasters/v3/sites",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"evidence\": {\n    \"format\": \"spiderhead.provider-evidence.v1\",\n    \"provider\": \"gsc\",\n    \"operation\": \"properties\",\n    \"retrieved_at\": \"<TS>\",\n    \"period\": null,\n    \"dimensions\": [],\n    \"filters\": {\n      \"state\": \"not_supplied\",\n      \"keys\": []\n    },\n    \"target_reference\": null,\n    \"pagination\": {\n      \"returned\": 0,\n      \"truncated\": false\n    },\n    \"row_counts\": {\n      \"returned\": 0\n    },\n    \"sampling\": \"unknown\",\n    \"privacy_thresholds\": \"unknown\",\n    \"timezone\": null,\n    \"attribution\": null,\n    \"quota_state\": \"Google Search Console row and request limits\",\n    \"status\": \"complete\",\n    \"complete\": true,\n    \"artifact_reference\": null,\n    \"redaction\": \"target identifiers, filter values, and raw provider rows are restricted local artifacts by default\",\n    \"error\": null,\n    \"failure_kind\": null\n  },\n  \"result\": null\n}",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "GET",
+       "path": "/webmasters/v3/sites",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "collect-wayback",
+   "cli": {
+    "argv": [
+     "provider-collect",
+     "--provider",
+     "wayback",
+     "--operation",
+     "history",
+     "--input",
+     "{\"request\": {\"url\": \"https://example.test/\"}}"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_provider_collect",
+    "arguments": {
+     "provider": "wayback",
+     "operation": "history",
+     "request": {
+      "url": "https://example.test/"
+     }
+    }
+   },
+   "routes": [
+    {
+     "host": "web.archive.org",
+     "path": "/cdx/search/cdx",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": [
+        [
+         "urlkey",
+         "timestamp",
+         "original",
+         "mimetype",
+         "statuscode",
+         "digest",
+         "length"
+        ],
+        [
+         "test,example)/",
+         "20240102030405",
+         "https://example.test/",
+         "text/html",
+         "200",
+         "AAA",
+         "1200"
+        ]
+       ]
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"evidence\": {\n    \"format\": \"spiderhead.provider-evidence.v1\",\n    \"provider\": \"wayback\",\n    \"operation\": \"history\",\n    \"retrieved_at\": \"<TS>\",\n    \"period\": null,\n    \"dimensions\": [],\n    \"filters\": {\n      \"state\": \"not_supplied\",\n      \"keys\": []\n    },\n    \"target_reference\": null,\n    \"pagination\": {\n      \"returned\": 0,\n      \"truncated\": false\n    },\n    \"row_counts\": {\n      \"returned\": 0\n    },\n    \"sampling\": \"unknown\",\n    \"privacy_thresholds\": \"unknown\",\n    \"timezone\": null,\n    \"attribution\": null,\n    \"quota_state\": \"public service pacing\",\n    \"status\": \"complete\",\n    \"complete\": true,\n    \"artifact_reference\": null,\n    \"redaction\": \"target identifiers, filter values, and raw provider rows are restricted local artifacts by default\",\n    \"error\": null,\n    \"failure_kind\": null\n  },\n  \"result\": null\n}\n",
+     "stderr": "seohead: provider-collect\n",
+     "requests": [
+      {
+       "host": "web.archive.org",
+       "method": "GET",
+       "path": "/cdx/search/cdx",
+       "query": "url=https%3A%2F%2Fexample.test%2F&output=json",
+       "body": "",
+       "headers": {}
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"evidence\": {\n    \"format\": \"spiderhead.provider-evidence.v1\",\n    \"provider\": \"wayback\",\n    \"operation\": \"history\",\n    \"retrieved_at\": \"<TS>\",\n    \"period\": null,\n    \"dimensions\": [],\n    \"filters\": {\n      \"state\": \"not_supplied\",\n      \"keys\": []\n    },\n    \"target_reference\": null,\n    \"pagination\": {\n      \"returned\": 0,\n      \"truncated\": false\n    },\n    \"row_counts\": {\n      \"returned\": 0\n    },\n    \"sampling\": \"unknown\",\n    \"privacy_thresholds\": \"unknown\",\n    \"timezone\": null,\n    \"attribution\": null,\n    \"quota_state\": \"public service pacing\",\n    \"status\": \"complete\",\n    \"complete\": true,\n    \"artifact_reference\": null,\n    \"redaction\": \"target identifiers, filter values, and raw provider rows are restricted local artifacts by default\",\n    \"error\": null,\n    \"failure_kind\": null\n  },\n  \"result\": null\n}",
+     "requests": [
+      {
+       "host": "web.archive.org",
+       "method": "GET",
+       "path": "/cdx/search/cdx",
+       "query": "url=https%3A%2F%2Fexample.test%2F&output=json",
+       "body": "",
+       "headers": {}
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "collect-unsupported",
+   "cli": {
+    "argv": [
+     "provider-collect",
+     "--provider",
+     "gsc",
+     "--operation",
+     "nope",
+     "--input",
+     "{\"request\": {}}"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: provider-collect\nerror: unsupported provider operation\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "join-ok",
+   "cli": {
+    "argv": [
+     "provider-join",
+     "--input",
+     "{\"crawl_pages\": [{\"url\": \"https://example.test/a\", \"status_code\": 200}, {\"url\": \"https://example.test/b\", \"status_code\": 404}], \"evidence_rows\": [{\"url\": \"https://example.test/a\", \"clicks\": 5}, {\"url\": \"https://example.test/zzz\", \"clicks\": 1}], \"review_external_only\": true}"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_provider_join",
+    "arguments": {
+     "crawl_pages": [
+      {
+       "url": "https://example.test/a"
+      }
+     ],
+     "evidence_rows": [
+      {
+       "url": "https://example.test/a",
+       "clicks": 5
+      }
+     ]
+    }
+   },
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"format\": \"spiderhead.provider-join.v1\",\n  \"join\": {\n    \"schema_version\": \"external_join.v1\",\n    \"joined\": [\n      {\n        \"url\": \"https://example.test/a\",\n        \"page\": {\n          \"url\": \"https://example.test/a\",\n          \"status_code\": 200\n        },\n        \"external\": {\n          \"url\": \"https://example.test/a\",\n          \"clicks\": 5\n        }\n      }\n    ],\n    \"crawl_only\": [\n      \"https://example.test/b\"\n    ],\n    \"external_only\": [\n      {\n        \"url\": \"https://example.test/zzz\",\n        \"clicks\": 1\n      }\n    ],\n    \"crawl_origins\": [\n      \"https://example.test\"\n    ],\n    \"unkeyable_pages\": [],\n    \"unkeyable_rows\": [],\n    \"summary\": {\n      \"pages\": 2,\n      \"rows\": 2,\n      \"joined\": 1,\n      \"crawl_only\": 1,\n      \"external_only\": 1,\n      \"unkeyable_pages\": 0,\n      \"unkeyable_rows\": 0\n    }\n  },\n  \"list_crawl_candidates\": [\n    \"https://example.test/zzz\"\n  ],\n  \"frontier_mutated\": false,\n  \"priority_adjustments\": []\n}\n",
+     "stderr": "seohead: provider-join\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"format\": \"spiderhead.provider-join.v1\",\n  \"join\": {\n    \"schema_version\": \"external_join.v1\",\n    \"joined\": [\n      {\n        \"url\": \"https://example.test/a\",\n        \"page\": {\n          \"url\": \"https://example.test/a\"\n        },\n        \"external\": {\n          \"url\": \"https://example.test/a\",\n          \"clicks\": 5\n        }\n      }\n    ],\n    \"crawl_only\": [],\n    \"external_only\": [],\n    \"crawl_origins\": [\n      \"https://example.test\"\n    ],\n    \"unkeyable_pages\": [],\n    \"unkeyable_rows\": [],\n    \"summary\": {\n      \"pages\": 1,\n      \"rows\": 1,\n      \"joined\": 1,\n      \"crawl_only\": 0,\n      \"external_only\": 0,\n      \"unkeyable_pages\": 0,\n      \"unkeyable_rows\": 0\n    }\n  },\n  \"list_crawl_candidates\": [],\n  \"frontier_mutated\": false,\n  \"priority_adjustments\": []\n}",
+     "requests": []
+    }
+   }
+  }
+ ]
+}

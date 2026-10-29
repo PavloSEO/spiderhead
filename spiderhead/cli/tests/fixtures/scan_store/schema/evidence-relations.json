@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-evidence\n",
+    "stdout": "{\n  \"ok\": true,\n  \"section\": \"relations\",\n  \"evidence\": {\n    \"schema_version\": \"discovery_ledger.v1\",\n    \"state\": \"unmeasured\",\n    \"reason\": \"discovery ledger is unavailable in this scan format\",\n    \"items\": []\n  }\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"section\": \"relations\",\n  \"evidence\": {\n    \"schema_version\": \"discovery_ledger.v1\",\n    \"state\": \"unmeasured\",\n    \"reason\": \"discovery ledger is unavailable in this scan format\",\n    \"items\": []\n  }\n}"
+   }
+  ]
+ }
+}

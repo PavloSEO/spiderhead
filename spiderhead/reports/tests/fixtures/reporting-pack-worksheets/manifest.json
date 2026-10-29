@@ -1,0 +1,2533 @@
+{
+  "compatibility": {
+    "csv_safety": "formula-leading strings are prefixed with an apostrophe; the manifest counts transformed cells",
+    "dynamic_dimensions": "metrics dataset may append source-declared string dimension columns; mapping is recorded here",
+    "null_encoding": "nullable CSV cells are empty only when the companion state/reason columns identify unavailability; numeric zero is emitted as 0",
+    "policy": "v1 field and key changes require a new dataset schema version"
+  },
+  "crawl_completeness": {
+    "reason": "audit source does not establish a completed native crawl",
+    "state": "unknown",
+    "verified_by_projection": false
+  },
+  "datasets": {
+    "cohorts": {
+      "bytes": 22044,
+      "coverage": {
+        "page_rows": 6,
+        "search_metric": "clicks"
+      },
+      "fields": [
+        {
+          "description": "",
+          "name": "run_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "cohort_observation_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "cohort_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "definition_version",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "definition",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_key",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_key_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_key_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "membership",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "value_label",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "value_number",
+          "nullable": true,
+          "type": "number"
+        },
+        {
+          "description": "",
+          "name": "threshold",
+          "nullable": true,
+          "type": "number"
+        },
+        {
+          "description": "",
+          "name": "numerator",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "denominator",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "extraction_coverage_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "extraction_coverage_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "search_metric",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "search_value",
+          "nullable": true,
+          "type": "number"
+        },
+        {
+          "description": "",
+          "name": "search_value_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "sessions_value",
+          "nullable": true,
+          "type": "number"
+        },
+        {
+          "description": "",
+          "name": "sessions_value_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "period_start",
+          "nullable": true,
+          "type": "date"
+        },
+        {
+          "description": "",
+          "name": "period_end",
+          "nullable": true,
+          "type": "date"
+        },
+        {
+          "description": "",
+          "name": "timezone",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_metric_observations_json",
+          "nullable": false,
+          "type": "json"
+        }
+      ],
+      "formula_safe_cells_prefixed": 0,
+      "grain": "one evidence-qualified URL cohort observation per run, URL, and cohort definition",
+      "partition_count": 1,
+      "partitions": [
+        {
+          "bytes": 22044,
+          "path": "cohorts-0001.csv",
+          "rows": 30,
+          "sha256": "8265ccec6a74c8b3851467703eb84847c13ed53cdf99122cec4e22ac3d493937"
+        }
+      ],
+      "primary_key": [
+        "run_id",
+        "cohort_observation_id"
+      ],
+      "reason": null,
+      "row_count": 30,
+      "schema_version": "spiderhead.bi.cohorts.v1",
+      "source_population": "derived retained URL observations; unclassified rows retain their reason",
+      "state": "available"
+    },
+    "coverage": {
+      "bytes": 71707,
+      "coverage": {},
+      "fields": [
+        {
+          "description": "",
+          "name": "run_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "dataset",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "evidence_source_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "population",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_rows",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "exported_rows",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "unavailable_rows",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "details_json",
+          "nullable": false,
+          "type": "json"
+        }
+      ],
+      "formula_safe_cells_prefixed": 0,
+      "grain": "one row per dataset, provider population, or check coverage state",
+      "partition_count": 1,
+      "partitions": [
+        {
+          "bytes": 71707,
+          "path": "coverage-0001.csv",
+          "rows": 297,
+          "sha256": "18b1246d754c6479135e0cddfa5074aec22411b15fee1654ca26763ca0611630"
+        }
+      ],
+      "primary_key": [
+        "run_id",
+        "dataset",
+        "evidence_source_id",
+        "population"
+      ],
+      "reason": null,
+      "row_count": 297,
+      "schema_version": "spiderhead.bi.coverage.v1",
+      "source_population": "input artifact and declared check coverage",
+      "state": "available"
+    },
+    "findings": {
+      "bytes": 29876,
+      "coverage": {
+        "source_rows": 25
+      },
+      "fields": [
+        {
+          "description": "",
+          "name": "run_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "finding_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_finding_id",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_ordinal",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "finding_kind",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "check_id",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "check_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "check_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "severity",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "severity_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "severity_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_key",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_key_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_key_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "message",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "message_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "message_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "status_code",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "status_code_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "status_code_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "occurrences_count",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "occurrences_count_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "occurrences_count_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "group_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "fix_hint",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "fix_hint_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "fix_hint_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "group_id",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "group_value",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "group_url_count",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "group_urls_json",
+          "nullable": true,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "locations_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "details_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "evidence_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "source_finding_json",
+          "nullable": false,
+          "type": "json"
+        }
+      ],
+      "formula_safe_cells_prefixed": 0,
+      "grain": "one finding/check observation per run and source finding",
+      "partition_count": 1,
+      "partitions": [
+        {
+          "bytes": 29876,
+          "path": "findings-0001.csv",
+          "rows": 25,
+          "sha256": "6a2495504b230c62b648787026cfcd5af9ee2ea2374fe36b3963a913b3a26cb4"
+        }
+      ],
+      "primary_key": [
+        "run_id",
+        "finding_id"
+      ],
+      "reason": null,
+      "row_count": 25,
+      "schema_version": "spiderhead.bi.findings.v1",
+      "source_population": "retained source findings",
+      "state": "available"
+    },
+    "link_occurrences": {
+      "bytes": 604,
+      "coverage": {
+        "source_rows": null
+      },
+      "fields": [
+        {
+          "description": "",
+          "name": "run_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "link_occurrence_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_url",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_url_key",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_url_key_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_url_key_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "destination_url",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "destination_url_key",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "destination_url_key_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "destination_url_key_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "link_ordinal",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "evidence_representation",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "link_type",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "link_type_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "link_type_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "anchor",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "anchor_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "anchor_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "nofollow",
+          "nullable": true,
+          "type": "boolean"
+        },
+        {
+          "description": "",
+          "name": "nofollow_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "nofollow_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "rel_json",
+          "nullable": true,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "rel_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "rel_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "target",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "target_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "target_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "placement",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "placement_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "placement_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "dom_context_json",
+          "nullable": true,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "dom_context_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "dom_context_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_document_id",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "source_document_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_document_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "raw_href",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "source_link_id",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "source_link_json",
+          "nullable": false,
+          "type": "json"
+        }
+      ],
+      "formula_safe_cells_prefixed": 0,
+      "grain": "one row per retained source-to-target link occurrence",
+      "partition_count": 1,
+      "partitions": [
+        {
+          "bytes": 604,
+          "path": "link_occurrences-0001.csv",
+          "rows": 0,
+          "sha256": "309a44b168f7d3c9c1a95c1ee76452b0de5c2718e1a711390944d999b17b2cf5"
+        }
+      ],
+      "primary_key": [
+        "run_id",
+        "link_occurrence_id"
+      ],
+      "reason": "audit document does not retain a complete link-occurrence inventory",
+      "row_count": 0,
+      "schema_version": "spiderhead.bi.link_occurrences.v1",
+      "source_population": "audit does not retain link rows",
+      "state": "unavailable"
+    },
+    "metrics": {
+      "bytes": 40469,
+      "coverage": {
+        "provider_sources": 2
+      },
+      "fields": [
+        {
+          "description": "",
+          "name": "run_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "metric_observation_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "provider_source_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "provider",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "operation",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "reporting_identity",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "privacy",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "metric_name",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "metric_unit",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "metric_unit_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "metric_unit_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "value_number",
+          "nullable": true,
+          "type": "number"
+        },
+        {
+          "description": "",
+          "name": "value_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "value_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "raw_value_json",
+          "nullable": true,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "url_raw",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_resolved",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_key",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "url_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "period_start",
+          "nullable": true,
+          "type": "date"
+        },
+        {
+          "description": "",
+          "name": "period_end",
+          "nullable": true,
+          "type": "date"
+        },
+        {
+          "description": "",
+          "name": "period_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "period_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "timezone",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "timezone_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "timezone_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "attribution",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "attribution_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "attribution_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "search_engine",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "search_engine_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "search_engine_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "search_type",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "search_type_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "search_type_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "collection_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "collection_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "collection_sampled",
+          "nullable": true,
+          "type": "boolean"
+        },
+        {
+          "description": "",
+          "name": "collection_thresholded",
+          "nullable": true,
+          "type": "boolean"
+        },
+        {
+          "description": "",
+          "name": "collection_truncated",
+          "nullable": true,
+          "type": "boolean"
+        },
+        {
+          "description": "",
+          "name": "source_row_index",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "natural_key_sha256",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "ambiguous_source_row",
+          "nullable": false,
+          "type": "boolean"
+        },
+        {
+          "description": "",
+          "name": "population_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "matched_page_count",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "matched_page_urls_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "dimensions_state_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "source_row_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "source_metadata_json",
+          "nullable": false,
+          "type": "json"
+        }
+      ],
+      "formula_safe_cells_prefixed": 0,
+      "grain": "one source metric observation per provider row and metric at its declared dimension/period grain",
+      "partition_count": 1,
+      "partitions": [
+        {
+          "bytes": 40469,
+          "path": "metrics-0001.csv",
+          "rows": 16,
+          "sha256": "3cc4a64fdeb9bfb5e71c18eda389e7bf599fe9d138775260cc93a3da04af4e1a"
+        }
+      ],
+      "primary_key": [
+        "run_id",
+        "provider_source_id",
+        "metric_observation_id"
+      ],
+      "reason": null,
+      "row_count": 16,
+      "schema_version": "spiderhead.bi.metrics.v1",
+      "source_population": "provider evidence rows; unmatched populations remain identifiable",
+      "state": "available"
+    },
+    "pages": {
+      "bytes": 12289,
+      "coverage": {
+        "source_rows": 6
+      },
+      "fields": [
+        {
+          "description": "Stable identity of the source scan or audit.",
+          "name": "run_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "Stable key for this run and raw URL.",
+          "name": "url_observation_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "Source page order, retained for traceability.",
+          "name": "source_ordinal",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "URL exactly as retained by the source artifact.",
+          "name": "url",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "Strict external_join.v1 key, when derivable.",
+          "name": "url_key",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "keyed, unkeyable, or not supplied.",
+          "name": "url_key_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "Reason a URL key is unavailable.",
+          "name": "url_key_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "status_code",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "status_code_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "status_code_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "content_type",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "content_type_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "content_type_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "indexability",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "indexability_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "indexability_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "indexability_status",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "indexability_status_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "indexability_status_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "crawl_depth",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "crawl_depth_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "crawl_depth_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "response_time_seconds",
+          "nullable": true,
+          "type": "number"
+        },
+        {
+          "description": "",
+          "name": "response_time_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "response_time_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "size_bytes",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "size_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "size_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "title",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "title_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "title_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "meta_description",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "meta_description_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "meta_description_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "h1",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "h1_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "h1_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "canonical",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "canonical_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "canonical_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "word_count",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "word_count_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "word_count_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "text_ratio",
+          "nullable": true,
+          "type": "number"
+        },
+        {
+          "description": "",
+          "name": "text_ratio_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "text_ratio_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "inlinks",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "inlinks_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "inlinks_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "unique_inlinks",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "unique_inlinks_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "unique_inlinks_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "internal_outlinks",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "internal_outlinks_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "internal_outlinks_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "outlinks_total",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "outlinks_total_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "outlinks_total_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "external_outlinks",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "external_outlinks_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "external_outlinks_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "link_counts_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "link_counts_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "body_evidence_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "body_evidence_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "representation",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "representation_state",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "representation_reason",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "Unprojected source fields, preserved as JSON.",
+          "name": "source_fields_json",
+          "nullable": false,
+          "type": "json"
+        }
+      ],
+      "formula_safe_cells_prefixed": 0,
+      "grain": "one URL observation per run and raw URL",
+      "partition_count": 1,
+      "partitions": [
+        {
+          "bytes": 12289,
+          "path": "pages-0001.csv",
+          "rows": 6,
+          "sha256": "92d9ad4942eb1809005a1a07972c0d150f50d530a1c0be41e9013e6d4f789efc"
+        }
+      ],
+      "primary_key": [
+        "run_id",
+        "url_observation_id"
+      ],
+      "reason": null,
+      "row_count": 6,
+      "schema_version": "spiderhead.bi.pages.v1",
+      "source_population": "retained source page rows",
+      "state": "available"
+    }
+  },
+  "format": "spiderhead.bi-manifest.v1",
+  "group_members": {
+    "format": "bi-group-members.v1",
+    "groups": {
+      "bytes": 834,
+      "fields": [
+        {
+          "description": "",
+          "name": "run_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "group_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "group_ordinal",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "member_count",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "declared_count",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "metadata_json",
+          "nullable": false,
+          "type": "json"
+        },
+        {
+          "description": "",
+          "name": "members_sha256",
+          "nullable": false,
+          "type": "string"
+        }
+      ],
+      "formula_safe_cells_prefixed": 0,
+      "partition_count": 1,
+      "partitions": [
+        {
+          "bytes": 834,
+          "path": "group-groups-0001.csv",
+          "rows": 3,
+          "sha256": "3e412b706fa7fdd28fd37d5fc739c1a55d58a20b7119a8ad131db32fb26f0489"
+        }
+      ],
+      "row_count": 3
+    },
+    "inline_member_bytes": 65536,
+    "inline_member_limit": 25,
+    "members": {
+      "bytes": 589,
+      "fields": [
+        {
+          "description": "",
+          "name": "run_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "group_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "member_ordinal",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "description": "",
+          "name": "member_json",
+          "nullable": false,
+          "type": "json"
+        }
+      ],
+      "formula_safe_cells_prefixed": 0,
+      "partition_count": 1,
+      "partitions": [
+        {
+          "bytes": 589,
+          "path": "group-members-0001.csv",
+          "rows": 7,
+          "sha256": "2b238878c4e009bc4935b5443e9c9cd595750da69d253717130102341c5a828f"
+        }
+      ],
+      "row_count": 7
+    },
+    "publication": "local companion; not included in the six published datasets",
+    "run_id": "audit:754d823a0135a92b6b5b3a3f",
+    "sha256": "25a7406b4eb8e70fbe8327cb0dba581e0e805dbfb9c6231748b441bf80fd9f05",
+    "source_audit_sha256": "754d823a0135a92b6b5b3a3f7f2bbbbb4a3b50696b0aa9e53cc425fd55141ec2"
+  },
+  "input": {
+    "bytes": 68680,
+    "kind": "sf-audit",
+    "name": "audit.json",
+    "schema": "2.0",
+    "sha256": "754d823a0135a92b6b5b3a3f7f2bbbbb4a3b50696b0aa9e53cc425fd55141ec2"
+  },
+  "metrics_dimension_columns": {},
+  "provider_sources": [
+    {
+      "bytes": 8439,
+      "compatibility": null,
+      "evidence": {
+        "artifact_reference": null,
+        "attribution": "last-click",
+        "collection": {
+          "collected_at": null,
+          "reason": null,
+          "sampled": false,
+          "state": "complete",
+          "thresholded": false,
+          "truncated": false
+        },
+        "dimensions": [],
+        "field_origins": {
+          "attribution": "declared",
+          "collected_at": "unknown",
+          "collection_state": "declared",
+          "dimensions": "declared",
+          "metrics": "declared",
+          "operation": "declared",
+          "period": "declared",
+          "privacy": "declared",
+          "provider": "declared",
+          "reporting_identity": "declared",
+          "sampled": "declared",
+          "search_engine": "declared",
+          "search_type": "declared",
+          "site_origin": "unknown",
+          "thresholded": "declared",
+          "timezone": "declared",
+          "truncated": "declared",
+          "url_binding": "declared"
+        },
+        "file": {
+          "bytes": null,
+          "kind": "json",
+          "name": "inline",
+          "sha256": null
+        },
+        "metrics": [
+          {
+            "name": "clicks",
+            "type": "number",
+            "unit": "count"
+          },
+          {
+            "name": "impressions",
+            "type": "number",
+            "unit": "count"
+          }
+        ],
+        "operation": "search_analytics",
+        "period": {
+          "end_date": "2026-09-30",
+          "start_date": "2026-09-01"
+        },
+        "privacy": "supplied",
+        "provider": "gsc",
+        "reporting_identity": "synthetic-search-console-property",
+        "search_engine": "google",
+        "search_type": "web",
+        "site_origin": null,
+        "timezone": "Europe/Minsk"
+      },
+      "file": "provider-00.json",
+      "format": "spiderhead.evidence-join.v1",
+      "provider_source_id": "2e81bb7f134d775a7a8a6e80b2d2c5c3a16fda5489a56f11c8bf0453c4754d74",
+      "reason": null,
+      "sha256": "2e81bb7f134d775a7a8a6e80b2d2c5c3a16fda5489a56f11c8bf0453c4754d74",
+      "state": "complete",
+      "summary": {
+        "ambiguous_rows": 0,
+        "candidate_pairs": 4,
+        "crawl_only": 2,
+        "external_only": 1,
+        "matched": 4,
+        "matched_pages": 4,
+        "matched_rows": 4,
+        "multi_match_keys": 0,
+        "page_key_collisions": 0,
+        "pages": 6,
+        "row_key_collisions": 0,
+        "rows": 6,
+        "unkeyable_pages": 0,
+        "unkeyable_rows": 1
+      }
+    },
+    {
+      "bytes": 5891,
+      "compatibility": null,
+      "evidence": {
+        "artifact_reference": null,
+        "attribution": "last-click",
+        "collection": {
+          "collected_at": null,
+          "reason": null,
+          "sampled": false,
+          "state": "complete",
+          "thresholded": false,
+          "truncated": false
+        },
+        "dimensions": [],
+        "field_origins": {
+          "attribution": "declared",
+          "collected_at": "unknown",
+          "collection_state": "declared",
+          "dimensions": "declared",
+          "metrics": "declared",
+          "operation": "declared",
+          "period": "declared",
+          "privacy": "declared",
+          "provider": "declared",
+          "reporting_identity": "declared",
+          "sampled": "declared",
+          "search_engine": "unknown",
+          "search_type": "unknown",
+          "site_origin": "unknown",
+          "thresholded": "declared",
+          "timezone": "declared",
+          "truncated": "declared",
+          "url_binding": "declared"
+        },
+        "file": {
+          "bytes": null,
+          "kind": "json",
+          "name": "inline",
+          "sha256": null
+        },
+        "metrics": [
+          {
+            "name": "sessions",
+            "type": "number",
+            "unit": "count"
+          }
+        ],
+        "operation": "run_report",
+        "period": {
+          "end_date": "2026-09-30",
+          "start_date": "2026-09-01"
+        },
+        "privacy": "supplied",
+        "provider": "ga4",
+        "reporting_identity": "synthetic-ga4-property",
+        "search_engine": null,
+        "search_type": null,
+        "site_origin": null,
+        "timezone": "Europe/Minsk"
+      },
+      "file": "provider-01.json",
+      "format": "spiderhead.evidence-join.v1",
+      "provider_source_id": "7a00c916091c7503cc4ca64e4e998ab3a98dd3cff567a1256968d657e287ec7a",
+      "reason": null,
+      "sha256": "7a00c916091c7503cc4ca64e4e998ab3a98dd3cff567a1256968d657e287ec7a",
+      "state": "complete",
+      "summary": {
+        "ambiguous_rows": 0,
+        "candidate_pairs": 4,
+        "crawl_only": 2,
+        "external_only": 0,
+        "matched": 4,
+        "matched_pages": 4,
+        "matched_rows": 4,
+        "multi_match_keys": 0,
+        "page_key_collisions": 0,
+        "pages": 6,
+        "row_key_collisions": 0,
+        "rows": 4,
+        "unkeyable_pages": 0,
+        "unkeyable_rows": 0
+      }
+    }
+  ],
+  "resource_bounds": {
+    "max_bytes_per_partition": 8388608,
+    "max_cell_bytes": 8388608,
+    "max_findings": 1000000,
+    "max_link_occurrences": 5000000,
+    "max_manifest_bytes": 16777216,
+    "max_output_bytes": 4294967296,
+    "max_output_partitions": 10000,
+    "max_pages": 1000000,
+    "max_projection_index_bytes": 2147483648,
+    "max_provider_rows_per_source": 100000,
+    "max_provider_sources": 8,
+    "max_rows_per_partition": 25000,
+    "min_free_disk_bytes": 16777216,
+    "overflow": "fail without publishing any complete package; no truncation or sampling",
+    "projection_index_cache_bytes": 2097152
+  },
+  "run": {
+    "audit_sha256": "754d823a0135a92b6b5b3a3f7f2bbbbb4a3b50696b0aa9e53cc425fd55141ec2",
+    "check_skips": {
+      "A11Y_FORM_LABEL_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "A11Y_HEADING_ORDER": "document-bound markup evidence requires a retained native crawl",
+      "A11Y_HTML_LANG_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "A11Y_IMAGE_ALT_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "A11Y_MAIN_LANDMARK_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "AJAX_CRAWLING_SCHEME_META_FRAGMENT": "no <meta name=\"fragment\"> evidence (native crawl only)",
+      "AJAX_CRAWLING_SCHEME_URL": "no AJAX-scheme URL evidence (native crawl only)",
+      "AMPHTML_PRESENT": "no amphtml Link Element column in Internal:All",
+      "AMP_BOILERPLATE_INVALID": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INDEXABLE": "no amphtml Link Element column in Internal:All",
+      "AMP_INVALID_BOILERPLATE": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INVALID_CHARSET": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INVALID_DOCTYPE": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INVALID_RUNTIME": "document-bound markup evidence requires a retained native crawl",
+      "AMP_INVALID_VIEWPORT": "document-bound markup evidence requires a retained native crawl",
+      "AMP_MISSING_BODY": "document-bound markup evidence requires a retained native crawl",
+      "AMP_MISSING_CANONICAL": "no amphtml Link Element column in Internal:All",
+      "AMP_MISSING_HEAD": "document-bound markup evidence requires a retained native crawl",
+      "AMP_MISSING_HTML_ATTRIBUTE": "document-bound markup evidence requires a retained native crawl",
+      "AMP_MISSING_RETURN_LINK": "no amphtml Link Element column in Internal:All",
+      "AMP_NON_200": "no amphtml Link Element column in Internal:All",
+      "AMP_NON_INDEXABLE_CANONICAL": "no amphtml Link Element column in Internal:All",
+      "AMP_SCRIPT_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "ASSET_SHORT_CACHE": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+      "BODY_MIME_MISMATCH": "export-only analysis retains no per-URL response bodies; a native retained scan is required",
+      "BODY_MISSING": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "BODY_MULTIPLE": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "BOUNCE_RATE_ABOVE_70": "no validated project selected for provider bindings and retained history",
+      "BROKEN_BOOKMARK": "export input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan",
+      "BROKEN_EXTERNAL_LINK": "export inlinks_5xx not available",
+      "CANONICAL_INVALID_ATTRIBUTE": "raw canonical attributes are unavailable in this export",
+      "CANONICAL_MISMATCH": "requires retained native rendered evidence",
+      "CANONICAL_MULTIPLE": "no Canonical Link Element 2 column in Internal:All",
+      "CANONICAL_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
+      "CANONICAL_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "CONTENT_IN_IFRAME": "no iframe inventory in this evidence",
+      "DEEP_CLICK_DEPTH": "no all_inlinks export (needed for the complete internal edge list)",
+      "DEEP_DISCOVERY_PATH": "no all_inlinks export (needed for the complete internal edge list)",
+      "DESC_MULTIPLE": "no meta description count evidence (native crawl only)",
+      "DESC_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "DESC_PIXELS_BELOW": "no desc_px column in Internal:All (SF-derived pixel-width column; native crawls leave it unmeasured)",
+      "DESC_PIXELS_OVER": "no desc_px column in Internal:All (SF-derived pixel-width column; native crawls leave it unmeasured)",
+      "DIRECTIVES_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "DOM_TOO_DEEP": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest",
+      "DOM_TOO_MANY_NODES": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4) — DOM size not assessed for the rest",
+      "DUPLICATED_JS": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+      "DUPLICATE_BY_HASH": "SF native Hash column already covers this",
+      "DUPLICATE_ID": "no duplicate-id evidence (native crawl only)",
+      "DUPLICATE_INTERNAL_LINK": "no all_inlinks export (needed for the complete internal edge list)",
+      "EXTERNAL_LINK_TO_REDIRECT": "export inlinks_3xx not available",
+      "EXTERNAL_NO_RESPONSE": "this check requires retained native scan evidence",
+      "FEW_CITATIONS": "no External Outlinks column and no all_inlinks export -- nothing to count outbound citations from",
+      "FILTER_CANONICAL_POLICY": "no filters canonical policy configured",
+      "FONT_DISPLAY_MISSING": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+      "FORCED_REFLOW": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "GA_ORPHAN_URL": "no validated project selected for provider bindings and retained history",
+      "GRAMMAR_ERRORS": "no Grammar Errors column (enable grammar-check in SF)",
+      "GSC_AMP_INVALID": "no validated project selected for provider bindings and retained history",
+      "GSC_INDEXABLE_NOT_INDEXED": "no validated project selected for provider bindings and retained history",
+      "GSC_INDEXED_WITH_ISSUES": "no validated project selected for provider bindings and retained history",
+      "GSC_ORPHAN": "no validated project selected for provider bindings and retained history",
+      "GSC_RICH_RESULTS_INVALID": "no validated project selected for provider bindings and retained history",
+      "GSC_URL_NOT_ON_GOOGLE": "no validated project selected for provider bindings and retained history",
+      "GSC_USER_CANONICAL_NOT_SELECTED": "no validated project selected for provider bindings and retained history",
+      "H1_ALT_TEXT_ONLY": "no H1 alt-text evidence (native crawl only)",
+      "H1_LOW_SEMANTIC_RELEVANCE": "no semantic embedding adapter is selected",
+      "H1_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
+      "H1_UPDATED_BY_JAVASCRIPT": "requires retained native rendered evidence",
+      "H2_MISSING": "requirements.require_h2 is false; the check was not evaluated",
+      "H2_MULTIPLE": "no H2-2 column and no heading outline evidence; the H2 count cannot be measured",
+      "HEADING_BEFORE_H1": "no heading outline evidence (native crawl only)",
+      "HEADING_IN_PAGE_CHROME": "no heading outline evidence (native crawl only)",
+      "HEADING_SKIP": "no heading outline evidence (native crawl only)",
+      "HEAD_MISSING": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "HEAD_MULTIPLE": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "HEAD_NOT_FIRST": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "HEAVY_NETWORK_PAYLOAD": "this check requires retained native scan evidence",
+      "HEAVY_PAGE_WEIGHT": "not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound",
+      "HREFLANG_BROKEN_TARGET": "missing export: all_hreflang",
+      "HREFLANG_ERROR": "missing export: hreflang",
+      "HREFLANG_INCONSISTENT_CONFIRMATION": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+      "HREFLANG_INVALID_CODE": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+      "HREFLANG_MISSING_RETURN_LINK": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+      "HREFLANG_MISSING_SELF_REFERENCE": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+      "HREFLANG_MISSING_XDEFAULT": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+      "HREFLANG_MULTIPLE_ENTRIES": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+      "HREFLANG_NOINDEX_TARGET": "no all_hreflang declaration export",
+      "HREFLANG_NOT_CANONICAL": "no all_hreflang export (export Bulk Export -> Links -> All Hreflang)",
+      "HREFLANG_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "HREFLANG_UNLINKED_TARGET": "no all_hreflang export (export Bulk Export → Links → All Hreflang to enable)",
+      "HTTP1_ONLY": "no HTTP Version column in Internal:All",
+      "HTTP_REFRESH_REDIRECT": "no Refresh response header evidence (native crawl only)",
+      "IMAGE_DELIVERY": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "IMAGE_LINK_WITHOUT_TEXT": "no link-placement evidence (native crawl only)",
+      "IMG_ALT_TOO_LONG": "no per-image evidence (native crawl only)",
+      "IMG_BROKEN": "no resource evidence (native crawl with resource capture only)",
+      "IMG_INTRINSIC_OVERSIZED": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+      "IMG_MISSING_ALT": "missing export: images_missing_alt",
+      "IMG_MISSING_ALT_ATTRIBUTE": "no per-image evidence (native crawl only)",
+      "IMG_MISSING_DIMENSIONS": "missing export: images_missing_size",
+      "IMG_OVER_KB": "missing export: images_over_kb",
+      "IMG_UPSCALED": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+      "INSECURE_SUBRESOURCE": "no all_inlinks export (needed for the resource inventory)",
+      "INTERNALLY_LINKED_ROBOTS_BLOCKED": "this check requires retained native scan evidence",
+      "INTERNAL_LINK_NO_ANCHOR": "this check requires retained native scan evidence",
+      "INTERNAL_LINK_TO_REDIRECT": "export inlinks_3xx not available",
+      "INVALID_CHARSET": "no Meta Charset column, so the encoding a page declares in its HTML cannot be read (needs a native seohead crawl or Custom Extraction in SF)",
+      "INVALID_DOCTYPE": "no Doctype column (needs a native seohead crawl or Custom Extraction in SF)",
+      "INVALID_HEAD_ELEMENT": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "INVALID_LINK_TARGET": "no invalid link target evidence (native crawl only)",
+      "INVALID_VIEWPORT": "no Viewport column (needs a native seohead crawl or Custom Extraction in SF)",
+      "JS_EXECUTION_TIME": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "JS_REDIRECT": "this check requires retained native scan evidence",
+      "LAYOUT_SHIFT_CULPRITS": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "LCP_DISCOVERY": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "LEGACY_JS": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+      "LINK_INSIDE_HEADING": "no link-placement evidence (native crawl only)",
+      "LINK_TO_5XX": "export inlinks_5xx not available",
+      "LONG_SENTENCES": "no Average Words Per Sentence column",
+      "LOREM_IPSUM_PLACEHOLDER": "no Lorem Ipsum evidence (native crawl only)",
+      "LOW_LINK_SCORE": "no all_inlinks export (needed for the complete internal edge list)",
+      "LOW_RELEVANCE_CONTENT": "no stored HTML (input.html_store_dir not set; crawl was not stored) (4)",
+      "META_DESCRIPTION_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
+      "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT": "requires retained native rendered evidence",
+      "META_KEYWORDS_PRESENT": "no Meta Keywords 1 column in Internal:All",
+      "METRIKA_BOUNCE_RATE_ABOVE_70": "no validated project selected for provider bindings and retained history",
+      "METRIKA_ORPHAN_URL": "no validated project selected for provider bindings and retained history",
+      "MISSING_CHARSET": "no Meta Charset column, so a page without a header charset cannot be distinguished from one declaring <meta charset> (needs a native seohead crawl or Custom Extraction in SF)",
+      "MISSING_DOCTYPE": "no Doctype column (needs a native seohead crawl or Custom Extraction in SF)",
+      "MISSING_HSTS": "missing export: security_hsts",
+      "MISSING_HSTS_ON_REDIRECT_HOP": "host-variant redirect hops are a native-scan probe (analysis.redirect_hop_hsts_probe); an SF export cannot measure them",
+      "MIXED_CONTENT": "missing export: security_mixed",
+      "MIXED_LINK_REL": "export input retains no full rel-token/context evidence; native retained links are required",
+      "MOBILE_ALTERNATE_LINK": "no rel=alternate media evidence (native crawl only)",
+      "MOBILE_CONTENT_OVERFLOW": "requires retained native rendered mobile layout evidence",
+      "MOBILE_TARGET_TOO_SMALL": "requires retained native rendered mobile layout evidence",
+      "MOBILE_TEXT_TOO_SMALL": "requires retained native rendered mobile layout evidence",
+      "NEAR_DUPLICATE": "stored HTML matched only 0 of 4 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (4)",
+      "NETWORK_DEPENDENCY_TREE": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+      "NOFOLLOW_ONLY_IN_RAW_HTML": "requires retained native rendered evidence",
+      "NOINDEX_ONLY_IN_RAW_HTML": "requires retained native rendered evidence",
+      "NON_INDEXABLE_WITH_GA_DATA": "no validated project selected for provider bindings and retained history",
+      "NON_INDEXABLE_WITH_METRIKA_DATA": "no validated project selected for provider bindings and retained history",
+      "NON_INDEXABLE_WITH_SEARCH_DATA": "no validated project selected for provider bindings and retained history",
+      "NO_AUTHOR_BYLINE": "no Trust Signals column (native crawl or a same-named custom extraction) -- no author markup evidence at all",
+      "NO_COMPRESSION": "no Content-Encoding column (needs a native seohead crawl or Custom Extraction in SF)",
+      "NO_CONTENT_DATES": "no Trust Signals column and no Last Modified column -- no date evidence at all",
+      "NO_GA_DATA": "no validated project selected for provider bindings and retained history",
+      "NO_METRIKA_DATA": "no validated project selected for provider bindings and retained history",
+      "NO_SEARCH_DATA": "no validated project selected for provider bindings and retained history",
+      "OG_MISSING": "no Open Graph columns in Internal:All (enable OG extraction in SF)",
+      "ONLY_NOFOLLOW_INLINKS": "no all_inlinks export (needed for the complete inlink list)",
+      "ONLY_NONINDEXABLE_SOURCE_INLINKS": "no all_inlinks export (needed for the complete inlink list)",
+      "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE": "export input retains no full rel-token/context evidence; native retained links are required",
+      "PAGE_TITLE_ONLY_IN_RENDERED_HTML": "requires retained native rendered evidence",
+      "PAGE_TITLE_UPDATED_BY_JAVASCRIPT": "requires retained native rendered evidence",
+      "PAGINATION_CANONICAL_POLICY": "no pagination canonical policy configured",
+      "PAGINATION_LOOP": "no rel=\"next\" column in Internal:All",
+      "PAGINATION_MULTIPLE": "no all_inlinks export (needed for every rel=\"next\"/rel=\"prev\" declaration and the anchors beside them)",
+      "PAGINATION_SEQUENCE_ERROR": "no rel=\"next\" column in Internal:All",
+      "PAGINATION_URL_NOT_IN_ANCHOR": "no all_inlinks export (needed for every rel=\"next\"/rel=\"prev\" declaration and the anchors beside them)",
+      "READABILITY_DIFFICULT": "no Readability/Flesch column",
+      "REDIRECT_CHAIN": "no redirect data (Internal:All has no Redirect URL column)",
+      "REDIRECT_LOOP": "no redirect data (Internal:All has no Redirect URL column)",
+      "RENDER_BLOCKING": "no Render Blocking Resources column (needs a native seohead crawl)",
+      "RENDER_RESOURCE_BLOCKED": "requires retained native rendered evidence",
+      "RESOURCE_OVER_2MB": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+      "ROBOTS_BLOCKS_RESOURCES": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)",
+      "SCHEMA_VALIDATION_ERROR": "no Structured Data validation columns in Internal:All",
+      "SEMANTICALLY_SIMILAR": "no stored HTML (input.html_store_dir not set; crawl was not stored) (4)",
+      "SEMANTIC_SIMILARITY_CANDIDATE": "no semantic embedding adapter is selected",
+      "SITEMAP_DESYNC": "no sitemap URL set (no export and network disabled)",
+      "SITEMAP_FETCH_INCOMPLETE": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)",
+      "SITEMAP_NOT_IN_ROBOTS": "no sitemap URL to check (no export, no --sitemap, and live_recheck disabled)",
+      "SITEMAP_STALE_LASTMOD": "no sitemap entries were fetched to compare",
+      "SITEMAP_TOO_LARGE": "no sitemap document was fetched to measure",
+      "SITEMAP_TOO_MANY_URLS": "no sitemap document was fetched to measure",
+      "SITEMAP_URL_3XX": "missing export: sitemap_redirects",
+      "SITEMAP_URL_4XX_5XX": "missing export: sitemap_non_200",
+      "SITEMAP_URL_BLOCKED_ROBOTS": "this check requires retained native scan evidence",
+      "SITEMAP_URL_DUPLICATED": "no sitemap entries were fetched to compare",
+      "SITEMAP_URL_NON_CANONICAL": "this check requires retained native scan evidence",
+      "SITEMAP_URL_NON_INDEXABLE": "missing export: sitemap_non_indexable",
+      "SPELLING_ERRORS": "no Spelling Errors column (enable spell-check in SF)",
+      "STRUCTURED_DATA_MISSING": "missing export: structured_data_missing",
+      "STRUCTURED_DATA_PARSE_ERROR": "no JSON-LD found/parsed block counts (native crawl only)",
+      "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING": "document-bound markup evidence requires a retained native crawl",
+      "STRUCTURED_DATA_SCHEMA_ERROR": "document-bound markup evidence requires a retained native crawl",
+      "STRUCTURED_DATA_SCHEMA_WARNING": "document-bound markup evidence requires a retained native crawl",
+      "TITLE_LOW_SEMANTIC_RELEVANCE": "no semantic embedding adapter is selected",
+      "TITLE_MULTIPLE": "no titles_multiple export (export this SF filter to enable)",
+      "TITLE_OUTSIDE_HEAD": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)",
+      "TITLE_PIXELS_BELOW": "no title_px column in Internal:All (SF-derived pixel-width column; native crawls leave it unmeasured)",
+      "TITLE_PIXELS_OVER": "no title_px column in Internal:All (SF-derived pixel-width column; native crawls leave it unmeasured)",
+      "TITLE_TEMPLATED": "too few titles to assess templating",
+      "UNLINKED_PAGINATION_SERIES": "no rel=\"next\" column in Internal:All",
+      "UNMINIFIED_CSS_JS": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+      "UNSUPPORTED_PLUGIN": "no plugin-element evidence (native crawl only)",
+      "UNUSED_CSS_JS": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+      "VIEWPORT_MISSING": "no Viewport column (needs a native seohead crawl or Custom Extraction in SF)"
+    },
+    "crawl_reason": "audit source does not establish a completed native crawl",
+    "crawl_settings": null,
+    "crawl_state": "unknown",
+    "finished_at": "2026-10-27T07:14:28Z",
+    "input_mode": "parse-exports",
+    "run_id": "audit:754d823a0135a92b6b5b3a3f",
+    "source_bytes": 68680,
+    "source_kind": "sf-audit",
+    "source_name": "audit.json",
+    "source_schema": "2.0",
+    "source_sha256": "754d823a0135a92b6b5b3a3f7f2bbbbb4a3b50696b0aa9e53cc425fd55141ec2",
+    "started_at": null,
+    "summary": {
+      "asset_measurements": {
+        "ASSET_SHORT_CACHE": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "DUPLICATED_JS": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "FONT_DISPLAY_MISSING": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "FORCED_REFLOW": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "HEAVY_PAGE_WEIGHT": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "IMAGE_DELIVERY": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "IMG_INTRINSIC_OVERSIZED": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "IMG_UPSCALED": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "JS_EXECUTION_TIME": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "LAYOUT_SHIFT_CULPRITS": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "LCP_DISCOVERY": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "LEGACY_JS": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "NETWORK_DEPENDENCY_TREE": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "RENDER_BLOCKING": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "no Render Blocking Resources column (needs a native seohead crawl)",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        },
+        "RESOURCE_OVER_2MB": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "UNMINIFIED_CSS_JS": {
+          "eligible": null,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets",
+          "state": "unavailable",
+          "unavailable": null,
+          "unit": "resources"
+        },
+        "UNUSED_CSS_JS": {
+          "eligible": 4,
+          "measured": 0,
+          "partial": 0,
+          "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages",
+          "state": "unavailable",
+          "unavailable": 4,
+          "unit": "pages"
+        }
+      },
+      "by_check": {
+        "BROKEN_INTERNAL_LINK": 1,
+        "BROKEN_PAGE_4XX": 1,
+        "CANONICAL_MISSING": 1,
+        "DESC_DUPLICATE": 2,
+        "DESC_MISSING": 1,
+        "DESC_TOO_SHORT": 1,
+        "H1_MULTIPLE": 1,
+        "H2_DUPLICATE": 3,
+        "HTML_BLOAT": 1,
+        "LARGE_HTML": 1,
+        "LOW_TEXT_RATIO": 1,
+        "MISSING_ABOUT_PAGE": 1,
+        "MISSING_CONTACT_PAGE": 1,
+        "MISSING_PRIVACY_POLICY": 1,
+        "MISSING_TERMS_PAGE": 1,
+        "SLOW_RESPONSE": 1,
+        "THIN_CONTENT": 1,
+        "TITLE_DUPLICATE": 2,
+        "TITLE_MISSING": 1,
+        "TITLE_TOO_SHORT": 2
+      },
+      "by_severity": {
+        "critical": 3,
+        "notice": 7,
+        "warning": 10
+      },
+      "check_coverage": {
+        "checks_disabled": 0,
+        "checks_disabled_ids": [],
+        "checks_fired": 20,
+        "checks_silent": 78,
+        "checks_silent_ids": [
+          "BAD_REDIRECT_TYPE",
+          "BLOCKED_BY_ROBOTS",
+          "CANONICALISED",
+          "CANONICAL_CHAIN",
+          "CANONICAL_CROSS_ORIGIN",
+          "CANONICAL_FRAGMENT",
+          "CANONICAL_HOMEPAGE_GROUP",
+          "CANONICAL_NON_INDEXABLE",
+          "CANONICAL_RELATIVE",
+          "CANONICAL_TARGET_ERROR",
+          "CANONICAL_TO_REDIRECT",
+          "DECLARED_MIME_MISMATCH",
+          "DEEP_CRAWL_DEPTH",
+          "DESC_TOO_LONG",
+          "DUPLICATE_SECURITY_HEADER",
+          "EXTERNAL_NOFOLLOW",
+          "FOLLOW_AND_NOFOLLOW_INLINKS",
+          "FORM_ON_HTTP_URL",
+          "FORM_URL_INSECURE",
+          "GENERIC_ANCHOR_TEXT",
+          "H1_DUPLICATE",
+          "H1_MISSING",
+          "H1_TOO_LONG",
+          "H2_TOO_LONG",
+          "HIGH_EXTERNAL_OUTLINKS",
+          "HIGH_OUTLINKS",
+          "HTML_OVER_2MB",
+          "HTTP_LINK_ON_HTTPS",
+          "HTTP_URL",
+          "IMPORTANT_URL_BLOCKED_BY_ROBOTS",
+          "INLINK_BOILERPLATE_ONLY",
+          "INTERNAL_LINK_SPONSORED_UGC",
+          "INTERNAL_NOFOLLOW_OUTLINKS",
+          "JS_CONSOLE_ERRORS",
+          "META_REFRESH_REDIRECT",
+          "MISSING_CSP",
+          "MISSING_REFERRER_POLICY",
+          "MISSING_X_CONTENT_TYPE_OPTIONS",
+          "MISSING_X_FRAME_OPTIONS",
+          "NOARCHIVE",
+          "NOFOLLOW_PAGE",
+          "NOIMAGEINDEX",
+          "NOINDEX",
+          "NON_INDEXABLE_LINKED",
+          "NOODP",
+          "NOSNIPPET",
+          "NOTRANSLATE",
+          "NOYDIR",
+          "NO_INTERNAL_OUTLINKS",
+          "NO_RESPONSE",
+          "ORPHAN_PAGE",
+          "OUTLINK_TO_LOCALHOST",
+          "PAGINATION_NONINDEXABLE",
+          "PLACEHOLDER_MARKER",
+          "PROTOCOL_RELATIVE_LINK",
+          "ROBOTS_BLOCKED_OUTLINK",
+          "SERVER_ERROR_5XX",
+          "SITEMAP_ORPHAN",
+          "TITLE_EQUALS_H1",
+          "TITLE_TOO_LONG",
+          "UNAVAILABLE_AFTER",
+          "UNLINKED_CANONICAL",
+          "UNSAFE_CROSS_ORIGIN_LINK",
+          "URL_CONTAINS_SPACE",
+          "URL_HAS_PARAMETERS",
+          "URL_HAS_PARAMS",
+          "URL_INTERNAL_SEARCH",
+          "URL_MULTIPLE_SLASHES",
+          "URL_NON_ASCII",
+          "URL_NOT_IN_SITEMAP",
+          "URL_REPETITIVE_PATH",
+          "URL_SESSION_ID",
+          "URL_TOO_LONG",
+          "URL_TRACKING_PARAMS",
+          "URL_TRAILING_SLASH_INCONSISTENT",
+          "URL_UNDERSCORES",
+          "URL_UPPERCASE",
+          "YMYL_REVIEW_CANDIDATE"
+        ],
+        "checks_skipped": 200,
+        "checks_total": 298,
+        "coverage": 0.329
+      },
+      "health_score": null,
+      "health_score_basis": "98 of 298 checks could run; the score is not comparable to a run with full evidence",
+      "health_score_reason": "only 98 of 298 checks could run (33% coverage); too little evidence to score",
+      "implausible_checks": [
+        {
+          "check": "H2_DUPLICATE",
+          "pages": 3,
+          "share": 0.75
+        }
+      ],
+      "internal_linking": {
+        "measured": false,
+        "reason": "no all_inlinks export (needed for the complete internal edge list)"
+      },
+      "provider_findings": {
+        "reason": "no validated project selected for provider bindings and retained history",
+        "schema_version": "provider_findings.v1",
+        "sources": {},
+        "state": "unavailable"
+      },
+      "semantic_lexical": {
+        "coverage": {
+          "analyzed_documents": 0,
+          "eligible_documents": 4,
+          "input_byte_limit": 16777216,
+          "input_bytes": 0,
+          "omission_reasons": {
+            "no stored HTML (input.html_store_dir not set; crawl was not stored)": 4
+          },
+          "omitted_documents": 4,
+          "state": "unavailable"
+        },
+        "engine": null,
+        "reason": "no stored HTML (input.html_store_dir not set; crawl was not stored) (4)"
+      },
+      "semantic_similarity": {
+        "coverage": {
+          "analyzed_documents": 0,
+          "eligible_documents": 0,
+          "omission_reasons": {},
+          "omitted_documents": 0,
+          "state": "unavailable"
+        },
+        "reason": "no semantic embedding adapter is selected"
+      },
+      "sitemap": {
+        "declared_in_robots": null,
+        "in_crawl_not_in_sitemap": 0,
+        "in_sitemap_not_in_crawl": 0,
+        "non_200_in_sitemap": 0,
+        "non_indexable_in_sitemap": 0,
+        "sitemaps": [],
+        "urls_in_crawl_indexable": 4,
+        "urls_in_sitemap": 0
+      },
+      "size_stats_bytes": {
+        "count": 4,
+        "max": 300000,
+        "median": 77500,
+        "p75": 135000,
+        "p90": 234000,
+        "p95": 266999
+      },
+      "totals": {
+        "groups_total": 3,
+        "html_indexable": 4,
+        "html_pages": 4,
+        "issues_total": 25,
+        "pages_by_representation": {
+          "static": 6
+        },
+        "urls_crawled": 6
+      },
+      "trust_evidence": {
+        "anchor_evidence": "none",
+        "scope": {
+          "basis": "declared article markers or conventional content-path segments",
+          "crawl_pages": 6,
+          "indexable_html_pages": 4
+        },
+        "trust_pages": {
+          "about": {
+            "discovered_not_crawled": [],
+            "evidence": [],
+            "indexability": null,
+            "matched": [],
+            "state": "not_discovered",
+            "status_code": null,
+            "url": null
+          },
+          "contact": {
+            "discovered_not_crawled": [],
+            "evidence": [],
+            "indexability": null,
+            "matched": [],
+            "state": "not_discovered",
+            "status_code": null,
+            "url": null
+          },
+          "privacy": {
+            "discovered_not_crawled": [],
+            "evidence": [],
+            "indexability": null,
+            "matched": [],
+            "state": "not_discovered",
+            "status_code": null,
+            "url": null
+          },
+          "terms": {
+            "discovered_not_crawled": [],
+            "evidence": [],
+            "indexability": null,
+            "matched": [],
+            "state": "not_discovered",
+            "status_code": null,
+            "url": null
+          }
+        }
+      }
+    },
+    "target_scope": "example.com"
+  },
+  "schema_version": "spiderhead.bi.v1",
+  "url_key_policy": {
+    "casefold_path": false,
+    "ignore_query": false,
+    "ignore_scheme": false,
+    "source": "spiderhead.checks.external_join.normalize_join_key",
+    "version": "external_join.v1"
+  }
+}

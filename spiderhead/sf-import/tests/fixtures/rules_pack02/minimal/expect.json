@@ -1,0 +1,391 @@
+{
+ "asset_measurements": {
+  "RENDER_BLOCKING": {
+   "eligible": 2,
+   "measured": 0,
+   "partial": 0,
+   "reason": "no Render Blocking Resources column (needs a native seohead crawl)",
+   "state": "unavailable",
+   "unavailable": 2,
+   "unit": "pages"
+  }
+ },
+ "checks": [
+  "check_pagination",
+  "check_pagination_series",
+  "check_pagination_sequence",
+  "check_amp_pairing",
+  "check_tech_extra",
+  "check_charset",
+  "check_doctype",
+  "check_mobile_alternate",
+  "check_viewport",
+  "check_compression",
+  "check_element_position",
+  "check_document_skeleton",
+  "check_html_structure",
+  "check_render_blocking"
+ ],
+ "config": {
+  "analysis": {
+   "semantic": {
+    "adapter": "tfidf",
+    "st_model": null
+   }
+  },
+  "canonical_policy": {
+   "filters": [],
+   "pagination": []
+  },
+  "checks": {},
+  "exports": {
+   "bulk": [
+    "Response Codes:Internal & External:Client Error (4xx) Inlinks",
+    "Response Codes:Internal & External:Server Error (5xx) Inlinks",
+    "Response Codes:Internal & External:Redirection (3xx) Inlinks"
+   ],
+   "fetch_all_inlinks": false,
+   "reports": [
+    "Redirects:Redirect Chains",
+    "Hreflang:All hreflang URLs"
+   ],
+   "tabs": [
+    "Internal:All",
+    "Response Codes:Client Error (4xx)",
+    "Response Codes:Server Error (5xx)",
+    "Response Codes:Redirection (3xx)",
+    "Sitemaps:URLs in Sitemap",
+    "Sitemaps:URLs not in Sitemap",
+    "Sitemaps:Orphan URLs",
+    "Sitemaps:Non-Indexable URLs in Sitemap",
+    "Page Titles:Multiple",
+    "Structured Data:Validation Errors",
+    "Structured Data:Validation Warnings",
+    "Security:Mixed Content",
+    "Images:Missing Alt Text",
+    "Images:Missing Size Attributes",
+    "JavaScript:All",
+    "Canonicals:All",
+    "H1:All",
+    "Hreflang:Non-200 hreflang URLs",
+    "Page Titles:Duplicate",
+    "Meta Description:Duplicate",
+    "Images:Over X KB",
+    "Security:Missing HSTS Header",
+    "Structured Data:Missing",
+    "Response Codes:No Response",
+    "Response Codes:Blocked by Robots.txt"
+   ]
+  },
+  "filters": {
+   "content_type_include": [
+    "text/html"
+   ],
+   "exclude_extensions": [
+    ".js",
+    ".css",
+    ".json",
+    ".xml",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".pdf",
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".eot",
+    ".ico"
+   ]
+  },
+  "finding_exclusions": [],
+  "input": {
+   "exports_dir": "exports",
+   "html_store_dir": null,
+   "lighthouse_reports": {},
+   "mode": "auto"
+  },
+  "live_recheck": {
+   "enabled": false,
+   "max_urls": 5000,
+   "timeout_s": 10,
+   "use": "auto",
+   "user_agent": "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)"
+  },
+  "output": {
+   "json_path": "audit.json",
+   "keep_raw_exports": true,
+   "max_locations_per_issue": 200,
+   "max_pages_in_json": 100000,
+   "md_path": "audit.md"
+  },
+  "profile": "full",
+  "requirements": {
+   "require_canonical": true,
+   "require_h2": false,
+   "require_hreflang": false,
+   "require_og": false,
+   "require_structured_data": false
+  },
+  "scoring": {
+   "weights": {
+    "critical": 5,
+    "notice": 0.5,
+    "opportunity": 0.25,
+    "warning": 2
+   }
+  },
+  "semantic_similarity": {
+   "adapter": null,
+   "cache_path": null,
+   "embeddings": [],
+   "max_candidate_comparisons": 250000,
+   "max_documents": 1000,
+   "relevance_threshold": 0.35,
+   "threshold": 0.82
+  },
+  "severity_overrides": {},
+  "sf_cli": {
+   "expected_urls": 0,
+   "export_format": "csv",
+   "max_urls_per_second": null,
+   "path": "",
+   "search_paths": [
+    "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderLauncher",
+    "/Applications/Screaming Frog SEO Spider.app/Contents/MacOS/ScreamingFrogSEOSpiderCli",
+    "/usr/bin/screamingfrogseospider",
+    "C:\\Program Files (x86)\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe",
+    "C:\\Program Files\\Screaming Frog SEO Spider\\ScreamingFrogSEOSpiderCli.exe"
+   ],
+   "seospiderconfig": "audit.seospiderconfig",
+   "timeout_minutes": 30
+  },
+  "tasks_pipeline": {
+   "assignments": [],
+   "effort_map": {
+    "critical": "high",
+    "notice": "low",
+    "opportunity": "low",
+    "warning": "medium"
+   },
+   "exclude_checks": [],
+   "group_by": "check",
+   "include_checks": [],
+   "include_severities": [
+    "critical",
+    "warning",
+    "notice",
+    "opportunity"
+   ],
+   "max_urls_per_task": 25,
+   "min_occurrences": 1,
+   "priority_map": {
+    "critical": "P1",
+    "notice": "P3",
+    "opportunity": "P3",
+    "warning": "P2"
+   }
+  },
+  "thresholds": {
+   "avg_words_per_sentence_max": 25,
+   "bytes_per_word_x_median": 4.0,
+   "click_depth_max": 10,
+   "crawl_depth_max": 4,
+   "desc_max_chars": 160,
+   "desc_max_px": 985,
+   "desc_min_chars": 70,
+   "desc_min_px": 400,
+   "dom_depth_max": 32,
+   "dom_nodes_max": 1500,
+   "h1_max_chars": 70,
+   "high_external_outlinks": 100,
+   "high_outlinks": 300,
+   "img_max_kb": 150,
+   "large_html_abs_kb": 200,
+   "large_html_x_median": 3.0,
+   "link_score_low_ratio": 0.25,
+   "low_text_ratio_pct": 10,
+   "near_duplicate_similarity": 0.92,
+   "network_payload_max_bytes": 4194304,
+   "orphan_inlinks_min": 1,
+   "page_weight_max_bytes": 2097152,
+   "readability_flesch_min": 30,
+   "redirect_hop_cap": 20,
+   "resource_max_bytes": 2097152,
+   "response_time_max_s": 1.5,
+   "sitemap_desync_pct_warn": 20,
+   "sitemap_lastmod_stale_days": 365,
+   "templated_title_share": 0.6,
+   "thin_content_words": 200,
+   "title_max_chars": 60,
+   "title_max_px": 561,
+   "title_min_chars": 30,
+   "title_min_px": 200,
+   "url_max_chars": 115
+  }
+ },
+ "exports": {
+  "internal_all": {
+   "columns": [
+    "Address",
+    "Content Type",
+    "Status Code",
+    "Status",
+    "Indexability",
+    "Indexability Status"
+   ],
+   "rows": [
+    [
+     "https://example.test/",
+     "text/html",
+     200,
+     "OK",
+     "Indexable",
+     ""
+    ],
+    [
+     "https://example.test/about",
+     "text/html",
+     200,
+     "OK",
+     "Indexable",
+     ""
+    ]
+   ]
+  }
+ },
+ "issues": [],
+ "skipped": [
+  {
+   "id": "PAGINATION_LOOP",
+   "reason": "no rel=\"next\" column in Internal:All"
+  },
+  {
+   "id": "UNLINKED_PAGINATION_SERIES",
+   "reason": "no rel=\"next\" column in Internal:All"
+  },
+  {
+   "id": "PAGINATION_SEQUENCE_ERROR",
+   "reason": "no rel=\"next\" column in Internal:All"
+  },
+  {
+   "id": "AMP_NON_200",
+   "reason": "no amphtml Link Element column in Internal:All"
+  },
+  {
+   "id": "AMP_MISSING_CANONICAL",
+   "reason": "no amphtml Link Element column in Internal:All"
+  },
+  {
+   "id": "AMP_MISSING_RETURN_LINK",
+   "reason": "no amphtml Link Element column in Internal:All"
+  },
+  {
+   "id": "AMP_NON_INDEXABLE_CANONICAL",
+   "reason": "no amphtml Link Element column in Internal:All"
+  },
+  {
+   "id": "AMP_INDEXABLE",
+   "reason": "no amphtml Link Element column in Internal:All"
+  },
+  {
+   "id": "HTTP1_ONLY",
+   "reason": "no HTTP Version column in Internal:All"
+  },
+  {
+   "id": "AMPHTML_PRESENT",
+   "reason": "no amphtml Link Element column in Internal:All"
+  },
+  {
+   "id": "MISSING_CHARSET",
+   "reason": "no Meta Charset column, so a page without a header charset cannot be distinguished from one declaring <meta charset> (needs a native seohead crawl or Custom Extraction in SF)"
+  },
+  {
+   "id": "INVALID_CHARSET",
+   "reason": "no Meta Charset column, so the encoding a page declares in its HTML cannot be read (needs a native seohead crawl or Custom Extraction in SF)"
+  },
+  {
+   "id": "MISSING_DOCTYPE",
+   "reason": "no Doctype column (needs a native seohead crawl or Custom Extraction in SF)"
+  },
+  {
+   "id": "INVALID_DOCTYPE",
+   "reason": "no Doctype column (needs a native seohead crawl or Custom Extraction in SF)"
+  },
+  {
+   "id": "MOBILE_ALTERNATE_LINK",
+   "reason": "no rel=alternate media evidence (native crawl only)"
+  },
+  {
+   "id": "VIEWPORT_MISSING",
+   "reason": "no Viewport column (needs a native seohead crawl or Custom Extraction in SF)"
+  },
+  {
+   "id": "INVALID_VIEWPORT",
+   "reason": "no Viewport column (needs a native seohead crawl or Custom Extraction in SF)"
+  },
+  {
+   "id": "NO_COMPRESSION",
+   "reason": "no Content-Encoding column (needs a native seohead crawl or Custom Extraction in SF)"
+  },
+  {
+   "id": "TITLE_OUTSIDE_HEAD",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "DESC_OUTSIDE_HEAD",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "CANONICAL_OUTSIDE_HEAD",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "DIRECTIVES_OUTSIDE_HEAD",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "HREFLANG_OUTSIDE_HEAD",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "HEAD_MISSING",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "HEAD_MULTIPLE",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "BODY_MISSING",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "BODY_MULTIPLE",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "INVALID_HEAD_ELEMENT",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "HEAD_NOT_FIRST",
+   "reason": "no element-position evidence (needs a native seohead crawl; crawler exports do not record where an element sits)"
+  },
+  {
+   "id": "DUPLICATE_ID",
+   "reason": "no duplicate-id evidence (native crawl only)"
+  },
+  {
+   "id": "DECLARED_MIME_MISMATCH",
+   "reason": "no URL with a recognized extension and Content-Type"
+  },
+  {
+   "id": "RENDER_BLOCKING",
+   "reason": "no Render Blocking Resources column (needs a native seohead crawl)"
+  }
+ ],
+ "target_probes": {}
+}

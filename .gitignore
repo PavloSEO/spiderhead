@@ -1,0 +1,5 @@
+/target
+/worktrees
+.DS_Store
+*.sqlite-wal
+*.sqlite-shm

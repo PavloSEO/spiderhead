@@ -1,0 +1,1724 @@
+{
+  "schema_version": "2.0",
+  "tool": {
+    "name": "Export Analyzer",
+    "version": "3.2.0",
+    "generated_by": "SEOHead"
+  },
+  "run": {
+    "input_mode": "crawl",
+    "source": "https://example.com/",
+    "generated_at": "2026-10-27T10:03:38Z",
+    "collector": "spiderhead.crawl",
+    "crawl_partial": false,
+    "crawl_stopped_reason": "",
+    "crawl_finish_reason": "finished",
+    "crawl_resumed": false,
+    "external_checks": null,
+    "crawl_config": {
+      "analysis.asset_thresholds.network_payload_max_bytes": 4194304,
+      "analysis.asset_thresholds.page_weight_max_bytes": 2097152,
+      "analysis.asset_thresholds.resource_max_bytes": 2097152,
+      "analysis.canonical_policy.filters": [],
+      "analysis.canonical_policy.pagination": [],
+      "analysis.finding_exclusions": [],
+      "analysis.redirect_hop_hsts_probe": false,
+      "analysis.segments": [],
+      "cache.invalidate": false,
+      "cache.mode": "off",
+      "discovery.external.crawl": false,
+      "discovery.external.store": true,
+      "discovery.follow_nofollow": false,
+      "discovery.hyperlinks.crawl": true,
+      "discovery.hyperlinks.store": true,
+      "discovery.record_invalid_targets": false,
+      "discovery.redirects.crawl": true,
+      "discovery.resolve_canonical_destination": false,
+      "discovery.resolve_redirect_destination": false,
+      "evidence.content_area.exclude_selectors": [],
+      "evidence.content_area.exclude_tags": [
+        "nav",
+        "header",
+        "aside",
+        "footer"
+      ],
+      "evidence.content_area.include_selector": "",
+      "evidence.content_area.root_selector": "",
+      "evidence.extraction_rules": [],
+      "evidence.retain_no_store_acknowledged": false,
+      "external_checks.max_depth": 0,
+      "external_checks.max_hosts": 20,
+      "external_checks.max_redirects": 5,
+      "external_checks.max_requests": 0,
+      "external_checks.max_targets": 100,
+      "fetch.retry_server_errors": 0,
+      "http.auth": [],
+      "http.auth_acknowledged": false,
+      "http.credential_headers": [],
+      "http.credentials_acknowledged": false,
+      "http.headers": {},
+      "http.proxy": {
+        "mode": "direct",
+        "endpoint": null,
+        "authenticated": false
+      },
+      "http.proxy_allow_private": false,
+      "http.proxy_authenticated": false,
+      "http.proxy_identity": "",
+      "http.retry_on_timeout": 0,
+      "http.timeout_seconds": 15.0,
+      "http.upgrade_to_https": false,
+      "http.user_agent": "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)",
+      "http.zstd": false,
+      "limits.max_crawl_seconds": 0,
+      "limits.max_depth": 5,
+      "limits.max_query_variants_per_path": 5,
+      "limits.max_requests": 20000,
+      "limits.max_response_bytes": 1024,
+      "limits.max_url_length": 2000,
+      "limits.max_urls": 200,
+      "link_attributes.capture": false,
+      "link_position.classify": false,
+      "link_position.rules": [],
+      "rendering.actions": [],
+      "rendering.browser.device_pixel_ratio": 1.0,
+      "rendering.browser.engine": "chromium",
+      "rendering.browser.flatten_iframes": false,
+      "rendering.browser.flatten_shadow_dom": false,
+      "rendering.browser.mobile_emulation": false,
+      "rendering.browser.page_concurrency": 1,
+      "rendering.browser.persistent_profile": false,
+      "rendering.browser.remote_endpoint_env": "",
+      "rendering.browser.remote_playwright_version": "",
+      "rendering.browser.remote_protocol": "playwright",
+      "rendering.browser.resize_to_content": false,
+      "rendering.browser.resize_to_content_max_height_px": 15000,
+      "rendering.browser.script_timeout_seconds": 10.0,
+      "rendering.browser.touch_emulation": false,
+      "rendering.browser.transport": "local",
+      "rendering.browser.viewport": "desktop",
+      "rendering.browser.viewport_height": 0,
+      "rendering.browser.viewport_width": 0,
+      "rendering.browser.wait_until": "load",
+      "rendering.escalation.max_render_seconds": 0,
+      "rendering.escalation.max_render_urls": 30,
+      "rendering.escalation.policy": "sampled",
+      "rendering.escalation.sample_per_pattern": 2,
+      "rendering.mode": "raw",
+      "rendering.presets": [],
+      "rendering.rendered_links.crawl": false,
+      "rendering.rendered_links.store": false,
+      "resources.fetch": false,
+      "resources.graph.max_bytes": 104857600,
+      "resources.graph.max_bytes_per_resource": 5242880,
+      "resources.graph.max_nesting": 2,
+      "resources.graph.max_origins": 1,
+      "resources.graph.max_redirects": 0,
+      "resources.graph.max_requests": 2000,
+      "resources.graph.max_seconds": 0,
+      "resources.max_requests": 20000,
+      "resources.max_response_bytes": 5242880,
+      "robots.policy": "report_only",
+      "robots.unavailable_means_stop": true,
+      "robots.user_agent_token": "SpiderHeadBot",
+      "scope.exclude_extensions": [],
+      "scope.exclude_hosts": [],
+      "scope.exclude_media_types": [],
+      "scope.exclude_patterns": [],
+      "scope.include_extensions": [],
+      "scope.include_media_types": [],
+      "scope.include_patterns": [],
+      "scope.internal": "host",
+      "scope.normalize_tracking_parameters": true,
+      "scope.segments": [],
+      "scope.segments_only": [],
+      "scope.start_folder_only": false,
+      "sitemaps.auto_discover": false,
+      "speed.adaptive": true,
+      "speed.min_delay_seconds": 0.01,
+      "speed.stop_after_consecutive_timeouts": 5,
+      "storage.body_mode": "captured_entity_bytes",
+      "storage.capacity_profile": "stable",
+      "storage.format_version": "scan.v1",
+      "storage.history_warning_bytes": 21474836480,
+      "storage.max_body_bytes": 5242880,
+      "storage.max_body_store_bytes": 10737418240,
+      "storage.min_free_bytes": 1073741824
+    },
+    "effective_max_requests_per_second": 100.0,
+    "cache_replay": false,
+    "cache_stats": {},
+    "requires_rendering": false,
+    "requires_rendering_reason": "",
+    "render_escalation": null,
+    "crawl_valid": true,
+    "crawl_invalid_reason": null,
+    "checks_skipped": [
+      {
+        "id": "IMG_MISSING_ALT",
+        "reason": "missing export: images_missing_alt"
+      },
+      {
+        "id": "IMG_OVER_KB",
+        "reason": "missing export: images_over_kb"
+      },
+      {
+        "id": "IMG_MISSING_DIMENSIONS",
+        "reason": "missing export: images_missing_size"
+      },
+      {
+        "id": "MIXED_CONTENT",
+        "reason": "missing export: security_mixed"
+      },
+      {
+        "id": "MISSING_HSTS",
+        "reason": "missing export: security_hsts"
+      },
+      {
+        "id": "HREFLANG_ERROR",
+        "reason": "missing export: hreflang"
+      },
+      {
+        "id": "SITEMAP_URL_4XX_5XX",
+        "reason": "missing export: sitemap_non_200"
+      },
+      {
+        "id": "SITEMAP_URL_3XX",
+        "reason": "missing export: sitemap_redirects"
+      },
+      {
+        "id": "SITEMAP_URL_NON_INDEXABLE",
+        "reason": "missing export: sitemap_non_indexable"
+      },
+      {
+        "id": "MIXED_LINK_REL",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "OUTBOUND_SPONSORED_WITHOUT_DISCLOSURE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "CANONICALISED",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "CANONICAL_NON_INDEXABLE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "CANONICAL_RELATIVE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "CANONICAL_FRAGMENT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "CANONICAL_CHAIN",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "CANONICAL_TO_REDIRECT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "UNLINKED_CANONICAL",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "DIRECTIVES_OUTSIDE_HEAD",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "NOINDEX",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "NOFOLLOW_PAGE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "NOARCHIVE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "NOSNIPPET",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "NOIMAGEINDEX",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "NOTRANSLATE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "NOODP",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "NOYDIR",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "UNAVAILABLE_AFTER",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_OUTSIDE_HEAD",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "META_REFRESH_REDIRECT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "CANONICAL_OUTSIDE_HEAD",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "STRUCTURED_DATA_PARSE_ERROR",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "LOREM_IPSUM_PLACEHOLDER",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "UNSUPPORTED_PLUGIN",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "IMG_MISSING_ALT_ATTRIBUTE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "IMG_ALT_TOO_LONG",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "AJAX_CRAWLING_SCHEME_URL",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "AJAX_CRAWLING_SCHEME_META_FRAGMENT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_BROKEN_TARGET",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_UNLINKED_TARGET",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_INVALID_CODE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_MULTIPLE_ENTRIES",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_MISSING_SELF_REFERENCE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_MISSING_XDEFAULT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_NOT_CANONICAL",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HREFLANG_MISSING_RETURN_LINK",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "BROKEN_INTERNAL_LINK",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "LINK_TO_5XX",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "INTERNAL_LINK_TO_REDIRECT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "BROKEN_EXTERNAL_LINK",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "EXTERNAL_LINK_TO_REDIRECT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "GENERIC_ANCHOR_TEXT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "LOW_LINK_SCORE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "ONLY_NOFOLLOW_INLINKS",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "ONLY_NONINDEXABLE_SOURCE_INLINKS",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "DEEP_DISCOVERY_PATH",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "DEEP_CLICK_DEPTH",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "DUPLICATE_INTERNAL_LINK",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "INSECURE_SUBRESOURCE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "PAGINATION_MULTIPLE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "PAGINATION_URL_NOT_IN_ANCHOR",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "PAGINATION_SEQUENCE_ERROR",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "PAGINATION_LOOP",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "UNLINKED_PAGINATION_SERIES",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "PAGINATION_NONINDEXABLE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "MISSING_DOCTYPE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "INVALID_DOCTYPE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "INVALID_VIEWPORT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "RENDER_BLOCKING",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HEAD_MISSING",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HEAD_MULTIPLE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "BODY_MISSING",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "BODY_MULTIPLE",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "INVALID_HEAD_ELEMENT",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "HEAD_NOT_FIRST",
+        "reason": "1 page(s) with an oversized, unparsed HTML body -- this metadata was never measured"
+      },
+      {
+        "id": "INTERNAL_LINK_NO_ANCHOR",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "EXTERNAL_NO_RESPONSE",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "SITEMAP_URL_NON_CANONICAL",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "SITEMAP_URL_BLOCKED_ROBOTS",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "JS_REDIRECT",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "HEAVY_NETWORK_PAYLOAD",
+        "reason": "this check requires retained native scan evidence"
+      },
+      {
+        "id": "LCP_DISCOVERY",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      {
+        "id": "NETWORK_DEPENDENCY_TREE",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      {
+        "id": "LAYOUT_SHIFT_CULPRITS",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      {
+        "id": "IMAGE_DELIVERY",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      {
+        "id": "FORCED_REFLOW",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      {
+        "id": "JS_EXECUTION_TIME",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      {
+        "id": "IMG_INTRINSIC_OVERSIZED",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages"
+      },
+      {
+        "id": "IMG_UPSCALED",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages"
+      },
+      {
+        "id": "UNUSED_CSS_JS",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages"
+      },
+      {
+        "id": "HEAVY_PAGE_WEIGHT",
+        "reason": "not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound"
+      },
+      {
+        "id": "RESOURCE_OVER_2MB",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "ASSET_SHORT_CACHE",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "FONT_DISPLAY_MISSING",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "UNMINIFIED_CSS_JS",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "DUPLICATED_JS",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "LEGACY_JS",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      {
+        "id": "AMP_INVALID_DOCTYPE",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_MISSING_HEAD",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_MISSING_BODY",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_INVALID_CHARSET",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_INVALID_VIEWPORT",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_INVALID_RUNTIME",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_INVALID_BOILERPLATE",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_MISSING_HTML_ATTRIBUTE",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "A11Y_HTML_LANG_MISSING",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "A11Y_FORM_LABEL_MISSING",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "A11Y_IMAGE_ALT_MISSING",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "A11Y_HEADING_ORDER",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "A11Y_MAIN_LANDMARK_MISSING",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "STRUCTURED_DATA_SCHEMA_ERROR",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "STRUCTURED_DATA_SCHEMA_WARNING",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "STRUCTURED_DATA_RICH_RESULT_REQUIRED_MISSING",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_SCRIPT_MISSING",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "AMP_BOILERPLATE_INVALID",
+        "reason": "document-bound markup evidence requires a retained native crawl"
+      },
+      {
+        "id": "BODY_MIME_MISMATCH",
+        "reason": "export-only analysis retains no per-URL response bodies; a native retained scan is required"
+      },
+      {
+        "id": "TITLE_PIXELS_OVER",
+        "reason": "no title_px column in Internal:All (SF-derived pixel-width column; native crawls leave it unmeasured)"
+      },
+      {
+        "id": "TITLE_PIXELS_BELOW",
+        "reason": "no title_px column in Internal:All (SF-derived pixel-width column; native crawls leave it unmeasured)"
+      },
+      {
+        "id": "DESC_PIXELS_OVER",
+        "reason": "no desc_px column in Internal:All (SF-derived pixel-width column; native crawls leave it unmeasured)"
+      },
+      {
+        "id": "DESC_PIXELS_BELOW",
+        "reason": "no desc_px column in Internal:All (SF-derived pixel-width column; native crawls leave it unmeasured)"
+      },
+      {
+        "id": "H2_MISSING",
+        "reason": "requirements.require_h2 is false; the check was not evaluated"
+      },
+      {
+        "id": "INVALID_LINK_TARGET",
+        "reason": "invalid link target recording was off for this crawl (discovery.record_invalid_targets)"
+      },
+      {
+        "id": "META_KEYWORDS_PRESENT",
+        "reason": "no Meta Keywords 1 column in Internal:All"
+      },
+      {
+        "id": "PAGINATION_CANONICAL_POLICY",
+        "reason": "no pagination canonical policy configured"
+      },
+      {
+        "id": "FILTER_CANONICAL_POLICY",
+        "reason": "no filters canonical policy configured"
+      },
+      {
+        "id": "SCHEMA_VALIDATION_ERROR",
+        "reason": "no Structured Data validation columns in Internal:All"
+      },
+      {
+        "id": "SPELLING_ERRORS",
+        "reason": "no Spelling Errors column (enable spell-check in SF)"
+      },
+      {
+        "id": "GRAMMAR_ERRORS",
+        "reason": "no Grammar Errors column (enable grammar-check in SF)"
+      },
+      {
+        "id": "CANONICAL_MULTIPLE",
+        "reason": "no Canonical Link Element 2 column in Internal:All"
+      },
+      {
+        "id": "CANONICAL_INVALID_ATTRIBUTE",
+        "reason": "raw canonical attributes are unavailable in this export"
+      },
+      {
+        "id": "CANONICAL_TARGET_ERROR",
+        "reason": "no canonical values in Internal:All"
+      },
+      {
+        "id": "CANONICAL_HOMEPAGE_GROUP",
+        "reason": "no canonical values in fetched indexable HTML"
+      },
+      {
+        "id": "HTTP1_ONLY",
+        "reason": "no HTTP Version column in Internal:All"
+      },
+      {
+        "id": "AMP_NON_200",
+        "reason": "no page declares an AMP target (rel=amphtml)"
+      },
+      {
+        "id": "AMP_MISSING_CANONICAL",
+        "reason": "no page declares an AMP target (rel=amphtml)"
+      },
+      {
+        "id": "AMP_MISSING_RETURN_LINK",
+        "reason": "no page declares an AMP target (rel=amphtml)"
+      },
+      {
+        "id": "AMP_NON_INDEXABLE_CANONICAL",
+        "reason": "no page declares an AMP target (rel=amphtml)"
+      },
+      {
+        "id": "AMP_INDEXABLE",
+        "reason": "no page declares an AMP target (rel=amphtml)"
+      },
+      {
+        "id": "IMG_BROKEN",
+        "reason": "no resource evidence (native crawl with resource capture only)"
+      },
+      {
+        "id": "MOBILE_CONTENT_OVERFLOW",
+        "reason": "requires retained native rendered mobile layout evidence"
+      },
+      {
+        "id": "MOBILE_TEXT_TOO_SMALL",
+        "reason": "requires retained native rendered mobile layout evidence"
+      },
+      {
+        "id": "MOBILE_TARGET_TOO_SMALL",
+        "reason": "requires retained native rendered mobile layout evidence"
+      },
+      {
+        "id": "NOINDEX_ONLY_IN_RAW_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "NOFOLLOW_ONLY_IN_RAW_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "CANONICAL_MISMATCH",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "H1_ONLY_IN_RENDERED_HTML",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "H1_UPDATED_BY_JAVASCRIPT",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "RENDER_RESOURCE_BLOCKED",
+        "reason": "requires retained native rendered evidence"
+      },
+      {
+        "id": "DUPLICATE_ID",
+        "reason": "1 page(s) have no parsed duplicate-id evidence"
+      },
+      {
+        "id": "DECLARED_MIME_MISMATCH",
+        "reason": "no URL with a recognized extension and Content-Type"
+      },
+      {
+        "id": "OG_MISSING",
+        "reason": "no Open Graph columns in Internal:All (enable OG extraction in SF)"
+      },
+      {
+        "id": "TITLE_MULTIPLE",
+        "reason": "no titles_multiple export (export this SF filter to enable)"
+      },
+      {
+        "id": "HREFLANG_NOINDEX_TARGET",
+        "reason": "one or more hreflang targets or the retained population were unmeasured"
+      },
+      {
+        "id": "NO_AUTHOR_BYLINE",
+        "reason": "no article-scope pages (no declared article markers and no content-path URL) -- the check did not apply"
+      },
+      {
+        "id": "NO_CONTENT_DATES",
+        "reason": "no article-scope pages (no declared article markers and no content-path URL) -- the check did not apply"
+      },
+      {
+        "id": "FEW_CITATIONS",
+        "reason": "no article-scope pages (no declared article markers and no content-path URL) -- the check did not apply"
+      },
+      {
+        "id": "DOM_TOO_DEEP",
+        "reason": "stored HTML matched only 0 of 1 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (1) — DOM size not assessed for the rest"
+      },
+      {
+        "id": "DOM_TOO_MANY_NODES",
+        "reason": "stored HTML matched only 0 of 1 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (1) — DOM size not assessed for the rest"
+      },
+      {
+        "id": "NEAR_DUPLICATE",
+        "reason": "stored HTML matched only 0 of 1 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (1)"
+      },
+      {
+        "id": "DUPLICATE_BY_HASH",
+        "reason": "stored HTML matched only 0 of 1 indexable pages; no stored HTML (input.html_store_dir not set; crawl was not stored) (1)"
+      },
+      {
+        "id": "SEMANTIC_SIMILARITY_CANDIDATE",
+        "reason": "no semantic embedding adapter is selected"
+      },
+      {
+        "id": "TITLE_LOW_SEMANTIC_RELEVANCE",
+        "reason": "no semantic embedding adapter is selected"
+      },
+      {
+        "id": "H1_LOW_SEMANTIC_RELEVANCE",
+        "reason": "no semantic embedding adapter is selected"
+      },
+      {
+        "id": "SEMANTICALLY_SIMILAR",
+        "reason": "no stored HTML (input.html_store_dir not set; crawl was not stored) (1)"
+      },
+      {
+        "id": "LOW_RELEVANCE_CONTENT",
+        "reason": "no stored HTML (input.html_store_dir not set; crawl was not stored) (1)"
+      },
+      {
+        "id": "TITLE_TEMPLATED",
+        "reason": "too few titles to assess templating"
+      },
+      {
+        "id": "HTTP_LINK_ON_HTTPS",
+        "reason": "link_attributes.capture is false; original href schemes were not retained"
+      },
+      {
+        "id": "JS_CONSOLE_ERRORS",
+        "reason": "no browser console was retained; enable rendering.artifacts.console_errors"
+      },
+      {
+        "id": "MISSING_CSP",
+        "reason": "crawl was not stored; per-URL response headers are not retained"
+      },
+      {
+        "id": "MISSING_X_CONTENT_TYPE_OPTIONS",
+        "reason": "crawl was not stored; per-URL response headers are not retained"
+      },
+      {
+        "id": "MISSING_X_FRAME_OPTIONS",
+        "reason": "crawl was not stored; per-URL response headers are not retained"
+      },
+      {
+        "id": "MISSING_REFERRER_POLICY",
+        "reason": "crawl was not stored; per-URL response headers are not retained"
+      },
+      {
+        "id": "DUPLICATE_SECURITY_HEADER",
+        "reason": "crawl was not stored; per-URL response headers are not retained"
+      },
+      {
+        "id": "MISSING_HSTS_ON_REDIRECT_HOP",
+        "reason": "opt-in probe disabled; enable analysis.redirect_hop_hsts_probe"
+      },
+      {
+        "id": "BROKEN_BOOKMARK",
+        "reason": "input retains no HTML/DOM bodies; fragment targets are measured only from a native retained scan"
+      }
+    ],
+    "checks_disabled": []
+  },
+  "summary": {
+    "totals": {
+      "urls_crawled": 2,
+      "html_pages": 2,
+      "html_indexable": 1,
+      "issues_total": 18,
+      "groups_total": 0,
+      "pages_by_representation": {
+        "static": 2
+      }
+    },
+    "by_severity": {
+      "critical": 1,
+      "warning": 5,
+      "notice": 8
+    },
+    "by_check": {
+      "BLOCKED_BY_ROBOTS": 1,
+      "CANONICAL_MISSING": 1,
+      "CONTENT_IN_IFRAME": 1,
+      "DESC_MISSING": 1,
+      "FORM_URL_INSECURE": 1,
+      "IMPORTANT_URL_BLOCKED_BY_ROBOTS": 1,
+      "LOW_TEXT_RATIO": 1,
+      "MISSING_ABOUT_PAGE": 1,
+      "MISSING_CONTACT_PAGE": 1,
+      "MISSING_PRIVACY_POLICY": 1,
+      "MISSING_TERMS_PAGE": 1,
+      "NON_INDEXABLE_LINKED": 1,
+      "NO_COMPRESSION": 1,
+      "READABILITY_DIFFICULT": 1,
+      "ROBOTS_BLOCKED_OUTLINK": 1,
+      "STRUCTURED_DATA_MISSING": 1,
+      "TITLE_TOO_SHORT": 1,
+      "VIEWPORT_MISSING": 1
+    },
+    "implausible_checks": [],
+    "health_score": null,
+    "check_coverage": {
+      "checks_total": 298,
+      "checks_fired": 18,
+      "checks_skipped": 181,
+      "checks_disabled": 0,
+      "checks_disabled_ids": [],
+      "checks_silent": 99,
+      "checks_silent_ids": [
+        "AMPHTML_PRESENT",
+        "BAD_REDIRECT_TYPE",
+        "BOUNCE_RATE_ABOVE_70",
+        "BROKEN_PAGE_4XX",
+        "CANONICAL_CROSS_ORIGIN",
+        "DEEP_CRAWL_DEPTH",
+        "DESC_DUPLICATE",
+        "DESC_MULTIPLE",
+        "DESC_OUTSIDE_HEAD",
+        "DESC_TOO_LONG",
+        "DESC_TOO_SHORT",
+        "EXTERNAL_NOFOLLOW",
+        "FOLLOW_AND_NOFOLLOW_INLINKS",
+        "FORM_ON_HTTP_URL",
+        "GA_ORPHAN_URL",
+        "GSC_AMP_INVALID",
+        "GSC_INDEXABLE_NOT_INDEXED",
+        "GSC_INDEXED_WITH_ISSUES",
+        "GSC_ORPHAN",
+        "GSC_RICH_RESULTS_INVALID",
+        "GSC_URL_NOT_ON_GOOGLE",
+        "GSC_USER_CANONICAL_NOT_SELECTED",
+        "H1_ALT_TEXT_ONLY",
+        "H1_DUPLICATE",
+        "H1_MISSING",
+        "H1_MULTIPLE",
+        "H1_TOO_LONG",
+        "H2_DUPLICATE",
+        "H2_MULTIPLE",
+        "H2_TOO_LONG",
+        "HEADING_BEFORE_H1",
+        "HEADING_IN_PAGE_CHROME",
+        "HEADING_SKIP",
+        "HIGH_EXTERNAL_OUTLINKS",
+        "HIGH_OUTLINKS",
+        "HREFLANG_INCONSISTENT_CONFIRMATION",
+        "HTML_BLOAT",
+        "HTML_OVER_2MB",
+        "HTTP_REFRESH_REDIRECT",
+        "HTTP_URL",
+        "IMAGE_LINK_WITHOUT_TEXT",
+        "INLINK_BOILERPLATE_ONLY",
+        "INTERNAL_LINK_SPONSORED_UGC",
+        "INTERNAL_NOFOLLOW_OUTLINKS",
+        "INVALID_CHARSET",
+        "LARGE_HTML",
+        "LINK_INSIDE_HEADING",
+        "LONG_SENTENCES",
+        "METRIKA_BOUNCE_RATE_ABOVE_70",
+        "METRIKA_ORPHAN_URL",
+        "MISSING_CHARSET",
+        "MOBILE_ALTERNATE_LINK",
+        "NON_INDEXABLE_WITH_GA_DATA",
+        "NON_INDEXABLE_WITH_METRIKA_DATA",
+        "NON_INDEXABLE_WITH_SEARCH_DATA",
+        "NO_GA_DATA",
+        "NO_INTERNAL_OUTLINKS",
+        "NO_METRIKA_DATA",
+        "NO_RESPONSE",
+        "NO_SEARCH_DATA",
+        "ORPHAN_PAGE",
+        "OUTLINK_TO_LOCALHOST",
+        "PLACEHOLDER_MARKER",
+        "PROTOCOL_RELATIVE_LINK",
+        "REDIRECT_CHAIN",
+        "REDIRECT_LOOP",
+        "ROBOTS_BLOCKS_RESOURCES",
+        "SERVER_ERROR_5XX",
+        "SITEMAP_DESYNC",
+        "SITEMAP_FETCH_INCOMPLETE",
+        "SITEMAP_NOT_IN_ROBOTS",
+        "SITEMAP_ORPHAN",
+        "SITEMAP_STALE_LASTMOD",
+        "SITEMAP_TOO_LARGE",
+        "SITEMAP_TOO_MANY_URLS",
+        "SITEMAP_URL_DUPLICATED",
+        "SLOW_RESPONSE",
+        "THIN_CONTENT",
+        "TITLE_DUPLICATE",
+        "TITLE_EQUALS_H1",
+        "TITLE_MISSING",
+        "TITLE_OUTSIDE_HEAD",
+        "TITLE_TOO_LONG",
+        "UNSAFE_CROSS_ORIGIN_LINK",
+        "URL_CONTAINS_SPACE",
+        "URL_HAS_PARAMETERS",
+        "URL_HAS_PARAMS",
+        "URL_INTERNAL_SEARCH",
+        "URL_MULTIPLE_SLASHES",
+        "URL_NON_ASCII",
+        "URL_NOT_IN_SITEMAP",
+        "URL_REPETITIVE_PATH",
+        "URL_SESSION_ID",
+        "URL_TOO_LONG",
+        "URL_TRACKING_PARAMS",
+        "URL_TRAILING_SLASH_INCONSISTENT",
+        "URL_UNDERSCORES",
+        "URL_UPPERCASE",
+        "YMYL_REVIEW_CANDIDATE"
+      ],
+      "coverage": 0.393
+    },
+    "health_score_reason": "only 117 of 298 checks could run (39% coverage); too little evidence to score",
+    "health_score_basis": "117 of 298 checks could run; the score is not comparable to a run with full evidence",
+    "internal_linking": {
+      "measured": true,
+      "edges_total": 2,
+      "by_position": {},
+      "unclassified": 2,
+      "classified_fraction": 0.0,
+      "positions_note": "edges with no recorded position are counted under 'unclassified', never as content; re-crawl with link_position.classify to classify them",
+      "duplicate_edges": 0,
+      "duplicate_fraction": 0.0,
+      "click_depth": {
+        "measured": true,
+        "seed": "https://example.com/",
+        "pages": 2,
+        "reachable": 2,
+        "unreachable": 0,
+        "max": 1,
+        "histogram": {
+          "0": 1,
+          "1": 1
+        },
+        "within": {
+          "3": 2,
+          "5": 2,
+          "10": 2
+        },
+        "floor_used": 10,
+        "edges": "internal followed hyperlinks"
+      }
+    },
+    "asset_measurements": {
+      "LCP_DISCOVERY": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      "NETWORK_DEPENDENCY_TREE": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      "LAYOUT_SHIFT_CULPRITS": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      "IMAGE_DELIVERY": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      "FORCED_REFLOW": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      "JS_EXECUTION_TIME": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: supply input.lighthouse_reports with matching per-URL Lighthouse JSON for every eligible HTML page; no trace was collected for missing reports"
+      },
+      "IMG_INTRINSIC_OVERSIZED": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages"
+      },
+      "IMG_UPSCALED": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages"
+      },
+      "UNUSED_CSS_JS": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: retained render layout or Chromium coverage is absent, unavailable or bounded for eligible HTML pages"
+      },
+      "HEAVY_PAGE_WEIGHT": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": 2,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: runtime response weight is absent or bounded; captured HTML alone is a lower bound"
+      },
+      "RESOURCE_OVER_2MB": {
+        "unit": "resources",
+        "eligible": null,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": null,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      "ASSET_SHORT_CACHE": {
+        "unit": "resources",
+        "eligible": null,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": null,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      "FONT_DISPLAY_MISSING": {
+        "unit": "resources",
+        "eligible": null,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": null,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      "UNMINIFIED_CSS_JS": {
+        "unit": "resources",
+        "eligible": null,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": null,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      "DUPLICATED_JS": {
+        "unit": "resources",
+        "eligible": null,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": null,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      "LEGACY_JS": {
+        "unit": "resources",
+        "eligible": null,
+        "measured": 0,
+        "partial": 0,
+        "unavailable": null,
+        "state": "unavailable",
+        "reason": "not fully measured by this native crawl: declared-resource evidence is absent, unavailable, partial or omits declarations; enable scan.v2 resources.fetch within explicit graph budgets"
+      },
+      "RENDER_BLOCKING": {
+        "unit": "pages",
+        "eligible": 2,
+        "measured": 1,
+        "partial": 0,
+        "unavailable": 1,
+        "state": "partial",
+        "reason": "retained render-blocking markup is absent, unreadable or resource samples were bounded"
+      }
+    },
+    "trust_evidence": {
+      "scope": {
+        "indexable_html_pages": 1,
+        "crawl_pages": 2,
+        "basis": "declared article markers or conventional content-path segments"
+      },
+      "trust_pages": {
+        "about": {
+          "state": "not_discovered",
+          "url": null,
+          "status_code": null,
+          "indexability": null,
+          "evidence": [],
+          "matched": [],
+          "discovered_not_crawled": []
+        },
+        "contact": {
+          "state": "not_discovered",
+          "url": null,
+          "status_code": null,
+          "indexability": null,
+          "evidence": [],
+          "matched": [],
+          "discovered_not_crawled": []
+        },
+        "privacy": {
+          "state": "not_discovered",
+          "url": null,
+          "status_code": null,
+          "indexability": null,
+          "evidence": [],
+          "matched": [],
+          "discovered_not_crawled": []
+        },
+        "terms": {
+          "state": "not_discovered",
+          "url": null,
+          "status_code": null,
+          "indexability": null,
+          "evidence": [],
+          "matched": [],
+          "discovered_not_crawled": []
+        }
+      },
+      "anchor_evidence": "all_inlinks",
+      "citations": {
+        "applicable_pages": 0,
+        "with_content_citations": 0,
+        "unmeasured_pages": 0,
+        "position_evidence": "all_inlinks"
+      }
+    },
+    "semantic_similarity": {
+      "coverage": {
+        "state": "unavailable",
+        "eligible_documents": 0,
+        "analyzed_documents": 0,
+        "omitted_documents": 0,
+        "omission_reasons": {}
+      },
+      "reason": "no semantic embedding adapter is selected"
+    },
+    "semantic_lexical": {
+      "engine": null,
+      "coverage": {
+        "state": "unavailable",
+        "eligible_documents": 1,
+        "analyzed_documents": 0,
+        "omitted_documents": 1,
+        "omission_reasons": {
+          "no stored HTML (input.html_store_dir not set; crawl was not stored)": 1
+        },
+        "input_bytes": 0,
+        "input_byte_limit": 16777216
+      },
+      "reason": "no stored HTML (input.html_store_dir not set; crawl was not stored) (1)"
+    },
+    "link_rel": {
+      "measured": false,
+      "reason": "link_attributes.capture is false; full rel tokens were not retained"
+    }
+  },
+  "issues": [
+    {
+      "id": "ISSUE-000001",
+      "fingerprint": "93114d6d7050",
+      "check": "FORM_URL_INSECURE",
+      "severity": "critical",
+      "source": "crawl:link_findings",
+      "message": "A form submits to an http:// action, so its data leaves the browser unencrypted regardless of the page's own scheme",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "target_url": "https://example.com/",
+        "action": "http://example.com/submit",
+        "method": "post"
+      },
+      "fix_hint": "Point the form's action at an https:// URL."
+    },
+    {
+      "id": "ISSUE-000002",
+      "fingerprint": "f66cb0afa5f4",
+      "check": "BLOCKED_BY_ROBOTS",
+      "severity": "warning",
+      "source": "SF:Response Codes:Blocked by Robots.txt",
+      "message": "URL is blocked by robots.txt",
+      "target_url": "https://example.com/second",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "indexability_status": "Blocked by Robots.txt",
+        "inlinks": 2
+      },
+      "fix_hint": "Confirm that the block is intentional; pages intended for indexing should remain crawlable."
+    },
+    {
+      "id": "ISSUE-000003",
+      "fingerprint": "ca86577e5f33",
+      "check": "CANONICAL_MISSING",
+      "severity": "warning",
+      "source": "SF-derived",
+      "message": "Indexable page has no canonical URL",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "fix_hint": "Add a valid <link rel=\"canonical\"> element."
+    },
+    {
+      "id": "ISSUE-000004",
+      "fingerprint": "b06368e352c4",
+      "check": "CONTENT_IN_IFRAME",
+      "severity": "warning",
+      "source": "crawl:content_frames",
+      "message": "The page's content sits inside an iframe and is not attributed to this URL",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "word_count": 5,
+        "threshold": 200,
+        "same_origin_frames_in_content_area": 1,
+        "frames_in_content_area": 2
+      },
+      "fix_hint": "Serve the framed copy in the page's own HTML. A search engine attributes an iframe's text to the framed document, not to the page that frames it, so the copy exists and earns this URL nothing."
+    },
+    {
+      "id": "ISSUE-000005",
+      "fingerprint": "ca318bbff985",
+      "check": "DESC_MISSING",
+      "severity": "warning",
+      "source": "SF-derived",
+      "message": "Meta description is missing",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "fix_hint": "Add a useful meta description, typically up to about 160 characters."
+    },
+    {
+      "id": "ISSUE-000006",
+      "fingerprint": "685a7ae56190",
+      "check": "IMPORTANT_URL_BLOCKED_BY_ROBOTS",
+      "severity": "warning",
+      "source": "SF-derived",
+      "message": "Live page is blocked by robots.txt despite receiving internal links",
+      "target_url": "https://example.com/second",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "inlinks": 2,
+        "indexability_status": "Blocked by Robots.txt"
+      },
+      "fix_hint": "robots.txt blocks crawling, not indexing, so link discovery is lost. Make the URL crawlable with a more specific Allow rule than the matching Disallow, and control indexing with canonical or noindex. A common case is pagination such as /blog?page=N blocked by Disallow: /*?."
+    },
+    {
+      "id": "ISSUE-000007",
+      "fingerprint": "1f393f281e57",
+      "check": "MISSING_ABOUT_PAGE",
+      "severity": "notice",
+      "source": "SF-derived",
+      "message": "No indexable About page was found in the crawl's scope",
+      "target_url": null,
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "state": "not_discovered",
+        "crawl_pages": 2,
+        "vocabulary": "whole path segments and anchor texts from a fixed EN/RU list",
+        "matched": [],
+        "evidence": [],
+        "indexability": null,
+        "discovered_not_crawled": []
+      },
+      "fix_hint": "If an About page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all."
+    },
+    {
+      "id": "ISSUE-000008",
+      "fingerprint": "d29a63940840",
+      "check": "MISSING_CONTACT_PAGE",
+      "severity": "notice",
+      "source": "SF-derived",
+      "message": "No indexable Contact page was found in the crawl's scope",
+      "target_url": null,
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "state": "not_discovered",
+        "crawl_pages": 2,
+        "vocabulary": "whole path segments and anchor texts from a fixed EN/RU list",
+        "matched": [],
+        "evidence": [],
+        "indexability": null,
+        "discovered_not_crawled": []
+      },
+      "fix_hint": "If a Contact page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all."
+    },
+    {
+      "id": "ISSUE-000009",
+      "fingerprint": "dd21bf44c3b7",
+      "check": "MISSING_PRIVACY_POLICY",
+      "severity": "notice",
+      "source": "SF-derived",
+      "message": "No indexable privacy policy page was found in the crawl's scope",
+      "target_url": null,
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "state": "not_discovered",
+        "crawl_pages": 2,
+        "vocabulary": "whole path segments and anchor texts from a fixed EN/RU list",
+        "matched": [],
+        "evidence": [],
+        "indexability": null,
+        "discovered_not_crawled": []
+      },
+      "fix_hint": "If a privacy policy exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all."
+    },
+    {
+      "id": "ISSUE-000010",
+      "fingerprint": "e1161beb307e",
+      "check": "MISSING_TERMS_PAGE",
+      "severity": "notice",
+      "source": "SF-derived",
+      "message": "No indexable terms-of-use page was found in the crawl's scope",
+      "target_url": null,
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "state": "not_discovered",
+        "crawl_pages": 2,
+        "vocabulary": "whole path segments and anchor texts from a fixed EN/RU list",
+        "matched": [],
+        "evidence": [],
+        "indexability": null,
+        "discovered_not_crawled": []
+      },
+      "fix_hint": "If a terms page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all."
+    },
+    {
+      "id": "ISSUE-000011",
+      "fingerprint": "c6851825ad3e",
+      "check": "NON_INDEXABLE_LINKED",
+      "severity": "notice",
+      "source": "SF-derived",
+      "message": "Internally linked page is non-indexable",
+      "target_url": "https://example.com/second",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "indexability_status": "Blocked by Robots.txt",
+        "inlinks": 2
+      },
+      "fix_hint": "Decide whether the page should be indexable; otherwise remove unnecessary internal links and account for crawl-budget impact."
+    },
+    {
+      "id": "ISSUE-000012",
+      "fingerprint": "e368f59feda3",
+      "check": "ROBOTS_BLOCKED_OUTLINK",
+      "severity": "notice",
+      "source": "crawl:robots_policy",
+      "message": "The page links to URLs the crawl's robots policy kept out of the crawl",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "target_url": "https://example.com/",
+        "count": 2,
+        "blocked_targets": [
+          {
+            "url": "https://example.com/second",
+            "reason": "Disallow: /second, строка 3"
+          }
+        ]
+      },
+      "fix_hint": "Review the Disallow rules that hid the quoted targets: a rule broad enough to block an internal link target removes that section from every robots-respecting crawler. Confirm each blocked target is intentionally excluded, or narrow the rule so the pages can be crawled and indexed on their own merits."
+    },
+    {
+      "id": "ISSUE-000013",
+      "fingerprint": "b6747282b4a5",
+      "check": "STRUCTURED_DATA_MISSING",
+      "severity": "notice",
+      "source": "SF:Structured Data:Missing",
+      "message": "Structured data is missing",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content."
+    },
+    {
+      "id": "ISSUE-000014",
+      "fingerprint": "4e4ff8619778",
+      "check": "VIEWPORT_MISSING",
+      "severity": "notice",
+      "source": "SF-derived",
+      "message": "No <meta name=viewport> tag at all",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "reason": "no viewport meta tag"
+      },
+      "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head."
+    },
+    {
+      "id": "ISSUE-000015",
+      "fingerprint": "6125d1af9c4c",
+      "check": "LOW_TEXT_RATIO",
+      "severity": "opportunity",
+      "source": "SF-derived",
+      "message": "Low text-to-HTML ratio (a native crawl measures text against markup without script, style and JSON data blocks; pages above the thin-content word threshold are never reported)",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "text_ratio": 6.75,
+        "threshold": 10
+      },
+      "fix_hint": "Increase the proportion of meaningful visible content or reduce unnecessary markup; a page with enough words is not missing copy, only carrying a heavy template."
+    },
+    {
+      "id": "ISSUE-000016",
+      "fingerprint": "2e97ff01561a",
+      "check": "NO_COMPRESSION",
+      "severity": "opportunity",
+      "source": "SF-derived",
+      "message": "HTML response is served uncompressed above the size where gzip/br would help",
+      "target_url": "https://example.com/second",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "content_encoding": null,
+        "size_bytes": 4302
+      },
+      "fix_hint": "Enable gzip, Brotli, or deflate compression for text responses on the origin server or CDN."
+    },
+    {
+      "id": "ISSUE-000017",
+      "fingerprint": "cf320163b645",
+      "check": "READABILITY_DIFFICULT",
+      "severity": "opportunity",
+      "source": "SF-derived",
+      "message": "Text is difficult to read (low Flesch score)",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "flesch": 15.6,
+        "readability": "very difficult",
+        "min": 30
+      },
+      "fix_hint": "Use clearer wording and shorter sentences while preserving technical accuracy."
+    },
+    {
+      "id": "ISSUE-000018",
+      "fingerprint": "2445f6c2cac9",
+      "check": "TITLE_TOO_SHORT",
+      "severity": "opportunity",
+      "source": "SF-derived",
+      "message": "Title falls below the configured length threshold",
+      "target_url": "https://example.com/",
+      "status_code": null,
+      "occurrences_count": 1,
+      "details": {
+        "title": "Evidence home",
+        "length": 13,
+        "min_chars": 30
+      },
+      "fix_hint": "Expand the title to an informative length without padding it with boilerplate."
+    }
+  ],
+  "pages": [
+    {
+      "url": "https://example.com/",
+      "status_code": 200,
+      "indexability": "Indexable",
+      "indexability_status": null,
+      "content_type": "text/html; charset=utf-8",
+      "metrics": {
+        "title": "Evidence home",
+        "title_length": 13,
+        "title_px": null,
+        "meta_description": null,
+        "desc_length": 0,
+        "h1_count": 1,
+        "h1": [
+          "Home"
+        ],
+        "h2_count": 0,
+        "word_count": 5,
+        "text_ratio": 6.75,
+        "size_bytes": 489,
+        "size_vs_median_ratio": 1.0,
+        "bytes_per_word": 97.8,
+        "dom_depth": null,
+        "dom_nodes": null,
+        "inlinks": 0,
+        "unique_inlinks": 0,
+        "outlinks": 2,
+        "external_outlinks": 1,
+        "crawl_depth": 0,
+        "response_time": 0.0,
+        "canonical": null,
+        "meta_robots": null,
+        "link_score": null,
+        "is_in_sitemap": null,
+        "sitemap_lastmod": null,
+        "representation": "static",
+        "link_score_computed": 0.350877
+      },
+      "issues": [
+        "FORM_URL_INSECURE",
+        "CANONICAL_MISSING",
+        "CONTENT_IN_IFRAME",
+        "DESC_MISSING",
+        "ROBOTS_BLOCKED_OUTLINK",
+        "STRUCTURED_DATA_MISSING",
+        "VIEWPORT_MISSING",
+        "LOW_TEXT_RATIO",
+        "READABILITY_DIFFICULT",
+        "TITLE_TOO_SHORT"
+      ],
+      "issue_ids": [
+        "ISSUE-000001",
+        "ISSUE-000003",
+        "ISSUE-000004",
+        "ISSUE-000005",
+        "ISSUE-000012",
+        "ISSUE-000013",
+        "ISSUE-000014",
+        "ISSUE-000015",
+        "ISSUE-000017",
+        "ISSUE-000018"
+      ]
+    },
+    {
+      "url": "https://example.com/second",
+      "status_code": 200,
+      "indexability": "Non-Indexable",
+      "indexability_status": "Blocked by Robots.txt",
+      "content_type": "text/html; charset=utf-8",
+      "metrics": {
+        "title": null,
+        "title_length": 0,
+        "title_px": null,
+        "meta_description": null,
+        "desc_length": 0,
+        "h1_count": 0,
+        "h1": [],
+        "h2_count": 0,
+        "word_count": 0,
+        "text_ratio": null,
+        "size_bytes": 4302,
+        "size_vs_median_ratio": null,
+        "bytes_per_word": null,
+        "dom_depth": null,
+        "dom_nodes": null,
+        "inlinks": 2,
+        "unique_inlinks": 1,
+        "outlinks": 0,
+        "external_outlinks": 0,
+        "crawl_depth": 1,
+        "response_time": 0.0,
+        "canonical": null,
+        "meta_robots": null,
+        "link_score": null,
+        "is_in_sitemap": null,
+        "sitemap_lastmod": null,
+        "representation": "static",
+        "link_score_computed": 0.649123
+      },
+      "issues": [
+        "BLOCKED_BY_ROBOTS",
+        "IMPORTANT_URL_BLOCKED_BY_ROBOTS",
+        "NON_INDEXABLE_LINKED",
+        "NO_COMPRESSION"
+      ],
+      "issue_ids": [
+        "ISSUE-000002",
+        "ISSUE-000006",
+        "ISSUE-000011",
+        "ISSUE-000016"
+      ]
+    }
+  ],
+  "groups": [],
+  "segments": {}
+}

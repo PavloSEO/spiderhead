@@ -1,0 +1,52 @@
+{
+ "exit": 0,
+ "stdout": {
+  "blocks": 0,
+  "blocks_found": 0,
+  "blocks_invalid": 0,
+  "entities": [],
+  "final_url": "{BASE}/no-schema.html",
+  "findings": [
+   "The page contains no JSON-LD blocks"
+  ],
+  "graph": {
+   "is_graph": false,
+   "islands": [],
+   "linked_by_id": 0,
+   "nodes": 0,
+   "top_level": 0,
+   "with_id": 0
+  },
+  "markup_counts": {
+   "microdata": 0,
+   "rdfa": 0
+  },
+  "markup_coverage": [
+   {
+    "format": "microdata",
+    "status": "absent"
+   },
+   {
+    "format": "rdfa",
+    "reasons": [],
+    "status": "absent"
+   }
+  ],
+  "ok": true,
+  "other_markup": {
+   "microdata": false,
+   "rdfa": false
+  },
+  "parse_errors": [],
+  "rich_results": [],
+  "rules_version": "2026-10-23",
+  "status_code": 200,
+  "url": "{BASE}/no-schema.html",
+  "vocabularies": [],
+  "vocabulary": {
+   "fetched": "2026-08-12",
+   "properties": 1676,
+   "types": 1010
+  }
+ }
+}

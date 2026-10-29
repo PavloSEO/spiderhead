@@ -1,0 +1,2214 @@
+[
+ {
+  "name": "accepted with author tables",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "accepted",
+     "hash": "abc123",
+     "data": {
+      "tz": {
+       "keywordsAll": [
+        {
+         "word": "ремонт",
+         "sites": 10,
+         "median_density": 3.5,
+         "mine": 2,
+         "recommended": 3
+        },
+        {
+         "word": "квартира",
+         "sites": 8,
+         "density": 2.0,
+         "my_count": 1
+        },
+        {
+         "word": "  ",
+         "sites": 1
+        },
+        {
+         "keyword": "ванна",
+         "median": 1.5
+        },
+        {
+         "text": "плитка"
+        },
+        {
+         "name": "смеситель",
+         "mine": 0
+        },
+        {
+         "word": 5,
+         "sites": 3
+        }
+       ],
+       "densityDeviation": [
+        {
+         "word": "ремонт",
+         "my_density": 2,
+         "density": 3.5,
+         "delta": -1.5
+        }
+       ],
+       "stopwords": [
+        "и",
+        "в"
+       ],
+       "filters": {
+        "bad": []
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "accepted",
+    "hash": "abc123",
+    "paid": false,
+    "resumable": false,
+    "wait_exhausted": false,
+    "author_tables": {
+     "state": "complete",
+     "reason": null,
+     "words": [
+      {
+       "word": "ремонт",
+       "sites": 10,
+       "median_density": 3.5,
+       "mine": 2,
+       "recommended": 3,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "квартира",
+       "sites": 8,
+       "median_density": 2.0,
+       "mine": 1,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "ванна",
+       "sites": null,
+       "median_density": 1.5,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "плитка",
+       "sites": null,
+       "median_density": null,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "смеситель",
+       "sites": null,
+       "median_density": null,
+       "mine": 0,
+       "recommended": null,
+       "unit": "provider_reported"
+      }
+     ],
+     "density_deviation": [
+      {
+       "word": "ремонт",
+       "mine": 2,
+       "median_density": 3.5,
+       "deviation": -1.5,
+       "unit": "provider_reported"
+      }
+     ],
+     "stopwords": [
+      "и",
+      "в"
+     ],
+     "filters": {
+      "bad": []
+     }
+    }
+   }
+  }
+ },
+ {
+  "name": "provider error result",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "error"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Miratext rejected the request"
+   }
+  }
+ },
+ {
+  "name": "missing result key",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "hash": "x"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Miratext request failed"
+   }
+  }
+ },
+ {
+  "name": "non-str status is malformed",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": 5
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "malformed Miratext response"
+   }
+  }
+ },
+ {
+  "name": "draft then resumed once",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "draft",
+     "hash": "h9"
+    }
+   },
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "accepted",
+     "hash": "h9",
+     "data": {
+      "keywordsAll": [
+       {
+        "word": "w"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    },
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&hash=h9",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "accepted",
+    "hash": "h9",
+    "paid": false,
+    "resumable": false,
+    "wait_exhausted": false,
+    "author_tables": {
+     "state": "complete",
+     "reason": null,
+     "words": [
+      {
+       "word": "w",
+       "sites": null,
+       "median_density": null,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      }
+     ],
+     "density_deviation": [],
+     "stopwords": "provider_not_reported",
+     "filters": "provider_not_reported"
+    }
+   }
+  }
+ },
+ {
+  "name": "draft without hash stops",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "working"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "working",
+    "hash": null,
+    "paid": false,
+    "resumable": true,
+    "wait_exhausted": true
+   }
+  }
+ },
+ {
+  "name": "draft resume rejected keeps state",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "draft",
+     "hash": "h9"
+    }
+   },
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "error"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    },
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&hash=h9",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "draft",
+    "hash": "h9",
+    "paid": false,
+    "resumable": true,
+    "wait_exhausted": true
+   }
+  }
+ },
+ {
+  "name": "resume by hash only",
+  "args": {
+   "urls": null,
+   "my": null,
+   "api_key": "k",
+   "hash": "abc123"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "accepted",
+     "hash": "abc123",
+     "data": {
+      "tz": {
+       "keywordsAll": [
+        {
+         "word": "ремонт",
+         "sites": 10,
+         "median_density": 3.5,
+         "mine": 2,
+         "recommended": 3
+        },
+        {
+         "word": "квартира",
+         "sites": 8,
+         "density": 2.0,
+         "my_count": 1
+        },
+        {
+         "word": "  ",
+         "sites": 1
+        },
+        {
+         "keyword": "ванна",
+         "median": 1.5
+        },
+        {
+         "text": "плитка"
+        },
+        {
+         "name": "смеситель",
+         "mine": 0
+        },
+        {
+         "word": 5,
+         "sites": 3
+        }
+       ],
+       "densityDeviation": [
+        {
+         "word": "ремонт",
+         "my_density": 2,
+         "density": 3.5,
+         "delta": -1.5
+        }
+       ],
+       "stopwords": [
+        "и",
+        "в"
+       ],
+       "filters": {
+        "bad": []
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&hash=abc123",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "accepted",
+    "hash": "abc123",
+    "paid": false,
+    "resumable": false,
+    "wait_exhausted": false,
+    "author_tables": {
+     "state": "complete",
+     "reason": null,
+     "words": [
+      {
+       "word": "ремонт",
+       "sites": 10,
+       "median_density": 3.5,
+       "mine": 2,
+       "recommended": 3,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "квартира",
+       "sites": 8,
+       "median_density": 2.0,
+       "mine": 1,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "ванна",
+       "sites": null,
+       "median_density": 1.5,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "плитка",
+       "sites": null,
+       "median_density": null,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "смеситель",
+       "sites": null,
+       "median_density": null,
+       "mine": 0,
+       "recommended": null,
+       "unit": "provider_reported"
+      }
+     ],
+     "density_deviation": [
+      {
+       "word": "ремонт",
+       "mine": 2,
+       "median_density": 3.5,
+       "deviation": -1.5,
+       "unit": "provider_reported"
+      }
+     ],
+     "stopwords": [
+      "и",
+      "в"
+     ],
+     "filters": {
+      "bad": []
+     }
+    }
+   }
+  }
+ },
+ {
+  "name": "texts instead of urls",
+  "args": {
+   "urls": null,
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "texts": [
+    "some text"
+   ],
+   "check_type": "content"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "accepted",
+     "hash": "abc123",
+     "data": {
+      "tz": {
+       "keywordsAll": [
+        {
+         "word": "ремонт",
+         "sites": 10,
+         "median_density": 3.5,
+         "mine": 2,
+         "recommended": 3
+        },
+        {
+         "word": "квартира",
+         "sites": 8,
+         "density": 2.0,
+         "my_count": 1
+        },
+        {
+         "word": "  ",
+         "sites": 1
+        },
+        {
+         "keyword": "ванна",
+         "median": 1.5
+        },
+        {
+         "text": "плитка"
+        },
+        {
+         "name": "смеситель",
+         "mine": 0
+        },
+        {
+         "word": 5,
+         "sites": 3
+        }
+       ],
+       "densityDeviation": [
+        {
+         "word": "ремонт",
+         "my_density": 2,
+         "density": 3.5,
+         "delta": -1.5
+        }
+       ],
+       "stopwords": [
+        "и",
+        "в"
+       ],
+       "filters": {
+        "bad": []
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=content&content%5B%5D=some+text&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "accepted",
+    "hash": "abc123",
+    "paid": false,
+    "resumable": false,
+    "wait_exhausted": false,
+    "author_tables": {
+     "state": "complete",
+     "reason": null,
+     "words": [
+      {
+       "word": "ремонт",
+       "sites": 10,
+       "median_density": 3.5,
+       "mine": 2,
+       "recommended": 3,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "квартира",
+       "sites": 8,
+       "median_density": 2.0,
+       "mine": 1,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "ванна",
+       "sites": null,
+       "median_density": 1.5,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "плитка",
+       "sites": null,
+       "median_density": null,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "смеситель",
+       "sites": null,
+       "median_density": null,
+       "mine": 0,
+       "recommended": null,
+       "unit": "provider_reported"
+      }
+     ],
+     "density_deviation": [
+      {
+       "word": "ремонт",
+       "mine": 2,
+       "median_density": 3.5,
+       "deviation": -1.5,
+       "unit": "provider_reported"
+      }
+     ],
+     "stopwords": [
+      "и",
+      "в"
+     ],
+     "filters": {
+      "bad": []
+     }
+    }
+   }
+  }
+ },
+ {
+  "name": "paid requires confirm",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "paid": true
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "confirmation_required",
+    "error": "paid or keyword analysis requires confirm_paid=true"
+   }
+  }
+ },
+ {
+  "name": "paid confirmed writes spend",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "paid": true,
+   "confirm_paid": true
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "accepted",
+     "hash": "abc123",
+     "data": {
+      "tz": {
+       "keywordsAll": [
+        {
+         "word": "ремонт",
+         "sites": 10,
+         "median_density": 3.5,
+         "mine": 2,
+         "recommended": 3
+        },
+        {
+         "word": "квартира",
+         "sites": 8,
+         "density": 2.0,
+         "my_count": 1
+        },
+        {
+         "word": "  ",
+         "sites": 1
+        },
+        {
+         "keyword": "ванна",
+         "median": 1.5
+        },
+        {
+         "text": "плитка"
+        },
+        {
+         "name": "смеситель",
+         "mine": 0
+        },
+        {
+         "word": 5,
+         "sites": 3
+        }
+       ],
+       "densityDeviation": [
+        {
+         "word": "ремонт",
+         "my_density": 2,
+         "density": 3.5,
+         "delta": -1.5
+        }
+       ],
+       "stopwords": [
+        "и",
+        "в"
+       ],
+       "filters": {
+        "bad": []
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=paid",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "accepted",
+    "hash": "abc123",
+    "paid": true,
+    "resumable": false,
+    "wait_exhausted": false,
+    "author_tables": {
+     "state": "complete",
+     "reason": null,
+     "words": [
+      {
+       "word": "ремонт",
+       "sites": 10,
+       "median_density": 3.5,
+       "mine": 2,
+       "recommended": 3,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "квартира",
+       "sites": 8,
+       "median_density": 2.0,
+       "mine": 1,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "ванна",
+       "sites": null,
+       "median_density": 1.5,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "плитка",
+       "sites": null,
+       "median_density": null,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "смеситель",
+       "sites": null,
+       "median_density": null,
+       "mine": 0,
+       "recommended": null,
+       "unit": "provider_reported"
+      }
+     ],
+     "density_deviation": [
+      {
+       "word": "ремонт",
+       "mine": 2,
+       "median_density": 3.5,
+       "deviation": -1.5,
+       "unit": "provider_reported"
+      }
+     ],
+     "stopwords": [
+      "и",
+      "в"
+     ],
+     "filters": {
+      "bad": []
+     }
+    },
+    "spend": {
+     "at": "2026-10-27T14:55:33",
+     "source": "miratext",
+     "operation": "seo_analysis",
+     "cost": 0.0,
+     "unit": "unknown",
+     "items": 0,
+     "extra": {
+      "cost_unknown": true
+     }
+    }
+   }
+  }
+ },
+ {
+  "name": "keywords requires confirm",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "keywords": "ремонт"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "confirmation_required",
+    "error": "paid or keyword analysis requires confirm_paid=true"
+   }
+  }
+ },
+ {
+  "name": "keywords confirmed",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "keywords": "ремонт",
+   "confirm_paid": true,
+   "paid": true
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "accepted",
+     "hash": "abc123",
+     "data": {
+      "tz": {
+       "keywordsAll": [
+        {
+         "word": "ремонт",
+         "sites": 10,
+         "median_density": 3.5,
+         "mine": 2,
+         "recommended": 3
+        },
+        {
+         "word": "квартира",
+         "sites": 8,
+         "density": 2.0,
+         "my_count": 1
+        },
+        {
+         "word": "  ",
+         "sites": 1
+        },
+        {
+         "keyword": "ванна",
+         "median": 1.5
+        },
+        {
+         "text": "плитка"
+        },
+        {
+         "name": "смеситель",
+         "mine": 0
+        },
+        {
+         "word": 5,
+         "sites": 3
+        }
+       ],
+       "densityDeviation": [
+        {
+         "word": "ремонт",
+         "my_density": 2,
+         "density": 3.5,
+         "delta": -1.5
+        }
+       ],
+       "stopwords": [
+        "и",
+        "в"
+       ],
+       "filters": {
+        "bad": []
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=keywords_search&options%5Bpaid_type%5D=paid&keywords_search%5Bkeywords%5D=%D1%80%D0%B5%D0%BC%D0%BE%D0%BD%D1%82",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "accepted",
+    "hash": "abc123",
+    "paid": true,
+    "resumable": false,
+    "wait_exhausted": false,
+    "author_tables": {
+     "state": "complete",
+     "reason": null,
+     "words": [
+      {
+       "word": "ремонт",
+       "sites": 10,
+       "median_density": 3.5,
+       "mine": 2,
+       "recommended": 3,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "квартира",
+       "sites": 8,
+       "median_density": 2.0,
+       "mine": 1,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "ванна",
+       "sites": null,
+       "median_density": 1.5,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "плитка",
+       "sites": null,
+       "median_density": null,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "смеситель",
+       "sites": null,
+       "median_density": null,
+       "mine": 0,
+       "recommended": null,
+       "unit": "provider_reported"
+      }
+     ],
+     "density_deviation": [
+      {
+       "word": "ремонт",
+       "mine": 2,
+       "median_density": 3.5,
+       "deviation": -1.5,
+       "unit": "provider_reported"
+      }
+     ],
+     "stopwords": [
+      "и",
+      "в"
+     ],
+     "filters": {
+      "bad": []
+     }
+    },
+    "spend": {
+     "at": "2026-10-27T14:55:34",
+     "source": "miratext",
+     "operation": "seo_analysis",
+     "cost": 0.0,
+     "unit": "unknown",
+     "items": 0,
+     "extra": {
+      "cost_unknown": true
+     }
+    }
+   }
+  }
+ },
+ {
+  "name": "paid resume by hash writes no spend",
+  "args": {
+   "urls": null,
+   "my": null,
+   "api_key": "k",
+   "hash": "abc123",
+   "paid": true,
+   "confirm_paid": true
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "accepted",
+     "hash": "abc123",
+     "data": {
+      "tz": {
+       "keywordsAll": [
+        {
+         "word": "ремонт",
+         "sites": 10,
+         "median_density": 3.5,
+         "mine": 2,
+         "recommended": 3
+        },
+        {
+         "word": "квартира",
+         "sites": 8,
+         "density": 2.0,
+         "my_count": 1
+        },
+        {
+         "word": "  ",
+         "sites": 1
+        },
+        {
+         "keyword": "ванна",
+         "median": 1.5
+        },
+        {
+         "text": "плитка"
+        },
+        {
+         "name": "смеситель",
+         "mine": 0
+        },
+        {
+         "word": 5,
+         "sites": 3
+        }
+       ],
+       "densityDeviation": [
+        {
+         "word": "ремонт",
+         "my_density": 2,
+         "density": 3.5,
+         "delta": -1.5
+        }
+       ],
+       "stopwords": [
+        "и",
+        "в"
+       ],
+       "filters": {
+        "bad": []
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&hash=abc123",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "accepted",
+    "hash": "abc123",
+    "paid": true,
+    "resumable": false,
+    "wait_exhausted": false,
+    "author_tables": {
+     "state": "complete",
+     "reason": null,
+     "words": [
+      {
+       "word": "ремонт",
+       "sites": 10,
+       "median_density": 3.5,
+       "mine": 2,
+       "recommended": 3,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "квартира",
+       "sites": 8,
+       "median_density": 2.0,
+       "mine": 1,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "ванна",
+       "sites": null,
+       "median_density": 1.5,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "плитка",
+       "sites": null,
+       "median_density": null,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "смеситель",
+       "sites": null,
+       "median_density": null,
+       "mine": 0,
+       "recommended": null,
+       "unit": "provider_reported"
+      }
+     ],
+     "density_deviation": [
+      {
+       "word": "ремонт",
+       "mine": 2,
+       "median_density": 3.5,
+       "deviation": -1.5,
+       "unit": "provider_reported"
+      }
+     ],
+     "stopwords": [
+      "и",
+      "в"
+     ],
+     "filters": {
+      "bad": []
+     }
+    }
+   }
+  }
+ },
+ {
+  "name": "http 500 is request failed",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 500,
+    "headers": {},
+    "body": "err"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Miratext request failed"
+   }
+  }
+ },
+ {
+  "name": "timeout is request failed",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Miratext request failed"
+   }
+  }
+ },
+ {
+  "name": "reset",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Miratext request failed"
+   }
+  }
+ },
+ {
+  "name": "non json body",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "oops"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Miratext request failed"
+   }
+  }
+ },
+ {
+  "name": "json list body",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": [
+     1,
+     2
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Miratext request failed"
+   }
+  }
+ },
+ {
+  "name": "result non-str",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": 1
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "Miratext request failed"
+   }
+  }
+ },
+ {
+  "name": "oversized response",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body_zeros": 20971521
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=k&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "unavailable",
+    "reason": "response_too_large"
+   }
+  }
+ },
+ {
+  "name": "timeout int only",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "timeout": "60"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "timeout must be 1..600 and top must be 1..500"
+   }
+  }
+ },
+ {
+  "name": "timeout bool excluded",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "timeout": true
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "timeout must be 1..600 and top must be 1..500"
+   }
+  }
+ },
+ {
+  "name": "timeout out of range",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "timeout": 601
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "timeout must be 1..600 and top must be 1..500"
+   }
+  }
+ },
+ {
+  "name": "top out of range",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "top": 0
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "timeout must be 1..600 and top must be 1..500"
+   }
+  }
+ },
+ {
+  "name": "hash resume or source required",
+  "args": {
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "pass hash to resume, or URLs/texts and my"
+   }
+  }
+ },
+ {
+  "name": "hash bad chars",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "hash": "h!h!h!"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "hash must be a 1..128 character provider identifier"
+   }
+  }
+ },
+ {
+  "name": "hash non-str",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "hash": 42
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "hash must be a 1..128 character provider identifier"
+   }
+  }
+ },
+ {
+  "name": "check_type rejected",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "check_type": "x"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "check_type must be url or content"
+   }
+  }
+ },
+ {
+  "name": "empty url item",
+  "args": {
+   "urls": [
+    ""
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "urls and texts must contain non-empty strings"
+   }
+  }
+ },
+ {
+  "name": "urls and texts both",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k",
+   "texts": [
+    "t"
+   ]
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "pass one of urls or texts with at most 10 items"
+   }
+  }
+ },
+ {
+  "name": "eleven urls",
+  "args": {
+   "urls": [
+    "https://x0.c",
+    "https://x1.c",
+    "https://x2.c",
+    "https://x3.c",
+    "https://x4.c",
+    "https://x5.c",
+    "https://x6.c",
+    "https://x7.c",
+    "https://x8.c",
+    "https://x9.c",
+    "https://x10.c"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": "k"
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "pass one of urls or texts with at most 10 items"
+   }
+  }
+ },
+ {
+  "name": "missing credential",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine"
+  },
+  "env": {},
+  "clear_env": [
+   "MIRATEXT_API_KEY"
+  ],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "not_configured",
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/miratext/api_key or set $MIRATEXT_API_KEY"
+   }
+  }
+ },
+ {
+  "name": "key from env",
+  "args": {
+   "urls": [
+    "https://example.com/a"
+   ],
+   "my": "https://example.com/mine",
+   "api_key": null
+  },
+  "env": {
+   "SEOHEAD_SPEND_LOG": "/tmp/miratext-oracle-spend.jsonl",
+   "MIRATEXT_API_KEY": "env-mk"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "result": "ok",
+     "status": "accepted",
+     "hash": "abc123",
+     "data": {
+      "tz": {
+       "keywordsAll": [
+        {
+         "word": "ремонт",
+         "sites": 10,
+         "median_density": 3.5,
+         "mine": 2,
+         "recommended": 3
+        },
+        {
+         "word": "квартира",
+         "sites": 8,
+         "density": 2.0,
+         "my_count": 1
+        },
+        {
+         "word": "  ",
+         "sites": 1
+        },
+        {
+         "keyword": "ванна",
+         "median": 1.5
+        },
+        {
+         "text": "плитка"
+        },
+        {
+         "name": "смеситель",
+         "mine": 0
+        },
+        {
+         "word": 5,
+         "sites": 3
+        }
+       ],
+       "densityDeviation": [
+        {
+         "word": "ремонт",
+         "my_density": 2,
+         "density": 3.5,
+         "delta": -1.5
+        }
+       ],
+       "stopwords": [
+        "и",
+        "в"
+       ],
+       "filters": {
+        "bad": []
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://miratext.com/api2/call/article/seoAnalizText",
+     "headers": [
+      [
+       "content-type",
+       "application/x-www-form-urlencoded"
+      ]
+     ],
+     "body": "api_key=env-mk&check_type=url&url%5B%5D=https%3A%2F%2Fexample.com%2Fa&my=https%3A%2F%2Fexample.com%2Fmine&shop_type=normal&options%5Bpaid_type%5D=free",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "accepted",
+    "hash": "abc123",
+    "paid": false,
+    "resumable": false,
+    "wait_exhausted": false,
+    "author_tables": {
+     "state": "complete",
+     "reason": null,
+     "words": [
+      {
+       "word": "ремонт",
+       "sites": 10,
+       "median_density": 3.5,
+       "mine": 2,
+       "recommended": 3,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "квартира",
+       "sites": 8,
+       "median_density": 2.0,
+       "mine": 1,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "ванна",
+       "sites": null,
+       "median_density": 1.5,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "плитка",
+       "sites": null,
+       "median_density": null,
+       "mine": null,
+       "recommended": null,
+       "unit": "provider_reported"
+      },
+      {
+       "word": "смеситель",
+       "sites": null,
+       "median_density": null,
+       "mine": 0,
+       "recommended": null,
+       "unit": "provider_reported"
+      }
+     ],
+     "density_deviation": [
+      {
+       "word": "ремонт",
+       "mine": 2,
+       "median_density": 3.5,
+       "deviation": -1.5,
+       "unit": "provider_reported"
+      }
+     ],
+     "stopwords": [
+      "и",
+      "в"
+     ],
+     "filters": {
+      "bad": []
+     }
+    }
+   }
+  }
+ }
+]

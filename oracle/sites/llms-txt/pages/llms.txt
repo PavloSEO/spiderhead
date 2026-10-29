@@ -1,0 +1,15 @@
+# Acme Analytics Platform
+
+> Acme helps teams understand user behavior through real-time dashboards,
+> audience segments, and API reports.
+
+## Product
+- [Acme Analytics]({{BASE}}/product): the core analytics platform
+- [Pricing]({{BASE}}/pricing): plans for teams of every size
+
+## Evidence
+- [Customer cases]({{BASE}}/cases): how Acme accelerates growth
+
+## Documentation
+- [Docs]({{BASE}}/docs): integration guide
+- [API]({{BASE}}/api): API reference

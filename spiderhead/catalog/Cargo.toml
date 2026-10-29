@@ -1,0 +1,9 @@
+[package]
+name = "spiderhead-catalog"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead sf catalog side."
+
+[dependencies]
+spiderhead-core.workspace = true

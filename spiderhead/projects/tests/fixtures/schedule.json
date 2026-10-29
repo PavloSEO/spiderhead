@@ -1,0 +1,2118 @@
+[
+ {
+  "name": "default-settings",
+  "steps": [
+   {
+    "op": "schedule.default_settings",
+    "args": {
+     "project_uuid": "abc-123"
+    }
+   },
+   {
+    "op": "schedule.default_settings",
+    "args": {
+     "project_uuid": ""
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "format": "spiderhead.schedule.v1",
+     "project_uuid": "abc-123",
+     "revision": 0,
+     "enabled": false,
+     "time_zone": "auto",
+     "weekdays": [],
+     "month_days": [],
+     "window": {
+      "start": "01:00",
+      "end": "06:00"
+     },
+     "include_competitors": false,
+     "crawl": {
+      "mode": "spider",
+      "sitemap_url": null,
+      "urls": [],
+      "max_urls": 500,
+      "max_requests": 2000,
+      "min_delay_seconds": 1.0,
+      "slice": false
+     },
+     "user_agent": {
+      "preset": "spiderhead",
+      "custom": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "format": "spiderhead.schedule.v1",
+     "project_uuid": "",
+     "revision": 0,
+     "enabled": false,
+     "time_zone": "auto",
+     "weekdays": [],
+     "month_days": [],
+     "window": {
+      "start": "01:00",
+      "end": "06:00"
+     },
+     "include_competitors": false,
+     "crawl": {
+      "mode": "spider",
+      "sitemap_url": null,
+      "urls": [],
+      "max_urls": 500,
+      "max_requests": 2000,
+      "min_delay_seconds": 1.0,
+      "slice": false
+     },
+     "user_agent": {
+      "preset": "spiderhead",
+      "custom": null
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "validate",
+  "steps": [
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": false,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [
+       "mon",
+       "fri"
+      ],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [
+       1,
+       15,
+       31
+      ],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "Europe/Berlin",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "Nowhere/Zone",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": "yes",
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      },
+      "bogus": 1
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [
+       "funday"
+      ],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [
+       0
+      ],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [
+       32
+      ],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "25:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "bogus"
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "list",
+       "urls": []
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": []
+    }
+   },
+   {
+    "op": "schedule.validate",
+    "args": {
+     "settings": null
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "format": "spiderhead.project-schedule.v1",
+     "project_uuid": "uuid-1",
+     "revision": 0,
+     "enabled": true,
+     "time_zone": "auto",
+     "weekdays": [],
+     "month_days": [],
+     "window": {
+      "start": "01:00",
+      "end": "06:00"
+     },
+     "include_competitors": false,
+     "crawl": {
+      "mode": "spider",
+      "sitemap_url": null,
+      "urls": [],
+      "max_urls": 500,
+      "max_requests": 2000,
+      "min_delay_seconds": 1.0,
+      "slice": false
+     },
+     "user_agent": {
+      "preset": "spiderhead",
+      "custom": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "format": "spiderhead.project-schedule.v1",
+     "project_uuid": "uuid-1",
+     "revision": 0,
+     "enabled": false,
+     "time_zone": "auto",
+     "weekdays": [],
+     "month_days": [],
+     "window": {
+      "start": "01:00",
+      "end": "06:00"
+     },
+     "include_competitors": false,
+     "crawl": {
+      "mode": "spider",
+      "sitemap_url": null,
+      "urls": [],
+      "max_urls": 500,
+      "max_requests": 2000,
+      "min_delay_seconds": 1.0,
+      "slice": false
+     },
+     "user_agent": {
+      "preset": "spiderhead",
+      "custom": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "format": "spiderhead.project-schedule.v1",
+     "project_uuid": "uuid-1",
+     "revision": 0,
+     "enabled": true,
+     "time_zone": "auto",
+     "weekdays": [
+      "mon",
+      "fri"
+     ],
+     "month_days": [],
+     "window": {
+      "start": "01:00",
+      "end": "06:00"
+     },
+     "include_competitors": false,
+     "crawl": {
+      "mode": "spider",
+      "sitemap_url": null,
+      "urls": [],
+      "max_urls": 500,
+      "max_requests": 2000,
+      "min_delay_seconds": 1.0,
+      "slice": false
+     },
+     "user_agent": {
+      "preset": "spiderhead",
+      "custom": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "format": "spiderhead.project-schedule.v1",
+     "project_uuid": "uuid-1",
+     "revision": 0,
+     "enabled": true,
+     "time_zone": "auto",
+     "weekdays": [],
+     "month_days": [
+      1,
+      15,
+      31
+     ],
+     "window": {
+      "start": "01:00",
+      "end": "06:00"
+     },
+     "include_competitors": false,
+     "crawl": {
+      "mode": "spider",
+      "sitemap_url": null,
+      "urls": [],
+      "max_urls": 500,
+      "max_requests": 2000,
+      "min_delay_seconds": 1.0,
+      "slice": false
+     },
+     "user_agent": {
+      "preset": "spiderhead",
+      "custom": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "format": "spiderhead.project-schedule.v1",
+     "project_uuid": "uuid-1",
+     "revision": 0,
+     "enabled": true,
+     "time_zone": "Europe/Berlin",
+     "weekdays": [],
+     "month_days": [],
+     "window": {
+      "start": "01:00",
+      "end": "06:00"
+     },
+     "include_competitors": false,
+     "crawl": {
+      "mode": "spider",
+      "sitemap_url": null,
+      "urls": [],
+      "max_urls": 500,
+      "max_requests": 2000,
+      "min_delay_seconds": 1.0,
+      "slice": false
+     },
+     "user_agent": {
+      "preset": "spiderhead",
+      "custom": null
+     }
+    }
+   },
+   {
+    "error": "ValueError: unknown time_zone 'Nowhere/Zone'"
+   },
+   {
+    "error": "ValueError: schedule enabled must be boolean"
+   },
+   {
+    "error": "ValueError: schedule has unsupported fields: bogus"
+   },
+   {
+    "error": "ValueError: weekdays must be a list of mon..sun"
+   },
+   {
+    "error": "ValueError: month_days must be integers 1..31"
+   },
+   {
+    "error": "ValueError: month_days must be integers 1..31"
+   },
+   {
+    "error": "ValueError: window.start must be HH:MM"
+   },
+   {
+    "error": "ValueError: window requires start and end as HH:MM"
+   },
+   {
+    "error": "ValueError: crawl requires max_requests, max_urls, min_delay_seconds, mode, sitemap_url, slice, urls"
+   },
+   {
+    "error": "ValueError: crawl requires max_requests, max_urls, min_delay_seconds, mode, sitemap_url, slice, urls"
+   },
+   {
+    "error": "ValueError: schedule settings must be an object"
+   },
+   {
+    "error": "ValueError: schedule settings must be an object"
+   }
+  ]
+ },
+ {
+  "name": "due-state",
+  "steps": [
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T02:00:00+00:00",
+     "last_window": null
+    }
+   },
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": false,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T02:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T12:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [
+       "mon"
+      ],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T02:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [
+       "tue"
+      ],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T02:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T02:00:00+00:00",
+     "last_window": "2026-01-05"
+    }
+   },
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [
+       6
+      ],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T02:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "Europe/Berlin",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T02:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.due_state",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "22:00",
+       "end": "02:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T23:00:00+00:00"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "local_time": "<TS>",
+     "time_zone": "UTC",
+     "time_zone_source": "fallback",
+     "due": true,
+     "reason": "due",
+     "window": "2026-01-05"
+    }
+   },
+   {
+    "ok": {
+     "due": false,
+     "reason": "disabled"
+    }
+   },
+   {
+    "ok": {
+     "local_time": "<TS>",
+     "time_zone": "UTC",
+     "time_zone_source": "fallback",
+     "due": false,
+     "reason": "outside window"
+    }
+   },
+   {
+    "ok": {
+     "local_time": "<TS>",
+     "time_zone": "UTC",
+     "time_zone_source": "fallback",
+     "due": true,
+     "reason": "due",
+     "window": "2026-01-05"
+    }
+   },
+   {
+    "ok": {
+     "local_time": "<TS>",
+     "time_zone": "UTC",
+     "time_zone_source": "fallback",
+     "due": false,
+     "reason": "day not selected"
+    }
+   },
+   {
+    "ok": {
+     "local_time": "<TS>",
+     "time_zone": "UTC",
+     "time_zone_source": "fallback",
+     "due": false,
+     "reason": "already ran in this window",
+     "window": "2026-01-05"
+    }
+   },
+   {
+    "ok": {
+     "local_time": "<TS>",
+     "time_zone": "UTC",
+     "time_zone_source": "fallback",
+     "due": false,
+     "reason": "day not selected"
+    }
+   },
+   {
+    "ok": {
+     "local_time": "<TS>",
+     "time_zone": "Europe/Berlin",
+     "time_zone_source": "explicit",
+     "due": true,
+     "reason": "due",
+     "window": "2026-01-05"
+    }
+   },
+   {
+    "ok": {
+     "local_time": "<TS>",
+     "time_zone": "UTC",
+     "time_zone_source": "fallback",
+     "due": true,
+     "reason": "due",
+     "window": "2026-01-05"
+    }
+   }
+  ]
+ },
+ {
+  "name": "next-due",
+  "steps": [
+   {
+    "op": "schedule.next_due",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T12:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.next_due",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": false,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T12:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.next_due",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [
+       "wed"
+      ],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T12:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.next_due",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [
+       20
+      ],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T12:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.next_due",
+    "args": {
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [
+       "wed"
+      ],
+      "month_days": [
+       7
+      ],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "host": "example.com",
+     "now": "2026-01-05T12:00:00+00:00"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": "<TS>"
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": "<TS>"
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": "<TS>"
+   }
+  ]
+ },
+ {
+  "name": "configure-show",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "schedule.show",
+    "args": {
+     "path": "proj",
+     "now": "2026-01-05T12:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.active",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "proj",
+     "expected_revision": 0,
+     "fields": {
+      "enabled": true
+     }
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "proj",
+     "expected_revision": 2
+    }
+   },
+   {
+    "op": "schedule.show",
+    "args": {
+     "path": "proj",
+     "now": "2026-01-05T02:00:00+00:00"
+    }
+   },
+   {
+    "op": "schedule.active",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "proj",
+     "expected_revision": 1,
+     "fields": {
+      "enabled": false,
+      "weekdays": [
+       "mon",
+       "wed"
+      ],
+      "window": {
+       "start": "03:00",
+       "end": "05:00"
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "proj",
+     "expected_revision": 0,
+     "fields": {
+      "enabled": true
+     }
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "proj",
+     "expected_revision": 2,
+     "fields": {
+      "bogus": true
+     }
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "settings": {
+      "format": "spiderhead.schedule.v1",
+      "project_uuid": "<UUID>",
+      "revision": 0,
+      "enabled": false,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     },
+     "state": {
+      "last_window": null,
+      "last_run_at": null,
+      "last_result": null
+     },
+     "resume_artifact": null,
+     "due": {
+      "due": false,
+      "reason": "disabled"
+     },
+     "next_due_at": null,
+     "competitors": []
+    }
+   },
+   {
+    "ok": false
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 1,
+     "settings": {
+      "format": "spiderhead.schedule.v1",
+      "project_uuid": "<UUID>",
+      "revision": 1,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "error": "ValueError: schedule revision conflict"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 1,
+     "settings": {
+      "crawl": {
+       "max_requests": 2000,
+       "max_urls": 500,
+       "min_delay_seconds": 1.0,
+       "mode": "spider",
+       "sitemap_url": null,
+       "slice": false,
+       "urls": []
+      },
+      "enabled": true,
+      "format": "spiderhead.schedule.v1",
+      "include_competitors": false,
+      "month_days": [],
+      "project_uuid": "<UUID>",
+      "revision": 1,
+      "time_zone": "auto",
+      "user_agent": {
+       "custom": null,
+       "preset": "spiderhead"
+      },
+      "weekdays": [],
+      "window": {
+       "end": "06:00",
+       "start": "01:00"
+      }
+     },
+     "state": {
+      "last_window": null,
+      "last_run_at": null,
+      "last_result": null
+     },
+     "resume_artifact": null,
+     "due": {
+      "local_time": "<TS>",
+      "time_zone": "UTC",
+      "time_zone_source": "fallback",
+      "due": true,
+      "reason": "due",
+      "window": "2026-01-05"
+     },
+     "next_due_at": "<TS>",
+     "competitors": []
+    }
+   },
+   {
+    "ok": false
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 2,
+     "settings": {
+      "crawl": {
+       "max_requests": 2000,
+       "max_urls": 500,
+       "min_delay_seconds": 1.0,
+       "mode": "spider",
+       "sitemap_url": null,
+       "slice": false,
+       "urls": []
+      },
+      "enabled": false,
+      "format": "spiderhead.schedule.v1",
+      "include_competitors": false,
+      "month_days": [],
+      "project_uuid": "<UUID>",
+      "revision": 2,
+      "time_zone": "auto",
+      "user_agent": {
+       "custom": null,
+       "preset": "spiderhead"
+      },
+      "weekdays": [
+       "mon",
+       "wed"
+      ],
+      "window": {
+       "end": "05:00",
+       "start": "03:00"
+      }
+     }
+    }
+   },
+   {
+    "error": "ValueError: schedule revision conflict"
+   },
+   {
+    "error": "ValueError: schedule has unsupported fields: bogus"
+   }
+  ]
+ },
+ {
+  "name": "configure-errors",
+  "steps": [
+   {
+    "op": "schedule.show",
+    "args": {
+     "path": "nope"
+    }
+   },
+   {
+    "op": "schedule.active",
+    "args": {
+     "path": "nope"
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "nope",
+     "expected_revision": 0
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "proj",
+     "expected_revision": 0
+    }
+   },
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "proj",
+     "expected_revision": 0,
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "other",
+      "revision": 0,
+      "enabled": true,
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   },
+   {
+    "op": "schedule.configure",
+    "args": {
+     "path": "proj",
+     "expected_revision": 0,
+     "settings": {
+      "format": "spiderhead.project-schedule.v1",
+      "project_uuid": "uuid-1",
+      "revision": 0,
+      "enabled": "x",
+      "time_zone": "auto",
+      "weekdays": [],
+      "month_days": [],
+      "window": {
+       "start": "01:00",
+       "end": "06:00"
+      },
+      "include_competitors": false,
+      "crawl": {
+       "mode": "spider",
+       "sitemap_url": null,
+       "urls": [],
+       "max_urls": 500,
+       "max_requests": 2000,
+       "min_delay_seconds": 1.0,
+       "slice": false
+      },
+      "user_agent": {
+       "preset": "spiderhead",
+       "custom": null
+      }
+     }
+    }
+   }
+  ],
+  "expect": [
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   },
+   {
+    "ok": false
+   },
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   },
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "error": "ValueError: revision, project_uuid and format are managed by the runtime"
+   },
+   {
+    "error": "ValueError: revision, project_uuid and format are managed by the runtime"
+   }
+  ]
+ },
+ {
+  "name": "infer-time-zone",
+  "steps": [
+   {
+    "op": "schedule.infer_time_zone",
+    "args": {
+     "host": "example.com"
+    }
+   },
+   {
+    "op": "schedule.infer_time_zone",
+    "args": {
+     "host": "example.ru"
+    }
+   },
+   {
+    "op": "schedule.infer_time_zone",
+    "args": {
+     "host": "example.de"
+    }
+   },
+   {
+    "op": "schedule.infer_time_zone",
+    "args": {
+     "host": "example.co.jp"
+    }
+   },
+   {
+    "op": "schedule.infer_time_zone",
+    "args": {
+     "host": "sub.example.com.au"
+    }
+   },
+   {
+    "op": "schedule.infer_time_zone",
+    "args": {
+     "host": ""
+    }
+   },
+   {
+    "op": "schedule.infer_time_zone",
+    "args": {
+     "host": "localhost"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": [
+     "UTC",
+     "fallback"
+    ]
+   },
+   {
+    "ok": [
+     "Europe/Moscow",
+     "tld"
+    ]
+   },
+   {
+    "ok": [
+     "Europe/Berlin",
+     "tld"
+    ]
+   },
+   {
+    "ok": [
+     "Asia/Tokyo",
+     "tld"
+    ]
+   },
+   {
+    "ok": [
+     "Australia/Sydney",
+     "tld"
+    ]
+   },
+   {
+    "ok": [
+     "UTC",
+     "fallback"
+    ]
+   },
+   {
+    "ok": [
+     "UTC",
+     "fallback"
+    ]
+   }
+  ]
+ },
+ {
+  "name": "schedule-install",
+  "steps": [
+   {
+    "op": "schedule_install.install",
+    "args": {
+     "path": "proj",
+     "kind": "cron",
+     "dest": "cron.out",
+     "python": "/usr/bin/python3"
+    }
+   },
+   {
+    "op": "file.read",
+    "args": {
+     "path": "cron.out"
+    }
+   },
+   {
+    "op": "schedule_install.uninstall",
+    "args": {
+     "path": "proj",
+     "kind": "cron",
+     "dest": "cron.out"
+    }
+   },
+   {
+    "op": "schedule_install.install",
+    "args": {
+     "path": "proj",
+     "kind": "launchd",
+     "dest": "agent.plist",
+     "python": "/usr/bin/python3"
+    }
+   },
+   {
+    "op": "file.read",
+    "args": {
+     "path": "agent.plist"
+    }
+   },
+   {
+    "op": "schedule_install.uninstall",
+    "args": {
+     "path": "proj",
+     "kind": "launchd",
+     "dest": "agent.plist"
+    }
+   },
+   {
+    "op": "schedule_install.install",
+    "args": {
+     "path": "proj",
+     "kind": "bogus",
+     "dest": "x"
+    }
+   },
+   {
+    "op": "schedule_install.install",
+    "args": {
+     "path": "nope",
+     "kind": "cron",
+     "dest": "c2.out",
+     "python": "/usr/bin/python3"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "kind": "cron",
+     "line": "0 * * * * /usr/bin/python3 -m spiderhead.cli schedule-run-due --directory <DIR>/proj",
+     "written": "<DIR>/cron.out",
+     "installed": false,
+     "next_step": "add the line with crontab -e"
+    }
+   },
+   {
+    "ok": "0 * * * * /usr/bin/python3 -m spiderhead.cli schedule-run-due --directory <DIR>/proj\n"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "kind": "cron",
+     "removed": "<DIR>/cron.out",
+     "next_step": "delete the line from crontab -e"
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "kind": "launchd",
+     "written": "<DIR>/agent.plist",
+     "loaded": false,
+     "next_step": "launchctl bootstrap gui/501 <DIR>/agent.plist"
+    }
+   },
+   {
+    "ok": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n<plist version=\"1.0\">\n<dict>\n\t<key>Label</key>\n\t<string>tech.seohead.schedule.<ID></string>\n\t<key>ProgramArguments</key>\n\t<array>\n\t\t<string>/usr/bin/python3</string>\n\t\t<string>-m</string>\n\t\t<string>spiderhead.cli</string>\n\t\t<string>schedule-run-due</string>\n\t\t<string>--directory</string>\n\t\t<string><DIR>/proj</string>\n\t</array>\n\t<key>RunAtLoad</key>\n\t<false/>\n\t<key>StartInterval</key>\n\t<integer>3600</integer>\n</dict>\n</plist>\n"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "kind": "launchd",
+     "removed": "<DIR>/agent.plist",
+     "next_step": "launchctl bootout gui/501 <DIR>/agent.plist if it was loaded"
+    }
+   },
+   {
+    "error": "ValueError: kind must be launchd, cron or windows"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "kind": "cron",
+     "line": "0 * * * * /usr/bin/python3 -m spiderhead.cli schedule-run-due --directory <DIR>/nope",
+     "written": "<DIR>/c2.out",
+     "installed": false,
+     "next_step": "add the line with crontab -e"
+    }
+   }
+  ]
+ },
+ {
+  "name": "origin-pacing",
+  "steps": [
+   {
+    "op": "origin_pacing.origin",
+    "args": {
+     "target": "https://example.com/"
+    }
+   },
+   {
+    "op": "origin_pacing.origin",
+    "args": {
+     "target": "https://Example.COM:8443/path?q=1"
+    }
+   },
+   {
+    "op": "origin_pacing.origin",
+    "args": {
+     "target": "http://sub.example.co.uk"
+    }
+   },
+   {
+    "op": "origin_pacing.origin",
+    "args": {
+     "target": "not a url"
+    }
+   },
+   {
+    "op": "origin_pacing.origin",
+    "args": {
+     "target": "ftp://x.example"
+    }
+   },
+   {
+    "op": "origin_pacing.origin",
+    "args": {
+     "target": "https://example.com"
+    }
+   },
+   {
+    "op": "origin_pacing.origin",
+    "args": {
+     "target": ""
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": "example.com"
+   },
+   {
+    "ok": "example.com"
+   },
+   {
+    "ok": "sub.example.co.uk"
+   },
+   {
+    "error": "ValueError: project origin needs a hostname"
+   },
+   {
+    "ok": "x.example"
+   },
+   {
+    "ok": "example.com"
+   },
+   {
+    "error": "ValueError: project origin needs a hostname"
+   }
+  ]
+ }
+]

@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "redirects-check",
+  "--url",
+  "{BASE}/loop-a"
+ ],
+ "command": "redirects-check",
+ "exit": 0,
+ "stderr": "seohead: redirects-check\n",
+ "stdout": "{\n  \"chain\": [\n    {\n      \"url\": \"{BASE}/loop-a\",\n      \"status\": 301,\n      \"location\": \"/loop-b\",\n      \"ok\": true\n    },\n    {\n      \"url\": \"{BASE}/loop-b\",\n      \"status\": 301,\n      \"location\": \"/loop-a\",\n      \"ok\": true\n    },\n    {\n      \"url\": \"{BASE}/loop-a\",\n      \"status\": 0,\n      \"location\": null,\n      \"ok\": false,\n      \"error\": \"Redirect loop detected\"\n    }\n  ]\n}\n"
+}

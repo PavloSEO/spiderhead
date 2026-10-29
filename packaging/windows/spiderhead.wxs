@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SpiderHead MSI (WiX v4). Builds only on Windows:  cargo xtask package windows
+  Needs the `wix` .NET tool. Parameters: BinDir (folder with the .exe files), Version.
+  Features = install profiles; the dialog set lets the user tick them.
+  UNTESTED on this machine (no Windows host): verify on the first Windows build.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="SpiderHead" Manufacturer="SpiderHead" Version="$(Version)"
+           UpgradeCode="6f1d2c5e-8a4b-4d1e-9c3a-5b7e2f0a1d44" Scope="perMachine">
+    <MajorUpgrade DowngradeErrorMessage="A newer version is installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <ui:WixUI Id="WixUI_FeatureTree" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="SpiderHead" />
+    </StandardDirectory>
+
+    <!-- Lite: window only, simple mode (the default when no profile file exists). -->
+    <Feature Id="Lite" Title="Лёгкая" Description="Окно SpiderHead в простом режиме, без CLI в PATH." Level="1" AllowAbsent="yes">
+      <ComponentRef Id="DesktopExe" />
+    </Feature>
+
+    <!-- CLI: spiderhead + spiderhead-mcp on PATH. -->
+    <Feature Id="Cli" Title="CLI" Description="spiderhead и spiderhead-mcp в PATH." Level="1" AllowAbsent="yes">
+      <ComponentRef Id="CliExe" />
+      <ComponentRef Id="McpExe" />
+      <ComponentRef Id="PathEntry" />
+    </Feature>
+
+    <!-- Desktop: window in agent mode + control tool + CLI. -->
+    <Feature Id="Desktop" Title="Desktop" Description="Окно в режиме «С агентом», spiderhead-desktop-ctl и CLI." Level="1" AllowAbsent="yes">
+      <ComponentRef Id="DesktopExe" />
+      <ComponentRef Id="CtlExe" />
+      <ComponentRef Id="CliExe" />
+      <ComponentRef Id="PathEntry" />
+      <ComponentRef Id="AgentProfile" />
+    </Feature>
+
+    <!-- All: everything. -->
+    <Feature Id="All" Title="Всё" Description="Все компоненты." Level="1" AllowAbsent="yes">
+      <ComponentRef Id="DesktopExe" />
+      <ComponentRef Id="CtlExe" />
+      <ComponentRef Id="CliExe" />
+      <ComponentRef Id="McpExe" />
+      <ComponentRef Id="PathEntry" />
+      <ComponentRef Id="AgentProfile" />
+    </Feature>
+
+    <ComponentGroup Id="Components" Directory="INSTALLFOLDER">
+      <Component Id="DesktopExe"><File Source="$(BinDir)\spiderhead-desktop.exe" /></Component>
+      <Component Id="CtlExe"><File Source="$(BinDir)\spiderhead-desktop-ctl.exe" /></Component>
+      <Component Id="CliExe"><File Source="$(BinDir)\spiderhead.exe" /></Component>
+      <Component Id="McpExe"><File Source="$(BinDir)\spiderhead-mcp.exe" /></Component>
+      <Component Id="PathEntry" Guid="0b2f6a31-5d8c-4e7a-a1b9-3c4d5e6f7a80">
+        <Environment Id="Path" Name="PATH" Value="[INSTALLFOLDER]" Action="set" Part="last" System="yes" Permanent="no" />
+      </Component>
+      <Component Id="AgentProfile" Guid="9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d">
+        <File Source="profile-agent.toml" Name="profile.toml" />
+      </Component>
+    </ComponentGroup>
+  </Package>
+</Wix>

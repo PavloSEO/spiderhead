@@ -1,0 +1,8 @@
+# basic site: plain pages; /missing-page.html and /img/missing.png fall through to 404
+[site]
+start = "/"
+description = "plain HTML, duplicates, noindex, images, large page, mixed charset, JS-injected content"
+
+[[route]]
+path = "/legacy.html"
+content_type = "text/html; charset=iso-8859-1"

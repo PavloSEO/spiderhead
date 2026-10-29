@@ -1,0 +1,64 @@
+#Software: Microsoft Internet Information Services 10.0
+#Version: 1.0
+#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query c-ip cs(User-Agent) cs(Referer) sc-status sc-bytes
+2026-10-01 23:33:00 10.0.0.1 GET /robots.txt - 2a03:2880:f800::1 WhatsApp/2.23 https://example.test/ 503 5120
+2026-10-02 15:18:01 10.0.0.1 GET /a%20b q=1 66.249.66.1 Mozilla/5.0+(компьютер;+Linux)+Яндекс-клиент/1.0 https://example.test/ 200 0
+2026-10-03 04:41:02 10.0.0.1 GET /search q=1 2a03:2880:f800::1 Mozilla/5.0+(Linux;+Android+6.0.1;+Nexus+5X)+AppleWebKit/537.36+(compatible;+Googlebot/2.1;++http://www.google.com/bot.html)+Mobile+Safari/537.36 https://example.test/ 404 -
+2026-10-04 12:40:03 10.0.0.1 GET http://example.test/abs/url q=1 2001:db8::1 Pinterest/0.2+(+http://www.pinterest.com/bot.html) - 404 -
+2026-10-05 12:49:04 10.0.0.1 GET /ünïcode/路径 - 66.249.66.3 Googlebot-Image/1.0 https://example.test/ 404 5120
+2026-10-06 19:28:05 10.0.0.1 GET /xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx a=b&c=d 66.249.66.17 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+Chrome/120.0+Safari/537.36 - 304 5120
+2026-10-07 03:09:06 10.0.0.1 GET http://example.test/abs/url - 66.249.66.2 Mozilla/5.0+(компьютер;+Linux)+Яндекс-клиент/1.0 - 302 -
+2026-10-08 15:42:07 10.0.0.1 GET /sitemap.xml - 203.0.113.9 Mozilla/5.0+(compatible;+GPTBot/1.0;++https://openai.com/gptbot) https://example.test/ 302 0
+2026-10-09 18:41:08 10.0.0.1 GET http://example.test/abs/url - 66.249.66.17 WhatsApp/2.23 - 404 0
+2026-10-10 20:42:09 10.0.0.1 GET http://example.test/abs/url a=b&c=d 66.249.66.17 Mozilla/5.0+(compatible;+日本語+crawler+1.0) - 304 5120
+2026-10-11 20:30:10 10.0.0.1 GET /sitemap.xml a=b&c=d 198.51.100.7 Googlebot-Image/1.0 https://example.test/ 404 5120
+2026-10-12 04:56:11 10.0.0.1 GET /trailing/ q=1 2a03:2880:f800::1 Mozilla/5.0+(компьютер;+Linux)+Яндекс-клиент/1.0 - 200 0
+2026-10-13 14:12:12 10.0.0.1 GET /robots.txt q=1 5.255.253.1 Mozilla/5.0+(компьютер;+Linux)+Яндекс-клиент/1.0 https://example.test/ 503 -
+2026-10-14 18:56:13 10.0.0.1 GET http://example.test/abs/url q=1 2001:db8:1::17 Mozilla/5.0+(compatible;+GPTBot/1.0;++https://openai.com/gptbot) https://example.test/ 404 -
+2026-10-15 19:21:14 10.0.0.1 GET /sitemap.xml a=b&c=d 157.55.39.9 FeedFetcher-Google;+(+http://www.google.com/feedfetcher.html) - 200 0
+2026-10-16 18:28:15 10.0.0.1 GET /search - 203.0.113.9 Googlebot-Image/1.0 https://example.test/ 302 -
+2026-10-17 00:09:16 10.0.0.1 GET /robots.txt a=b&c=d 66.249.66.3 WhatsApp/2.23 - 404 0
+2026-10-18 17:37:17 10.0.0.1 GET /UPPER/Case q=1 20.15.1.2 Mozilla/5.0+(compatible;+GPTBot/1.0;++https://openai.com/gptbot) - 404 0
+2026-10-19 19:00:18 10.0.0.1 GET /xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx a=b&c=d 157.55.39.9 Mozilla/5.0+(compatible;+AhrefsBot/7.0;++http://ahrefs.com/robot/) - 200 -
+2026-10-20 05:27:19 10.0.0.1 GET /catalog/pumps/cdm q=1 157.55.39.9 Mozilla/5.0+(компьютер;+Linux)+Яндекс-клиент/1.0 - 304 5120
+2026-10-21 15:11:20 10.0.0.1 GET /ünïcode/路径 - 66.249.66.3 WhatsApp/2.23 - 500 5120
+2026-10-22 14:09:21 10.0.0.1 GET http://example.test/abs/url a=b&c=d 66.249.66.3 Googlebot-Image/1.0 - 301 0
+2026-10-23 22:54:22 10.0.0.1 GET //double/slash a=b&c=d 2a03:2880:f800::1 Mozilla/5.0+(compatible;+bingbot/2.0;++http://www.bing.com/bingbot.htm) - 404 0
+2026-10-24 16:28:23 10.0.0.1 GET /a%20b a=b&c=d 20.15.1.2 Pinterest/0.2+(+http://www.pinterest.com/bot.html) - 302 5120
+2026-10-25 08:06:24 10.0.0.1 GET /blog/пост-о-насосах a=b&c=d 66.249.66.2 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+Chrome/120.0+Safari/537.36 - 301 0
+2026-10-26 12:21:25 10.0.0.1 GET /UPPER/Case - 2001:db8:1::17 Mozilla/5.0+(compatible;+SemrushBot/7~bl;++http://www.semrush.com/bot.html) - 503 -
+2026-10-27 09:10:26 10.0.0.1 GET /blog/пост-о-насосах - 66.249.66.17 Some+Spider+tool - 304 -
+2026-10-28 09:26:27 10.0.0.1 GET /robots.txt a=b&c=d 198.51.100.7 Mozilla/5.0+(Linux;+Android+6.0.1;+Nexus+5X)+AppleWebKit/537.36+(compatible;+Googlebot/2.1;++http://www.google.com/bot.html)+Mobile+Safari/537.36 - 200 0
+2026-10-01 00:11:28 10.0.0.1 GET //double/slash q=1 66.249.66.1 FeedFetcher-Google;+(+http://www.google.com/feedfetcher.html) - 304 -
+2026-10-02 04:07:29 10.0.0.1 GET /catalog/pumps/cdm - 157.55.39.9 Mozilla/5.0+(Linux;+Android+6.0.1;+Nexus+5X)+AppleWebKit/537.36+(compatible;+Googlebot/2.1;++http://www.google.com/bot.html)+Mobile+Safari/537.36 - 200 0
+#Fields: c-ip cs-uri-stem date time sc-status cs(User-Agent)
+2a03:2880:f800::1 /catalog/pumps/cdm 2026-10-01 23:01:00 200 Mozilla/5.0+(compatible;+SemrushBot/7~bl;++http://www.semrush.com/bot.html)
+5.255.253.1 /trailing/ 2026-10-02 03:20:01 404 Mozilla/5.0+(compatible;+ClaudeBot/1.0;++claudebot@anthropic.com)
+20.15.1.2 / 2026-10-03 22:14:02 200 Pinterest/0.2+(+http://www.pinterest.com/bot.html)
+66.249.66.3 /sitemap.xml 2026-10-04 11:13:03 410 Mozilla/5.0+(compatible;+GPTBot/1.0;++https://openai.com/gptbot)
+2001:db8::1 /catalog/pumps/cdm 2026-10-05 06:15:04 404 Mozilla/5.0+(Macintosh;+Intel+Mac+OS+X+10_15_7)+AppleWebKit/605.1.15+Version/17.0+Safari/605.1.15
+66.249.66.1 /sitemap.xml 2026-10-06 23:50:05 404 Mozilla/5.0+(compatible;+GPTBot/1.0;++https://openai.com/gptbot)
+198.51.100.7 / 2026-10-07 22:17:06 301 curl/8.4.0
+2001:db8::1 /old-page 2026-10-08 07:46:07 200 Mozilla/5.0+(compatible;+bingbot/2.0;++http://www.bing.com/bingbot.htm)
+203.0.113.9 //double/slash 2026-10-09 04:00:08 200 Mozilla/5.0+(compatible;+ClaudeBot/1.0;++claudebot@anthropic.com)
+198.51.100.7 //double/slash 2026-10-10 15:41:09 200 Mozilla/5.0+(compatible;+AhrefsBot/7.0;++http://ahrefs.com/robot/)
+2001:db8:1::17 /trailing/ 2026-10-11 15:03:10 301 Mozilla/5.0+(compatible;+AhrefsBot/7.0;++http://ahrefs.com/robot/)
+157.55.39.9 http://example.test/abs/url 2026-10-12 10:52:11 301 AdsBot-Google+(+http://www.google.com/adsbot.html)
+5.255.253.1 /trailing/ 2026-10-13 23:17:12 404 curl/8.4.0
+203.0.113.9 /sitemap.xml 2026-10-14 17:15:13 200 Mozilla/5.0+(compatible;+SemrushBot/7~bl;++http://www.semrush.com/bot.html)
+2a03:2880:f800::1 /a%20b 2026-10-15 08:22:14 200 Mozilla/5.0+(compatible;+AhrefsBot/7.0;++http://ahrefs.com/robot/)
+20.15.1.2 /a%20b 2026-10-16 03:33:15 302 Mozilla/5.0+(compatible;+GPTBot/1.0;++https://openai.com/gptbot)
+2001:db8::1 /old-page 2026-10-17 19:46:16 200 Pinterest/0.2+(+http://www.pinterest.com/bot.html)
+66.249.66.1 /old-page 2026-10-18 16:14:17 200 Mozilla/5.0+(compatible;+ClaudeBot/1.0;++claudebot@anthropic.com)
+2001:db8:1::17 /blog/пост-о-насосах 2026-10-19 17:32:18 200 Mozilla/5.0+(Linux;+Android+6.0.1;+Nexus+5X)+AppleWebKit/537.36+(compatible;+Googlebot/2.1;++http://www.google.com/bot.html)+Mobile+Safari/537.36
+157.55.39.9 /img/photo.webp 2026-10-20 12:51:19 304 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+Chrome/120.0+Safari/537.36
+66.249.66.3 /search 2026-10-21 01:09:20 404 Mozilla/5.0+(Linux;+Android+6.0.1;+Nexus+5X)+AppleWebKit/537.36+(compatible;+Googlebot/2.1;++http://www.google.com/bot.html)+Mobile+Safari/537.36
+198.51.100.7 /img/photo.webp 2026-10-22 16:39:21 200 Googlebot-Image/1.0
+198.51.100.7 /img/photo.webp 2026-10-23 01:27:22 200 Mozilla/5.0+(compatible;+ClaudeBot/1.0;++claudebot@anthropic.com)
+5.255.253.1 /a%20b 2026-10-24 12:22:23 200 Mozilla/5.0+(compatible;+YandexBot/3.0;++http://yandex.com/bots)
+66.249.66.3 /sitemap.xml 2026-10-25 18:49:24 404 Mozilla/5.0+(compatible;+Googlebot/2.1;++http://www.google.com/bot.html)
+157.55.39.9 /xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 2026-10-26 11:51:25 200 Mozilla/5.0+(компьютер;+Linux)+Яндекс-клиент/1.0
+66.249.66.2 /ünïcode/路径 2026-10-27 22:19:26 200 Googlebot-Image/1.0
+2001:db8::1 //double/slash 2026-10-28 19:53:27 200 Mozilla/5.0+(compatible;+AhrefsBot/7.0;++http://ahrefs.com/robot/)
+2001:db8:1::17 /catalog/pumps 2026-10-01 20:28:28 200 AdsBot-Google+(+http://www.google.com/adsbot.html)
+198.51.100.7 /robots.txt 2026-10-02 15:56:29 500 FeedFetcher-Google;+(+http://www.google.com/feedfetcher.html)

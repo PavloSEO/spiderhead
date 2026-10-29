@@ -1,0 +1,38 @@
+{
+ "name": "meta",
+ "description": "The core page meta: title, meta description, meta robots and the canonical link.",
+ "rules": [
+  {
+   "id": "title",
+   "kind": "text",
+   "selector": "title",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "description",
+   "kind": "attribute",
+   "selector": "meta[name=\"description\"]@content",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "meta-robots",
+   "kind": "attribute",
+   "selector": "meta[name=\"robots\"]@content",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "canonical",
+   "kind": "attribute",
+   "selector": "link[rel=\"canonical\"]@href",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

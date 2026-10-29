@@ -1,0 +1,4 @@
+{"url": "https://example.test/private", "reason": "blocked_by_robots", "source": "https://example.test/", "depth": 1}
+{"url": "https://other.test/", "reason": "outside_host", "source": "https://example.test/", "depth": 1}
+{"url": "https://example.test/deep", "reason": "depth_limit", "source": "https://example.test/a", "depth": 3}
+{"url": "https://example.test/p2", "reason": "blocked_by_robots", "source": "https://example.test/", "depth": 1}

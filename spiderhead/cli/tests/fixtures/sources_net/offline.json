@@ -1,0 +1,385 @@
+{
+ "group": "offline",
+ "cases": [
+  {
+   "name": "backlinks-check-found",
+   "cli": {
+    "argv": [
+     "backlinks-check",
+     "--target",
+     "example.test",
+     "--donors",
+     "{ORIGIN}/found,{ORIGIN}/missing",
+     "--concurrency",
+     "2"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_backlinks_check",
+    "arguments": {
+     "target": "https://example.test/a",
+     "donors": [
+      "{ORIGIN}/found"
+     ]
+    }
+   },
+   "env": {
+    "SEOHEAD_ALLOW_PRIVATE_HOSTS": "127.0.0.1"
+   },
+   "routes": [
+    {
+     "path": "/found",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "text/html; charset=utf-8"
+       },
+       "body": "<html><head><title>d</title></head><body><a href=\"https://www.example.test/a\" rel=\"nofollow\">x</a><a href=\"https://example.test/a\">y</a></body></html>"
+      }
+     ]
+    },
+    {
+     "path": "/missing",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "text/html; charset=utf-8"
+       },
+       "body": "<html><body><a href='https://other.test/'>z</a></body></html>"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"target\": \"example.test\",\n  \"donors_checked\": 2,\n  \"donors_dropped\": 0,\n  \"summary\": {\n    \"found\": 1,\n    \"missing\": 1,\n    \"dofollow\": 1,\n    \"nofollow\": 0,\n    \"on_noindex_page\": 0\n  },\n  \"results\": [\n    {\n      \"donor\": \"http://127.0.0.1:<PORT>/found\",\n      \"found\": true,\n      \"links\": [\n        {\n          \"href\": \"https://www.example.test/a\",\n          \"anchor\": \"x\",\n          \"rel\": [\n            \"nofollow\"\n          ],\n          \"nofollow\": true,\n          \"ugc\": false,\n          \"sponsored\": false,\n          \"mixed_rel\": false,\n          \"disclosure\": null,\n          \"follow\": false,\n          \"blocked_by\": [\n            \"nofollow\"\n          ]\n        },\n        {\n          \"href\": \"https://example.test/a\",\n          \"anchor\": \"y\",\n          \"rel\": [],\n          \"nofollow\": false,\n          \"ugc\": false,\n          \"sponsored\": false,\n          \"mixed_rel\": false,\n          \"disclosure\": null,\n          \"follow\": true,\n          \"blocked_by\": []\n        }\n      ],\n      \"status_code\": 200,\n      \"final_url\": \"http://127.0.0.1:<PORT>/found\",\n      \"donor_indexable\": true,\n      \"canonical\": null,\n      \"canonical_elsewhere\": false\n    },\n    {\n      \"donor\": \"http://127.0.0.1:<PORT>/missing\",\n      \"found\": false,\n      \"links\": [],\n      \"status_code\": 200,\n      \"final_url\": \"http://127.0.0.1:<PORT>/missing\",\n      \"donor_indexable\": true,\n      \"canonical\": null,\n      \"canonical_elsewhere\": false,\n      \"reason\": \"no link to the target domain was found on the page\"\n    }\n  ]\n}\n",
+     "stderr": "seohead: backlinks-check\n",
+     "requests": [
+      {
+       "host": "",
+       "method": "GET",
+       "path": "/missing",
+       "query": "",
+       "body": "",
+       "headers": {}
+      },
+      {
+       "host": "",
+       "method": "GET",
+       "path": "/found",
+       "query": "",
+       "body": "",
+       "headers": {}
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"target\": \"https://example.test/a\",\n  \"donors_checked\": 1,\n  \"donors_dropped\": 0,\n  \"summary\": {\n    \"found\": 1,\n    \"missing\": 0,\n    \"dofollow\": 1,\n    \"nofollow\": 0,\n    \"on_noindex_page\": 0\n  },\n  \"results\": [\n    {\n      \"donor\": \"http://127.0.0.1:<PORT>/found\",\n      \"found\": true,\n      \"links\": [\n        {\n          \"href\": \"https://example.test/a\",\n          \"anchor\": \"y\",\n          \"rel\": [],\n          \"nofollow\": false,\n          \"ugc\": false,\n          \"sponsored\": false,\n          \"mixed_rel\": false,\n          \"disclosure\": null,\n          \"follow\": true,\n          \"blocked_by\": []\n        }\n      ],\n      \"status_code\": 200,\n      \"final_url\": \"http://127.0.0.1:<PORT>/found\",\n      \"donor_indexable\": true,\n      \"canonical\": null,\n      \"canonical_elsewhere\": false\n    }\n  ]\n}",
+     "requests": [
+      {
+       "host": "",
+       "method": "GET",
+       "path": "/found",
+       "query": "",
+       "body": "",
+       "headers": {}
+      }
+     ]
+    }
+   },
+   "unordered_requests": true
+  },
+  {
+   "name": "backlinks-check-no-donors",
+   "cli": {
+    "argv": [
+     "backlinks-check",
+     "--target",
+     "example.test"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: backlinks-check\nerror: donors[] required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "backlinks-check-no-target",
+   "cli": {
+    "argv": [
+     "backlinks-check",
+     "--donors",
+     "http://a.test/"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: backlinks-check\nerror: target required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "disavow-file",
+   "cli": {
+    "argv": [
+     "backlinks-disavow",
+     "--domains",
+     "Spam.test,bad.test",
+     "--urls",
+     "https://x.test/p",
+     "--output",
+     "{WORK}/disavow.txt"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_backlinks_disavow",
+    "arguments": {
+     "domains": [
+      "a.test"
+     ]
+    }
+   },
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"text\": \"# Explicit reviewed selection; no search-engine submission was made.\\ndomain:bad.test\\ndomain:spam.test\\nhttps://x.test/p\\n\",\n  \"domains\": 2,\n  \"urls\": 1,\n  \"output\": \"<WORK>/disavow.txt\",\n  \"submitted\": false\n}\n",
+     "stderr": "seohead: backlinks-disavow\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"text\": \"# Explicit reviewed selection; no search-engine submission was made.\\ndomain:a.test\\n\",\n  \"domains\": 1,\n  \"urls\": 0,\n  \"output\": null,\n  \"submitted\": false\n}",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "disavow-bad-domain",
+   "cli": {
+    "argv": [
+     "backlinks-disavow",
+     "--domains",
+     "not a host"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: backlinks-disavow\nerror: disavow domains must be valid hostnames\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "profile-imports",
+   "cli": {
+    "argv": [
+     "backlinks-profile",
+     "--domain",
+     "example.test",
+     "--input",
+     "{\"imports\": [{\"source\": \"generic\", \"path\": \"{WORK}/bl.csv\"}], \"observed_at\": \"2026-03-01T00:00:00+00:00\"}",
+     "--limit",
+     "10"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_backlinks_profile",
+    "arguments": {
+     "domain": "example.test",
+     "imports": [
+      {
+       "source": "generic",
+       "path": "{WORK}/bl.csv"
+      }
+     ],
+     "observed_at": "2026-03-01T00:00:00+00:00",
+     "db": "{WORK}/bl.sqlite"
+    }
+   },
+   "seed": [
+    {
+     "path": "bl.csv",
+     "text": "source_url,target_url,anchor,rel,first_seen\nhttps://donor-one.test/post,https://example.test/a,best audit,,2026-01-02\nhttps://donor-two.test/list,https://example.test/b,link,nofollow,2026-02-03\nhttps://donor-two.test/list,https://example.test/b,link,nofollow,2026-02-03\n"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"format\": \"spiderhead.backlink-profile.v1\",\n  \"domain\": \"example.test\",\n  \"observed_at\": \"<TS>\",\n  \"state\": \"partial\",\n  \"coverage\": [\n    {\n      \"state\": \"partial\",\n      \"complete\": false,\n      \"rows_supplied\": true,\n      \"source\": \"generic\",\n      \"scope\": \"supplied export or provider sample\",\n      \"input_rows\": 3,\n      \"rejected_rows\": 0,\n      \"out_of_scope_rows\": 0,\n      \"unknown_targets\": 0,\n      \"whole_web_complete\": false\n    }\n  ],\n  \"reason\": null,\n  \"whole_web_complete\": false,\n  \"scope\": \"explicit source evidence; absent rows do not prove lost links\",\n  \"summary\": {\n    \"backlinks\": 2,\n    \"referring_domains\": 2,\n    \"live\": 0,\n    \"lost\": 0,\n    \"unknown_state\": 2,\n    \"link_types\": {\n      \"normal\": 1,\n      \"nofollow\": 1\n    },\n    \"target_404\": 0,\n    \"target_redirect\": 0\n  },\n  \"anchors\": [\n    {\n      \"anchor\": \"best audit\",\n      \"backlinks\": 1\n    },\n    {\n      \"anchor\": \"link\",\n      \"backlinks\": 1\n    }\n  ],\n  \"referring_domains\": [\n    {\n      \"domain\": \"donor-one.test\",\n      \"backlinks\": 1\n    },\n    {\n      \"domain\": \"donor-two.test\",\n      \"backlinks\": 1\n    }\n  ],\n  \"domain_edges\": [],\n  \"aggregate_rows\": [],\n  \"unfiltered_backlinks\": 2,\n  \"rows\": [\n    {\n      \"source_url\": \"https://donor-one.test/post\",\n      \"target_url\": \"https://example.test/a\",\n      \"referring_domain\": \"donor-one.test\",\n      \"anchors\": [\n        \"best audit\"\n      ],\n      \"rel\": [],\n      \"rel_conflict\": false,\n      \"qualification_complete\": true,\n      \"unknown_rel_observations\": 0,\n      \"link_types\": [\n        \"normal\"\n      ],\n      \"follow\": true,\n      \"follow_conflict\": false,\n      \"state\": \"unknown\",\n      \"state_conflict\": false,\n      \"first_seen\": \"2026-01-02\",\n      \"last_seen\": null,\n      \"lost_at\": null,\n      \"sources\": [\n        \"generic\"\n      ],\n      \"observations\": [\n        {\n          \"source_url\": \"https://donor-one.test/post\",\n          \"target_url\": \"https://example.test/a\",\n          \"source\": \"generic\",\n          \"observed_at\": \"<TS>\",\n          \"anchor\": \"best audit\",\n          \"rel\": [],\n          \"rel_complete\": true,\n          \"qualification_complete\": true,\n          \"observed_follow\": null,\n          \"first_seen\": \"2026-01-02\",\n          \"last_seen\": null,\n          \"lost_at\": null,\n          \"state\": \"unknown\",\n          \"metrics\": {}\n        }\n      ],\n      \"spam\": {\n        \"score\": null,\n        \"reasons\": [],\n        \"kind\": \"review_heuristic\",\n        \"penalty_evidence\": false\n      },\n      \"target_status\": null\n    },\n    {\n      \"source_url\": \"https://donor-two.test/list\",\n      \"target_url\": \"https://example.test/b\",\n      \"referring_domain\": \"donor-two.test\",\n      \"anchors\": [\n        \"link\"\n      ],\n      \"rel\": [\n        \"nofollow\"\n      ],\n      \"rel_conflict\": false,\n      \"qualification_complete\": true,\n      \"unknown_rel_observations\": 0,\n      \"link_types\": [\n        \"nofollow\"\n      ],\n      \"follow\": false,\n      \"follow_conflict\": false,\n      \"state\": \"unknown\",\n      \"state_conflict\": false,\n      \"first_seen\": \"2026-02-03\",\n      \"last_seen\": null,\n      \"lost_at\": null,\n      \"sources\": [\n        \"generic\"\n      ],\n      \"observations\": [\n        {\n          \"source_url\": \"https://donor-two.test/list\",\n          \"target_url\": \"https://example.test/b\",\n          \"source\": \"generic\",\n          \"observed_at\": \"<TS>\",\n          \"anchor\": \"link\",\n          \"rel\": [\n            \"nofollow\"\n          ],\n          \"rel_complete\": true,\n          \"qualification_complete\": true,\n          \"observed_follow\": null,\n          \"first_seen\": \"2026-02-03\",\n          \"last_seen\": null,\n          \"lost_at\": null,\n          \"state\": \"unknown\",\n          \"metrics\": {}\n        }\n      ],\n      \"spam\": {\n        \"score\": null,\n        \"reasons\": [],\n        \"kind\": \"review_heuristic\",\n        \"penalty_evidence\": false\n      },\n      \"target_status\": null\n    }\n  ],\n  \"history\": null,\n  \"pagination\": {\n    \"offset\": 0,\n    \"limit\": 10,\n    \"total\": 2,\n    \"has_more\": false\n  }\n}\n",
+     "stderr": "seohead: backlinks-profile\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"format\": \"spiderhead.backlink-profile.v1\",\n  \"domain\": \"example.test\",\n  \"observed_at\": \"<TS>\",\n  \"state\": \"partial\",\n  \"coverage\": [\n    {\n      \"state\": \"partial\",\n      \"complete\": false,\n      \"rows_supplied\": true,\n      \"source\": \"generic\",\n      \"scope\": \"supplied export or provider sample\",\n      \"input_rows\": 3,\n      \"rejected_rows\": 0,\n      \"out_of_scope_rows\": 0,\n      \"unknown_targets\": 0,\n      \"whole_web_complete\": false\n    }\n  ],\n  \"reason\": null,\n  \"whole_web_complete\": false,\n  \"scope\": \"explicit source evidence; absent rows do not prove lost links\",\n  \"summary\": {\n    \"backlinks\": 2,\n    \"referring_domains\": 2,\n    \"live\": 0,\n    \"lost\": 0,\n    \"unknown_state\": 2,\n    \"link_types\": {\n      \"normal\": 1,\n      \"nofollow\": 1\n    },\n    \"target_404\": 0,\n    \"target_redirect\": 0\n  },\n  \"anchors\": [\n    {\n      \"anchor\": \"best audit\",\n      \"backlinks\": 1\n    },\n    {\n      \"anchor\": \"link\",\n      \"backlinks\": 1\n    }\n  ],\n  \"referring_domains\": [\n    {\n      \"domain\": \"donor-one.test\",\n      \"backlinks\": 1\n    },\n    {\n      \"domain\": \"donor-two.test\",\n      \"backlinks\": 1\n    }\n  ],\n  \"domain_edges\": [],\n  \"aggregate_rows\": [],\n  \"unfiltered_backlinks\": 2,\n  \"rows\": [\n    {\n      \"source_url\": \"https://donor-one.test/post\",\n      \"target_url\": \"https://example.test/a\",\n      \"referring_domain\": \"donor-one.test\",\n      \"anchors\": [\n        \"best audit\"\n      ],\n      \"rel\": [],\n      \"rel_conflict\": false,\n      \"qualification_complete\": true,\n      \"unknown_rel_observations\": 0,\n      \"link_types\": [\n        \"normal\"\n      ],\n      \"follow\": true,\n      \"follow_conflict\": false,\n      \"state\": \"unknown\",\n      \"state_conflict\": false,\n      \"first_seen\": \"2026-01-02\",\n      \"last_seen\": null,\n      \"lost_at\": null,\n      \"sources\": [\n        \"generic\"\n      ],\n      \"observations\": [\n        {\n          \"source_url\": \"https://donor-one.test/post\",\n          \"target_url\": \"https://example.test/a\",\n          \"source\": \"generic\",\n          \"observed_at\": \"<TS>\",\n          \"anchor\": \"best audit\",\n          \"rel\": [],\n          \"rel_complete\": true,\n          \"qualification_complete\": true,\n          \"observed_follow\": null,\n          \"first_seen\": \"2026-01-02\",\n          \"last_seen\": null,\n          \"lost_at\": null,\n          \"state\": \"unknown\",\n          \"metrics\": {}\n        }\n      ],\n      \"spam\": {\n        \"score\": null,\n        \"reasons\": [],\n        \"kind\": \"review_heuristic\",\n        \"penalty_evidence\": false\n      },\n      \"target_status\": null\n    },\n    {\n      \"source_url\": \"https://donor-two.test/list\",\n      \"target_url\": \"https://example.test/b\",\n      \"referring_domain\": \"donor-two.test\",\n      \"anchors\": [\n        \"link\"\n      ],\n      \"rel\": [\n        \"nofollow\"\n      ],\n      \"rel_conflict\": false,\n      \"qualification_complete\": true,\n      \"unknown_rel_observations\": 0,\n      \"link_types\": [\n        \"nofollow\"\n      ],\n      \"follow\": false,\n      \"follow_conflict\": false,\n      \"state\": \"unknown\",\n      \"state_conflict\": false,\n      \"first_seen\": \"2026-02-03\",\n      \"last_seen\": null,\n      \"lost_at\": null,\n      \"sources\": [\n        \"generic\"\n      ],\n      \"observations\": [\n        {\n          \"source_url\": \"https://donor-two.test/list\",\n          \"target_url\": \"https://example.test/b\",\n          \"source\": \"generic\",\n          \"observed_at\": \"<TS>\",\n          \"anchor\": \"link\",\n          \"rel\": [\n            \"nofollow\"\n          ],\n          \"rel_complete\": true,\n          \"qualification_complete\": true,\n          \"observed_follow\": null,\n          \"first_seen\": \"2026-02-03\",\n          \"last_seen\": null,\n          \"lost_at\": null,\n          \"state\": \"unknown\",\n          \"metrics\": {}\n        }\n      ],\n      \"spam\": {\n        \"score\": null,\n        \"reasons\": [],\n        \"kind\": \"review_heuristic\",\n        \"penalty_evidence\": false\n      },\n      \"target_status\": null\n    }\n  ],\n  \"history\": {\n    \"db\": \"<WORK>/bl.sqlite\",\n    \"snapshot_id\": 1,\n    \"fingerprint\": \"231f904f4aafb0efa8360828a9162747813bbe482ae093692130438e13373663\",\n    \"previous_snapshot_id\": null,\n    \"newly_observed\": 2,\n    \"unobserved_since_previous\": 0,\n    \"confirmed_lost\": 0,\n    \"absence_is_loss\": false\n  },\n  \"pagination\": {\n    \"offset\": 0,\n    \"limit\": 1000,\n    \"total\": 2,\n    \"has_more\": false\n  }\n}",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "profile-bad-domain",
+   "cli": {
+    "argv": [
+     "backlinks-profile",
+     "--domain",
+     "not a host"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: backlinks-profile\nerror: domain must be a valid hostname or HTTP(S) URL\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "profile-bad-state",
+   "cli": {
+    "argv": [
+     "backlinks-profile",
+     "--domain",
+     "example.test",
+     "--state",
+     "weird"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 2,
+     "stdout": "",
+     "stderr": "usage: spiderhead backlinks-profile [-h] [--input INPUT] [--domain DOMAIN]\n                                    [--project PROJECT] [--db DB]\n                                    [--state {live,lost,unknown}]\n                                    [--follow {normal,nofollow,sponsored,ugc,unknown}]\n                                    [--target-prefix TARGET_PREFIX]\n                                    [--min-spam-score MIN_SPAM_SCORE]\n                                    [--max-spam-score MAX_SPAM_SCORE]\n                                    [--history] [--one-per-domain]\n                                    [--limit LIMIT] [--offset OFFSET]\nspiderhead backlinks-profile: error: argument --state: invalid choice: 'weird' (choose from 'live', 'lost', 'unknown')\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "evidence-normalize-csv",
+   "cli": {
+    "argv": [
+     "evidence-normalize",
+     "--file",
+     "{WORK}/ev.csv",
+     "--mapping",
+     "{\"format\": \"spiderhead.evidence-mapping.v1\", \"source\": {\"kind\": \"csv\", \"provider\": \"demo\", \"privacy\": \"supplied\"}}"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_evidence_normalize",
+    "arguments": {
+     "file": "{WORK}/ev.csv",
+     "mapping": {
+      "format": "spiderhead.evidence-mapping.v1",
+      "source": {
+       "kind": "csv",
+       "provider": "demo",
+       "privacy": "supplied"
+      }
+     },
+     "out_dir": "{WORK}/out"
+    }
+   },
+   "seed": [
+    {
+     "path": "ev.csv",
+     "text": "url,clicks,impressions\nhttps://example.test/a,10,200\nhttps://example.test/b,3,90\n"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"format\": \"spiderhead.evidence-normalize.v1\",\n  \"privacy\": \"supplied\",\n  \"summary\": {\n    \"rows\": 2,\n    \"keyed\": 2,\n    \"unkeyable\": 0,\n    \"unkeyable_reasons\": {},\n    \"ambiguous\": 0,\n    \"metrics\": {},\n    \"collection\": {\n      \"collected_at\": null,\n      \"state\": \"complete\",\n      \"sampled\": null,\n      \"thresholded\": null,\n      \"truncated\": null,\n      \"reason\": null\n    }\n  },\n  \"artifact_reference\": null,\n  \"document\": {\n    \"format\": \"spiderhead.normalized-evidence.v1\",\n    \"mapping\": {\n      \"format\": \"spiderhead.evidence-mapping.v1\",\n      \"source\": {\n        \"kind\": \"csv\",\n        \"provider\": \"demo\",\n        \"operation\": null,\n        \"reporting_identity\": null,\n        \"privacy\": \"supplied\",\n        \"search_engine\": null,\n        \"search_type\": null,\n        \"attribution\": null,\n        \"timezone\": null,\n        \"site_origin\": null\n      },\n      \"period\": null,\n      \"url\": {\n        \"field\": \"url\",\n        \"dimension\": null,\n        \"kind\": \"absolute\"\n      },\n      \"metrics\": [],\n      \"dimensions\": [],\n      \"collection\": {\n        \"collected_at\": null,\n        \"state\": \"complete\",\n        \"sampled\": null,\n        \"thresholded\": null,\n        \"truncated\": null,\n        \"reason\": null\n      },\n      \"duplicate_policy\": \"mark\",\n      \"row_shape\": \"flat\"\n    },\n    \"provenance\": {\n      \"fields\": {\n        \"provider\": {\n          \"value\": \"demo\",\n          \"origin\": \"declared\",\n          \"declared_by\": \"manifest\"\n        },\n        \"operation\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"reporting_identity\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"site_origin\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"search_engine\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"search_type\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"attribution\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"timezone\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"collected_at\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"collection_state\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"sampled\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"thresholded\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"truncated\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"period\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"privacy\": {\n          \"value\": \"supplied\",\n          \"origin\": \"declared\",\n          \"declared_by\": \"manifest\"\n        },\n        \"url_binding\": {\n          \"value\": {\n            \"field\": \"url\",\n            \"dimension\": null,\n            \"kind\": \"absolute\"\n          },\n          \"origin\": \"declared\",\n          \"declared_by\": \"import_default\"\n        },\n        \"metrics\": {\n          \"value\": [],\n          \"origin\": \"unknown\",\n          \"declared_by\": \"import_default\"\n        },\n        \"dimensions\": {\n          \"value\": [],\n          \"origin\": \"unknown\",\n          \"declared_by\": \"import_default\"\n        }\n      },\n      \"file\": {\n        \"name\": \"ev.csv\",\n        \"sha256\": \"273ee100aa8df21a9bb8e175f922a3ab54d5530616cf6f380a0c253ca757286a\",\n        \"bytes\": 81,\n        \"kind\": \"csv\"\n      },\n      \"artifact_reference\": null\n    },\n    \"rows\": [\n      {\n        \"row_index\": 0,\n        \"natural_key\": [\n          \"https://example.test/a\"\n        ],\n        \"natural_key_sha256\": \"80008a2dd9ae6847612f335b96203921188732cee8a9f24025722fef16334cb1\",\n        \"dimensions\": {},\n        \"url\": {\n          \"raw\": \"https://example.test/a\",\n          \"resolved\": \"https://example.test/a\",\n          \"normalized\": \"https://example.test/a\",\n          \"state\": \"keyed\",\n          \"reason\": null\n        },\n        \"metrics\": {},\n        \"ambiguous\": false,\n        \"raw\": {\n          \"url\": \"https://example.test/a\",\n          \"clicks\": \"10\",\n          \"impressions\": \"200\"\n        }\n      },\n      {\n        \"row_index\": 1,\n        \"natural_key\": [\n          \"https://example.test/b\"\n        ],\n        \"natural_key_sha256\": \"796e4e830d06c530129bb7b2dc934f7f4fba5578f07e9e05cdd369dd51be9bc4\",\n        \"dimensions\": {},\n        \"url\": {\n          \"raw\": \"https://example.test/b\",\n          \"resolved\": \"https://example.test/b\",\n          \"normalized\": \"https://example.test/b\",\n          \"state\": \"keyed\",\n          \"reason\": null\n        },\n        \"metrics\": {},\n        \"ambiguous\": false,\n        \"raw\": {\n          \"url\": \"https://example.test/b\",\n          \"clicks\": \"3\",\n          \"impressions\": \"90\"\n        }\n      }\n    ],\n    \"summary\": {\n      \"rows\": 2,\n      \"keyed\": 2,\n      \"unkeyable\": 0,\n      \"unkeyable_reasons\": {},\n      \"ambiguous\": 0,\n      \"metrics\": {},\n      \"collection\": {\n        \"collected_at\": null,\n        \"state\": \"complete\",\n        \"sampled\": null,\n        \"thresholded\": null,\n        \"truncated\": null,\n        \"reason\": null\n      }\n    }\n  }\n}\n",
+     "stderr": "seohead: evidence-normalize\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"format\": \"spiderhead.evidence-normalize.v1\",\n  \"privacy\": \"supplied\",\n  \"summary\": {\n    \"rows\": 2,\n    \"keyed\": 2,\n    \"unkeyable\": 0,\n    \"unkeyable_reasons\": {},\n    \"ambiguous\": 0,\n    \"metrics\": {},\n    \"collection\": {\n      \"collected_at\": null,\n      \"state\": \"complete\",\n      \"sampled\": null,\n      \"thresholded\": null,\n      \"truncated\": null,\n      \"reason\": null\n    }\n  },\n  \"artifact_reference\": \"local-artifact:590246aa3e0f5afbb9f5c8a73de770f60f38a26615a636c09706961b3322d3fe\",\n  \"document\": {\n    \"format\": \"spiderhead.normalized-evidence.v1\",\n    \"mapping\": {\n      \"format\": \"spiderhead.evidence-mapping.v1\",\n      \"source\": {\n        \"kind\": \"csv\",\n        \"provider\": \"demo\",\n        \"operation\": null,\n        \"reporting_identity\": null,\n        \"privacy\": \"supplied\",\n        \"search_engine\": null,\n        \"search_type\": null,\n        \"attribution\": null,\n        \"timezone\": null,\n        \"site_origin\": null\n      },\n      \"period\": null,\n      \"url\": {\n        \"field\": \"url\",\n        \"dimension\": null,\n        \"kind\": \"absolute\"\n      },\n      \"metrics\": [],\n      \"dimensions\": [],\n      \"collection\": {\n        \"collected_at\": null,\n        \"state\": \"complete\",\n        \"sampled\": null,\n        \"thresholded\": null,\n        \"truncated\": null,\n        \"reason\": null\n      },\n      \"duplicate_policy\": \"mark\",\n      \"row_shape\": \"flat\"\n    },\n    \"provenance\": {\n      \"fields\": {\n        \"provider\": {\n          \"value\": \"demo\",\n          \"origin\": \"declared\",\n          \"declared_by\": \"manifest\"\n        },\n        \"operation\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"reporting_identity\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"site_origin\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"search_engine\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"search_type\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"attribution\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"timezone\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"collected_at\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"collection_state\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"sampled\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"thresholded\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"truncated\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"period\": {\n          \"value\": null,\n          \"origin\": \"unknown\"\n        },\n        \"privacy\": {\n          \"value\": \"supplied\",\n          \"origin\": \"declared\",\n          \"declared_by\": \"manifest\"\n        },\n        \"url_binding\": {\n          \"value\": {\n            \"field\": \"url\",\n            \"dimension\": null,\n            \"kind\": \"absolute\"\n          },\n          \"origin\": \"declared\",\n          \"declared_by\": \"import_default\"\n        },\n        \"metrics\": {\n          \"value\": [],\n          \"origin\": \"unknown\",\n          \"declared_by\": \"import_default\"\n        },\n        \"dimensions\": {\n          \"value\": [],\n          \"origin\": \"unknown\",\n          \"declared_by\": \"import_default\"\n        }\n      },\n      \"file\": {\n        \"name\": \"ev.csv\",\n        \"sha256\": \"273ee100aa8df21a9bb8e175f922a3ab54d5530616cf6f380a0c253ca757286a\",\n        \"bytes\": 81,\n        \"kind\": \"csv\"\n      },\n      \"artifact_reference\": null\n    },\n    \"rows\": [\n      {\n        \"row_index\": 0,\n        \"natural_key\": [\n          \"https://example.test/a\"\n        ],\n        \"natural_key_sha256\": \"80008a2dd9ae6847612f335b96203921188732cee8a9f24025722fef16334cb1\",\n        \"dimensions\": {},\n        \"url\": {\n          \"raw\": \"https://example.test/a\",\n          \"resolved\": \"https://example.test/a\",\n          \"normalized\": \"https://example.test/a\",\n          \"state\": \"keyed\",\n          \"reason\": null\n        },\n        \"metrics\": {},\n        \"ambiguous\": false,\n        \"raw\": {\n          \"url\": \"https://example.test/a\",\n          \"clicks\": \"10\",\n          \"impressions\": \"200\"\n        }\n      },\n      {\n        \"row_index\": 1,\n        \"natural_key\": [\n          \"https://example.test/b\"\n        ],\n        \"natural_key_sha256\": \"796e4e830d06c530129bb7b2dc934f7f4fba5578f07e9e05cdd369dd51be9bc4\",\n        \"dimensions\": {},\n        \"url\": {\n          \"raw\": \"https://example.test/b\",\n          \"resolved\": \"https://example.test/b\",\n          \"normalized\": \"https://example.test/b\",\n          \"state\": \"keyed\",\n          \"reason\": null\n        },\n        \"metrics\": {},\n        \"ambiguous\": false,\n        \"raw\": {\n          \"url\": \"https://example.test/b\",\n          \"clicks\": \"3\",\n          \"impressions\": \"90\"\n        }\n      }\n    ],\n    \"summary\": {\n      \"rows\": 2,\n      \"keyed\": 2,\n      \"unkeyable\": 0,\n      \"unkeyable_reasons\": {},\n      \"ambiguous\": 0,\n      \"metrics\": {},\n      \"collection\": {\n        \"collected_at\": null,\n        \"state\": \"complete\",\n        \"sampled\": null,\n        \"thresholded\": null,\n        \"truncated\": null,\n        \"reason\": null\n      }\n    }\n  }\n}",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "evidence-normalize-missing-file",
+   "cli": {
+    "argv": [
+     "evidence-normalize",
+     "--file",
+     "{WORK}/nope.csv"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: evidence-normalize\nerror: evidence file must be a regular file\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "evidence-normalize-no-file",
+   "cli": {
+    "argv": [
+     "evidence-normalize",
+     "--file",
+     ""
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: evidence-normalize\nerror: file required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "artifact-read-bad-ref",
+   "cli": {
+    "argv": [
+     "provider-artifact-read",
+     "--artifact-ref",
+     "nope",
+     "--artifact-dir",
+     "{WORK}/a"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_provider_artifact_read",
+    "arguments": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "{WORK}/a"
+    }
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: provider-artifact-read\nerror: artifact_ref must be a local provider artifact reference\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": true,
+     "text": "Error executing tool seo_provider_artifact_read: artifact_dir must be an existing regular directory",
+     "requests": []
+    }
+   }
+  }
+ ]
+}

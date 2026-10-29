@@ -1,0 +1,26 @@
+{
+ "exit": 0,
+ "stdout": {
+  "chain": [
+   {
+    "location": "/loop-b",
+    "ok": true,
+    "status": 301,
+    "url": "{BASE}/loop-a"
+   },
+   {
+    "location": "/loop-a",
+    "ok": true,
+    "status": 301,
+    "url": "{BASE}/loop-b"
+   },
+   {
+    "error": "Redirect loop detected",
+    "location": null,
+    "ok": false,
+    "status": 0,
+    "url": "{BASE}/loop-a"
+   }
+  ]
+ }
+}

@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 11,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Error executing tool seo_scan_evidence: cannot read scan: unable to open database file"
+      }
+    ],
+    "isError": true
+  }
+}

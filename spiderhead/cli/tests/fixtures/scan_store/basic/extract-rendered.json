@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-extract\n",
+    "stdout": "{\n  \"ok\": true,\n  \"items\": [],\n  \"truncated\": false,\n  \"output_limit_bytes\": 8388608,\n  \"scope\": \"retained complete bodies only; no network or artifact mutation\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"items\": [],\n  \"truncated\": false,\n  \"output_limit_bytes\": 8388608,\n  \"scope\": \"retained complete bodies only; no network or artifact mutation\"\n}"
+   }
+  ]
+ }
+}

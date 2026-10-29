@@ -1,0 +1,56 @@
+{
+ "available": true,
+ "bucket_counts": {
+  "in_sitemap_and_linked": 0,
+  "in_sitemap_not_linked": 1,
+  "linked_not_comparable": 0,
+  "linked_not_in_sitemap": 0
+ },
+ "buckets": {
+  "in_sitemap_and_linked": [],
+  "in_sitemap_not_linked": [
+   "https://example.test/"
+  ],
+  "linked_not_comparable": [],
+  "linked_not_in_sitemap": []
+ },
+ "counts": {
+  "in_crawl_not_in_sitemap": 0,
+  "in_sitemap_not_in_crawl": 1,
+  "urls_in_sitemap": 1,
+  "urls_reached_by_links": 0
+ },
+ "crawl_partial": false,
+ "declared_facts": [
+  {
+   "blocked": 0,
+   "canonical": "",
+   "final_url": "",
+   "meta_robots": "",
+   "redirect_url": "",
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/",
+   "x_robots": ""
+  }
+ ],
+ "has_names": true,
+ "missing_canonical": [],
+ "orphan_facts": [
+  {
+   "sitemap_url": "https://example.test/sitemap.xml",
+   "status_code": 200,
+   "url": "https://example.test/"
+  }
+ ],
+ "reason": "",
+ "summary": {
+  "available": true,
+  "crawl_partial": false,
+  "in_crawl_not_in_sitemap": 0,
+  "in_sitemap_not_in_crawl": 1,
+  "reason": "",
+  "urls_in_sitemap": 1,
+  "urls_reached_by_links": 0
+ }
+}

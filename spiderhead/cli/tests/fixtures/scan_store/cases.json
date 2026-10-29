@@ -1,0 +1,1606 @@
+[
+ {
+  "id": "navigation",
+  "command": "scan-navigation",
+  "tool": "seo_scan_navigation",
+  "sites": [
+   "basic",
+   "errors"
+  ],
+  "args": {
+   "input_path": "{SCAN}"
+  }
+ },
+ {
+  "id": "navigation-bad-limit",
+  "command": "scan-navigation",
+  "tool": "seo_scan_navigation",
+  "args": {
+   "input_path": "{SCAN}",
+   "limit": 0
+  }
+ },
+ {
+  "id": "rendered-routes",
+  "command": "scan-rendered-routes",
+  "tool": "seo_scan_rendered_routes",
+  "sites": [
+   "basic",
+   "redirects"
+  ],
+  "args": {
+   "input_path": "{SCAN}"
+  }
+ },
+ {
+  "id": "config-diff",
+  "command": "scan-config-diff",
+  "tool": "seo_scan_config_diff",
+  "sites": [
+   "basic"
+  ],
+  "args": {
+   "before_path": "{SCAN}",
+   "after_path": "{SCAN2}"
+  }
+ },
+ {
+  "id": "extraction-presets",
+  "command": "extraction-presets",
+  "tool": "seo_extraction_presets",
+  "args": {}
+ },
+ {
+  "id": "pin",
+  "command": "scan-pin",
+  "tool": "seo_scan_pin",
+  "args": {
+   "input_path": "{SCAN}"
+  },
+  "then": [
+   {
+    "command": "scan-pin",
+    "tool": "seo_scan_pin",
+    "args": {
+     "input_path": "{SCAN}",
+     "pinned": false
+    }
+   }
+  ]
+ },
+ {
+  "id": "snapshot",
+  "command": "scan-snapshot",
+  "tool": "seo_scan_snapshot",
+  "args": {
+   "input_path": "{SCAN}",
+   "out": "{WORK}/snap.sqlite"
+  },
+  "then": [
+   {
+    "command": "scan-status",
+    "tool": "seo_scan_status",
+    "args": {
+     "input_path": "{WORK}/snap.sqlite"
+    }
+   }
+  ]
+ },
+ {
+  "id": "body-diff",
+  "command": "scan-body-diff",
+  "tool": "seo_scan_body_diff",
+  "args": {
+   "left": "{SCAN}",
+   "right": "{SCAN2}",
+   "url": "{BASE}/about.html",
+   "text": true
+  }
+ },
+ {
+  "id": "archive",
+  "command": "scan-archive",
+  "tool": "seo_scan_archive",
+  "sites": [
+   "basic",
+   "errors"
+  ],
+  "args": {
+   "input_path": "{SCAN}",
+   "out": "{WORK}/a.warc"
+  },
+  "collect": [
+   "a.warc"
+  ]
+ },
+ {
+  "id": "sitemap-generate",
+  "command": "scan-sitemap-generate",
+  "tool": "seo_scan_sitemap_generate",
+  "sites": [
+   "basic",
+   "robots-sitemap"
+  ],
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/sm",
+   "sitemap_base_url": "https://example.com",
+   "include_images": true
+  },
+  "collect": [
+   "sm"
+  ]
+ },
+ {
+  "id": "sitemap-generate-exclude",
+  "command": "scan-sitemap-generate",
+  "tool": "seo_scan_sitemap_generate",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/sm",
+   "sitemap_base_url": "https://example.com",
+   "exclude": [
+    "*/about*"
+   ]
+  },
+  "collect": [
+   "sm"
+  ]
+ },
+ {
+  "id": "requeue",
+  "command": "scan-requeue",
+  "tool": "seo_scan_requeue",
+  "sites": [
+   "errors"
+  ],
+  "args": {
+   "input_path": "{SCAN}",
+   "where": "status_code >= 400",
+   "backup_path": "{WORK}/backup.sqlite"
+  },
+  "then": [
+   {
+    "command": "scan-status",
+    "tool": "seo_scan_status",
+    "args": {
+     "input_path": "{SCAN}"
+    }
+   }
+  ]
+ },
+ {
+  "id": "requeue-bad-where",
+  "command": "scan-requeue",
+  "tool": "seo_scan_requeue",
+  "args": {
+   "input_path": "{SCAN}",
+   "where": "1=1",
+   "backup_path": "{WORK}/backup.sqlite"
+  }
+ },
+ {
+  "id": "import-urls",
+  "command": "scan-import-urls",
+  "tool": "seo_scan_import_urls",
+  "sites": [
+   "basic"
+  ],
+  "files_in": {
+   "urls.txt": "{BASE}/new-a.html\n{BASE}/new-b.html\nhttps://other.example.org/x\n"
+  },
+  "args": {
+   "input_path": "{SCAN}",
+   "urls_file": "{WORK}/urls.txt",
+   "backup_path": "{WORK}/backup.sqlite"
+  },
+  "then": [
+   {
+    "command": "scan-status",
+    "tool": "seo_scan_status",
+    "args": {
+     "input_path": "{SCAN}"
+    }
+   }
+  ]
+ },
+ {
+  "id": "prune-preview",
+  "command": "scan-prune",
+  "tool": "seo_scan_prune",
+  "args": {
+   "directory": "{WORK}",
+   "older_than_days": 0,
+   "keep_newest": 0
+  }
+ },
+ {
+  "id": "prune-apply-no-plan",
+  "command": "scan-prune",
+  "tool": "seo_scan_prune",
+  "args": {
+   "directory": "{WORK}",
+   "apply": true
+  }
+ },
+ {
+  "id": "body-diff-missing",
+  "command": "scan-body-diff",
+  "tool": "seo_scan_body_diff",
+  "args": {
+   "left": "{SCAN}",
+   "right": "{SCAN2}",
+   "url": "{BASE}/nope.html"
+  }
+ },
+ {
+  "id": "custom-extract",
+  "command": "custom-extract-sample",
+  "tool": "seo_custom_extract_sample",
+  "args": {
+   "html": "<html><body><h1>Hi</h1><p class='x'>a</p><p class='x'>b</p></body></html>",
+   "extractors": [
+    {
+     "name": "h1",
+     "query": "h1"
+    },
+    {
+     "name": "xs",
+     "mode": "css",
+     "query": "p.x",
+     "output": "text"
+    },
+    {
+     "name": "none",
+     "query": "table"
+    }
+   ],
+   "url": "https://example.com/"
+  }
+ },
+ {
+  "id": "custom-extract-empty",
+  "command": "custom-extract-sample",
+  "tool": "seo_custom_extract_sample",
+  "args": {
+   "html": "",
+   "extractors": [
+    {
+     "name": "h1",
+     "query": "h1"
+    }
+   ]
+  }
+ },
+ {
+  "id": "custom-extract-bad",
+  "command": "custom-extract-sample",
+  "tool": "seo_custom_extract_sample",
+  "args": {
+   "html": "<p>x",
+   "extractors": [
+    {
+     "name": "",
+     "query": "p"
+    }
+   ]
+  }
+ },
+ {
+  "id": "fragment-links",
+  "command": "scan-fragment-links",
+  "tool": "seo_scan_fragment_links",
+  "sites": [
+   "basic",
+   "errors",
+   "redirects",
+   "canonical-hreflang",
+   "schema",
+   "robots-sitemap"
+  ],
+  "args": {
+   "input_path": "{SCAN}"
+  }
+ },
+ {
+  "id": "fragment-links-skipped",
+  "command": "scan-fragment-links",
+  "tool": "seo_scan_fragment_links",
+  "args": {
+   "input_path": "{SCAN}",
+   "state": "skipped",
+   "limit": 3,
+   "offset": 1
+  }
+ },
+ {
+  "id": "link-inspect-links",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "links",
+   "url": "{START}"
+  },
+  "sites": [
+   "basic",
+   "errors",
+   "redirects",
+   "canonical-hreflang",
+   "schema",
+   "robots-sitemap"
+  ]
+ },
+ {
+  "id": "link-inspect-links-in",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "links",
+   "url": "{BASE}/about.html",
+   "direction": "in",
+   "sort": "url"
+  }
+ },
+ {
+  "id": "link-inspect-links-preset",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "links",
+   "url": "{START}",
+   "preset": "broken_links"
+  }
+ },
+ {
+  "id": "link-inspect-links-conflict",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "links",
+   "url": "{START}",
+   "preset": "inlinks",
+   "direction": "out",
+   "link_type": "external"
+  }
+ },
+ {
+  "id": "link-inspect-path",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "path",
+   "seed": "{START}",
+   "target": "{BASE}/about.html"
+  },
+  "sites": [
+   "basic",
+   "redirects"
+  ]
+ },
+ {
+  "id": "link-inspect-path-bad",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "path",
+   "seed": "{START}"
+  }
+ },
+ {
+  "id": "link-inspect-inlinks",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "inlinks",
+   "target": "{BASE}/about.html"
+  },
+  "sites": [
+   "basic",
+   "errors"
+  ]
+ },
+ {
+  "id": "link-inspect-context-doc",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "context",
+   "document_id": 1,
+   "limit": 5
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "link-inspect-context-link",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "context",
+   "link_id": 1
+  }
+ },
+ {
+  "id": "link-inspect-context-bad",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "context"
+  }
+ },
+ {
+  "id": "link-inspect-bad-view",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "nope"
+  }
+ },
+ {
+  "id": "link-inspect-filter-wrong-view",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "path",
+   "direction": "in"
+  }
+ },
+ {
+  "id": "link-inspect-tiny-budget",
+  "command": "scan-link-inspect",
+  "tool": "seo_scan_link_inspect",
+  "args": {
+   "input_path": "{SCAN}",
+   "view": "links",
+   "url": "{START}",
+   "max_bytes": 4096
+  }
+ },
+ {
+  "id": "url-detail",
+  "command": "scan-url-detail",
+  "tool": "seo_scan_url_detail",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{START}"
+  },
+  "sites": [
+   "basic",
+   "errors",
+   "redirects",
+   "canonical-hreflang",
+   "schema",
+   "robots-sitemap"
+  ]
+ },
+ {
+  "id": "url-detail-about",
+  "command": "scan-url-detail",
+  "tool": "seo_scan_url_detail",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{BASE}/about.html",
+   "body_length": 200,
+   "body_offset": 10
+  },
+  "sites": [
+   "basic",
+   "errors"
+  ]
+ },
+ {
+  "id": "url-detail-redirect",
+  "command": "scan-url-detail",
+  "tool": "seo_scan_url_detail",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{BASE}/r301"
+  },
+  "sites": [
+   "redirects"
+  ]
+ },
+ {
+  "id": "url-detail-missing",
+  "command": "scan-url-detail",
+  "tool": "seo_scan_url_detail",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{BASE}/nope"
+  },
+  "sites": [
+   "basic"
+  ]
+ },
+ {
+  "id": "url-detail-slash",
+  "command": "scan-url-detail",
+  "tool": "seo_scan_url_detail",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{BASE}/about.html/"
+  },
+  "sites": [
+   "basic"
+  ]
+ },
+ {
+  "id": "url-detail-query",
+  "command": "scan-url-detail",
+  "tool": "seo_scan_url_detail",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{BASE}/about.html?a=1&b=2&c"
+  },
+  "sites": [
+   "basic"
+  ]
+ },
+ {
+  "id": "url-detail-bad-limit",
+  "command": "scan-url-detail",
+  "tool": "seo_scan_url_detail",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{START}",
+   "response_limit": 0
+  }
+ },
+ {
+  "id": "url-detail-tiny",
+  "command": "scan-url-detail",
+  "tool": "seo_scan_url_detail",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{START}",
+   "max_bytes": 4096
+  }
+ },
+ {
+  "id": "headers-analyze",
+  "command": "headers-analyze",
+  "tool": "seo_headers_analyze",
+  "args": {
+   "input_path": "{SCAN}"
+  },
+  "sites": [
+   "basic",
+   "errors",
+   "redirects",
+   "canonical-hreflang",
+   "schema",
+   "robots-sitemap"
+  ]
+ },
+ {
+  "id": "headers-analyze-url",
+  "command": "headers-analyze",
+  "tool": "seo_headers_analyze",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{START}"
+  },
+  "sites": [
+   "basic",
+   "redirects"
+  ]
+ },
+ {
+  "id": "headers-analyze-missing",
+  "command": "headers-analyze",
+  "tool": "seo_headers_analyze",
+  "args": {
+   "input_path": "{SCAN}",
+   "url": "{BASE}/nope"
+  }
+ },
+ {
+  "id": "headers-analyze-page",
+  "command": "headers-analyze",
+  "tool": "seo_headers_analyze",
+  "args": {
+   "input_path": "{SCAN}",
+   "limit": 2,
+   "offset": 1
+  }
+ },
+ {
+  "id": "headers-analyze-bad",
+  "command": "headers-analyze",
+  "tool": "seo_headers_analyze",
+  "args": {
+   "input_path": "{SCAN}",
+   "limit": 0
+  }
+ },
+ {
+  "id": "headers-analyze-tiny",
+  "command": "headers-analyze",
+  "tool": "seo_headers_analyze",
+  "args": {
+   "input_path": "{SCAN}",
+   "max_bytes": 4096,
+   "limit": 200
+  }
+ },
+ {
+  "id": "evidence-capabilities",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "capabilities"
+  },
+  "sites": [
+   "basic",
+   "errors",
+   "redirects",
+   "canonical-hreflang",
+   "schema",
+   "robots-sitemap"
+  ]
+ },
+ {
+  "id": "evidence-corpus",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "corpus"
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "evidence-structured",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "structured"
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "evidence-routes",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "routes"
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "evidence-resources",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "resources"
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "evidence-timeline",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "timeline"
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "evidence-relations",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "relations"
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "evidence-browser",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "browser"
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "evidence-extraction",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "section": "extraction"
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "evidence-bad-limit",
+  "command": "scan-evidence",
+  "tool": "seo_scan_evidence",
+  "args": {
+   "input_path": "{SCAN}",
+   "limit": 0
+  }
+ },
+ {
+  "id": "extract-headings",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "h1",
+     "kind": "text",
+     "selector": "h1",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h2",
+     "kind": "text",
+     "selector": "h2",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h3",
+     "kind": "text",
+     "selector": "h3",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h4",
+     "kind": "text",
+     "selector": "h4",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h5",
+     "kind": "text",
+     "selector": "h5",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h6",
+     "kind": "text",
+     "selector": "h6",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "heading-count",
+     "kind": "count",
+     "selector": "h1,h2,h3,h4,h5,h6",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    }
+   ]
+  },
+  "sites": [
+   "basic",
+   "errors",
+   "redirects",
+   "canonical-hreflang",
+   "schema",
+   "robots-sitemap"
+  ]
+ },
+ {
+  "id": "extract-meta",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "title",
+     "kind": "text",
+     "selector": "title",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "description",
+     "kind": "attribute",
+     "selector": "meta[name=\"description\"]@content",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "meta-robots",
+     "kind": "attribute",
+     "selector": "meta[name=\"robots\"]@content",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "canonical",
+     "kind": "attribute",
+     "selector": "link[rel=\"canonical\"]@href",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    }
+   ],
+   "limit": 3
+  },
+  "sites": [
+   "basic",
+   "schema"
+  ]
+ },
+ {
+  "id": "extract-links",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "a-href",
+     "kind": "attribute",
+     "selector": "a@href",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "a-text",
+     "kind": "text",
+     "selector": "a",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "a-rel",
+     "kind": "attribute",
+     "selector": "a@rel",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "a-external",
+     "kind": "attribute",
+     "selector": "a[href^=\"http\"]@href",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "a-nofollow",
+     "kind": "count",
+     "selector": "a[rel~=\"nofollow\"]",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    }
+   ],
+   "url": "{START}"
+  },
+  "sites": [
+   "basic"
+  ]
+ },
+ {
+  "id": "extract-images",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "img-src",
+     "kind": "attribute",
+     "selector": "img@src",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "img-alt",
+     "kind": "attribute",
+     "selector": "img@alt",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "img-alt-empty",
+     "kind": "count",
+     "selector": "img[alt=\"\"]",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "img-alt-missing",
+     "kind": "count",
+     "selector": "img:not([alt])",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "img-count",
+     "kind": "count",
+     "selector": "img",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    }
+   ]
+  },
+  "sites": [
+   "basic"
+  ]
+ },
+ {
+  "id": "extract-json-ld",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "jsonld-blocks",
+     "kind": "text",
+     "selector": "script[type=\"application/ld+json\"]",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 20
+    },
+    {
+     "id": "jsonld-types",
+     "kind": "structured",
+     "selector": "/@type",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 20
+    }
+   ]
+  },
+  "sites": [
+   "schema"
+  ]
+ },
+ {
+  "id": "extract-structure",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "div-count",
+     "kind": "count",
+     "selector": "div",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "section-count",
+     "kind": "count",
+     "selector": "section",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "article-count",
+     "kind": "count",
+     "selector": "article",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "main-count",
+     "kind": "count",
+     "selector": "main",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "nav-count",
+     "kind": "count",
+     "selector": "nav",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "header-count",
+     "kind": "count",
+     "selector": "header",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "footer-count",
+     "kind": "count",
+     "selector": "footer",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "aside-count",
+     "kind": "count",
+     "selector": "aside",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "table-count",
+     "kind": "count",
+     "selector": "table",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "form-count",
+     "kind": "count",
+     "selector": "form",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "iframe-count",
+     "kind": "count",
+     "selector": "iframe",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "svg-count",
+     "kind": "count",
+     "selector": "svg",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "list-count",
+     "kind": "count",
+     "selector": "ul,ol",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    }
+   ]
+  },
+  "sites": [
+   "basic"
+  ]
+ },
+ {
+  "id": "extract-bad-rules",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "x"
+    }
+   ]
+  }
+ },
+ {
+  "id": "extract-bad-limit",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "h1",
+     "kind": "text",
+     "selector": "h1",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h2",
+     "kind": "text",
+     "selector": "h2",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h3",
+     "kind": "text",
+     "selector": "h3",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h4",
+     "kind": "text",
+     "selector": "h4",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h5",
+     "kind": "text",
+     "selector": "h5",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h6",
+     "kind": "text",
+     "selector": "h6",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "heading-count",
+     "kind": "count",
+     "selector": "h1,h2,h3,h4,h5,h6",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    }
+   ],
+   "limit": 0
+  }
+ },
+ {
+  "id": "extract-rendered",
+  "command": "scan-extract",
+  "tool": "seo_scan_extract",
+  "args": {
+   "input_path": "{SCAN}",
+   "rules": [
+    {
+     "id": "h1",
+     "kind": "text",
+     "selector": "h1",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h2",
+     "kind": "text",
+     "selector": "h2",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h3",
+     "kind": "text",
+     "selector": "h3",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h4",
+     "kind": "text",
+     "selector": "h4",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h5",
+     "kind": "text",
+     "selector": "h5",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "h6",
+     "kind": "text",
+     "selector": "h6",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    },
+    {
+     "id": "heading-count",
+     "kind": "count",
+     "selector": "h1,h2,h3,h4,h5,h6",
+     "operator": "exists",
+     "value": "",
+     "max_matches": 100
+    }
+   ],
+   "representation": "rendered"
+  }
+ },
+ {
+  "id": "csearch",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": "title"
+  },
+  "then": [
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg"
+    }
+   },
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg",
+     "limit": 2,
+     "offset": 1
+    }
+   }
+  ],
+  "sites": [
+   "basic",
+   "errors",
+   "redirects",
+   "canonical-hreflang",
+   "schema",
+   "robots-sitemap"
+  ],
+  "collect": [
+   "pkg"
+  ]
+ },
+ {
+  "id": "csearch-snippets",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": "<h1",
+   "include_snippets": true,
+   "case_sensitive": true
+  },
+  "then": [
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg",
+     "status": "matched"
+    }
+   },
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg",
+     "status_code": 200,
+     "limit": 3
+    }
+   }
+  ],
+  "sites": [
+   "basic",
+   "errors"
+  ],
+  "collect": [
+   "pkg"
+  ]
+ },
+ {
+  "id": "csearch-notcontains",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": "zzz-not-here",
+   "mode": "not_contains"
+  },
+  "then": [
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg",
+     "status": "not_matched",
+     "limit": 2
+    }
+   }
+  ],
+  "sites": [
+   "basic"
+  ],
+  "collect": [
+   "pkg"
+  ]
+ },
+ {
+  "id": "csearch-regex",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": "<(h1|h2)[^>]*>",
+   "kind": "regex",
+   "scope": "body_text"
+  },
+  "then": [
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg"
+    }
+   }
+  ],
+  "sites": [
+   "basic",
+   "schema"
+  ],
+  "collect": [
+   "pkg"
+  ]
+ },
+ {
+  "id": "csearch-selector",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": "About",
+   "scope": "selector_markup",
+   "selector": "h1"
+  },
+  "then": [
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg"
+    }
+   }
+  ],
+  "sites": [
+   "basic"
+  ],
+  "collect": [
+   "pkg"
+  ]
+ },
+ {
+  "id": "csearch-url",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": "html",
+   "url": "{BASE}/about.html"
+  },
+  "then": [
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg"
+    }
+   }
+  ],
+  "sites": [
+   "basic"
+  ],
+  "collect": [
+   "pkg"
+  ]
+ },
+ {
+  "id": "csearch-rendered",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": "title",
+   "representation": "rendered"
+  },
+  "then": [
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg"
+    }
+   }
+  ],
+  "sites": [
+   "basic"
+  ],
+  "collect": [
+   "pkg"
+  ]
+ },
+ {
+  "id": "csearch-no-query",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": ""
+  },
+  "sites": [
+   "basic"
+  ]
+ },
+ {
+  "id": "csearch-page-bad",
+  "command": "scan-content-search",
+  "tool": "seo_scan_content_search",
+  "args": {
+   "input_path": "{SCAN}",
+   "out_dir": "{WORK}/pkg",
+   "query": "title"
+  },
+  "then": [
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg",
+     "limit": 101
+    }
+   },
+   {
+    "command": "scan-content-search-page",
+    "tool": "seo_scan_content_search_page",
+    "args": {
+     "package": "{WORK}/pkg",
+     "offset": 99
+    }
+   }
+  ],
+  "sites": [
+   "basic"
+  ]
+ },
+ {
+  "id": "url-history",
+  "command": "project-new",
+  "tool": "seo_project_new",
+  "args": {
+   "directory": "{WORK}/proj",
+   "target": "https://example.com/"
+  },
+  "then": [
+   {
+    "command": "scan-snapshot",
+    "tool": "seo_scan_snapshot",
+    "args": {
+     "input_path": "{SCAN}",
+     "out": "{WORK}/proj/scans"
+    }
+   },
+   {
+    "command": "scan-url-history",
+    "tool": "seo_scan_url_history",
+    "args": {
+     "project": "{WORK}/proj",
+     "url": "{START}"
+    }
+   }
+  ],
+  "sites": [
+   "basic",
+   "errors",
+   "redirects"
+  ]
+ },
+ {
+  "id": "url-history-missing",
+  "command": "project-new",
+  "tool": "seo_project_new",
+  "args": {
+   "directory": "{WORK}/proj",
+   "target": "https://example.com/"
+  },
+  "then": [
+   {
+    "command": "scan-snapshot",
+    "tool": "seo_scan_snapshot",
+    "args": {
+     "input_path": "{SCAN}",
+     "out": "{WORK}/proj/scans"
+    }
+   },
+   {
+    "command": "scan-url-history",
+    "tool": "seo_scan_url_history",
+    "args": {
+     "project": "{WORK}/proj",
+     "url": "{BASE}/nope"
+    }
+   }
+  ]
+ }
+]

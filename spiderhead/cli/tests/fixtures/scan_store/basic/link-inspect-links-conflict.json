@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "seohead: scan-link-inspect\n",
+    "stdout": "{\n  \"ok\": false,\n  \"view\": \"links\",\n  \"error\": \"preset inlinks conflicts with explicit link_type\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_scan_link_inspect: {\"ok\": false, \"view\": \"links\", \"error\": \"preset inlinks conflicts with explicit link_type\"}"
+   }
+  ]
+ }
+}

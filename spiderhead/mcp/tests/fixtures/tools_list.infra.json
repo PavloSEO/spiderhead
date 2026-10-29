@@ -1,0 +1,647 @@
+{
+  "tools": [
+    {
+      "name": "seo_robots_check",
+      "description": "Fetch and analyze a site's robots.txt: user-agent groups, declared\nsitemaps, and whether given paths are crawlable.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "user_agent": {
+            "default": "*",
+            "title": "User Agent",
+            "type": "string"
+          },
+          "paths": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Paths"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_robots_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "RobotsCheckError": {
+            "description": "`robots.check_robots` when fetching robots.txt itself failed.",
+            "properties": {
+              "status_code": {
+                "title": "Status Code",
+                "type": "integer"
+              },
+              "ok": {
+                "const": false,
+                "title": "Ok",
+                "type": "boolean"
+              },
+              "robots_url": {
+                "title": "Robots Url",
+                "type": "string"
+              },
+              "error": {
+                "title": "Error",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ok",
+              "robots_url",
+              "error"
+            ],
+            "title": "RobotsCheckError",
+            "type": "object"
+          },
+          "RobotsCheckFound": {
+            "description": "`robots.check_robots` once the robots.txt request itself succeeded\n(whether or not a robots.txt actually exists — see `exists`).",
+            "properties": {
+              "note": {
+                "title": "Note",
+                "type": "string"
+              },
+              "state": {
+                "title": "State",
+                "type": "string"
+              },
+              "path_checks": {
+                "items": {
+                  "$ref": "#/$defs/RobotsPathCheck"
+                },
+                "title": "Path Checks",
+                "type": "array"
+              },
+              "ok": {
+                "const": true,
+                "title": "Ok",
+                "type": "boolean"
+              },
+              "robots_url": {
+                "title": "Robots Url",
+                "type": "string"
+              },
+              "status_code": {
+                "title": "Status Code",
+                "type": "integer"
+              },
+              "exists": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Exists"
+              },
+              "groups": {
+                "items": {
+                  "$ref": "#/$defs/RobotsGroup"
+                },
+                "title": "Groups",
+                "type": "array"
+              },
+              "sitemaps": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Sitemaps",
+                "type": "array"
+              }
+            },
+            "required": [
+              "ok",
+              "robots_url",
+              "status_code",
+              "exists",
+              "groups",
+              "sitemaps"
+            ],
+            "title": "RobotsCheckFound",
+            "type": "object"
+          },
+          "RobotsGroup": {
+            "description": "One `User-agent:` group from a parsed robots.txt.",
+            "properties": {
+              "user_agents": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "User Agents",
+                "type": "array"
+              },
+              "allow": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Allow",
+                "type": "array"
+              },
+              "disallow": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Disallow",
+                "type": "array"
+              },
+              "crawl_delay": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Crawl Delay"
+              },
+              "request_rate_delay": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request Rate Delay"
+              },
+              "_line_of": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "title": "Line Of",
+                "type": "object"
+              }
+            },
+            "required": [
+              "user_agents",
+              "allow",
+              "disallow",
+              "crawl_delay",
+              "request_rate_delay",
+              "_line_of"
+            ],
+            "title": "RobotsGroup",
+            "type": "object"
+          },
+          "RobotsPathCheck": {
+            "properties": {
+              "path": {
+                "title": "Path",
+                "type": "string"
+              },
+              "allowed": {
+                "title": "Allowed",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "path",
+              "allowed"
+            ],
+            "title": "RobotsPathCheck",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/RobotsCheckFound"
+              },
+              {
+                "$ref": "#/$defs/RobotsCheckError"
+              }
+            ],
+            "title": "Result"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "seo_robots_checkOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_headers_check",
+      "description": "Inspect SEO-relevant response headers (X-Robots-Tag, canonical Link,\nCache-Control, HSTS, ...), HTTP version, TTFB, and body size.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "method": {
+            "default": "GET",
+            "enum": [
+              "GET",
+              "HEAD"
+            ],
+            "title": "Method",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_headers_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_headers_checkDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_domain_profile",
+      "description": "Infrastructure profile of a domain: registrar and domain age (RDAP, whois\nfallback), DNS records with DNS/mail provider, hosting IP with ASN, owner and\ncountry, reverse DNS, TLS certificate and its expiry, plus risk flags.",
+      "inputSchema": {
+        "properties": {
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "with_tls": {
+            "default": true,
+            "title": "With Tls",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "title": "seo_domain_profileArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_domain_profileDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_cdn_check",
+      "description": "Which CDN sits in front of a URL and whether caching actually works:\ncache status on a repeat request (MISS->HIT), Cache-Control, ETag/Last-Modified,\n304 revalidation, HTTP version, HTTP/3 advertisement, brotli/gzip and TTFB.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_cdn_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_cdn_checkDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_tech_detect",
+      "description": "Detect the technologies behind a page: CMS, framework, server stack,\nanalytics and ad pixels, chat widgets, consent tools, fonts and third-party\nscript hosts. Every hit carries the marker it was detected by.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_tech_detectArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_tech_detectDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_security_check",
+      "description": "Security headers with a score and grade (HSTS, CSP, X-Frame-Options,\nX-Content-Type-Options, Referrer-Policy, Permissions-Policy), software version\ndisclosure, cookie flags and the http->https upgrade. Set probe_paths=true to\nalso check whether .git/.env and similar service files are exposed.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "probe_paths": {
+            "default": false,
+            "title": "Probe Paths",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_security_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_security_checkDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_regions_check",
+      "description": "Audit a site's regional structure: subdomains (msk.site.ru), folders\n(site.ru/msk/) and satellite domains (site-msk.ru). Finds the city switcher on the\npage, recognises ~100 Russian cities by URL slug (msk/moskva/moscow all collapse to\none region) and by Cyrillic anchor text, then fetches each regional page and reports\nwhat actually kills regional promotion: hosts that just redirect to the main domain\n(so the region does not exist), regional pages canonicalised to another host\n(self-removal from the index), noindex, identical content across cities, one shared\nphone number for the whole country, a missing city name in the title, and two\nschemes used at once. Satellite domains are invisible from the page — pass them in\n`extra`. Set render=true when the city switcher is drawn by JavaScript (needs\nPlaywright) — on many large sites it is not in the raw HTML at all.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Extra"
+          },
+          "limit": {
+            "default": 12,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "render": {
+            "default": false,
+            "title": "Render",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_regions_checkArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_regions_checkDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_sitemap_crawl",
+      "description": "Recursively parse a sitemap (index/urlset, gzip supported) into a URL tree.\n\nFetches sitemap evidence. An explicit local project records an observation\nfor the same origin; otherwise no project files are written. Declared URLs\nare not fetched HTML pages. Counters count parsed sitemap documents only.\n",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "concurrency": {
+            "default": 3,
+            "title": "Concurrency",
+            "type": "integer"
+          },
+          "project": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Project"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_sitemap_crawlArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_sitemap_crawlDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_doctor",
+      "description": "Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.\n\nThis is a local read-only diagnostic. It does not write a probe file, launch a browser,\ncrawl a site, or establish Screaming Frog licence validity.\n",
+      "inputSchema": {
+        "properties": {
+          "projects_directory": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Projects Directory"
+          },
+          "config_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Config Path"
+          },
+          "sf_cli": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sf Cli"
+          }
+        },
+        "title": "seo_doctorArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_doctorDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "seo_tool_catalog",
+      "description": "Search source-derived tool metadata with categories, project awareness, and bounded offset paging.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "default": "",
+            "title": "Query",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "include_arguments": {
+            "default": false,
+            "title": "Include Arguments",
+            "type": "boolean"
+          }
+        },
+        "title": "seo_tool_catalogArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_tool_catalogDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "seo_inspect_url",
+      "description": "Inspect one URL with bounded metadata/header/robots/redirect/structured/render steps.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "checks": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Checks"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_inspect_urlArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_inspect_urlDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ]
+}

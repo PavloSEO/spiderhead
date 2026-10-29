@@ -1,0 +1,512 @@
+{
+ "cases": [
+  {
+   "expected": [
+    {
+     "location": "https://redir.example/new",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/old"
+    },
+    {
+     "location": null,
+     "ok": true,
+     "status": 200,
+     "url": "https://redir.example/new"
+    }
+   ],
+   "name": "chain_301_then_200",
+   "options": null,
+   "responses": {
+    "https://redir.example/new": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://redir.example/new"
+    },
+    "https://redir.example/old": {
+     "body": "",
+     "headers": {
+      "location": "https://redir.example/new"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/old"
+    }
+   },
+   "url": "https://redir.example/old"
+  },
+  {
+   "expected": [
+    {
+     "location": "/landing",
+     "ok": true,
+     "status": 302,
+     "url": "https://redir.example/start"
+    },
+    {
+     "location": null,
+     "ok": true,
+     "status": 200,
+     "url": "https://redir.example/landing"
+    }
+   ],
+   "name": "relative_location_resolved",
+   "options": null,
+   "responses": {
+    "https://redir.example/landing": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://redir.example/landing"
+    },
+    "https://redir.example/start": {
+     "body": "",
+     "headers": {
+      "location": "/landing"
+     },
+     "status_code": 302,
+     "url": "https://redir.example/start"
+    }
+   },
+   "url": "https://redir.example/start"
+  },
+  {
+   "expected": [
+    {
+     "location": "/b",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/a"
+    },
+    {
+     "location": "/a",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/b"
+    },
+    {
+     "error": "Redirect loop detected",
+     "location": null,
+     "ok": false,
+     "status": 0,
+     "url": "https://redir.example/a"
+    }
+   ],
+   "name": "loop_detected",
+   "options": {
+    "max_hops": 10
+   },
+   "responses": {
+    "https://redir.example/a": {
+     "body": "",
+     "headers": {
+      "location": "/b"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/a"
+    },
+    "https://redir.example/b": {
+     "body": "",
+     "headers": {
+      "location": "/a"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/b"
+    }
+   },
+   "url": "https://redir.example/a"
+  },
+  {
+   "expected": [
+    {
+     "location": "/p1",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/"
+    },
+    {
+     "location": "/p2",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p1"
+    },
+    {
+     "error": "Redirect limit exceeded (2)",
+     "location": null,
+     "ok": false,
+     "status": 0,
+     "url": "https://redir.example/p2"
+    }
+   ],
+   "name": "hop_limit_enforced",
+   "options": {
+    "max_hops": 2
+   },
+   "responses": {
+    "https://redir.example/": {
+     "body": "",
+     "headers": {
+      "location": "/p1"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/"
+    },
+    "https://redir.example/p1": {
+     "body": "",
+     "headers": {
+      "location": "/p2"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p1"
+    },
+    "https://redir.example/p2": {
+     "body": "",
+     "headers": {
+      "location": "/p3"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p2"
+    },
+    "https://redir.example/p3": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://redir.example/p3"
+    }
+   },
+   "url": "https://redir.example/"
+  },
+  {
+   "expected": [
+    {
+     "location": "/p1",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/"
+    },
+    {
+     "location": "/p2",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p1"
+    },
+    {
+     "location": "/p3",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p2"
+    },
+    {
+     "location": "/p4",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p3"
+    },
+    {
+     "location": "/p5",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p4"
+    },
+    {
+     "location": "/p6",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p5"
+    },
+    {
+     "location": "/p7",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p6"
+    },
+    {
+     "location": "/p8",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p7"
+    },
+    {
+     "location": "/p9",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p8"
+    },
+    {
+     "location": "/p10",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/p9"
+    },
+    {
+     "error": "Redirect limit exceeded (10)",
+     "location": null,
+     "ok": false,
+     "status": 0,
+     "url": "https://redir.example/p10"
+    }
+   ],
+   "name": "max_hops_capped_at_ten",
+   "options": {
+    "max_hops": 500
+   },
+   "responses": {
+    "https://redir.example/": {
+     "body": "",
+     "headers": {
+      "location": "/p1"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/"
+    },
+    "https://redir.example/p1": {
+     "body": "",
+     "headers": {
+      "location": "/p2"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p1"
+    },
+    "https://redir.example/p10": {
+     "body": "",
+     "headers": {
+      "location": "/p11"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p10"
+    },
+    "https://redir.example/p11": {
+     "body": "",
+     "headers": {
+      "location": "/p12"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p11"
+    },
+    "https://redir.example/p12": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://redir.example/p12"
+    },
+    "https://redir.example/p2": {
+     "body": "",
+     "headers": {
+      "location": "/p3"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p2"
+    },
+    "https://redir.example/p3": {
+     "body": "",
+     "headers": {
+      "location": "/p4"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p3"
+    },
+    "https://redir.example/p4": {
+     "body": "",
+     "headers": {
+      "location": "/p5"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p4"
+    },
+    "https://redir.example/p5": {
+     "body": "",
+     "headers": {
+      "location": "/p6"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p5"
+    },
+    "https://redir.example/p6": {
+     "body": "",
+     "headers": {
+      "location": "/p7"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p6"
+    },
+    "https://redir.example/p7": {
+     "body": "",
+     "headers": {
+      "location": "/p8"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p7"
+    },
+    "https://redir.example/p8": {
+     "body": "",
+     "headers": {
+      "location": "/p9"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p8"
+    },
+    "https://redir.example/p9": {
+     "body": "",
+     "headers": {
+      "location": "/p10"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/p9"
+    }
+   },
+   "url": "https://redir.example/"
+  },
+  {
+   "expected": [
+    {
+     "location": "/p1",
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/"
+    },
+    {
+     "error": "Redirect limit exceeded (1)",
+     "location": null,
+     "ok": false,
+     "status": 0,
+     "url": "https://redir.example/p1"
+    }
+   ],
+   "name": "maxHops_alias",
+   "options": {
+    "maxHops": 1
+   },
+   "responses": {
+    "https://redir.example/": {
+     "body": "",
+     "headers": {
+      "location": "/p1"
+     },
+     "status_code": 301,
+     "url": "https://redir.example/"
+    },
+    "https://redir.example/p1": {
+     "body": "",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://redir.example/p1"
+    }
+   },
+   "url": "https://redir.example/"
+  },
+  {
+   "expected": [
+    {
+     "error": "no route to https://down.example/deep",
+     "location": null,
+     "ok": false,
+     "status": 0,
+     "url": "https://down.example/deep"
+    }
+   ],
+   "name": "network_error_single_hop",
+   "options": null,
+   "responses": {},
+   "url": "https://down.example/deep"
+  },
+  {
+   "expected": [
+    {
+     "error": "Timeout",
+     "location": null,
+     "ok": false,
+     "status": 0,
+     "url": "https://redir.example/slow"
+    }
+   ],
+   "name": "timeout_reported",
+   "options": null,
+   "responses": {
+    "https://redir.example/slow": {
+     "body": "",
+     "headers": {},
+     "raise": "timeout",
+     "status_code": 0,
+     "url": "https://redir.example/slow"
+    }
+   },
+   "url": "https://redir.example/slow"
+  },
+  {
+   "expected": [
+    {
+     "location": null,
+     "ok": true,
+     "status": 301,
+     "url": "https://redir.example/noloc"
+    }
+   ],
+   "name": "redirect_without_location",
+   "options": null,
+   "responses": {
+    "https://redir.example/noloc": {
+     "body": "",
+     "headers": {},
+     "status_code": 301,
+     "url": "https://redir.example/noloc"
+    }
+   },
+   "url": "https://redir.example/noloc"
+  },
+  {
+   "expected": [
+    {
+     "location": null,
+     "ok": false,
+     "status": 404,
+     "url": "https://redir.example/gone"
+    }
+   ],
+   "name": "get_method_reports_4xx",
+   "options": {
+    "method": "GET"
+   },
+   "responses": {
+    "GET|https://redir.example/gone": {
+     "body": "",
+     "headers": {},
+     "status_code": 404,
+     "url": "https://redir.example/gone"
+    }
+   },
+   "url": "https://redir.example/gone"
+  },
+  {
+   "expected": [
+    {
+     "error": "redirects-check options must be an object",
+     "location": null,
+     "ok": false,
+     "status": 0,
+     "url": "https://redir.example/x"
+    }
+   ],
+   "name": "non_object_options",
+   "options": "nope",
+   "responses": {},
+   "url": "https://redir.example/x"
+  },
+  {
+   "expected": [
+    {
+     "error": "redirects-check method must be GET or HEAD",
+     "location": null,
+     "ok": false,
+     "status": 0,
+     "url": "https://redir.example/x"
+    }
+   ],
+   "name": "bad_method_rejected",
+   "options": {
+    "method": "POST"
+   },
+   "responses": {},
+   "url": "https://redir.example/x"
+  }
+ ]
+}

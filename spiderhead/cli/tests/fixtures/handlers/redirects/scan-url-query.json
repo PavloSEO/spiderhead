@@ -1,0 +1,6 @@
+{
+ "command": "scan-url-query",
+ "exit": 1,
+ "stderr": "seohead: scan-url-query\n",
+ "stdout": "{\n  \"ok\": false,\n  \"state\": \"invalid\",\n  \"format\": \"spiderhead.scan-url-query.v1\",\n  \"reason_code\": \"limit_too_large\",\n  \"error\": \"limit must be at most 200\"\n}\n"
+}

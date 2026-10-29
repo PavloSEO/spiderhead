@@ -1,0 +1,6 @@
+{
+ "command": "scan-body-read",
+ "exit": 0,
+ "stderr": "seohead: scan-body-read\n",
+ "stdout": "{\n  \"ok\": true,\n  \"state\": \"unavailable\",\n  \"reason\": \"document_not_in_corpus\",\n  \"url\": \"{BASE}/about.html\",\n  \"validation\": \"light\"\n}\n"
+}

@@ -1,0 +1,2359 @@
+[
+ {
+  "name": "sanitized-bounded-samples",
+  "ops": [
+   {
+    "fn": "_setup",
+    "kw": {},
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "artifact_ref",
+    "kw": {
+     "payload": {
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "pagespeed",
+       "operation": "mobile_samples",
+       "retrieved_at": "2026-10-12T00:00:00Z",
+       "target_reference": {
+        "url": "https://example.test/?secret=never-show"
+       }
+      },
+      "result": {
+       "samples": [
+        {
+         "url": "https://example.test/page?token=private#section",
+         "strategy": "mobile",
+         "state": "complete",
+         "final_url": "https://example.test/final?session=private",
+         "fetch_time": "2026-10-12T00:00:00Z",
+         "lighthouse_version": "13.0.0",
+         "categories": {
+          "performance": {
+           "score": 0.8,
+           "title": "Performance"
+          },
+          "seo": {
+           "score": 1,
+           "title": "SEO"
+          },
+          "notadict": "skip-me"
+         },
+         "audits": {
+          "audit-000": {
+           "score": 0,
+           "display_value": "0 ms",
+           "numeric_value": 0,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-001": {
+           "score": 1,
+           "display_value": "1 ms",
+           "numeric_value": 1,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-002": {
+           "score": 0,
+           "display_value": "2 ms",
+           "numeric_value": 2,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-003": {
+           "score": 1,
+           "display_value": "3 ms",
+           "numeric_value": 3,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-004": {
+           "score": 0,
+           "display_value": "4 ms",
+           "numeric_value": 4,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-005": {
+           "score": 1,
+           "display_value": "5 ms",
+           "numeric_value": 5,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-006": {
+           "score": 0,
+           "display_value": "6 ms",
+           "numeric_value": 6,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-007": {
+           "score": 1,
+           "display_value": "7 ms",
+           "numeric_value": 7,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-008": {
+           "score": 0,
+           "display_value": "8 ms",
+           "numeric_value": 8,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-009": {
+           "score": 1,
+           "display_value": "9 ms",
+           "numeric_value": 9,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-010": {
+           "score": 0,
+           "display_value": "10 ms",
+           "numeric_value": 10,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-011": {
+           "score": 1,
+           "display_value": "11 ms",
+           "numeric_value": 11,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-012": {
+           "score": 0,
+           "display_value": "12 ms",
+           "numeric_value": 12,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-013": {
+           "score": 1,
+           "display_value": "13 ms",
+           "numeric_value": 13,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-014": {
+           "score": 0,
+           "display_value": "14 ms",
+           "numeric_value": 14,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-015": {
+           "score": 1,
+           "display_value": "15 ms",
+           "numeric_value": 15,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-016": {
+           "score": 0,
+           "display_value": "16 ms",
+           "numeric_value": 16,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-017": {
+           "score": 1,
+           "display_value": "17 ms",
+           "numeric_value": 17,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-018": {
+           "score": 0,
+           "display_value": "18 ms",
+           "numeric_value": 18,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-019": {
+           "score": 1,
+           "display_value": "19 ms",
+           "numeric_value": 19,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-020": {
+           "score": 0,
+           "display_value": "20 ms",
+           "numeric_value": 20,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-021": {
+           "score": 1,
+           "display_value": "21 ms",
+           "numeric_value": 21,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-022": {
+           "score": 0,
+           "display_value": "22 ms",
+           "numeric_value": 22,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-023": {
+           "score": 1,
+           "display_value": "23 ms",
+           "numeric_value": 23,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-024": {
+           "score": 0,
+           "display_value": "24 ms",
+           "numeric_value": 24,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-025": {
+           "score": 1,
+           "display_value": "25 ms",
+           "numeric_value": 25,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-026": {
+           "score": 0,
+           "display_value": "26 ms",
+           "numeric_value": 26,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-027": {
+           "score": 1,
+           "display_value": "27 ms",
+           "numeric_value": 27,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-028": {
+           "score": 0,
+           "display_value": "28 ms",
+           "numeric_value": 28,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-029": {
+           "score": 1,
+           "display_value": "29 ms",
+           "numeric_value": 29,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-030": {
+           "score": 0,
+           "display_value": "30 ms",
+           "numeric_value": 30,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-031": {
+           "score": 1,
+           "display_value": "31 ms",
+           "numeric_value": 31,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-032": {
+           "score": 0,
+           "display_value": "32 ms",
+           "numeric_value": 32,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-033": {
+           "score": 1,
+           "display_value": "33 ms",
+           "numeric_value": 33,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-034": {
+           "score": 0,
+           "display_value": "34 ms",
+           "numeric_value": 34,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-035": {
+           "score": 1,
+           "display_value": "35 ms",
+           "numeric_value": 35,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-036": {
+           "score": 0,
+           "display_value": "36 ms",
+           "numeric_value": 36,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-037": {
+           "score": 1,
+           "display_value": "37 ms",
+           "numeric_value": 37,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-038": {
+           "score": 0,
+           "display_value": "38 ms",
+           "numeric_value": 38,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-039": {
+           "score": 1,
+           "display_value": "39 ms",
+           "numeric_value": 39,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-040": {
+           "score": 0,
+           "display_value": "40 ms",
+           "numeric_value": 40,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-041": {
+           "score": 1,
+           "display_value": "41 ms",
+           "numeric_value": 41,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-042": {
+           "score": 0,
+           "display_value": "42 ms",
+           "numeric_value": 42,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-043": {
+           "score": 1,
+           "display_value": "43 ms",
+           "numeric_value": 43,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-044": {
+           "score": 0,
+           "display_value": "44 ms",
+           "numeric_value": 44,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-045": {
+           "score": 1,
+           "display_value": "45 ms",
+           "numeric_value": 45,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-046": {
+           "score": 0,
+           "display_value": "46 ms",
+           "numeric_value": 46,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-047": {
+           "score": 1,
+           "display_value": "47 ms",
+           "numeric_value": 47,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-048": {
+           "score": 0,
+           "display_value": "48 ms",
+           "numeric_value": 48,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-049": {
+           "score": 1,
+           "display_value": "49 ms",
+           "numeric_value": 49,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-050": {
+           "score": 0,
+           "display_value": "50 ms",
+           "numeric_value": 50,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-051": {
+           "score": 1,
+           "display_value": "51 ms",
+           "numeric_value": 51,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-052": {
+           "score": 0,
+           "display_value": "52 ms",
+           "numeric_value": 52,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-053": {
+           "score": 1,
+           "display_value": "53 ms",
+           "numeric_value": 53,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-054": {
+           "score": 0,
+           "display_value": "54 ms",
+           "numeric_value": 54,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-055": {
+           "score": 1,
+           "display_value": "55 ms",
+           "numeric_value": 55,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-056": {
+           "score": 0,
+           "display_value": "56 ms",
+           "numeric_value": 56,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-057": {
+           "score": 1,
+           "display_value": "57 ms",
+           "numeric_value": 57,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-058": {
+           "score": 0,
+           "display_value": "58 ms",
+           "numeric_value": 58,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-059": {
+           "score": 1,
+           "display_value": "59 ms",
+           "numeric_value": 59,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-060": {
+           "score": 0,
+           "display_value": "60 ms",
+           "numeric_value": 60,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-061": {
+           "score": 1,
+           "display_value": "61 ms",
+           "numeric_value": 61,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-062": {
+           "score": 0,
+           "display_value": "62 ms",
+           "numeric_value": 62,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-063": {
+           "score": 1,
+           "display_value": "63 ms",
+           "numeric_value": 63,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-064": {
+           "score": 0,
+           "display_value": "64 ms",
+           "numeric_value": 64,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-065": {
+           "score": 1,
+           "display_value": "65 ms",
+           "numeric_value": 65,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-066": {
+           "score": 0,
+           "display_value": "66 ms",
+           "numeric_value": 66,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-067": {
+           "score": 1,
+           "display_value": "67 ms",
+           "numeric_value": 67,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-068": {
+           "score": 0,
+           "display_value": "68 ms",
+           "numeric_value": 68,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-069": {
+           "score": 1,
+           "display_value": "69 ms",
+           "numeric_value": 69,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-070": {
+           "score": 0,
+           "display_value": "70 ms",
+           "numeric_value": 70,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-071": {
+           "score": 1,
+           "display_value": "71 ms",
+           "numeric_value": 71,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-072": {
+           "score": 0,
+           "display_value": "72 ms",
+           "numeric_value": 72,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-073": {
+           "score": 1,
+           "display_value": "73 ms",
+           "numeric_value": 73,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-074": {
+           "score": 0,
+           "display_value": "74 ms",
+           "numeric_value": 74,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-075": {
+           "score": 1,
+           "display_value": "75 ms",
+           "numeric_value": 75,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-076": {
+           "score": 0,
+           "display_value": "76 ms",
+           "numeric_value": 76,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-077": {
+           "score": 1,
+           "display_value": "77 ms",
+           "numeric_value": 77,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-078": {
+           "score": 0,
+           "display_value": "78 ms",
+           "numeric_value": 78,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-079": {
+           "score": 1,
+           "display_value": "79 ms",
+           "numeric_value": 79,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-080": {
+           "score": 0,
+           "display_value": "80 ms",
+           "numeric_value": 80,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-081": {
+           "score": 1,
+           "display_value": "81 ms",
+           "numeric_value": 81,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-082": {
+           "score": 0,
+           "display_value": "82 ms",
+           "numeric_value": 82,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-083": {
+           "score": 1,
+           "display_value": "83 ms",
+           "numeric_value": 83,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-084": {
+           "score": 0,
+           "display_value": "84 ms",
+           "numeric_value": 84,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-085": {
+           "score": 1,
+           "display_value": "85 ms",
+           "numeric_value": 85,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-086": {
+           "score": 0,
+           "display_value": "86 ms",
+           "numeric_value": 86,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-087": {
+           "score": 1,
+           "display_value": "87 ms",
+           "numeric_value": 87,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-088": {
+           "score": 0,
+           "display_value": "88 ms",
+           "numeric_value": 88,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-089": {
+           "score": 1,
+           "display_value": "89 ms",
+           "numeric_value": 89,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-090": {
+           "score": 0,
+           "display_value": "90 ms",
+           "numeric_value": 90,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-091": {
+           "score": 1,
+           "display_value": "91 ms",
+           "numeric_value": 91,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-092": {
+           "score": 0,
+           "display_value": "92 ms",
+           "numeric_value": 92,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-093": {
+           "score": 1,
+           "display_value": "93 ms",
+           "numeric_value": 93,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-094": {
+           "score": 0,
+           "display_value": "94 ms",
+           "numeric_value": 94,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-095": {
+           "score": 1,
+           "display_value": "95 ms",
+           "numeric_value": 95,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-096": {
+           "score": 0,
+           "display_value": "96 ms",
+           "numeric_value": 96,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-097": {
+           "score": 1,
+           "display_value": "97 ms",
+           "numeric_value": 97,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-098": {
+           "score": 0,
+           "display_value": "98 ms",
+           "numeric_value": 98,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-099": {
+           "score": 1,
+           "display_value": "99 ms",
+           "numeric_value": 99,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "audit-100": {
+           "score": 0,
+           "display_value": "100 ms",
+           "numeric_value": 100,
+           "score_display_mode": "numeric",
+           "rawDetails": {
+            "must_not_return": true
+           }
+          },
+          "bad-score": {
+           "score": "high",
+           "numeric_value": "n/a",
+           "display_value": "x"
+          },
+          "bool-score": {
+           "score": true,
+           "numeric_value": 3
+          }
+         },
+         "lab_only": true,
+         "raw_response": "must-not-return"
+        },
+        {
+         "url": "not a url",
+         "strategy": "voice",
+         "state": "weird",
+         "final_url": "ftp://example.test/x",
+         "fetch_time": "2026-10-12T00:00:00Z   extra   spaces"
+        },
+        {
+         "url": "http://[2001:db8::1]:8080/p?q=1",
+         "state": "failed"
+        },
+        {
+         "url": "https://example.test/page with a link https://t.co/x?abc=1 inside"
+        }
+       ]
+      }
+     }
+    },
+    "outcome": {
+     "result": "local-artifact:9d72983779b1542ebdfc6a1de091cbaebd0c3440998f78d21b6df368f3535fa3"
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:9d72983779b1542ebdfc6a1de091cbaebd0c3440998f78d21b6df368f3535fa3",
+     "artifact_dir": "$BASE",
+     "limit": 2
+    },
+    "outcome": {
+     "result": {
+      "schema_version": "pagespeed-artifact-summary.v1",
+      "provider": "pagespeed",
+      "operation": "mobile_samples",
+      "retrieved_at": "2026-10-12T00:00:00Z",
+      "total": 4,
+      "offset": 0,
+      "limit": 2,
+      "has_more": true,
+      "samples": [
+       {
+        "url": "https://example.test/page",
+        "strategy": "mobile",
+        "state": "complete",
+        "final_url": "https://example.test/final",
+        "fetch_time": "2026-10-12T00:00:00Z",
+        "retrieved_at": "2026-10-12T00:00:00Z",
+        "lighthouse_version": "13.0.0",
+        "categories": {
+         "performance": {
+          "score": 0.8,
+          "title": "Performance"
+         },
+         "seo": {
+          "score": 1,
+          "title": "SEO"
+         }
+        },
+        "audits": {
+         "audit-000": {
+          "score": 0,
+          "numeric_value": 0,
+          "display_value": "0 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-001": {
+          "score": 1,
+          "numeric_value": 1,
+          "display_value": "1 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-002": {
+          "score": 0,
+          "numeric_value": 2,
+          "display_value": "2 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-003": {
+          "score": 1,
+          "numeric_value": 3,
+          "display_value": "3 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-004": {
+          "score": 0,
+          "numeric_value": 4,
+          "display_value": "4 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-005": {
+          "score": 1,
+          "numeric_value": 5,
+          "display_value": "5 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-006": {
+          "score": 0,
+          "numeric_value": 6,
+          "display_value": "6 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-007": {
+          "score": 1,
+          "numeric_value": 7,
+          "display_value": "7 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-008": {
+          "score": 0,
+          "numeric_value": 8,
+          "display_value": "8 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-009": {
+          "score": 1,
+          "numeric_value": 9,
+          "display_value": "9 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-010": {
+          "score": 0,
+          "numeric_value": 10,
+          "display_value": "10 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-011": {
+          "score": 1,
+          "numeric_value": 11,
+          "display_value": "11 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-012": {
+          "score": 0,
+          "numeric_value": 12,
+          "display_value": "12 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-013": {
+          "score": 1,
+          "numeric_value": 13,
+          "display_value": "13 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-014": {
+          "score": 0,
+          "numeric_value": 14,
+          "display_value": "14 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-015": {
+          "score": 1,
+          "numeric_value": 15,
+          "display_value": "15 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-016": {
+          "score": 0,
+          "numeric_value": 16,
+          "display_value": "16 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-017": {
+          "score": 1,
+          "numeric_value": 17,
+          "display_value": "17 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-018": {
+          "score": 0,
+          "numeric_value": 18,
+          "display_value": "18 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-019": {
+          "score": 1,
+          "numeric_value": 19,
+          "display_value": "19 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-020": {
+          "score": 0,
+          "numeric_value": 20,
+          "display_value": "20 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-021": {
+          "score": 1,
+          "numeric_value": 21,
+          "display_value": "21 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-022": {
+          "score": 0,
+          "numeric_value": 22,
+          "display_value": "22 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-023": {
+          "score": 1,
+          "numeric_value": 23,
+          "display_value": "23 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-024": {
+          "score": 0,
+          "numeric_value": 24,
+          "display_value": "24 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-025": {
+          "score": 1,
+          "numeric_value": 25,
+          "display_value": "25 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-026": {
+          "score": 0,
+          "numeric_value": 26,
+          "display_value": "26 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-027": {
+          "score": 1,
+          "numeric_value": 27,
+          "display_value": "27 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-028": {
+          "score": 0,
+          "numeric_value": 28,
+          "display_value": "28 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-029": {
+          "score": 1,
+          "numeric_value": 29,
+          "display_value": "29 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-030": {
+          "score": 0,
+          "numeric_value": 30,
+          "display_value": "30 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-031": {
+          "score": 1,
+          "numeric_value": 31,
+          "display_value": "31 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-032": {
+          "score": 0,
+          "numeric_value": 32,
+          "display_value": "32 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-033": {
+          "score": 1,
+          "numeric_value": 33,
+          "display_value": "33 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-034": {
+          "score": 0,
+          "numeric_value": 34,
+          "display_value": "34 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-035": {
+          "score": 1,
+          "numeric_value": 35,
+          "display_value": "35 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-036": {
+          "score": 0,
+          "numeric_value": 36,
+          "display_value": "36 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-037": {
+          "score": 1,
+          "numeric_value": 37,
+          "display_value": "37 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-038": {
+          "score": 0,
+          "numeric_value": 38,
+          "display_value": "38 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-039": {
+          "score": 1,
+          "numeric_value": 39,
+          "display_value": "39 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-040": {
+          "score": 0,
+          "numeric_value": 40,
+          "display_value": "40 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-041": {
+          "score": 1,
+          "numeric_value": 41,
+          "display_value": "41 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-042": {
+          "score": 0,
+          "numeric_value": 42,
+          "display_value": "42 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-043": {
+          "score": 1,
+          "numeric_value": 43,
+          "display_value": "43 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-044": {
+          "score": 0,
+          "numeric_value": 44,
+          "display_value": "44 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-045": {
+          "score": 1,
+          "numeric_value": 45,
+          "display_value": "45 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-046": {
+          "score": 0,
+          "numeric_value": 46,
+          "display_value": "46 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-047": {
+          "score": 1,
+          "numeric_value": 47,
+          "display_value": "47 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-048": {
+          "score": 0,
+          "numeric_value": 48,
+          "display_value": "48 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-049": {
+          "score": 1,
+          "numeric_value": 49,
+          "display_value": "49 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-050": {
+          "score": 0,
+          "numeric_value": 50,
+          "display_value": "50 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-051": {
+          "score": 1,
+          "numeric_value": 51,
+          "display_value": "51 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-052": {
+          "score": 0,
+          "numeric_value": 52,
+          "display_value": "52 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-053": {
+          "score": 1,
+          "numeric_value": 53,
+          "display_value": "53 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-054": {
+          "score": 0,
+          "numeric_value": 54,
+          "display_value": "54 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-055": {
+          "score": 1,
+          "numeric_value": 55,
+          "display_value": "55 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-056": {
+          "score": 0,
+          "numeric_value": 56,
+          "display_value": "56 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-057": {
+          "score": 1,
+          "numeric_value": 57,
+          "display_value": "57 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-058": {
+          "score": 0,
+          "numeric_value": 58,
+          "display_value": "58 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-059": {
+          "score": 1,
+          "numeric_value": 59,
+          "display_value": "59 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-060": {
+          "score": 0,
+          "numeric_value": 60,
+          "display_value": "60 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-061": {
+          "score": 1,
+          "numeric_value": 61,
+          "display_value": "61 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-062": {
+          "score": 0,
+          "numeric_value": 62,
+          "display_value": "62 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-063": {
+          "score": 1,
+          "numeric_value": 63,
+          "display_value": "63 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-064": {
+          "score": 0,
+          "numeric_value": 64,
+          "display_value": "64 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-065": {
+          "score": 1,
+          "numeric_value": 65,
+          "display_value": "65 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-066": {
+          "score": 0,
+          "numeric_value": 66,
+          "display_value": "66 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-067": {
+          "score": 1,
+          "numeric_value": 67,
+          "display_value": "67 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-068": {
+          "score": 0,
+          "numeric_value": 68,
+          "display_value": "68 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-069": {
+          "score": 1,
+          "numeric_value": 69,
+          "display_value": "69 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-070": {
+          "score": 0,
+          "numeric_value": 70,
+          "display_value": "70 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-071": {
+          "score": 1,
+          "numeric_value": 71,
+          "display_value": "71 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-072": {
+          "score": 0,
+          "numeric_value": 72,
+          "display_value": "72 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-073": {
+          "score": 1,
+          "numeric_value": 73,
+          "display_value": "73 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-074": {
+          "score": 0,
+          "numeric_value": 74,
+          "display_value": "74 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-075": {
+          "score": 1,
+          "numeric_value": 75,
+          "display_value": "75 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-076": {
+          "score": 0,
+          "numeric_value": 76,
+          "display_value": "76 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-077": {
+          "score": 1,
+          "numeric_value": 77,
+          "display_value": "77 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-078": {
+          "score": 0,
+          "numeric_value": 78,
+          "display_value": "78 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-079": {
+          "score": 1,
+          "numeric_value": 79,
+          "display_value": "79 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-080": {
+          "score": 0,
+          "numeric_value": 80,
+          "display_value": "80 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-081": {
+          "score": 1,
+          "numeric_value": 81,
+          "display_value": "81 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-082": {
+          "score": 0,
+          "numeric_value": 82,
+          "display_value": "82 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-083": {
+          "score": 1,
+          "numeric_value": 83,
+          "display_value": "83 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-084": {
+          "score": 0,
+          "numeric_value": 84,
+          "display_value": "84 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-085": {
+          "score": 1,
+          "numeric_value": 85,
+          "display_value": "85 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-086": {
+          "score": 0,
+          "numeric_value": 86,
+          "display_value": "86 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-087": {
+          "score": 1,
+          "numeric_value": 87,
+          "display_value": "87 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-088": {
+          "score": 0,
+          "numeric_value": 88,
+          "display_value": "88 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-089": {
+          "score": 1,
+          "numeric_value": 89,
+          "display_value": "89 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-090": {
+          "score": 0,
+          "numeric_value": 90,
+          "display_value": "90 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-091": {
+          "score": 1,
+          "numeric_value": 91,
+          "display_value": "91 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-092": {
+          "score": 0,
+          "numeric_value": 92,
+          "display_value": "92 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-093": {
+          "score": 1,
+          "numeric_value": 93,
+          "display_value": "93 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-094": {
+          "score": 0,
+          "numeric_value": 94,
+          "display_value": "94 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-095": {
+          "score": 1,
+          "numeric_value": 95,
+          "display_value": "95 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-096": {
+          "score": 0,
+          "numeric_value": 96,
+          "display_value": "96 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-097": {
+          "score": 1,
+          "numeric_value": 97,
+          "display_value": "97 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-098": {
+          "score": 0,
+          "numeric_value": 98,
+          "display_value": "98 ms",
+          "score_display_mode": "numeric"
+         },
+         "audit-099": {
+          "score": 1,
+          "numeric_value": 99,
+          "display_value": "99 ms",
+          "score_display_mode": "numeric"
+         }
+        },
+        "lab_only": true
+       },
+       {
+        "url": null,
+        "strategy": null,
+        "state": "unavailable",
+        "final_url": null,
+        "fetch_time": "2026-10-12T00:00:00Z extra spaces",
+        "retrieved_at": "2026-10-12T00:00:00Z extra spaces",
+        "lighthouse_version": null,
+        "categories": {},
+        "audits": {},
+        "lab_only": true
+       }
+      ],
+      "lab_only": true
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:9d72983779b1542ebdfc6a1de091cbaebd0c3440998f78d21b6df368f3535fa3",
+     "artifact_dir": "$BASE",
+     "offset": 2,
+     "limit": 2
+    },
+    "outcome": {
+     "result": {
+      "schema_version": "pagespeed-artifact-summary.v1",
+      "provider": "pagespeed",
+      "operation": "mobile_samples",
+      "retrieved_at": "2026-10-12T00:00:00Z",
+      "total": 4,
+      "offset": 2,
+      "limit": 2,
+      "has_more": false,
+      "samples": [
+       {
+        "url": "http://[2001:db8::1:8080]/p",
+        "strategy": null,
+        "state": "failed",
+        "final_url": null,
+        "fetch_time": null,
+        "retrieved_at": null,
+        "lighthouse_version": null,
+        "categories": {},
+        "audits": {},
+        "lab_only": true
+       },
+       {
+        "url": "https://example.test/page with a link https://t.co/x",
+        "strategy": null,
+        "state": "unavailable",
+        "final_url": null,
+        "fetch_time": null,
+        "retrieved_at": null,
+        "lighthouse_version": null,
+        "categories": {},
+        "audits": {},
+        "lab_only": true
+       }
+      ],
+      "lab_only": true
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:9d72983779b1542ebdfc6a1de091cbaebd0c3440998f78d21b6df368f3535fa3",
+     "artifact_dir": "$BASE",
+     "offset": 4
+    },
+    "outcome": {
+     "result": {
+      "schema_version": "pagespeed-artifact-summary.v1",
+      "provider": "pagespeed",
+      "operation": "mobile_samples",
+      "retrieved_at": "2026-10-12T00:00:00Z",
+      "total": 4,
+      "offset": 4,
+      "limit": 25,
+      "has_more": false,
+      "samples": [],
+      "lab_only": true
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "ref-validation",
+  "ops": [
+   {
+    "fn": "_setup",
+    "kw": {},
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": null,
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_ref must be a local provider artifact reference"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_ref must be a local provider artifact reference"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:../../escape",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_ref must be a local provider artifact reference"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_ref must be a local provider artifact reference"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_ref must be a local provider artifact reference"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_ref must be a local provider artifact reference"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "other:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_ref must be a local provider artifact reference"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": 123,
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "TypeError",
+      "message": "expected string or bytes-like object, got 'int'"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE",
+     "offset": -1
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "offset must be nonnegative and limit must be 1..25"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE",
+     "offset": "0"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "offset must be nonnegative and limit must be 1..25"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE",
+     "limit": 0
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "offset must be nonnegative and limit must be 1..25"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE",
+     "limit": 26
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "offset must be nonnegative and limit must be 1..25"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE",
+     "limit": true
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "offset must be nonnegative and limit must be 1..25"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "dir-validation",
+  "ops": [
+   {
+    "fn": "_setup",
+    "mkdir": [
+     "closed"
+    ],
+    "mkdir_open": [
+     "open"
+    ],
+    "kw": {},
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE/missing"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_dir must be an existing regular directory"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE/open"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact_dir must be private"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "provider artifact was not found"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "artifact_dir": 42
+    },
+    "outcome": {
+     "error": {
+      "class": "TypeError",
+      "message": "argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'int'"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "artifact-content-validation",
+  "ops": [
+   {
+    "fn": "_setup",
+    "artifacts": {
+     "good": {
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "pagespeed",
+       "operation": "desktop_samples"
+      },
+      "result": {
+       "samples": []
+      }
+     }
+    },
+    "files": {
+     "provider-0000000000000000.json": "not json {"
+    },
+    "kw": {},
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:0000000000000000000000000000000000000000000000000000000000000000",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "provider artifact is not valid JSON"
+     }
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "provider artifact was not found"
+     }
+    }
+   },
+   {
+    "fn": "artifact_ref",
+    "kw": {
+     "payload": {
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "other",
+       "operation": "mobile_samples"
+      },
+      "result": {
+       "samples": []
+      }
+     }
+    },
+    "outcome": {
+     "result": "local-artifact:6102f89a396d48b6a538a28181041e6016b818584a8a0835abd9d80b5614204f"
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:6102f89a396d48b6a538a28181041e6016b818584a8a0835abd9d80b5614204f",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact is not a retained PageSpeed collection"
+     }
+    }
+   },
+   {
+    "fn": "artifact_ref",
+    "kw": {
+     "payload": {
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "pagespeed",
+       "operation": "other_op"
+      },
+      "result": {
+       "samples": []
+      }
+     }
+    },
+    "outcome": {
+     "result": "local-artifact:e3e39b8ba6dbd67d6f8c7e94a4aaf40f6d4071acda28d83af181fb71979a432e"
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:e3e39b8ba6dbd67d6f8c7e94a4aaf40f6d4071acda28d83af181fb71979a432e",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact is not a retained PageSpeed collection"
+     }
+    }
+   },
+   {
+    "fn": "artifact_ref",
+    "kw": {
+     "payload": {
+      "evidence": {},
+      "result": {}
+     }
+    },
+    "outcome": {
+     "result": "local-artifact:88ad9afd98bfb738af03bf97a317115a1e579e1a36f5dfd86fd6467c48bc7607"
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:88ad9afd98bfb738af03bf97a317115a1e579e1a36f5dfd86fd6467c48bc7607",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact is not a retained PageSpeed collection"
+     }
+    }
+   },
+   {
+    "fn": "artifact_ref",
+    "kw": {
+     "payload": [
+      "a",
+      "b"
+     ]
+    },
+    "outcome": {
+     "result": "local-artifact:3554d2b8a1e34099053865de8576d1460b807430ec8c6b85315c9607ba93d308"
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:3554d2b8a1e34099053865de8576d1460b807430ec8c6b85315c9607ba93d308",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "artifact is not a retained PageSpeed collection"
+     }
+    }
+   },
+   {
+    "fn": "artifact_ref",
+    "kw": {
+     "payload": {
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "pagespeed",
+       "operation": "mobile_samples"
+      },
+      "result": {
+       "samples": "nope"
+      }
+     }
+    },
+    "outcome": {
+     "result": "local-artifact:6223733460b6fcb5a89d859ed672f9938b52eb473564f6c40ee2266107ecff7a"
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:6223733460b6fcb5a89d859ed672f9938b52eb473564f6c40ee2266107ecff7a",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "PageSpeed artifact has an invalid sample list"
+     }
+    }
+   },
+   {
+    "fn": "artifact_ref",
+    "kw": {
+     "payload": {
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "pagespeed",
+       "operation": "mobile_samples"
+      },
+      "result": {
+       "samples": [
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        },
+        {
+         "x": 1
+        }
+       ]
+      }
+     }
+    },
+    "outcome": {
+     "result": "local-artifact:5bc0857210d04453ad0810391f7948dbf94a88c445dbd46aeecd879361dedc29"
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:5bc0857210d04453ad0810391f7948dbf94a88c445dbd46aeecd879361dedc29",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "PageSpeed artifact has an invalid sample list"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "tampered-content",
+  "ops": [
+   {
+    "fn": "_setup",
+    "artifacts": {
+     "good": {
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "pagespeed",
+       "operation": "mobile_samples"
+      },
+      "result": {
+       "samples": []
+      }
+     }
+    },
+    "kw": {},
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "artifact_ref",
+    "kw": {
+     "payload": {
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "pagespeed",
+       "operation": "mobile_samples"
+      },
+      "result": {
+       "samples": []
+      }
+     }
+    },
+    "outcome": {
+     "result": "local-artifact:493a1e6f7b2664ea0e783c66efad3d26fa28132b43794c1f699202eb008172ab"
+    }
+   },
+   {
+    "fn": "_setup",
+    "tamper": {
+     "any": {
+      "result": {
+       "samples": [
+        {
+         "url": "https://x.test/"
+        }
+       ]
+      },
+      "evidence": {
+       "format": "spiderhead.provider-evidence.v1",
+       "provider": "pagespeed",
+       "operation": "mobile_samples"
+      }
+     }
+    },
+    "kw": {},
+    "outcome": {
+     "result": true
+    }
+   },
+   {
+    "fn": "read",
+    "kw": {
+     "artifact_ref": "local-artifact:493a1e6f7b2664ea0e783c66efad3d26fa28132b43794c1f699202eb008172ab",
+     "artifact_dir": "$BASE"
+    },
+    "outcome": {
+     "error": {
+      "class": "ValueError",
+      "message": "provider artifact reference does not match its content"
+     }
+    }
+   }
+  ]
+ }
+]

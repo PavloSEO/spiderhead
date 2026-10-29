@@ -1,0 +1,59 @@
+{
+ "exit": 0,
+ "stdout": {
+  "checkpoint_available": false,
+  "committed_page_outcomes": {
+   "2xx": 5,
+   "3xx": 0,
+   "4xx": 0,
+   "5xx": 0,
+   "no_response": 0,
+   "other": 0
+  },
+  "frontier": {
+   "counts": {
+    "done": 5,
+    "excluded": 1,
+    "inflight": 0,
+    "queued": 0
+   },
+   "reason": "",
+   "state": "available"
+  },
+  "integrity": {
+   "affected_scan_ids": [],
+   "checked_at": null,
+   "damaged_pages": null,
+   "reason": "full validation was not requested",
+   "state": "not_checked"
+  },
+  "link_positions": {
+   "capped": false,
+   "classified": 0,
+   "count_cap": 100000,
+   "has_positions": false,
+   "not_classified": 7,
+   "observed_links": 7,
+   "position_status": "not_classified",
+   "scope": "retained hyperlink occurrences",
+   "state": "not_classified"
+  },
+  "ok": true,
+  "source": {
+   "corpus_partial": false,
+   "crawl_partial": false,
+   "created_at": "<TS>",
+   "evidence_revision": 5,
+   "finish_reason": "finished",
+   "finished_at": "<TS>",
+   "format_version": "scan.v1",
+   "lifecycle": "finished",
+   "parent_scan_uuid": null,
+   "scan_uuid": "<UUID:1>",
+   "source_kind": "native",
+   "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
+   "writer_version": "3.2.0"
+  },
+  "validation": "light"
+ }
+}

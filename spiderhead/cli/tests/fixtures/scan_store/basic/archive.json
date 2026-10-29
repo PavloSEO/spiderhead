@@ -1,0 +1,25 @@
+{
+ "cli": {
+  "files": {
+   "a.warc": "sha256:c021d2dfdcc5e2cd30e6d805ff65cddb4d40cc45690f8fe6945e53fdc55d819e"
+  },
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-archive\n",
+    "stdout": "{\n  \"ok\": true,\n  \"format\": \"scan_archive.v1\",\n  \"warc\": \"<WORK>/a.warc\",\n  \"manifest\": \"<WORK>/a.warc.manifest.json\",\n  \"written\": 10,\n  \"bytes\": 194064,\n  \"manifest_bytes\": 369,\n  \"skipped_total\": 2,\n  \"skipped\": [\n    {\n      \"url\": \"http://127.0.0.1:{PORT}/about.html#team\",\n      \"reason\": \"not_fetched\"\n    },\n    {\n      \"url\": \"https://www.example.com/\",\n      \"reason\": \"not_fetched\"\n    }\n  ]\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {
+   "a.warc": "sha256:c021d2dfdcc5e2cd30e6d805ff65cddb4d40cc45690f8fe6945e53fdc55d819e"
+  },
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"format\": \"scan_archive.v1\",\n  \"warc\": \"<WORK>/a.warc\",\n  \"manifest\": \"<WORK>/a.warc.manifest.json\",\n  \"written\": 10,\n  \"bytes\": 194064,\n  \"manifest_bytes\": 369,\n  \"skipped_total\": 2,\n  \"skipped\": [\n    {\n      \"url\": \"http://127.0.0.1:{PORT}/about.html#team\",\n      \"reason\": \"not_fetched\"\n    },\n    {\n      \"url\": \"https://www.example.com/\",\n      \"reason\": \"not_fetched\"\n    }\n  ]\n}"
+   }
+  ]
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "hreflang-check",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "hreflang-check",
+ "exit": 0,
+ "stderr": "seohead: hreflang-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/\",\n  \"final_url\": \"{BASE}/\",\n  \"status_code\": 200,\n  \"count\": 0,\n  \"alternates\": [],\n  \"issues\": [\n    \"no hreflang annotations found\"\n  ]\n}\n"
+}

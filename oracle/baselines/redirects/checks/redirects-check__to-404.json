@@ -1,0 +1,19 @@
+{
+ "exit": 0,
+ "stdout": {
+  "chain": [
+   {
+    "location": "/does-not-exist.html",
+    "ok": true,
+    "status": 301,
+    "url": "{BASE}/to-404"
+   },
+   {
+    "location": null,
+    "ok": false,
+    "status": 404,
+    "url": "{BASE}/does-not-exist.html"
+   }
+  ]
+ }
+}

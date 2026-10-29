@@ -1,0 +1,586 @@
+{
+ "stage": "synonyms",
+ "scenarios": [
+  {
+   "name": "check",
+   "cfg": {
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/syn-oracle-iwmf2pf4",
+    "regions": [
+     "225"
+    ],
+    "preset": "seo",
+    "min_base": 20,
+    "stop": "",
+    "info": "",
+    "intent": "синоним|аудит|кандидат|повторн",
+    "any_intent": false
+   },
+   "setup": {
+    "ddl": [
+     "CREATE TABLE IF NOT EXISTS synonym_attempts (phrase TEXT PRIMARY KEY, state TEXT, error TEXT)"
+    ],
+    "ops": [
+     [
+      "upsert",
+      "seo аудит",
+      300,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "upsert",
+      "краулер сайта",
+      200,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "upsert",
+      "замок ключ",
+      50,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "upsert",
+      "стоп фраза порно",
+      10,
+      0,
+      "import",
+      "225"
+     ],
+     [
+      "set_status",
+      "seo аудит",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "set_status",
+      "краулер сайта",
+      "kept",
+      "ok",
+      "clean"
+     ],
+     [
+      "exec",
+      "INSERT INTO synonym_attempts VALUES(?,'unknown','reset')",
+      [
+       "заблокированный кандидат"
+      ]
+     ],
+     [
+      "exec",
+      "INSERT INTO synonym_attempts VALUES(?,'retryable','timeout')",
+      [
+       "повторный кандидат"
+      ]
+     ],
+     [
+      "commit"
+     ]
+    ],
+    "tables": {}
+   },
+   "providers": {
+    "top": {
+     "синоним горячий@225": [
+      {
+       "ok": {
+        "totalCount": 120
+       }
+      }
+     ],
+     "синоним жидкий@225": [
+      {
+       "ok": {
+        "totalCount": 5
+       }
+      }
+     ],
+     "синоним без частоты@225": [
+      {
+       "ok": {
+        "items": []
+       }
+      }
+     ],
+     "повторный кандидат@225": [
+      {
+       "ok": {
+        "totalCount": 88
+       }
+      }
+     ],
+     "синоним квота@225": [
+      {
+       "error": "HTTP 429 quota exhausted"
+      }
+     ],
+     "синоним ошибка@225": [
+      {
+       "error": "temporary network failure"
+      }
+     ],
+     "синоним амбигуал@225": [
+      {
+       "error_ambiguous": "response lost after charge"
+      }
+     ],
+     "аудит сайта онлайн синоним@225": [
+      {
+       "ok": {
+        "totalCount": 55.0
+       }
+      }
+     ]
+    }
+   },
+   "args": {},
+   "files": {
+    "synonyms.txt": "  SEO АУДИТ  \nсиноним горячий\nсиноним жидкий\nсиноним без частоты\nпорно магазин\nrandom words nowhere\nзаблокированный кандидат\nповторный кандидат\nсиноним квота\nсиноним после квоты\nсиноним ошибка\nсиноним амбигуал\nаудит сайта онлайн синоним\n!!!\n\n"
+   },
+   "expect": {
+    "result": {
+     "added": 3,
+     "checked": 5,
+     "errors": 2,
+     "blocked": 2
+    },
+    "calls": {
+     "demand": [
+      [
+       "top",
+       "аудит сайта онлайн синоним",
+       "225"
+      ],
+      [
+       "top",
+       "повторный кандидат",
+       "225"
+      ],
+      [
+       "top",
+       "синоним амбигуал",
+       "225"
+      ],
+      [
+       "top",
+       "синоним без частоты",
+       "225"
+      ],
+      [
+       "top",
+       "синоним горячий",
+       "225"
+      ],
+      [
+       "top",
+       "синоним жидкий",
+       "225"
+      ],
+      [
+       "top",
+       "синоним квота",
+       "225"
+      ]
+     ]
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [
+      {
+       "parent": "synonym",
+       "child": "аудит сайта онлайн синоним",
+       "kind": "synonym"
+      },
+      {
+       "parent": "synonym",
+       "child": "повторный кандидат",
+       "kind": "synonym"
+      },
+      {
+       "parent": "synonym",
+       "child": "синоним горячий",
+       "kind": "synonym"
+      }
+     ],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "seo аудит",
+       "base": 300,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "краулер сайта",
+       "base": 200,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "kept",
+       "reason": "ok",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "замок ключ",
+       "base": 50,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "стоп фраза порно",
+       "base": 10,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "import",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 5,
+       "norm": "аудит сайта онлайн синоним",
+       "base": 55,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "synonym",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 6,
+       "norm": "повторный кандидат",
+       "base": 88,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "synonym",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 7,
+       "norm": "синоним без частоты",
+       "base": null,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "synonym",
+       "status": "review",
+       "reason": "Wordstat totalCount missing",
+       "reason_stage": "synonyms",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 8,
+       "norm": "синоним горячий",
+       "base": 120,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "synonym",
+       "status": "new",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 9,
+       "norm": "синоним жидкий",
+       "base": 5,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": "synonym",
+       "status": "dropped",
+       "reason": "base=5 < min_base=20",
+       "reason_stage": "synonyms",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": "__ts__",
+       "last_update": "__ts__",
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "synonyms",
+       "n_requests": 1,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "phrase=аудит сайта онлайн синоним"
+      },
+      {
+       "id": 2,
+       "ts": "__ts__",
+       "stage": "synonyms",
+       "n_requests": 1,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "phrase=повторный кандидат"
+      },
+      {
+       "id": 3,
+       "ts": "__ts__",
+       "stage": "synonyms",
+       "n_requests": 1,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "phrase=синоним без частоты"
+      },
+      {
+       "id": 4,
+       "ts": "__ts__",
+       "stage": "synonyms",
+       "n_requests": 1,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "phrase=синоним горячий"
+      },
+      {
+       "id": 5,
+       "ts": "__ts__",
+       "stage": "synonyms",
+       "n_requests": 1,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "phrase=синоним жидкий"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": [],
+     "synonym_attempts": [
+      {
+       "phrase": "заблокированный кандидат",
+       "state": "unknown",
+       "error": "reset"
+      },
+      {
+       "phrase": "аудит сайта онлайн синоним",
+       "state": "complete",
+       "error": null
+      },
+      {
+       "phrase": "повторный кандидат",
+       "state": "complete",
+       "error": null
+      },
+      {
+       "phrase": "синоним амбигуал",
+       "state": "unknown",
+       "error": "response lost after charge"
+      },
+      {
+       "phrase": "синоним без частоты",
+       "state": "complete",
+       "error": null
+      },
+      {
+       "phrase": "синоним горячий",
+       "state": "complete",
+       "error": null
+      },
+      {
+       "phrase": "синоним жидкий",
+       "state": "complete",
+       "error": null
+      },
+      {
+       "phrase": "синоним квота",
+       "state": "retryable",
+       "error": "HTTP 429 quota exhausted"
+      }
+     ]
+    },
+    "files": {
+     "synonyms.txt": "  SEO АУДИТ  \nсиноним горячий\nсиноним жидкий\nсиноним без частоты\nпорно магазин\nrandom words nowhere\nзаблокированный кандидат\nповторный кандидат\nсиноним квота\nсиноним после квоты\nсиноним ошибка\nсиноним амбигуал\nаудит сайта онлайн синоним\n!!!\n\n"
+    }
+   }
+  }
+ ]
+}

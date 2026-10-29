@@ -1,0 +1,136 @@
+{
+  "ok": true,
+  "schema": "seohead.site-audit/1",
+  "url": "https://example.org/",
+  "domain": "example.org",
+  "generated_at": "2026-08-13T09:00:00+00:00",
+  "site": {
+    "domain_profile": {
+      "ok": true,
+      "registration": {
+        "registrar": "RU-CENTER",
+        "created": "2019-04-02T00:00:00Z",
+        "expires": "2027-04-02T00:00:00Z",
+        "age_years": 7.4,
+        "source": "rdap"
+      }
+    },
+    "tech_detect": {
+      "ok": true,
+      "technologies": [
+        {
+          "category": "cms",
+          "name": "Bitrix",
+          "evidence": "HTML path: /bitrix/"
+        },
+        {
+          "category": "marketing",
+          "name": "Roistat",
+          "evidence": "Script: roistat"
+        },
+        {
+          "category": "payment",
+          "name": "YooKassa",
+          "evidence": "Script: yookassa"
+        }
+      ]
+    },
+    "security_check": {
+      "ok": true,
+      "grade": "C",
+      "score": 55,
+      "findings": [
+        "Content-Security-Policy header is missing"
+      ]
+    },
+    "regions_check": {
+      "ok": true,
+      "scheme": "subdomain",
+      "regions_found": [
+        "Moscow",
+        "Saint Petersburg"
+      ],
+      "findings": [
+        "The same phone number is used in every region"
+      ]
+    }
+  },
+  "pages": [
+    {
+      "url": "https://example.org/",
+      "status": 200,
+      "title": "Pumps — Order in Moscow!",
+      "title_length": 24,
+      "description_length": 138,
+      "h1": "Industrial Pump Equipment",
+      "canonical": "https://example.org/",
+      "words": 820,
+      "schema_types": "Organization, WebSite",
+      "schema_errors": 0,
+      "social_missing": 1,
+      "issues": []
+    },
+    {
+      "url": "https://example.org/catalog/nasosy",
+      "status": 200,
+      "title": "Pumps — Order in Moscow!",
+      "title_length": 24,
+      "description_length": 0,
+      "h1": "Industrial Pumps",
+      "canonical": "",
+      "words": 210,
+      "schema_types": "",
+      "schema_errors": 2,
+      "social_missing": 4,
+      "issues": [
+        "Meta description is missing",
+        "Product markup is missing the required offers property"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "source": "render_check",
+      "severity": "critical",
+      "text": "62% of the page text appears only after JavaScript rendering (+1,400 words)"
+    },
+    {
+      "source": "pages",
+      "severity": "warning",
+      "text": "Two pages share the same title (Pumps — Order in Moscow!...): https://example.org/, https://example.org/catalog/nasosy"
+    },
+    {
+      "source": "regions_check",
+      "severity": "notice",
+      "text": "The same phone number is used in every region"
+    },
+    {
+      "source": "page",
+      "url": "https://example.org/catalog/nasosy",
+      "severity": "notice",
+      "text": "Meta description is missing"
+    }
+  ],
+  "summary": {
+    "pages_checked": 2,
+    "findings_total": 4,
+    "findings_by_severity": {
+      "critical": 1,
+      "warning": 1,
+      "notice": 2
+    },
+    "tools_run": [
+      "domain_profile",
+      "regions_check",
+      "security_check",
+      "tech_detect"
+    ],
+    "tools_failed": [
+      {
+        "tool": "log_analyze",
+        "error": "Log file was not provided"
+      }
+    ],
+    "severity_note": "Severity is assigned by the aggregator rules (SEVERITY_RULES), not measured by an individual tool"
+  }
+}

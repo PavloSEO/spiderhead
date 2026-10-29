@@ -1,0 +1,2485 @@
+[
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "1",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "true",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "TRUE",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": " yes ",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "on",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "0",
+"ok": false
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "false",
+"ok": false
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "No",
+"ok": false
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "OFF",
+"ok": false
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "2",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "maybe",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "tru",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "True\\n",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.start_folder_only",
+"raw": "\u0661",
+"err": true
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=1",
+"ok": [
+"scope.start_folder_only",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=true",
+"ok": [
+"scope.start_folder_only",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=TRUE",
+"ok": [
+"scope.start_folder_only",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only= yes ",
+"ok": [
+"scope.start_folder_only",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=on",
+"ok": [
+"scope.start_folder_only",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=0",
+"ok": [
+"scope.start_folder_only",
+false
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=false",
+"ok": [
+"scope.start_folder_only",
+false
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=No",
+"ok": [
+"scope.start_folder_only",
+false
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=OFF",
+"ok": [
+"scope.start_folder_only",
+false
+]
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=",
+"err": true
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=2",
+"err": true
+},
+{
+"fn": "assign",
+"text": "scope.start_folder_only=maybe",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "1",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "true",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "TRUE",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": " yes ",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "on",
+"ok": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "0",
+"ok": false
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "false",
+"ok": false
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "No",
+"ok": false
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "OFF",
+"ok": false
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "2",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "maybe",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "tru",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "True\\n",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "scope.normalize_tracking_parameters",
+"raw": "\u0661",
+"err": true
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=1",
+"ok": [
+"scope.normalize_tracking_parameters",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=true",
+"ok": [
+"scope.normalize_tracking_parameters",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=TRUE",
+"ok": [
+"scope.normalize_tracking_parameters",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters= yes ",
+"ok": [
+"scope.normalize_tracking_parameters",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=on",
+"ok": [
+"scope.normalize_tracking_parameters",
+true
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=0",
+"ok": [
+"scope.normalize_tracking_parameters",
+false
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=false",
+"ok": [
+"scope.normalize_tracking_parameters",
+false
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=No",
+"ok": [
+"scope.normalize_tracking_parameters",
+false
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=OFF",
+"ok": [
+"scope.normalize_tracking_parameters",
+false
+]
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=",
+"err": true
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=2",
+"err": true
+},
+{
+"fn": "assign",
+"text": "scope.normalize_tracking_parameters=maybe",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "0",
+"ok": 0
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "7",
+"ok": 7
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "-3",
+"ok": -3
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "+5",
+"ok": 5
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": " 12 ",
+"ok": 12
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "1_000",
+"ok": 1000
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "0x10",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "1e3",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "1.5",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "abc",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "\u0663",
+"ok": 3
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "\uff12\uff14",
+"ok": 24
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "9223372036854775807",
+"ok": 9223372036854775807
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "9223372036854775808",
+"ok": 9223372036854775808
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "-9223372036854775808",
+"ok": -9223372036854775808
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "99999999999999999999",
+"ok": {
+"$bigint": "99999999999999999999"
+}
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "00012",
+"ok": 12
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "-0",
+"ok": 0
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "1 2",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "\t5\n",
+"ok": 5
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "+",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "-",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "0b1",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "1__0",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "_1",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "1_",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.page_weight_max_bytes",
+"raw": "\u00a05",
+"ok": 5
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=0",
+"ok": [
+"analysis.asset_thresholds.page_weight_max_bytes",
+0
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=7",
+"ok": [
+"analysis.asset_thresholds.page_weight_max_bytes",
+7
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=-3",
+"ok": [
+"analysis.asset_thresholds.page_weight_max_bytes",
+-3
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=+5",
+"ok": [
+"analysis.asset_thresholds.page_weight_max_bytes",
+5
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes= 12 ",
+"ok": [
+"analysis.asset_thresholds.page_weight_max_bytes",
+12
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=1_000",
+"ok": [
+"analysis.asset_thresholds.page_weight_max_bytes",
+1000
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=0x10",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=1e3",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=1.5",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=abc",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.page_weight_max_bytes=\u0663",
+"ok": [
+"analysis.asset_thresholds.page_weight_max_bytes",
+3
+]
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "0",
+"ok": 0
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "7",
+"ok": 7
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "-3",
+"ok": -3
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "+5",
+"ok": 5
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": " 12 ",
+"ok": 12
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "1_000",
+"ok": 1000
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "0x10",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "1e3",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "1.5",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "abc",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "\u0663",
+"ok": 3
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "\uff12\uff14",
+"ok": 24
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "9223372036854775807",
+"ok": 9223372036854775807
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "9223372036854775808",
+"ok": 9223372036854775808
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "-9223372036854775808",
+"ok": -9223372036854775808
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "99999999999999999999",
+"ok": {
+"$bigint": "99999999999999999999"
+}
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "00012",
+"ok": 12
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "-0",
+"ok": 0
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "1 2",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "\t5\n",
+"ok": 5
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "+",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "-",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "0b1",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "1__0",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "_1",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "1_",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "analysis.asset_thresholds.resource_max_bytes",
+"raw": "\u00a05",
+"ok": 5
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=0",
+"ok": [
+"analysis.asset_thresholds.resource_max_bytes",
+0
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=7",
+"ok": [
+"analysis.asset_thresholds.resource_max_bytes",
+7
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=-3",
+"ok": [
+"analysis.asset_thresholds.resource_max_bytes",
+-3
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=+5",
+"ok": [
+"analysis.asset_thresholds.resource_max_bytes",
+5
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes= 12 ",
+"ok": [
+"analysis.asset_thresholds.resource_max_bytes",
+12
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=1_000",
+"ok": [
+"analysis.asset_thresholds.resource_max_bytes",
+1000
+]
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=0x10",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=1e3",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=1.5",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=abc",
+"err": true
+},
+{
+"fn": "assign",
+"text": "analysis.asset_thresholds.resource_max_bytes=\u0663",
+"ok": [
+"analysis.asset_thresholds.resource_max_bytes",
+3
+]
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "0.1",
+"ok": 0.1
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1e-7",
+"ok": 1e-07
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1.0",
+"ok": 1.0
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "2.5e10",
+"ok": 25000000000.0
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "  3.5  ",
+"ok": 3.5
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "-0.0",
+"ok": -0.0
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "inf",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "-inf",
+"ok": {
+"$nonfinite": "-inf"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "Infinity",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "nan",
+"ok": {
+"$nonfinite": "nan"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "NaN",
+"ok": {
+"$nonfinite": "nan"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "+1.5",
+"ok": 1.5
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": ".5",
+"ok": 0.5
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "5.",
+"ok": 5.0
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1e",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1_0.5",
+"ok": 10.5
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1,5",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "abc",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "0x1p3",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "\u0661\u066b\u0665",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "\uff11\uff0e\uff15",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1e400",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "-1e400",
+"ok": {
+"$nonfinite": "-inf"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1E5",
+"ok": 100000.0
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1e+5",
+"ok": 100000.0
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1e-400",
+"ok": 0.0
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "0.1e1",
+"ok": 1.0
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1 .5",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "infinity",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "+inf",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "in f",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1__0.0",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "1_.5",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.timeout_seconds",
+"raw": "\u0663.\u0665",
+"ok": 3.5
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=0.1",
+"ok": [
+"http.timeout_seconds",
+0.1
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=1e-7",
+"ok": [
+"http.timeout_seconds",
+1e-07
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=1.0",
+"ok": [
+"http.timeout_seconds",
+1.0
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=2.5e10",
+"ok": [
+"http.timeout_seconds",
+25000000000.0
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=  3.5  ",
+"ok": [
+"http.timeout_seconds",
+3.5
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=-0.0",
+"ok": [
+"http.timeout_seconds",
+-0.0
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=inf",
+"ok": [
+"http.timeout_seconds",
+{
+"$nonfinite": "inf"
+}
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=-inf",
+"ok": [
+"http.timeout_seconds",
+{
+"$nonfinite": "-inf"
+}
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=Infinity",
+"ok": [
+"http.timeout_seconds",
+{
+"$nonfinite": "inf"
+}
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=nan",
+"ok": [
+"http.timeout_seconds",
+{
+"$nonfinite": "nan"
+}
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=NaN",
+"ok": [
+"http.timeout_seconds",
+{
+"$nonfinite": "nan"
+}
+]
+},
+{
+"fn": "assign",
+"text": "http.timeout_seconds=+1.5",
+"ok": [
+"http.timeout_seconds",
+1.5
+]
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "0.1",
+"ok": 0.1
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1e-7",
+"ok": 1e-07
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1.0",
+"ok": 1.0
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "2.5e10",
+"ok": 25000000000.0
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "  3.5  ",
+"ok": 3.5
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "-0.0",
+"ok": -0.0
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "inf",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "-inf",
+"ok": {
+"$nonfinite": "-inf"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "Infinity",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "nan",
+"ok": {
+"$nonfinite": "nan"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "NaN",
+"ok": {
+"$nonfinite": "nan"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "+1.5",
+"ok": 1.5
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": ".5",
+"ok": 0.5
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "5.",
+"ok": 5.0
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1e",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1_0.5",
+"ok": 10.5
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1,5",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "abc",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "0x1p3",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "\u0661\u066b\u0665",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "\uff11\uff0e\uff15",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1e400",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "-1e400",
+"ok": {
+"$nonfinite": "-inf"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1E5",
+"ok": 100000.0
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1e+5",
+"ok": 100000.0
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1e-400",
+"ok": 0.0
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "0.1e1",
+"ok": 1.0
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1 .5",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "infinity",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "+inf",
+"ok": {
+"$nonfinite": "inf"
+}
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "in f",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1__0.0",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "1_.5",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "speed.min_delay_seconds",
+"raw": "\u0663.\u0665",
+"ok": 3.5
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=0.1",
+"ok": [
+"speed.min_delay_seconds",
+0.1
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=1e-7",
+"ok": [
+"speed.min_delay_seconds",
+1e-07
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=1.0",
+"ok": [
+"speed.min_delay_seconds",
+1.0
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=2.5e10",
+"ok": [
+"speed.min_delay_seconds",
+25000000000.0
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=  3.5  ",
+"ok": [
+"speed.min_delay_seconds",
+3.5
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=-0.0",
+"ok": [
+"speed.min_delay_seconds",
+-0.0
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=inf",
+"ok": [
+"speed.min_delay_seconds",
+{
+"$nonfinite": "inf"
+}
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=-inf",
+"ok": [
+"speed.min_delay_seconds",
+{
+"$nonfinite": "-inf"
+}
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=Infinity",
+"ok": [
+"speed.min_delay_seconds",
+{
+"$nonfinite": "inf"
+}
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=nan",
+"ok": [
+"speed.min_delay_seconds",
+{
+"$nonfinite": "nan"
+}
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=NaN",
+"ok": [
+"speed.min_delay_seconds",
+{
+"$nonfinite": "nan"
+}
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=+1.5",
+"ok": [
+"speed.min_delay_seconds",
+1.5
+]
+},
+{
+"fn": "coerce",
+"path": "scope.internal",
+"raw": "",
+"ok": ""
+},
+{
+"fn": "coerce",
+"path": "scope.internal",
+"raw": "x",
+"ok": "x"
+},
+{
+"fn": "coerce",
+"path": "scope.internal",
+"raw": "a=b",
+"ok": "a=b"
+},
+{
+"fn": "coerce",
+"path": "scope.internal",
+"raw": " spaced ",
+"ok": " spaced "
+},
+{
+"fn": "coerce",
+"path": "scope.internal",
+"raw": "\u65e5\u672c\u8a9e",
+"ok": "\u65e5\u672c\u8a9e"
+},
+{
+"fn": "coerce",
+"path": "scope.internal",
+"raw": "\ud83d\ude00",
+"ok": "\ud83d\ude00"
+},
+{
+"fn": "assign",
+"text": "scope.internal=",
+"ok": [
+"scope.internal",
+""
+]
+},
+{
+"fn": "assign",
+"text": "scope.internal=x",
+"ok": [
+"scope.internal",
+"x"
+]
+},
+{
+"fn": "assign",
+"text": "scope.internal=a=b",
+"ok": [
+"scope.internal",
+"a=b"
+]
+},
+{
+"fn": "assign",
+"text": "scope.internal= spaced ",
+"ok": [
+"scope.internal",
+" spaced "
+]
+},
+{
+"fn": "assign",
+"text": "scope.internal=\u65e5\u672c\u8a9e",
+"ok": [
+"scope.internal",
+"\u65e5\u672c\u8a9e"
+]
+},
+{
+"fn": "assign",
+"text": "scope.internal=\ud83d\ude00",
+"ok": [
+"scope.internal",
+"\ud83d\ude00"
+]
+},
+{
+"fn": "coerce",
+"path": "http.user_agent",
+"raw": "",
+"ok": ""
+},
+{
+"fn": "coerce",
+"path": "http.user_agent",
+"raw": "x",
+"ok": "x"
+},
+{
+"fn": "coerce",
+"path": "http.user_agent",
+"raw": "a=b",
+"ok": "a=b"
+},
+{
+"fn": "coerce",
+"path": "http.user_agent",
+"raw": " spaced ",
+"ok": " spaced "
+},
+{
+"fn": "coerce",
+"path": "http.user_agent",
+"raw": "\u65e5\u672c\u8a9e",
+"ok": "\u65e5\u672c\u8a9e"
+},
+{
+"fn": "coerce",
+"path": "http.user_agent",
+"raw": "\ud83d\ude00",
+"ok": "\ud83d\ude00"
+},
+{
+"fn": "assign",
+"text": "http.user_agent=",
+"ok": [
+"http.user_agent",
+""
+]
+},
+{
+"fn": "assign",
+"text": "http.user_agent=x",
+"ok": [
+"http.user_agent",
+"x"
+]
+},
+{
+"fn": "assign",
+"text": "http.user_agent=a=b",
+"ok": [
+"http.user_agent",
+"a=b"
+]
+},
+{
+"fn": "assign",
+"text": "http.user_agent= spaced ",
+"ok": [
+"http.user_agent",
+" spaced "
+]
+},
+{
+"fn": "assign",
+"text": "http.user_agent=\u65e5\u672c\u8a9e",
+"ok": [
+"http.user_agent",
+"\u65e5\u672c\u8a9e"
+]
+},
+{
+"fn": "assign",
+"text": "http.user_agent=\ud83d\ude00",
+"ok": [
+"http.user_agent",
+"\ud83d\ude00"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "",
+"ok": []
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": ",",
+"ok": []
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "a",
+"ok": [
+"a"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "a,b",
+"ok": [
+"a",
+"b"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": " a , b ,, c ",
+"ok": [
+"a",
+"b",
+"c"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "\u00fc,\u65e5\u672c",
+"ok": [
+"\u00fc",
+"\u65e5\u672c"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": ",,,",
+"ok": []
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "a,",
+"ok": [
+"a"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": ",a",
+"ok": [
+"a"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "*.example.com, /x/y",
+"ok": [
+"*.example.com",
+"/x/y"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "\u00a0a\u00a0,b",
+"ok": [
+"a",
+"b"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "a\u2003,\u2003b",
+"ok": [
+"a",
+"b"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.include_patterns",
+"raw": "a;b",
+"ok": [
+"a;b"
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=",
+"ok": [
+"scope.include_patterns",
+[]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=,",
+"ok": [
+"scope.include_patterns",
+[]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=a",
+"ok": [
+"scope.include_patterns",
+[
+"a"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=a,b",
+"ok": [
+"scope.include_patterns",
+[
+"a",
+"b"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns= a , b ,, c ",
+"ok": [
+"scope.include_patterns",
+[
+"a",
+"b",
+"c"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=\u00fc,\u65e5\u672c",
+"ok": [
+"scope.include_patterns",
+[
+"\u00fc",
+"\u65e5\u672c"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=,,,",
+"ok": [
+"scope.include_patterns",
+[]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=a,",
+"ok": [
+"scope.include_patterns",
+[
+"a"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=,a",
+"ok": [
+"scope.include_patterns",
+[
+"a"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=*.example.com, /x/y",
+"ok": [
+"scope.include_patterns",
+[
+"*.example.com",
+"/x/y"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=\u00a0a\u00a0,b",
+"ok": [
+"scope.include_patterns",
+[
+"a",
+"b"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.include_patterns=a\u2003,\u2003b",
+"ok": [
+"scope.include_patterns",
+[
+"a",
+"b"
+]
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "",
+"ok": []
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": ",",
+"ok": []
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "a",
+"ok": [
+"a"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "a,b",
+"ok": [
+"a",
+"b"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": " a , b ,, c ",
+"ok": [
+"a",
+"b",
+"c"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "\u00fc,\u65e5\u672c",
+"ok": [
+"\u00fc",
+"\u65e5\u672c"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": ",,,",
+"ok": []
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "a,",
+"ok": [
+"a"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": ",a",
+"ok": [
+"a"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "*.example.com, /x/y",
+"ok": [
+"*.example.com",
+"/x/y"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "\u00a0a\u00a0,b",
+"ok": [
+"a",
+"b"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "a\u2003,\u2003b",
+"ok": [
+"a",
+"b"
+]
+},
+{
+"fn": "coerce",
+"path": "scope.exclude_patterns",
+"raw": "a;b",
+"ok": [
+"a;b"
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=",
+"ok": [
+"scope.exclude_patterns",
+[]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=,",
+"ok": [
+"scope.exclude_patterns",
+[]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=a",
+"ok": [
+"scope.exclude_patterns",
+[
+"a"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=a,b",
+"ok": [
+"scope.exclude_patterns",
+[
+"a",
+"b"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns= a , b ,, c ",
+"ok": [
+"scope.exclude_patterns",
+[
+"a",
+"b",
+"c"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=\u00fc,\u65e5\u672c",
+"ok": [
+"scope.exclude_patterns",
+[
+"\u00fc",
+"\u65e5\u672c"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=,,,",
+"ok": [
+"scope.exclude_patterns",
+[]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=a,",
+"ok": [
+"scope.exclude_patterns",
+[
+"a"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=,a",
+"ok": [
+"scope.exclude_patterns",
+[
+"a"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=*.example.com, /x/y",
+"ok": [
+"scope.exclude_patterns",
+[
+"*.example.com",
+"/x/y"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=\u00a0a\u00a0,b",
+"ok": [
+"scope.exclude_patterns",
+[
+"a",
+"b"
+]
+]
+},
+{
+"fn": "assign",
+"text": "scope.exclude_patterns=a\u2003,\u2003b",
+"ok": [
+"scope.exclude_patterns",
+[
+"a",
+"b"
+]
+]
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{}",
+"ok": {}
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": \"b\"}",
+"ok": {
+"a": "b"
+}
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": 1}",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "[]",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "null",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "not json",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": \"b\",}",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"\u00e9\": \"\u00fc\"}",
+"ok": {
+"\u00e9": "\u00fc"
+}
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": null}",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": \"b\", \"a\": \"c\"}",
+"ok": {
+"a": "c"
+}
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{1: \"b\"}",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": " {\"a\":\"b\"} ",
+"ok": {
+"a": "b"
+}
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "NaN",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": NaN}",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": {\"b\": \"c\"}}",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": true}",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{'a': 'b'}",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": \"b\"} x",
+"err": true
+},
+{
+"fn": "coerce",
+"path": "http.headers",
+"raw": "{\"a\": \"b\"}\\n",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.headers={}",
+"ok": [
+"http.headers",
+{}
+]
+},
+{
+"fn": "assign",
+"text": "http.headers={\"a\": \"b\"}",
+"ok": [
+"http.headers",
+{
+"a": "b"
+}
+]
+},
+{
+"fn": "assign",
+"text": "http.headers={\"a\": 1}",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.headers=[]",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.headers=null",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.headers=",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.headers=not json",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.headers={\"a\": \"b\",}",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.headers={\"\u00e9\": \"\u00fc\"}",
+"ok": [
+"http.headers",
+{
+"\u00e9": "\u00fc"
+}
+]
+},
+{
+"fn": "assign",
+"text": "http.headers={\"a\": null}",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.headers={\"a\": \"b\", \"a\": \"c\"}",
+"ok": [
+"http.headers",
+{
+"a": "c"
+}
+]
+},
+{
+"fn": "assign",
+"text": "http.headers={1: \"b\"}",
+"err": true
+},
+{
+"fn": "assign",
+"text": "",
+"err": true
+},
+{
+"fn": "assign",
+"text": "=",
+"err": true
+},
+{
+"fn": "assign",
+"text": "a",
+"err": true
+},
+{
+"fn": "assign",
+"text": "=x",
+"err": true
+},
+{
+"fn": "assign",
+"text": " = x",
+"err": true
+},
+{
+"fn": "assign",
+"text": "speed.concurrency",
+"err": true
+},
+{
+"fn": "assign",
+"text": "concurrency=3",
+"err": true
+},
+{
+"fn": "assign",
+"text": "speed.nope=1",
+"err": true
+},
+{
+"fn": "assign",
+"text": "nope=1",
+"err": true
+},
+{
+"fn": "assign",
+"text": "x.y.z=1",
+"err": true
+},
+{
+"fn": "assign",
+"text": "speed.concurrency=3=4",
+"err": true
+},
+{
+"fn": "assign",
+"text": " speed.concurrency = 3",
+"ok": [
+"speed.concurrency",
+3
+]
+},
+{
+"fn": "assign",
+"text": "speed.concurrency=",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.proxy=http://p:1",
+"ok": [
+"http.proxy",
+"http://p:1"
+]
+},
+{
+"fn": "assign",
+"text": "http.proxy",
+"err": true
+},
+{
+"fn": "assign",
+"text": "proxy",
+"err": true
+},
+{
+"fn": "assign",
+"text": "http.proxy=",
+"ok": [
+"http.proxy",
+""
+]
+},
+{
+"fn": "assign",
+"text": "limits.max_urls=abc",
+"err": true
+},
+{
+"fn": "assign",
+"text": "limits.max_depth=1.5",
+"err": true
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=abc",
+"err": true
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=0.25",
+"ok": [
+"speed.min_delay_seconds",
+0.25
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds=1e-3",
+"ok": [
+"speed.min_delay_seconds",
+0.001
+]
+},
+{
+"fn": "assign",
+"text": "speed.min_delay_seconds= 2 ",
+"ok": [
+"speed.min_delay_seconds",
+2.0
+]
+}
+]

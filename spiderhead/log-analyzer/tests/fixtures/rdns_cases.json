@@ -1,0 +1,282 @@
+{
+ "script": {
+  "ptr": {
+   "66.249.66.1": "crawl-66-249-66-1.googlebot.com.",
+   "34.178.163.194": "194.163.178.34.bc.googleusercontent.com",
+   "66.249.66.9": "evilgooglebot.com",
+   "66.249.66.11": "rate-limited-proxy-66-249-66-1.google.com",
+   "66.249.66.12": "66-249-66-1.gae.googleusercontent.com",
+   "66.249.66.13": "CRAWL.GOOGLEBOT.COM",
+   "2001:db8::1": "crawl.googlebot.com",
+   "2001:db8::9": "evilgooglebot.com"
+  },
+  "forward": {
+   "crawl-66-249-66-1.googlebot.com": [
+    "66.249.66.1"
+   ],
+   "rate-limited-proxy-66-249-66-1.google.com": [
+    "66.249.66.11"
+   ],
+   "66-249-66-1.gae.googleusercontent.com": [
+    "66.249.66.12"
+   ],
+   "crawl.googlebot.com": [
+    "2001:db8::1",
+    "66.249.66.13",
+    "66.249.66.99"
+   ]
+  },
+  "ptr_errors": {
+   "203.0.113.1": [
+    1,
+    "Unknown host"
+   ],
+   "203.0.113.2": [
+    4,
+    "No data"
+   ],
+   "203.0.113.3": [
+    2,
+    "Try again"
+   ],
+   "203.0.113.4": [
+    "os",
+    "Network is unreachable"
+   ]
+  },
+  "forward_errors": [
+   "crawl-66-249-66-1.googlebot.com"
+  ]
+ },
+ "cases": [
+  {
+   "ip": "66.249.66.1",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": true,
+    "hostname": "crawl-66-249-66-1.googlebot.com",
+    "forward_addresses": [
+     "66.249.66.1"
+    ],
+    "forward_match": true,
+    "reason": "PTR and forward resolution confirm the same IP"
+   }
+  },
+  {
+   "ip": "66.249.66.1",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": true,
+   "expected": {
+    "verified": null,
+    "hostname": "crawl-66-249-66-1.googlebot.com",
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "Forward DNS is unavailable: Network is unreachable"
+   }
+  },
+  {
+   "ip": "34.178.163.194",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": false,
+    "hostname": "194.163.178.34.bc.googleusercontent.com",
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "PTR hostname is a Google Cloud VM (bc.googleusercontent.com), which no official Google crawler uses"
+   }
+  },
+  {
+   "ip": "66.249.66.9",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": false,
+    "hostname": "evilgooglebot.com",
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "PTR hostname is outside the official domains"
+   }
+  },
+  {
+   "ip": "66.249.66.11",
+   "suffixes": [
+    ".google.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": true,
+    "hostname": "rate-limited-proxy-66-249-66-1.google.com",
+    "forward_addresses": [
+     "66.249.66.11"
+    ],
+    "forward_match": true,
+    "reason": "PTR and forward resolution confirm the same IP"
+   }
+  },
+  {
+   "ip": "66.249.66.11",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": false,
+    "hostname": "rate-limited-proxy-66-249-66-1.google.com",
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "PTR hostname is outside the official domains"
+   }
+  },
+  {
+   "ip": "66.249.66.12",
+   "suffixes": [
+    ".gae.googleusercontent.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": true,
+    "hostname": "66-249-66-1.gae.googleusercontent.com",
+    "forward_addresses": [
+     "66.249.66.12"
+    ],
+    "forward_match": true,
+    "reason": "PTR and forward resolution confirm the same IP"
+   }
+  },
+  {
+   "ip": "66.249.66.13",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": true,
+    "hostname": "crawl.googlebot.com",
+    "forward_addresses": [
+     "66.249.66.13",
+     "66.249.66.99"
+    ],
+    "forward_match": true,
+    "reason": "PTR and forward resolution confirm the same IP"
+   }
+  },
+  {
+   "ip": "2001:db8::1",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": true,
+    "hostname": "crawl.googlebot.com",
+    "forward_addresses": [
+     "2001:db8::1"
+    ],
+    "forward_match": true,
+    "reason": "PTR and forward resolution confirm the same IP"
+   }
+  },
+  {
+   "ip": "2001:db8::9",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": false,
+    "hostname": "evilgooglebot.com",
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "PTR hostname is outside the official domains"
+   }
+  },
+  {
+   "ip": "203.0.113.1",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": false,
+    "hostname": null,
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "No PTR record was found"
+   }
+  },
+  {
+   "ip": "203.0.113.2",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": false,
+    "hostname": null,
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "No PTR record was found"
+   }
+  },
+  {
+   "ip": "203.0.113.3",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": null,
+    "hostname": null,
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "DNS is unavailable"
+   }
+  },
+  {
+   "ip": "203.0.113.4",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": null,
+    "hostname": null,
+    "forward_addresses": [],
+    "forward_match": null,
+    "reason": "DNS is unavailable: Network is unreachable"
+   }
+  },
+  {
+   "ip": "not-an-ip",
+   "suffixes": [
+    ".googlebot.com"
+   ],
+   "break_forward": false,
+   "expected": {
+    "verified": null,
+    "hostname": null,
+    "reason": "Invalid IP address"
+   }
+  },
+  {
+   "ip": "66.249.66.1",
+   "suffixes": [],
+   "break_forward": false,
+   "expected": {
+    "verified": null,
+    "reason": "No official PTR suffix is available for this bot",
+    "hostname": null
+   }
+  }
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "exit": 0,
+ "stdout": {
+  "counts": [
+   {
+    "filtered_total": 9,
+    "filters": []
+   }
+  ],
+  "elapsed_ms": "<DURATION>",
+  "format": "spiderhead.scan-url-counts.v1",
+  "ok": true,
+  "scan": "<WORK>/scan.sqlite",
+  "sets": 1
+ }
+}

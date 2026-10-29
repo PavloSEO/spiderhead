@@ -1,0 +1,8117 @@
+[
+ {
+  "name": "geo country alias RU",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "country": "россия"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "RU",
+    "error": "DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo country RU",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "country": "RU"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "RU",
+    "error": "DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo country BY code",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "country": "рб"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "BY",
+    "error": "DataForSEO does not cover BY: Belarus locations are unavailable across DataForSEO services",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo country allowed",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "country": "US"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo empty country",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "country": ""
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo none",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo location blocked",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "location_code": 2643
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "RU",
+    "error": "DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo location blocked by",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "location_code": 2112
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "BY",
+    "error": "DataForSEO does not cover BY: Belarus locations are unavailable across DataForSEO services",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo location str blocked",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "location_code": "2643"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "RU",
+    "error": "DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo location allowed",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "location_code": 2840
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo location garbage",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "location_code": "x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo location float",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "location_code": 2643.9
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "RU",
+    "error": "DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo country beats none location",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "country": "US",
+    "location_code": null
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "geo country nonstr",
+  "args": {
+   "fn": "geo_guard",
+   "kw": {
+    "country": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'int' object has no attribute 'strip'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate sandbox default",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "search_volume",
+    "env": "sandbox",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 0,
+    "cost_usd": 0.0,
+    "state": "complete",
+    "reason": "sandbox or cached data incurs no new charge"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate prod no prices",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "backlinks",
+    "env": "prod"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "backlinks",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 0,
+    "cost_usd": null,
+    "state": "unavailable",
+    "reason": "a current appendix/user_data price snapshot is required"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate prod empty prices",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "backlinks",
+    "env": "prod",
+    "prices": {}
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "backlinks",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 0,
+    "cost_usd": null,
+    "state": "unavailable",
+    "reason": "a current appendix/user_data price snapshot is required"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate quote",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "backlinks",
+    "query_count": 3,
+    "cache_hits": 1,
+    "row_limit": 100,
+    "env": "prod",
+    "prices": {
+     "backlinks": {
+      "backlinks": {
+       "live": {
+        "priority_normal": [
+         {
+          "cost_type": "per_request",
+          "cost": 0.02
+         },
+         {
+          "cost_type": "per_result",
+          "cost": 3e-05
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "backlinks",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 3,
+    "cache_hits": 1,
+    "cache_basis": "caller_declared",
+    "billable_queries": 2,
+    "row_limit": 100,
+    "cost_usd": 0.046,
+    "state": "complete",
+    "reason": "upper bound from supplied provider base prices",
+    "pricing_source": "appendix/user_data"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate all cached",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "query_count": 2,
+    "cache_hits": 2,
+    "env": "prod"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "search_volume",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 2,
+    "cache_hits": 2,
+    "cache_basis": "caller_declared",
+    "billable_queries": 0,
+    "row_limit": 0,
+    "cost_usd": 0.0,
+    "state": "complete",
+    "reason": "sandbox or cached data incurs no new charge"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate serp pages",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "serp",
+    "row_limit": 30,
+    "query": "synthetic",
+    "env": "prod",
+    "prices": {
+     "serp": {
+      "google": {
+       "organic": {
+        "live": {
+         "advanced": {
+          "priority_normal": [
+           {
+            "cost_type": "per_request",
+            "cost": 0.002
+           },
+           {
+            "cost_type": "per_result",
+            "cost": 0
+           }
+          ]
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "serp",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 30,
+    "cost_usd": 0.006,
+    "state": "complete",
+    "reason": "upper bound from supplied provider base prices",
+    "billable_serp_pages_per_query": 3,
+    "search_operator_multiplier": 1,
+    "pricing_source": "appendix/user_data"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate serp operator",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "serp",
+    "row_limit": 30,
+    "query": "site:example.test x",
+    "env": "prod",
+    "prices": {
+     "serp": {
+      "google": {
+       "organic": {
+        "live": {
+         "advanced": {
+          "priority_normal": [
+           {
+            "cost_type": "per_request",
+            "cost": 0.002
+           },
+           {
+            "cost_type": "per_result",
+            "cost": 0
+           }
+          ]
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "serp",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 30,
+    "cost_usd": 0.03,
+    "state": "complete",
+    "reason": "upper bound from supplied provider base prices",
+    "billable_serp_pages_per_query": 3,
+    "search_operator_multiplier": 5,
+    "pricing_source": "appendix/user_data"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate serp operator quoted",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "serp",
+    "row_limit": 30,
+    "query": "site%3Aexample.test",
+    "env": "prod",
+    "prices": {
+     "serp": {
+      "google": {
+       "organic": {
+        "live": {
+         "advanced": {
+          "priority_normal": [
+           {
+            "cost_type": "per_request",
+            "cost": 0.002
+           },
+           {
+            "cost_type": "per_result",
+            "cost": 0
+           }
+          ]
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "serp",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 30,
+    "cost_usd": 0.03,
+    "state": "complete",
+    "reason": "upper bound from supplied provider base prices",
+    "billable_serp_pages_per_query": 3,
+    "search_operator_multiplier": 5,
+    "pricing_source": "appendix/user_data"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate serp missing query",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "serp",
+    "row_limit": 30,
+    "env": "prod",
+    "prices": {
+     "serp": {
+      "google": {
+       "organic": {
+        "live": {
+         "advanced": {
+          "priority_normal": [
+           {
+            "cost_type": "per_request",
+            "cost": 0.002
+           },
+           {
+            "cost_type": "per_result",
+            "cost": 0
+           }
+          ]
+         }
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "serp",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 30,
+    "cost_usd": null,
+    "state": "unavailable",
+    "reason": "the SERP query is required to account for search-operator pricing"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate serp query nonstr",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "serp",
+    "row_limit": 30,
+    "query": 5,
+    "env": "prod"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "query must be a string"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate unsupported op",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "nope"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "unsupported DataForSEO operation"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate negative count",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "query_count": -1
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "query_count must be a non-negative integer"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate count str",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "query_count": "3"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "query_count must be a non-negative integer"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate count bool",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "query_count": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "query_count must be a non-negative integer"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate cache exceeds",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "query_count": 1,
+    "cache_hits": 2
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "cache_hits cannot exceed query_count"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate env garbage",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "env": "staging"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "env must be sandbox or prod"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate env var",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume"
+   }
+  },
+  "env": {
+   "DATAFORSEO_ENV": "prod"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "search_volume",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 0,
+    "cost_usd": null,
+    "state": "unavailable",
+    "reason": "a current appendix/user_data price snapshot is required"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate rate non-dict",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "env": "prod",
+    "prices": {
+     "keywords_data": {
+      "google_ads": {
+       "search_volume": {
+        "live": {
+         "priority_normal": [
+          "x"
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "search_volume",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 0,
+    "cost_usd": null,
+    "state": "unavailable",
+    "reason": "a current appendix/user_data price snapshot is required"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate rate bool cost",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "env": "prod",
+    "prices": {
+     "keywords_data": {
+      "google_ads": {
+       "search_volume": {
+        "live": {
+         "priority_normal": [
+          {
+           "cost_type": "per_request",
+           "cost": true
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "search_volume",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 0,
+    "cost_usd": null,
+    "state": "unavailable",
+    "reason": "a current appendix/user_data price snapshot is required"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "estimate rate unknown unit",
+  "args": {
+   "fn": "estimate",
+   "kw": {
+    "operation": "search_volume",
+    "env": "prod",
+    "prices": {
+     "keywords_data": {
+      "google_ads": {
+       "search_volume": {
+        "live": {
+         "priority_normal": [
+          {
+           "cost_type": "per_hour",
+           "cost": 1
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "operation": "search_volume",
+    "env": "prod",
+    "currency": "USD",
+    "query_count": 1,
+    "cache_hits": 0,
+    "cache_basis": "caller_declared",
+    "billable_queries": 1,
+    "row_limit": 0,
+    "cost_usd": null,
+    "state": "unavailable",
+    "reason": "the supplied price uses an unsupported billing unit"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume ok",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "buy shoes",
+     "running shoes"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "status_message": "Ok.",
+     "cost": 0.023,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "status_message": "Ok.",
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "search_volume": 1200,
+           "cpc": 0.5,
+           "competition": 0.7
+          },
+          "not a dict",
+          {
+           "keyword": "running shoes",
+           "search_volume": 800
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"buy shoes\", \"running shoes\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "cost_usd": 0.023,
+    "errors": [],
+    "keywords": [
+     {
+      "phrase": "buy shoes",
+      "volume": 1200,
+      "cpc": 0.5,
+      "competition": 0.7
+     },
+     {
+      "phrase": "running shoes",
+      "volume": 800,
+      "cpc": null,
+      "competition": null
+     }
+    ]
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 2,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume zero result ok",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "a query with no matches"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": []
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"a query with no matches\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "cost_usd": null,
+    "errors": [],
+    "keywords": []
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": true,
+      "charge_status": "unknown"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume task failed",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "buy shoes"
+    ],
+    "location_code": 999999999
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "tasks": [
+      {
+       "status_code": 40501,
+       "status_message": "Invalid Field: 'location_code'",
+       "result": null
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"buy shoes\"], \"location_code\": 999999999, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "env": "sandbox",
+    "cost_usd": null,
+    "errors": [
+     "40501: Invalid Field: 'location_code'"
+    ],
+    "keywords": []
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": true,
+      "charge_status": "unknown"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume top rejection",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "buy shoes"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 40000,
+     "status_message": "Request is not a valid JSON",
+     "tasks": null,
+     "cost": 0
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"buy shoes\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "env": "sandbox",
+    "cost_usd": 0.0,
+    "errors": [
+     "40000: Request is not a valid JSON"
+    ],
+    "keywords": []
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume geo blocked",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "country": "russia"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "RU",
+    "error": "DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume location blocked",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "location_code": 2643
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "unsupported_geo": "RU",
+    "error": "DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP",
+    "use_instead": [
+     "Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)",
+     "Arsenkin for exact !W volume and SERP clustering (keywords-exact)",
+     "Yandex SERP via serp-fetch"
+    ]
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume prod refuses",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "env": "prod"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "confirmation_required",
+    "operation": "search_volume",
+    "error": "search_volume is paid and requires confirm_paid=true",
+    "estimate": {
+     "operation": "search_volume",
+     "env": "prod",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 1,
+     "cost_usd": null,
+     "state": "unavailable",
+     "reason": "a current appendix/user_data price snapshot is required"
+    }
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume prod confirmed",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "env": "prod",
+    "confirm_paid": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "status_message": "Ok.",
+     "cost": 0.023,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "status_message": "Ok.",
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "search_volume": 1200,
+           "cpc": 0.5,
+           "competition": 0.7
+          },
+          "not a dict",
+          {
+           "keyword": "running shoes",
+           "search_volume": 800
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"x\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "prod",
+    "cost_usd": 0.023,
+    "errors": [],
+    "keywords": [
+     {
+      "phrase": "buy shoes",
+      "volume": 1200,
+      "cpc": 0.5,
+      "competition": 0.7
+     },
+     {
+      "phrase": "running shoes",
+      "volume": 800,
+      "cpc": null,
+      "competition": null
+     }
+    ]
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.prod",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "prod",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume ceiling bad",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "spend_ceiling_usd": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "spend_ceiling_usd must be a finite non-negative number"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume ceiling negative",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "spend_ceiling_usd": -1
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "spend_ceiling_usd must be a finite non-negative number"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume ceiling str",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "spend_ceiling_usd": "0.5"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "spend_ceiling_usd must be a finite non-negative number"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume ceiling unknown price",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "env": "prod",
+    "confirm_paid": true,
+    "spend_ceiling_usd": 0.01
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "unavailable",
+    "reason": "cannot enforce spend ceiling without current pricing",
+    "estimate": {
+     "operation": "search_volume",
+     "env": "prod",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 1,
+     "cost_usd": null,
+     "state": "unavailable",
+     "reason": "a current appendix/user_data price snapshot is required"
+    }
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume ceiling exceeded",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "env": "prod",
+    "confirm_paid": true,
+    "spend_ceiling_usd": 0.01,
+    "prices": {
+     "keywords_data": {
+      "google_ads": {
+       "search_volume": {
+        "live": {
+         "priority_normal": [
+          {
+           "cost_type": "per_request",
+           "cost": 0.02
+          },
+          {
+           "cost_type": "per_result",
+           "cost": 3e-05
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "spend_limit_exceeded",
+    "reason": "estimated cost exceeds spend_ceiling_usd before request",
+    "estimate": {
+     "operation": "search_volume",
+     "env": "prod",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 1,
+     "cost_usd": 0.02003,
+     "state": "complete",
+     "reason": "upper bound from supplied provider base prices",
+     "pricing_source": "appendix/user_data"
+    }
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume ceiling ok then over billed",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "confirm_paid": true,
+    "spend_ceiling_usd": 0.01,
+    "prices": {
+     "keywords_data": {
+      "google_ads": {
+       "search_volume": {
+        "live": {
+         "priority_normal": [
+          {
+           "cost_type": "per_request",
+           "cost": 0.02
+          },
+          {
+           "cost_type": "per_result",
+           "cost": 3e-05
+          }
+         ]
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "status_message": "Ok.",
+     "cost": 0.023,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "status_message": "Ok.",
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "search_volume": 1200,
+           "cpc": 0.5,
+           "competition": 0.7
+          },
+          "not a dict",
+          {
+           "keyword": "running shoes",
+           "search_volume": 800
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"x\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "error": "provider-reported cost exceeds declared ceiling",
+    "cost_usd": 0.023,
+    "estimate": {
+     "operation": "search_volume",
+     "env": "sandbox",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 1,
+     "cost_usd": 0.0,
+     "state": "complete",
+     "reason": "sandbox or cached data incurs no new charge"
+    }
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume missing credentials",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ],
+    "env": "prod",
+    "confirm_paid": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "status_message": "Ok.",
+     "cost": 0.023,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "status_message": "Ok.",
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "search_volume": 1200,
+           "cpc": 0.5,
+           "competition": 0.7
+          },
+          "not a dict",
+          {
+           "keyword": "running shoes",
+           "search_volume": 800
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "not_configured",
+    "error": "synthetic missing login"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "missing": "synthetic missing login"
+   }
+  }
+ },
+ {
+  "name": "search volume cred oserror",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "status_message": "Ok.",
+     "cost": 0.023,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "status_message": "Ok.",
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "search_volume": 1200,
+           "cpc": 0.5,
+           "competition": 0.7
+          },
+          "not a dict",
+          {
+           "keyword": "running shoes",
+           "search_volume": 800
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "OSError",
+    "message": "synthetic oserror"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "oserror": "synthetic oserror"
+   }
+  }
+ },
+ {
+  "name": "search volume non-object body",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": [
+     1,
+     2
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"x\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "provider response must be an object; charge is unknown",
+    "status": 0
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "response_received": true,
+      "response_malformed": true,
+      "cost_unknown": true,
+      "charge_status": "unknown"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume null body",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "null"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"x\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "failed",
+    "error": "provider response must be an object; charge is unknown",
+    "status": 0
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "response_received": true,
+      "response_malformed": true,
+      "cost_unknown": true,
+      "charge_status": "unknown"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume malformed json",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "oops"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"x\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "JSONDecodeError",
+    "message": "Expecting value: line 1 column 1 (char 0)"
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "extra": {
+      "response_received": true,
+      "response_malformed": true,
+      "charge_status": "unknown",
+      "cost_unknown": true,
+      "status": 200
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume invalid utf8",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": [
+     "x"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "$b64": "//79"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"x\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "UnicodeDecodeError",
+    "message": "'utf-8' codec can't decode byte 0xff in position 0: invalid start byte"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume keywords noniterable",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "TypeError",
+    "message": "'int' object is not iterable"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "search volume keywords dict",
+  "args": {
+   "fn": "search_volume",
+   "kw": {
+    "keywords": {
+     "a": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "status_message": "Ok.",
+     "cost": 0.023,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "status_message": "Ok.",
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "search_volume": 1200,
+           "cpc": 0.5,
+           "competition": 0.7
+          },
+          "not a dict",
+          {
+           "keyword": "running shoes",
+           "search_volume": 800
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/keywords_data/google_ads/search_volume/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"a\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "cost_usd": 0.023,
+    "errors": [],
+    "keywords": [
+     {
+      "phrase": "buy shoes",
+      "volume": 1200,
+      "cpc": 0.5,
+      "competition": 0.7
+     },
+     {
+      "phrase": "running shoes",
+      "volume": 800,
+      "cpc": null,
+      "competition": null
+     }
+    ]
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "search_volume.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "keyword ideas ok",
+  "args": {
+   "fn": "keyword_ideas",
+   "kw": {
+    "seed": "synthetic seed"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.01,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "synthetic seed",
+           "keyword_info": {
+            "search_volume": 100
+           },
+           "keyword_properties": {
+            "keyword_difficulty": 42
+           }
+          },
+          {
+           "keyword": "bare"
+          },
+          "junk"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/dataforseo_labs/google/keyword_ideas/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"synthetic seed\"], \"location_code\": 2840, \"language_code\": \"en\", \"limit\": 100}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "seed": "synthetic seed",
+    "cost_usd": 0.01,
+    "errors": [],
+    "found": 2,
+    "keywords": [
+     {
+      "phrase": "synthetic seed",
+      "volume": 100,
+      "difficulty": 42
+     },
+     {
+      "phrase": "bare",
+      "volume": null,
+      "difficulty": null
+     }
+    ]
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "keyword_ideas.sandbox",
+     "cost": 0.01,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "keyword ideas empty items",
+  "args": {
+   "fn": "keyword_ideas",
+   "kw": {
+    "seed": "x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "cost": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": null
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/dataforseo_labs/google/keyword_ideas/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"x\"], \"location_code\": 2840, \"language_code\": \"en\", \"limit\": 100}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "seed": "x",
+    "cost_usd": 0.0,
+    "errors": [],
+    "found": 0,
+    "keywords": []
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "keyword_ideas.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "keyword ideas direct result",
+  "args": {
+   "fn": "keyword_ideas",
+   "kw": {
+    "seed": "x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "cost": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "keyword": "direct result"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/dataforseo_labs/google/keyword_ideas/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"x\"], \"location_code\": 2840, \"language_code\": \"en\", \"limit\": 100}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "seed": "x",
+    "cost_usd": 0.0,
+    "errors": [],
+    "found": 1,
+    "keywords": [
+     {
+      "phrase": "direct result",
+      "volume": null,
+      "difficulty": null
+     }
+    ]
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "keyword_ideas.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "keyword ideas limit str",
+  "args": {
+   "fn": "keyword_ideas",
+   "kw": {
+    "seed": "x",
+    "limit": "50"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.01,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "synthetic seed",
+           "keyword_info": {
+            "search_volume": 100
+           },
+           "keyword_properties": {
+            "keyword_difficulty": 42
+           }
+          },
+          {
+           "keyword": "bare"
+          },
+          "junk"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "row_limit must be a non-negative integer"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "keyword ideas limit bad",
+  "args": {
+   "fn": "keyword_ideas",
+   "kw": {
+    "seed": "x",
+    "limit": "x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "invalid literal for int() with base 10: 'x'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "keyword difficulty ok",
+  "args": {
+   "fn": "keyword_difficulty",
+   "kw": {
+    "keywords": [
+     "buy shoes"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.004,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "keyword_difficulty": 55
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/dataforseo_labs/google/bulk_keyword_difficulty/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keywords\": [\"buy shoes\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "cost_usd": 0.004,
+    "errors": [],
+    "keywords": [
+     {
+      "phrase": "buy shoes",
+      "difficulty": 55
+     }
+    ]
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "keyword_difficulty.sandbox",
+     "cost": 0.004,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "serp ok filters organic",
+  "args": {
+   "fn": "serp",
+   "kw": {
+    "query": "buy shoes"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.002,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "type": "local_pack",
+           "title": "pack"
+          },
+          {
+           "type": "organic",
+           "rank_absolute": 1,
+           "url": "https://a.example/",
+           "domain": "a.example",
+           "title": "A"
+          },
+          {
+           "type": "organic",
+           "rank_absolute": 2,
+           "url": "https://b.example/",
+           "domain": "b.example",
+           "title": "B"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/serp/google/organic/live/advanced",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keyword\": \"buy shoes\", \"location_code\": 2840, \"language_code\": \"en\", \"depth\": 10}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "query": "buy shoes",
+    "cost_usd": 0.002,
+    "errors": [],
+    "docs": [
+     {
+      "pos": 1,
+      "url": "https://a.example/",
+      "domain": "a.example",
+      "title": "A"
+     },
+     {
+      "pos": 2,
+      "url": "https://b.example/",
+      "domain": "b.example",
+      "title": "B"
+     }
+    ]
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "serp.sandbox",
+     "cost": 0.002,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "serp no organic falls back",
+  "args": {
+   "fn": "serp",
+   "kw": {
+    "query": "x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "type": "answer_box",
+           "title": "t"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/serp/google/organic/live/advanced",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"keyword\": \"x\", \"location_code\": 2840, \"language_code\": \"en\", \"depth\": 10}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "env": "sandbox",
+    "query": "x",
+    "cost_usd": null,
+    "errors": [],
+    "docs": [
+     {
+      "pos": null,
+      "url": null,
+      "domain": null,
+      "title": "t"
+     }
+    ]
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "serp.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": true,
+      "charge_status": "unknown"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "serp depth zero",
+  "args": {
+   "fn": "serp",
+   "kw": {
+    "query": "x",
+    "depth": 0
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "depth must be between 1 and 200"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "serp depth over",
+  "args": {
+   "fn": "serp",
+   "kw": {
+    "query": "x",
+    "depth": 201
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "depth must be between 1 and 200"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "serp depth bool",
+  "args": {
+   "fn": "serp",
+   "kw": {
+    "query": "x",
+    "depth": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "depth must be between 1 and 200"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "serp depth str",
+  "args": {
+   "fn": "serp",
+   "kw": {
+    "query": "x",
+    "depth": "30"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "depth must be between 1 and 200"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "serp prod ceiling exceeded",
+  "args": {
+   "fn": "serp",
+   "kw": {
+    "query": "site:example.test synthetic",
+    "env": "prod",
+    "confirm_paid": true,
+    "depth": 30,
+    "prices": {
+     "serp": {
+      "google": {
+       "organic": {
+        "live": {
+         "advanced": {
+          "priority_normal": [
+           {
+            "cost_type": "per_request",
+            "cost": 0.002
+           },
+           {
+            "cost_type": "per_result",
+            "cost": 0
+           }
+          ]
+         }
+        }
+       }
+      }
+     }
+    },
+    "spend_ceiling_usd": 0.02
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "spend_limit_exceeded",
+    "reason": "estimated cost exceeds spend_ceiling_usd before request",
+    "estimate": {
+     "operation": "serp",
+     "env": "prod",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 30,
+     "cost_usd": 0.03,
+     "state": "complete",
+     "reason": "upper bound from supplied provider base prices",
+     "billable_serp_pages_per_query": 3,
+     "search_operator_multiplier": 5,
+     "pricing_source": "appendix/user_data"
+    }
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post ok",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": [
+     {
+      "a": 1
+     }
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"a\": 1}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "status_code": 20000
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post endpoint slash",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "/v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "status_code": 20000
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post operation label",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": [],
+    "operation": "op.label"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: network error, response lost; task may already be billed: <urlopen error reset>"
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "op.label",
+     "cost": 0.0,
+     "unit": "usd",
+     "extra": {
+      "attempt_failed": "network_error",
+      "detail": "<urlopen error reset>",
+      "charge_status": "unknown",
+      "cost_unknown": true
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post 429 retried then ok",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 429,
+    "headers": {},
+    "body": "quota"
+   },
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    },
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [
+    2
+   ],
+   "result": {
+    "status_code": 20000
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post 503 exhaust",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 503,
+    "headers": {},
+    "body": "down"
+   },
+   {
+    "status": 503,
+    "headers": {},
+    "body": "down"
+   },
+   {
+    "status": 503,
+    "headers": {},
+    "body": "down"
+   },
+   {
+    "status": 503,
+    "headers": {},
+    "body": "down"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    },
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    },
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    },
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [
+    2,
+    4,
+    8
+   ],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 503: down"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post 403 no retry",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": {
+     "status_message": "Forbidden"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 403: Forbidden"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post 403 tasks message",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": {
+     "tasks": [
+      {
+       "status_message": "bad task"
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 403: bad task"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post 403 plain body",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": "nope"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 403: nope"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post 403 empty body",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 403: empty response"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post redirect refused",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 302,
+    "headers": {
+     "Location": "https://other.example/"
+    },
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 302: empty response"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post network timeout spends",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: network error, response lost; task may already be billed: timed out"
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "v3/x",
+     "cost": 0.0,
+     "unit": "usd",
+     "extra": {
+      "attempt_failed": "network_error",
+      "detail": "timed out",
+      "charge_status": "unknown",
+      "cost_unknown": true
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post network reset spends",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: network error, response lost; task may already be billed: <urlopen error reset>"
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "v3/x",
+     "cost": 0.0,
+     "unit": "usd",
+     "extra": {
+      "attempt_failed": "network_error",
+      "detail": "<urlopen error reset>",
+      "charge_status": "unknown",
+      "cost_unknown": true
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post malformed json spends",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "oops"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "JSONDecodeError",
+    "message": "Expecting value: line 1 column 1 (char 0)"
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "v3/x",
+     "cost": 0.0,
+     "unit": "usd",
+     "extra": {
+      "response_received": true,
+      "response_malformed": true,
+      "charge_status": "unknown",
+      "cost_unknown": true,
+      "status": 200
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "post invalid utf8",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "$b64": "//79"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "UnicodeDecodeError",
+    "message": "'utf-8' codec can't decode byte 0xff in position 0: invalid start byte"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance ok",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "money": {
+          "balance": 10.5
+         },
+         "rates": {
+          "google_ads": {}
+         },
+         "price": {
+          "keywords_data": {}
+         }
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "env": "sandbox",
+    "balance": 10.5,
+    "limits": {
+     "google_ads": {}
+    },
+    "prices": {
+     "keywords_data": {}
+    }
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance http error",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": "x"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 403: account metadata request was rejected"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance network error",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata request failed"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance oversized",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body_zeros": 2097153
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata response exceeded 2 MiB"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance invalid json",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "oops"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata response was invalid JSON"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance status not 20000",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 40000,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "rates": {},
+         "price": {}
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata provider response was unsuccessful"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance no tasks",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks": []
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata response has no task result"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance tasks not list",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks": {}
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata response has no task result"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance task not dict",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks": [
+      "x"
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata response has no task result"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance count mismatch",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks_count": 2,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "rates": {},
+         "price": {}
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata task summary was unsuccessful"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance task failed",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 40000,
+       "result": [
+        {
+         "rates": {},
+         "price": {}
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata task was unsuccessful"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance no result",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": []
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata response has no result object"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance no rates",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "price": {}
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: account metadata response lacks quota or pricing metadata"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "balance money non-dict",
+  "args": {
+   "fn": "balance",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "money": 5,
+         "rates": {},
+         "price": {}
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://sandbox.dataforseo.com/v3/appendix/user_data",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ]
+     ],
+     "body": "",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'int' object has no attribute 'get'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "run missing cost",
+  "args": {
+   "fn": "_run",
+   "kw": {
+    "kind": "backlinks",
+    "payload": [
+     {
+      "target": "example.com"
+     }
+    ],
+    "items_count": 1,
+    "init": {
+     "login": "l",
+     "password": "p"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": []
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/backlinks/backlinks/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": [
+    [],
+    [],
+    null,
+    false
+   ],
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "backlinks.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": true,
+      "charge_status": "unknown"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "run non-dict body",
+  "args": {
+   "fn": "_run",
+   "kw": {
+    "kind": "backlinks",
+    "payload": [
+     {
+      "target": "example.com"
+     }
+    ],
+    "items_count": 3,
+    "init": {
+     "login": "l",
+     "password": "p"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": [
+     1
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/backlinks/backlinks/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic c3ludGhldGljLWxvZ2luOnN5bnRoZXRpYy1wYXNzd29yZA=="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "DataForSEOError",
+    "message": "DataForSEO 0: provider response must be an object; charge is unknown"
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "backlinks.sandbox",
+     "cost": 0.0,
+     "unit": "usd",
+     "items": 3,
+     "extra": {
+      "env": "sandbox",
+      "response_received": true,
+      "response_malformed": true,
+      "cost_unknown": true,
+      "charge_status": "unknown"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink disabled",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "skipped",
+    "reason": "backlink adapter is disabled by default"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink not eligible",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "enabled": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "skipped",
+    "reason": "account eligibility and an explicit local cache key are required"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink unsupported op",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "nope",
+    "target": "example.com"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "unsupported backlink operation"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink empty target",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": ""
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "target required"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink target nonstr",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "target required"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink limit bounds",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "limit": 0
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "limit must be between 1 and 1000"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink limit bool",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "limit": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "limit must be between 1 and 1000"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink offset negative",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "offset": -1
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "offset must be a non-negative integer"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink confirm required",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "confirmation_required",
+    "operation": "backlinks",
+    "error": "backlinks is paid and requires confirm_paid=true",
+    "estimate": {
+     "operation": "backlinks",
+     "env": "sandbox",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 100,
+     "cost_usd": 0.0,
+     "state": "complete",
+     "reason": "sandbox or cached data incurs no new charge"
+    }
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink sandbox ok",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "limit": 5,
+    "offset": 10
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.023,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "url_from": "https://donor.example/",
+           "url_to": "https://example.com/"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/backlinks/backlinks/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic bDpw"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\", \"limit\": 5, \"offset\": 10}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "env": "sandbox",
+    "operation": "backlinks",
+    "api_version": "v3",
+    "cache_key": "k",
+    "cost_usd": 0.023,
+    "errors": [],
+    "estimate": {
+     "operation": "backlinks",
+     "env": "sandbox",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 5,
+     "cost_usd": 0.0,
+     "state": "complete",
+     "reason": "sandbox or cached data incurs no new charge"
+    },
+    "items": [
+     {
+      "url_from": "https://donor.example/",
+      "url_to": "https://example.com/"
+     }
+    ],
+    "summary": null,
+    "coverage": {
+     "bounded": true,
+     "limit": 5,
+     "offset": 10,
+     "auto_paginated": false
+    }
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "backlinks.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "l"
+   },
+   "password": {
+    "token": "p"
+   }
+  }
+ },
+ {
+  "name": "backlink summary ok",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks_summary",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.023,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "url_from": "https://donor.example/",
+           "url_to": "https://example.com/"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/backlinks/summary/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic bDpw"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\", \"internal_list_limit\": 0, \"backlinks_limit\": 0}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "env": "sandbox",
+    "operation": "backlinks_summary",
+    "api_version": "v3",
+    "cache_key": "k",
+    "cost_usd": 0.023,
+    "errors": [],
+    "estimate": {
+     "operation": "backlinks_summary",
+     "env": "sandbox",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 1,
+     "cost_usd": 0.0,
+     "state": "complete",
+     "reason": "sandbox or cached data incurs no new charge"
+    },
+    "items": [
+     {
+      "url_from": "https://donor.example/",
+      "url_to": "https://example.com/"
+     }
+    ],
+    "summary": [
+     {
+      "url_from": "https://donor.example/",
+      "url_to": "https://example.com/"
+     }
+    ],
+    "coverage": {
+     "bounded": true,
+     "limit": 100,
+     "offset": 0,
+     "auto_paginated": false
+    }
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "backlinks_summary.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "l"
+   },
+   "password": {
+    "token": "p"
+   }
+  }
+ },
+ {
+  "name": "backlink prod needs approvals",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true
+   }
+  },
+  "env": {
+   "DATAFORSEO_ENV": "prod"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "skipped",
+    "reason": "production backlink calls require explicit production and cost approval"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlink prod approved",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "referring_domains",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "production_approved": true,
+    "cost_approved": true,
+    "env": "prod"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.023,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "url_from": "https://donor.example/",
+           "url_to": "https://example.com/"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.dataforseo.com/v3/backlinks/referring_domains/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic bDpw"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\", \"limit\": 100, \"offset\": 0}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "env": "prod",
+    "operation": "referring_domains",
+    "api_version": "v3",
+    "cache_key": "k",
+    "cost_usd": 0.023,
+    "errors": [],
+    "estimate": {
+     "operation": "referring_domains",
+     "env": "prod",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 100,
+     "cost_usd": null,
+     "state": "unavailable",
+     "reason": "a current appendix/user_data price snapshot is required"
+    },
+    "items": [
+     {
+      "url_from": "https://donor.example/",
+      "url_to": "https://example.com/"
+     }
+    ],
+    "summary": null,
+    "coverage": {
+     "bounded": true,
+     "limit": 100,
+     "offset": 0,
+     "auto_paginated": false
+    }
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "referring_domains.prod",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "prod",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "l"
+   },
+   "password": {
+    "token": "p"
+   }
+  }
+ },
+ {
+  "name": "backlink client env mismatch",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "injected client environment must match requested environment"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "client_env": "prod"
+ },
+ {
+  "name": "backlink history dates",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks_history",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "date_from": "2026-01-01",
+    "date_to": "2026-02-01",
+    "limit": 2
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.023,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "url_from": "https://donor.example/",
+           "url_to": "https://example.com/"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/backlinks/history/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic bDpw"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\", \"date_from\": \"2026-01-01\", \"date_to\": \"2026-02-01\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "env": "sandbox",
+    "operation": "backlinks_history",
+    "api_version": "v3",
+    "cache_key": "k",
+    "cost_usd": 0.023,
+    "errors": [],
+    "estimate": {
+     "operation": "backlinks_history",
+     "env": "sandbox",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 2,
+     "cost_usd": 0.0,
+     "state": "complete",
+     "reason": "sandbox or cached data incurs no new charge"
+    },
+    "items": [
+     {
+      "url_from": "https://donor.example/",
+      "url_to": "https://example.com/"
+     }
+    ],
+    "summary": null,
+    "coverage": {
+     "bounded": true,
+     "limit": 2,
+     "offset": 0,
+     "auto_paginated": false
+    }
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "backlinks_history.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "l"
+   },
+   "password": {
+    "token": "p"
+   }
+  },
+  "today": "2026-03-01"
+ },
+ {
+  "name": "backlink history defaults",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks_history",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.023,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "url_from": "https://donor.example/",
+           "url_to": "https://example.com/"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/backlinks/history/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic bDpw"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\", \"date_from\": \"2026-01-30\", \"date_to\": \"2026-03-01\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "env": "sandbox",
+    "operation": "backlinks_history",
+    "api_version": "v3",
+    "cache_key": "k",
+    "cost_usd": 0.023,
+    "errors": [],
+    "estimate": {
+     "operation": "backlinks_history",
+     "env": "sandbox",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 100,
+     "cost_usd": 0.0,
+     "state": "complete",
+     "reason": "sandbox or cached data incurs no new charge"
+    },
+    "items": [
+     {
+      "url_from": "https://donor.example/",
+      "url_to": "https://example.com/"
+     }
+    ],
+    "summary": null,
+    "coverage": {
+     "bounded": true,
+     "limit": 100,
+     "offset": 0,
+     "auto_paginated": false
+    }
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "backlinks_history.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "l"
+   },
+   "password": {
+    "token": "p"
+   }
+  },
+  "today": "2026-03-01"
+ },
+ {
+  "name": "backlink history before 2019",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks_history",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "date_from": "2018-01-01"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "history dates must be ordered within 2019-01-01 and today"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "today": "2026-03-01"
+ },
+ {
+  "name": "backlink history range over limit",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks_history",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "date_from": "2026-01-01",
+    "date_to": "2026-02-01",
+    "limit": 1
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "history date range exceeds the declared row limit"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "today": "2026-03-01"
+ },
+ {
+  "name": "backlink history end future",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks_history",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "date_to": "2027-01-01"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "history dates must be ordered within 2019-01-01 and today"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "today": "2026-03-01"
+ },
+ {
+  "name": "backlink history bad date",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks_history",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "date_to": "not-a-date"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "Invalid isoformat string: 'not-a-date'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "today": "2026-03-01"
+ },
+ {
+  "name": "backlink history date nonstr",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks_history",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "date_to": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "TypeError",
+    "message": "fromisoformat: argument must be str"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "today": "2026-03-01"
+ },
+ {
+  "name": "backlink env garbage",
+  "args": {
+   "fn": "backlink_call",
+   "kw": {
+    "operation": "backlinks",
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true,
+    "env": "staging"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "env must be sandbox or prod"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "backlinks wrapper",
+  "args": {
+   "fn": "backlinks",
+   "kw": {
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.023,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "url_from": "https://donor.example/",
+           "url_to": "https://example.com/"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/backlinks/backlinks/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic bDpw"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\", \"limit\": 100, \"offset\": 0}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "env": "sandbox",
+    "operation": "backlinks",
+    "api_version": "v3",
+    "cache_key": "k",
+    "cost_usd": 0.023,
+    "errors": [],
+    "estimate": {
+     "operation": "backlinks",
+     "env": "sandbox",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 100,
+     "cost_usd": 0.0,
+     "state": "complete",
+     "reason": "sandbox or cached data incurs no new charge"
+    },
+    "items": [
+     {
+      "url_from": "https://donor.example/",
+      "url_to": "https://example.com/"
+     }
+    ],
+    "summary": null,
+    "coverage": {
+     "bounded": true,
+     "limit": 100,
+     "offset": 0,
+     "auto_paginated": false
+    }
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "backlinks.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "l"
+   },
+   "password": {
+    "token": "p"
+   }
+  }
+ },
+ {
+  "name": "domain pages wrapper",
+  "args": {
+   "fn": "domain_pages_summary",
+   "kw": {
+    "target": "example.com",
+    "enabled": true,
+    "account_eligible": true,
+    "cache_key": "k",
+    "confirm_paid": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000,
+     "cost": 0.023,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "result": [
+        {
+         "items": [
+          {
+           "url_from": "https://donor.example/",
+           "url_to": "https://example.com/"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/backlinks/domain_pages_summary/live",
+     "headers": [
+      [
+       "authorization",
+       "Basic bDpw"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[{\"target\": \"example.com\"}]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "env": "sandbox",
+    "operation": "domain_pages_summary",
+    "api_version": "v3",
+    "cache_key": "k",
+    "cost_usd": 0.023,
+    "errors": [],
+    "estimate": {
+     "operation": "domain_pages_summary",
+     "env": "sandbox",
+     "currency": "USD",
+     "query_count": 1,
+     "cache_hits": 0,
+     "cache_basis": "caller_declared",
+     "billable_queries": 1,
+     "row_limit": 1,
+     "cost_usd": 0.0,
+     "state": "complete",
+     "reason": "sandbox or cached data incurs no new charge"
+    },
+    "items": [
+     {
+      "url_from": "https://donor.example/",
+      "url_to": "https://example.com/"
+     }
+    ],
+    "summary": null,
+    "coverage": {
+     "bounded": true,
+     "limit": 100,
+     "offset": 0,
+     "auto_paginated": false
+    }
+   },
+   "spends": [
+    {
+     "source": "dataforseo",
+     "operation": "domain_pages_summary.sandbox",
+     "cost": 0.023,
+     "unit": "usd",
+     "items": 1,
+     "extra": {
+      "env": "sandbox",
+      "cost_unknown": false,
+      "charge_status": "measured"
+     }
+    }
+   ]
+  },
+  "cred": {
+   "login": {
+    "token": "l"
+   },
+   "password": {
+    "token": "p"
+   }
+  }
+ },
+ {
+  "name": "task items flatten",
+  "args": {
+   "fn": "task_items",
+   "kw": {
+    "body": {
+     "status_code": 20000,
+     "status_message": "Ok.",
+     "cost": 0.023,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "status_message": "Ok.",
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "search_volume": 1200,
+           "cpc": 0.5,
+           "competition": 0.7
+          },
+          "not a dict",
+          {
+           "keyword": "running shoes",
+           "search_volume": 800
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [
+    {
+     "keyword": "buy shoes",
+     "search_volume": 1200,
+     "cpc": 0.5,
+     "competition": 0.7
+    },
+    {
+     "keyword": "running shoes",
+     "search_volume": 800
+    }
+   ],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task items task non-dict",
+  "args": {
+   "fn": "task_items",
+   "kw": {
+    "body": {
+     "tasks": [
+      "x"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'str' object has no attribute 'get'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task items direct result",
+  "args": {
+   "fn": "task_items",
+   "kw": {
+    "body": {
+     "tasks": [
+      {
+       "result": [
+        {
+         "keyword": "x"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [
+    {
+     "keyword": "x"
+    }
+   ],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task items items nonlist",
+  "args": {
+   "fn": "task_items",
+   "kw": {
+    "body": {
+     "tasks": [
+      {
+       "result": [
+        {
+         "items": "x"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task items no tasks",
+  "args": {
+   "fn": "task_items",
+   "kw": {
+    "body": {}
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task items body list",
+  "args": {
+   "fn": "task_items",
+   "kw": {
+    "body": [
+     1
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task errors none",
+  "args": {
+   "fn": "task_errors",
+   "kw": {
+    "body": {
+     "status_code": 20000,
+     "status_message": "Ok.",
+     "cost": 0.023,
+     "tasks_count": 1,
+     "tasks_error": 0,
+     "tasks": [
+      {
+       "status_code": 20000,
+       "status_message": "Ok.",
+       "result": [
+        {
+         "items": [
+          {
+           "keyword": "buy shoes",
+           "search_volume": 1200,
+           "cpc": 0.5,
+           "competition": 0.7
+          },
+          "not a dict",
+          {
+           "keyword": "running shoes",
+           "search_volume": 800
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task errors body list",
+  "args": {
+   "fn": "task_errors",
+   "kw": {
+    "body": [
+     1
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task errors task non-dict",
+  "args": {
+   "fn": "task_errors",
+   "kw": {
+    "body": {
+     "tasks": [
+      "x"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'str' object has no attribute 'get'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task errors top and task",
+  "args": {
+   "fn": "task_errors",
+   "kw": {
+    "body": {
+     "status_code": 40000,
+     "status_message": "Bad",
+     "tasks": [
+      {
+       "status_code": 40501,
+       "status_message": "Field"
+      }
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [
+    "40000: Bad",
+    "40501: Field"
+   ],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task errors no tasks no errors",
+  "args": {
+   "fn": "task_errors",
+   "kw": {
+    "body": {}
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [
+    "provider response contains no task evidence"
+   ],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task errors code str",
+  "args": {
+   "fn": "task_errors",
+   "kw": {
+    "body": {
+     "status_code": "x",
+     "status_message": "m"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [
+    "x: m"
+   ],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "task errors code str int",
+  "args": {
+   "fn": "task_errors",
+   "kw": {
+    "body": {
+     "status_code": "20000",
+     "status_message": "Ok"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": [
+    "provider response contains no task evidence"
+   ],
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "tasks all failed top fail",
+  "args": {
+   "fn": "tasks_all_failed",
+   "kw": {
+    "body": {
+     "status_code": 40000
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": true,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "tasks all failed empty",
+  "args": {
+   "fn": "tasks_all_failed",
+   "kw": {
+    "body": {}
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": true,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "tasks all failed missing code",
+  "args": {
+   "fn": "tasks_all_failed",
+   "kw": {
+    "body": {
+     "status_code": 20000,
+     "tasks": [
+      {
+       "result": []
+      }
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": true,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "tasks all failed body list",
+  "args": {
+   "fn": "tasks_all_failed",
+   "kw": {
+    "body": [
+     1
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "tasks all failed task non-dict",
+  "args": {
+   "fn": "tasks_all_failed",
+   "kw": {
+    "body": {
+     "tasks": [
+      "x"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'str' object has no attribute 'get'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "tasks all failed mixed",
+  "args": {
+   "fn": "tasks_all_failed",
+   "kw": {
+    "body": {
+     "status_code": 20000,
+     "tasks": [
+      {
+       "status_code": 20000
+      },
+      {
+       "status_code": 40501
+      }
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": false,
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  }
+ },
+ {
+  "name": "client env garbage",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "env must be sandbox or prod"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "init": {
+   "env": "staging"
+  }
+ },
+ {
+  "name": "client env int",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'int' object has no attribute 'lower'"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "init": {
+   "env": 5
+  }
+ },
+ {
+  "name": "client env PROD",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic cGw6cHA="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "status_code": 20000
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "pl"
+   },
+   "password": {
+    "token": "pp"
+   }
+  },
+  "init": {
+   "env": "PROD"
+  }
+ },
+ {
+  "name": "client env var prod",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {
+   "DATAFORSEO_ENV": "prod"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic cGw6cHA="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "status_code": 20000
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "pl"
+   },
+   "password": {
+    "token": "pp"
+   }
+  }
+ },
+ {
+  "name": "client explicit login",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic ZXhwbGljaXQtbDpleHBsaWNpdC1w"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "status_code": 20000
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "init": {
+   "login": "explicit-l",
+   "password": "explicit-p"
+  }
+ },
+ {
+  "name": "client login int truthy",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic NTpw"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "status_code": 20000
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "synthetic-login"
+   },
+   "password": {
+    "token": "synthetic-password"
+   }
+  },
+  "init": {
+   "login": 5,
+   "password": "p"
+  }
+ },
+ {
+  "name": "client login empty falls to cred",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "status_code": 20000
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://sandbox.dataforseo.com/v3/x",
+     "headers": [
+      [
+       "authorization",
+       "Basic ZW52LWw6ZW52LXA="
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "[]",
+     "timeout": 120
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "status_code": 20000
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "token": "env-l"
+   },
+   "password": {
+    "token": "env-p"
+   }
+  },
+  "init": {
+   "login": ""
+  }
+ },
+ {
+  "name": "client cred oserror",
+  "args": {
+   "fn": "post",
+   "kw": {
+    "endpoint": "v3/x",
+    "payload": []
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "OSError",
+    "message": "synthetic oserror"
+   },
+   "spends": []
+  },
+  "cred": {
+   "login": {
+    "oserror": "synthetic oserror"
+   }
+  }
+ }
+]

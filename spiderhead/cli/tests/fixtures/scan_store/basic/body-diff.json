@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-body-diff\n",
+    "stdout": "{\n  \"status\": \"unchanged\",\n  \"reason\": \"body hashes match\",\n  \"url\": \"http://127.0.0.1:{PORT}/about.html\",\n  \"representation\": \"static\",\n  \"left_representation\": \"static\",\n  \"right_representation\": \"static\",\n  \"variant_key\": null,\n  \"left\": {\n    \"document_id\": 2,\n    \"variant_key\": \"cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d\",\n    \"fidelity\": \"entity_bytes\",\n    \"body_state\": \"complete\",\n    \"body_reason\": \"none\",\n    \"sha256\": \"271aeaa8b3e5d98d12bfd90d256a73661ad63121ecc893c4f1a6af9c47665042\",\n    \"content_type\": \"text/html; charset=utf-8\"\n  },\n  \"right\": {\n    \"document_id\": 2,\n    \"variant_key\": \"cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d\",\n    \"fidelity\": \"entity_bytes\",\n    \"body_state\": \"complete\",\n    \"body_reason\": \"none\",\n    \"sha256\": \"271aeaa8b3e5d98d12bfd90d256a73661ad63121ecc893c4f1a6af9c47665042\",\n    \"content_type\": \"text/html; charset=utf-8\"\n  }\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"status\": \"unchanged\",\n  \"reason\": \"body hashes match\",\n  \"url\": \"http://127.0.0.1:{PORT}/about.html\",\n  \"representation\": \"static\",\n  \"left_representation\": \"static\",\n  \"right_representation\": \"static\",\n  \"variant_key\": null,\n  \"left\": {\n    \"document_id\": 2,\n    \"variant_key\": \"cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d\",\n    \"fidelity\": \"entity_bytes\",\n    \"body_state\": \"complete\",\n    \"body_reason\": \"none\",\n    \"sha256\": \"271aeaa8b3e5d98d12bfd90d256a73661ad63121ecc893c4f1a6af9c47665042\",\n    \"content_type\": \"text/html; charset=utf-8\"\n  },\n  \"right\": {\n    \"document_id\": 2,\n    \"variant_key\": \"cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d\",\n    \"fidelity\": \"entity_bytes\",\n    \"body_state\": \"complete\",\n    \"body_reason\": \"none\",\n    \"sha256\": \"271aeaa8b3e5d98d12bfd90d256a73661ad63121ecc893c4f1a6af9c47665042\",\n    \"content_type\": \"text/html; charset=utf-8\"\n  }\n}"
+   }
+  ]
+ }
+}

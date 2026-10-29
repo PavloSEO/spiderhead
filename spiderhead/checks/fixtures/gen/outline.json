@@ -1,0 +1,1618 @@
+{
+  "cases": [
+    {
+      "checks": [
+        "check_heading_outline"
+      ],
+      "config": {},
+      "ctx": {},
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [
+          {
+            "check": "HEADING_IN_PAGE_CHROME",
+            "count": 2,
+            "group_id": "GRP-HEADIN-0001",
+            "urls": [
+              "https://gen.example/b",
+              "https://gen.example/c"
+            ],
+            "value": null
+          }
+        ],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "HEADING_BEFORE_H1",
+            "details": {
+              "count": 2,
+              "first_texts": [
+                "Menu",
+                "Promo"
+              ],
+              "levels": [
+                "h2",
+                "h3"
+              ]
+            },
+            "fingerprint": null,
+            "fix_hint": "Move the H1 above the headings that precede it, or demote those headings to plain text or a non-heading element. A parser reading the outline meets them before it meets the page's subject, and a snippet built from early page text quotes them instead of the page.",
+            "id": null,
+            "message": "One or more headings appear before the page's first H1 in DOM order",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "crawl:heading_outline",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "HEADING_SKIP",
+            "details": {
+              "count": 2,
+              "first_jumps": [
+                {
+                  "from_level": 2,
+                  "from_text": "Intro",
+                  "to_level": 4,
+                  "to_text": "Deep"
+                },
+                {
+                  "from_level": 4,
+                  "from_text": "Deep",
+                  "to_level": 2,
+                  "to_text": "Back"
+                }
+              ]
+            },
+            "fingerprint": null,
+            "fix_hint": "Use the adjacent heading level in both directions: an H4 that follows an H2 becomes H3, and a heading returning up the outline steps back one level at a time so each open section closes in order (H3 -> H2 closes one section and starts a sibling, which is correct nesting).",
+            "id": null,
+            "message": "Content headings change by more than one level in DOM order, skipping a level down or jumping back up past an open section",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "crawl:heading_outline",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "HEADING_IN_PAGE_CHROME",
+            "details": {
+              "count": 3,
+              "first_headings": [
+                {
+                  "level": 2,
+                  "region": "nav",
+                  "text": "Menu"
+                },
+                {
+                  "level": 3,
+                  "region": "header",
+                  "text": "Promo"
+                },
+                {
+                  "level": 3,
+                  "region": "footer",
+                  "text": "Foot"
+                }
+              ],
+              "regions": [
+                "footer",
+                "header",
+                "nav"
+              ]
+            },
+            "fingerprint": null,
+            "fix_hint": "Mark template furniture up as what it is -- a menu label or a widget title is not a heading of this document, and repeating it on every page pushes the page's own headings down its outline.",
+            "id": null,
+            "message": "A heading sits in the page chrome (header, nav, sidebar or footer) rather than in the content",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "crawl:heading_outline",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "HEADING_IN_PAGE_CHROME",
+            "details": {
+              "count": 1,
+              "first_headings": [
+                {
+                  "level": 3,
+                  "region": "footer",
+                  "text": "Foot"
+                }
+              ],
+              "page_count": 2,
+              "regions": [
+                "footer"
+              ],
+              "sample_urls": [
+                "https://gen.example/b",
+                "https://gen.example/c"
+              ]
+            },
+            "fingerprint": null,
+            "fix_hint": "Mark template furniture up as what it is -- a menu label or a widget title is not a heading of this document, and repeating it on every page pushes the page's own headings down its outline.",
+            "group_id": "GRP-HEADIN-0001",
+            "id": null,
+            "message": "A heading sits in the page chrome (header, nav, sidebar or footer) rather than in the content",
+            "occurrences_count": 2,
+            "severity": "notice",
+            "source": "crawl:heading_outline",
+            "status_code": null,
+            "target_url": "https://gen.example/b"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/c": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/clean": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/clean",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/no-outline": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/no-outline",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/unplaced": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/unplaced",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "outline_findings",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline": [
+              {
+                "level": 2,
+                "region": "nav",
+                "text": "Menu"
+              },
+              {
+                "level": 3,
+                "region": "header",
+                "text": "Promo"
+              },
+              {
+                "level": 1,
+                "region": "content",
+                "text": "Title"
+              },
+              {
+                "level": 2,
+                "region": "content",
+                "text": "Intro"
+              },
+              {
+                "level": 4,
+                "region": "content",
+                "text": "Deep"
+              },
+              {
+                "level": 2,
+                "region": "content",
+                "text": "Back"
+              },
+              {
+                "level": 3,
+                "region": "footer",
+                "text": "Foot"
+              }
+            ],
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline_json": "[{\"level\": 2, \"text\": \"Menu\", \"region\": \"nav\"}, {\"level\": 3, \"text\": \"Promo\", \"region\": \"header\"}, {\"level\": 1, \"text\": \"Title\", \"region\": \"content\"}, {\"level\": 2, \"text\": \"Intro\", \"region\": \"content\"}, {\"level\": 4, \"text\": \"Deep\", \"region\": \"content\"}, {\"level\": 2, \"text\": \"Back\", \"region\": \"content\"}, {\"level\": 3, \"text\": \"Foot\", \"region\": \"footer\"}]",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline": [
+              {
+                "level": 1,
+                "region": "content",
+                "text": "Title B"
+              },
+              {
+                "level": 3,
+                "region": "footer",
+                "text": "Foot"
+              }
+            ],
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline_json": "[{\"level\": 1, \"text\": \"Title B\", \"region\": \"content\"}, {\"level\": 3, \"text\": \"Foot\", \"region\": \"footer\"}]",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/c",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline": [
+              {
+                "level": 1,
+                "region": "content",
+                "text": "Title C"
+              },
+              {
+                "level": 3,
+                "region": "footer",
+                "text": "Foot"
+              }
+            ],
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/c",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline_json": "[{\"level\": 1, \"text\": \"Title C\", \"region\": \"content\"}, {\"level\": 3, \"text\": \"Foot\", \"region\": \"footer\"}]",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/c"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/clean",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline": [
+              {
+                "level": 1,
+                "region": "content",
+                "text": "Clean"
+              },
+              {
+                "level": 2,
+                "region": "content",
+                "text": "Section"
+              }
+            ],
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/clean",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/clean",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline_json": "[{\"level\": 1, \"text\": \"Clean\", \"region\": \"content\"}, {\"level\": 2, \"text\": \"Section\", \"region\": \"content\"}]",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/clean"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/unplaced",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline": [
+              {
+                "level": 1,
+                "region": "",
+                "text": "Loose"
+              },
+              {
+                "level": 2,
+                "region": "",
+                "text": "Loose two"
+              }
+            ],
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/unplaced",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/unplaced",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline_json": "[{\"level\": 1, \"text\": \"Loose\", \"region\": \"\"}, {\"level\": 2, \"text\": \"Loose two\", \"region\": \"\"}]",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/unplaced"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/no-outline",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline": [],
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/no-outline",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/no-outline",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline_json": "[]",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/no-outline"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_heading_outline"
+      ],
+      "config": {},
+      "ctx": {},
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/unplaced": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/unplaced",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "HEADING_IN_PAGE_CHROME",
+            "reason": "1 page(s) with no content landmark and no matching position rule -- no heading region could be determined"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "outline_unplaced_only",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/unplaced",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline": [
+              {
+                "level": 1,
+                "region": "",
+                "text": "Loose"
+              },
+              {
+                "level": 2,
+                "region": "",
+                "text": "Loose two"
+              }
+            ],
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/unplaced",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/unplaced",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "heading_outline_json": "[{\"level\": 1, \"text\": \"Loose\", \"region\": \"\"}, {\"level\": 2, \"text\": \"Loose two\", \"region\": \"\"}]",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/unplaced"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_placeholder_markers"
+      ],
+      "config": {},
+      "ctx": {},
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "PLACEHOLDER_MARKER",
+            "details": {
+              "observed": [
+                {
+                  "field": "title",
+                  "markers": [
+                    "{{ TODO }}"
+                  ],
+                  "value": "Buy {{ TODO }} now"
+                },
+                {
+                  "field": "h1",
+                  "markers": [
+                    "[tbd]"
+                  ],
+                  "value": "Heading [tbd] [tbd]"
+                }
+              ]
+            },
+            "fingerprint": null,
+            "fix_hint": "Replace the observed marker with reviewed page-specific copy. This check only reports explicit bracketed template tokens, not ordinary wording such as 'coming soon'.",
+            "id": null,
+            "message": "Page declaration contains a literal TODO, TBD, or placeholder template marker",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "SF-derived",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "PLACEHOLDER_MARKER",
+            "details": {
+              "observed": [
+                {
+                  "field": "meta_description",
+                  "markers": [
+                    "[ Placeholder ]",
+                    "{{placeholder}}"
+                  ],
+                  "value": "Description [ Placeholder ] and {{placeholder}}"
+                }
+              ]
+            },
+            "fingerprint": null,
+            "fix_hint": "Replace the observed marker with reviewed page-specific copy. This check only reports explicit bracketed template tokens, not ordinary wording such as 'coming soon'.",
+            "id": null,
+            "message": "Page declaration contains a literal TODO, TBD, or placeholder template marker",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "SF-derived",
+            "status_code": null,
+            "target_url": "https://gen.example/b"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "Heading [tbd] [tbd]"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "Buy {{ TODO }} now",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "Description [ Placeholder ] and {{placeholder}}",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/clean": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/clean",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A real title",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "placeholder_markers",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "Heading [tbd] [tbd]",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "Buy {{ TODO }} now",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "Heading [tbd] [tbd]",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "Buy {{ TODO }} now",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "Description [ Placeholder ] and {{placeholder}}",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "Description [ Placeholder ] and {{placeholder}}",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/clean",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A real title",
+            "url": "https://gen.example/clean",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/clean",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A real title",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/clean"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_schema"
+      ],
+      "config": {},
+      "ctx": {},
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "SCHEMA_VALIDATION_ERROR",
+            "details": {
+              "validation_errors": 3
+            },
+            "fingerprint": null,
+            "fix_hint": "Correct invalid JSON-LD or Microdata markup and retest it against the applicable vocabulary and rich-result requirements.",
+            "id": null,
+            "message": "Structured data validation errors",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "SF:Structured Data:Validation Errors",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "validation_errors",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "schema_validation_errors",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "validation_errors": 3,
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "validation_errors": 0,
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_schema"
+      ],
+      "config": {},
+      "ctx": {},
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "SCHEMA_VALIDATION_ERROR",
+            "reason": "no Structured Data validation columns in Internal:All"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "schema_validation_absent",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        }
+      ]
+    }
+  ],
+  "format": "gen-audit-case.v1",
+  "group": "outline"
+}

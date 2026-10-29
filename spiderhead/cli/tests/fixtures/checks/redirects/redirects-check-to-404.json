@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "redirects-check",
+  "--url",
+  "{BASE}/to-404"
+ ],
+ "command": "redirects-check",
+ "exit": 0,
+ "stderr": "seohead: redirects-check\n",
+ "stdout": "{\n  \"chain\": [\n    {\n      \"url\": \"{BASE}/to-404\",\n      \"status\": 301,\n      \"location\": \"/does-not-exist.html\",\n      \"ok\": true\n    },\n    {\n      \"url\": \"{BASE}/does-not-exist.html\",\n      \"status\": 404,\n      \"location\": null,\n      \"ok\": false\n    }\n  ]\n}\n"
+}

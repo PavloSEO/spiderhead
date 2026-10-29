@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-link-inspect\n",
+    "stdout": "{\n  \"ok\": true,\n  \"view\": \"inlinks\",\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 10,\n  \"coverage\": {\n    \"state\": \"observed_scope_only\",\n    \"reasons\": [],\n    \"global_reachability\": \"unknown\",\n    \"scope\": \"retained links in this scan and selected representation\"\n  },\n  \"target\": \"http://127.0.0.1:{PORT}/about.html\",\n  \"representation\": \"all\",\n  \"identity\": \"exact destination URL plus its fragment occurrences\",\n  \"cursor\": null,\n  \"limit\": 100,\n  \"max_bytes\": 1048576,\n  \"bytes\": 670,\n  \"state\": \"complete\",\n  \"reason\": \"\",\n  \"items\": [\n    {\n      \"link_id\": 1,\n      \"source_url_id\": 1,\n      \"destination_url_id\": 2,\n      \"source_document_id\": 1,\n      \"evidence_representation\": \"static\",\n      \"ordinal\": 0,\n      \"anchor\": \"About\",\n      \"nofollow\": false,\n      \"position\": null,\n      \"source_url\": \"http://127.0.0.1:{PORT}/\",\n      \"destination_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"position_status\": \"not_classified\"\n    },\n    {\n      \"link_id\": 12,\n      \"source_url_id\": 2,\n      \"destination_url_id\": 12,\n      \"source_document_id\": 2,\n      \"evidence_representation\": \"static\",\n      \"ordinal\": 1,\n      \"anchor\": \"fragment\",\n      \"nofollow\": false,\n      \"position\": null,\n      \"source_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"destination_url\": \"http://127.0.0.1:{PORT}/about.html#team\",\n      \"position_status\": \"not_classified\"\n    }\n  ],\n  \"returned\": 2,\n  \"has_more\": false,\n  \"next_cursor\": null,\n  \"validation\": \"light\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"view\": \"inlinks\",\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 10,\n  \"coverage\": {\n    \"state\": \"observed_scope_only\",\n    \"reasons\": [],\n    \"global_reachability\": \"unknown\",\n    \"scope\": \"retained links in this scan and selected representation\"\n  },\n  \"target\": \"http://127.0.0.1:{PORT}/about.html\",\n  \"representation\": \"all\",\n  \"identity\": \"exact destination URL plus its fragment occurrences\",\n  \"cursor\": null,\n  \"limit\": 100,\n  \"max_bytes\": 1048576,\n  \"bytes\": 670,\n  \"state\": \"complete\",\n  \"reason\": \"\",\n  \"items\": [\n    {\n      \"link_id\": 1,\n      \"source_url_id\": 1,\n      \"destination_url_id\": 2,\n      \"source_document_id\": 1,\n      \"evidence_representation\": \"static\",\n      \"ordinal\": 0,\n      \"anchor\": \"About\",\n      \"nofollow\": false,\n      \"position\": null,\n      \"source_url\": \"http://127.0.0.1:{PORT}/\",\n      \"destination_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"position_status\": \"not_classified\"\n    },\n    {\n      \"link_id\": 12,\n      \"source_url_id\": 2,\n      \"destination_url_id\": 12,\n      \"source_document_id\": 2,\n      \"evidence_representation\": \"static\",\n      \"ordinal\": 1,\n      \"anchor\": \"fragment\",\n      \"nofollow\": false,\n      \"position\": null,\n      \"source_url\": \"http://127.0.0.1:{PORT}/about.html\",\n      \"destination_url\": \"http://127.0.0.1:{PORT}/about.html#team\",\n      \"position_status\": \"not_classified\"\n    }\n  ],\n  \"returned\": 2,\n  \"has_more\": false,\n  \"next_cursor\": null,\n  \"validation\": \"light\"\n}"
+   }
+  ]
+ }
+}

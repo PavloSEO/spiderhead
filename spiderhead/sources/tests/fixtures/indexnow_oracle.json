@@ -1,0 +1,1347 @@
+[
+ {
+  "name": "accepted 200",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "accepted 202 pending",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 202,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 202,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received; key validation pending. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "key location added",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k",
+   "key_location": "https://example.com/k.txt"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"], \"keyLocation\": \"https://example.com/k.txt\"}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "key from env",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com"
+  },
+  "env": {
+   "INDEXNOW_KEY": "env-key"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"env-key\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "missing key",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com"
+  },
+  "env": {},
+  "clear_env": [
+   "INDEXNOW_KEY"
+  ],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/indexnow/key or set $INDEXNOW_KEY. Generate one yourself and publish it at https://<host>/<key>.txt first."
+   }
+  }
+ },
+ {
+  "name": "400 status message",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 400,
+    "headers": {},
+    "body": "raw"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "status": 400,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "error": "invalid request: check the URL list and host"
+   }
+  }
+ },
+ {
+  "name": "403 status message",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": "raw"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "status": 403,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "error": "key not valid: the key or its published key-location file could not be verified"
+   }
+  }
+ },
+ {
+  "name": "422 status message",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 422,
+    "headers": {},
+    "body": "raw"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "status": 422,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "error": "one or more URLs do not belong to the submitted host or do not match the key"
+   }
+  }
+ },
+ {
+  "name": "429 status message",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 429,
+    "headers": {},
+    "body": "raw"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "status": 429,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "error": "too many requests: IndexNow is rate limiting this key"
+   }
+  }
+ },
+ {
+  "name": "500 body clipped",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 500,
+    "headers": {},
+    "body": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "status": 500,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "error": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   }
+  }
+ },
+ {
+  "name": "503 empty body falls back",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 503,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "status": 503,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "error": "HTTP 503"
+   }
+  }
+ },
+ {
+  "name": "redirect refused is a status",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 301,
+    "headers": {
+     "Location": "/x"
+    },
+    "body": "moved"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "status": 301,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "error": "moved"
+   }
+  }
+ },
+ {
+  "name": "timeout",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "IndexNow submission failed: timed out"
+   }
+  }
+ },
+ {
+  "name": "reset",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "IndexNow submission failed: <urlopen error reset>"
+   }
+  }
+ },
+ {
+  "name": "urls required",
+  "args": {
+   "urls": [],
+   "host": "example.com"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "urls required"
+   }
+  }
+ },
+ {
+  "name": "host required",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": ""
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "host required"
+   }
+  }
+ },
+ {
+  "name": "host uppercased and dotted",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "EXAMPLE.com.",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/a\", \"https://example.com/b\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 2,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "host idna2008",
+  "args": {
+   "urls": [
+    "https://xn--fa-hia.de/a"
+   ],
+   "host": "faß.de",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"xn--fa-hia.de\", \"key\": \"k\", \"urlList\": [\"https://xn--fa-hia.de/a\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 1,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "host with colon",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "example.com:80",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "host must be a bare hostname without a port or path"
+   }
+  }
+ },
+ {
+  "name": "host with space",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "exa mple.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "host must be a bare hostname without a port or path"
+   }
+  }
+ },
+ {
+  "name": "host leading hyphen",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "-example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "host must be a bare hostname without a port or path"
+   }
+  }
+ },
+ {
+  "name": "host underscore",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "a_b.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "host must be a bare hostname without a port or path"
+   }
+  }
+ },
+ {
+  "name": "host overlong label",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://example.com/b"
+   ],
+   "host": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "host must be a bare hostname without a port or path"
+   }
+  }
+ },
+ {
+  "name": "url wrong scheme",
+  "args": {
+   "urls": [
+    "ftp://example.com/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url relative",
+  "args": {
+   "urls": [
+    "/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url subdomain is different host",
+  "args": {
+   "urls": [
+    "https://sub.example.com/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url with userinfo",
+  "args": {
+   "urls": [
+    "https://u@example.com/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url with password",
+  "args": {
+   "urls": [
+    "https://u:p@example.com/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url with space",
+  "args": {
+   "urls": [
+    "https://example.com/a b"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url with backslash",
+  "args": {
+   "urls": [
+    "https://example.com\\a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url bad percent",
+  "args": {
+   "urls": [
+    "https://example.com/%zz"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url good percent",
+  "args": {
+   "urls": [
+    "https://example.com/%20a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com/%20a\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 1,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "url netloc trailing colon",
+  "args": {
+   "urls": [
+    "https://example.com:/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url port zero",
+  "args": {
+   "urls": [
+    "https://example.com:0/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url port nonnumeric",
+  "args": {
+   "urls": [
+    "https://example.com:x/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url port out of range",
+  "args": {
+   "urls": [
+    "https://example.com:99999/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 1 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url custom port ok",
+  "args": {
+   "urls": [
+    "https://example.com:8443/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://example.com:8443/a\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 1,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "url second fails",
+  "args": {
+   "urls": [
+    "https://example.com/a",
+    "https://other.com/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "error": "URL 2 must be an absolute HTTP(S) URL belonging to host"
+   }
+  }
+ },
+ {
+  "name": "url uppercase host ok",
+  "args": {
+   "urls": [
+    "https://EXAMPLE.COM/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"https://EXAMPLE.COM/a\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 1,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ },
+ {
+  "name": "url http scheme ok",
+  "args": {
+   "urls": [
+    "http://example.com/a"
+   ],
+   "host": "example.com",
+   "key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.indexnow.org/indexnow",
+     "headers": [
+      [
+       "content-type",
+       "application/json; charset=utf-8"
+      ]
+     ],
+     "body": "{\"host\": \"example.com\", \"key\": \"k\", \"urlList\": [\"http://example.com/a\"]}",
+     "timeout": 30
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "status": 200,
+    "submitted": 1,
+    "not_adopted_by": [
+     "Google"
+    ],
+    "message": "URLs received. Receipt does not guarantee indexing."
+   }
+  }
+ }
+]

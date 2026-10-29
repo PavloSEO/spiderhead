@@ -1,0 +1,726 @@
+{
+ "answers": [
+  {
+   "ok": true,
+   "op": "snapshot_edges",
+   "value": {
+    "counts": {
+     "decisions": 0,
+     "done": 0,
+     "excluded": 0,
+     "forms": 0,
+     "inflight": 0,
+     "links": 0,
+     "pages": 0,
+     "queued": 0
+    },
+    "runtime": {
+     "circuit_server_error_streak": 0,
+     "circuit_timeout_streak": 0,
+     "crawl_delay_applied": null,
+     "elapsed_seconds": 0.0,
+     "max_depth_reached": 0,
+     "throttle": {
+      "concurrency": 1,
+      "consecutive_ok": 0,
+      "delay_seconds": 0,
+      "requests_used": 0
+     }
+    },
+    "scan": {
+     "capabilities_json": "{\"html_bodies\": {\"reason\": \"no retained HTML bodies yet\", \"state\": \"unavailable\"}, \"links\": {\"reason\": \"native writer has no collector adapter yet\", \"state\": \"partial\"}, \"offline_reanalysis\": {\"reason\": \"no retained offline reanalysis inputs yet\", \"state\": \"unavailable\"}, \"pages\": {\"reason\": \"native writer has no collector adapter yet\", \"state\": \"partial\"}, \"rendered_bodies\": {\"reason\": \"no retained rendered DOM yet\", \"state\": \"unavailable\"}, \"resource_bodies\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"resource_refs\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"responses\": {\"reason\": \"no response observations yet\", \"state\": \"unavailable\"}, \"resume\": {\"reason\": \"storage core only; collector adapter is child D\", \"state\": \"partial\"}}",
+     "config_fingerprint": "18a5509a5dcd12ed",
+     "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"SpiderHeadBot\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 3, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+     "corpus_partial": 1,
+     "crawl_partial": 0,
+     "created_at": "2026-10-27T10:47:06.214741Z",
+     "evidence_revision": 0,
+     "evidence_version": "crawl.v1",
+     "finish_reason": "running",
+     "finished_at": null,
+     "format_version": "scan.v1",
+     "lifecycle": "running",
+     "limitations_json": "[]",
+     "parent_scan_uuid": null,
+     "pinned": 0,
+     "retention_json": "{\"automatic_delete\": false, \"body_mode\": \"captured_entity_bytes\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824, \"policy_version\": \"scan_retention.v1\"}",
+     "runtime_versions_json": "{\"beautifulsoup4\": \"test\", \"httpx\": \"test\", \"lxml\": \"test\", \"python\": \"test\", \"sqlite\": \"test\"}",
+     "scan_uuid": "0e1e934e-93a8-4381-a6fe-96e493c30a7c",
+     "singleton": 1,
+     "source_kind": "native",
+     "start_url": "https://example.test/",
+     "writer_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "writer_version": "3.0.0"
+    }
+   }
+  },
+  {
+   "ok": true,
+   "op": "seed",
+   "value": {
+    "already_seen": 0,
+    "excluded": 0,
+    "queued": 1
+   }
+  },
+  {
+   "ok": true,
+   "op": "seed_again",
+   "value": {
+    "already_seen": 1,
+    "excluded": 0,
+    "queued": 0
+   }
+  },
+  {
+   "error": "seed input has unknown or missing fields",
+   "ok": false,
+   "op": "seed_bad",
+   "type": "ScanError"
+  },
+  {
+   "ok": true,
+   "op": "snapshot",
+   "value": {
+    "counts": {
+     "done": 0,
+     "excluded": 0,
+     "inflight": 0,
+     "pages": 0,
+     "queued": 1
+    },
+    "runtime": {
+     "circuit_server_error_streak": 0,
+     "circuit_timeout_streak": 0,
+     "crawl_delay_applied": null,
+     "elapsed_seconds": 0.0,
+     "max_depth_reached": 0,
+     "throttle": {
+      "concurrency": 1,
+      "consecutive_ok": 0,
+      "delay_seconds": 0,
+      "requests_used": 0
+     }
+    },
+    "scan": {
+     "capabilities_json": "{\"html_bodies\": {\"reason\": \"no retained HTML bodies yet\", \"state\": \"unavailable\"}, \"links\": {\"reason\": \"native writer has no collector adapter yet\", \"state\": \"partial\"}, \"offline_reanalysis\": {\"reason\": \"no retained offline reanalysis inputs yet\", \"state\": \"unavailable\"}, \"pages\": {\"reason\": \"native writer has no collector adapter yet\", \"state\": \"partial\"}, \"rendered_bodies\": {\"reason\": \"no retained rendered DOM yet\", \"state\": \"unavailable\"}, \"resource_bodies\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"resource_refs\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"responses\": {\"reason\": \"no response observations yet\", \"state\": \"unavailable\"}, \"resume\": {\"reason\": \"storage core only; collector adapter is child D\", \"state\": \"partial\"}}",
+     "config_fingerprint": "18a5509a5dcd12ed",
+     "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"SpiderHeadBot\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 3, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+     "corpus_partial": 1,
+     "crawl_partial": 0,
+     "created_at": "2026-10-27T10:47:06.214741Z",
+     "evidence_revision": 0,
+     "evidence_version": "crawl.v1",
+     "finish_reason": "running",
+     "finished_at": null,
+     "format_version": "scan.v1",
+     "lifecycle": "running",
+     "limitations_json": "[]",
+     "parent_scan_uuid": null,
+     "pinned": 0,
+     "retention_json": "{\"automatic_delete\": false, \"body_mode\": \"captured_entity_bytes\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824, \"policy_version\": \"scan_retention.v1\"}",
+     "runtime_versions_json": "{\"beautifulsoup4\": \"test\", \"httpx\": \"test\", \"lxml\": \"test\", \"python\": \"test\", \"sqlite\": \"test\"}",
+     "scan_uuid": "0e1e934e-93a8-4381-a6fe-96e493c30a7c",
+     "singleton": 1,
+     "source_kind": "native",
+     "start_url": "https://example.test/",
+     "writer_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "writer_version": "3.0.0"
+    }
+   }
+  },
+  {
+   "ok": true,
+   "op": "enqueue",
+   "value": [
+    {
+     "depth": 1,
+     "queue_ordinal": 1,
+     "url": "https://example.test/p0",
+     "url_id": 2
+    },
+    {
+     "depth": 1,
+     "queue_ordinal": 2,
+     "url": "https://example.test/p1",
+     "url_id": 3
+    },
+    {
+     "depth": 1,
+     "queue_ordinal": 3,
+     "url": "https://example.test/p2",
+     "url_id": 4
+    },
+    {
+     "depth": 1,
+     "queue_ordinal": 4,
+     "url": "https://example.test/p3",
+     "url_id": 5
+    },
+    {
+     "depth": 1,
+     "queue_ordinal": 5,
+     "url": "https://example.test/p4",
+     "url_id": 6
+    },
+    {
+     "depth": 1,
+     "queue_ordinal": 6,
+     "url": "https://example.test/private/a",
+     "url_id": 7
+    },
+    {
+     "depth": 2,
+     "queue_ordinal": 7,
+     "url": "https://example.test/private/b",
+     "url_id": 8
+    }
+   ]
+  },
+  {
+   "ok": true,
+   "op": "enqueue_again",
+   "value": []
+  },
+  {
+   "error": "frontier enqueue requires nonempty URL strings and nonnegative integer depths",
+   "ok": false,
+   "op": "enqueue_bad_depth",
+   "type": "ScanError"
+  },
+  {
+   "error": "enqueue reason must be a short nonempty string",
+   "ok": false,
+   "op": "enqueue_bad_reason",
+   "type": "ScanError"
+  },
+  {
+   "ok": true,
+   "op": "claim_2",
+   "value": [
+    {
+     "depth": 0,
+     "queue_ordinal": 0,
+     "url": "https://example.test/",
+     "url_id": 1
+    },
+    {
+     "depth": 1,
+     "queue_ordinal": 1,
+     "url": "https://example.test/p0",
+     "url_id": 2
+    }
+   ]
+  },
+  {
+   "ok": true,
+   "op": "claim_5_capped",
+   "value": [
+    {
+     "depth": 1,
+     "queue_ordinal": 2,
+     "url": "https://example.test/p1",
+     "url_id": 3
+    }
+   ]
+  },
+  {
+   "error": "claim limit must be a positive integer",
+   "ok": false,
+   "op": "claim_bad",
+   "type": "ValueError"
+  },
+  {
+   "error": "exclusion must preserve the contiguous inflight prefix",
+   "ok": false,
+   "op": "exclude_not_head",
+   "type": "ScanError"
+  },
+  {
+   "ok": true,
+   "op": "exclude_head",
+   "value": null
+  },
+  {
+   "error": "exclusion reason must be a short nonempty string",
+   "ok": false,
+   "op": "exclude_bad_reason",
+   "type": "ScanError"
+  },
+  {
+   "ok": true,
+   "op": "snapshot_after_exclude",
+   "value": {
+    "counts": {
+     "decisions": 1,
+     "done": 0,
+     "excluded": 1,
+     "forms": 0,
+     "inflight": 2,
+     "links": 0,
+     "pages": 0,
+     "queued": 5
+    },
+    "runtime": {
+     "circuit_server_error_streak": 0,
+     "circuit_timeout_streak": 0,
+     "crawl_delay_applied": null,
+     "elapsed_seconds": 0.0,
+     "max_depth_reached": 1,
+     "throttle": {
+      "concurrency": 1,
+      "consecutive_ok": 0,
+      "delay_seconds": 0.0,
+      "requests_used": 0
+     }
+    },
+    "scan": {
+     "capabilities_json": "{\"html_bodies\": {\"reason\": \"no retained HTML bodies yet\", \"state\": \"unavailable\"}, \"links\": {\"reason\": \"native writer has no collector adapter yet\", \"state\": \"partial\"}, \"offline_reanalysis\": {\"reason\": \"no retained offline reanalysis inputs yet\", \"state\": \"unavailable\"}, \"pages\": {\"reason\": \"native writer has no collector adapter yet\", \"state\": \"partial\"}, \"rendered_bodies\": {\"reason\": \"no retained rendered DOM yet\", \"state\": \"unavailable\"}, \"resource_bodies\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"resource_refs\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"responses\": {\"reason\": \"no response observations yet\", \"state\": \"unavailable\"}, \"resume\": {\"reason\": \"storage core only; collector adapter is child D\", \"state\": \"partial\"}}",
+     "config_fingerprint": "18a5509a5dcd12ed",
+     "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"SpiderHeadBot\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 3, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+     "corpus_partial": 1,
+     "crawl_partial": 0,
+     "created_at": "2026-10-27T10:47:06.214741Z",
+     "evidence_revision": 0,
+     "evidence_version": "crawl.v1",
+     "finish_reason": "running",
+     "finished_at": null,
+     "format_version": "scan.v1",
+     "lifecycle": "running",
+     "limitations_json": "[]",
+     "parent_scan_uuid": null,
+     "pinned": 0,
+     "retention_json": "{\"automatic_delete\": false, \"body_mode\": \"captured_entity_bytes\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824, \"policy_version\": \"scan_retention.v1\"}",
+     "runtime_versions_json": "{\"beautifulsoup4\": \"test\", \"httpx\": \"test\", \"lxml\": \"test\", \"python\": \"test\", \"sqlite\": \"test\"}",
+     "scan_uuid": "0e1e934e-93a8-4381-a6fe-96e493c30a7c",
+     "singleton": 1,
+     "source_kind": "native",
+     "start_url": "https://example.test/",
+     "writer_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "writer_version": "3.0.0"
+    }
+   }
+  },
+  {
+   "ok": true,
+   "op": "recover",
+   "value": 2
+  },
+  {
+   "ok": true,
+   "op": "recover_none",
+   "value": 0
+  },
+  {
+   "ok": true,
+   "op": "narrow_scope",
+   "value": {
+    "dropped": 2,
+    "queued": 5
+   }
+  },
+  {
+   "error": "narrow_scope requires an exclude or include pattern",
+   "ok": false,
+   "op": "narrow_none",
+   "type": "ScanError"
+  },
+  {
+   "ok": true,
+   "op": "operator",
+   "value": {
+    "added": 2,
+    "already_known": 1
+   }
+  },
+  {
+   "ok": true,
+   "op": "partial",
+   "value": null
+  },
+  {
+   "error": "partial reasons must be a finite short string list",
+   "ok": false,
+   "op": "partial_bad",
+   "type": "ScanError"
+  },
+  {
+   "ok": true,
+   "op": "partial_none",
+   "value": null
+  },
+  {
+   "ok": true,
+   "op": "request_count",
+   "value": null
+  },
+  {
+   "error": "request count must be a nonnegative integer",
+   "ok": false,
+   "op": "request_count_negative",
+   "type": "ScanError"
+  },
+  {
+   "error": "runtime max depth must not regress below committed evidence",
+   "ok": false,
+   "op": "runtime_regress",
+   "type": "ScanError"
+  },
+  {
+   "error": "runtime state must have the exact child-C key set",
+   "ok": false,
+   "op": "runtime_bad_key",
+   "type": "ScanError"
+  },
+  {
+   "error": "runtime state has invalid finite values or throttle bounds",
+   "ok": false,
+   "op": "runtime_bad_throttle",
+   "type": "ScanError"
+  },
+  {
+   "ok": true,
+   "op": "runtime_ok",
+   "value": null
+  },
+  {
+   "ok": true,
+   "op": "query_limit",
+   "value": 5
+  },
+  {
+   "ok": true,
+   "op": "snapshot_final",
+   "value": {
+    "counts": {
+     "decisions": 3,
+     "done": 0,
+     "excluded": 3,
+     "forms": 0,
+     "inflight": 0,
+     "links": 0,
+     "pages": 0,
+     "queued": 7
+    },
+    "runtime": {
+     "circuit_server_error_streak": 0,
+     "circuit_timeout_streak": 0,
+     "crawl_delay_applied": 2.0,
+     "elapsed_seconds": 1.5,
+     "max_depth_reached": 2,
+     "throttle": {
+      "concurrency": 2,
+      "consecutive_ok": 1,
+      "delay_seconds": 0.5,
+      "requests_used": 0
+     }
+    },
+    "scan": {
+     "capabilities_json": "{\"html_bodies\": {\"reason\": \"no retained HTML bodies yet\", \"state\": \"unavailable\"}, \"links\": {\"reason\": \"first reason; second reason; first reason\", \"state\": \"partial\"}, \"offline_reanalysis\": {\"reason\": \"no retained offline reanalysis inputs yet\", \"state\": \"unavailable\"}, \"pages\": {\"reason\": \"first reason; second reason; first reason\", \"state\": \"partial\"}, \"rendered_bodies\": {\"reason\": \"no retained rendered DOM yet\", \"state\": \"unavailable\"}, \"resource_bodies\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"resource_refs\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"responses\": {\"reason\": \"no response observations yet\", \"state\": \"unavailable\"}, \"resume\": {\"reason\": \"storage core only; collector adapter is child D\", \"state\": \"partial\"}}",
+     "config_fingerprint": "1287e33a53ef9229",
+     "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"SpiderHeadBot\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [\"/private/\"], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 3, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+     "corpus_partial": 1,
+     "crawl_partial": 1,
+     "created_at": "2026-10-27T10:47:06.214741Z",
+     "evidence_revision": 0,
+     "evidence_version": "crawl.v1",
+     "finish_reason": "running",
+     "finished_at": null,
+     "format_version": "scan.v1",
+     "lifecycle": "running",
+     "limitations_json": "[\"first reason\", \"second reason\"]",
+     "parent_scan_uuid": null,
+     "pinned": 0,
+     "retention_json": "{\"automatic_delete\": false, \"body_mode\": \"captured_entity_bytes\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824, \"policy_version\": \"scan_retention.v1\"}",
+     "runtime_versions_json": "{\"beautifulsoup4\": \"test\", \"httpx\": \"test\", \"lxml\": \"test\", \"python\": \"test\", \"sqlite\": \"test\"}",
+     "scan_uuid": "0e1e934e-93a8-4381-a6fe-96e493c30a7c",
+     "singleton": 1,
+     "source_kind": "native",
+     "start_url": "https://example.test/",
+     "writer_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "writer_version": "3.0.0"
+    }
+   }
+  },
+  {
+   "ok": true,
+   "op": "stop_by_budget",
+   "value": null
+  },
+  {
+   "ok": true,
+   "op": "interrupt",
+   "value": null
+  }
+ ],
+ "tables": {
+  "context_items": {
+   "columns": [
+    "kind",
+    "item_key",
+    "payload_version",
+    "payload_json",
+    "completeness",
+    "reason"
+   ],
+   "rows": [
+    [
+     "analysis_asset_thresholds",
+     "run",
+     "scan_context.v1",
+     "{\"schema_version\": \"analysis_asset_thresholds.v1\", \"thresholds\": {\"network_payload_max_bytes\": 4194304, \"page_weight_max_bytes\": 2097152, \"resource_max_bytes\": 2097152}}",
+     "complete",
+     ""
+    ],
+    [
+     "native_config_extension",
+     "run",
+     "scan_context.v1",
+     "{\"effective_fingerprint\": \"b6ca46f01a2e06c8ee7c37da8fd93e9bea13dca9673c8ab7c7c78d79eb03e025\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+     "complete",
+     ""
+    ],
+    [
+     "credential_context",
+     "run",
+     "scan_context.v1",
+     "{\"implicit_state\": false, \"verifier\": null}",
+     "complete",
+     ""
+    ]
+   ]
+  },
+  "decisions": {
+   "columns": [
+    "decision_id",
+    "url",
+    "reason",
+    "source",
+    "depth",
+    "occurrence_key"
+   ],
+   "rows": [
+    [
+     1,
+     "https://example.test/",
+     "robots",
+     "frontier",
+     0,
+     "lease:0:excluded"
+    ],
+    [
+     2,
+     "https://example.test/private/a",
+     "excluded_by_pattern",
+     "operator",
+     1,
+     "operator:6:narrowed"
+    ],
+    [
+     3,
+     "https://example.test/private/b",
+     "excluded_by_pattern",
+     "operator",
+     2,
+     "operator:7:narrowed"
+    ]
+   ]
+  },
+  "frontier": {
+   "columns": [
+    "url_id",
+    "queue_ordinal",
+    "depth",
+    "state"
+   ],
+   "rows": [
+    [
+     1,
+     0,
+     0,
+     "excluded"
+    ],
+    [
+     2,
+     1,
+     1,
+     "queued"
+    ],
+    [
+     3,
+     2,
+     1,
+     "queued"
+    ],
+    [
+     4,
+     3,
+     1,
+     "queued"
+    ],
+    [
+     5,
+     4,
+     1,
+     "queued"
+    ],
+    [
+     6,
+     5,
+     1,
+     "queued"
+    ],
+    [
+     7,
+     6,
+     1,
+     "excluded"
+    ],
+    [
+     8,
+     7,
+     2,
+     "excluded"
+    ],
+    [
+     9,
+     8,
+     0,
+     "queued"
+    ],
+    [
+     10,
+     9,
+     0,
+     "queued"
+    ]
+   ]
+  },
+  "resume_state": {
+   "columns": [
+    "singleton",
+    "state_version",
+    "max_depth_reached",
+    "elapsed_seconds",
+    "circuit_timeout_streak",
+    "circuit_server_error_streak",
+    "crawl_delay_applied",
+    "throttle_state_json"
+   ],
+   "rows": [
+    [
+     1,
+     "scan_resume.v1",
+     2,
+     1.5,
+     0,
+     0,
+     2.0,
+     "{\"concurrency\": 2, \"consecutive_ok\": 1, \"delay_seconds\": 0.5, \"requests_used\": 0, \"schema_version\": \"scan_throttle.v2\"}"
+    ]
+   ]
+  },
+  "scan": {
+   "columns": [
+    "singleton",
+    "scan_uuid",
+    "format_version",
+    "evidence_version",
+    "writer_version",
+    "writer_revision",
+    "runtime_versions_json",
+    "created_at",
+    "finished_at",
+    "source_kind",
+    "parent_scan_uuid",
+    "start_url",
+    "config_json",
+    "config_fingerprint",
+    "lifecycle",
+    "finish_reason",
+    "crawl_partial",
+    "corpus_partial",
+    "evidence_revision",
+    "limitations_json",
+    "capabilities_json",
+    "retention_json",
+    "pinned"
+   ],
+   "rows": [
+    [
+     1,
+     "0e1e934e-93a8-4381-a6fe-96e493c30a7c",
+     "scan.v1",
+     "crawl.v1",
+     "3.0.0",
+     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "{\"beautifulsoup4\": \"test\", \"httpx\": \"test\", \"lxml\": \"test\", \"python\": \"test\", \"sqlite\": \"test\"}",
+     "2026-10-27T10:47:06.214741Z",
+     null,
+     "native",
+     null,
+     "https://example.test/",
+     "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"SpiderHeadBot\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [\"/private/\"], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 3, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+     "1287e33a53ef9229",
+     "interrupted",
+     "killed",
+     1,
+     1,
+     0,
+     "[\"first reason\", \"second reason\"]",
+     "{\"html_bodies\": {\"reason\": \"no retained HTML bodies yet\", \"state\": \"unavailable\"}, \"links\": {\"reason\": \"first reason; second reason; first reason\", \"state\": \"partial\"}, \"offline_reanalysis\": {\"reason\": \"no retained offline reanalysis inputs yet\", \"state\": \"unavailable\"}, \"pages\": {\"reason\": \"first reason; second reason; first reason\", \"state\": \"partial\"}, \"rendered_bodies\": {\"reason\": \"no retained rendered DOM yet\", \"state\": \"unavailable\"}, \"resource_bodies\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"resource_refs\": {\"reason\": \"resource capture is child H\", \"state\": \"unavailable\"}, \"responses\": {\"reason\": \"no response observations yet\", \"state\": \"unavailable\"}, \"resume\": {\"reason\": \"storage core only; collector adapter is child D\", \"state\": \"partial\"}}",
+     "{\"automatic_delete\": false, \"body_mode\": \"captured_entity_bytes\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824, \"policy_version\": \"scan_retention.v1\"}",
+     0
+    ]
+   ]
+  },
+  "urls": {
+   "columns": [
+    "url_id",
+    "url"
+   ],
+   "rows": [
+    [
+     1,
+     "https://example.test/"
+    ],
+    [
+     2,
+     "https://example.test/p0"
+    ],
+    [
+     3,
+     "https://example.test/p1"
+    ],
+    [
+     4,
+     "https://example.test/p2"
+    ],
+    [
+     5,
+     "https://example.test/p3"
+    ],
+    [
+     6,
+     "https://example.test/p4"
+    ],
+    [
+     7,
+     "https://example.test/private/a"
+    ],
+    [
+     8,
+     "https://example.test/private/b"
+    ],
+    [
+     9,
+     "https://example.test/op1"
+    ],
+    [
+     10,
+     "https://example.test/op2"
+    ]
+   ]
+  }
+ }
+}

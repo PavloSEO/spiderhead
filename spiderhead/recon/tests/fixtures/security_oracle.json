@@ -1,0 +1,161 @@
+{
+ "cases": [
+  {
+   "expected": {
+    "cookies": [
+     {
+      "http_only": true,
+      "name": "sid",
+      "same_site": "lax",
+      "secure": true
+     }
+    ],
+    "exposed_paths": null,
+    "final_url": "https://example.com/",
+    "findings": [],
+    "grade": "A",
+    "headers_missing": [],
+    "headers_present": {
+     "content-security-policy": "frame-ancestors 'self'",
+     "permissions-policy": "camera=()",
+     "referrer-policy": "strict-origin",
+     "strict-transport-security": "max-age=31536000",
+     "x-content-type-options": "nosniff",
+     "x-frame-options": "SAMEORIGIN"
+    },
+    "https_redirect": {
+     "checked": true,
+     "final_url": "https://example.com/",
+     "status_code": 301,
+     "upgrades": true
+    },
+    "ok": true,
+    "probed": false,
+    "score": 100,
+    "status_code": 200,
+    "url": "https://example.com/",
+    "version_disclosure": {}
+   },
+   "name": "full_headers_grade_a",
+   "probe_paths": false,
+   "responses": {
+    "http://example.com/": {
+     "headers": {},
+     "status_code": 301,
+     "url": "https://example.com/"
+    },
+    "https://example.com/": {
+     "headers": {
+      "content-security-policy": "frame-ancestors 'self'",
+      "permissions-policy": "camera=()",
+      "referrer-policy": "strict-origin",
+      "set-cookie": "sid=abc; Secure; HttpOnly; SameSite=Lax",
+      "strict-transport-security": "max-age=31536000",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN"
+     },
+     "status_code": 200,
+     "url": "https://example.com/"
+    }
+   },
+   "url": "https://example.com/"
+  },
+  {
+   "expected": {
+    "cookies": [
+     {
+      "http_only": false,
+      "name": "sid",
+      "same_site": null,
+      "secure": false
+     }
+    ],
+    "exposed_paths": null,
+    "final_url": "https://example.com/",
+    "findings": [
+     "missing strict-transport-security: forces browsers to use HTTPS",
+     "missing content-security-policy: controls allowed script and style sources",
+     "missing x-content-type-options: prevents MIME type sniffing",
+     "missing x-frame-options: prevents clickjacking, or use frame-ancestors in CSP",
+     "missing referrer-policy: limits URL information sent to other sites",
+     "missing permissions-policy: controls access to camera, geolocation, and other APIs",
+     "server discloses version information: Apache/2.4.54",
+     "http does not redirect to https; some traffic and signals remain unencrypted",
+     "cookies without the Secure flag: sid",
+     "cookies without SameSite: sid"
+    ],
+    "grade": "F",
+    "headers_missing": [
+     {
+      "header": "strict-transport-security",
+      "purpose": "forces browsers to use HTTPS"
+     },
+     {
+      "header": "content-security-policy",
+      "purpose": "controls allowed script and style sources"
+     },
+     {
+      "header": "x-content-type-options",
+      "purpose": "prevents MIME type sniffing"
+     },
+     {
+      "header": "x-frame-options",
+      "purpose": "prevents clickjacking, or use frame-ancestors in CSP"
+     },
+     {
+      "header": "referrer-policy",
+      "purpose": "limits URL information sent to other sites"
+     },
+     {
+      "header": "permissions-policy",
+      "purpose": "controls access to camera, geolocation, and other APIs"
+     }
+    ],
+    "headers_present": {},
+    "https_redirect": {
+     "checked": true,
+     "final_url": "http://example.com/",
+     "status_code": 200,
+     "upgrades": false
+    },
+    "ok": true,
+    "probed": false,
+    "score": 0,
+    "status_code": 200,
+    "url": "https://example.com/",
+    "version_disclosure": {
+     "server": "Apache/2.4.54"
+    }
+   },
+   "name": "missing_headers_insecure_cookie",
+   "probe_paths": false,
+   "responses": {
+    "http://example.com/": {
+     "headers": {},
+     "status_code": 200,
+     "url": "http://example.com/"
+    },
+    "https://example.com/": {
+     "headers": {
+      "server": "Apache/2.4.54",
+      "set-cookie": "sid=abc"
+     },
+     "status_code": 200,
+     "url": "https://example.com/"
+    }
+   },
+   "url": "https://example.com/"
+  },
+  {
+   "expected": {
+    "error": "no route to https://down.example/",
+    "ok": false,
+    "url": "https://down.example/"
+   },
+   "name": "network_failure",
+   "probe_paths": false,
+   "responses": {},
+   "url": "https://down.example/"
+  }
+ ]
+}

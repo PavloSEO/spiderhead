@@ -1,0 +1,3619 @@
+{
+  "cases": [
+    {
+      "checks": [
+        "check_rendered_elements",
+        "check_mobile_render_layout"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "static",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/",
+            "url_id": 1
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "static",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "NOINDEX_ONLY_IN_RAW_HTML",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "NOFOLLOW_ONLY_IN_RAW_HTML",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "CANONICAL_MISMATCH",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "H1_ONLY_IN_RENDERED_HTML",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "H1_UPDATED_BY_JAVASCRIPT",
+            "reason": "no retained raw-versus-rendered element comparisons were available"
+          },
+          {
+            "id": "RENDER_RESOURCE_BLOCKED",
+            "reason": "no retained rendered network log was available"
+          },
+          {
+            "id": "MOBILE_CONTENT_OVERFLOW",
+            "reason": "mobile layout was not requested for any rendered page"
+          },
+          {
+            "id": "MOBILE_TEXT_TOO_SMALL",
+            "reason": "mobile layout was not requested for any rendered page"
+          },
+          {
+            "id": "MOBILE_TARGET_TOO_SMALL",
+            "reason": "mobile layout was not requested for any rendered page"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "render_none",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_rendered_elements"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "bodies": [
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e783c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "0278ec47b5f21edf3ae433fb9e7951474c5b7f34d7975c2bf4e8b78ac75bdcd8",
+            "stored_bytes": 27
+          }
+        ],
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "documents": [
+          {
+            "body_reason": "none",
+            "body_sha256": "0278ec47b5f21edf3ae433fb9e7951474c5b7f34d7975c2bf4e8b78ac75bdcd8",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 2,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"raw_rendered_evidence\": {\"state\": \"complete\", \"rules\": [{\"rule\": \"noindex_nofollow_raw_only\", \"diff\": {\"field\": \"robots\", \"kind\": \"raw_only\", \"raw\": \"NoIndex, nofollow\", \"rendered\": \"\"}}, {\"rule\": \"canonical_mismatch\", \"diff\": {\"field\": \"canonical\", \"kind\": \"changed\", \"raw\": \"https://gen.example/a\", \"rendered\": \"https://gen.example/b\"}}, {\"rule\": \"canonical_only_after_render\", \"diff\": {\"field\": \"canonical\", \"kind\": \"rendered_only\", \"raw\": null, \"rendered\": \"https://gen.example/a\"}}, {\"rule\": \"x\", \"diff\": {\"field\": \"title\", \"kind\": \"rendered_only\", \"raw\": \"\", \"rendered\": \"T\"}}, {\"rule\": \"x\", \"diff\": {\"field\": \"title\", \"kind\": \"changed\", \"raw\": \"A\", \"rendered\": \"B\"}}, {\"rule\": \"x\", \"diff\": {\"field\": \"description\", \"kind\": \"rendered_only\", \"raw\": \"\", \"rendered\": \"D\"}}, {\"rule\": \"x\", \"diff\": {\"field\": \"description\", \"kind\": \"changed\", \"raw\": \"A\", \"rendered\": \"B\"}}, {\"rule\": \"x\", \"diff\": {\"field\": \"h1\", \"kind\": \"rendered_only\", \"raw\": \"\", \"rendered\": \"H\"}}, {\"rule\": \"x\", \"diff\": {\"field\": \"h1\", \"kind\": \"changed\", \"raw\": \"A\", \"rendered\": \"B\"}}, {\"rule\": \"unknown_rule\", \"diff\": {\"field\": \"other\", \"kind\": \"changed\"}}]}, \"network_evidence\": {\"state\": \"complete\", \"resources\": [{\"url\": \"https://gen.example/app.js\", \"resource_type\": \"script\", \"reason\": \"blocked_by_robots\", \"status_code\": null}, {\"url\": \"https://gen.example/missing.css\", \"resource_type\": \"stylesheet\", \"reason\": \"http_error\", \"status_code\": 404}]}}",
+            "representation": "static",
+            "source_response_id": 1,
+            "url_id": 1
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/a",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 2,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/a",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "responses": [
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "0278ec47b5f21edf3ae433fb9e7951474c5b7f34d7975c2bf4e8b78ac75bdcd8",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 1,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 1,
+            "request_url_id": 1,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/a",
+            "url_id": 1
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "NOINDEX_ONLY_IN_RAW_HTML",
+            "details": {
+              "field": "robots",
+              "raw": "NoIndex, nofollow",
+              "rendered": ""
+            },
+            "fingerprint": null,
+            "fix_hint": "Keep indexing directives consistent in the original response and rendered document.",
+            "id": null,
+            "message": "Noindex appears in the original HTML but not in the rendered DOM",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "NOFOLLOW_ONLY_IN_RAW_HTML",
+            "details": {
+              "field": "robots",
+              "raw": "NoIndex, nofollow",
+              "rendered": ""
+            },
+            "fingerprint": null,
+            "fix_hint": "Keep link-following directives consistent in the original response and rendered document.",
+            "id": null,
+            "message": "Nofollow appears in the original HTML but not in the rendered DOM",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "CANONICAL_MISMATCH",
+            "details": {
+              "field": "canonical",
+              "raw": "https://gen.example/a",
+              "rendered": "https://gen.example/b"
+            },
+            "fingerprint": null,
+            "fix_hint": "Declare one stable canonical URL in the original response.",
+            "id": null,
+            "message": "Canonical URL changes after JavaScript rendering",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "CANONICAL_ONLY_IN_RENDERED_HTML",
+            "details": {
+              "field": "canonical",
+              "raw": null,
+              "rendered": "https://gen.example/a"
+            },
+            "fingerprint": null,
+            "fix_hint": "Declare the canonical URL in the original response.",
+            "id": null,
+            "message": "Canonical URL is present only after JavaScript rendering",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+            "details": {
+              "field": "title",
+              "raw": "",
+              "rendered": "T"
+            },
+            "fingerprint": null,
+            "fix_hint": "Serve the page title in the original HTML response.",
+            "id": null,
+            "message": "Page title is present only after JavaScript rendering",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+            "details": {
+              "field": "title",
+              "raw": "A",
+              "rendered": "B"
+            },
+            "fingerprint": null,
+            "fix_hint": "Keep the initial and rendered page title aligned.",
+            "id": null,
+            "message": "Page title changes after JavaScript rendering",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+            "details": {
+              "field": "description",
+              "raw": "",
+              "rendered": "D"
+            },
+            "fingerprint": null,
+            "fix_hint": "Serve the meta description in the original HTML response.",
+            "id": null,
+            "message": "Meta description is present only after JavaScript rendering",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+            "details": {
+              "field": "description",
+              "raw": "A",
+              "rendered": "B"
+            },
+            "fingerprint": null,
+            "fix_hint": "Keep the initial and rendered meta description aligned.",
+            "id": null,
+            "message": "Meta description changes after JavaScript rendering",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "H1_ONLY_IN_RENDERED_HTML",
+            "details": {
+              "field": "h1",
+              "raw": "",
+              "rendered": "H"
+            },
+            "fingerprint": null,
+            "fix_hint": "Serve the primary page heading in the original HTML response.",
+            "id": null,
+            "message": "H1 is present only after JavaScript rendering",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "H1_UPDATED_BY_JAVASCRIPT",
+            "details": {
+              "field": "h1",
+              "raw": "A",
+              "rendered": "B"
+            },
+            "fingerprint": null,
+            "fix_hint": "Keep the initial and rendered primary page heading aligned.",
+            "id": null,
+            "message": "H1 changes after JavaScript rendering",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          },
+          {
+            "check": "RENDER_RESOURCE_BLOCKED",
+            "details": {
+              "reason": "blocked_by_robots",
+              "resource_type": "script",
+              "source_page": "https://gen.example/a",
+              "status_code": null
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the recorded request reason and make required page resources available to the renderer.",
+            "id": null,
+            "message": "A rendered page resource was refused or returned an HTTP error",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "native rendered network log",
+            "status_code": null,
+            "target_url": "https://gen.example/app.js"
+          },
+          {
+            "check": "RENDER_RESOURCE_BLOCKED",
+            "details": {
+              "reason": "http_error",
+              "resource_type": "stylesheet",
+              "source_page": "https://gen.example/a",
+              "status_code": 404
+            },
+            "fingerprint": null,
+            "fix_hint": "Review the recorded request reason and make required page resources available to the renderer.",
+            "id": null,
+            "message": "A rendered page resource was refused or returned an HTTP error",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "native rendered network log",
+            "status_code": null,
+            "target_url": "https://gen.example/missing.css"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "render_elements_complete",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_rendered_elements"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "bodies": [
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e783c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "0278ec47b5f21edf3ae433fb9e7951474c5b7f34d7975c2bf4e8b78ac75bdcd8",
+            "stored_bytes": 27
+          }
+        ],
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "documents": [
+          {
+            "body_reason": "none",
+            "body_sha256": "0278ec47b5f21edf3ae433fb9e7951474c5b7f34d7975c2bf4e8b78ac75bdcd8",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 2,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"raw_rendered_evidence\": {\"state\": \"complete\", \"rules\": [{\"rule\": \"noindex_nofollow_raw_only\", \"diff\": {\"field\": \"robots\", \"kind\": \"raw_only\", \"raw\": \"nofollow\"}}, {\"rule\": \"noindex_nofollow_raw_only\", \"diff\": \"broken\"}]}, \"network_evidence\": {\"state\": \"partial\", \"resources\": [{\"reason\": \"no url\"}]}}",
+            "representation": "static",
+            "source_response_id": 1,
+            "url_id": 1
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/a",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 2,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/a",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "responses": [
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "0278ec47b5f21edf3ae433fb9e7951474c5b7f34d7975c2bf4e8b78ac75bdcd8",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 1,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 1,
+            "request_url_id": 1,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/a",
+            "url_id": 1
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "NOFOLLOW_ONLY_IN_RAW_HTML",
+            "details": {
+              "field": "robots",
+              "raw": "nofollow",
+              "rendered": null
+            },
+            "fingerprint": null,
+            "fix_hint": "Keep link-following directives consistent in the original response and rendered document.",
+            "id": null,
+            "message": "Nofollow appears in the original HTML but not in the rendered DOM",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "native raw/rendered element comparison",
+            "status_code": null,
+            "target_url": "https://gen.example/a"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "NOINDEX_ONLY_IN_RAW_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "CANONICAL_MISMATCH",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "H1_ONLY_IN_RENDERED_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "H1_UPDATED_BY_JAVASCRIPT",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "RENDER_RESOURCE_BLOCKED",
+            "reason": "one or more rendered network logs were partial or unavailable"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "render_elements_malformed_entry",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_rendered_elements"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "bodies": [
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e613c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "baf66e6e23d6bb0b6c00fa86d4d97c3ea8ab49d1c77b5a653988696a0cbe3db8",
+            "stored_bytes": 27
+          },
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e623c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "680003a1655793249990f04ba1315e5feb8e20445114e5d3a5b4ff5bea1ab044",
+            "stored_bytes": 27
+          },
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e633c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "a554aed735cc1a1f48f387509e7f10bd11bf3e869d0d6b6572f06b7e1661399c",
+            "stored_bytes": 27
+          }
+        ],
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "documents": [
+          {
+            "body_reason": "none",
+            "body_sha256": "baf66e6e23d6bb0b6c00fa86d4d97c3ea8ab49d1c77b5a653988696a0cbe3db8",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 4,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"raw_rendered_evidence\": {\"state\": \"complete\", \"rules\": []}, \"network_evidence\": {\"state\": \"complete\", \"resources\": []}}",
+            "representation": "static",
+            "source_response_id": 1,
+            "url_id": 1
+          },
+          {
+            "body_reason": "none",
+            "body_sha256": "680003a1655793249990f04ba1315e5feb8e20445114e5d3a5b4ff5bea1ab044",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 5,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"raw_rendered_evidence\": {\"state\": \"unavailable\"}}",
+            "representation": "static",
+            "source_response_id": 2,
+            "url_id": 2
+          },
+          {
+            "body_reason": "none",
+            "body_sha256": "a554aed735cc1a1f48f387509e7f10bd11bf3e869d0d6b6572f06b7e1661399c",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 6,
+            "fidelity": "entity_bytes",
+            "renderer_json": "not json",
+            "representation": "static",
+            "source_response_id": 3,
+            "url_id": 3
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/a",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 4,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/a",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          },
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/b",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 5,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/b",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 1,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 2,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          },
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/c",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 6,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/c",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 2,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 3,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "responses": [
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "baf66e6e23d6bb0b6c00fa86d4d97c3ea8ab49d1c77b5a653988696a0cbe3db8",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 1,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 1,
+            "request_url_id": 1,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          },
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "680003a1655793249990f04ba1315e5feb8e20445114e5d3a5b4ff5bea1ab044",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 2,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 2,
+            "request_url_id": 2,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          },
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "a554aed735cc1a1f48f387509e7f10bd11bf3e869d0d6b6572f06b7e1661399c",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 3,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 3,
+            "request_url_id": 3,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/a",
+            "url_id": 1
+          },
+          {
+            "url": "https://gen.example/b",
+            "url_id": 2
+          },
+          {
+            "url": "https://gen.example/c",
+            "url_id": 3
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/b": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          },
+          "https://gen.example/c": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "NOINDEX_ONLY_IN_RAW_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "NOFOLLOW_ONLY_IN_RAW_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "CANONICAL_MISMATCH",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "H1_ONLY_IN_RENDERED_HTML",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "H1_UPDATED_BY_JAVASCRIPT",
+            "reason": "one or more raw-versus-rendered comparisons were partial or unavailable"
+          },
+          {
+            "id": "RENDER_RESOURCE_BLOCKED",
+            "reason": "one or more rendered network logs were partial or unavailable"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "render_elements_unavailable_mix",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/b",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/b",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/b",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 2,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/b"
+        },
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/c",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/c",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/c",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 3,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/c"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_rendered_elements",
+        "check_mobile_render_layout"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "bodies": [
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e613c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "baf66e6e23d6bb0b6c00fa86d4d97c3ea8ab49d1c77b5a653988696a0cbe3db8",
+            "stored_bytes": 27
+          }
+        ],
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "documents": [
+          {
+            "body_reason": "none",
+            "body_sha256": "baf66e6e23d6bb0b6c00fa86d4d97c3ea8ab49d1c77b5a653988696a0cbe3db8",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 2,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"mobile_layout\": {\"schema\": \"mobile_layout.v1\"}}",
+            "representation": "static",
+            "source_response_id": 1,
+            "url_id": 1
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/a",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 2,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/a",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "responses": [
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "baf66e6e23d6bb0b6c00fa86d4d97c3ea8ab49d1c77b5a653988696a0cbe3db8",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 1,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 1,
+            "request_url_id": 1,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/a",
+            "url_id": 1
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/a": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "NOINDEX_ONLY_IN_RAW_HTML",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "NOFOLLOW_ONLY_IN_RAW_HTML",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "CANONICAL_MISMATCH",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "H1_ONLY_IN_RENDERED_HTML",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "H1_UPDATED_BY_JAVASCRIPT",
+            "reason": "retained raw-versus-rendered element comparisons were unavailable"
+          },
+          {
+            "id": "RENDER_RESOURCE_BLOCKED",
+            "reason": "no retained rendered network log was available"
+          },
+          {
+            "id": "MOBILE_CONTENT_OVERFLOW",
+            "reason": "rendered mobile layout evidence was unavailable"
+          },
+          {
+            "id": "MOBILE_TEXT_TOO_SMALL",
+            "reason": "rendered mobile layout evidence was unavailable"
+          },
+          {
+            "id": "MOBILE_TARGET_TOO_SMALL",
+            "reason": "rendered mobile layout evidence was unavailable"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "render_elements_all_unavailable",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/a",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/a",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/a",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/a"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_mobile_render_layout"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "bodies": [
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e6d3c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "stored_bytes": 27
+          }
+        ],
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "documents": [
+          {
+            "body_reason": "none",
+            "body_sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 2,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"mobile_layout\": {\"schema\": \"mobile_layout.v1\", \"state\": \"complete\", \"reason\": \"\", \"viewport_width_px\": 390, \"document_width_px\": 510, \"content_overflow_px\": 120, \"content_overflow\": true, \"small_text_count_lower_bound\": 2, \"small_target_count_lower_bound\": 3, \"thresholds\": {\"small_text_below_px\": 12, \"small_target_below_px\": 48}, \"details\": {\"overflow_elements\": [{\"tag\": \"div\", \"id\": \"wide\", \"class_name\": \"hero\", \"right_px\": 510, \"width_px\": 500, \"y\": 40}], \"small_text_elements\": [{\"tag\": \"span\", \"text\": \"tiny\", \"font_size_px\": 9.5, \"x\": 4, \"y\": 8}], \"small_target_elements\": [{\"tag\": \"a\", \"role\": \"\", \"text\": \"go\", \"width_px\": 20, \"height_px\": 20, \"x\": 1, \"y\": 2}]}}}",
+            "representation": "static",
+            "source_response_id": 1,
+            "url_id": 1
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/m",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 2,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/m",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "responses": [
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 1,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 1,
+            "request_url_id": 1,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/m",
+            "url_id": 1
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "MOBILE_CONTENT_OVERFLOW",
+            "details": {
+              "document_width_px": 510,
+              "elements": [
+                {
+                  "class_name": "hero",
+                  "id": "wide",
+                  "right_px": 510,
+                  "tag": "div",
+                  "width_px": 500,
+                  "y": 40
+                }
+              ],
+              "overflow_px": 120,
+              "viewport_width_px": 390
+            },
+            "fingerprint": null,
+            "fix_hint": "Constrain the overflowing element or provide a mobile-width layout.",
+            "id": null,
+            "message": "Rendered content extends beyond the mobile viewport width",
+            "occurrences_count": 1,
+            "severity": "warning",
+            "source": "native rendered mobile layout",
+            "status_code": null,
+            "target_url": "https://gen.example/m"
+          },
+          {
+            "check": "MOBILE_TEXT_TOO_SMALL",
+            "details": {
+              "count_lower_bound": 2,
+              "elements": [
+                {
+                  "font_size_px": 9.5,
+                  "tag": "span",
+                  "text": "tiny",
+                  "x": 4,
+                  "y": 8
+                }
+              ],
+              "threshold_px": 12
+            },
+            "fingerprint": null,
+            "fix_hint": "Use a readable mobile text size and verify the page at its target viewport.",
+            "id": null,
+            "message": "Rendered text uses a computed font size below 12 CSS pixels",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native rendered mobile layout",
+            "status_code": null,
+            "target_url": "https://gen.example/m"
+          },
+          {
+            "check": "MOBILE_TARGET_TOO_SMALL",
+            "details": {
+              "count_lower_bound": 3,
+              "elements": [
+                {
+                  "height_px": 20,
+                  "role": "",
+                  "tag": "a",
+                  "text": "go",
+                  "width_px": 20,
+                  "x": 1,
+                  "y": 2
+                }
+              ],
+              "threshold_px": 48
+            },
+            "fingerprint": null,
+            "fix_hint": "Increase the interactive target's hit area and verify spacing at the target viewport.",
+            "id": null,
+            "message": "Rendered interactive target is smaller than 48 CSS pixels in at least one dimension",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native rendered mobile layout",
+            "status_code": null,
+            "target_url": "https://gen.example/m"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/m": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/m",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "mobile_layout_findings",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/m",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/m",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/m",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/m"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_mobile_render_layout"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "bodies": [
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e6d3c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "stored_bytes": 27
+          }
+        ],
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "documents": [
+          {
+            "body_reason": "none",
+            "body_sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 2,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"mobile_layout\": {\"schema\": \"mobile_layout.v1\", \"state\": \"partial\", \"reason\": \"element inspection cap reached\", \"viewport_width_px\": 390, \"document_width_px\": 390, \"content_overflow_px\": 0, \"content_overflow\": false, \"small_text_count_lower_bound\": 0, \"small_target_count_lower_bound\": 1, \"thresholds\": {\"small_text_below_px\": 12, \"small_target_below_px\": 48}, \"details\": {\"overflow_elements\": [], \"small_text_elements\": [], \"small_target_elements\": [{\"tag\": \"a\", \"role\": \"\", \"text\": \"go\", \"width_px\": 20, \"height_px\": 20, \"x\": 1, \"y\": 2}]}}}",
+            "representation": "static",
+            "source_response_id": 1,
+            "url_id": 1
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/m",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 2,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/m",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "responses": [
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 1,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 1,
+            "request_url_id": 1,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/m",
+            "url_id": 1
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [
+          {
+            "check": "MOBILE_TARGET_TOO_SMALL",
+            "details": {
+              "count_lower_bound": 1,
+              "elements": [
+                {
+                  "height_px": 20,
+                  "role": "",
+                  "tag": "a",
+                  "text": "go",
+                  "width_px": 20,
+                  "x": 1,
+                  "y": 2
+                }
+              ],
+              "threshold_px": 48
+            },
+            "fingerprint": null,
+            "fix_hint": "Increase the interactive target's hit area and verify spacing at the target viewport.",
+            "id": null,
+            "message": "Rendered interactive target is smaller than 48 CSS pixels in at least one dimension",
+            "occurrences_count": 1,
+            "severity": "notice",
+            "source": "native rendered mobile layout",
+            "status_code": null,
+            "target_url": "https://gen.example/m"
+          }
+        ],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/m": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/m",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "MOBILE_CONTENT_OVERFLOW",
+            "reason": "one or more mobile measurements were partial or unavailable"
+          },
+          {
+            "id": "MOBILE_TEXT_TOO_SMALL",
+            "reason": "one or more mobile measurements were partial or unavailable"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "mobile_layout_partial",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/m",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/m",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/m",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/m"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_mobile_render_layout"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "bodies": [
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e6d3c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "stored_bytes": 27
+          }
+        ],
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "documents": [
+          {
+            "body_reason": "none",
+            "body_sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 2,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"mobile_layout\": {\"schema\": \"mobile_layout.v1\", \"state\": \"complete\", \"reason\": \"\", \"viewport_width_px\": 390, \"document_width_px\": 390, \"content_overflow_px\": 0, \"content_overflow\": false, \"small_text_count_lower_bound\": 0, \"small_target_count_lower_bound\": 0, \"thresholds\": {\"small_text_below_px\": 12, \"small_target_below_px\": 48}, \"details\": {\"overflow_elements\": [], \"small_text_elements\": [], \"small_target_elements\": []}}}",
+            "representation": "static",
+            "source_response_id": 1,
+            "url_id": 1
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/m",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 2,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/m",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "responses": [
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 1,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 1,
+            "request_url_id": 1,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/m",
+            "url_id": 1
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/m": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/m",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "mobile_layout_clean",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/m",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/m",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/m",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/m"
+        }
+      ]
+    },
+    {
+      "checks": [
+        "check_mobile_render_layout"
+      ],
+      "config": {},
+      "ctx": {},
+      "db": {
+        "bodies": [
+          {
+            "codec": "identity",
+            "data": {
+              "$blob": "3c68746d6c3e3c626f64793e6d3c2f626f64793e3c2f68746d6c3e"
+            },
+            "decoded_bytes": 27,
+            "sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "stored_bytes": 27
+          }
+        ],
+        "context_items": [
+          {
+            "completeness": "complete",
+            "item_key": "run",
+            "kind": "native_config_extension",
+            "payload_json": "{\"effective_fingerprint\": \"5404a1a563f580c80a50ae6d9cc69b1114edbe4ccbb9a27f442343574425af92\", \"schema_version\": \"native_config_extension.v1\", \"settings\": {\"http.auth\": [], \"http.auth_acknowledged\": false, \"http.zstd\": false, \"rendering.actions\": [], \"rendering.artifacts.screenshot_mode\": \"full_page\", \"rendering.presets\": [], \"scope.normalize_tracking_parameters\": true}}",
+            "payload_version": "scan_context.v1",
+            "reason": ""
+          }
+        ],
+        "documents": [
+          {
+            "body_reason": "none",
+            "body_sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "body_state": "complete",
+            "captured_at": "2026-01-01T00:00:00+00:00",
+            "decoder_charset": "utf-8",
+            "decoder_errors": "replace",
+            "decoder_source": "content_type_charset",
+            "decoder_version": "scan_decoder.v1",
+            "document_id": 2,
+            "fidelity": "entity_bytes",
+            "renderer_json": "{\"mobile_layout\": {\"schema\": \"mobile_layout.v1\", \"state\": \"complete\", \"reason\": \"\", \"viewport_width_px\": 390, \"document_width_px\": 400, \"content_overflow_px\": 3, \"content_overflow\": true, \"small_text_count_lower_bound\": 0, \"small_target_count_lower_bound\": 0, \"thresholds\": {\"small_text_below_px\": 12, \"small_target_below_px\": 48}, \"details\": {\"overflow_elements\": [{\"tag\": \"div\", \"id\": \"wide\", \"class_name\": \"hero\", \"right_px\": 510, \"width_px\": 500, \"y\": 40}], \"small_text_elements\": [], \"small_target_elements\": []}}}",
+            "representation": "static",
+            "source_response_id": 1,
+            "url_id": 1
+          }
+        ],
+        "pages": [
+          {
+            "body_count": 1,
+            "cache_status": "",
+            "canonical": "https://gen.example/m",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "doctype": "",
+            "document_id": 2,
+            "error": "",
+            "error_kind": "",
+            "external_outlinks": 0,
+            "final_url": "https://gen.example/m",
+            "h1": "A normal heading",
+            "h1_2": "",
+            "h2": "A normal subheading",
+            "head_count": 1,
+            "head_not_first": 0,
+            "invalid_head_elements": "",
+            "jsonld_blocks_found": 0,
+            "jsonld_blocks_parsed": 0,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": "",
+            "og_description": "",
+            "og_image": "",
+            "og_title": "",
+            "outlinks": 0,
+            "page_ordinal": 0,
+            "redirect_chain_json": "[]",
+            "redirect_url": "",
+            "representation": "rendered",
+            "response_time": null,
+            "size_bytes": 0,
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "transport_upgraded": 0,
+            "url_id": 1,
+            "viewport": "",
+            "word_count": 400,
+            "x_robots": ""
+          }
+        ],
+        "responses": [
+          {
+            "body_fidelity": "entity_bytes",
+            "body_reason": "none",
+            "body_sha256": "1b65986ddd3a37ab67953690c47f3ff2e0bbb5e0f206a4d15d5e29b274bea9f6",
+            "body_state": "complete",
+            "cache_status": "",
+            "charset": "",
+            "content_encoding": "",
+            "content_type": "text/html; charset=utf-8",
+            "credentials_used": 0,
+            "effective_headers_redacted_json": "[]",
+            "effective_status_code": 200,
+            "effective_url_id": 1,
+            "error": "",
+            "error_kind": "",
+            "method": "GET",
+            "purpose": "page",
+            "received_at": "2026-01-01T00:00:00+00:00",
+            "redirect_chain_json": "[]",
+            "request_headers_redacted_json": "[]",
+            "request_ordinal": 1,
+            "request_url_id": 1,
+            "requested_at": "2026-01-01T00:00:00+00:00",
+            "response_headers_redacted_json": "[]",
+            "status_code": 200,
+            "transport_source": "network",
+            "variant_key": ""
+          }
+        ],
+        "scan": [
+          {
+            "capabilities_json": "{}",
+            "config_fingerprint": "gen",
+            "config_json": "{\"analysis\": {\"canonical_policy\": {\"filters\": [], \"pagination\": []}, \"finding_exclusions\": [], \"segments\": []}, \"cache\": {\"invalidate\": false, \"mode\": \"off\"}, \"discovery\": {\"external\": {\"crawl\": false, \"store\": true}, \"follow_nofollow\": false, \"hyperlinks\": {\"crawl\": true, \"store\": true}, \"record_invalid_targets\": false, \"redirects\": {\"crawl\": true}, \"resolve_canonical_destination\": false, \"resolve_redirect_destination\": false}, \"evidence\": {\"content_area\": {\"exclude_selectors\": [], \"exclude_tags\": [\"nav\", \"header\", \"aside\", \"footer\"], \"include_selector\": \"\", \"root_selector\": \"\"}, \"extraction_rules\": [], \"retain_no_store_acknowledged\": false}, \"external_checks\": {\"max_depth\": 0, \"max_hosts\": 20, \"max_redirects\": 5, \"max_requests\": 0, \"max_targets\": 100}, \"fetch\": {\"retry_server_errors\": 0}, \"http\": {\"credential_headers\": [], \"credentials_acknowledged\": false, \"headers\": {}, \"proxy\": \"\", \"proxy_allow_private\": false, \"proxy_authenticated\": false, \"proxy_identity\": \"\", \"retry_on_timeout\": 0, \"timeout_seconds\": 15.0, \"upgrade_to_https\": false, \"user_agent\": \"\"}, \"limits\": {\"max_crawl_seconds\": 0, \"max_depth\": 5, \"max_query_variants_per_path\": 5, \"max_requests\": 20000, \"max_response_bytes\": 5242880, \"max_url_length\": 2000, \"max_urls\": 200}, \"link_attributes\": {\"capture\": false}, \"link_position\": {\"classify\": false, \"rules\": []}, \"output\": {\"dir\": \"\", \"write_decisions_jsonl\": true, \"write_pages_jsonl\": true, \"write_tasks\": true}, \"rendering\": {\"artifacts\": {\"console_errors\": false, \"screenshots\": false}, \"browser\": {\"device_pixel_ratio\": 1.0, \"engine\": \"chromium\", \"flatten_iframes\": false, \"flatten_shadow_dom\": false, \"mobile_emulation\": false, \"page_concurrency\": 1, \"persistent_profile\": false, \"persistent_profile_dir\": \"\", \"remote_endpoint_env\": \"\", \"remote_playwright_version\": \"\", \"remote_protocol\": \"playwright\", \"resize_to_content\": false, \"resize_to_content_max_height_px\": 15000, \"script_timeout_seconds\": 10.0, \"touch_emulation\": false, \"transport\": \"local\", \"viewport\": \"desktop\", \"viewport_height\": 0, \"viewport_width\": 0, \"wait_until\": \"load\"}, \"escalation\": {\"max_render_seconds\": 0, \"max_render_urls\": 30, \"policy\": \"sampled\", \"sample_per_pattern\": 2}, \"mode\": \"raw\", \"rendered_links\": {\"crawl\": false, \"store\": false}}, \"resources\": {\"fetch\": false, \"graph\": {\"max_bytes\": 104857600, \"max_bytes_per_resource\": 5242880, \"max_nesting\": 2, \"max_origins\": 1, \"max_redirects\": 0, \"max_requests\": 2000, \"max_seconds\": 0}, \"max_requests\": 20000, \"max_response_bytes\": 5242880}, \"robots\": {\"policy\": \"respect\", \"unavailable_means_stop\": true, \"user_agent_token\": \"\"}, \"scope\": {\"exclude_extensions\": [], \"exclude_hosts\": [], \"exclude_media_types\": [], \"exclude_patterns\": [], \"include_extensions\": [], \"include_media_types\": [], \"include_patterns\": [], \"internal\": \"host\", \"segments\": [], \"segments_only\": [], \"start_folder_only\": false}, \"sitemaps\": {\"auto_discover\": false}, \"speed\": {\"adaptive\": true, \"concurrency\": 1, \"max_delay_seconds\": 60.0, \"min_delay_seconds\": 0.5, \"stop_after_consecutive_timeouts\": 5}, \"storage\": {\"body_mode\": \"captured_entity_bytes\", \"capacity_profile\": \"stable\", \"format_version\": \"scan.v1\", \"history_warning_bytes\": 21474836480, \"max_body_bytes\": 5242880, \"max_body_store_bytes\": 10737418240, \"min_free_bytes\": 1073741824}}",
+            "corpus_partial": 0,
+            "crawl_partial": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "evidence_revision": 0,
+            "evidence_version": "1",
+            "finish_reason": "complete",
+            "finished_at": "2026-01-01T00:00:00+00:00",
+            "format_version": "scan.v1",
+            "lifecycle": "finished",
+            "limitations_json": "{}",
+            "parent_scan_uuid": null,
+            "pinned": 0,
+            "retention_json": "{}",
+            "runtime_versions_json": "{}",
+            "scan_uuid": "gen-scan",
+            "singleton": 1,
+            "source_kind": "native",
+            "start_url": "https://gen.example/",
+            "writer_revision": "0",
+            "writer_version": "gen"
+          }
+        ],
+        "urls": [
+          {
+            "url": "https://gen.example/m",
+            "url_id": 1
+          }
+        ]
+      },
+      "expected": {
+        "asset_measurements": {},
+        "fragment_links": {},
+        "groups": [],
+        "internal_linking": {},
+        "issues": [],
+        "link_position": {},
+        "link_rel": {},
+        "page_metrics": {
+          "https://gen.example/m": {
+            "bytes_per_word": null,
+            "canonical": "https://gen.example/m",
+            "crawl_depth": 1,
+            "desc_length": null,
+            "dom_depth": null,
+            "dom_nodes": null,
+            "external_outlinks": null,
+            "h1": [
+              "A normal heading"
+            ],
+            "h1_count": 1,
+            "h2_count": 1,
+            "inlinks": null,
+            "is_in_sitemap": null,
+            "link_score": null,
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "meta_robots": null,
+            "outlinks": null,
+            "representation": "rendered",
+            "response_time": null,
+            "sitemap_lastmod": null,
+            "size_bytes": null,
+            "size_vs_median_ratio": null,
+            "text_ratio": null,
+            "title": "A normal page title about things",
+            "title_length": null,
+            "title_px": null,
+            "unique_inlinks": null,
+            "word_count": 400
+          }
+        },
+        "sitemap_summary": {},
+        "skipped": [
+          {
+            "id": "MOBILE_CONTENT_OVERFLOW",
+            "reason": "rendered mobile layout evidence was unavailable"
+          },
+          {
+            "id": "MOBILE_TEXT_TOO_SMALL",
+            "reason": "rendered mobile layout evidence was unavailable"
+          },
+          {
+            "id": "MOBILE_TARGET_TOO_SMALL",
+            "reason": "rendered mobile layout evidence was unavailable"
+          }
+        ],
+        "trust_evidence": {}
+      },
+      "fields": [
+        "ajax_scheme_outlinks",
+        "amphtml",
+        "avg_words_per_sentence",
+        "body_count",
+        "body_unavailable",
+        "canonical",
+        "canonical_outside_head",
+        "content_encoding",
+        "content_frames",
+        "content_frames_same_origin",
+        "content_type",
+        "crawl_depth",
+        "desc_length",
+        "directives_outside_head",
+        "doctype",
+        "duplicate_ids",
+        "external_outlinks",
+        "flesch",
+        "h1",
+        "h1_2",
+        "h1_alt_text",
+        "h1_length",
+        "h2",
+        "head_count",
+        "head_not_first",
+        "heading_outline",
+        "hreflang_outside_head",
+        "http_refresh",
+        "images_max_alt_length",
+        "images_missing_alt_attr",
+        "images_total",
+        "indexability",
+        "indexability_status",
+        "invalid_head_elements",
+        "invalid_link_targets",
+        "link_placement",
+        "lorem_ipsum_count",
+        "meta_charset",
+        "meta_description",
+        "meta_description_count",
+        "meta_description_outside_head",
+        "meta_fragment",
+        "meta_refresh",
+        "meta_robots",
+        "mobile_alternate_broken",
+        "og_description",
+        "og_image",
+        "og_title",
+        "og_url",
+        "outlinks",
+        "plugin_elements",
+        "readability",
+        "redirect_url",
+        "render_blocking",
+        "representation",
+        "response_time",
+        "sentence_count",
+        "size_bytes",
+        "status",
+        "status_code",
+        "structured_data",
+        "structured_data_parsed",
+        "text_ratio",
+        "title",
+        "title_length",
+        "title_outside_head",
+        "trust_signals",
+        "url",
+        "viewport",
+        "word_count",
+        "x_robots"
+      ],
+      "name": "mobile_layout_inconsistent",
+      "pages": [
+        {
+          "content_type": "text/html",
+          "indexability": "Indexable",
+          "indexability_status": null,
+          "rec": {
+            "canonical": "https://gen.example/m",
+            "content_type": "text/html",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "indexability": "Indexable",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "status": "OK",
+            "status_code": 200,
+            "title": "A normal page title about things",
+            "url": "https://gen.example/m",
+            "word_count": 400
+          },
+          "row": {
+            "canonical": "https://gen.example/m",
+            "crawl_depth": 1,
+            "h1": "A normal heading",
+            "h2": "A normal subheading",
+            "meta_description": "A perfectly ordinary meta description of reasonable size for this page.",
+            "representation": "rendered",
+            "title": "A normal page title about things",
+            "url_id": 1,
+            "word_count": 400
+          },
+          "status": "OK",
+          "status_code": 200,
+          "url": "https://gen.example/m"
+        }
+      ]
+    }
+  ],
+  "format": "gen-audit-case.v1",
+  "group": "rendered"
+}

@@ -1,0 +1,4431 @@
+{
+ "audit": [],
+ "bodies": [
+  {
+   "decoded_bytes": 645,
+   "sha256": "b2a9228a91022ad384e158e481e8ebf0dbb735b7ef499f7e775105b896d65bd1",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Canonical and hreflang home</title>\n<meta name=\"description\" content=\"Home of the canonical and hreflang site.\">\n<link rel=\"canonical\" href=\"{BASE}/\">\n</head>\n<body>\n<main>\n<h1>Canonical and hreflang home</h1>\n<nav><a href=\"/en/\">EN</a> <a href=\"/de/\">DE</a> <a href=\"/fr/\">FR</a> <a href=\"/canon-self.html\">Self</a> <a href=\"/canon-cross.html\">Cross</a> <a href=\"/canon-chain-a.html\">Chain A</a> <a href=\"/canon-chain-b.html\">Chain B</a> <a href=\"/canon-missing.html\">No canonical</a> <a href=\"/canon-offsite.html\">Offsite</a></nav>\n<p>Hub page.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 578,
+   "sha256": "c745c1dde81a909831d80cc58cc41d89cc25e1658cee81d7162add6b4707a8f6",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>English page</title>\n<meta name=\"description\" content=\"English version with valid return links except for French.\">\n<link rel=\"canonical\" href=\"{BASE}/en/\">\n<link rel=\"alternate\" hreflang=\"en\" href=\"{BASE}/en/\">\n<link rel=\"alternate\" hreflang=\"de\" href=\"{BASE}/de/\">\n<link rel=\"alternate\" hreflang=\"x-default\" href=\"{BASE}/en/\">\n<link rel=\"alternate\" hreflang=\"fr\" href=\"{BASE}/fr/\">\n</head>\n<body>\n<main>\n<h1>English page</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>English version.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 571,
+   "sha256": "d8b6241c732c8ec3e337506a39285c1347a0c49452d75ac703015a9d806ec4d3",
+   "text": "<!doctype html>\n<html lang=\"de\">\n<head>\n<meta charset=\"utf-8\">\n<title>Deutsche Seite</title>\n<meta name=\"description\" content=\"Deutsche Version mit gueltigen Rueckverweisen.\">\n<link rel=\"canonical\" href=\"{BASE}/de/\">\n<link rel=\"alternate\" hreflang=\"en\" href=\"{BASE}/en/\">\n<link rel=\"alternate\" hreflang=\"de\" href=\"{BASE}/de/\">\n<link rel=\"alternate\" hreflang=\"x-default\" href=\"{BASE}/en/\">\n<link rel=\"alternate\" hreflang=\"fr\" href=\"{BASE}/fr/\">\n</head>\n<body>\n<main>\n<h1>Deutsche Seite</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Deutsche Version.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 504,
+   "sha256": "cf5ead611605822e2231d6813c60d6e477bd1bf896443e654ea6eb2db643fa60",
+   "text": "<!doctype html>\n<html lang=\"fr\">\n<head>\n<meta charset=\"utf-8\">\n<title>Page francaise</title>\n<meta name=\"description\" content=\"Version francaise: pas de retour vers en/de, code de langue invalide.\">\n<link rel=\"canonical\" href=\"{BASE}/fr/\">\n<link rel=\"alternate\" hreflang=\"fr\" href=\"{BASE}/fr/\">\n<link rel=\"alternate\" hreflang=\"xx-INVALID\" href=\"{BASE}/fr/\">\n</head>\n<body>\n<main>\n<h1>Page francaise</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Version francaise sans liens retour.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 347,
+   "sha256": "900008e6ff40bd12bf882e8a573646cc63d447cc334c0e2c599df7854b87dad6",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Self canonical</title>\n<meta name=\"description\" content=\"Self-referencing canonical.\">\n<link rel=\"canonical\" href=\"{BASE}/canon-self.html\">\n</head>\n<body>\n<main>\n<h1>Self canonical</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Canonical points at itself.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 358,
+   "sha256": "393c904ade2f3ef81b8198f5a2f9a3fc44ba1419e929e5bb4d441fc70c00431c",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Cross canonical</title>\n<meta name=\"description\" content=\"Canonical to a different page.\">\n<link rel=\"canonical\" href=\"{BASE}/canon-self.html\">\n</head>\n<body>\n<main>\n<h1>Cross canonical</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Canonical points to another page.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 343,
+   "sha256": "19ca44b95ae912f836888e1d1473c130a63c42536c41b4181f52379659497cbb",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Canonical chain A</title>\n<meta name=\"description\" content=\"Canonical chain, first hop.\">\n<link rel=\"canonical\" href=\"{BASE}/canon-chain-b.html\">\n</head>\n<body>\n<main>\n<h1>Canonical chain A</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>A points to B.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 356,
+   "sha256": "73baccd493628816f1f3e0f592cfcc144884567ee08147a88d11ba6a94213ff4",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Canonical chain B</title>\n<meta name=\"description\" content=\"Canonical chain, second hop.\">\n<link rel=\"canonical\" href=\"{BASE}/canon-self.html\">\n</head>\n<body>\n<main>\n<h1>Canonical chain B</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>B points to self-canonical C.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 280,
+   "sha256": "d04e5416d7e72525cba16f21d8a2f29821ba62e06c88a82cfb3ec7a8923e6f6e",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>No canonical</title>\n<meta name=\"description\" content=\"Page without canonical.\">\n</head>\n<body>\n<main>\n<h1>No canonical</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>No canonical element.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 366,
+   "sha256": "77ffd7dc858ed3bb3b5ce0594d88b91ab646c5b413a89c3db8040e0d85bd302f",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Offsite canonical</title>\n<meta name=\"description\" content=\"Canonical pointing off-site.\">\n<link rel=\"canonical\" href=\"https://www.example.com/elsewhere\">\n</head>\n<body>\n<main>\n<h1>Offsite canonical</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Canonical to another domain.</p>\n</main>\n</body>\n</html>\n"
+  }
+ ],
+ "context_items": [
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "analysis_asset_thresholds",
+   "payload_json": {
+    "schema_version": "analysis_asset_thresholds.v1",
+    "thresholds": {
+     "network_payload_max_bytes": 4194304,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "native_config_extension",
+   "payload_json": {
+    "effective_fingerprint": "25c6791d7f05d2c270a5e29446115666eb0c0f868d5d42a588c32bd4f97c1084",
+    "schema_version": "native_config_extension.v1",
+    "settings": {
+     "http.auth": [],
+     "http.auth_acknowledged": false,
+     "http.zstd": false,
+     "rendering.actions": [],
+     "rendering.artifacts.screenshot_mode": "full_page",
+     "rendering.presets": [],
+     "scope.normalize_tracking_parameters": true
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "credential_context",
+   "payload_json": {
+    "implicit_state": false,
+    "verifier": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "robots_summary",
+   "payload_json": {
+    "fetch_state": "fetched",
+    "final_response_id": null,
+    "note": "",
+    "parsed": {
+     "groups": [
+      {
+       "_line_of": {
+        "allow:/": 2
+       },
+       "allow": [
+        "/"
+       ],
+       "crawl_delay": null,
+       "disallow": [],
+       "request_rate_delay": null,
+       "user_agents": [
+        "*"
+       ]
+      }
+     ],
+     "sitemaps": []
+    },
+    "policy": "respect",
+    "token": "SpiderHeadBot"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "943a1a331132ee04d5dec42837a28bef45ef5df64b43d39a76a428a8ded8e12c",
+    "canonical_target": "{BASE}/",
+    "content_tokens": 6,
+    "exact_hash": "82c665cedeacf1072b1af0cdbad3035a9cc339ff92f905e599824b5b33e8c425",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "db1d78dfc5b380a8c49dc2e732905c94610b326d3abb30858ff65499be097d16",
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "e0a6035a14080008",
+    "source_document_id": 1,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "{BASE}/",
+      "rel": "canonical",
+      "target": "{BASE}/"
+     }
+    ],
+    "page_url_id": 1,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 1
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 1,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 1,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 1,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:1",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 1,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "0",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "{BASE}/en/",
+    "content_tokens": 4,
+    "exact_hash": "22bda0118e121679cfbdfb237c3c9476bf5d6e4f83c4f55c2ed58c543e154f5e",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "da5a337fcfd5f8c42289b53019a683270d858b46e5cb821e7f675afa9b8c00cb",
+    "page_url_id": 2,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "1620e0055056250a",
+    "source_document_id": 2,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "{BASE}/en/",
+      "rel": "canonical",
+      "target": "{BASE}/en/"
+     }
+    ],
+    "page_url_id": 2,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 2
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 2,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 2,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [
+     {
+      "lang": "en",
+      "ordinal": 0,
+      "raw_href": "{BASE}/en/",
+      "state": "declared",
+      "target": "{BASE}/en/"
+     },
+     {
+      "lang": "de",
+      "ordinal": 1,
+      "raw_href": "{BASE}/de/",
+      "state": "declared",
+      "target": "{BASE}/de/"
+     },
+     {
+      "lang": "x-default",
+      "ordinal": 2,
+      "raw_href": "{BASE}/en/",
+      "state": "declared",
+      "target": "{BASE}/en/"
+     },
+     {
+      "lang": "fr",
+      "ordinal": 3,
+      "raw_href": "{BASE}/fr/",
+      "state": "declared",
+      "target": "{BASE}/fr/"
+     }
+    ],
+    "html_lang": "en",
+    "page_url_id": 2,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 2,
+    "state": "declared"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 2,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 2,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:2",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 2,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "1",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "{BASE}/de/",
+    "content_tokens": 4,
+    "exact_hash": "20eb0f32314828f120a2fc4812cdabb8c9e6e7e0051bf94a81a42df5eb72a4a3",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "53d0e2a7521792c0b1e4b663e34e4e6f6a4a544b3989c07fca2652e4bc193254",
+    "page_url_id": 3,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "24400924a0501020",
+    "source_document_id": 3,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "{BASE}/de/",
+      "rel": "canonical",
+      "target": "{BASE}/de/"
+     }
+    ],
+    "page_url_id": 3,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 3
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 3,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 3,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [
+     {
+      "lang": "en",
+      "ordinal": 0,
+      "raw_href": "{BASE}/en/",
+      "state": "declared",
+      "target": "{BASE}/en/"
+     },
+     {
+      "lang": "de",
+      "ordinal": 1,
+      "raw_href": "{BASE}/de/",
+      "state": "declared",
+      "target": "{BASE}/de/"
+     },
+     {
+      "lang": "x-default",
+      "ordinal": 2,
+      "raw_href": "{BASE}/en/",
+      "state": "declared",
+      "target": "{BASE}/en/"
+     },
+     {
+      "lang": "fr",
+      "ordinal": 3,
+      "raw_href": "{BASE}/fr/",
+      "state": "declared",
+      "target": "{BASE}/fr/"
+     }
+    ],
+    "html_lang": "de",
+    "page_url_id": 3,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 3,
+    "state": "declared"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 3,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 3,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:3",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 3,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "2",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "{BASE}/fr/",
+    "content_tokens": 7,
+    "exact_hash": "d97c614092cbe2ca5764e5efe3388e36379aa5657d08e6206c1894160f5f3e3e",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "56cd50682e01fcf6e7ec6e863eea0bb9fb398520728f636b82cda6cbd65683dc",
+    "page_url_id": 4,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "f638106feeaa5600",
+    "source_document_id": 4,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "{BASE}/fr/",
+      "rel": "canonical",
+      "target": "{BASE}/fr/"
+     }
+    ],
+    "page_url_id": 4,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 4
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 4,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 4,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [
+     {
+      "lang": "fr",
+      "ordinal": 0,
+      "raw_href": "{BASE}/fr/",
+      "state": "declared",
+      "target": "{BASE}/fr/"
+     },
+     {
+      "lang": "xx-INVALID",
+      "ordinal": 1,
+      "raw_href": "{BASE}/fr/",
+      "state": "declared",
+      "target": "{BASE}/fr/"
+     }
+    ],
+    "html_lang": "fr",
+    "page_url_id": 4,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 4,
+    "state": "declared"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 4,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 4,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:4",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 4,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "3",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "{BASE}/canon-self.html",
+    "content_tokens": 6,
+    "exact_hash": "03885b108eec3f50492f36db9f340b750cc719052033ff861930e59e201f1d1a",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "c3740d3bea1322765fcc2716ce71added5613a255c10d2e5a5926482bdac81f4",
+    "page_url_id": 5,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "0d188a8938a2f34a",
+    "source_document_id": 5,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "{BASE}/canon-self.html",
+      "rel": "canonical",
+      "target": "{BASE}/canon-self.html"
+     }
+    ],
+    "page_url_id": 5,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 5
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 5,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 5,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 5,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 5,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 5,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 5,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:5",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 5,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "4",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "{BASE}/canon-self.html",
+    "content_tokens": 7,
+    "exact_hash": "4d512e24873ca429fd45c8faba4dcf2444b2793e574585753161114cc37cf9c0",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "fbf078935b34a2ad94dabbe6757faff5ad04c1b1837307883d807d3b2cb83dc8",
+    "page_url_id": 6,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "a1cde4b6f9ea19f6",
+    "source_document_id": 6,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "{BASE}/canon-self.html",
+      "rel": "canonical",
+      "target": "{BASE}/canon-self.html"
+     }
+    ],
+    "page_url_id": 6,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 6
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 6,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 6,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 6,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 6,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 6,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 6,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:6",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 6,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "5",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "{BASE}/canon-chain-b.html",
+    "content_tokens": 4,
+    "exact_hash": "7d569458f05ce795c0782c44a28bb6023459d7e0240db151b26c71a3f6593253",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "952f66bcb82278f1fcefbcb810dcabad3729b8bacd22598aca6a86a5bbe171c5",
+    "page_url_id": 7,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "0030440200818912",
+    "source_document_id": 7,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "{BASE}/canon-chain-b.html",
+      "rel": "canonical",
+      "target": "{BASE}/canon-chain-b.html"
+     }
+    ],
+    "page_url_id": 7,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 7
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 7,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 7,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 7,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 7,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 7,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 7,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:7",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 7,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "6",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "{BASE}/canon-self.html",
+    "content_tokens": 6,
+    "exact_hash": "e23b1709d7fec5867b4d483001103d69c8b5788069d74ed1dc95580edc318241",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "940bc020fcb67910b83a9e233adda0ce365398b25bd543e8f5974af0a6004644",
+    "page_url_id": 8,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "2010550081851912",
+    "source_document_id": 8,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "{BASE}/canon-self.html",
+      "rel": "canonical",
+      "target": "{BASE}/canon-self.html"
+     }
+    ],
+    "page_url_id": 8,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 8
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 8,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 8,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 8,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 8,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 8,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 8,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:8",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 8,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "7",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "",
+    "content_tokens": 5,
+    "exact_hash": "a16f824f13a6740e7d6c6fb820633b2ad7be23f66f5aff8a26323652fe2671c2",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "c31c5ac9efdb89e02eff0804d49e03145b8eb43eb8df920765bf7836231a42fb",
+    "page_url_id": 9,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "f3e54c68557c4af6",
+    "source_document_id": 9,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 9,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 9
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 9,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 9,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 9,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 9,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 9,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 9,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:9",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 9,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "8",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "https://www.example.com/elsewhere",
+    "content_tokens": 6,
+    "exact_hash": "a48d9e3f435058c95740f617e5141f11ef70208e655826a4b77b1666f319cad3",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "d7822202583f13041a6551ae9701e396ffaa3e24a5a500c06a0888c9682b2e44",
+    "page_url_id": 10,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "d204100c13091811",
+    "source_document_id": 10,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [
+     {
+      "href": "https://www.example.com/elsewhere",
+      "rel": "canonical",
+      "target": "https://www.example.com/elsewhere"
+     }
+    ],
+    "page_url_id": 10,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 10
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 10,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 10,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 10,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 10,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 10,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 10,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:10",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 10,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "9",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  }
+ ],
+ "decisions": [],
+ "documents": [
+  {
+   "body_reason": "none",
+   "body_sha256": "b2a9228a91022ad384e158e481e8ebf0dbb735b7ef499f7e775105b896d65bd1",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 1,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 1,
+   "url_id": 1
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "c745c1dde81a909831d80cc58cc41d89cc25e1658cee81d7162add6b4707a8f6",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 2,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 2,
+   "url_id": 2
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "d8b6241c732c8ec3e337506a39285c1347a0c49452d75ac703015a9d806ec4d3",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 3,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 3,
+   "url_id": 3
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "cf5ead611605822e2231d6813c60d6e477bd1bf896443e654ea6eb2db643fa60",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 4,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 4,
+   "url_id": 4
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "900008e6ff40bd12bf882e8a573646cc63d447cc334c0e2c599df7854b87dad6",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 5,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 5,
+   "url_id": 5
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "393c904ade2f3ef81b8198f5a2f9a3fc44ba1419e929e5bb4d441fc70c00431c",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 6,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 6,
+   "url_id": 6
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "19ca44b95ae912f836888e1d1473c130a63c42536c41b4181f52379659497cbb",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 7,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 7,
+   "url_id": 7
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "73baccd493628816f1f3e0f592cfcc144884567ee08147a88d11ba6a94213ff4",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 8,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 8,
+   "url_id": 8
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "d04e5416d7e72525cba16f21d8a2f29821ba62e06c88a82cfb3ec7a8923e6f6e",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 9,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 9,
+   "url_id": 9
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "77ffd7dc858ed3bb3b5ce0594d88b91ab646c5b413a89c3db8040e0d85bd302f",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 10,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 10,
+   "url_id": 10
+  }
+ ],
+ "forms": [],
+ "frontier": [
+  {
+   "depth": 0,
+   "queue_ordinal": 0,
+   "state": "done",
+   "url_id": 1
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 1,
+   "state": "done",
+   "url_id": 2
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 2,
+   "state": "done",
+   "url_id": 3
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 3,
+   "state": "done",
+   "url_id": 4
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 4,
+   "state": "done",
+   "url_id": 5
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 5,
+   "state": "done",
+   "url_id": 6
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 6,
+   "state": "done",
+   "url_id": 7
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 7,
+   "state": "done",
+   "url_id": 8
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 8,
+   "state": "done",
+   "url_id": 9
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 9,
+   "state": "done",
+   "url_id": 10
+  }
+ ],
+ "links": [
+  {
+   "anchor": "EN",
+   "anchor_source": "",
+   "destination_url_id": 2,
+   "evidence_representation": "static",
+   "link_id": 1,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "DE",
+   "anchor_source": "",
+   "destination_url_id": 3,
+   "evidence_representation": "static",
+   "link_id": 2,
+   "nofollow": 0,
+   "ordinal": 1,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "FR",
+   "anchor_source": "",
+   "destination_url_id": 4,
+   "evidence_representation": "static",
+   "link_id": 3,
+   "nofollow": 0,
+   "ordinal": 2,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Self",
+   "anchor_source": "",
+   "destination_url_id": 5,
+   "evidence_representation": "static",
+   "link_id": 4,
+   "nofollow": 0,
+   "ordinal": 3,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Cross",
+   "anchor_source": "",
+   "destination_url_id": 6,
+   "evidence_representation": "static",
+   "link_id": 5,
+   "nofollow": 0,
+   "ordinal": 4,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Chain A",
+   "anchor_source": "",
+   "destination_url_id": 7,
+   "evidence_representation": "static",
+   "link_id": 6,
+   "nofollow": 0,
+   "ordinal": 5,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Chain B",
+   "anchor_source": "",
+   "destination_url_id": 8,
+   "evidence_representation": "static",
+   "link_id": 7,
+   "nofollow": 0,
+   "ordinal": 6,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "No canonical",
+   "anchor_source": "",
+   "destination_url_id": 9,
+   "evidence_representation": "static",
+   "link_id": 8,
+   "nofollow": 0,
+   "ordinal": 7,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Offsite",
+   "anchor_source": "",
+   "destination_url_id": 10,
+   "evidence_representation": "static",
+   "link_id": 9,
+   "nofollow": 0,
+   "ordinal": 8,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 10,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 2,
+   "source_url_id": 2,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 11,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 3,
+   "source_url_id": 3,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 12,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 4,
+   "source_url_id": 4,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 13,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 5,
+   "source_url_id": 5,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 14,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 6,
+   "source_url_id": 6,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 15,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 7,
+   "source_url_id": 7,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 16,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 8,
+   "source_url_id": 8,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 17,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 9,
+   "source_url_id": 9,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 18,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 10,
+   "source_url_id": 10,
+   "target": ""
+  }
+ ],
+ "pages": [
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 6.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "{BASE}/",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 1,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 31.5,
+   "h1": "Canonical and hreflang home",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Canonical and hreflang home"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Home of the canonical and hreflang site.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 9,
+   "page_ordinal": 0,
+   "plugin_elements": 0,
+   "readability": "difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 661,
+   "status_code": 200,
+   "text_ratio": 14.22,
+   "title": "Canonical and hreflang home",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 1,
+   "viewport": "",
+   "word_count": 6,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 4.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "{BASE}/en/",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 2,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 33.6,
+   "h1": "English page",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "English page"
+    }
+   ],
+   "hreflang_json": [
+    {
+     "lang": "en",
+     "raw_href": "{BASE}/en/",
+     "url": "{BASE}/en/"
+    },
+    {
+     "lang": "de",
+     "raw_href": "{BASE}/de/",
+     "url": "{BASE}/de/"
+    },
+    {
+     "lang": "x-default",
+     "raw_href": "{BASE}/en/",
+     "url": "{BASE}/en/"
+    },
+    {
+     "lang": "fr",
+     "raw_href": "{BASE}/fr/",
+     "url": "{BASE}/fr/"
+    }
+   ],
+   "hreflang_outside_head": 0,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "English version with valid return links except for French.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 1,
+   "plugin_elements": 0,
+   "readability": "difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 658,
+   "status_code": 200,
+   "text_ratio": 5.17,
+   "title": "English page",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 2,
+   "viewport": "",
+   "word_count": 4,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 4.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "{BASE}/de/",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 3,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 33.6,
+   "h1": "Deutsche Seite",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Deutsche Seite"
+    }
+   ],
+   "hreflang_json": [
+    {
+     "lang": "en",
+     "raw_href": "{BASE}/en/",
+     "url": "{BASE}/en/"
+    },
+    {
+     "lang": "de",
+     "raw_href": "{BASE}/de/",
+     "url": "{BASE}/de/"
+    },
+    {
+     "lang": "x-default",
+     "raw_href": "{BASE}/en/",
+     "url": "{BASE}/en/"
+    },
+    {
+     "lang": "fr",
+     "raw_href": "{BASE}/fr/",
+     "url": "{BASE}/fr/"
+    }
+   ],
+   "hreflang_outside_head": 0,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Deutsche Version mit gueltigen Rueckverweisen.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 2,
+   "plugin_elements": 0,
+   "readability": "difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 651,
+   "status_code": 200,
+   "text_ratio": 5.68,
+   "title": "Deutsche Seite",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 3,
+   "viewport": "",
+   "word_count": 4,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 7.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "{BASE}/fr/",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 4,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 30.5,
+   "h1": "Page francaise",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Page francaise"
+    }
+   ],
+   "hreflang_json": [
+    {
+     "lang": "fr",
+     "raw_href": "{BASE}/fr/",
+     "url": "{BASE}/fr/"
+    },
+    {
+     "lang": "xx-INVALID",
+     "raw_href": "{BASE}/fr/",
+     "url": "{BASE}/fr/"
+    }
+   ],
+   "hreflang_outside_head": 0,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Version francaise: pas de retour vers en/de, code de langue invalide.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 3,
+   "plugin_elements": 0,
+   "readability": "difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 552,
+   "status_code": 200,
+   "text_ratio": 10.14,
+   "title": "Page francaise",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 4,
+   "viewport": "",
+   "word_count": 7,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 6.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "{BASE}/canon-self.html",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 5,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 17.4,
+   "h1": "Self canonical",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Self canonical"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Self-referencing canonical.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 4,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 363,
+   "status_code": 200,
+   "text_ratio": 12.95,
+   "title": "Self canonical",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 5,
+   "viewport": "",
+   "word_count": 6,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 7.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "{BASE}/canon-self.html",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 6,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 6.4,
+   "h1": "Cross canonical",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Cross canonical"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Canonical to a different page.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 5,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 374,
+   "status_code": 200,
+   "text_ratio": 14.44,
+   "title": "Cross canonical",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 6,
+   "viewport": "",
+   "word_count": 7,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 7.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "{BASE}/canon-chain-b.html",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 7,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 78.9,
+   "h1": "Canonical chain A",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Canonical chain A"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Canonical chain, first hop.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 6,
+   "plugin_elements": 0,
+   "readability": "fairly easy",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 359,
+   "status_code": 200,
+   "text_ratio": 10.31,
+   "title": "Canonical chain A",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 7,
+   "viewport": "",
+   "word_count": 7,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 8.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "{BASE}/canon-self.html",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 8,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 40.1,
+   "h1": "Canonical chain B",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Canonical chain B"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Canonical chain, second hop.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 7,
+   "plugin_elements": 0,
+   "readability": "difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 372,
+   "status_code": 200,
+   "text_ratio": 13.98,
+   "title": "Canonical chain B",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 8,
+   "viewport": "",
+   "word_count": 8,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 5.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 9,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 0.0,
+   "h1": "No canonical",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "No canonical"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Page without canonical.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 8,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 280,
+   "status_code": 200,
+   "text_ratio": 13.93,
+   "title": "No canonical",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 9,
+   "viewport": "",
+   "word_count": 5,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 6.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "https://www.example.com/elsewhere",
+   "canonical_chain_json": [],
+   "canonical_outside_head": 0,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 10,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 0.0,
+   "h1": "Offsite canonical",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Offsite canonical"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Canonical pointing off-site.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 9,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 366,
+   "status_code": 200,
+   "text_ratio": 13.93,
+   "title": "Offsite canonical",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 10,
+   "viewport": "",
+   "word_count": 6,
+   "x_robots": ""
+  }
+ ],
+ "query_variants": [
+  {
+   "path_key": "/en/",
+   "query_key": ""
+  },
+  {
+   "path_key": "/de/",
+   "query_key": ""
+  },
+  {
+   "path_key": "/fr/",
+   "query_key": ""
+  },
+  {
+   "path_key": "/canon-self.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/canon-cross.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/canon-chain-a.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/canon-chain-b.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/canon-missing.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/canon-offsite.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/",
+   "query_key": ""
+  }
+ ],
+ "resource_refs": [],
+ "responses": [
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "b2a9228a91022ad384e158e481e8ebf0dbb735b7ef499f7e775105b896d65bd1",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "661"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 1,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 661,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 0,
+   "request_url_id": 1,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "661"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 1,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "c745c1dde81a909831d80cc58cc41d89cc25e1658cee81d7162add6b4707a8f6",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "658"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 2,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 658,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 1,
+   "request_url_id": 2,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "658"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 2,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "d8b6241c732c8ec3e337506a39285c1347a0c49452d75ac703015a9d806ec4d3",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "651"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 3,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 651,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 2,
+   "request_url_id": 3,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "651"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 3,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "cf5ead611605822e2231d6813c60d6e477bd1bf896443e654ea6eb2db643fa60",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "552"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 4,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 552,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 3,
+   "request_url_id": 4,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "552"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 4,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "900008e6ff40bd12bf882e8a573646cc63d447cc334c0e2c599df7854b87dad6",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "363"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 5,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 363,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 4,
+   "request_url_id": 5,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "363"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 5,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "393c904ade2f3ef81b8198f5a2f9a3fc44ba1419e929e5bb4d441fc70c00431c",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "374"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 6,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 374,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 5,
+   "request_url_id": 6,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "374"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 6,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "19ca44b95ae912f836888e1d1473c130a63c42536c41b4181f52379659497cbb",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "359"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 7,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 359,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 6,
+   "request_url_id": 7,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "359"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 7,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "73baccd493628816f1f3e0f592cfcc144884567ee08147a88d11ba6a94213ff4",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "372"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 8,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 372,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 7,
+   "request_url_id": 8,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "372"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 8,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "d04e5416d7e72525cba16f21d8a2f29821ba62e06c88a82cfb3ec7a8923e6f6e",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "280"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 9,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 280,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 8,
+   "request_url_id": 9,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "280"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 9,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "77ffd7dc858ed3bb3b5ce0594d88b91ab646c5b413a89c3db8040e0d85bd302f",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "366"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 10,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 366,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 9,
+   "request_url_id": 10,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "366"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 10,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "3646e4efcf381ee6744c8025f03c89a68aab50ce6a3c001bd26ba24113e8cb82"
+  }
+ ],
+ "resume_state": [
+  {
+   "circuit_server_error_streak": 0,
+   "circuit_timeout_streak": 0,
+   "crawl_delay_applied": null,
+   "elapsed_seconds": "<DURATION>",
+   "max_depth_reached": 1,
+   "singleton": 1,
+   "state_version": "scan_resume.v1",
+   "throttle_state_json": {
+    "concurrency": 1,
+    "consecutive_ok": 2,
+    "delay_seconds": "<DURATION>",
+    "requests_used": 11,
+    "schema_version": "scan_throttle.v2"
+   }
+  }
+ ],
+ "scan": [
+  {
+   "capabilities_json": {
+    "html_bodies": {
+     "reason": "",
+     "state": "complete"
+    },
+    "links": {
+     "reason": "committed native crawl observations",
+     "state": "complete"
+    },
+    "offline_reanalysis": {
+     "reason": "",
+     "state": "complete"
+    },
+    "pages": {
+     "reason": "committed native crawl observations",
+     "state": "complete"
+    },
+    "rendered_bodies": {
+     "reason": "no captured rendered documents",
+     "state": "unavailable"
+    },
+    "resource_bodies": {
+     "reason": "resources.fetch disabled",
+     "state": "unavailable"
+    },
+    "resource_refs": {
+     "reason": "",
+     "state": "complete"
+    },
+    "responses": {
+     "reason": "",
+     "state": "complete"
+    },
+    "resume": {
+     "reason": "native frontier and runtime state retained",
+     "state": "complete"
+    }
+   },
+   "config_fingerprint": "<FINGERPRINT>",
+   "config_json": {
+    "analysis": {
+     "canonical_policy": {
+      "filters": [],
+      "pagination": []
+     },
+     "finding_exclusions": [],
+     "segments": []
+    },
+    "cache": {
+     "invalidate": false,
+     "mode": "off"
+    },
+    "discovery": {
+     "external": {
+      "crawl": false,
+      "store": true
+     },
+     "follow_nofollow": false,
+     "hyperlinks": {
+      "crawl": true,
+      "store": true
+     },
+     "record_invalid_targets": false,
+     "redirects": {
+      "crawl": true
+     },
+     "resolve_canonical_destination": false,
+     "resolve_redirect_destination": false
+    },
+    "evidence": {
+     "content_area": {
+      "exclude_selectors": [],
+      "exclude_tags": [
+       "nav",
+       "header",
+       "aside",
+       "footer"
+      ],
+      "include_selector": "",
+      "root_selector": ""
+     },
+     "extraction_rules": [],
+     "retain_no_store_acknowledged": false
+    },
+    "external_checks": {
+     "max_depth": 0,
+     "max_hosts": 20,
+     "max_redirects": 5,
+     "max_requests": 0,
+     "max_targets": 100
+    },
+    "fetch": {
+     "retry_server_errors": 0
+    },
+    "http": {
+     "credential_headers": [],
+     "credentials_acknowledged": false,
+     "headers": {},
+     "proxy": "",
+     "proxy_allow_private": false,
+     "proxy_authenticated": false,
+     "proxy_identity": "",
+     "retry_on_timeout": 0,
+     "timeout_seconds": 15.0,
+     "upgrade_to_https": false,
+     "user_agent": "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    },
+    "limits": {
+     "max_crawl_seconds": 400,
+     "max_depth": 5,
+     "max_query_variants_per_path": 5,
+     "max_requests": 600,
+     "max_response_bytes": 5242880,
+     "max_url_length": 2000,
+     "max_urls": 200
+    },
+    "link_attributes": {
+     "capture": false
+    },
+    "link_position": {
+     "classify": false,
+     "rules": []
+    },
+    "output": {
+     "dir": "",
+     "write_decisions_jsonl": true,
+     "write_pages_jsonl": true,
+     "write_tasks": true
+    },
+    "rendering": {
+     "artifacts": {
+      "console_errors": false,
+      "screenshots": false
+     },
+     "browser": {
+      "device_pixel_ratio": 1.0,
+      "engine": "chromium",
+      "flatten_iframes": false,
+      "flatten_shadow_dom": false,
+      "mobile_emulation": false,
+      "page_concurrency": 1,
+      "persistent_profile": false,
+      "persistent_profile_dir": "",
+      "remote_endpoint_env": "",
+      "remote_playwright_version": "",
+      "remote_protocol": "playwright",
+      "resize_to_content": false,
+      "resize_to_content_max_height_px": 15000,
+      "script_timeout_seconds": 10.0,
+      "touch_emulation": false,
+      "transport": "local",
+      "viewport": "desktop",
+      "viewport_height": 0,
+      "viewport_width": 0,
+      "wait_until": "load"
+     },
+     "escalation": {
+      "max_render_seconds": 0,
+      "max_render_urls": 30,
+      "policy": "sampled",
+      "sample_per_pattern": 2
+     },
+     "mode": "raw",
+     "rendered_links": {
+      "crawl": false,
+      "store": false
+     }
+    },
+    "resources": {
+     "fetch": false,
+     "graph": {
+      "max_bytes": 104857600,
+      "max_bytes_per_resource": 5242880,
+      "max_nesting": 2,
+      "max_origins": 1,
+      "max_redirects": 0,
+      "max_requests": 2000,
+      "max_seconds": 0
+     },
+     "max_requests": 20000,
+     "max_response_bytes": 5242880
+    },
+    "robots": {
+     "policy": "respect",
+     "unavailable_means_stop": true,
+     "user_agent_token": "SpiderHeadBot"
+    },
+    "scope": {
+     "exclude_extensions": [],
+     "exclude_hosts": [],
+     "exclude_media_types": [],
+     "exclude_patterns": [],
+     "include_extensions": [],
+     "include_media_types": [],
+     "include_patterns": [],
+     "internal": "host",
+     "segments": [],
+     "segments_only": [],
+     "start_folder_only": false
+    },
+    "sitemaps": {
+     "auto_discover": false
+    },
+    "speed": {
+     "adaptive": true,
+     "concurrency": 1,
+     "max_delay_seconds": 60.0,
+     "min_delay_seconds": 0.02,
+     "stop_after_consecutive_timeouts": 5
+    },
+    "storage": {
+     "body_mode": "captured_entity_bytes",
+     "capacity_profile": "stable",
+     "format_version": "scan.v1",
+     "history_warning_bytes": 21474836480,
+     "max_body_bytes": 5242880,
+     "max_body_store_bytes": 10737418240,
+     "min_free_bytes": 1073741824
+    }
+   },
+   "corpus_partial": 0,
+   "crawl_partial": 0,
+   "created_at": "<TS>",
+   "evidence_revision": 10,
+   "evidence_version": "crawl.v1",
+   "finish_reason": "finished",
+   "finished_at": "<TS>",
+   "format_version": "scan.v1",
+   "lifecycle": "finished",
+   "limitations_json": [
+    "browser-network response capture is unavailable"
+   ],
+   "parent_scan_uuid": null,
+   "pinned": 0,
+   "retention_json": {
+    "automatic_delete": false,
+    "body_mode": "captured_entity_bytes",
+    "history_warning_bytes": 21474836480,
+    "max_body_bytes": 5242880,
+    "max_body_store_bytes": 10737418240,
+    "min_free_bytes": 1073741824,
+    "policy_version": "scan_retention.v1"
+   },
+   "runtime_versions_json": {
+    "beautifulsoup4": "4.15.0",
+    "httpx": "0.28.1",
+    "lxml": "6.1.1",
+    "python": "3.14.6",
+    "sqlite": "3.53.3"
+   },
+   "scan_uuid": "<UUID:1>",
+   "singleton": 1,
+   "source_kind": "native",
+   "start_url": "{BASE}/",
+   "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
+   "writer_version": "3.2.0"
+  }
+ ],
+ "urls": [
+  {
+   "url": "{BASE}/",
+   "url_id": 1
+  },
+  {
+   "url": "{BASE}/en/",
+   "url_id": 2
+  },
+  {
+   "url": "{BASE}/de/",
+   "url_id": 3
+  },
+  {
+   "url": "{BASE}/fr/",
+   "url_id": 4
+  },
+  {
+   "url": "{BASE}/canon-self.html",
+   "url_id": 5
+  },
+  {
+   "url": "{BASE}/canon-cross.html",
+   "url_id": 6
+  },
+  {
+   "url": "{BASE}/canon-chain-a.html",
+   "url_id": 7
+  },
+  {
+   "url": "{BASE}/canon-chain-b.html",
+   "url_id": 8
+  },
+  {
+   "url": "{BASE}/canon-missing.html",
+   "url_id": 9
+  },
+  {
+   "url": "{BASE}/canon-offsite.html",
+   "url_id": 10
+  }
+ ]
+}

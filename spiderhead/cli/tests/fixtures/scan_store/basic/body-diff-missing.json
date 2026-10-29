@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-body-diff\n",
+    "stdout": "{\n  \"status\": \"missing_evidence\",\n  \"reason\": \"left: body observation is missing; right: body observation is missing\",\n  \"url\": \"http://127.0.0.1:{PORT}/nope.html\",\n  \"representation\": \"static\",\n  \"left_representation\": \"static\",\n  \"right_representation\": \"static\",\n  \"variant_key\": null,\n  \"left\": null,\n  \"right\": null\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"status\": \"missing_evidence\",\n  \"reason\": \"left: body observation is missing; right: body observation is missing\",\n  \"url\": \"http://127.0.0.1:{PORT}/nope.html\",\n  \"representation\": \"static\",\n  \"left_representation\": \"static\",\n  \"right_representation\": \"static\",\n  \"variant_key\": null,\n  \"left\": null,\n  \"right\": null\n}"
+   }
+  ]
+ }
+}

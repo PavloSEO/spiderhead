@@ -1,0 +1,2435 @@
+[
+ {
+  "name": "one url mobile complete",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "test-key-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "test-key-123"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://example.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "desktop adds second strategy",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "desktop": true,
+   "api_key": "test-key-123"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   },
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "test-key-123"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    },
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=desktop",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "test-key-123"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://example.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     },
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://example.com/",
+      "strategy": "desktop",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://example.com/",
+        "final_url": "https://example.com/",
+        "strategy": "desktop",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "duplicate urls deduped",
+  "args": {
+   "urls": [
+    "https://a.com/",
+    "https://a.com/",
+    "https://b.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   },
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fa.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    },
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fb.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://a.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://a.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     },
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://b.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://b.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "key from env",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ]
+  },
+  "env": {
+   "PAGESPEED_API_KEY": "env-key-9"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "env-key-9"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://example.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "no credential is not_configured",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ]
+  },
+  "env": {},
+  "clear_env": [
+   "PAGESPEED_API_KEY"
+  ],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "not_configured",
+    "verified": false
+   }
+  }
+ },
+ {
+  "name": "empty api_key falls back to env",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": ""
+  },
+  "env": {
+   "PAGESPEED_API_KEY": "env-key-9"
+  },
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "env-key-9"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://example.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "http 403 marks the sample failed",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 403,
+    "headers": {},
+    "body": "denied"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "HTTP Error 403: Forbidden"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "http 429 marks the sample failed",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 429,
+    "headers": {},
+    "body": "slow"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "HTTP Error 429: Too Many Requests"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "timeout marks the sample failed",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "timed out"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "connection reset",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "<urlopen error reset>"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "non json body",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": "<html>quota</html>"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "Expecting value: line 1 column 1 (char 0)"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "empty body",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": ""
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "Expecting value: line 1 column 1 (char 0)"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "json without lighthouseResult",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "error": {
+      "code": 500
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "malformed PSI v5 response"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "lighthouse without categories",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "audits": {}
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "malformed PSI v5 response"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "categories without accessibility",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "categories": {
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {}
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "final_url": null,
+      "fetch_time": null,
+      "lighthouse_version": null,
+      "categories": {
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {},
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "unavailable",
+       "reason": "PSI response has no Lighthouse accessibility category",
+       "scope": {
+        "url": "https://example.com/",
+        "strategy": "mobile"
+       }
+      }
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "mixed success and failure",
+  "args": {
+   "urls": [
+    "https://a.com/",
+    "https://b.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   },
+   {
+    "status": 500,
+    "headers": {},
+    "body": "err"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fa.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    },
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fb.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://a.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://a.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     },
+     {
+      "url": "https://b.com/",
+      "strategy": "mobile",
+      "state": "failed",
+      "error": "HTTP Error 500: Internal Server Error"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "disabled"
+   }
+  }
+ },
+ {
+  "name": "urls required",
+  "args": {
+   "urls": []
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "urls must contain 1..25 absolute HTTP(S) URLs"
+   }
+  }
+ },
+ {
+  "name": "urls not http",
+  "args": {
+   "urls": [
+    "ftp://x/"
+   ]
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "urls must contain 1..25 absolute HTTP(S) URLs"
+   }
+  }
+ },
+ {
+  "name": "too many urls",
+  "args": {
+   "urls": [
+    "https://h0.com/",
+    "https://h1.com/",
+    "https://h2.com/",
+    "https://h3.com/",
+    "https://h4.com/",
+    "https://h5.com/",
+    "https://h6.com/",
+    "https://h7.com/",
+    "https://h8.com/",
+    "https://h9.com/",
+    "https://h10.com/",
+    "https://h11.com/",
+    "https://h12.com/",
+    "https://h13.com/",
+    "https://h14.com/",
+    "https://h15.com/",
+    "https://h16.com/",
+    "https://h17.com/",
+    "https://h18.com/",
+    "https://h19.com/",
+    "https://h20.com/",
+    "https://h21.com/",
+    "https://h22.com/",
+    "https://h23.com/",
+    "https://h24.com/",
+    "https://h25.com/"
+   ]
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "urls must contain 1..25 absolute HTTP(S) URLs"
+   }
+  }
+ },
+ {
+  "name": "cache miss writes then hit",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://example.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     }
+    ],
+    "mobile_first": true,
+    "cache": "explicit local cache"
+   }
+  },
+  "use_cache_dir": true
+ },
+ {
+  "name": "cache hit serves seeded value",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "ok": false,
+    "state": "partial",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "hit",
+      "cached": true,
+      "final_url": "https://example.com/",
+      "strategy": "mobile",
+      "url": "https://example.com/"
+     }
+    ],
+    "mobile_first": true,
+    "cache": "explicit local cache"
+   }
+  },
+  "use_cache_dir": true,
+  "cache_seed": [
+   {
+    "url": "https://example.com/",
+    "strategy": "mobile",
+    "value": {
+     "url": "https://example.com/",
+     "strategy": "mobile",
+     "final_url": "https://example.com/",
+     "cached": true
+    }
+   }
+  ]
+ },
+ {
+  "name": "cache file with garbage falls through to fetch",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "headers": {},
+    "body": {
+     "lighthouseResult": {
+      "finalUrl": "https://example.com/",
+      "fetchTime": "2024-01-02T03:04:05.000Z",
+      "lighthouseVersion": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "displayValue": "2 images",
+        "numericValue": 2,
+        "scoreDisplayMode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "scoreDisplayMode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "scoreDisplayMode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "scoreDisplayMode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "scoreDisplayMode": "numeric"
+       }
+      }
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https%3A%2F%2Fexample.com%2F&strategy=mobile",
+     "headers": [
+      [
+       "x-goog-api-key",
+       "k"
+      ]
+     ],
+     "body": "",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "ok": true,
+    "state": "complete",
+    "provider": "pagespeed",
+    "samples": [
+     {
+      "cache": "miss",
+      "state": "complete",
+      "url": "https://example.com/",
+      "strategy": "mobile",
+      "final_url": "https://example.com/",
+      "fetch_time": "2024-01-02T03:04:05.000Z",
+      "lighthouse_version": "12.0.0",
+      "categories": {
+       "accessibility": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "performance": {
+        "score": 1,
+        "title": "Performance"
+       }
+      },
+      "audits": {
+       "image-alt": {
+        "score": 0,
+        "display_value": "2 images",
+        "numeric_value": 2,
+        "score_display_mode": "binary"
+       },
+       "color-contrast": {
+        "score": 1,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "focus-order": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "manual"
+       },
+       "aria-progressbar-name": {
+        "score": null,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "binary"
+       },
+       "uses-long-cache-ttl": {
+        "score": 0.25,
+        "display_value": null,
+        "numeric_value": null,
+        "score_display_mode": "numeric"
+       }
+      },
+      "lab_only": true,
+      "note": "PSI lab samples are not CrUX field data, local browser timings, or a site score.",
+      "accessibility_sample": {
+       "state": "complete",
+       "scope": {
+        "url": "https://example.com/",
+        "final_url": "https://example.com/",
+        "strategy": "mobile",
+        "provider": "pagespeed",
+        "engine": "Lighthouse",
+        "version": "12.0.0"
+       },
+       "category": {
+        "score": 0.9,
+        "title": "Accessibility"
+       },
+       "findings": [
+        {
+         "id": "image-alt",
+         "state": "failed",
+         "score": 0,
+         "display_value": "2 images",
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "aria-progressbar-name",
+         "state": "incomplete",
+         "score": null,
+         "display_value": null,
+         "score_display_mode": "binary"
+        },
+        {
+         "id": "uses-long-cache-ttl",
+         "state": "failed",
+         "score": 0.25,
+         "display_value": null,
+         "score_display_mode": "numeric"
+        }
+       ],
+       "note": "This opt-in Lighthouse lab sample is not a WCAG conformance or legal-compliance assessment."
+      }
+     }
+    ],
+    "mobile_first": true,
+    "cache": "explicit local cache"
+   }
+  },
+  "use_cache_dir": true,
+  "cache_seed": [
+   {
+    "url": "https://example.com/",
+    "strategy": "mobile",
+    "value": {
+     "$b64": "bm90LWpzb24="
+    }
+   }
+  ]
+ },
+ {
+  "name": "cache file with a list crashes with TypeError",
+  "args": {
+   "urls": [
+    "https://example.com/"
+   ],
+   "api_key": "k"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "TypeError",
+    "message": "'list' object is not a mapping"
+   }
+  },
+  "use_cache_dir": true,
+  "cache_seed": [
+   {
+    "url": "https://example.com/",
+    "strategy": "mobile",
+    "value": [
+     1,
+     2,
+     3
+    ]
+   }
+  ]
+ }
+]

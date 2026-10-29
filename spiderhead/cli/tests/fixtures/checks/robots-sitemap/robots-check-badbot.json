@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "robots-check",
+  "--input",
+  "{\"url\":\"{BASE}/\",\"user_agent\":\"ExampleBadBot\",\"paths\":[\"/\"]}"
+ ],
+ "command": "robots-check",
+ "exit": 0,
+ "stderr": "seohead: robots-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"robots_url\": \"{BASE}/robots.txt\",\n  \"status_code\": 200,\n  \"exists\": true,\n  \"groups\": [\n    {\n      \"user_agents\": [\n        \"*\"\n      ],\n      \"allow\": [],\n      \"disallow\": [\n        \"/private/\"\n      ],\n      \"crawl_delay\": 1.0,\n      \"request_rate_delay\": null,\n      \"_line_of\": {\n        \"disallow:/private/\": 2\n      }\n    },\n    {\n      \"user_agents\": [\n        \"ExampleBadBot\"\n      ],\n      \"allow\": [],\n      \"disallow\": [\n        \"/\"\n      ],\n      \"crawl_delay\": null,\n      \"request_rate_delay\": null,\n      \"_line_of\": {\n        \"disallow:/\": 6\n      }\n    }\n  ],\n  \"sitemaps\": [\n    \"{BASE}/sitemap.xml\"\n  ],\n  \"path_checks\": [\n    {\n      \"path\": \"/\",\n      \"allowed\": false\n    }\n  ]\n}\n"
+}

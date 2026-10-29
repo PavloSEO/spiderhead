@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Error executing tool seo_redirects_check: 1 validation error for seo_redirects_checkArguments\nurl\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/missing"
+      }
+    ],
+    "isError": true
+  }
+}

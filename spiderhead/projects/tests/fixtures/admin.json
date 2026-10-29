@@ -1,0 +1,1769 @@
+[
+ {
+  "name": "logs",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "journal.note",
+    "args": {
+     "path": "proj",
+     "source": "cli",
+     "actor": "p",
+     "text": "first"
+    }
+   },
+   {
+    "op": "journal.note",
+    "args": {
+     "path": "proj",
+     "source": "mcp",
+     "actor": "a",
+     "text": "second"
+    }
+   },
+   {
+    "op": "event_log.append",
+    "args": {
+     "path": "proj",
+     "source": "cli",
+     "actor": "p",
+     "text": "ev one"
+    }
+   },
+   {
+    "op": "event_log.append",
+    "args": {
+     "path": "proj",
+     "source": "mcp",
+     "actor": "a",
+     "text": "ev two"
+    }
+   },
+   {
+    "op": "event_log.page",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "event_log.page",
+    "args": {
+     "path": "proj",
+     "source": "mcp"
+    }
+   },
+   {
+    "op": "event_log.page",
+    "args": {
+     "path": "proj",
+     "query": "two"
+    }
+   },
+   {
+    "op": "event_log.page",
+    "args": {
+     "path": "proj",
+     "limit": 1
+    }
+   },
+   {
+    "op": "event_log.page",
+    "args": {
+     "path": "proj",
+     "offset": 1,
+     "limit": 5
+    }
+   },
+   {
+    "op": "journal.record",
+    "args": {
+     "path": "proj",
+     "source": "cli",
+     "actor": "p",
+     "text": "rec"
+    }
+   },
+   {
+    "op": "journal.record",
+    "args": {
+     "path": "proj",
+     "source": "",
+     "actor": "",
+     "text": ""
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": null
+   },
+   {
+    "error": "ValueError: event source or actor is unsupported"
+   },
+   {
+    "error": "ValueError: event source or actor is unsupported"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "not_modified": false,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null,
+      "previous_offset": null
+     }
+    }
+   },
+   {
+    "error": "ValueError: event source filter is unsupported"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "not_modified": false,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null,
+      "previous_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "not_modified": false,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 0,
+      "limit": 1,
+      "next_offset": null,
+      "previous_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "not_modified": false,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 1,
+      "limit": 5,
+      "next_offset": null,
+      "previous_offset": 0
+     }
+    }
+   },
+   {
+    "error": "ValueError: event source or actor is unsupported"
+   },
+   {
+    "error": "ValueError: event source or actor is unsupported"
+   }
+  ]
+ },
+ {
+  "name": "logs-bad-dir",
+  "steps": [
+   {
+    "op": "event_log.append",
+    "args": {
+     "path": "nope",
+     "source": "s",
+     "actor": "a",
+     "text": "t"
+    }
+   },
+   {
+    "op": "event_log.page",
+    "args": {
+     "path": "nope"
+    }
+   },
+   {
+    "op": "journal.record",
+    "args": {
+     "path": "nope",
+     "source": "s",
+     "actor": "a",
+     "text": "t"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "error": "ValueError: event source or actor is unsupported"
+   },
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   },
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   }
+  ]
+ },
+ {
+  "name": "action-log",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "action_log.record",
+    "args": {
+     "path": "proj",
+     "client": "mcp",
+     "action": "update_label",
+     "outcome": "started",
+     "detail": "d1"
+    }
+   },
+   {
+    "op": "action_log.record",
+    "args": {
+     "path": "proj",
+     "client": "cli",
+     "action": "export",
+     "outcome": "done",
+     "detail": "d2",
+     "operation_id": "op-1"
+    }
+   },
+   {
+    "op": "action_log.page",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "action_log.page",
+    "args": {
+     "path": "proj",
+     "client": "mcp"
+    }
+   },
+   {
+    "op": "action_log.page",
+    "args": {
+     "path": "proj",
+     "outcome": "done"
+    }
+   },
+   {
+    "op": "action_log.page",
+    "args": {
+     "path": "proj",
+     "query": "label"
+    }
+   },
+   {
+    "op": "action_log.page",
+    "args": {
+     "path": "proj",
+     "offset": 1,
+     "limit": 1
+    }
+   },
+   {
+    "op": "action_log.latest_agent_activity",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "action_log.resolve_pending",
+    "args": {
+     "path": "proj",
+     "sequence": 1,
+     "outcome": "done",
+     "detail": "resolved"
+    }
+   },
+   {
+    "op": "action_log.page",
+    "args": {
+     "path": "proj"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "error": "ValueError: project action client or outcome is unsupported"
+   },
+   {
+    "error": "ValueError: project action client or outcome is unsupported"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "error": "ValueError: project action outcome filter is unsupported"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 1,
+      "limit": 1,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "last_seen_at": null,
+     "source": null,
+     "heartbeat_source": null
+    }
+   },
+   {
+    "error": "ValueError: action resolution requires a terminal outcome"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "total": 0,
+     "items": [],
+     "pagination": {
+      "total": 0,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "progress-empty",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "progress.project_progress",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "progress.project_progress",
+    "args": {
+     "path": "proj",
+     "limit": 1,
+     "offset": 0
+    }
+   },
+   {
+    "op": "progress.project_progress",
+    "args": {
+     "path": "nope"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "state": "not_initialized",
+     "project": {
+      "site": "example.com",
+      "label": "Example"
+     },
+     "revision": null,
+     "scope": {
+      "recorded_for_all_sites": false,
+      "site_count": 1,
+      "plan_revision": null,
+      "reviewer": null,
+      "population": null,
+      "task_set": null,
+      "reason": null
+     },
+     "audit_task_completion": {
+      "label": "Audit-task completion",
+      "basis": null,
+      "numerator": null,
+      "denominator": null,
+      "percent": null,
+      "state": "unknown",
+      "reason": "record an explicit audit plan before reporting a percentage"
+     },
+     "url_population": null,
+     "audit_complete": false,
+     "counts": {
+      "total": null,
+      "complete": null,
+      "remaining": null,
+      "stale": null,
+      "excluded": null,
+      "pending_exclusion": null,
+      "not_agreed": null
+     },
+     "state_counts": {
+      "completed": 0,
+      "remaining": 0,
+      "running": 0,
+      "blocked": 0,
+      "stale": 0,
+      "unavailable": 0,
+      "review": 0,
+      "deliverable": 0,
+      "excluded": 0,
+      "not_agreed": 0,
+      "not_run": 0
+     },
+     "next_actions": [
+      {
+       "kind": "scope",
+       "id": "scope:initialize",
+       "state": "review",
+       "action": "initialize the checklist and record the agreed audit plan",
+       "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+      }
+     ],
+     "items": [],
+     "pagination": {
+      "limit": 20,
+      "offset": 0,
+      "total": 0,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "ok": {
+     "state": "not_initialized",
+     "project": {
+      "site": "example.com",
+      "label": "Example"
+     },
+     "revision": null,
+     "scope": {
+      "recorded_for_all_sites": false,
+      "site_count": 1,
+      "plan_revision": null,
+      "reviewer": null,
+      "population": null,
+      "task_set": null,
+      "reason": null
+     },
+     "audit_task_completion": {
+      "label": "Audit-task completion",
+      "basis": null,
+      "numerator": null,
+      "denominator": null,
+      "percent": null,
+      "state": "unknown",
+      "reason": "record an explicit audit plan before reporting a percentage"
+     },
+     "url_population": null,
+     "audit_complete": false,
+     "counts": {
+      "total": null,
+      "complete": null,
+      "remaining": null,
+      "stale": null,
+      "excluded": null,
+      "pending_exclusion": null,
+      "not_agreed": null
+     },
+     "state_counts": {
+      "completed": 0,
+      "remaining": 0,
+      "running": 0,
+      "blocked": 0,
+      "stale": 0,
+      "unavailable": 0,
+      "review": 0,
+      "deliverable": 0,
+      "excluded": 0,
+      "not_agreed": 0,
+      "not_run": 0
+     },
+     "next_actions": [
+      {
+       "kind": "scope",
+       "id": "scope:initialize",
+       "state": "review",
+       "action": "initialize the checklist and record the agreed audit plan",
+       "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+      }
+     ],
+     "items": [],
+     "pagination": {
+      "limit": 1,
+      "offset": 0,
+      "total": 0,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   }
+  ]
+ },
+ {
+  "name": "settings-label",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "project_settings.read_settings",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "project_settings.update_label",
+    "args": {
+     "path": "proj",
+     "label": "New name",
+     "expected_revision": 0
+    }
+   },
+   {
+    "op": "project_settings.read_settings",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "project_settings.update_label",
+    "args": {
+     "path": "proj",
+     "label": "Bad rev",
+     "expected_revision": 0
+    }
+   },
+   {
+    "op": "project_settings.update_label",
+    "args": {
+     "path": "proj",
+     "label": "  ",
+     "expected_revision": 1
+    }
+   },
+   {
+    "op": "project_settings.update_label",
+    "args": {
+     "path": "proj",
+     "label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "expected_revision": 1
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 0,
+     "operation_id": null,
+     "settings": {
+      "label": "Example"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 1,
+     "operation_id": "<ID>",
+     "settings": {
+      "label": "New name"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 1,
+     "operation_id": "<ID>",
+     "settings": {
+      "label": "New name"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "New name",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 1
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "error": "ValueError: project settings revision conflict: current revision is 1"
+   },
+   {
+    "error": "ValueError: label must be non-empty text of at most 128 characters"
+   },
+   {
+    "error": "ValueError: label must be non-empty text of at most 128 characters"
+   }
+  ]
+ },
+ {
+  "name": "settings-proposals",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "project_settings.propose_settings",
+    "args": {
+     "path": "proj",
+     "changes": {
+      "label": "Proposed"
+     },
+     "expected_revision": 0
+    }
+   },
+   {
+    "op": "project_settings.list_proposals",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "project_settings.review_proposal",
+    "args": {
+     "path": "proj",
+     "proposal_id": "PLACEHOLDER",
+     "decision": "approved",
+     "expected_revision": 0
+    }
+   },
+   {
+    "op": "project_settings.propose_settings",
+    "args": {
+     "path": "proj",
+     "changes": {
+      "nope": 1
+     },
+     "expected_revision": 0
+    }
+   },
+   {
+    "op": "project_settings.propose_settings",
+    "args": {
+     "path": "proj",
+     "changes": {
+      "crawl_policy": {
+       "max_urls": 10
+      }
+     },
+     "expected_revision": 0
+    }
+   },
+   {
+    "op": "project_settings.list_proposals",
+    "args": {
+     "path": "proj"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 1,
+     "proposal": {
+      "id": "<ID>",
+      "created_at": "<TS>",
+      "client": "mcp",
+      "status": "pending",
+      "kind": "project_settings",
+      "base_revision": 0,
+      "changes": {
+       "label": "Proposed"
+      },
+      "decided_at": null,
+      "decision": null,
+      "action_sequence": 1
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 1,
+     "total": 1,
+     "items": [
+      {
+       "action_sequence": 1,
+       "base_revision": 0,
+       "changes": {
+        "label": "Proposed"
+       },
+       "client": "mcp",
+       "created_at": "<TS>",
+       "decided_at": null,
+       "decision": null,
+       "id": "<ID>",
+       "kind": "project_settings",
+       "status": "pending"
+      }
+     ],
+     "pagination": {
+      "total": 1,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null
+     }
+    }
+   },
+   {
+    "error": "ValueError: decision must be approve or deny"
+   },
+   {
+    "error": "ValueError: proposal revision conflict: current revision is 1"
+   },
+   {
+    "error": "ValueError: proposal revision conflict: current revision is 1"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "revision": 1,
+     "total": 1,
+     "items": [
+      {
+       "action_sequence": 1,
+       "base_revision": 0,
+       "changes": {
+        "label": "Proposed"
+       },
+       "client": "mcp",
+       "created_at": "<TS>",
+       "decided_at": null,
+       "decision": null,
+       "id": "<ID>",
+       "kind": "project_settings",
+       "status": "pending"
+      }
+     ],
+     "pagination": {
+      "total": 1,
+      "offset": 0,
+      "limit": 50,
+      "next_offset": null
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "settings-delete",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "file.write",
+    "args": {
+     "path": "proj/extra.txt",
+     "text": "x"
+    }
+   },
+   {
+    "op": "project_settings.delete_project",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": {
+     "ok": true,
+     "deleted": true,
+     "project_uuid": "<UUID>",
+     "trash_path": "/private<DIR>/Trash/proj-<TS>-<ID>",
+     "exports_retained": true
+    }
+   },
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   }
+  ]
+ },
+ {
+  "name": "bindings",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "bindings.list_bindings",
+    "args": {
+     "path": "proj",
+     "as_of": "2030-01-01T00:00:00Z"
+    }
+   },
+   {
+    "op": "bindings.link",
+    "args": {
+     "path": "proj",
+     "service": "gsc",
+     "resource": "prop-1",
+     "label": "Search Console"
+    }
+   },
+   {
+    "op": "bindings.list_bindings",
+    "args": {
+     "path": "proj",
+     "as_of": "2030-01-01T00:00:00Z"
+    }
+   },
+   {
+    "op": "bindings.link",
+    "args": {
+     "path": "proj",
+     "service": "gsc",
+     "resource": "prop-1"
+    }
+   },
+   {
+    "op": "bindings.link",
+    "args": {
+     "path": "proj",
+     "service": "bad svc",
+     "resource": "r"
+    }
+   },
+   {
+    "op": "bindings.unlink",
+    "args": {
+     "path": "proj",
+     "service": "gsc",
+     "resource": "prop-1"
+    }
+   },
+   {
+    "op": "bindings.list_bindings",
+    "args": {
+     "path": "proj",
+     "as_of": "2030-01-01T00:00:00Z"
+    }
+   },
+   {
+    "op": "bindings.unlink",
+    "args": {
+     "path": "proj",
+     "service": "gsc",
+     "resource": "prop-1"
+    }
+   },
+   {
+    "op": "bindings.list_bindings",
+    "args": {
+     "path": "proj",
+     "as_of": "2026-01-01T00:00:00Z"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "error": "ValueError: as_of must be an ISO calendar date"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "path": "/private<DIR>/proj",
+     "created": true,
+     "binding": {
+      "service": "gsc",
+      "resource": "prop-1",
+      "label": "Search Console",
+      "origin": "manual",
+      "linked_at": "<TS>",
+      "status": "selected"
+     }
+    }
+   },
+   {
+    "error": "ValueError: as_of must be an ISO calendar date"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "path": "/private<DIR>/proj",
+     "created": false,
+     "binding": {
+      "label": "Search Console",
+      "linked_at": "<TS>",
+      "origin": "manual",
+      "resource": "prop-1",
+      "service": "gsc",
+      "status": "selected"
+     }
+    }
+   },
+   {
+    "error": "ValueError: unknown service; expected one of: gsc, ga4, gtm, metrika, webmaster, bing, topvisor, cloudflare"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "path": "/private<DIR>/proj",
+     "removed": {
+      "service": "gsc",
+      "resource": "prop-1"
+     }
+    }
+   },
+   {
+    "error": "ValueError: as_of must be an ISO calendar date"
+   },
+   {
+    "error": "ValueError: no such source binding in this project"
+   },
+   {
+    "error": "ValueError: as_of must be an ISO calendar date"
+   }
+  ]
+ },
+ {
+  "name": "permissions",
+  "steps": [
+   {
+    "op": "permissions.require_mcp_allowed",
+    "args": {
+     "action": "read"
+    }
+   },
+   {
+    "op": "permissions.require_mcp_allowed",
+    "args": {
+     "action": "write"
+    }
+   },
+   {
+    "op": "permissions.require_mcp_allowed",
+    "args": {
+     "action": "delete_project"
+    }
+   },
+   {
+    "op": "permissions.require_mcp_allowed",
+    "args": {
+     "action": "export"
+    }
+   },
+   {
+    "op": "permissions.require_mcp_allowed",
+    "args": {
+     "action": "monitor"
+    }
+   },
+   {
+    "op": "permissions.require_mcp_allowed",
+    "args": {
+     "action": "nope"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": null
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": null
+   }
+  ]
+ },
+ {
+  "name": "status-measurement",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "status_measurement.read",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "file.write",
+    "args": {
+     "path": "proj/scans/blob.bin",
+     "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+   },
+   {
+    "op": "status_measurement.refresh",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "status_measurement.read",
+    "args": {
+     "path": "proj"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "state": "unavailable",
+     "relative_path": "scans",
+     "total_bytes": null,
+     "scan_count": null,
+     "measured_at": null,
+     "reason": "measurement has not been recorded"
+    }
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": {
+     "state": "available",
+     "relative_path": "scans",
+     "total_bytes": 100,
+     "scan_count": 0,
+     "measured_at": "<TS>",
+     "reason": null
+    }
+   },
+   {
+    "ok": {
+     "measured_at": "<TS>",
+     "reason": null,
+     "relative_path": "scans",
+     "scan_count": 0,
+     "state": "available",
+     "total_bytes": 100
+    }
+   }
+  ]
+ },
+ {
+  "name": "facts-detect-off",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "facts.project_facts",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "facts.project_facts",
+    "args": {
+     "path": "proj",
+     "facts": [
+      {
+       "name": "cms",
+       "value": "wp",
+       "provenance": "agent",
+       "observed_at": null
+      }
+     ]
+    }
+   },
+   {
+    "op": "facts.project_facts",
+    "args": {
+     "path": "proj",
+     "facts": [
+      {
+       "name": "cms",
+       "value": "wp",
+       "provenance": "agent",
+       "observed_at": null
+      }
+     ],
+     "apply": true
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "facts.project_facts",
+    "args": {
+     "path": "proj",
+     "facts": [
+      {
+       "bad": 1
+      }
+     ]
+    }
+   },
+   {
+    "op": "facts.project_facts",
+    "args": {
+     "path": "proj",
+     "facts": [
+      {
+       "name": "api_key",
+       "value": "x",
+       "provenance": "a",
+       "observed_at": null
+      }
+     ]
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "state": "saved",
+     "facts": [],
+     "count": 0
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "applied": false,
+     "path": "/private<DIR>/proj",
+     "facts": [
+      {
+       "name": "cms",
+       "value": "wp",
+       "provenance": "agent",
+       "observed_at": null
+      }
+     ],
+     "changes": [
+      {
+       "name": "cms",
+       "action": "recorded",
+       "value": "wp",
+       "provenance": "agent",
+       "reason": "operator-entered decision"
+      }
+     ],
+     "detection": {
+      "state": "not_run",
+      "reason": "detection was not requested; no request was made",
+      "facts": [],
+      "unavailable": []
+     },
+     "reason": "preview only; pass apply=true to record these facts"
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "applied": true,
+     "path": "/private<DIR>/proj",
+     "facts": [
+      {
+       "name": "cms",
+       "value": "wp",
+       "provenance": "agent",
+       "observed_at": null
+      }
+     ],
+     "changes": [
+      {
+       "name": "cms",
+       "action": "recorded",
+       "value": "wp",
+       "provenance": "agent",
+       "reason": "operator-entered decision"
+      }
+     ],
+     "detection": {
+      "state": "not_run",
+      "reason": "detection was not requested; no request was made",
+      "facts": [],
+      "unavailable": []
+     },
+     "reason": "facts recorded; apply project priorities to act on them"
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [
+       {
+        "name": "cms",
+        "observed_at": null,
+        "provenance": "agent",
+        "value": "wp"
+       }
+      ],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "error": "ValueError: each fact requires name, value, provenance, and observed_at"
+   },
+   {
+    "error": "ValueError: facts must not store credentials or secrets"
+   }
+  ]
+ },
+ {
+  "name": "priorities",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "priorities.project_priorities",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "priorities.project_priorities",
+    "args": {
+     "path": "proj",
+     "full": true
+    }
+   },
+   {
+    "op": "priorities.project_priorities",
+    "args": {
+     "path": "proj",
+     "policy": {
+      "severities": [
+       "high"
+      ]
+     }
+    }
+   },
+   {
+    "op": "priorities.project_priorities",
+    "args": {
+     "path": "proj",
+     "policy": {
+      "severities": [
+       "high"
+      ]
+     },
+     "apply": true
+    }
+   },
+   {
+    "op": "priorities.project_priorities",
+    "args": {
+     "path": "proj",
+     "policy": {
+      "bogus": 1
+     }
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "error": "ValueError: initialize the checklist first: run project-checklist-init"
+   },
+   {
+    "error": "ValueError: initialize the checklist first: run project-checklist-init"
+   },
+   {
+    "error": "ValueError: initialize the checklist first: run project-checklist-init"
+   },
+   {
+    "error": "ValueError: initialize the checklist first: run project-checklist-init"
+   },
+   {
+    "error": "ValueError: initialize the checklist first: run project-checklist-init"
+   }
+  ]
+ }
+]

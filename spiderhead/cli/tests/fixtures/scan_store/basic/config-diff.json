@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 2,
+    "stderr": "usage: spiderhead scan-config-diff [-h] [--input INPUT] --before BEFORE_PATH\n                                   --after AFTER_PATH\nspiderhead scan-config-diff: error: the following arguments are required: --before, --after\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"changed\": [],\n  \"added\": [],\n  \"removed\": [],\n  \"identical\": true,\n  \"settings_compared\": 129,\n  \"before\": \"<WORK>/scan.sqlite\",\n  \"after\": \"<WORK>/scan2.sqlite\"\n}"
+   }
+  ]
+ }
+}

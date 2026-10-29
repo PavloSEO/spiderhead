@@ -1,0 +1,5843 @@
+[
+ {
+  "name": "client token default",
+  "args": {
+   "fn": "client",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "test-token-123",
+   "spends": []
+  }
+ },
+ {
+  "name": "client token explicit",
+  "args": {
+   "fn": "client",
+   "kw": {
+    "token": "tok-explicit"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "tok-explicit",
+   "spends": []
+  }
+ },
+ {
+  "name": "client token falsy falls back",
+  "args": {
+   "fn": "client",
+   "kw": {
+    "token": ""
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "test-token-123",
+   "spends": []
+  }
+ },
+ {
+  "name": "client token missing",
+  "args": {
+   "fn": "client",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "MissingCredential",
+    "message": "arsenkin token: not configured"
+   },
+   "spends": []
+  },
+  "cred": {
+   "missing": "arsenkin token: not configured"
+  }
+ },
+ {
+  "name": "client token oserror",
+  "args": {
+   "fn": "client",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "OSError",
+    "message": "permission denied"
+   },
+   "spends": []
+  },
+  "cred": {
+   "oserror": "permission denied"
+  }
+ },
+ {
+  "name": "post ok dict",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_LIMITS",
+     "limits_total": 42
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "code": "TOTAL_LIMITS",
+    "limits_total": 42
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post ok list body",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "get",
+    "body": {
+     "task_id": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": [
+     1,
+     2,
+     3
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": [
+    1,
+    2,
+    3
+   ],
+   "spends": []
+  }
+ },
+ {
+  "name": "post ok scalar body",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "get",
+    "body": {
+     "task_id": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": "just text"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "JSONDecodeError",
+    "message": "Expecting value: line 1 column 1 (char 0)"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post http 404",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "set",
+    "body": {
+     "x": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 404,
+    "body": "not found"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"x\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "404: not found"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post http 500 raw",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 500,
+    "body": "server exploded"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "500: server exploded"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post http 429 retries then ok",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    },
+    "retries": 3
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 429,
+    "body": {
+     "status": "Error",
+     "code": "429",
+     "error": "Too Many Requests"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_LIMITS",
+     "limits_total": 42
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    2
+   ],
+   "result": {
+    "code": "TOTAL_LIMITS",
+    "limits_total": 42
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post http 429 exhaust",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    },
+    "retries": 3
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 429,
+    "body": {
+     "status": "Error",
+     "code": "429",
+     "error": "Too Many Requests"
+    }
+   },
+   {
+    "status": 429,
+    "body": {
+     "status": "Error",
+     "code": "429",
+     "error": "Too Many Requests"
+    }
+   },
+   {
+    "status": 429,
+    "body": {
+     "status": "Error",
+     "code": "429",
+     "error": "Too Many Requests"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    2,
+    3,
+    5
+   ],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "429: {\"status\": \"Error\", \"code\": \"429\", \"error\": \"Too Many Requests\"}"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post body code 429 retries",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    },
+    "retries": 2
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "429",
+     "error": "slow down"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_LIMITS",
+     "limits_total": 42
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    2
+   ],
+   "result": {
+    "code": "TOTAL_LIMITS",
+    "limits_total": 42
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post body code int 429",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    },
+    "retries": 2
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": 429,
+     "error": "slow down"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_LIMITS",
+     "limits_total": 42
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    2
+   ],
+   "result": {
+    "code": "TOTAL_LIMITS",
+    "limits_total": 42
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post status error user",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "set",
+    "body": {
+     "x": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "status": "Error",
+     "code": "USER_NOT_FOUND",
+     "error": "user not found"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"x\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "USER_NOT_FOUND: user not found"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post status error no code",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "set",
+    "body": {
+     "x": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "status": "Error",
+     "error": "generic"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"x\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "None: generic"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post status error dict error",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "set",
+    "body": {
+     "x": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "status": "Error",
+     "code": "422",
+     "error": {
+      "detail": "nested"
+     }
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"x\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "422: {'detail': 'nested'}"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post retries zero",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    },
+    "retries": 0
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "RETRY: info: retries exhausted"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post timeout uncaught",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "TimeoutError",
+    "message": "timed out"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post reset non-billed exhaust",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    },
+    "retries": 3
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "transport_error": "reset"
+   },
+   {
+    "status": 200,
+    "transport_error": "reset"
+   },
+   {
+    "status": 200,
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    2,
+    3,
+    5
+   ],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "NETWORK: <urlopen error reset>"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post dns then ok",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    },
+    "retries": 2
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "transport_error": "dns"
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_LIMITS",
+     "limits_total": 42
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    2
+   ],
+   "result": {
+    "code": "TOTAL_LIMITS",
+    "limits_total": 42
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post reset billed spends",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "set",
+    "body": {
+     "x": 1
+    },
+    "billed": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "transport_error": "reset"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"x\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "NETWORK: set: response lost; task may already be billed: <urlopen error reset>"
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "set",
+     "cost": 0.0,
+     "unit": "limits",
+     "extra": {
+      "attempt_failed": "network_error",
+      "detail": "<urlopen error reset>"
+     }
+    }
+   ]
+  }
+ },
+ {
+  "name": "post timeout billed uncaught",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "set",
+    "body": {
+     "x": 1
+    },
+    "billed": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "transport_error": "timeout"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"x\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "TimeoutError",
+    "message": "timed out"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post malformed json",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": "{not json"
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "JSONDecodeError",
+    "message": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post invalid utf8",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "$b64": "////"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "UnicodeDecodeError",
+    "message": "'utf-8' codec can't decode byte 0xff in position 0: invalid start byte"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post 500 invalid utf8 message",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 500,
+    "body": {
+     "$b64": "////"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "500: ���"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "post limiter pause",
+  "args": {
+   "fn": "_post",
+   "kw": {
+    "endpoint": "info",
+    "body": {
+     "query": "limits"
+    },
+    "retries": 2
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 429,
+    "body": {
+     "status": "Error",
+     "code": "429",
+     "error": "Too Many Requests"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_LIMITS",
+     "limits_total": 42
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    2,
+    60.05
+   ],
+   "result": {
+    "code": "TOTAL_LIMITS",
+    "limits_total": 42
+   },
+   "spends": []
+  },
+  "clock": [
+   0,
+   0,
+   61
+  ],
+  "limiter": {
+   "max_calls": 1,
+   "period": 60,
+   "safety": 0
+  }
+ },
+ {
+  "name": "limits ok",
+  "args": {
+   "fn": "limits",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_LIMITS",
+     "limits_total": 42
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": 42,
+   "spends": []
+  }
+ },
+ {
+  "name": "limits missing field",
+  "args": {
+   "fn": "limits",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_LIMITS"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "limits list body",
+  "args": {
+   "fn": "limits",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": [
+     1
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"limits\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "status ok",
+  "args": {
+   "fn": "status",
+   "kw": {}
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TOTAL_STATUS",
+     "tasks": [
+      {
+       "task_id": 1,
+       "status": "process"
+      }
+     ]
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/info",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"query\": \"status\"}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "code": "TOTAL_STATUS",
+    "tasks": [
+     {
+      "task_id": 1,
+      "status": "process"
+     }
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "set task ok",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a",
+      "b"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": 5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\", \"b\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "task_id": 123,
+    "cost": 5,
+    "raw": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": 5,
+     "msg": "task created"
+    }
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "task_id": 123,
+     "items": 2
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task str id",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": "42",
+     "cost": 5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "task_id": 42,
+    "cost": 5,
+    "raw": {
+     "code": "SET_TASK_OK",
+     "task_id": "42",
+     "cost": 5,
+     "msg": "task created"
+    }
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "task_id": 42,
+     "items": 1
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task padded str id",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": "007",
+     "cost": 5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "task_id": 7,
+    "cost": 5,
+    "raw": {
+     "code": "SET_TASK_OK",
+     "task_id": "007",
+     "cost": 5,
+     "msg": "task created"
+    }
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "task_id": 7,
+     "items": 1
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task zero id",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 0,
+     "cost": 5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "INVALID_TASK_ID: wordstat: SET_TASK_OK response had no usable task_id (received 0); cost 5 was billed and journaled"
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "items": 1,
+     "extra": {
+      "temporary": true,
+      "reason": "set_task_ok_missing_task_id",
+      "received_task_id": 0
+     }
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task negative id",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": -5,
+     "cost": 5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "INVALID_TASK_ID: wordstat: SET_TASK_OK response had no usable task_id (received -5); cost 5 was billed and journaled"
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "items": 1,
+     "extra": {
+      "temporary": true,
+      "reason": "set_task_ok_missing_task_id",
+      "received_task_id": -5
+     }
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task missing id",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "cost": 5
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "INVALID_TASK_ID: wordstat: SET_TASK_OK response had no usable task_id (received None); cost 5 was billed and journaled"
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "items": 1,
+     "extra": {
+      "temporary": true,
+      "reason": "set_task_ok_missing_task_id",
+      "received_task_id": null
+     }
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task bool id",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": true,
+     "cost": 5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "INVALID_TASK_ID: wordstat: SET_TASK_OK response had no usable task_id (received True); cost 5 was billed and journaled"
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "items": 1,
+     "extra": {
+      "temporary": true,
+      "reason": "set_task_ok_missing_task_id",
+      "received_task_id": true
+     }
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task dict id",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": {
+      "id": 5
+     },
+     "cost": 5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "INVALID_TASK_ID: wordstat: SET_TASK_OK response had no usable task_id (received {'id': 5}); cost 5 was billed and journaled"
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "items": 1,
+     "extra": {
+      "temporary": true,
+      "reason": "set_task_ok_missing_task_id",
+      "received_task_id": "{'id': 5}"
+     }
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task float cost",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "clustering",
+    "data": {
+     "keywords": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": 3.5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"clustering\", \"data\": {\"keywords\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "task_id": 123,
+    "cost": 3.5,
+    "raw": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": 3.5,
+     "msg": "task created"
+    }
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "clustering",
+     "cost": 3.5,
+     "unit": "limits",
+     "task_id": 123,
+     "items": 1
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task no cost",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 9
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "task_id": 9,
+    "cost": null,
+    "raw": {
+     "code": "SET_TASK_OK",
+     "task_id": 9
+    }
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 0.0,
+     "unit": "limits",
+     "task_id": 9,
+     "items": 1
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task str cost",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": "3.5",
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "task_id": 123,
+    "cost": "3.5",
+    "raw": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": "3.5",
+     "msg": "task created"
+    }
+   },
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 3.5,
+     "unit": "limits",
+     "task_id": 123,
+     "items": 1
+    }
+   ]
+  }
+ },
+ {
+  "name": "set task bad cost",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": "abc",
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "could not convert string to float: 'abc'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "set task dict cost",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": {
+      "usd": 5
+     },
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "TypeError",
+    "message": "float() argument must be a string or a real number, not 'dict'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "set task list result",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": [
+     1
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "set task list data",
+  "args": {
+   "fn": "set_task",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": [
+     "a"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": 5,
+     "msg": "task created"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": [\"a\"]}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "check ok",
+  "args": {
+   "fn": "check",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": [
+    "finish",
+    {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   ],
+   "spends": []
+  }
+ },
+ {
+  "name": "check str id",
+  "args": {
+   "fn": "check",
+   "kw": {
+    "task_id": "5"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": [
+    "finish",
+    {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   ],
+   "spends": []
+  }
+ },
+ {
+  "name": "check bad str id",
+  "args": {
+   "fn": "check",
+   "kw": {
+    "task_id": "x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "invalid literal for int() with base 10: 'x'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "check none id",
+  "args": {
+   "fn": "check",
+   "kw": {
+    "task_id": null
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "TypeError",
+    "message": "int() argument must be a string, a bytes-like object or a real number, not 'NoneType'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "check float id",
+  "args": {
+   "fn": "check",
+   "kw": {
+    "task_id": 1.9
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": [
+    "finish",
+    {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   ],
+   "spends": []
+  }
+ },
+ {
+  "name": "check bool id",
+  "args": {
+   "fn": "check",
+   "kw": {
+    "task_id": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 1}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": [
+    "finish",
+    {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   ],
+   "spends": []
+  }
+ },
+ {
+  "name": "check list body",
+  "args": {
+   "fn": "check",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": [
+     1
+    ]
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "get ok",
+  "args": {
+   "fn": "get",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "code": "TASK_RESULT",
+    "task_id": 123,
+    "result": {
+     "data": {
+      "result": {
+       "key1": {
+        "225": {
+         "base": 100,
+         "overal": 50
+        }
+       }
+      }
+     }
+    },
+    "created_at": "2026-03-01T00:00:00",
+    "finished_at": "2026-03-01T00:01:00"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "refetch ok",
+  "args": {
+   "fn": "refetch",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "code": "TASK_RESULT",
+    "task_id": 123,
+    "result": {
+     "data": {
+      "result": {
+       "key1": {
+        "225": {
+         "base": 100,
+         "overal": 50
+        }
+       }
+      }
+     }
+    },
+    "created_at": "2026-03-01T00:00:00",
+    "finished_at": "2026-03-01T00:01:00"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "delete ok",
+  "args": {
+   "fn": "delete",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_DELETED",
+     "task_id": 5
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/tasks",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"action\": \"delete\", \"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "code": "TASK_DELETED",
+    "task_id": 5
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "restart ok",
+  "args": {
+   "fn": "restart",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESTARTED",
+     "task_id": 5
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/tasks",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"action\": \"restart\", \"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "code": "TASK_RESTARTED",
+    "task_id": 5
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "wait process then finish",
+  "args": {
+   "fn": "wait",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "process",
+     "progress": 40
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "process",
+     "progress": 40
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    8,
+    8
+   ],
+   "result": {
+    "code": "TASK_RESULT",
+    "task_id": 123,
+    "result": {
+     "data": {
+      "result": {
+       "key1": {
+        "225": {
+         "base": 100,
+         "overal": 50
+        }
+       }
+      }
+     }
+    },
+    "created_at": "2026-03-01T00:00:00",
+    "finished_at": "2026-03-01T00:01:00"
+   },
+   "spends": []
+  },
+  "clock": [
+   0
+  ]
+ },
+ {
+  "name": "wait error status",
+  "args": {
+   "fn": "wait",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "process",
+     "progress": 40
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "error",
+     "progress": 0
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    8
+   ],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "STATUS: task 5: status error"
+   },
+   "spends": []
+  },
+  "clock": [
+   0
+  ]
+ },
+ {
+  "name": "wait cancelled status",
+  "args": {
+   "fn": "wait",
+   "kw": {
+    "task_id": 7
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "cancelled"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 7}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "STATUS: task 7: status cancelled"
+   },
+   "spends": []
+  },
+  "clock": [
+   0
+  ]
+ },
+ {
+  "name": "wait unknown status keeps waiting",
+  "args": {
+   "fn": "wait",
+   "kw": {
+    "task_id": 5,
+    "interval": 3
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "waiting"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "queue"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": ""
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    3,
+    3,
+    3
+   ],
+   "result": {
+    "code": "TASK_RESULT",
+    "task_id": 123,
+    "result": {
+     "data": {
+      "result": {
+       "key1": {
+        "225": {
+         "base": 100,
+         "overal": 50
+        }
+       }
+      }
+     }
+    },
+    "created_at": "2026-03-01T00:00:00",
+    "finished_at": "2026-03-01T00:01:00"
+   },
+   "spends": []
+  },
+  "clock": [
+   0
+  ]
+ },
+ {
+  "name": "wait timeout",
+  "args": {
+   "fn": "wait",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "TIMEOUT: task 5 did not finish within 900s; the result is already paid for, so retrieve it later with get(5)"
+   },
+   "spends": []
+  },
+  "clock": [
+   0,
+   901
+  ]
+ },
+ {
+  "name": "wait float timeout",
+  "args": {
+   "fn": "wait",
+   "kw": {
+    "task_id": 5,
+    "timeout": 1.5,
+    "interval": 1
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "process",
+     "progress": 40
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [
+    1
+   ],
+   "error": {
+    "class": "ArsenkinError",
+    "message": "TIMEOUT: task 5 did not finish within 1.5s; the result is already paid for, so retrieve it later with get(5)"
+   },
+   "spends": []
+  },
+  "clock": [
+   0,
+   0.5,
+   2.0
+  ]
+ },
+ {
+  "name": "wait str task id",
+  "args": {
+   "fn": "wait",
+   "kw": {
+    "task_id": "5"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "code": "TASK_RESULT",
+    "task_id": 123,
+    "result": {
+     "data": {
+      "result": {
+       "key1": {
+        "225": {
+         "base": 100,
+         "overal": 50
+        }
+       }
+      }
+     }
+    },
+    "created_at": "2026-03-01T00:00:00",
+    "finished_at": "2026-03-01T00:01:00"
+   },
+   "spends": []
+  },
+  "clock": [
+   0
+  ]
+ },
+ {
+  "name": "run end to end",
+  "args": {
+   "fn": "run",
+   "kw": {
+    "tools_name": "wordstat",
+    "data": {
+     "queries": [
+      "a"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": 5,
+     "msg": "task created"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 123}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 123}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": [
+    {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    },
+    5
+   ],
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "task_id": 123,
+     "items": 1
+    }
+   ]
+  },
+  "clock": [
+   0
+  ]
+ },
+ {
+  "name": "batch run mixed",
+  "args": {
+   "fn": "batch_run",
+   "kw": {
+    "max_concurrent": 1,
+    "jobs": [
+     {
+      "tools_name": "wordstat",
+      "data": {
+       "queries": [
+        "a"
+       ]
+      },
+      "label": "first"
+     },
+     {
+      "tools_name": "wordstat",
+      "data": {
+       "queries": [
+        "b"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": 5,
+     "msg": "task created"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "finish",
+     "progress": 100
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "status": "Error",
+     "code": "USER_NOT_FOUND",
+     "error": "user not found"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 123}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 123}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"b\"]}}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": [
+    {
+     "label": "first",
+     "task_id": 123,
+     "cost": 5,
+     "result": {
+      "code": "TASK_RESULT",
+      "task_id": 123,
+      "result": {
+       "data": {
+        "result": {
+         "key1": {
+          "225": {
+           "base": 100,
+           "overal": 50
+          }
+         }
+        }
+       }
+      },
+      "created_at": "2026-03-01T00:00:00",
+      "finished_at": "2026-03-01T00:01:00"
+     }
+    },
+    {
+     "label": "1",
+     "error": "USER_NOT_FOUND: user not found",
+     "code": "USER_NOT_FOUND"
+    }
+   ],
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "task_id": 123,
+     "items": 1
+    }
+   ]
+  },
+  "clock": [
+   0
+  ]
+ },
+ {
+  "name": "batch run wait fails keeps id",
+  "args": {
+   "fn": "batch_run",
+   "kw": {
+    "max_concurrent": 1,
+    "jobs": [
+     {
+      "tools_name": "wordstat",
+      "data": {
+       "queries": [
+        "a"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "SET_TASK_OK",
+     "task_id": 123,
+     "cost": 5,
+     "msg": "task created"
+    }
+   },
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_STATUS",
+     "status": "error",
+     "progress": 0
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/set",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"tools_name\": \"wordstat\", \"data\": {\"queries\": [\"a\"]}}",
+     "timeout": 90
+    },
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/check",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 123}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": [
+    {
+     "label": "0",
+     "task_id": 123,
+     "cost": 5,
+     "error": "STATUS: task 123: status error",
+     "code": "STATUS"
+    }
+   ],
+   "spends": [
+    {
+     "source": "arsenkin",
+     "operation": "wordstat",
+     "cost": 5.0,
+     "unit": "limits",
+     "task_id": 123,
+     "items": 1
+    }
+   ]
+  },
+  "clock": [
+   0
+  ]
+ },
+ {
+  "name": "batch refetch",
+  "args": {
+   "fn": "batch_refetch",
+   "kw": {
+    "task_id": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": {
+     "code": "TASK_RESULT",
+     "task_id": 123,
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        }
+       }
+      }
+     },
+     "created_at": "2026-03-01T00:00:00",
+     "finished_at": "2026-03-01T00:01:00"
+    }
+   }
+  ],
+  "expect": {
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://arsenkin.ru/api/tools/get",
+     "headers": [
+      [
+       "authorization",
+       "Bearer test-token-123"
+      ],
+      [
+       "content-type",
+       "application/json"
+      ]
+     ],
+     "body": "{\"task_id\": 5}",
+     "timeout": 90
+    }
+   ],
+   "pauses": [],
+   "result": {
+    "code": "TASK_RESULT",
+    "task_id": 123,
+    "result": {
+     "data": {
+      "result": {
+       "key1": {
+        "225": {
+         "base": 100,
+         "overal": 50
+        }
+       }
+      }
+     }
+    },
+    "created_at": "2026-03-01T00:00:00",
+    "finished_at": "2026-03-01T00:01:00"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 0",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 5,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 1",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": 0
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 2",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": -3
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 3",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": "42"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 42,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 4",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": "007"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 7,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 5",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": "0"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 6",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": "-5"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 7",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": "12x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 8",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": " 12 "
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 12,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 9",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": ""
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 10",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": "12 3"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 11",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 12",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": false
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 13",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": 1.5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 14",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": null
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 15",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": {
+     "id": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 16",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": [
+     1
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "valid task id 17",
+  "args": {
+   "fn": "_valid_task_id",
+   "kw": {
+    "value": "５２"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items keywords",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "keywords": [
+      "a",
+      "b"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 2,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items words str",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "words": "a\nb\n"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 2,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items words blank",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "words": "\n\n"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 0,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items queries",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "queries": [
+      "x"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 1,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items phrases first",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "phrases": [],
+     "queries": [
+      "x",
+      "y"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 2,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items keywords first",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "keywords": [
+      "a"
+     ],
+     "queries": [
+      "x",
+      "y"
+     ]
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 1,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items urls str",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "urls": "a\n\nb\n\n\nc"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 3,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items none",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "other": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 0,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items int value",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {
+     "keywords": 5
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 0,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items empty dict",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": {}
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 0,
+   "spends": []
+  }
+ },
+ {
+  "name": "count items list data",
+  "args": {
+   "fn": "_count_items",
+   "kw": {
+    "data": [
+     "a"
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize journal none",
+  "args": {
+   "fn": "_sanitize_for_journal",
+   "kw": {
+    "value": null
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": null,
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize journal bool",
+  "args": {
+   "fn": "_sanitize_for_journal",
+   "kw": {
+    "value": true
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": true,
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize journal int",
+  "args": {
+   "fn": "_sanitize_for_journal",
+   "kw": {
+    "value": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 5,
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize journal float",
+  "args": {
+   "fn": "_sanitize_for_journal",
+   "kw": {
+    "value": 1.5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": 1.5,
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize journal str",
+  "args": {
+   "fn": "_sanitize_for_journal",
+   "kw": {
+    "value": "abc"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "abc",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize journal dict",
+  "args": {
+   "fn": "_sanitize_for_journal",
+   "kw": {
+    "value": {
+     "a": 1,
+     "b": "x"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "{'a': 1, 'b': 'x'}",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize journal list",
+  "args": {
+   "fn": "_sanitize_for_journal",
+   "kw": {
+    "value": [
+     1,
+     "x",
+     null
+    ]
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "[1, 'x', None]",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize journal long dict",
+  "args": {
+   "fn": "_sanitize_for_journal",
+   "kw": {
+    "value": {
+     "key": "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "{'key': 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat punctuation",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": "buy shoes!"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "buy shoes",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat cyrillic",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": "купить обувь"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "купить обувь",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat slash quote",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": "a/b \"c\""
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "a b c",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat runs",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": "a!!b,,c"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "a b c",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat spaces",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": "   x   y  "
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "x y",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat hyphen",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": "5-руб -минус"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "5-руб -минус",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat int",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": 5
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "5",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat dict",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": {
+     "a": 1
+    }
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "a 1",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat tabs",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": "a\tb\nc"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "a b c",
+   "spends": []
+  }
+ },
+ {
+  "name": "sanitize wordstat empty",
+  "args": {
+   "fn": "sanitize_wordstat_query",
+   "kw": {
+    "phrase": "!!!"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": "",
+   "spends": []
+  }
+ },
+ {
+  "name": "wordstat payload ok",
+  "args": {
+   "fn": "wordstat_payload",
+   "kw": {
+    "queries": [
+     "buy shoes",
+     "купить обувь"
+    ],
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "type": 1,
+    "regions": [
+     225
+    ],
+    "ws": [
+     "base",
+     "overal"
+    ],
+    "queries": [
+     "buy shoes",
+     "купить обувь"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "wordstat payload sanitize drops",
+  "args": {
+   "fn": "wordstat_payload",
+   "kw": {
+    "queries": [
+     "a!!",
+     "!!!",
+     "b"
+    ],
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "type": 1,
+    "regions": [
+     225
+    ],
+    "ws": [
+     "base",
+     "overal"
+    ],
+    "queries": [
+     "a",
+     "b"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "wordstat payload all dropped",
+  "args": {
+   "fn": "wordstat_payload",
+   "kw": {
+    "queries": [
+     "!!!"
+    ],
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "no usable queries after sanitizing"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "wordstat payload str region",
+  "args": {
+   "fn": "wordstat_payload",
+   "kw": {
+    "queries": [
+     "a"
+    ],
+    "region": "225"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "type": 1,
+    "regions": [
+     225
+    ],
+    "ws": [
+     "base",
+     "overal"
+    ],
+    "queries": [
+     "a"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "wordstat payload bad region",
+  "args": {
+   "fn": "wordstat_payload",
+   "kw": {
+    "queries": [
+     "a"
+    ],
+    "region": "x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "invalid literal for int() with base 10: 'x'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "wordstat payload dict queries",
+  "args": {
+   "fn": "wordstat_payload",
+   "kw": {
+    "queries": {
+     "a": 1,
+     "b": 2
+    },
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "type": 1,
+    "regions": [
+     225
+    ],
+    "ws": [
+     "base",
+     "overal"
+    ],
+    "queries": [
+     "a",
+     "b"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat envelope",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "code": "TASK_RESULT",
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        },
+        "key2": {
+         "226": {
+          "base": 1
+         }
+        },
+        "key3": "not a dict",
+        "key4": {
+         "225": "flat"
+        },
+        "key5": {}
+       }
+      }
+     }
+    },
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {
+     "key1": {
+      "base": 100,
+      "overal": 50
+     }
+    },
+    "warnings": [
+     "'key2': no data for requested region 225 (provider returned regions: 226)",
+     "'key3': skipped a non-dict row",
+     "'key4': region 225 data is not a mapping",
+     "'key5': no data for requested region 225 (provider returned regions: none)"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat bare node",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "data": {
+      "result": {
+       "key1": {
+        "225": {
+         "base": 100,
+         "overal": 50
+        }
+       },
+       "key2": {
+        "226": {
+         "base": 1
+        }
+       },
+       "key3": "not a dict",
+       "key4": {
+        "225": "flat"
+       },
+       "key5": {}
+      }
+     }
+    },
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {
+     "key1": {
+      "base": 100,
+      "overal": 50
+     }
+    },
+    "warnings": [
+     "'key2': no data for requested region 225 (provider returned regions: 226)",
+     "'key3': skipped a non-dict row",
+     "'key4': region 225 data is not a mapping",
+     "'key5': no data for requested region 225 (provider returned regions: none)"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat other region",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "code": "TASK_RESULT",
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        },
+        "key2": {
+         "226": {
+          "base": 1
+         }
+        },
+        "key3": "not a dict",
+        "key4": {
+         "225": "flat"
+        },
+        "key5": {}
+       }
+      }
+     }
+    },
+    "region": 213
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {},
+    "warnings": [
+     "'key1': no data for requested region 213 (provider returned regions: 225)",
+     "'key2': no data for requested region 213 (provider returned regions: 226)",
+     "'key3': skipped a non-dict row",
+     "'key4': no data for requested region 213 (provider returned regions: 225)",
+     "'key5': no data for requested region 213 (provider returned regions: none)"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat no data",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "code": "X"
+    },
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {},
+    "warnings": [
+     "wordstat result has no data.result mapping to parse"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat list result",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": [
+     1
+    ],
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {},
+    "warnings": [
+     "wordstat result has no data.result mapping to parse"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat str region",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "code": "TASK_RESULT",
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        },
+        "key2": {
+         "226": {
+          "base": 1
+         }
+        },
+        "key3": "not a dict",
+        "key4": {
+         "225": "flat"
+        },
+        "key5": {}
+       }
+      }
+     }
+    },
+    "region": "225"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {
+     "key1": {
+      "base": 100,
+      "overal": 50
+     }
+    },
+    "warnings": [
+     "'key2': no data for requested region 225 (provider returned regions: 226)",
+     "'key3': skipped a non-dict row",
+     "'key4': region 225 data is not a mapping",
+     "'key5': no data for requested region 225 (provider returned regions: none)"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat float region",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "code": "TASK_RESULT",
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        },
+        "key2": {
+         "226": {
+          "base": 1
+         }
+        },
+        "key3": "not a dict",
+        "key4": {
+         "225": "flat"
+        },
+        "key5": {}
+       }
+      }
+     }
+    },
+    "region": 225.9
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {
+     "key1": {
+      "base": 100,
+      "overal": 50
+     }
+    },
+    "warnings": [
+     "'key2': no data for requested region 225 (provider returned regions: 226)",
+     "'key3': skipped a non-dict row",
+     "'key4': region 225 data is not a mapping",
+     "'key5': no data for requested region 225 (provider returned regions: none)"
+    ]
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat bad region",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "code": "TASK_RESULT",
+     "result": {
+      "data": {
+       "result": {
+        "key1": {
+         "225": {
+          "base": 100,
+          "overal": 50
+         }
+        },
+        "key2": {
+         "226": {
+          "base": 1
+         }
+        },
+        "key3": "not a dict",
+        "key4": {
+         "225": "flat"
+        },
+        "key5": {}
+       }
+      }
+     }
+    },
+    "region": "x"
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "error": {
+    "class": "ValueError",
+    "message": "invalid literal for int() with base 10: 'x'"
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat data and result keys",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "result": {
+      "ignored": true
+     },
+     "data": {
+      "result": {
+       "a": {
+        "225": {
+         "base": 1,
+         "overal": 2
+        }
+       }
+      }
+     }
+    },
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {
+     "a": {
+      "base": 1,
+      "overal": 2
+     }
+    },
+    "warnings": []
+   },
+   "spends": []
+  }
+ },
+ {
+  "name": "parse wordstat regions sort",
+  "args": {
+   "fn": "parse_wordstat",
+   "kw": {
+    "result": {
+     "data": {
+      "result": {
+       "a": {
+        "10": {
+         "base": 1
+        },
+        "2": {
+         "base": 2
+        }
+       }
+      }
+     }
+    },
+    "region": 225
+   }
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "requests": [],
+   "pauses": [],
+   "result": {
+    "frequencies": {},
+    "warnings": [
+     "'a': no data for requested region 225 (provider returned regions: 10, 2)"
+    ]
+   },
+   "spends": []
+  }
+ }
+]

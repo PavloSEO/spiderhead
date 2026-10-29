@@ -1,0 +1,922 @@
+[
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUserSites?apikey=test-key-123"
+    }
+   ],
+   "result": {
+    "data": [
+     {
+      "Url": "https://example.com/"
+     }
+    ],
+    "ok": true,
+    "operation": "sites",
+    "read_only": true,
+    "returned": 1,
+    "rows": [
+     {
+      "Url": "https://example.com/"
+     }
+    ],
+    "state": "complete",
+    "truncated": false
+   }
+  },
+  "isolate_config": false,
+  "name": "sites list",
+  "responses": [
+   {
+    "body": {
+     "d": [
+      {
+       "Url": "https://example.com/"
+      }
+     ]
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "crawl",
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetCrawlIssues?apikey=test-key-123&siteUrl=https%3A%2F%2Fexample.com%2F"
+    }
+   ],
+   "result": {
+    "data": [
+     {
+      "Issue": "x"
+     }
+    ],
+    "ok": true,
+    "operation": "crawl",
+    "read_only": true,
+    "returned": 1,
+    "rows": [
+     {
+      "Issue": "x"
+     }
+    ],
+    "state": "complete",
+    "truncated": false
+   }
+  },
+  "isolate_config": false,
+  "name": "crawl issues for site",
+  "responses": [
+   {
+    "body": {
+     "d": [
+      {
+       "Issue": "x"
+      }
+     ]
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "links",
+   "page": 0,
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetLinkCounts?apikey=test-key-123&siteUrl=https%3A%2F%2Fexample.com%2F&page=0"
+    }
+   ],
+   "result": {
+    "data": {
+     "Links": [
+      {
+       "SourceUrl": "a"
+      }
+     ],
+     "TotalPages": 2
+    },
+    "next_page": 1,
+    "ok": true,
+    "operation": "links",
+    "page": 0,
+    "read_only": true,
+    "returned": 1,
+    "rows": [
+     {
+      "SourceUrl": "a"
+     }
+    ],
+    "state": "partial",
+    "total_pages": 2,
+    "truncated": true
+   }
+  },
+  "isolate_config": false,
+  "name": "links first of two pages is partial",
+  "responses": [
+   {
+    "body": {
+     "d": {
+      "Links": [
+       {
+        "SourceUrl": "a"
+       }
+      ],
+      "TotalPages": 2
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "links",
+   "page": 1,
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetLinkCounts?apikey=test-key-123&siteUrl=https%3A%2F%2Fexample.com%2F&page=1"
+    }
+   ],
+   "result": {
+    "data": {
+     "Links": [],
+     "TotalPages": 2
+    },
+    "next_page": null,
+    "ok": true,
+    "operation": "links",
+    "page": 1,
+    "read_only": true,
+    "returned": 0,
+    "rows": [],
+    "state": "partial",
+    "total_pages": 2,
+    "truncated": true
+   }
+  },
+  "isolate_config": false,
+  "name": "links last page completes",
+  "responses": [
+   {
+    "body": {
+     "d": {
+      "Links": [],
+      "TotalPages": 2
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "link": "https://donor.example/page",
+   "operation": "url_links",
+   "page": 0,
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUrlLinks?apikey=test-key-123&siteUrl=https%3A%2F%2Fexample.com%2F&page=0&link=%22https%3A%2F%2Fdonor.example%2Fpage%22"
+    }
+   ],
+   "result": {
+    "data": {
+     "Details": [
+      {
+       "Anchor": "t"
+      }
+     ],
+     "TotalPages": 1
+    },
+    "next_page": null,
+    "ok": true,
+    "operation": "url_links",
+    "page": 0,
+    "read_only": true,
+    "returned": 1,
+    "rows": [
+     {
+      "Anchor": "t"
+     }
+    ],
+    "state": "complete",
+    "total_pages": 1,
+    "truncated": false
+   }
+  },
+  "isolate_config": false,
+  "name": "url_links serializes link through json",
+  "responses": [
+   {
+    "body": {
+     "d": {
+      "Details": [
+       {
+        "Anchor": "t"
+       }
+      ],
+      "TotalPages": 1
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "search_performance",
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetQueryStats?apikey=test-key-123&siteUrl=https%3A%2F%2Fexample.com%2F"
+    }
+   ],
+   "result": {
+    "data": [
+     {
+      "Query": "q"
+     }
+    ],
+    "ok": true,
+    "operation": "search_performance",
+    "read_only": true,
+    "returned": 1,
+    "rows": [
+     {
+      "Query": "q"
+     }
+    ],
+    "state": "complete",
+    "truncated": false
+   }
+  },
+  "isolate_config": false,
+  "name": "search_performance maps to GetQueryStats",
+  "responses": [
+   {
+    "body": {
+     "d": [
+      {
+       "Query": "q"
+      }
+     ]
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [
+   "BING_WEBMASTER_API_KEY"
+  ],
+  "env": {},
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "result": {
+    "error": "credential not found: store it in /nonexistent-oracle-config-root/bing-webmaster/api_key or set $BING_WEBMASTER_API_KEY. Create a Bing Webmaster API key for the verified site.",
+    "ok": false,
+    "state": "not_configured",
+    "verified": false
+   }
+  },
+  "isolate_config": true,
+  "name": "missing credential is a not_configured envelope",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUserSites?apikey=test-key-123"
+    }
+   ],
+   "result": {
+    "error": "Bing Webmaster HTTP 403",
+    "ok": false,
+    "state": "failed",
+    "status": 403
+   }
+  },
+  "isolate_config": false,
+  "name": "http 403 reports status without apikey",
+  "responses": [
+   {
+    "body": "denied apikey=test-key-123",
+    "headers": {},
+    "status": 403
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUserSites?apikey=test-key-123"
+    }
+   ],
+   "result": {
+    "error": "Bing Webmaster HTTP 500",
+    "ok": false,
+    "state": "failed",
+    "status": 500
+   }
+  },
+  "isolate_config": false,
+  "name": "http 500",
+  "responses": [
+   {
+    "body": "err",
+    "headers": {},
+    "status": 500
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUserSites?apikey=test-key-123"
+    }
+   ],
+   "result": {
+    "error": "Bing Webmaster request failed",
+    "ok": false,
+    "state": "failed"
+   }
+  },
+  "isolate_config": false,
+  "name": "invalid json body",
+  "responses": [
+   {
+    "body": "broken{",
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUserSites?apikey=test-key-123"
+    }
+   ],
+   "result": {
+    "error": "Bing Webmaster request failed",
+    "ok": false,
+    "state": "failed"
+   }
+  },
+  "isolate_config": false,
+  "name": "transport timeout",
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUserSites?apikey=test-key-123"
+    }
+   ],
+   "result": {
+    "error": "malformed Bing Webmaster JSON response",
+    "ok": false,
+    "state": "failed"
+   }
+  },
+  "isolate_config": false,
+  "name": "missing d envelope",
+  "responses": [
+   {
+    "body": {
+     "other": []
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUserSites?apikey=test-key-123"
+    }
+   ],
+   "result": {
+    "error": "malformed Bing Webmaster JSON response",
+    "ok": false,
+    "state": "failed"
+   }
+  },
+  "isolate_config": false,
+  "name": "d not a list",
+  "responses": [
+   {
+    "body": {
+     "d": {
+      "x": 1
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetUserSites?apikey=test-key-123"
+    }
+   ],
+   "result": {
+    "error": "malformed Bing Webmaster JSON response",
+    "ok": false,
+    "state": "failed"
+   }
+  },
+  "isolate_config": false,
+  "name": "rows with non-dict member",
+  "responses": [
+   {
+    "body": {
+     "d": [
+      {
+       "a": 1
+      },
+      5
+     ]
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "links",
+   "page": 0,
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetLinkCounts?apikey=test-key-123&siteUrl=https%3A%2F%2Fexample.com%2F&page=0"
+    }
+   ],
+   "result": {
+    "error": "malformed Bing Webmaster pagination",
+    "ok": false,
+    "state": "failed"
+   }
+  },
+  "isolate_config": false,
+  "name": "paged total pages as string",
+  "responses": [
+   {
+    "body": {
+     "d": {
+      "Links": [],
+      "TotalPages": "2"
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "links",
+   "page": 5,
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetLinkCounts?apikey=test-key-123&siteUrl=https%3A%2F%2Fexample.com%2F&page=5"
+    }
+   ],
+   "result": {
+    "error": "malformed Bing Webmaster pagination",
+    "ok": false,
+    "state": "failed"
+   }
+  },
+  "isolate_config": false,
+  "name": "paged page beyond total",
+  "responses": [
+   {
+    "body": {
+     "d": {
+      "Links": [],
+      "TotalPages": 2
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "links",
+   "page": 0,
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [],
+     "method": "GET",
+     "timeout": 30,
+     "url": "https://ssl.bing.com/webmaster/api.svc/json/GetLinkCounts?apikey=test-key-123&siteUrl=https%3A%2F%2Fexample.com%2F&page=0"
+    }
+   ],
+   "result": {
+    "error": "malformed Bing Webmaster pagination",
+    "ok": false,
+    "state": "failed"
+   }
+  },
+  "isolate_config": false,
+  "name": "paged zero total with rows",
+  "responses": [
+   {
+    "body": {
+     "d": {
+      "Links": [
+       {
+        "x": 1
+       }
+      ],
+      "TotalPages": 0
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "mutate",
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "unsupported Bing Webmaster JSON operation"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "unsupported operation",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "crawl",
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "site_url is required for this Bing Webmaster operation"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "site_url required",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "page": -1,
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "page must be a non-negative integer"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "page negative",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "page": 1.5,
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "page must be a non-negative integer"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "page float",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "sites",
+   "page": true,
+   "site_url": ""
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "page must be a non-negative integer"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "page bool",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "url_links",
+   "page": 0,
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "url_links requires link and page in 0..32767"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "url_links needs link",
+  "responses": []
+ },
+ {
+  "args": {
+   "link": "x",
+   "operation": "url_links",
+   "page": 40000,
+   "site_url": "https://example.com/"
+  },
+  "clear_env": [],
+  "env": {
+   "BING_WEBMASTER_API_KEY": "test-key-123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "url_links requires link and page in 0..32767"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "url_links page cap",
+  "responses": []
+ }
+]

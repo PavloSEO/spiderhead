@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "seohead: scan-link-inspect\n",
+    "stdout": "{\n  \"ok\": false,\n  \"view\": \"links\",\n  \"error\": \"incoming links support only the default order\",\n  \"reason_code\": \"invalid_filter\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_scan_link_inspect: {\"ok\": false, \"view\": \"links\", \"error\": \"incoming links support only the default order\", \"reason_code\": \"invalid_filter\"}"
+   }
+  ]
+ }
+}

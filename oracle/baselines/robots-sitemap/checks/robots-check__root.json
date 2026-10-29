@@ -1,0 +1,42 @@
+{
+ "exit": 0,
+ "stdout": {
+  "exists": true,
+  "groups": [
+   {
+    "_line_of": {
+     "disallow:/private/": 2
+    },
+    "allow": [],
+    "crawl_delay": 1.0,
+    "disallow": [
+     "/private/"
+    ],
+    "request_rate_delay": null,
+    "user_agents": [
+     "*"
+    ]
+   },
+   {
+    "_line_of": {
+     "disallow:/": 6
+    },
+    "allow": [],
+    "crawl_delay": null,
+    "disallow": [
+     "/"
+    ],
+    "request_rate_delay": null,
+    "user_agents": [
+     "ExampleBadBot"
+    ]
+   }
+  ],
+  "ok": true,
+  "robots_url": "{BASE}/robots.txt",
+  "sitemaps": [
+   "{BASE}/sitemap.xml"
+  ],
+  "status_code": 200
+ }
+}

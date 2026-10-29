@@ -1,0 +1,5 @@
+{
+ "is_error": false,
+ "text": "{\n  \"ok\": true,\n  \"state\": \"unavailable\",\n  \"reason\": \"document_not_in_corpus\",\n  \"url\": \"{BASE}/about.html\",\n  \"validation\": \"full\"\n}",
+ "tool": "seo_scan_body_read"
+}

@@ -1,0 +1,3 @@
+From,To,Anchor,Rel,Link Position,Destination Status
+https://example.test/,https://example.test/products,Products,,content,200
+https://example.test/,https://EXAMPLE.test:443/products/,Products,,content,200

@@ -1,0 +1,223 @@
+{
+ "cases": [
+  {
+   "expected": {
+    "exists": true,
+    "groups": [
+     {
+      "_line_of": {
+       "allow:/admin/public": 3,
+       "disallow:/admin": 2
+      },
+      "allow": [
+       "/admin/public"
+      ],
+      "crawl_delay": 2.0,
+      "disallow": [
+       "/admin"
+      ],
+      "request_rate_delay": null,
+      "user_agents": [
+       "*"
+      ]
+     },
+     {
+      "_line_of": {
+       "disallow:/": 7
+      },
+      "allow": [],
+      "crawl_delay": null,
+      "disallow": [
+       "/"
+      ],
+      "request_rate_delay": null,
+      "user_agents": [
+       "Googlebot"
+      ]
+     }
+    ],
+    "ok": true,
+    "path_checks": [
+     {
+      "allowed": false,
+      "path": "/admin"
+     },
+     {
+      "allowed": true,
+      "path": "/admin/public/x"
+     },
+     {
+      "allowed": true,
+      "path": "/blog"
+     }
+    ],
+    "robots_url": "https://robots.example/robots.txt",
+    "sitemaps": [
+     "https://robots.example/sitemap.xml"
+    ],
+    "status_code": 200
+   },
+   "name": "ok_groups_and_path_checks",
+   "paths": [
+    "/admin",
+    "/admin/public/x",
+    "/blog"
+   ],
+   "responses": {
+    "https://robots.example/robots.txt": {
+     "body": "User-agent: *\nDisallow: /admin\nAllow: /admin/public\nCrawl-delay: 2\n\nUser-agent: Googlebot\nDisallow: /\n\nSitemap: https://robots.example/sitemap.xml\n",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://robots.example/robots.txt"
+    }
+   },
+   "url": "https://robots.example/",
+   "user_agent": "*"
+  },
+  {
+   "expected": {
+    "exists": true,
+    "groups": [
+     {
+      "_line_of": {
+       "allow:/admin/public": 3,
+       "disallow:/admin": 2
+      },
+      "allow": [
+       "/admin/public"
+      ],
+      "crawl_delay": 2.0,
+      "disallow": [
+       "/admin"
+      ],
+      "request_rate_delay": null,
+      "user_agents": [
+       "*"
+      ]
+     },
+     {
+      "_line_of": {
+       "disallow:/": 7
+      },
+      "allow": [],
+      "crawl_delay": null,
+      "disallow": [
+       "/"
+      ],
+      "request_rate_delay": null,
+      "user_agents": [
+       "Googlebot"
+      ]
+     }
+    ],
+    "ok": true,
+    "path_checks": [
+     {
+      "allowed": false,
+      "path": "/"
+     }
+    ],
+    "robots_url": "https://robots.example/robots.txt",
+    "sitemaps": [
+     "https://robots.example/sitemap.xml"
+    ],
+    "status_code": 200
+   },
+   "name": "group_specific_user_agent",
+   "paths": [
+    "/"
+   ],
+   "responses": {
+    "https://robots.example/robots.txt": {
+     "body": "User-agent: *\nDisallow: /admin\nAllow: /admin/public\nCrawl-delay: 2\n\nUser-agent: Googlebot\nDisallow: /\n\nSitemap: https://robots.example/sitemap.xml\n",
+     "headers": {},
+     "status_code": 200,
+     "url": "https://robots.example/robots.txt"
+    }
+   },
+   "url": "https://robots.example",
+   "user_agent": "Googlebot"
+  },
+  {
+   "expected": {
+    "error": "no route to https://down.example/robots.txt",
+    "ok": false,
+    "robots_url": "https://down.example/robots.txt"
+   },
+   "name": "network_failure",
+   "paths": null,
+   "responses": {},
+   "url": "https://down.example/",
+   "user_agent": "*"
+  },
+  {
+   "expected": {
+    "exists": false,
+    "groups": [],
+    "note": "no robots.txt (crawl allowed)",
+    "ok": true,
+    "robots_url": "https://robots.example/robots.txt",
+    "sitemaps": [],
+    "status_code": 404
+   },
+   "name": "missing_404_crawl_allowed",
+   "paths": [
+    "/x"
+   ],
+   "responses": {
+    "https://robots.example/robots.txt": {
+     "body": "",
+     "headers": {},
+     "status_code": 404,
+     "url": "https://robots.example/robots.txt"
+    }
+   },
+   "url": "https://robots.example/",
+   "user_agent": "*"
+  },
+  {
+   "expected": {
+    "exists": null,
+    "groups": [],
+    "note": "robots.txt rules could not be read: access denied (the response may be a WAF block); no permission is claimed",
+    "ok": true,
+    "robots_url": "https://robots.example/robots.txt",
+    "sitemaps": [],
+    "state": "access_denied",
+    "status_code": 403
+   },
+   "name": "access_denied_403",
+   "paths": null,
+   "responses": {
+    "https://robots.example/robots.txt": {
+     "body": "",
+     "headers": {},
+     "status_code": 403,
+     "url": "https://robots.example/robots.txt"
+    }
+   },
+   "url": "https://robots.example/",
+   "user_agent": "*"
+  },
+  {
+   "expected": {
+    "error": "robots.txt returned 500; rules could not be read",
+    "ok": false,
+    "robots_url": "https://robots.example/robots.txt",
+    "status_code": 500
+   },
+   "name": "server_error_500",
+   "paths": null,
+   "responses": {
+    "https://robots.example/robots.txt": {
+     "body": "",
+     "headers": {},
+     "status_code": 500,
+     "url": "https://robots.example/robots.txt"
+    }
+   },
+   "url": "https://robots.example/",
+   "user_agent": "*"
+  }
+ ]
+}

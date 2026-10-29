@@ -1,0 +1,964 @@
+{
+ "cases": [
+  {
+   "expected": {
+    "bots": [
+     {
+      "blocked_root": true,
+      "declared_in_robots": true,
+      "purpose": "OpenAI model training",
+      "status": "blocked",
+      "token": "GPTBot",
+      "type": "training",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for SearchGPT answers",
+      "status": "allowed_default",
+      "token": "OAI-SearchBot",
+      "type": "retrieval",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a ChatGPT user",
+      "status": "allowed_default",
+      "token": "ChatGPT-User",
+      "type": "user",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training",
+      "status": "allowed_default",
+      "token": "ClaudeBot",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "source retrieval for Claude",
+      "status": "allowed_default",
+      "token": "Claude-Web",
+      "type": "retrieval",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training and research",
+      "status": "allowed_default",
+      "token": "anthropic-ai",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for Perplexity answers",
+      "status": "allowed_default",
+      "token": "PerplexityBot",
+      "type": "retrieval",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a Perplexity user",
+      "status": "allowed_default",
+      "token": "Perplexity-User",
+      "type": "user",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Gemini and Vertex AI model training",
+      "status": "allowed_default",
+      "token": "Google-Extended",
+      "type": "training",
+      "vendor": "Google (Gemini)"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Apple model training",
+      "status": "allowed_default",
+      "token": "Applebot-Extended",
+      "type": "training",
+      "vendor": "Apple"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "ByteDance and TikTok model training",
+      "status": "allowed_default",
+      "token": "Bytespider",
+      "type": "training",
+      "vendor": "ByteDance"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "public web dataset used by many models",
+      "status": "allowed_default",
+      "token": "CCBot",
+      "type": "training",
+      "vendor": "Common Crawl"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Meta AI training and indexing",
+      "status": "allowed_default",
+      "token": "Meta-ExternalAgent",
+      "type": "training",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "page retrieval for Meta products",
+      "status": "allowed_default",
+      "token": "Meta-ExternalFetcher",
+      "type": "retrieval",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Amazon model training",
+      "status": "allowed_default",
+      "token": "Amazonbot",
+      "type": "training",
+      "vendor": "Amazon"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Cohere model training",
+      "status": "allowed_default",
+      "token": "cohere-ai",
+      "type": "training",
+      "vendor": "Cohere"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for You.com answers",
+      "status": "allowed_default",
+      "token": "YouBot",
+      "type": "retrieval",
+      "vendor": "You.com"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "data extraction for a knowledge graph",
+      "status": "allowed_default",
+      "token": "Diffbot",
+      "type": "training",
+      "vendor": "Diffbot"
+     }
+    ],
+    "declared_groups": 1,
+    "ok": true,
+    "summary": {
+     "allowed_default": 17,
+     "allowed_explicit": 0,
+     "blocked": 1,
+     "by_type": {
+      "retrieval": {
+       "allowed": 5,
+       "blocked": 0
+      },
+      "training": {
+       "allowed": 10,
+       "blocked": 1
+      },
+      "user": {
+       "allowed": 2,
+       "blocked": 0
+      }
+     },
+     "total": 18
+    }
+   },
+   "name": "gptbot_blocked",
+   "robots": "User-agent: GPTBot\nDisallow: /\n"
+  },
+  {
+   "expected": {
+    "bots": [
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "OpenAI model training",
+      "status": "allowed_default",
+      "token": "GPTBot",
+      "type": "training",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for SearchGPT answers",
+      "status": "allowed_default",
+      "token": "OAI-SearchBot",
+      "type": "retrieval",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a ChatGPT user",
+      "status": "allowed_default",
+      "token": "ChatGPT-User",
+      "type": "user",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training",
+      "status": "allowed_default",
+      "token": "ClaudeBot",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "source retrieval for Claude",
+      "status": "allowed_default",
+      "token": "Claude-Web",
+      "type": "retrieval",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training and research",
+      "status": "allowed_default",
+      "token": "anthropic-ai",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for Perplexity answers",
+      "status": "allowed_default",
+      "token": "PerplexityBot",
+      "type": "retrieval",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a Perplexity user",
+      "status": "allowed_default",
+      "token": "Perplexity-User",
+      "type": "user",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Gemini and Vertex AI model training",
+      "status": "allowed_default",
+      "token": "Google-Extended",
+      "type": "training",
+      "vendor": "Google (Gemini)"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Apple model training",
+      "status": "allowed_default",
+      "token": "Applebot-Extended",
+      "type": "training",
+      "vendor": "Apple"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "ByteDance and TikTok model training",
+      "status": "allowed_default",
+      "token": "Bytespider",
+      "type": "training",
+      "vendor": "ByteDance"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "public web dataset used by many models",
+      "status": "allowed_default",
+      "token": "CCBot",
+      "type": "training",
+      "vendor": "Common Crawl"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Meta AI training and indexing",
+      "status": "allowed_default",
+      "token": "Meta-ExternalAgent",
+      "type": "training",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "page retrieval for Meta products",
+      "status": "allowed_default",
+      "token": "Meta-ExternalFetcher",
+      "type": "retrieval",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Amazon model training",
+      "status": "allowed_default",
+      "token": "Amazonbot",
+      "type": "training",
+      "vendor": "Amazon"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Cohere model training",
+      "status": "allowed_default",
+      "token": "cohere-ai",
+      "type": "training",
+      "vendor": "Cohere"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for You.com answers",
+      "status": "allowed_default",
+      "token": "YouBot",
+      "type": "retrieval",
+      "vendor": "You.com"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "data extraction for a knowledge graph",
+      "status": "allowed_default",
+      "token": "Diffbot",
+      "type": "training",
+      "vendor": "Diffbot"
+     }
+    ],
+    "declared_groups": 1,
+    "ok": true,
+    "summary": {
+     "allowed_default": 18,
+     "allowed_explicit": 0,
+     "blocked": 0,
+     "by_type": {
+      "retrieval": {
+       "allowed": 5,
+       "blocked": 0
+      },
+      "training": {
+       "allowed": 11,
+       "blocked": 0
+      },
+      "user": {
+       "allowed": 2,
+       "blocked": 0
+      }
+     },
+     "total": 18
+    }
+   },
+   "name": "default_allowed",
+   "robots": "User-agent: *\nDisallow: /admin\n"
+  },
+  {
+   "expected": {
+    "bots": [
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "OpenAI model training",
+      "status": "blocked",
+      "token": "GPTBot",
+      "type": "training",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "retrieval for SearchGPT answers",
+      "status": "blocked",
+      "token": "OAI-SearchBot",
+      "type": "retrieval",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a ChatGPT user",
+      "status": "blocked",
+      "token": "ChatGPT-User",
+      "type": "user",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": true,
+      "purpose": "Anthropic model training",
+      "status": "allowed_explicit",
+      "token": "ClaudeBot",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "source retrieval for Claude",
+      "status": "blocked",
+      "token": "Claude-Web",
+      "type": "retrieval",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training and research",
+      "status": "blocked",
+      "token": "anthropic-ai",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "retrieval for Perplexity answers",
+      "status": "blocked",
+      "token": "PerplexityBot",
+      "type": "retrieval",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a Perplexity user",
+      "status": "blocked",
+      "token": "Perplexity-User",
+      "type": "user",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Gemini and Vertex AI model training",
+      "status": "blocked",
+      "token": "Google-Extended",
+      "type": "training",
+      "vendor": "Google (Gemini)"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Apple model training",
+      "status": "blocked",
+      "token": "Applebot-Extended",
+      "type": "training",
+      "vendor": "Apple"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "ByteDance and TikTok model training",
+      "status": "blocked",
+      "token": "Bytespider",
+      "type": "training",
+      "vendor": "ByteDance"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "public web dataset used by many models",
+      "status": "blocked",
+      "token": "CCBot",
+      "type": "training",
+      "vendor": "Common Crawl"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Meta AI training and indexing",
+      "status": "blocked",
+      "token": "Meta-ExternalAgent",
+      "type": "training",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "page retrieval for Meta products",
+      "status": "blocked",
+      "token": "Meta-ExternalFetcher",
+      "type": "retrieval",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Amazon model training",
+      "status": "blocked",
+      "token": "Amazonbot",
+      "type": "training",
+      "vendor": "Amazon"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Cohere model training",
+      "status": "blocked",
+      "token": "cohere-ai",
+      "type": "training",
+      "vendor": "Cohere"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "retrieval for You.com answers",
+      "status": "blocked",
+      "token": "YouBot",
+      "type": "retrieval",
+      "vendor": "You.com"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "data extraction for a knowledge graph",
+      "status": "blocked",
+      "token": "Diffbot",
+      "type": "training",
+      "vendor": "Diffbot"
+     }
+    ],
+    "declared_groups": 2,
+    "ok": true,
+    "summary": {
+     "allowed_default": 0,
+     "allowed_explicit": 1,
+     "blocked": 17,
+     "by_type": {
+      "retrieval": {
+       "allowed": 0,
+       "blocked": 5
+      },
+      "training": {
+       "allowed": 1,
+       "blocked": 10
+      },
+      "user": {
+       "allowed": 0,
+       "blocked": 2
+      }
+     },
+     "total": 18
+    }
+   },
+   "name": "explicit_allow",
+   "robots": "User-agent: ClaudeBot\nAllow: /\nUser-agent: *\nDisallow: /\n"
+  },
+  {
+   "expected": {
+    "bots": [
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "OpenAI model training",
+      "status": "allowed_default",
+      "token": "GPTBot",
+      "type": "training",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for SearchGPT answers",
+      "status": "allowed_default",
+      "token": "OAI-SearchBot",
+      "type": "retrieval",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a ChatGPT user",
+      "status": "allowed_default",
+      "token": "ChatGPT-User",
+      "type": "user",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training",
+      "status": "allowed_default",
+      "token": "ClaudeBot",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "source retrieval for Claude",
+      "status": "allowed_default",
+      "token": "Claude-Web",
+      "type": "retrieval",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training and research",
+      "status": "allowed_default",
+      "token": "anthropic-ai",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for Perplexity answers",
+      "status": "allowed_default",
+      "token": "PerplexityBot",
+      "type": "retrieval",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a Perplexity user",
+      "status": "allowed_default",
+      "token": "Perplexity-User",
+      "type": "user",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Gemini and Vertex AI model training",
+      "status": "allowed_default",
+      "token": "Google-Extended",
+      "type": "training",
+      "vendor": "Google (Gemini)"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Apple model training",
+      "status": "allowed_default",
+      "token": "Applebot-Extended",
+      "type": "training",
+      "vendor": "Apple"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "ByteDance and TikTok model training",
+      "status": "allowed_default",
+      "token": "Bytespider",
+      "type": "training",
+      "vendor": "ByteDance"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "public web dataset used by many models",
+      "status": "allowed_default",
+      "token": "CCBot",
+      "type": "training",
+      "vendor": "Common Crawl"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Meta AI training and indexing",
+      "status": "allowed_default",
+      "token": "Meta-ExternalAgent",
+      "type": "training",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "page retrieval for Meta products",
+      "status": "allowed_default",
+      "token": "Meta-ExternalFetcher",
+      "type": "retrieval",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Amazon model training",
+      "status": "allowed_default",
+      "token": "Amazonbot",
+      "type": "training",
+      "vendor": "Amazon"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "Cohere model training",
+      "status": "allowed_default",
+      "token": "cohere-ai",
+      "type": "training",
+      "vendor": "Cohere"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "retrieval for You.com answers",
+      "status": "allowed_default",
+      "token": "YouBot",
+      "type": "retrieval",
+      "vendor": "You.com"
+     },
+     {
+      "blocked_root": false,
+      "declared_in_robots": false,
+      "purpose": "data extraction for a knowledge graph",
+      "status": "allowed_default",
+      "token": "Diffbot",
+      "type": "training",
+      "vendor": "Diffbot"
+     }
+    ],
+    "declared_groups": 0,
+    "ok": true,
+    "summary": {
+     "allowed_default": 18,
+     "allowed_explicit": 0,
+     "blocked": 0,
+     "by_type": {
+      "retrieval": {
+       "allowed": 5,
+       "blocked": 0
+      },
+      "training": {
+       "allowed": 11,
+       "blocked": 0
+      },
+      "user": {
+       "allowed": 2,
+       "blocked": 0
+      }
+     },
+     "total": 18
+    }
+   },
+   "name": "empty",
+   "robots": ""
+  },
+  {
+   "expected": {
+    "bots": [
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "OpenAI model training",
+      "status": "blocked",
+      "token": "GPTBot",
+      "type": "training",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "retrieval for SearchGPT answers",
+      "status": "blocked",
+      "token": "OAI-SearchBot",
+      "type": "retrieval",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a ChatGPT user",
+      "status": "blocked",
+      "token": "ChatGPT-User",
+      "type": "user",
+      "vendor": "OpenAI"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training",
+      "status": "blocked",
+      "token": "ClaudeBot",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "source retrieval for Claude",
+      "status": "blocked",
+      "token": "Claude-Web",
+      "type": "retrieval",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Anthropic model training and research",
+      "status": "blocked",
+      "token": "anthropic-ai",
+      "type": "training",
+      "vendor": "Anthropic"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "retrieval for Perplexity answers",
+      "status": "blocked",
+      "token": "PerplexityBot",
+      "type": "retrieval",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "fetches requested by a Perplexity user",
+      "status": "blocked",
+      "token": "Perplexity-User",
+      "type": "user",
+      "vendor": "Perplexity"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Gemini and Vertex AI model training",
+      "status": "blocked",
+      "token": "Google-Extended",
+      "type": "training",
+      "vendor": "Google (Gemini)"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Apple model training",
+      "status": "blocked",
+      "token": "Applebot-Extended",
+      "type": "training",
+      "vendor": "Apple"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "ByteDance and TikTok model training",
+      "status": "blocked",
+      "token": "Bytespider",
+      "type": "training",
+      "vendor": "ByteDance"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "public web dataset used by many models",
+      "status": "blocked",
+      "token": "CCBot",
+      "type": "training",
+      "vendor": "Common Crawl"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Meta AI training and indexing",
+      "status": "blocked",
+      "token": "Meta-ExternalAgent",
+      "type": "training",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "page retrieval for Meta products",
+      "status": "blocked",
+      "token": "Meta-ExternalFetcher",
+      "type": "retrieval",
+      "vendor": "Meta"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Amazon model training",
+      "status": "blocked",
+      "token": "Amazonbot",
+      "type": "training",
+      "vendor": "Amazon"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "Cohere model training",
+      "status": "blocked",
+      "token": "cohere-ai",
+      "type": "training",
+      "vendor": "Cohere"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "retrieval for You.com answers",
+      "status": "blocked",
+      "token": "YouBot",
+      "type": "retrieval",
+      "vendor": "You.com"
+     },
+     {
+      "blocked_root": true,
+      "declared_in_robots": false,
+      "purpose": "data extraction for a knowledge graph",
+      "status": "blocked",
+      "token": "Diffbot",
+      "type": "training",
+      "vendor": "Diffbot"
+     }
+    ],
+    "declared_groups": 1,
+    "ok": true,
+    "summary": {
+     "allowed_default": 0,
+     "allowed_explicit": 0,
+     "blocked": 18,
+     "by_type": {
+      "retrieval": {
+       "allowed": 0,
+       "blocked": 5
+      },
+      "training": {
+       "allowed": 0,
+       "blocked": 11
+      },
+      "user": {
+       "allowed": 0,
+       "blocked": 2
+      }
+     },
+     "total": 18
+    }
+   },
+   "name": "wildcard_block",
+   "robots": "User-agent: *\nDisallow: /\n"
+  }
+ ]
+}

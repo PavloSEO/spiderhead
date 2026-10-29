@@ -1,0 +1,38 @@
+[package]
+name = "spiderhead-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead mcp (MCP server surface)."
+
+[dependencies]
+anyhow.workspace = true
+fancy-regex.workspace = true
+indexmap.workspace = true
+rusqlite.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+tempfile.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+url.workspace = true
+uuid.workspace = true
+spiderhead-checks.workspace = true
+spiderhead-log-analyzer.workspace = true
+spiderhead-core.workspace = true
+spiderhead-crawl.workspace = true
+spiderhead-fetch.workspace = true
+spiderhead-parse.workspace = true
+spiderhead-projects.workspace = true
+spiderhead-recon.workspace = true
+spiderhead-reports.workspace = true
+spiderhead-semantics.workspace = true
+spiderhead-sf-import.workspace = true
+spiderhead-sources.workspace = true
+spiderhead-store.workspace = true
+
+[dev-dependencies]
+spiderhead-oracle-diff.workspace = true
+tempfile.workspace = true

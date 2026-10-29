@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JS-rendered page</title>
+<meta name="description" content="Content injected by script; static crawl sees an empty container.">
+</head>
+<body>
+<main>
+<h1>JS-rendered page</h1>
+<nav><a href="/">Home</a></nav>
+<div id="app"></div>
+<script>document.getElementById("app").innerHTML="<p>Content only after JS</p><a href=\"/js-only.html\">JS only link</a>";</script>
+</main>
+</body>
+</html>

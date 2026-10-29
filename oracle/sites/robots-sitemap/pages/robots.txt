@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /private/
+Crawl-delay: 1
+
+User-agent: ExampleBadBot
+Disallow: /
+
+Sitemap: {{BASE}}/sitemap.xml

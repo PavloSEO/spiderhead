@@ -1,0 +1,62 @@
+[
+ {
+  "data_json": "{\"ok\": true, \"n\": 3}",
+  "stdout": "{\n  \"ok\": true,\n  \"n\": 3\n}\n"
+ },
+ {
+  "data_json": "{}",
+  "stdout": "{}\n"
+ },
+ {
+  "data_json": "[]",
+  "stdout": "[]\n"
+ },
+ {
+  "data_json": "{\"a\": [], \"b\": {}, \"c\": [{}], \"d\": [[]]}",
+  "stdout": "{\n  \"a\": [],\n  \"b\": {},\n  \"c\": [\n    {}\n  ],\n  \"d\": [\n    []\n  ]\n}\n"
+ },
+ {
+  "data_json": "{\"z\": 1, \"a\": 2, \"m\": {\"y\": null, \"b\": false}}",
+  "stdout": "{\n  \"z\": 1,\n  \"a\": 2,\n  \"m\": {\n    \"y\": null,\n    \"b\": false\n  }\n}\n"
+ },
+ {
+  "data_json": "{\"text\": \"café – 中文 🕷\", \"esc\": \"tab\\t nl\\n quote\\\" back\\\\ ctl\\u0001 del\"}",
+  "stdout": "{\n  \"text\": \"café – 中文 🕷\",\n  \"esc\": \"tab\\t nl\\n quote\\\" back\\\\ ctl\\u0001 del\"\n}\n"
+ },
+ {
+  "data_json": "{\"floats\": [0.1, 1.0, -0.0, 1e-07, 1e+16, 123456789012345.0, 1.5e+300, 2.5e-05, 100.0, 3.14159]}",
+  "stdout": "{\n  \"floats\": [\n    0.1,\n    1.0,\n    -0.0,\n    1e-07,\n    1e+16,\n    123456789012345.0,\n    1.5e+300,\n    2.5e-05,\n    100.0,\n    3.14159\n  ]\n}\n"
+ },
+ {
+  "data_json": "{\"ints\": [0, -1, 9007199254740992, -9223372036854775808, 12345678901234567890]}",
+  "stdout": "{\n  \"ints\": [\n    0,\n    -1,\n    9007199254740992,\n    -9223372036854775808,\n    12345678901234567890\n  ]\n}\n"
+ },
+ {
+  "data_json": "[1, [2, [3, [4]]], {\"k\": [{\"deep\": \"v\"}]}]",
+  "stdout": "[\n  1,\n  [\n    2,\n    [\n      3,\n      [\n        4\n      ]\n    ]\n  ],\n  {\n    \"k\": [\n      {\n        \"deep\": \"v\"\n      }\n    ]\n  }\n]\n"
+ },
+ {
+  "data_json": "{\"url\": \"https://example.com/a?b=1&c=2#f\", \"status\": 200, \"links\": [\"/a\", \"/b\"]}",
+  "stdout": "{\n  \"url\": \"https://example.com/a?b=1&c=2#f\",\n  \"status\": 200,\n  \"links\": [\n    \"/a\",\n    \"/b\"\n  ]\n}\n"
+ },
+ {
+  "data_json": "\"plain string\"",
+  "stdout": "\"plain string\"\n"
+ },
+ {
+  "data_json": "42",
+  "stdout": "42\n"
+ },
+ {
+  "data_json": "null",
+  "stdout": "null\n"
+ },
+ {
+  "data_json": "{\"unicode_key_ü\": 1, \"\": \"empty key\"}",
+  "stdout": "{\n  \"unicode_key_ü\": 1,\n  \"\": \"empty key\"\n}\n"
+ },
+ {
+  "data_json": "{\"rows\": [{\"url\": \"https://example.com/\", \"status\": 200, \"title\": \"Home\"}, {\"url\": \"https://example.com/x\", \"status\": 404, \"title\": null}]}",
+  "stdout": "{\n  \"rows\": [\n    {\n      \"url\": \"https://example.com/\",\n      \"status\": 200,\n      \"title\": \"Home\"\n    },\n    {\n      \"url\": \"https://example.com/x\",\n      \"status\": 404,\n      \"title\": null\n    }\n  ]\n}\n"
+ }
+]

@@ -1,0 +1,33 @@
+[package]
+name = "spiderhead-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead CLI (Rust port of the reference cli/ package)"
+
+[lib]
+name = "spiderhead_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "spiderhead"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+fancy-regex.workspace = true
+regex.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+rusqlite.workspace = true
+spiderhead-core.workspace = true
+spiderhead-mcp.workspace = true
+spiderhead-projects.workspace = true
+spiderhead-semantics.workspace = true
+
+[dev-dependencies]
+spiderhead-crawl.workspace = true
+spiderhead-oracle-testkit.workspace = true
+spiderhead-store.workspace = true
+sha2.workspace = true

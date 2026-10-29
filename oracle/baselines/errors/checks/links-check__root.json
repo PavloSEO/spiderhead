@@ -1,0 +1,39 @@
+{
+ "exit": 0,
+ "stdout": {
+  "broken": [
+   {
+    "external": false,
+    "href": "{BASE}/gone.html",
+    "status": 410
+   },
+   {
+    "external": false,
+    "href": "{BASE}/boom.html",
+    "status": 500
+   },
+   {
+    "external": false,
+    "href": "{BASE}/unavailable.html",
+    "status": 503
+   },
+   {
+    "external": false,
+    "href": "{BASE}/nope.html",
+    "status": 404
+   },
+   {
+    "external": false,
+    "href": "{BASE}/forbidden.html",
+    "status": 403
+   }
+  ],
+  "checked": 8,
+  "links_found": 8,
+  "ok": true,
+  "ok_count": 3,
+  "redirects": [],
+  "truncated": false,
+  "url": "{BASE}/"
+ }
+}

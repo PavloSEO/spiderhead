@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "seohead: scan-url-detail\n",
+    "stdout": "{\n  \"ok\": false,\n  \"state\": \"invalid\",\n  \"error\": \"response_limit must be 1..100\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_scan_url_detail: {\"ok\": false, \"state\": \"invalid\", \"error\": \"response_limit must be 1..100\"}"
+   }
+  ]
+ }
+}

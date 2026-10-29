@@ -1,0 +1,753 @@
+{
+ "group": "metrika",
+ "cases": [
+  {
+   "name": "counters-ok",
+   "cli": {
+    "argv": [
+     "metrika-counters"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_metrika_counters",
+    "arguments": {}
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-metrika/token",
+     "text": "test-metrika-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/management/v1/counters",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "counters": [
+         {
+          "id": 101,
+          "name": "Main",
+          "site": "example.test",
+          "status": "Active",
+          "extra": 1
+         },
+         {
+          "id": 102,
+          "name": "Blog",
+          "site": "blog.example.test",
+          "status": "Active"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"count\": 2,\n  \"counters\": [\n    {\n      \"id\": 101,\n      \"name\": \"Main\",\n      \"site\": \"example.test\",\n      \"status\": \"Active\"\n    },\n    {\n      \"id\": 102,\n      \"name\": \"Blog\",\n      \"site\": \"blog.example.test\",\n      \"status\": \"Active\"\n    }\n  ]\n}\n",
+     "stderr": "seohead: metrika-counters\n",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counters",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"count\": 2,\n  \"counters\": [\n    {\n      \"id\": 101,\n      \"name\": \"Main\",\n      \"site\": \"example.test\",\n      \"status\": \"Active\"\n    },\n    {\n      \"id\": 102,\n      \"name\": \"Blog\",\n      \"site\": \"blog.example.test\",\n      \"status\": \"Active\"\n    }\n  ]\n}",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counters",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "counters-api-error",
+   "cli": {
+    "argv": [
+     "metrika-counters"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-metrika/token",
+     "text": "test-metrika-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/management/v1/counters",
+     "responses": [
+      {
+       "status": 403,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "message": "Invalid token",
+        "code": 403
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"Invalid token\",\n  \"status\": 403\n}\n",
+     "stderr": "seohead: metrika-counters\n",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counters",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "counters-no-credential",
+   "cli": {
+    "argv": [
+     "metrika-counters"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-metrika/token or set $YANDEX_METRIKA_TOKEN. Create a Yandex Metrica OAuth token at oauth.yandex.ru.\"\n}\n",
+     "stderr": "seohead: metrika-counters\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "setup-ok",
+   "cli": {
+    "argv": [
+     "metrika-setup",
+     "--counter",
+     "101"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_metrika_setup",
+    "arguments": {
+     "counter_id": "101"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-metrika/token",
+     "text": "test-metrika-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/management/v1/counter/101/goals",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "goals": [
+         {
+          "id": 7,
+          "name": "Lead",
+          "type": "url",
+          "x": 1
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/management/v1/counter/101/filters",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "filters": [
+         {
+          "id": 1,
+          "attr": "title"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/management/v1/counter/101/operations",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "operations": [
+         {
+          "id": 3,
+          "action": "cut_parameter"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"counter_id\": \"101\",\n  \"goals\": [\n    {\n      \"id\": 7,\n      \"name\": \"Lead\",\n      \"type\": \"url\"\n    }\n  ],\n  \"goals_count\": 1,\n  \"filters\": [\n    {\n      \"id\": 1,\n      \"attr\": \"title\"\n    }\n  ],\n  \"operations\": [\n    {\n      \"id\": 3,\n      \"action\": \"cut_parameter\"\n    }\n  ],\n  \"note\": null\n}\n",
+     "stderr": "seohead: metrika-setup\n",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/goals",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      },
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/filters",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      },
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/operations",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"counter_id\": \"101\",\n  \"goals\": [\n    {\n      \"id\": 7,\n      \"name\": \"Lead\",\n      \"type\": \"url\"\n    }\n  ],\n  \"goals_count\": 1,\n  \"filters\": [\n    {\n      \"id\": 1,\n      \"attr\": \"title\"\n    }\n  ],\n  \"operations\": [\n    {\n      \"id\": 3,\n      \"action\": \"cut_parameter\"\n    }\n  ],\n  \"note\": null\n}",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/goals",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      },
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/filters",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      },
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/operations",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "setup-no-goals",
+   "cli": {
+    "argv": [
+     "metrika-setup",
+     "--counter",
+     "101"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-metrika/token",
+     "text": "test-metrika-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/management/v1/counter/101/goals",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "goals": []
+       }
+      }
+     ]
+    },
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/management/v1/counter/101/filters",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "filters": [
+         {
+          "id": 1,
+          "attr": "title"
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/management/v1/counter/101/operations",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "operations": [
+         {
+          "id": 3,
+          "action": "cut_parameter"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"counter_id\": \"101\",\n  \"goals\": [],\n  \"goals_count\": 0,\n  \"filters\": [\n    {\n      \"id\": 1,\n      \"attr\": \"title\"\n    }\n  ],\n  \"operations\": [\n    {\n      \"id\": 3,\n      \"action\": \"cut_parameter\"\n    }\n  ],\n  \"note\": \"no goals are configured, so conversions cannot appear in the data; a zero conversion rate would reflect instrumentation, not observed behavior\"\n}\n",
+     "stderr": "seohead: metrika-setup\n",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/goals",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      },
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/filters",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      },
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/management/v1/counter/101/operations",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "setup-no-counter",
+   "cli": {
+    "argv": [
+     "metrika-setup"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: metrika-setup\nerror: counter_id required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "report-ok",
+   "cli": {
+    "argv": [
+     "metrika-report",
+     "--counter",
+     "101",
+     "--metrics",
+     "ym:s:visits,ym:s:pageviews",
+     "--dimensions",
+     "ym:s:startURL",
+     "--date1",
+     "2026-01-01",
+     "--date2",
+     "2026-01-31",
+     "--limit",
+     "50",
+     "--sort=-ym:s:visits"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_metrika_report",
+    "arguments": {
+     "counter_id": "101",
+     "metrics": "ym:s:visits",
+     "date1": "7daysAgo"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-metrika/token",
+     "text": "test-metrika-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/stat/v1/data",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "query": {
+         "dimensions": [
+          "ym:s:startURL"
+         ],
+         "metrics": [
+          "ym:s:visits",
+          "ym:s:pageviews"
+         ],
+         "accuracy": "full"
+        },
+        "data": [
+         {
+          "dimensions": [
+           {
+            "name": "https://example.test/"
+           }
+          ],
+          "metrics": [
+           120,
+           340
+          ]
+         },
+         {
+          "dimensions": [
+           {
+            "name": "https://example.test/a"
+           }
+          ],
+          "metrics": [
+           30,
+           41
+          ]
+         }
+        ],
+        "total_rows": 2,
+        "sampled": false,
+        "sample_share": 1.0,
+        "totals": [
+         150,
+         381
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"counter_id\": \"101\",\n  \"period\": \"2026-01-01..2026-01-31\",\n  \"total_rows\": 2,\n  \"returned\": 2,\n  \"capped\": false,\n  \"incomplete\": false,\n  \"sampled\": false,\n  \"sample_share\": 1.0,\n  \"accuracy\": \"full\",\n  \"split\": null,\n  \"totals\": [\n    150,\n    381\n  ],\n  \"rows\": [\n    {\n      \"startURL\": \"https://example.test/\",\n      \"visits\": 120,\n      \"pageviews\": 340\n    },\n    {\n      \"startURL\": \"https://example.test/a\",\n      \"visits\": 30,\n      \"pageviews\": 41\n    }\n  ]\n}\n",
+     "stderr": "seohead: metrika-report\n",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/stat/v1/data",
+       "query": "accuracy=full&ids=101&metrics=ym%3As%3Avisits%2Cym%3As%3Apageviews&date1=2026-01-01&date2=2026-01-31&dimensions=ym%3As%3AstartURL&sort=-ym%3As%3Avisits&limit=50&offset=1",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"counter_id\": \"101\",\n  \"period\": \"7daysAgo..today\",\n  \"total_rows\": 2,\n  \"returned\": 2,\n  \"capped\": false,\n  \"incomplete\": false,\n  \"sampled\": false,\n  \"sample_share\": 1.0,\n  \"accuracy\": \"full\",\n  \"split\": null,\n  \"totals\": [\n    150,\n    381\n  ],\n  \"rows\": [\n    {\n      \"startURL\": \"https://example.test/\",\n      \"visits\": 120,\n      \"pageviews\": 340\n    },\n    {\n      \"startURL\": \"https://example.test/a\",\n      \"visits\": 30,\n      \"pageviews\": 41\n    }\n  ]\n}",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/stat/v1/data",
+       "query": "accuracy=full&ids=101&metrics=ym%3As%3Avisits&date1=7daysAgo&date2=today&limit=100&offset=1",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "report-paginate",
+   "cli": {
+    "argv": [
+     "metrika-report",
+     "--counter",
+     "101",
+     "--metrics",
+     "ym:s:visits",
+     "--paginate",
+     "--limit",
+     "1"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-metrika/token",
+     "text": "test-metrika-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/stat/v1/data",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "query": {
+         "dimensions": [
+          "ym:s:startURL"
+         ],
+         "metrics": [
+          "ym:s:visits",
+          "ym:s:pageviews"
+         ],
+         "accuracy": "full"
+        },
+        "data": [
+         {
+          "dimensions": [
+           {
+            "name": "https://example.test/"
+           }
+          ],
+          "metrics": [
+           120,
+           340
+          ]
+         },
+         {
+          "dimensions": [
+           {
+            "name": "https://example.test/a"
+           }
+          ],
+          "metrics": [
+           30,
+           41
+          ]
+         }
+        ],
+        "total_rows": 2,
+        "sampled": false,
+        "sample_share": 1.0,
+        "totals": [
+         150,
+         381
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"counter_id\": \"101\",\n  \"period\": \"30daysAgo..today\",\n  \"total_rows\": 2,\n  \"returned\": 2,\n  \"capped\": false,\n  \"incomplete\": false,\n  \"sampled\": false,\n  \"sample_share\": 1.0,\n  \"accuracy\": \"full\",\n  \"split\": null,\n  \"totals\": [\n    150,\n    381\n  ],\n  \"rows\": [\n    {\n      \"startURL\": \"https://example.test/\",\n      \"visits\": 120,\n      \"pageviews\": 340\n    },\n    {\n      \"startURL\": \"https://example.test/a\",\n      \"visits\": 30,\n      \"pageviews\": 41\n    }\n  ]\n}\n",
+     "stderr": "seohead: metrika-report\n",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/stat/v1/data",
+       "query": "accuracy=full&ids=101&metrics=ym%3As%3Avisits&date1=30daysAgo&date2=today&limit=100&offset=1",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "report-api-error",
+   "cli": {
+    "argv": [
+     "metrika-report",
+     "--counter",
+     "101",
+     "--metrics",
+     "ym:s:visits"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-metrika/token",
+     "text": "test-metrika-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api-metrika.yandex.net",
+     "method": "GET",
+     "path": "/stat/v1/data",
+     "responses": [
+      {
+       "status": 400,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "message": "Bad metric",
+        "code": 400
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"Bad metric\",\n  \"status\": 400\n}\n",
+     "stderr": "seohead: metrika-report\n",
+     "requests": [
+      {
+       "host": "api-metrika.yandex.net",
+       "method": "GET",
+       "path": "/stat/v1/data",
+       "query": "accuracy=full&ids=101&metrics=ym%3As%3Avisits&date1=30daysAgo&date2=today&limit=100&offset=1",
+       "body": "",
+       "headers": {
+        "authorization": "OAuth test-metrika-token"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "report-missing",
+   "cli": {
+    "argv": [
+     "metrika-report",
+     "--counter",
+     "101"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: metrika-report\nerror: counter_id and metrics required\n",
+     "requests": []
+    }
+   }
+  }
+ ]
+}

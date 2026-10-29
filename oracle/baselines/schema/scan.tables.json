@@ -1,0 +1,2830 @@
+{
+ "audit": [],
+ "bodies": [
+  {
+   "decoded_bytes": 652,
+   "sha256": "063995d6eb15bf22d2fcb95f1e10b8f3550a11dcd046326e2fd3fe3652ca3dca",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Schema site home</title>\n<meta name=\"description\" content=\"Home with valid Organization markup.\">\n<script type=\"application/ld+json\">\n{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"Example Org\",\"url\":\"https://www.example.com/\"}\n</script>\n</head>\n<body>\n<main>\n<h1>Schema site home</h1>\n<nav><a href=\"/article-valid.html\">Valid article</a> <a href=\"/broken-json.html\">Broken JSON</a> <a href=\"/missing-fields.html\">Missing fields</a> <a href=\"/product.html\">Product</a> <a href=\"/no-schema.html\">No schema</a></nav>\n<p>JSON-LD scenarios.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 518,
+   "sha256": "05c7d3d1e69d3e7819abccf04616d147a48cbaeb09d8dcb4456a398dadb48f2a",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Valid article</title>\n<meta name=\"description\" content=\"Article with valid JSON-LD.\">\n<script type=\"application/ld+json\">\n{\"@context\":\"https://schema.org\",\"@type\":\"Article\",\"headline\":\"Valid article\",\"datePublished\":\"2026-01-01\",\"author\":{\"@type\":\"Person\",\"name\":\"Jane Doe\"},\"image\":\"https://www.example.com/a.png\"}\n</script>\n</head>\n<body>\n<main>\n<h1>Valid article</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Article body.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 414,
+   "sha256": "070fe7996f830b8c816bb9cd420ee245f3c3f68ff2fe59235815b3ed04e748d6",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Broken JSON-LD</title>\n<meta name=\"description\" content=\"JSON-LD that does not parse.\">\n<script type=\"application/ld+json\">\n{\"@context\":\"https://schema.org\",\"@type\":\"Article\",\"headline\":\"Broken\",,}\n</script>\n</head>\n<body>\n<main>\n<h1>Broken JSON-LD</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Syntax error in the block.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 426,
+   "sha256": "13d92ad6bcc52254208dc3ed1320701a7deaf4cb5af40950cdbd1bd80bb04cd9",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Missing required fields</title>\n<meta name=\"description\" content=\"Article missing recommended properties.\">\n<script type=\"application/ld+json\">\n{\"@context\":\"https://schema.org\",\"@type\":\"Article\"}\n</script>\n</head>\n<body>\n<main>\n<h1>Missing required fields</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Valid JSON, incomplete Article.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 463,
+   "sha256": "5c120264949a6fc8510de8528c30b822fa9d49deea1cc0a785816c6861a5c91c",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Product with offer</title>\n<meta name=\"description\" content=\"Product with an invalid price.\">\n<script type=\"application/ld+json\">\n{\"@context\":\"https://schema.org\",\"@type\":\"Product\",\"name\":\"Widget\",\"offers\":{\"@type\":\"Offer\",\"price\":\"abc\",\"priceCurrency\":\"USD\"}}\n</script>\n</head>\n<body>\n<main>\n<h1>Product with offer</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Product.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 294,
+   "sha256": "72d4bbf69933e2a5d75f4595fa0646f3c3f1f34ba9be064e6618fa5d091591d3",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>No structured data</title>\n<meta name=\"description\" content=\"Page without any structured data.\">\n</head>\n<body>\n<main>\n<h1>No structured data</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Nothing here.</p>\n</main>\n</body>\n</html>\n"
+  }
+ ],
+ "context_items": [
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "analysis_asset_thresholds",
+   "payload_json": {
+    "schema_version": "analysis_asset_thresholds.v1",
+    "thresholds": {
+     "network_payload_max_bytes": 4194304,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "native_config_extension",
+   "payload_json": {
+    "effective_fingerprint": "25c6791d7f05d2c270a5e29446115666eb0c0f868d5d42a588c32bd4f97c1084",
+    "schema_version": "native_config_extension.v1",
+    "settings": {
+     "http.auth": [],
+     "http.auth_acknowledged": false,
+     "http.zstd": false,
+     "rendering.actions": [],
+     "rendering.artifacts.screenshot_mode": "full_page",
+     "rendering.presets": [],
+     "scope.normalize_tracking_parameters": true
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "credential_context",
+   "payload_json": {
+    "implicit_state": false,
+    "verifier": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "robots_summary",
+   "payload_json": {
+    "fetch_state": "fetched",
+    "final_response_id": null,
+    "note": "",
+    "parsed": {
+     "groups": [
+      {
+       "_line_of": {
+        "allow:/": 2
+       },
+       "allow": [
+        "/"
+       ],
+       "crawl_delay": null,
+       "disallow": [],
+       "request_rate_delay": null,
+       "user_agents": [
+        "*"
+       ]
+      }
+     ],
+     "sitemaps": []
+    },
+    "policy": "respect",
+    "token": "SpiderHeadBot"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "2a16e1c57a84b082422ae1c86a3ae9a3a4f9a552613edceba8935c53c2111bc4",
+    "canonical_target": "",
+    "content_tokens": 6,
+    "exact_hash": "a366a24ce90163cbc4d520251d099bea0b820a29682b29f9d403bcd088283335",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "bcaa5587ca987e18b9ececbfe444e84c3cc94af9dff11631cad4b0f88f0ce0e9",
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "2291b20295f4a6cc",
+    "source_document_id": 1,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 1,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 1
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [
+     {
+      "hash": "ef6ece14b370e44d89d0fac5daa85212cbda4add46336954f06117bc5da59e0a",
+      "ordinal": 0,
+      "parser_ordinal": 0,
+      "state": "parsed"
+     }
+    ],
+    "edges": [],
+    "nodes": [
+     {
+      "block_ordinal": 0,
+      "id": null,
+      "ordinal": 0,
+      "types": [
+       "Organization"
+      ]
+     }
+    ],
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 1,
+    "state": "valid",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [
+      {
+       "feature": "Organization",
+       "local_requirements_state": "met",
+       "missing_required": [],
+       "missing_required_any_of": [],
+       "rules_version": "2026-10-23",
+       "type": "Organization"
+      }
+     ],
+     "feature_eligibility_state": "locally_checked",
+     "structural_state": "valid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 1,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 1,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:1",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 1,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "0",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "",
+    "content_tokens": 4,
+    "exact_hash": "1f2ec588533dd7e604bdaa876b83564a7ea6bf2b1d046908eeb058fd639b0089",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "80f2a6fe356d78d88dc8bcdb1eaf6b47101eda488bd1ba6bdfa51c7c7c479f0a",
+    "page_url_id": 2,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "4158a80050d8ba91",
+    "source_document_id": 2,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 2,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 2
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [
+     {
+      "hash": "1bae73dea3f18cee2608712ccd45b818b5bd2038cd2b6578031fafa34e9c56c4",
+      "ordinal": 0,
+      "parser_ordinal": 0,
+      "state": "parsed"
+     }
+    ],
+    "edges": [],
+    "nodes": [
+     {
+      "block_ordinal": 0,
+      "id": null,
+      "ordinal": 0,
+      "types": [
+       "Article"
+      ]
+     },
+     {
+      "block_ordinal": 0,
+      "id": null,
+      "ordinal": 1,
+      "types": [
+       "Person"
+      ]
+     }
+    ],
+    "page_url_id": 2,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 2,
+    "state": "valid",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [
+      {
+       "feature": "Article",
+       "local_requirements_state": "met",
+       "missing_required": [],
+       "missing_required_any_of": [],
+       "rules_version": "2026-10-23",
+       "type": "Article"
+      }
+     ],
+     "feature_eligibility_state": "locally_checked",
+     "structural_state": "valid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 2,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 2,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 2,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 2,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:2",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 2,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "1",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "",
+    "content_tokens": 8,
+    "exact_hash": "d7495001edd4b94ebb2dc6f875b446efbe6548c145bbd3332b0a25bce4d73b33",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "457b3d44a5070cc3100d61cf6964179189caf8c7a095b5d32ccdcdacacaf0d93",
+    "page_url_id": 3,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "442622263000001a",
+    "source_document_id": 3,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 3,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 3
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [
+     {
+      "hash": "2d73a2c07739cf7859320f510ff88846d7fd99036b1fad3a1a774e9e229f9baf",
+      "ordinal": 0,
+      "parser_ordinal": 1,
+      "state": "malformed"
+     }
+    ],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 3,
+    "reason": "JSON-LD syntax failures captured",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 3,
+    "state": "malformed",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "malformed",
+     "syntax_state": "malformed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "JSON-LD syntax failures captured"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 3,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 3,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 3,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 3,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:3",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 3,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "2",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "",
+    "content_tokens": 7,
+    "exact_hash": "f64679d03eaf3702d9fba20dfac05ba6731486e21d65e804feb3c2bc25424e2c",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "7a77f985572fcad0121e4627fd8f721674bbba5e6ff609f695121173e2b2868c",
+    "page_url_id": 4,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "86e78218d6c600a7",
+    "source_document_id": 4,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 4,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 4
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [
+     {
+      "hash": "bb2d9a874cefa1498037efa6f65a53f58a4bea2e9291bc0e779b52ec865673eb",
+      "ordinal": 0,
+      "parser_ordinal": 0,
+      "state": "parsed"
+     }
+    ],
+    "edges": [],
+    "nodes": [
+     {
+      "block_ordinal": 0,
+      "id": null,
+      "ordinal": 0,
+      "types": [
+       "Article"
+      ]
+     }
+    ],
+    "page_url_id": 4,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 4,
+    "state": "valid",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [
+      {
+       "feature": "Article",
+       "local_requirements_state": "met",
+       "missing_required": [],
+       "missing_required_any_of": [],
+       "rules_version": "2026-10-23",
+       "type": "Article"
+      }
+     ],
+     "feature_eligibility_state": "locally_checked",
+     "structural_state": "valid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 4,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 4,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 4,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 4,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:4",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 4,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "3",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "",
+    "content_tokens": 4,
+    "exact_hash": "7ee9383d1039d8e6cb0fbc33541dac4c11545f86fdc9fdf1b4f1b9133cc25058",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "ee1103a6ee3f101fa2f19087f20cfd7e79664972627afa5a5a67dc0f29dd6066",
+    "page_url_id": 5,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "60e60009c8e30110",
+    "source_document_id": 5,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 5,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 5
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [
+     {
+      "hash": "aa812872a066e499d81bc8be95fc50471388a7d32e49d2027a81b70a89a44413",
+      "ordinal": 0,
+      "parser_ordinal": 0,
+      "state": "parsed"
+     }
+    ],
+    "edges": [],
+    "nodes": [
+     {
+      "block_ordinal": 0,
+      "id": null,
+      "ordinal": 0,
+      "types": [
+       "Product"
+      ]
+     },
+     {
+      "block_ordinal": 0,
+      "id": null,
+      "ordinal": 1,
+      "types": [
+       "Offer"
+      ]
+     }
+    ],
+    "page_url_id": 5,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 5,
+    "state": "valid",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [
+      {
+       "feature": "Product snippets",
+       "local_requirements_state": "met",
+       "missing_required": [],
+       "missing_required_any_of": [],
+       "rules_version": "2026-10-23",
+       "type": "Product"
+      }
+     ],
+     "feature_eligibility_state": "locally_checked",
+     "structural_state": "valid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 5,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 5,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 5,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 5,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:5",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 5,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "4",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "",
+    "content_tokens": 5,
+    "exact_hash": "d1293cc4a70839d134c1714ea36bc2e33e2a0e50c5b0bb567622b4067acba2ad",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "c8a46913001c1e815c9220e0a7d6f08eeae3493c7a61d472afd0d229d6795af4",
+    "page_url_id": 6,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "7fc16c6ac330d3df",
+    "source_document_id": 6,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 6,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 6
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 6,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 6,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 6,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 6,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 6,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 6,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:6",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 6,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "5",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  }
+ ],
+ "decisions": [],
+ "documents": [
+  {
+   "body_reason": "none",
+   "body_sha256": "063995d6eb15bf22d2fcb95f1e10b8f3550a11dcd046326e2fd3fe3652ca3dca",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 1,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 1,
+   "url_id": 1
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "05c7d3d1e69d3e7819abccf04616d147a48cbaeb09d8dcb4456a398dadb48f2a",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 2,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 2,
+   "url_id": 2
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "070fe7996f830b8c816bb9cd420ee245f3c3f68ff2fe59235815b3ed04e748d6",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 3,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 3,
+   "url_id": 3
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "13d92ad6bcc52254208dc3ed1320701a7deaf4cb5af40950cdbd1bd80bb04cd9",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 4,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 4,
+   "url_id": 4
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "5c120264949a6fc8510de8528c30b822fa9d49deea1cc0a785816c6861a5c91c",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 5,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 5,
+   "url_id": 5
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "72d4bbf69933e2a5d75f4595fa0646f3c3f1f34ba9be064e6618fa5d091591d3",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 6,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 6,
+   "url_id": 6
+  }
+ ],
+ "forms": [],
+ "frontier": [
+  {
+   "depth": 0,
+   "queue_ordinal": 0,
+   "state": "done",
+   "url_id": 1
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 1,
+   "state": "done",
+   "url_id": 2
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 2,
+   "state": "done",
+   "url_id": 3
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 3,
+   "state": "done",
+   "url_id": 4
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 4,
+   "state": "done",
+   "url_id": 5
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 5,
+   "state": "done",
+   "url_id": 6
+  }
+ ],
+ "links": [
+  {
+   "anchor": "Valid article",
+   "anchor_source": "",
+   "destination_url_id": 2,
+   "evidence_representation": "static",
+   "link_id": 1,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Broken JSON",
+   "anchor_source": "",
+   "destination_url_id": 3,
+   "evidence_representation": "static",
+   "link_id": 2,
+   "nofollow": 0,
+   "ordinal": 1,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Missing fields",
+   "anchor_source": "",
+   "destination_url_id": 4,
+   "evidence_representation": "static",
+   "link_id": 3,
+   "nofollow": 0,
+   "ordinal": 2,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Product",
+   "anchor_source": "",
+   "destination_url_id": 5,
+   "evidence_representation": "static",
+   "link_id": 4,
+   "nofollow": 0,
+   "ordinal": 3,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "No schema",
+   "anchor_source": "",
+   "destination_url_id": 6,
+   "evidence_representation": "static",
+   "link_id": 5,
+   "nofollow": 0,
+   "ordinal": 4,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 6,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 2,
+   "source_url_id": 2,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 7,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 3,
+   "source_url_id": 3,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 8,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 4,
+   "source_url_id": 4,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 9,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 5,
+   "source_url_id": 5,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 10,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 6,
+   "source_url_id": 6,
+   "target": ""
+  }
+ ],
+ "pages": [
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 5.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 1,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 32.6,
+   "h1": "Schema site home",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Schema site home"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 1,
+   "jsonld_blocks_parsed": 1,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Home with valid Organization markup.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 5,
+   "page_ordinal": 0,
+   "plugin_elements": 0,
+   "readability": "difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 652,
+   "status_code": 200,
+   "text_ratio": 18.95,
+   "title": "Schema site home",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 1,
+   "viewport": "",
+   "word_count": 5,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 4.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 2,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 0.0,
+   "h1": "Valid article",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Valid article"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 1,
+   "jsonld_blocks_parsed": 1,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Article with valid JSON-LD.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 1,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 518,
+   "status_code": 200,
+   "text_ratio": 11.47,
+   "title": "Valid article",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [
+     "jsonld_type:Article"
+    ],
+    "author": [
+     {
+      "confidence": "high",
+      "signal": "jsonld_author",
+      "value": "Jane Doe"
+     }
+    ],
+    "dates": [
+     {
+      "confidence": "high",
+      "signal": "jsonld_date:datePublished",
+      "value": "2026-01-01"
+     }
+    ]
+   },
+   "url_id": 2,
+   "viewport": "",
+   "word_count": 4,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 7.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 3,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 78.9,
+   "h1": "Broken JSON-LD",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Broken JSON-LD"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 1,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "JSON-LD that does not parse.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 2,
+   "plugin_elements": 0,
+   "readability": "fairly easy",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 414,
+   "status_code": 200,
+   "text_ratio": 15.59,
+   "title": "Broken JSON-LD",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 3,
+   "viewport": "",
+   "word_count": 7,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 7.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 4,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 6.4,
+   "h1": "Missing required fields",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Missing required fields"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 1,
+   "jsonld_blocks_parsed": 1,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Article missing recommended properties.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 3,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 426,
+   "status_code": 200,
+   "text_ratio": 18.24,
+   "title": "Missing required fields",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [
+     "jsonld_type:Article"
+    ],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 4,
+   "viewport": "",
+   "word_count": 7,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 4.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 5,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 54.7,
+   "h1": "Product with offer",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Product with offer"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 1,
+   "jsonld_blocks_parsed": 1,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Product with an invalid price.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 4,
+   "plugin_elements": 0,
+   "readability": "fairly difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 463,
+   "status_code": 200,
+   "text_ratio": 11.15,
+   "title": "Product with offer",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 5,
+   "viewport": "",
+   "word_count": 4,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 5.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 6,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 32.6,
+   "h1": "No structured data",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "No structured data"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Page without any structured data.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 5,
+   "plugin_elements": 0,
+   "readability": "difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 294,
+   "status_code": 200,
+   "text_ratio": 12.59,
+   "title": "No structured data",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 6,
+   "viewport": "",
+   "word_count": 5,
+   "x_robots": ""
+  }
+ ],
+ "query_variants": [
+  {
+   "path_key": "/article-valid.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/broken-json.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/missing-fields.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/product.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/no-schema.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/",
+   "query_key": ""
+  }
+ ],
+ "resource_refs": [],
+ "responses": [
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "063995d6eb15bf22d2fcb95f1e10b8f3550a11dcd046326e2fd3fe3652ca3dca",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "652"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 1,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 652,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 0,
+   "request_url_id": 1,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "652"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 1,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "05c7d3d1e69d3e7819abccf04616d147a48cbaeb09d8dcb4456a398dadb48f2a",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "518"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 2,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 518,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 1,
+   "request_url_id": 2,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "518"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 2,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "070fe7996f830b8c816bb9cd420ee245f3c3f68ff2fe59235815b3ed04e748d6",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "414"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 3,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 414,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 2,
+   "request_url_id": 3,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "414"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 3,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "13d92ad6bcc52254208dc3ed1320701a7deaf4cb5af40950cdbd1bd80bb04cd9",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "426"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 4,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 426,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 3,
+   "request_url_id": 4,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "426"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 4,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "5c120264949a6fc8510de8528c30b822fa9d49deea1cc0a785816c6861a5c91c",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "463"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 5,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 463,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 4,
+   "request_url_id": 5,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "463"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 5,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "72d4bbf69933e2a5d75f4595fa0646f3c3f1f34ba9be064e6618fa5d091591d3",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "294"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 6,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 294,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 5,
+   "request_url_id": 6,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "294"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 6,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+  }
+ ],
+ "resume_state": [
+  {
+   "circuit_server_error_streak": 0,
+   "circuit_timeout_streak": 0,
+   "crawl_delay_applied": null,
+   "elapsed_seconds": "<DURATION>",
+   "max_depth_reached": 1,
+   "singleton": 1,
+   "state_version": "scan_resume.v1",
+   "throttle_state_json": {
+    "concurrency": 1,
+    "consecutive_ok": 2,
+    "delay_seconds": "<DURATION>",
+    "requests_used": 7,
+    "schema_version": "scan_throttle.v2"
+   }
+  }
+ ],
+ "scan": [
+  {
+   "capabilities_json": {
+    "html_bodies": {
+     "reason": "",
+     "state": "complete"
+    },
+    "links": {
+     "reason": "committed native crawl observations",
+     "state": "complete"
+    },
+    "offline_reanalysis": {
+     "reason": "",
+     "state": "complete"
+    },
+    "pages": {
+     "reason": "committed native crawl observations",
+     "state": "complete"
+    },
+    "rendered_bodies": {
+     "reason": "no captured rendered documents",
+     "state": "unavailable"
+    },
+    "resource_bodies": {
+     "reason": "resources.fetch disabled",
+     "state": "unavailable"
+    },
+    "resource_refs": {
+     "reason": "",
+     "state": "complete"
+    },
+    "responses": {
+     "reason": "",
+     "state": "complete"
+    },
+    "resume": {
+     "reason": "native frontier and runtime state retained",
+     "state": "complete"
+    }
+   },
+   "config_fingerprint": "<FINGERPRINT>",
+   "config_json": {
+    "analysis": {
+     "canonical_policy": {
+      "filters": [],
+      "pagination": []
+     },
+     "finding_exclusions": [],
+     "segments": []
+    },
+    "cache": {
+     "invalidate": false,
+     "mode": "off"
+    },
+    "discovery": {
+     "external": {
+      "crawl": false,
+      "store": true
+     },
+     "follow_nofollow": false,
+     "hyperlinks": {
+      "crawl": true,
+      "store": true
+     },
+     "record_invalid_targets": false,
+     "redirects": {
+      "crawl": true
+     },
+     "resolve_canonical_destination": false,
+     "resolve_redirect_destination": false
+    },
+    "evidence": {
+     "content_area": {
+      "exclude_selectors": [],
+      "exclude_tags": [
+       "nav",
+       "header",
+       "aside",
+       "footer"
+      ],
+      "include_selector": "",
+      "root_selector": ""
+     },
+     "extraction_rules": [],
+     "retain_no_store_acknowledged": false
+    },
+    "external_checks": {
+     "max_depth": 0,
+     "max_hosts": 20,
+     "max_redirects": 5,
+     "max_requests": 0,
+     "max_targets": 100
+    },
+    "fetch": {
+     "retry_server_errors": 0
+    },
+    "http": {
+     "credential_headers": [],
+     "credentials_acknowledged": false,
+     "headers": {},
+     "proxy": "",
+     "proxy_allow_private": false,
+     "proxy_authenticated": false,
+     "proxy_identity": "",
+     "retry_on_timeout": 0,
+     "timeout_seconds": 15.0,
+     "upgrade_to_https": false,
+     "user_agent": "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    },
+    "limits": {
+     "max_crawl_seconds": 400,
+     "max_depth": 5,
+     "max_query_variants_per_path": 5,
+     "max_requests": 600,
+     "max_response_bytes": 5242880,
+     "max_url_length": 2000,
+     "max_urls": 200
+    },
+    "link_attributes": {
+     "capture": false
+    },
+    "link_position": {
+     "classify": false,
+     "rules": []
+    },
+    "output": {
+     "dir": "",
+     "write_decisions_jsonl": true,
+     "write_pages_jsonl": true,
+     "write_tasks": true
+    },
+    "rendering": {
+     "artifacts": {
+      "console_errors": false,
+      "screenshots": false
+     },
+     "browser": {
+      "device_pixel_ratio": 1.0,
+      "engine": "chromium",
+      "flatten_iframes": false,
+      "flatten_shadow_dom": false,
+      "mobile_emulation": false,
+      "page_concurrency": 1,
+      "persistent_profile": false,
+      "persistent_profile_dir": "",
+      "remote_endpoint_env": "",
+      "remote_playwright_version": "",
+      "remote_protocol": "playwright",
+      "resize_to_content": false,
+      "resize_to_content_max_height_px": 15000,
+      "script_timeout_seconds": 10.0,
+      "touch_emulation": false,
+      "transport": "local",
+      "viewport": "desktop",
+      "viewport_height": 0,
+      "viewport_width": 0,
+      "wait_until": "load"
+     },
+     "escalation": {
+      "max_render_seconds": 0,
+      "max_render_urls": 30,
+      "policy": "sampled",
+      "sample_per_pattern": 2
+     },
+     "mode": "raw",
+     "rendered_links": {
+      "crawl": false,
+      "store": false
+     }
+    },
+    "resources": {
+     "fetch": false,
+     "graph": {
+      "max_bytes": 104857600,
+      "max_bytes_per_resource": 5242880,
+      "max_nesting": 2,
+      "max_origins": 1,
+      "max_redirects": 0,
+      "max_requests": 2000,
+      "max_seconds": 0
+     },
+     "max_requests": 20000,
+     "max_response_bytes": 5242880
+    },
+    "robots": {
+     "policy": "respect",
+     "unavailable_means_stop": true,
+     "user_agent_token": "SpiderHeadBot"
+    },
+    "scope": {
+     "exclude_extensions": [],
+     "exclude_hosts": [],
+     "exclude_media_types": [],
+     "exclude_patterns": [],
+     "include_extensions": [],
+     "include_media_types": [],
+     "include_patterns": [],
+     "internal": "host",
+     "segments": [],
+     "segments_only": [],
+     "start_folder_only": false
+    },
+    "sitemaps": {
+     "auto_discover": false
+    },
+    "speed": {
+     "adaptive": true,
+     "concurrency": 1,
+     "max_delay_seconds": 60.0,
+     "min_delay_seconds": 0.02,
+     "stop_after_consecutive_timeouts": 5
+    },
+    "storage": {
+     "body_mode": "captured_entity_bytes",
+     "capacity_profile": "stable",
+     "format_version": "scan.v1",
+     "history_warning_bytes": 21474836480,
+     "max_body_bytes": 5242880,
+     "max_body_store_bytes": 10737418240,
+     "min_free_bytes": 1073741824
+    }
+   },
+   "corpus_partial": 0,
+   "crawl_partial": 0,
+   "created_at": "<TS>",
+   "evidence_revision": 6,
+   "evidence_version": "crawl.v1",
+   "finish_reason": "finished",
+   "finished_at": "<TS>",
+   "format_version": "scan.v1",
+   "lifecycle": "finished",
+   "limitations_json": [
+    "browser-network response capture is unavailable"
+   ],
+   "parent_scan_uuid": null,
+   "pinned": 0,
+   "retention_json": {
+    "automatic_delete": false,
+    "body_mode": "captured_entity_bytes",
+    "history_warning_bytes": 21474836480,
+    "max_body_bytes": 5242880,
+    "max_body_store_bytes": 10737418240,
+    "min_free_bytes": 1073741824,
+    "policy_version": "scan_retention.v1"
+   },
+   "runtime_versions_json": {
+    "beautifulsoup4": "4.15.0",
+    "httpx": "0.28.1",
+    "lxml": "6.1.1",
+    "python": "3.14.6",
+    "sqlite": "3.53.3"
+   },
+   "scan_uuid": "<UUID:1>",
+   "singleton": 1,
+   "source_kind": "native",
+   "start_url": "{BASE}/",
+   "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
+   "writer_version": "3.2.0"
+  }
+ ],
+ "urls": [
+  {
+   "url": "{BASE}/",
+   "url_id": 1
+  },
+  {
+   "url": "{BASE}/article-valid.html",
+   "url_id": 2
+  },
+  {
+   "url": "{BASE}/broken-json.html",
+   "url_id": 3
+  },
+  {
+   "url": "{BASE}/missing-fields.html",
+   "url_id": 4
+  },
+  {
+   "url": "{BASE}/product.html",
+   "url_id": 5
+  },
+  {
+   "url": "{BASE}/no-schema.html",
+   "url_id": 6
+  }
+ ]
+}

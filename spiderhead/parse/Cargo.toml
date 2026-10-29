@@ -1,0 +1,23 @@
+[package]
+name = "spiderhead-parse"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead checks HTML parsing layer."
+
+[dependencies]
+caseless = { workspace = true }
+ego-tree = { workspace = true }
+encoding_rs = { workspace = true }
+fancy-regex = { workspace = true }
+html5ever = { workspace = true }
+icu_normalizer = { workspace = true }
+scraper = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha1 = { workspace = true }
+sha2 = { workspace = true }
+spiderhead-core.workspace = true
+thiserror = { workspace = true }
+unicode-general-category = { workspace = true }
+url = { workspace = true }

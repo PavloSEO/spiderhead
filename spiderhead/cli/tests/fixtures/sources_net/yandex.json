@@ -1,0 +1,1079 @@
+{
+ "group": "yandex",
+ "cases": [
+  {
+   "name": "expand-ok",
+   "cli": {
+    "argv": [
+     "keywords-expand",
+     "--phrase",
+     "seo audit",
+     "--limit",
+     "50",
+     "--regions",
+     "213,2"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_keywords_expand",
+    "arguments": {
+     "phrase": "seo audit"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-wordstat/api_key",
+     "text": "test-api-key"
+    },
+    {
+     "path": ".config/yandex-wordstat/folder_id",
+     "text": "b1gtestfolder"
+    }
+   ],
+   "routes": [
+    {
+     "host": "searchapi.api.cloud.yandex.net",
+     "method": "POST",
+     "path": "/v2/wordstat/topRequests",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "totalCount": "5400",
+        "results": [
+         {
+          "phrase": "seo audit",
+          "count": "5400"
+         },
+         {
+          "phrase": "seo audit price",
+          "count": "320"
+         },
+         {
+          "phrase": "SEO  audit tool",
+          "count": "320"
+         }
+        ],
+        "associations": [
+         {
+          "phrase": "site audit",
+          "count": "900"
+         },
+         {
+          "phrase": "seo audit",
+          "count": "10"
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"phrase\": \"seo audit\",\n  \"found\": 4,\n  \"total_count\": \"5400\",\n  \"from_results\": 3,\n  \"from_associations\": 2,\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit\",\n      \"base_frequency\": 5400,\n      \"origin\": \"results\"\n    },\n    {\n      \"phrase\": \"site audit\",\n      \"base_frequency\": 900,\n      \"origin\": \"associations\"\n    },\n    {\n      \"phrase\": \"seo audit price\",\n      \"base_frequency\": 320,\n      \"origin\": \"results\"\n    },\n    {\n      \"phrase\": \"seo audit tool\",\n      \"base_frequency\": 320,\n      \"origin\": \"results\"\n    }\n  ]\n}\n",
+     "stderr": "seohead: keywords-expand\n",
+     "requests": [
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/wordstat/topRequests",
+       "query": "",
+       "body": "{\"phrase\": \"seo audit\", \"numPhrases\": 50, \"folderId\": \"b1gtestfolder\", \"regions\": [\"213\", \"2\"], \"devices\": [\"DEVICE_ALL\"]}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"phrase\": \"seo audit\",\n  \"found\": 4,\n  \"total_count\": \"5400\",\n  \"from_results\": 3,\n  \"from_associations\": 2,\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit\",\n      \"base_frequency\": 5400,\n      \"origin\": \"results\"\n    },\n    {\n      \"phrase\": \"site audit\",\n      \"base_frequency\": 900,\n      \"origin\": \"associations\"\n    },\n    {\n      \"phrase\": \"seo audit price\",\n      \"base_frequency\": 320,\n      \"origin\": \"results\"\n    },\n    {\n      \"phrase\": \"seo audit tool\",\n      \"base_frequency\": 320,\n      \"origin\": \"results\"\n    }\n  ]\n}",
+     "requests": [
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/wordstat/topRequests",
+       "query": "",
+       "body": "{\"phrase\": \"seo audit\", \"numPhrases\": 300, \"folderId\": \"b1gtestfolder\", \"regions\": [\"225\"], \"devices\": [\"DEVICE_ALL\"]}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "expand-http-error",
+   "cli": {
+    "argv": [
+     "keywords-expand",
+     "--phrase",
+     "seo"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-wordstat/api_key",
+     "text": "test-api-key"
+    },
+    {
+     "path": ".config/yandex-wordstat/folder_id",
+     "text": "b1gtestfolder"
+    }
+   ],
+   "routes": [
+    {
+     "host": "searchapi.api.cloud.yandex.net",
+     "method": "POST",
+     "path": "/v2/wordstat/topRequests",
+     "responses": [
+      {
+       "status": 403,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": "denied"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"topRequests 403: {'raw': 'denied'}\"\n}\n",
+     "stderr": "seohead: keywords-expand\n",
+     "requests": [
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/wordstat/topRequests",
+       "query": "",
+       "body": "{\"phrase\": \"seo\", \"numPhrases\": 300, \"folderId\": \"b1gtestfolder\", \"regions\": [\"225\"], \"devices\": [\"DEVICE_ALL\"]}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "expand-no-credential",
+   "cli": {
+    "argv": [
+     "keywords-expand",
+     "--phrase",
+     "seo"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-wordstat/api_key or set $YANDEX_CLOUD_API_KEY. Create it in Yandex AI Studio with the search-api.webSearch.user role.\"\n}\n",
+     "stderr": "seohead: keywords-expand\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "expand-no-phrase",
+   "cli": {
+    "argv": [
+     "keywords-expand",
+     "--phrase",
+     ""
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: keywords-expand\nerror: phrase required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "seasonality-ok",
+   "cli": {
+    "argv": [
+     "keywords-seasonality",
+     "--phrase",
+     "seo audit",
+     "--from-date",
+     "2026-01-01T00:00:00Z",
+     "--to-date",
+     "2026-03-01T00:00:00Z"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_keywords_seasonality",
+    "arguments": {
+     "phrase": "seo",
+     "from_date": "2026-01-01T00:00:00Z",
+     "to_date": "2026-03-01T00:00:00Z",
+     "period": "PERIOD_WEEKLY",
+     "regions": [
+      "213"
+     ]
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-wordstat/api_key",
+     "text": "test-api-key"
+    },
+    {
+     "path": ".config/yandex-wordstat/folder_id",
+     "text": "b1gtestfolder"
+    }
+   ],
+   "routes": [
+    {
+     "host": "searchapi.api.cloud.yandex.net",
+     "method": "POST",
+     "path": "/v2/wordstat/dynamics",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "results": [
+         {
+          "date": "2026-01-01T00:00:00Z",
+          "count": "100",
+          "share": 0.1
+         },
+         {
+          "date": "2026-02-01T00:00:00Z",
+          "count": "140",
+          "share": 0.12
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"phrase\": \"seo audit\",\n  \"period\": \"PERIOD_MONTHLY\",\n  \"dynamics\": {\n    \"results\": [\n      {\n        \"date\": \"<TS>\",\n        \"count\": \"100\",\n        \"share\": 0.1\n      },\n      {\n        \"date\": \"<TS>\",\n        \"count\": \"140\",\n        \"share\": 0.12\n      }\n    ]\n  }\n}\n",
+     "stderr": "seohead: keywords-seasonality\n",
+     "requests": [
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/wordstat/dynamics",
+       "query": "",
+       "body": "{\"phrase\": \"seo audit\", \"folderId\": \"b1gtestfolder\", \"period\": \"PERIOD_MONTHLY\", \"fromDate\": \"<TS>\", \"toDate\": \"<TS>\", \"regions\": [\"225\"], \"devices\": [\"DEVICE_ALL\"]}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"phrase\": \"seo\",\n  \"period\": \"PERIOD_WEEKLY\",\n  \"dynamics\": {\n    \"results\": [\n      {\n        \"date\": \"<TS>\",\n        \"count\": \"100\",\n        \"share\": 0.1\n      },\n      {\n        \"date\": \"<TS>\",\n        \"count\": \"140\",\n        \"share\": 0.12\n      }\n    ]\n  }\n}",
+     "requests": [
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/wordstat/dynamics",
+       "query": "",
+       "body": "{\"phrase\": \"seo\", \"folderId\": \"b1gtestfolder\", \"period\": \"PERIOD_WEEKLY\", \"fromDate\": \"<TS>\", \"toDate\": \"<TS>\", \"regions\": [\"213\"], \"devices\": [\"DEVICE_ALL\"]}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "seasonality-missing-dates",
+   "cli": {
+    "argv": [
+     "keywords-seasonality",
+     "--phrase",
+     "seo audit"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: keywords-seasonality\nerror: phrase, from_date and to_date required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "seasonality-error",
+   "cli": {
+    "argv": [
+     "keywords-seasonality",
+     "--phrase",
+     "seo",
+     "--from-date",
+     "a",
+     "--to-date",
+     "b"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-wordstat/api_key",
+     "text": "test-api-key"
+    },
+    {
+     "path": ".config/yandex-wordstat/folder_id",
+     "text": "b1gtestfolder"
+    }
+   ],
+   "routes": [
+    {
+     "host": "searchapi.api.cloud.yandex.net",
+     "method": "POST",
+     "path": "/v2/wordstat/dynamics",
+     "responses": [
+      {
+       "status": 400,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "message": "bad date"
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"dynamics 400: {'message': 'bad date'}\"\n}\n",
+     "stderr": "seohead: keywords-seasonality\n",
+     "requests": [
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/wordstat/dynamics",
+       "query": "",
+       "body": "{\"phrase\": \"seo\", \"folderId\": \"b1gtestfolder\", \"period\": \"PERIOD_MONTHLY\", \"fromDate\": \"a\", \"toDate\": \"b\", \"regions\": [\"225\"], \"devices\": [\"DEVICE_ALL\"]}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "serp-fetch-ok",
+   "cli": {
+    "argv": [
+     "serp-fetch",
+     "--query",
+     "seo audit",
+     "--queries",
+     "seo audit,site audit",
+     "--region",
+     "213",
+     "--top",
+     "5"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_serp_fetch",
+    "arguments": {
+     "queries": [
+      "one",
+      "two"
+     ]
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/yandex-wordstat/api_key",
+     "text": "test-api-key"
+    },
+    {
+     "path": ".config/yandex-wordstat/folder_id",
+     "text": "b1gtestfolder"
+    }
+   ],
+   "routes": [
+    {
+     "host": "searchapi.api.cloud.yandex.net",
+     "method": "POST",
+     "path": "/v2/web/searchAsync",
+     "body_contains": "seo audit",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "id": "op1"
+       }
+      }
+     ]
+    },
+    {
+     "host": "searchapi.api.cloud.yandex.net",
+     "method": "POST",
+     "path": "/v2/web/searchAsync",
+     "body_contains": "site audit",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "id": "op2"
+       }
+      }
+     ]
+    },
+    {
+     "host": "searchapi.api.cloud.yandex.net",
+     "method": "POST",
+     "path": "/v2/web/searchAsync",
+     "body_contains": "one",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "id": "op1"
+       }
+      }
+     ]
+    },
+    {
+     "host": "searchapi.api.cloud.yandex.net",
+     "method": "POST",
+     "path": "/v2/web/searchAsync",
+     "body_contains": "two",
+     "responses": [
+      {
+       "status": 400,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "message": "bad"
+       }
+      }
+     ]
+    },
+    {
+     "host": "operation.api.cloud.yandex.net",
+     "path": "/operations/op1",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "done": true,
+        "response": {
+         "rawData": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48eWFuZGV4c2VhcmNoPjxyZXNwb25zZT48cmVzdWx0cz48Z3JvdXBpbmc+PGdyb3VwPjxkb2M+PHVybD5odHRwczovL2V4YW1wbGUudGVzdC9hPC91cmw+PGRvbWFpbj5leGFtcGxlLnRlc3Q8L2RvbWFpbj48dGl0bGU+Rmlyc3QgPGhsd29yZD5oaXQ8L2hsd29yZD48L3RpdGxlPjwvZG9jPjwvZ3JvdXA+PGdyb3VwPjxkb2M+PHVybD5odHRwczovL2V4YW1wbGUudGVzdC9iPC91cmw+PGRvbWFpbj5leGFtcGxlLnRlc3Q8L2RvbWFpbj48dGl0bGU+U2Vjb25kPC90aXRsZT48L2RvYz48L2dyb3VwPjwvZ3JvdXBpbmc+PC9yZXN1bHRzPjwvcmVzcG9uc2U+PC95YW5kZXhzZWFyY2g+"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "host": "operation.api.cloud.yandex.net",
+     "path": "/operations/op2",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "done": true,
+        "error": {
+         "code": 3,
+         "message": "x"
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"region\": \"213\",\n  \"requested\": 2,\n  \"returned\": 2,\n  \"results\": {\n    \"seo audit\": {\n      \"docs\": [\n        {\n          \"pos\": 1,\n          \"url\": \"https://example.test/a\",\n          \"domain\": \"example.test\",\n          \"title\": \"First hit\"\n        },\n        {\n          \"pos\": 2,\n          \"url\": \"https://example.test/b\",\n          \"domain\": \"example.test\",\n          \"title\": \"Second\"\n        }\n      ],\n      \"error\": null,\n      \"status\": \"ok\",\n      \"operation_id\": \"op1\"\n    },\n    \"site audit\": {\n      \"docs\": [],\n      \"error\": {\n        \"code\": 3,\n        \"message\": \"x\"\n      },\n      \"status\": \"operation_error\",\n      \"operation_id\": \"op2\"\n    }\n  },\n  \"not_returned\": [],\n  \"note\": null\n}\n",
+     "stderr": "seohead: serp-fetch\n",
+     "requests": [
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/web/searchAsync",
+       "query": "",
+       "body": "{\"query\": {\"searchType\": \"SEARCH_TYPE_RU\", \"queryText\": \"seo audit\", \"familyMode\": \"FAMILY_MODE_NONE\", \"page\": \"0\"}, \"groupSpec\": {\"groupMode\": \"GROUP_MODE_DEEP\", \"groupsOnPage\": \"5\", \"docsInGroup\": \"1\"}, \"region\": \"213\", \"l10N\": \"LOCALIZATION_RU\", \"folderId\": \"b1gtestfolder\", \"responseFormat\": \"FORMAT_XML\"}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/web/searchAsync",
+       "query": "",
+       "body": "{\"query\": {\"searchType\": \"SEARCH_TYPE_RU\", \"queryText\": \"site audit\", \"familyMode\": \"FAMILY_MODE_NONE\", \"page\": \"0\"}, \"groupSpec\": {\"groupMode\": \"GROUP_MODE_DEEP\", \"groupsOnPage\": \"5\", \"docsInGroup\": \"1\"}, \"region\": \"213\", \"l10N\": \"LOCALIZATION_RU\", \"folderId\": \"b1gtestfolder\", \"responseFormat\": \"FORMAT_XML\"}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "operation.api.cloud.yandex.net",
+       "method": "GET",
+       "path": "/operations/op1",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Api-Key test-api-key"
+       }
+      },
+      {
+       "host": "operation.api.cloud.yandex.net",
+       "method": "GET",
+       "path": "/operations/op2",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Api-Key test-api-key"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"region\": \"225\",\n  \"requested\": 2,\n  \"returned\": 2,\n  \"results\": {\n    \"two\": {\n      \"docs\": [],\n      \"error\": \"searchAsync rejected: 400: {'message': 'bad'}\",\n      \"status\": \"rejected\"\n    },\n    \"one\": {\n      \"docs\": [\n        {\n          \"pos\": 1,\n          \"url\": \"https://example.test/a\",\n          \"domain\": \"example.test\",\n          \"title\": \"First hit\"\n        },\n        {\n          \"pos\": 2,\n          \"url\": \"https://example.test/b\",\n          \"domain\": \"example.test\",\n          \"title\": \"Second\"\n        }\n      ],\n      \"error\": null,\n      \"status\": \"ok\",\n      \"operation_id\": \"op1\"\n    }\n  },\n  \"not_returned\": [],\n  \"note\": null\n}",
+     "requests": [
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/web/searchAsync",
+       "query": "",
+       "body": "{\"query\": {\"searchType\": \"SEARCH_TYPE_RU\", \"queryText\": \"one\", \"familyMode\": \"FAMILY_MODE_NONE\", \"page\": \"0\"}, \"groupSpec\": {\"groupMode\": \"GROUP_MODE_DEEP\", \"groupsOnPage\": \"10\", \"docsInGroup\": \"1\"}, \"region\": \"225\", \"l10N\": \"LOCALIZATION_RU\", \"folderId\": \"b1gtestfolder\", \"responseFormat\": \"FORMAT_XML\"}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "searchapi.api.cloud.yandex.net",
+       "method": "POST",
+       "path": "/v2/web/searchAsync",
+       "query": "",
+       "body": "{\"query\": {\"searchType\": \"SEARCH_TYPE_RU\", \"queryText\": \"two\", \"familyMode\": \"FAMILY_MODE_NONE\", \"page\": \"0\"}, \"groupSpec\": {\"groupMode\": \"GROUP_MODE_DEEP\", \"groupsOnPage\": \"10\", \"docsInGroup\": \"1\"}, \"region\": \"225\", \"l10N\": \"LOCALIZATION_RU\", \"folderId\": \"b1gtestfolder\", \"responseFormat\": \"FORMAT_XML\"}",
+       "headers": {
+        "authorization": "Api-Key test-api-key",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "operation.api.cloud.yandex.net",
+       "method": "GET",
+       "path": "/operations/op1",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Api-Key test-api-key"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "serp-fetch-no-query",
+   "cli": {
+    "argv": [
+     "serp-fetch",
+     "--query",
+     ""
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: serp-fetch\nerror: query or queries required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "serp-fetch-no-credential",
+   "cli": {
+    "argv": [
+     "serp-fetch",
+     "--query",
+     "seo"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-wordstat/api_key or set $YANDEX_CLOUD_API_KEY. Create it in Yandex AI Studio with the search-api.webSearch.user role.\"\n}\n",
+     "stderr": "seohead: serp-fetch\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "exact-ok",
+   "cli": {
+    "argv": [
+     "keywords-exact",
+     "--keywords",
+     "seo audit,site (audit)!",
+     "--region",
+     "213"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_keywords_exact",
+    "arguments": {
+     "keywords": [
+      "seo audit"
+     ]
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/arsenkin/token",
+     "text": "test-arsenkin-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "arsenkin.ru",
+     "method": "POST",
+     "path": "/api/tools/set",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "code": "SET_TASK_OK",
+        "task_id": 4242,
+        "cost": 0.6
+       }
+      }
+     ]
+    },
+    {
+     "host": "arsenkin.ru",
+     "method": "POST",
+     "path": "/api/tools/check",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status": "finish"
+       }
+      }
+     ]
+    },
+    {
+     "host": "arsenkin.ru",
+     "method": "POST",
+     "path": "/api/tools/get",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "result": {
+         "data": {
+          "result": {
+           "seo audit": {
+            "213": {
+             "base": 5400,
+             "overal": 900
+            }
+           },
+           "site audit": {
+            "225": {
+             "base": 1,
+             "overal": 1
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"task_id\": 4242,\n  \"cost\": 0.6,\n  \"region\": 213,\n  \"cleaned\": {\n    \"site (audit)!\": \"site audit\"\n  },\n  \"frequencies\": {\n    \"seo audit\": {\n      \"base\": 5400,\n      \"overal\": 900\n    }\n  },\n  \"result\": {\n    \"data\": {\n      \"result\": {\n        \"seo audit\": {\n          \"213\": {\n            \"base\": 5400,\n            \"overal\": 900\n          }\n        },\n        \"site audit\": {\n          \"225\": {\n            \"base\": 1,\n            \"overal\": 1\n          }\n        }\n      }\n    }\n  },\n  \"warnings\": [\n    \"'site audit': no data for requested region 213 (provider returned regions: 225)\"\n  ]\n}\n",
+     "stderr": "seohead: keywords-exact\n",
+     "requests": [
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/set",
+       "query": "",
+       "body": "{\"tools_name\": \"wordstat\", \"data\": {\"type\": 1, \"regions\": [213], \"ws\": [\"base\", \"overal\"], \"queries\": [\"seo audit\", \"site audit\"]}}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/check",
+       "query": "",
+       "body": "{\"task_id\": 4242}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/get",
+       "query": "",
+       "body": "{\"task_id\": 4242}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"task_id\": 4242,\n  \"cost\": 0.6,\n  \"region\": 225,\n  \"cleaned\": {},\n  \"frequencies\": {\n    \"site audit\": {\n      \"base\": 1,\n      \"overal\": 1\n    }\n  },\n  \"result\": {\n    \"data\": {\n      \"result\": {\n        \"seo audit\": {\n          \"213\": {\n            \"base\": 5400,\n            \"overal\": 900\n          }\n        },\n        \"site audit\": {\n          \"225\": {\n            \"base\": 1,\n            \"overal\": 1\n          }\n        }\n      }\n    }\n  },\n  \"warnings\": [\n    \"'seo audit': no data for requested region 225 (provider returned regions: 213)\"\n  ]\n}",
+     "requests": [
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/set",
+       "query": "",
+       "body": "{\"tools_name\": \"wordstat\", \"data\": {\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\"], \"queries\": [\"seo audit\"]}}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/check",
+       "query": "",
+       "body": "{\"task_id\": 4242}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/get",
+       "query": "",
+       "body": "{\"task_id\": 4242}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "exact-no-wait",
+   "cli": {
+    "argv": [
+     "keywords-exact",
+     "--keywords",
+     "seo",
+     "--no-wait"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/arsenkin/token",
+     "text": "test-arsenkin-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "arsenkin.ru",
+     "method": "POST",
+     "path": "/api/tools/set",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "code": "SET_TASK_OK",
+        "task_id": 7,
+        "cost": 0.1
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"task_id\": 7,\n  \"cost\": 0.1,\n  \"region\": 225,\n  \"cleaned\": {},\n  \"note\": \"task created and billed; retrieve the result later by task_id\"\n}\n",
+     "stderr": "seohead: keywords-exact\n",
+     "requests": [
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/set",
+       "query": "",
+       "body": "{\"tools_name\": \"wordstat\", \"data\": {\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\"], \"queries\": [\"seo\"]}}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "exact-task-failed",
+   "cli": {
+    "argv": [
+     "keywords-exact",
+     "--keywords",
+     "seo"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/arsenkin/token",
+     "text": "test-arsenkin-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "arsenkin.ru",
+     "method": "POST",
+     "path": "/api/tools/set",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "code": "SET_TASK_OK",
+        "task_id": 9,
+        "cost": 0.1
+       }
+      }
+     ]
+    },
+    {
+     "host": "arsenkin.ru",
+     "method": "POST",
+     "path": "/api/tools/check",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status": "failed"
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"STATUS: task 9: status failed\",\n  \"code\": \"STATUS\",\n  \"task_id\": 9,\n  \"cost\": 0.1\n}\n",
+     "stderr": "seohead: keywords-exact\n",
+     "requests": [
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/set",
+       "query": "",
+       "body": "{\"tools_name\": \"wordstat\", \"data\": {\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\"], \"queries\": [\"seo\"]}}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/check",
+       "query": "",
+       "body": "{\"task_id\": 9}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "exact-provider-error",
+   "cli": {
+    "argv": [
+     "keywords-exact",
+     "--keywords",
+     "seo"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/arsenkin/token",
+     "text": "test-arsenkin-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "arsenkin.ru",
+     "method": "POST",
+     "path": "/api/tools/set",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status": "Error",
+        "code": "WRONG_TOOL",
+        "error": "no"
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"WRONG_TOOL: no\",\n  \"code\": \"WRONG_TOOL\"\n}\n",
+     "stderr": "seohead: keywords-exact\n",
+     "requests": [
+      {
+       "host": "arsenkin.ru",
+       "method": "POST",
+       "path": "/api/tools/set",
+       "query": "",
+       "body": "{\"tools_name\": \"wordstat\", \"data\": {\"type\": 1, \"regions\": [225], \"ws\": [\"base\", \"overal\"], \"queries\": [\"seo\"]}}",
+       "headers": {
+        "authorization": "Bearer test-arsenkin-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "exact-empty-queries",
+   "cli": {
+    "argv": [
+     "keywords-exact",
+     "--keywords",
+     "!!!,???"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"no usable queries after sanitizing\",\n  \"code\": \"EMPTY_QUERIES\",\n  \"cleaned\": {\n    \"!!!\": \"\",\n    \"???\": \"\"\n  }\n}\n",
+     "stderr": "seohead: keywords-exact\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "exact-no-credential",
+   "cli": {
+    "argv": [
+     "keywords-exact",
+     "--keywords",
+     "seo"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/arsenkin/token or set $ARSENKIN_TOKEN. Create the token in your arsenkin.ru account.\"\n}\n",
+     "stderr": "seohead: keywords-exact\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "exact-no-keywords",
+   "cli": {
+    "argv": [
+     "keywords-exact"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: keywords-exact\nerror: keywords required\n",
+     "requests": []
+    }
+   }
+  }
+ ]
+}

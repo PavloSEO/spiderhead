@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Error executing tool seo_scan_evidence: 1 validation error for seo_scan_evidenceArguments\nsection\n  Input should be 'capabilities', 'corpus', 'structured', 'routes', 'resources', 'timeline', 'relations', 'browser' or 'extraction' [type=literal_error, input_value='x', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+      }
+    ],
+    "isError": true
+  }
+}

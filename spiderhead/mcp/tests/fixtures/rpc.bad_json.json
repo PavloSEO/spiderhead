@@ -1,0 +1,9 @@
+{
+  "method": "notifications/message",
+  "params": {
+    "level": "error",
+    "logger": "mcp.server.exception_handler",
+    "data": "Internal Server Error"
+  },
+  "jsonrpc": "2.0"
+}

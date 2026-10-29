@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "llms-txt-check",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "llms-txt-check",
+ "exit": 0,
+ "stderr": "seohead: llms-txt-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/llms.txt\",\n  \"status_code\": 404,\n  \"exists\": false,\n  \"score\": 0,\n  \"grade\": \"F\",\n  \"passed\": 0,\n  \"findings\": [\n    \"llms.txt is missing, so the site provides no curated context for AI systems; models must infer the project from whichever pages they encounter\"\n  ]\n}\n"
+}

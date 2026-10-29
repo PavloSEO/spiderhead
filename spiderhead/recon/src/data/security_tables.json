@@ -1,0 +1,54 @@
+{
+ "security_headers": {
+  "strict-transport-security": [
+   20,
+   "forces browsers to use HTTPS"
+  ],
+  "content-security-policy": [
+   20,
+   "controls allowed script and style sources"
+  ],
+  "x-content-type-options": [
+   15,
+   "prevents MIME type sniffing"
+  ],
+  "x-frame-options": [
+   15,
+   "prevents clickjacking, or use frame-ancestors in CSP"
+  ],
+  "referrer-policy": [
+   15,
+   "limits URL information sent to other sites"
+  ],
+  "permissions-policy": [
+   15,
+   "controls access to camera, geolocation, and other APIs"
+  ]
+ },
+ "disclosure_headers": [
+  "server",
+  "x-powered-by",
+  "x-aspnet-version",
+  "x-aspnetmvc-version",
+  "x-generator",
+  "x-drupal-dynamic-cache",
+  "x-runtime"
+ ],
+ "sensitive_paths": [
+  "/.git/HEAD",
+  "/.env",
+  "/.DS_Store",
+  "/.svn/entries",
+  "/phpinfo.php",
+  "/server-status",
+  "/backup.sql",
+  "/.well-known/security.txt"
+ ],
+ "path_markers": {
+  "/.git/HEAD": "ref:",
+  "/.env": "=",
+  "/.svn/entries": "\ndir\n",
+  "/phpinfo.php": "phpinfo()",
+  "/server-status": "Server Version"
+ }
+}

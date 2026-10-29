@@ -1,0 +1,3 @@
+{"url": "https://example.test/", "status_code": 200, "content_type": "text/html; charset=utf-8", "outlinks": 3, "error_kind": "", "representation": "static"}
+{"url": "https://example.test/a", "status_code": 301, "content_type": "text/html", "outlinks": 0, "error_kind": "", "redirect_url": "https://example.test/b", "representation": "static"}
+{"url": "https://example.test/x", "status_code": 0, "content_type": "", "outlinks": 0, "error_kind": "timeout", "representation": "static"}

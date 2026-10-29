@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "regions-check",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "regions-check",
+ "exit": 0,
+ "stderr": "seohead: regions-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/\",\n  \"main_host\": \"127.0.0.1\",\n  \"scheme\": \"none\",\n  \"schemes\": {},\n  \"regions_found\": [],\n  \"regions_total\": 0,\n  \"checked\": 0,\n  \"truncated\": 0,\n  \"pages\": [],\n  \"rendered\": false,\n  \"render_note\": null,\n  \"findings\": [\n    \"No regional URLs were found in the HTML: the site may have no regional versions, or its city switcher may be rendered by JavaScript. Satellites on separate domains cannot be discovered from this page; provide them explicitly through extra.\"\n  ]\n}\n"
+}

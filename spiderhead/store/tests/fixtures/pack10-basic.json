@@ -1,0 +1,7646 @@
+{
+ "counts": [
+  {
+   "filter_sets": [
+    []
+   ],
+   "result": {
+    "counts": [
+     {
+      "filtered_total": 10,
+      "filters": []
+     }
+    ],
+    "format": "spiderhead.scan-url-counts.v1",
+    "ok": true,
+    "scan": "<SCAN>",
+    "sets": 1
+   }
+  },
+  {
+   "filter_sets": [
+    [
+     {
+      "column": "status_code",
+      "op": "eq",
+      "value": 200
+     }
+    ],
+    [
+     {
+      "column": "title",
+      "op": "empty"
+     }
+    ],
+    []
+   ],
+   "result": {
+    "counts": [
+     {
+      "filtered_total": 9,
+      "filters": [
+       {
+        "column": "status_code",
+        "op": "eq",
+        "value": 200
+       }
+      ]
+     },
+     {
+      "filtered_total": 0,
+      "filters": [
+       {
+        "column": "title",
+        "op": "empty"
+       }
+      ]
+     },
+     {
+      "filtered_total": 10,
+      "filters": []
+     }
+    ],
+    "format": "spiderhead.scan-url-counts.v1",
+    "ok": true,
+    "scan": "<SCAN>",
+    "sets": 3
+   }
+  },
+  {
+   "filter_sets": [
+    [
+     {
+      "column": "url",
+      "op": "starts_with",
+      "value": "http"
+     }
+    ]
+   ],
+   "result": {
+    "counts": [
+     {
+      "filtered_total": 10,
+      "filters": [
+       {
+        "column": "url",
+        "op": "starts_with",
+        "value": "http"
+       }
+      ]
+     }
+    ],
+    "format": "spiderhead.scan-url-counts.v1",
+    "ok": true,
+    "scan": "<SCAN>",
+    "sets": 1
+   }
+  },
+  {
+   "filter_sets": [],
+   "result": {
+    "error": "filter_sets must be a list of 1..100 filter lists",
+    "format": "spiderhead.scan-url-counts.v1",
+    "ok": false,
+    "reason_code": "invalid_filter_sets",
+    "state": "invalid"
+   }
+  },
+  {
+   "filter_sets": "x",
+   "result": {
+    "error": "filter_sets must be a list of 1..100 filter lists",
+    "format": "spiderhead.scan-url-counts.v1",
+    "ok": false,
+    "reason_code": "invalid_filter_sets",
+    "state": "invalid"
+   }
+  },
+  {
+   "filter_sets": [
+    [
+     {
+      "column": "nope",
+      "op": "eq",
+      "value": 1
+     }
+    ]
+   ],
+   "result": {
+    "error": "filter column is not an allowed column name",
+    "format": "spiderhead.scan-url-counts.v1",
+    "ok": false,
+    "reason_code": "unknown_column",
+    "state": "invalid"
+   }
+  },
+  {
+   "filter_sets": [
+    [
+     "x"
+    ]
+   ],
+   "result": {
+    "error": "each filter must be an object",
+    "format": "spiderhead.scan-url-counts.v1",
+    "ok": false,
+    "reason_code": "invalid_filter",
+    "state": "invalid"
+   }
+  }
+ ],
+ "exports": [
+  {
+   "call": {
+    "fmt": "csv"
+   },
+   "file": "﻿url_id;url;status_code;content_type;crawl_depth;title;h1;word_count;size_bytes;response_time;indexable\n1;http://127.0.0.1:18701/;200;\"text/html; charset=utf-8\";0;Basic site home;Basic site home;9;672;0.001;true\n2;http://127.0.0.1:18701/about.html;200;\"text/html; charset=utf-8\";1;About the basic site;About the basic site;17;442;0.001;true\n3;http://127.0.0.1:18701/dup-a.html;200;\"text/html; charset=utf-8\";1;Duplicate title;Duplicate title;51;595;0.001;true\n4;http://127.0.0.1:18701/dup-b.html;200;\"text/html; charset=utf-8\";1;Duplicate title;Duplicate title;51;595;0.001;true\n5;http://127.0.0.1:18701/noindex.html;200;\"text/html; charset=utf-8\";1;Noindex page;Noindex page;9;350;0.001;false\n6;http://127.0.0.1:18701/images.html;200;\"text/html; charset=utf-8\";1;Images page;Images page;2;474;0.001;true\n7;http://127.0.0.1:18701/large.html;200;\"text/html; charset=utf-8\";1;Large page;Large page;28802;183641;0.001;true\n8;http://127.0.0.1:18701/legacy.html;200;\"text/html; charset=iso-8859-1\";1;Ñòàðàÿ êîäèðîâêà;Ñòàðàÿ êîäèðîâêà;10;399;0.001;true\n9;http://127.0.0.1:18701/js.html;200;\"text/html; charset=utf-8\";1;JS-rendered page;JS-rendered page;2;454;0.001;true\n10;http://127.0.0.1:18701/missing-page.html;404;\"text/html; charset=utf-8\";1;Not Found;Not Found;2;97;0.001;false\n",
+   "result": {
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "file": "<OUT>",
+    "filters": [],
+    "fmt": "csv",
+    "format": "spiderhead.scan-url-query-export.v1",
+    "ok": true,
+    "preset": null,
+    "rows": 10
+   }
+  },
+  {
+   "call": {
+    "fmt": "csv",
+    "preset": "title_missing"
+   },
+   "file": "﻿url_id;url;status_code;content_type;crawl_depth;title;h1;word_count;size_bytes;response_time;indexable\n",
+   "result": {
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "file": "<OUT>",
+    "filters": [
+     {
+      "column": "title",
+      "op": "empty"
+     }
+    ],
+    "fmt": "csv",
+    "format": "spiderhead.scan-url-query-export.v1",
+    "ok": true,
+    "preset": "title_missing",
+    "rows": 0
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url",
+     "status_code",
+     "indexable"
+    ],
+    "filters": [
+     {
+      "column": "status_code",
+      "op": "eq",
+      "value": 200
+     }
+    ],
+    "fmt": "csv"
+   },
+   "file": "﻿url;status_code;indexable\nhttp://127.0.0.1:18701/;200;true\nhttp://127.0.0.1:18701/about.html;200;true\nhttp://127.0.0.1:18701/dup-a.html;200;true\nhttp://127.0.0.1:18701/dup-b.html;200;true\nhttp://127.0.0.1:18701/noindex.html;200;false\nhttp://127.0.0.1:18701/images.html;200;true\nhttp://127.0.0.1:18701/large.html;200;true\nhttp://127.0.0.1:18701/legacy.html;200;true\nhttp://127.0.0.1:18701/js.html;200;true\n",
+   "result": {
+    "columns": [
+     "url",
+     "status_code",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "file": "<OUT>",
+    "filters": [
+     {
+      "column": "status_code",
+      "op": "eq",
+      "value": 200
+     }
+    ],
+    "fmt": "csv",
+    "format": "spiderhead.scan-url-query-export.v1",
+    "ok": true,
+    "preset": null,
+    "rows": 9
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url_id",
+     "url",
+     "title",
+     "word_count",
+     "indexable"
+    ],
+    "fmt": "xlsx"
+   },
+   "result": {
+    "columns": [
+     "url_id",
+     "url",
+     "title",
+     "word_count",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "file": "<OUT>",
+    "filters": [],
+    "fmt": "xlsx",
+    "format": "spiderhead.scan-url-query-export.v1",
+    "ok": true,
+    "preset": null,
+    "rows": 10
+   },
+   "sheets": {
+    "Pages": [
+     [
+      "url_id",
+      "url",
+      "title",
+      "word_count",
+      "indexable"
+     ],
+     [
+      1,
+      "http://127.0.0.1:18701/",
+      "Basic site home",
+      9,
+      true
+     ],
+     [
+      2,
+      "http://127.0.0.1:18701/about.html",
+      "About the basic site",
+      17,
+      true
+     ],
+     [
+      3,
+      "http://127.0.0.1:18701/dup-a.html",
+      "Duplicate title",
+      51,
+      true
+     ],
+     [
+      4,
+      "http://127.0.0.1:18701/dup-b.html",
+      "Duplicate title",
+      51,
+      true
+     ],
+     [
+      5,
+      "http://127.0.0.1:18701/noindex.html",
+      "Noindex page",
+      9,
+      false
+     ],
+     [
+      6,
+      "http://127.0.0.1:18701/images.html",
+      "Images page",
+      2,
+      true
+     ],
+     [
+      7,
+      "http://127.0.0.1:18701/large.html",
+      "Large page",
+      28802,
+      true
+     ],
+     [
+      8,
+      "http://127.0.0.1:18701/legacy.html",
+      "Ñòàðàÿ êîäèðîâêà",
+      10,
+      true
+     ],
+     [
+      9,
+      "http://127.0.0.1:18701/js.html",
+      "JS-rendered page",
+      2,
+      true
+     ],
+     [
+      10,
+      "http://127.0.0.1:18701/missing-page.html",
+      "Not Found",
+      2,
+      false
+     ]
+    ],
+    "Partitions": [
+     [
+      "record_type",
+      "sheet",
+      "first_record",
+      "last_record",
+      "rows"
+     ],
+     [
+      "pages",
+      "Pages",
+      1,
+      10,
+      10
+     ]
+    ],
+    "Summary": [
+     [
+      "key",
+      "value"
+     ],
+     [
+      "format",
+      "spiderhead.scan-url-query-export.v1"
+     ],
+     [
+      "preset",
+      "\\N"
+     ],
+     [
+      "filters",
+      "[]"
+     ],
+     [
+      "columns",
+      "[\"url_id\", \"url\", \"title\", \"word_count\", \"indexable\"]"
+     ],
+     [
+      "rows",
+      10
+     ],
+     [
+      "source.scan_uuid",
+      "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+     ],
+     [
+      "source.format_version",
+      "scan.v1"
+     ],
+     [
+      "source.source_kind",
+      "native"
+     ],
+     [
+      "source.evidence_revision",
+      10
+     ],
+     [
+      "source.lifecycle",
+      "finished"
+     ],
+     [
+      "source.finish_reason",
+      "finished"
+     ],
+     [
+      "source.crawl_partial",
+      false
+     ],
+     [
+      "source.corpus_partial",
+      false
+     ],
+     [
+      "source.pages_coverage.reason",
+      "committed native crawl observations"
+     ],
+     [
+      "source.pages_coverage.state",
+      "complete"
+     ]
+    ]
+   }
+  },
+  {
+   "call": {
+    "fmt": "csv",
+    "max_rows": 1
+   },
+   "result": {
+    "error": "10 rows match, above max_rows 1; narrow the filters or raise max_rows (up to 1048575)",
+    "format": "spiderhead.scan-url-query-export.v1",
+    "ok": false,
+    "reason_code": "export_too_large"
+   }
+  },
+  {
+   "call": {
+    "fmt": "pdf"
+   },
+   "result": {
+    "error": "export format must be csv or xlsx",
+    "format": "spiderhead.scan-url-query-export.v1",
+    "ok": false,
+    "reason_code": "invalid_export_format"
+   }
+  },
+  {
+   "call": {
+    "fmt": "csv",
+    "preset": "nope"
+   },
+   "result": {
+    "error": "preset is not one of: canonical_missing, canonical_non_indexable, description_duplicate, duplicate_titles, h1_missing, h1_multiple, hreflang, images_missing_alt, in_sitemap, inlinks, meta_description_missing, meta_description_over_160, no_outlinks, no_response, noindex_header, noindex_meta, robots_blocked, status_3xx, status_4xx, status_5xx, title_missing, title_over_60",
+    "format": "spiderhead.scan-url-query-export.v1",
+    "ok": false,
+    "reason_code": "unknown_preset",
+    "state": "invalid"
+   }
+  }
+ ],
+ "projection": {
+  "built": false,
+  "loaded": null,
+  "tables": {
+   "scan_url_query_projection_meta": null,
+   "scan_url_query_projection_pages": null
+  }
+ },
+ "queries": [
+  {
+   "call": {},
+   "result": {
+    "bytes": 2734,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 10,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 10,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Large page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 183641,
+      "status_code": 200,
+      "title": "Large page",
+      "url": "http://127.0.0.1:18701/large.html",
+      "url_id": 7,
+      "word_count": 28802
+     },
+     {
+      "content_type": "text/html; charset=iso-8859-1",
+      "crawl_depth": 1,
+      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 399,
+      "status_code": 200,
+      "title": "Ñòàðàÿ êîäèðîâêà",
+      "url": "http://127.0.0.1:18701/legacy.html",
+      "url_id": 8,
+      "word_count": 10
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "JS-rendered page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 454,
+      "status_code": 200,
+      "title": "JS-rendered page",
+      "url": "http://127.0.0.1:18701/js.html",
+      "url_id": 9,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 5
+   },
+   "result": {
+    "bytes": 1355,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 5,
+    "next_offset": 5,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 5,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 500
+   },
+   "result": {
+    "error": "limit must be at most 200",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "limit_too_large",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "offset": 2
+   },
+   "result": {
+    "bytes": 812,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 3,
+    "next_offset": 5,
+    "offset": 2,
+    "ok": true,
+    "preset": null,
+    "returned": 3,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "status_code",
+      "op": "eq",
+      "value": 200
+     }
+    ],
+    "limit": 4
+   },
+   "result": {
+    "bytes": 1087,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 9,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "status_code",
+      "op": "eq",
+      "value": 200
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 4,
+    "next_offset": 4,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 4,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "status_class",
+      "op": "in",
+      "value": [
+       "2xx",
+       "4xx"
+      ]
+     }
+    ],
+    "limit": 6,
+    "sort": "status_code"
+   },
+   "result": {
+    "bytes": 1619,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "status_class",
+      "op": "in",
+      "value": [
+       "2xx",
+       "4xx"
+      ]
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 6,
+    "next_offset": 6,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 6,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "status_code",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "status_class",
+      "op": "ne",
+      "value": "2xx"
+     }
+    ]
+   },
+   "result": {
+    "bytes": 267,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 1,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "status_class",
+      "op": "ne",
+      "value": "2xx"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "direction": "desc",
+    "filters": [
+     {
+      "column": "url",
+      "op": "contains",
+      "value": "PAGE"
+     }
+    ],
+    "sort": "url"
+   },
+   "result": {
+    "bytes": 267,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 1,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "url",
+      "op": "contains",
+      "value": "PAGE"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "url",
+     "direction": "desc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "case_sensitive": true,
+      "column": "url",
+      "op": "contains",
+      "value": "PAGE"
+     }
+    ]
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "case_sensitive": true,
+      "column": "url",
+      "op": "contains",
+      "value": "PAGE"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "url",
+      "op": "starts_with",
+      "value": "http://127.0.0.1"
+     }
+    ],
+    "sort": "url"
+   },
+   "result": {
+    "bytes": 2734,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "url",
+      "op": "starts_with",
+      "value": "http://127.0.0.1"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 10,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 10,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "JS-rendered page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 454,
+      "status_code": 200,
+      "title": "JS-rendered page",
+      "url": "http://127.0.0.1:18701/js.html",
+      "url_id": 9,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Large page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 183641,
+      "status_code": 200,
+      "title": "Large page",
+      "url": "http://127.0.0.1:18701/large.html",
+      "url_id": 7,
+      "word_count": 28802
+     },
+     {
+      "content_type": "text/html; charset=iso-8859-1",
+      "crawl_depth": 1,
+      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 399,
+      "status_code": 200,
+      "title": "Ñòàðàÿ êîäèðîâêà",
+      "url": "http://127.0.0.1:18701/legacy.html",
+      "url_id": 8,
+      "word_count": 10
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "url",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "title",
+      "op": "empty"
+     }
+    ]
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "title",
+      "op": "empty"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "title",
+      "op": "not_empty"
+     },
+     {
+      "column": "word_count",
+      "op": "between",
+      "value": [
+       1,
+       500
+      ]
+     }
+    ],
+    "sort": "size_bytes"
+   },
+   "result": {
+    "bytes": 2466,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 9,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "title",
+      "op": "not_empty"
+     },
+     {
+      "column": "word_count",
+      "op": "between",
+      "value": [
+       1,
+       500
+      ]
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 9,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 9,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=iso-8859-1",
+      "crawl_depth": 1,
+      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 399,
+      "status_code": 200,
+      "title": "Ñòàðàÿ êîäèðîâêà",
+      "url": "http://127.0.0.1:18701/legacy.html",
+      "url_id": 8,
+      "word_count": 10
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "JS-rendered page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 454,
+      "status_code": 200,
+      "title": "JS-rendered page",
+      "url": "http://127.0.0.1:18701/js.html",
+      "url_id": 9,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "size_bytes",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url",
+     "indexable",
+     "title_length",
+     "inlinks"
+    ],
+    "filters": [
+     {
+      "column": "indexable",
+      "op": "eq",
+      "value": true
+     }
+    ]
+   },
+   "result": {
+    "bytes": 765,
+    "columns": [
+     "url",
+     "indexable",
+     "title_length",
+     "inlinks"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 8,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "indexable",
+      "op": "eq",
+      "value": true
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 8,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 8,
+    "rows": [
+     {
+      "indexable": true,
+      "inlinks": 8,
+      "title_length": 15,
+      "url": "http://127.0.0.1:18701/"
+     },
+     {
+      "indexable": true,
+      "inlinks": 1,
+      "title_length": 20,
+      "url": "http://127.0.0.1:18701/about.html"
+     },
+     {
+      "indexable": true,
+      "inlinks": 1,
+      "title_length": 15,
+      "url": "http://127.0.0.1:18701/dup-a.html"
+     },
+     {
+      "indexable": true,
+      "inlinks": 1,
+      "title_length": 15,
+      "url": "http://127.0.0.1:18701/dup-b.html"
+     },
+     {
+      "indexable": true,
+      "inlinks": 1,
+      "title_length": 11,
+      "url": "http://127.0.0.1:18701/images.html"
+     },
+     {
+      "indexable": true,
+      "inlinks": 1,
+      "title_length": 10,
+      "url": "http://127.0.0.1:18701/large.html"
+     },
+     {
+      "indexable": true,
+      "inlinks": 1,
+      "title_length": 16,
+      "url": "http://127.0.0.1:18701/legacy.html"
+     },
+     {
+      "indexable": true,
+      "inlinks": 1,
+      "title_length": 16,
+      "url": "http://127.0.0.1:18701/js.html"
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "direction": "desc",
+    "filters": [
+     {
+      "column": "crawl_depth",
+      "op": "in",
+      "value": [
+       0,
+       1
+      ]
+     }
+    ],
+    "limit": 7,
+    "sort": "crawl_depth"
+   },
+   "result": {
+    "bytes": 1919,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "crawl_depth",
+      "op": "in",
+      "value": [
+       0,
+       1
+      ]
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 7,
+    "next_offset": 7,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 7,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "JS-rendered page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 454,
+      "status_code": 200,
+      "title": "JS-rendered page",
+      "url": "http://127.0.0.1:18701/js.html",
+      "url_id": 9,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=iso-8859-1",
+      "crawl_depth": 1,
+      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 399,
+      "status_code": 200,
+      "title": "Ñòàðàÿ êîäèðîâêà",
+      "url": "http://127.0.0.1:18701/legacy.html",
+      "url_id": 8,
+      "word_count": 10
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Large page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 183641,
+      "status_code": 200,
+      "title": "Large page",
+      "url": "http://127.0.0.1:18701/large.html",
+      "url_id": 7,
+      "word_count": 28802
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     }
+    ],
+    "sort": {
+     "column": "crawl_depth",
+     "direction": "desc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url_id",
+     "url",
+     "dns_seconds",
+     "dns_state",
+     "ttfb_state",
+     "download_reason"
+    ],
+    "limit": 3
+   },
+   "result": {
+    "bytes": 599,
+    "columns": [
+     "url_id",
+     "url",
+     "dns_seconds",
+     "dns_state",
+     "ttfb_state",
+     "download_reason"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 3,
+    "next_offset": 3,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 3,
+    "rows": [
+     {
+      "dns_seconds": null,
+      "dns_state": "unavailable",
+      "download_reason": "transport phase was not retained in this scan",
+      "ttfb_state": "unavailable",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1
+     },
+     {
+      "dns_seconds": null,
+      "dns_state": "unavailable",
+      "download_reason": "transport phase was not retained in this scan",
+      "ttfb_state": "unavailable",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2
+     },
+     {
+      "dns_seconds": null,
+      "dns_state": "unavailable",
+      "download_reason": "transport phase was not retained in this scan",
+      "ttfb_state": "unavailable",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url",
+     "resource_count",
+     "resource_images",
+     "resource_scripts",
+     "resource_stylesheets",
+     "resource_bytes",
+     "resource_bytes_state"
+    ]
+   },
+   "result": {
+    "error": "complete retained resource declarations are unavailable for every page",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "resource_graph_unavailable",
+    "state": "unavailable"
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url",
+     "title_duplicate",
+     "description_duplicate",
+     "canonical_self",
+     "canonical_other",
+     "canonical_non_indexable",
+     "robots_blocked"
+    ]
+   },
+   "result": {
+    "bytes": 1878,
+    "columns": [
+     "url",
+     "title_duplicate",
+     "description_duplicate",
+     "canonical_self",
+     "canonical_other",
+     "canonical_non_indexable",
+     "robots_blocked"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 10,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 10,
+    "rows": [
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 0,
+      "robots_blocked": 0,
+      "title_duplicate": 0,
+      "url": "http://127.0.0.1:18701/"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 0,
+      "robots_blocked": 0,
+      "title_duplicate": 0,
+      "url": "http://127.0.0.1:18701/about.html"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 1,
+      "robots_blocked": 0,
+      "title_duplicate": 1,
+      "url": "http://127.0.0.1:18701/dup-a.html"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 1,
+      "robots_blocked": 0,
+      "title_duplicate": 1,
+      "url": "http://127.0.0.1:18701/dup-b.html"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 0,
+      "robots_blocked": 0,
+      "title_duplicate": 0,
+      "url": "http://127.0.0.1:18701/noindex.html"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 0,
+      "robots_blocked": 0,
+      "title_duplicate": 0,
+      "url": "http://127.0.0.1:18701/images.html"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 0,
+      "robots_blocked": 0,
+      "title_duplicate": 0,
+      "url": "http://127.0.0.1:18701/large.html"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 0,
+      "robots_blocked": 0,
+      "title_duplicate": 0,
+      "url": "http://127.0.0.1:18701/legacy.html"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 0,
+      "robots_blocked": 0,
+      "title_duplicate": 0,
+      "url": "http://127.0.0.1:18701/js.html"
+     },
+     {
+      "canonical_non_indexable": 0,
+      "canonical_other": 0,
+      "canonical_self": 0,
+      "description_duplicate": 0,
+      "robots_blocked": 0,
+      "title_duplicate": 0,
+      "url": "http://127.0.0.1:18701/missing-page.html"
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url",
+     "in_sitemap",
+     "has_hreflang"
+    ]
+   },
+   "result": {
+    "error": "sitemap membership was not completely retained for this scan",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "sitemap_membership_unavailable",
+    "state": "unavailable"
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url",
+     "click_depth"
+    ],
+    "sort": "click_depth"
+   },
+   "result": {
+    "bytes": 618,
+    "columns": [
+     "url",
+     "click_depth"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 10,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 10,
+    "rows": [
+     {
+      "click_depth": 0,
+      "url": "http://127.0.0.1:18701/"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/about.html"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/dup-a.html"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/dup-b.html"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/noindex.html"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/images.html"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/large.html"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/legacy.html"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/js.html"
+     },
+     {
+      "click_depth": 1,
+      "url": "http://127.0.0.1:18701/missing-page.html"
+     }
+    ],
+    "sort": {
+     "column": "click_depth",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url",
+     "issue_count"
+    ],
+    "direction": "desc",
+    "sort": "issue_count"
+   },
+   "result": {
+    "bytes": 627,
+    "columns": [
+     "url",
+     "issue_count"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 10,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 10,
+    "rows": [
+     {
+      "issue_count": 21,
+      "url": "http://127.0.0.1:18701/dup-a.html"
+     },
+     {
+      "issue_count": 20,
+      "url": "http://127.0.0.1:18701/images.html"
+     },
+     {
+      "issue_count": 20,
+      "url": "http://127.0.0.1:18701/dup-b.html"
+     },
+     {
+      "issue_count": 17,
+      "url": "http://127.0.0.1:18701/large.html"
+     },
+     {
+      "issue_count": 16,
+      "url": "http://127.0.0.1:18701/js.html"
+     },
+     {
+      "issue_count": 16,
+      "url": "http://127.0.0.1:18701/"
+     },
+     {
+      "issue_count": 15,
+      "url": "http://127.0.0.1:18701/legacy.html"
+     },
+     {
+      "issue_count": 14,
+      "url": "http://127.0.0.1:18701/about.html"
+     },
+     {
+      "issue_count": 10,
+      "url": "http://127.0.0.1:18701/noindex.html"
+     },
+     {
+      "issue_count": 2,
+      "url": "http://127.0.0.1:18701/missing-page.html"
+     }
+    ],
+    "sort": {
+     "column": "issue_count",
+     "direction": "desc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": "all",
+    "limit": 2
+   },
+   "result": {
+    "bytes": 543,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "all": "exact",
+     "canonical_missing": "exact",
+     "canonical_other": "exact",
+     "canonical_self": "exact",
+     "directives_nofollow": "exact",
+     "directives_noindex": "exact",
+     "external": "exact",
+     "in_sitemap": "unavailable",
+     "internal": "exact",
+     "status_2xx": "exact",
+     "status_3xx": "exact",
+     "status_4xx": "exact",
+     "status_5xx": "exact",
+     "title_duplicate": "exact",
+     "title_long": "exact",
+     "title_missing": "exact",
+     "title_short": "exact",
+     "with_images": "unavailable",
+     "with_inlinks": "exact",
+     "with_outlinks": "exact",
+     "with_resources": "unavailable",
+     "with_scripts": "unavailable",
+     "with_stylesheets": "unavailable"
+    },
+    "facets": {
+     "all": 10,
+     "canonical_missing": 10,
+     "canonical_other": 0,
+     "canonical_self": 0,
+     "directives_nofollow": 1,
+     "directives_noindex": 1,
+     "external": 0,
+     "in_sitemap": null,
+     "internal": 10,
+     "status_2xx": 9,
+     "status_3xx": 0,
+     "status_4xx": 1,
+     "status_5xx": 0,
+     "title_duplicate": 2,
+     "title_long": 0,
+     "title_missing": 0,
+     "title_short": 10,
+     "with_images": null,
+     "with_inlinks": 10,
+     "with_outlinks": 9,
+     "with_resources": null,
+     "with_scripts": null,
+     "with_stylesheets": null
+    },
+    "facets_state": "partial",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 2,
+    "next_offset": 2,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 2,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "status_2xx",
+     "internal",
+     "external",
+     "title_missing"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "external": "exact",
+     "internal": "exact",
+     "status_2xx": "exact",
+     "title_missing": "exact"
+    },
+    "facets": {
+     "external": 0,
+     "internal": 10,
+     "status_2xx": 9,
+     "title_missing": 0
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "resource_kind",
+      "op": "eq",
+      "value": "image"
+     }
+    ],
+    "limit": 5
+   },
+   "result": {
+    "error": "complete retained resource declarations are unavailable for every page",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "resource_graph_unavailable",
+    "state": "unavailable"
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "resource_url",
+      "op": "contains",
+      "value": "css"
+     }
+    ],
+    "limit": 5
+   },
+   "result": {
+    "error": "complete retained resource declarations are unavailable for every page",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "resource_graph_unavailable",
+    "state": "unavailable"
+   }
+  },
+  {
+   "call": {
+    "issue_severity": "warning",
+    "limit": 5
+   },
+   "result": {
+    "bytes": 1355,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 9,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 5,
+    "next_offset": 5,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 5,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "issue_check": [
+     "A11Y_IMAGE_ALT_MISSING",
+     "title_missing"
+    ],
+    "limit": 5
+   },
+   "result": {
+    "bytes": 264,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 1,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 5,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "include_check_counts": true,
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "issue_summary": {
+     "by_check": null,
+     "by_severity": null,
+     "checks": null,
+     "checks_disabled": null,
+     "checks_run": null,
+     "checks_skipped": null,
+     "checks_total": null,
+     "findings_total": null,
+     "issues_total": null,
+     "reason": "saved audit opportunity counter is missing",
+     "state": "unavailable"
+    },
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 200,
+    "max_bytes": 4096
+   },
+   "result": {
+    "bytes": 2734,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 10,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 10,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Large page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 183641,
+      "status_code": 200,
+      "title": "Large page",
+      "url": "http://127.0.0.1:18701/large.html",
+      "url_id": 7,
+      "word_count": 28802
+     },
+     {
+      "content_type": "text/html; charset=iso-8859-1",
+      "crawl_depth": 1,
+      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 399,
+      "status_code": 200,
+      "title": "Ñòàðàÿ êîäèðîâêà",
+      "url": "http://127.0.0.1:18701/legacy.html",
+      "url_id": 8,
+      "word_count": 10
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "JS-rendered page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 454,
+      "status_code": 200,
+      "title": "JS-rendered page",
+      "url": "http://127.0.0.1:18701/js.html",
+      "url_id": 9,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 201
+   },
+   "result": {
+    "error": "limit must be at most 200",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "limit_too_large",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "limit": 0
+   },
+   "result": {
+    "error": "limit must be an integer 1..200",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_limit",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "offset": -1
+   },
+   "result": {
+    "error": "offset must be an integer 0..1099511627776",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_offset",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "direction": "up"
+   },
+   "result": {
+    "error": "direction must be asc or desc",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_sort",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "sort": "nope"
+   },
+   "result": {
+    "error": "sort names an unavailable column",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "unknown_column",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "columns": [
+     "url",
+     "url"
+    ]
+   },
+   "result": {
+    "error": "columns repeats a column",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "unknown_column",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "columns": []
+   },
+   "result": {
+    "error": "columns must be a nonempty list of column names",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "unknown_column",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "nope",
+      "op": "eq",
+      "value": 1
+     }
+    ]
+   },
+   "result": {
+    "error": "filter column is not an allowed column name",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "unknown_column",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "title",
+      "op": "bogus",
+      "value": 1
+     }
+    ]
+   },
+   "result": {
+    "error": "operator 'bogus' is not valid for column title",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_filter",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "status_code",
+      "op": "eq",
+      "value": "x"
+     }
+    ]
+   },
+   "result": {
+    "error": "status_code filter value has the wrong type or size",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_filter",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "status_code",
+      "op": "is_null",
+      "value": 1
+     }
+    ]
+   },
+   "result": {
+    "error": "operator is_null takes no value",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_filter",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "status_code",
+      "op": "in",
+      "value": []
+     }
+    ]
+   },
+   "result": {
+    "error": "in needs a list of 1..100 values",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_filter",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "filters": [
+     {
+      "column": "title",
+      "extra": 1,
+      "op": "eq",
+      "value": "a"
+     }
+    ]
+   },
+   "result": {
+    "error": "unknown filter key: extra",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_filter",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "filters": "x"
+   },
+   "result": {
+    "error": "filters must be a list of at most 20",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_filter",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "preset": "nope"
+   },
+   "result": {
+    "error": "preset is not one of: canonical_missing, canonical_non_indexable, description_duplicate, duplicate_titles, h1_missing, h1_multiple, hreflang, images_missing_alt, in_sitemap, inlinks, meta_description_missing, meta_description_over_160, no_outlinks, no_response, noindex_header, noindex_meta, robots_blocked, status_3xx, status_4xx, status_5xx, title_missing, title_over_60",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "unknown_preset",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "nope"
+    ]
+   },
+   "result": {
+    "error": "unknown facet group: nope",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_facet",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "all",
+     "all"
+    ]
+   },
+   "result": {
+    "error": "facets repeats a group",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_facet",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "count_timeout_seconds": 100
+   },
+   "result": {
+    "error": "count_timeout_seconds must be 0.05..30",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_count_timeout",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "issue_check": "bad id!"
+   },
+   "result": {
+    "error": "issue_check needs 1..50 check ids",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_issue_filter",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "issue_severity": "huge"
+   },
+   "result": {
+    "error": "issue_severity must be one of: critical, warning, notice, opportunity",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_issue_filter",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "include_check_counts": "yes"
+   },
+   "result": {
+    "error": "include_check_counts must be a boolean",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "invalid_check_counts",
+    "state": "invalid"
+   }
+  },
+  {
+   "call": {
+    "filters": [],
+    "sort": "title"
+   },
+   "result": {
+    "bytes": 2734,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 200,
+    "next_offset": 10,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 10,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "JS-rendered page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 454,
+      "status_code": 200,
+      "title": "JS-rendered page",
+      "url": "http://127.0.0.1:18701/js.html",
+      "url_id": 9,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Large page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 183641,
+      "status_code": 200,
+      "title": "Large page",
+      "url": "http://127.0.0.1:18701/large.html",
+      "url_id": 7,
+      "word_count": 28802
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     },
+     {
+      "content_type": "text/html; charset=iso-8859-1",
+      "crawl_depth": 1,
+      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 399,
+      "status_code": 200,
+      "title": "Ñòàðàÿ êîäèðîâêà",
+      "url": "http://127.0.0.1:18701/legacy.html",
+      "url_id": 8,
+      "word_count": 10
+     }
+    ],
+    "sort": {
+     "column": "title",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "status_3xx"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "status_class",
+      "op": "eq",
+      "value": "3xx"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "status_3xx",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "status_4xx"
+   },
+   "result": {
+    "bytes": 267,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 1,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "status_class",
+      "op": "eq",
+      "value": "4xx"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": "status_4xx",
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "status_5xx"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "status_class",
+      "op": "eq",
+      "value": "5xx"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "status_5xx",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "no_response"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "status_class",
+      "op": "eq",
+      "value": "none"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "no_response",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "title_missing"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "title",
+      "op": "empty"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "title_missing",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "title_over_60"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "title_length",
+      "op": "gt",
+      "value": 60
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "title_over_60",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "meta_description_missing"
+   },
+   "result": {
+    "bytes": 267,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 1,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "meta_description",
+      "op": "empty"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": "meta_description_missing",
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "meta_description_over_160"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "meta_description_length",
+      "op": "gt",
+      "value": 160
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "meta_description_over_160",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "h1_missing"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "h1",
+      "op": "empty"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "h1_missing",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "h1_multiple"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "h1_2",
+      "op": "not_empty"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "h1_multiple",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "canonical_missing"
+   },
+   "result": {
+    "bytes": 815,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "canonical",
+      "op": "empty"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 3,
+    "next_offset": 3,
+    "offset": 0,
+    "ok": true,
+    "preset": "canonical_missing",
+    "returned": 3,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "images_missing_alt"
+   },
+   "result": {
+    "bytes": 264,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 1,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "images_missing_alt_attr",
+      "op": "gt",
+      "value": 0
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": "images_missing_alt",
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Images page",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 474,
+      "status_code": 200,
+      "title": "Images page",
+      "url": "http://127.0.0.1:18701/images.html",
+      "url_id": 6,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "noindex_meta"
+   },
+   "result": {
+    "bytes": 268,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 1,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "meta_robots",
+      "op": "contains",
+      "value": "noindex"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": "noindex_meta",
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Noindex page",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 350,
+      "status_code": 200,
+      "title": "Noindex page",
+      "url": "http://127.0.0.1:18701/noindex.html",
+      "url_id": 5,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "noindex_header"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "x_robots",
+      "op": "contains",
+      "value": "noindex"
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "noindex_header",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "no_outlinks"
+   },
+   "result": {
+    "bytes": 267,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 1,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "outlinks",
+      "op": "eq",
+      "value": 0
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": "no_outlinks",
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Not Found",
+      "indexable": false,
+      "response_time": 0.001,
+      "size_bytes": 97,
+      "status_code": 404,
+      "title": "Not Found",
+      "url": "http://127.0.0.1:18701/missing-page.html",
+      "url_id": 10,
+      "word_count": 2
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "hreflang"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "has_hreflang",
+      "op": "eq",
+      "value": true
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "hreflang",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "duplicate_titles"
+   },
+   "result": {
+    "bytes": 544,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 2,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "title_duplicate",
+      "op": "eq",
+      "value": true
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 2,
+    "offset": 0,
+    "ok": true,
+    "preset": "duplicate_titles",
+    "returned": 2,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "in_sitemap"
+   },
+   "result": {
+    "error": "sitemap membership was not completely retained for this scan",
+    "format": "spiderhead.scan-url-query.v1",
+    "ok": false,
+    "reason_code": "sitemap_membership_unavailable",
+    "state": "unavailable"
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "inlinks"
+   },
+   "result": {
+    "bytes": 815,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "inlinks",
+      "op": "gt",
+      "value": 0
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 3,
+    "next_offset": 3,
+    "offset": 0,
+    "ok": true,
+    "preset": "inlinks",
+    "returned": 3,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "About the basic site",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 442,
+      "status_code": 200,
+      "title": "About the basic site",
+      "url": "http://127.0.0.1:18701/about.html",
+      "url_id": 2,
+      "word_count": 17
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "robots_blocked"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "robots_blocked",
+      "op": "eq",
+      "value": true
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "robots_blocked",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "description_duplicate"
+   },
+   "result": {
+    "bytes": 544,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 2,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "description_duplicate",
+      "op": "eq",
+      "value": true
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 2,
+    "offset": 0,
+    "ok": true,
+    "preset": "description_duplicate",
+    "returned": 2,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-a.html",
+      "url_id": 3,
+      "word_count": 51
+     },
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 1,
+      "h1": "Duplicate title",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 595,
+      "status_code": 200,
+      "title": "Duplicate title",
+      "url": "http://127.0.0.1:18701/dup-b.html",
+      "url_id": 4,
+      "word_count": 51
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "limit": 3,
+    "preset": "canonical_non_indexable"
+   },
+   "result": {
+    "bytes": 0,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "filtered_total": 0,
+    "filtered_total_state": "exact",
+    "filters": [
+     {
+      "column": "canonical_non_indexable",
+      "op": "eq",
+      "value": true
+     }
+    ],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": false,
+    "limit": 3,
+    "next_offset": 0,
+    "offset": 0,
+    "ok": true,
+    "preset": "canonical_non_indexable",
+    "returned": 0,
+    "rows": [],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "all"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "all": "exact"
+    },
+    "facets": {
+     "all": 10
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "status_2xx"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "status_2xx": "exact"
+    },
+    "facets": {
+     "status_2xx": 9
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "status_3xx"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "status_3xx": "exact"
+    },
+    "facets": {
+     "status_3xx": 0
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "status_4xx"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "status_4xx": "exact"
+    },
+    "facets": {
+     "status_4xx": 1
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "status_5xx"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "status_5xx": "exact"
+    },
+    "facets": {
+     "status_5xx": 0
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "title_missing"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "title_missing": "exact"
+    },
+    "facets": {
+     "title_missing": 0
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "canonical_missing"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "canonical_missing": "exact"
+    },
+    "facets": {
+     "canonical_missing": 10
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "directives_noindex"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "directives_noindex": "exact"
+    },
+    "facets": {
+     "directives_noindex": 1
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "directives_nofollow"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "directives_nofollow": "exact"
+    },
+    "facets": {
+     "directives_nofollow": 1
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "with_outlinks"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "with_outlinks": "exact"
+    },
+    "facets": {
+     "with_outlinks": 9
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "internal"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "internal": "exact"
+    },
+    "facets": {
+     "internal": 10
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "external"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "external": "exact"
+    },
+    "facets": {
+     "external": 0
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "title_duplicate"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "title_duplicate": "exact"
+    },
+    "facets": {
+     "title_duplicate": 2
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "title_long"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "title_long": "exact"
+    },
+    "facets": {
+     "title_long": 0
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "title_short"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "title_short": "exact"
+    },
+    "facets": {
+     "title_short": 10
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "canonical_other"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "canonical_other": "exact"
+    },
+    "facets": {
+     "canonical_other": 0
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "canonical_self"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "canonical_self": "exact"
+    },
+    "facets": {
+     "canonical_self": 0
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "in_sitemap"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "in_sitemap": "unavailable"
+    },
+    "facets": {
+     "in_sitemap": null
+    },
+    "facets_state": "unavailable",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "with_inlinks"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "with_inlinks": "exact"
+    },
+    "facets": {
+     "with_inlinks": 10
+    },
+    "facets_state": "exact",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "with_resources"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "with_resources": "unavailable"
+    },
+    "facets": {
+     "with_resources": null
+    },
+    "facets_state": "unavailable",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "with_images"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "with_images": "unavailable"
+    },
+    "facets": {
+     "with_images": null
+    },
+    "facets_state": "unavailable",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "with_scripts"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "with_scripts": "unavailable"
+    },
+    "facets": {
+     "with_scripts": null
+    },
+    "facets_state": "unavailable",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  },
+  {
+   "call": {
+    "facets": [
+     "with_stylesheets"
+    ],
+    "limit": 1
+   },
+   "result": {
+    "bytes": 261,
+    "columns": [
+     "url_id",
+     "url",
+     "status_code",
+     "content_type",
+     "crawl_depth",
+     "title",
+     "h1",
+     "word_count",
+     "size_bytes",
+     "response_time",
+     "indexable"
+    ],
+    "coverage": {
+     "rows": "committed page records; queued or excluded URLs without a page are not rows",
+     "scan_complete": true,
+     "scan_lifecycle": "finished"
+    },
+    "facet_states": {
+     "with_stylesheets": "unavailable"
+    },
+    "facets": {
+     "with_stylesheets": null
+    },
+    "facets_state": "unavailable",
+    "filtered_total": 10,
+    "filtered_total_state": "exact",
+    "filters": [],
+    "format": "spiderhead.scan-url-query.v1",
+    "has_more": true,
+    "limit": 1,
+    "next_offset": 1,
+    "offset": 0,
+    "ok": true,
+    "preset": null,
+    "returned": 1,
+    "rows": [
+     {
+      "content_type": "text/html; charset=utf-8",
+      "crawl_depth": 0,
+      "h1": "Basic site home",
+      "indexable": true,
+      "response_time": 0.001,
+      "size_bytes": 672,
+      "status_code": 200,
+      "title": "Basic site home",
+      "url": "http://127.0.0.1:18701/",
+      "url_id": 1,
+      "word_count": 9
+     }
+    ],
+    "sort": {
+     "column": "page_ordinal",
+     "direction": "asc",
+     "mode": "materialized",
+     "tie_breaker": "url_id"
+    },
+    "source": {
+     "corpus_partial": false,
+     "crawl_partial": false,
+     "evidence_revision": 10,
+     "finish_reason": "finished",
+     "format_version": "scan.v1",
+     "lifecycle": "finished",
+     "pages_coverage": {
+      "reason": "committed native crawl observations",
+      "state": "complete"
+     },
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "source_kind": "native"
+    },
+    "state": "available",
+    "total": 10,
+    "total_state": "exact",
+    "truncated": false
+   }
+  }
+ ]
+}

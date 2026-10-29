@@ -1,0 +1,4888 @@
+{
+ "base": "$BASE",
+ "ops": [
+  {
+   "name": "join-basic",
+   "outcome": {
+    "result": {
+     "collisions": {
+      "multiplicity": [
+       {
+        "key": "https://ex.com/a",
+        "pages": 1,
+        "rows": 2
+       }
+      ],
+      "pages": [],
+      "rows": []
+     },
+     "crawl": {},
+     "crawl_only": [
+      {
+       "key": "https://ex.com/b",
+       "page": {
+        "url": "https://ex.com/b"
+       },
+       "url": "https://ex.com/b"
+      }
+     ],
+     "evidence": {
+      "artifact_reference": null,
+      "attribution": null,
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "field_origins": {},
+      "file": "f.json",
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "operation": "query",
+      "period": null,
+      "privacy": null,
+      "provider": "gsc",
+      "reporting_identity": null,
+      "search_engine": null,
+      "search_type": null,
+      "site_origin": null,
+      "timezone": null
+     },
+     "external_only": [
+      {
+       "key": "https://ex.com/c",
+       "row": {
+        "metrics": {
+         "clicks": {
+          "state": "measured",
+          "value": 3
+         }
+        },
+        "url": {
+         "normalized": "https://ex.com/c",
+         "raw": "https://ex.com/c",
+         "resolved": "https://ex.com/c",
+         "state": "keyed"
+        }
+       }
+      }
+     ],
+     "format": "spiderhead.evidence-join.v1",
+     "matched": [
+      {
+       "candidate_multiplicity": 2,
+       "key": "https://ex.com/a",
+       "page": {
+        "url": "https://ex.com/a"
+       },
+       "rows": [
+        {
+         "metrics": {
+          "clicks": {
+           "state": "measured",
+           "value": 3
+          }
+         },
+         "url": {
+          "normalized": "https://ex.com/a",
+          "raw": "https://ex.com/a",
+          "resolved": "https://ex.com/a",
+          "state": "keyed"
+         }
+        },
+        {
+         "ambiguous": true,
+         "metrics": {
+          "clicks": {
+           "state": "measured",
+           "value": 3
+          }
+         },
+         "url": {
+          "normalized": "https://ex.com/a",
+          "raw": "https://ex.com/a",
+          "resolved": "https://ex.com/a",
+          "state": "keyed"
+         }
+        }
+       ],
+       "url": "https://ex.com/a"
+      }
+     ],
+     "summary": {
+      "ambiguous_rows": 1,
+      "candidate_pairs": 2,
+      "crawl_only": 1,
+      "external_only": 1,
+      "matched": 1,
+      "matched_pages": 1,
+      "matched_rows": 2,
+      "multi_match_keys": 1,
+      "page_key_collisions": 0,
+      "pages": 3,
+      "row_key_collisions": 0,
+      "rows": 4,
+      "unkeyable_pages": 1,
+      "unkeyable_rows": 1
+     },
+     "unkeyable_pages": [
+      {
+       "position": 2,
+       "reason": "unkeyable_url",
+       "url": "notaurl"
+      }
+     ],
+     "unkeyable_rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "state": "unkeyable"
+       }
+      }
+     ],
+     "url_policy": {
+      "casefold_path": false,
+      "ignore_query": false,
+      "ignore_scheme": false,
+      "version": "external_join.v1"
+     }
+    }
+   },
+   "spec": {
+    "crawl": null,
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "state": "unkeyable"
+       }
+      },
+      {
+       "ambiguous": true,
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "pages": [
+     {
+      "url": "https://ex.com/a"
+     },
+     {
+      "url": "https://ex.com/b"
+     },
+     {
+      "url": "notaurl"
+     }
+    ],
+    "url_policy": null
+   }
+  },
+  {
+   "name": "join-policy",
+   "outcome": {
+    "result": {
+     "collisions": {
+      "multiplicity": [],
+      "pages": [],
+      "rows": []
+     },
+     "crawl": {},
+     "crawl_only": [],
+     "evidence": {
+      "artifact_reference": null,
+      "attribution": null,
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "field_origins": {},
+      "file": "f.json",
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "operation": "query",
+      "period": null,
+      "privacy": null,
+      "provider": "gsc",
+      "reporting_identity": null,
+      "search_engine": null,
+      "search_type": null,
+      "site_origin": null,
+      "timezone": null
+     },
+     "external_only": [],
+     "format": "spiderhead.evidence-join.v1",
+     "matched": [
+      {
+       "candidate_multiplicity": 1,
+       "key": "https://ex.com/a",
+       "page": {
+        "url": "https://ex.com/a?x=1"
+       },
+       "rows": [
+        {
+         "metrics": {
+          "clicks": {
+           "state": "measured",
+           "value": 3
+          }
+         },
+         "url": {
+          "normalized": "https://ex.com/a?y=2",
+          "raw": "https://ex.com/a?y=2",
+          "resolved": "https://ex.com/a?y=2",
+          "state": "keyed"
+         }
+        }
+       ],
+       "url": "https://ex.com/a?x=1"
+      }
+     ],
+     "summary": {
+      "ambiguous_rows": 0,
+      "candidate_pairs": 1,
+      "crawl_only": 0,
+      "external_only": 0,
+      "matched": 1,
+      "matched_pages": 1,
+      "matched_rows": 1,
+      "multi_match_keys": 0,
+      "page_key_collisions": 0,
+      "pages": 1,
+      "row_key_collisions": 0,
+      "rows": 1,
+      "unkeyable_pages": 0,
+      "unkeyable_rows": 0
+     },
+     "unkeyable_pages": [],
+     "unkeyable_rows": [],
+     "url_policy": {
+      "casefold_path": false,
+      "ignore_query": true,
+      "ignore_scheme": false,
+      "version": "external_join.v1"
+     }
+    }
+   },
+   "spec": {
+    "crawl": null,
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a?y=2",
+        "raw": "https://ex.com/a?y=2",
+        "resolved": "https://ex.com/a?y=2",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "pages": [
+     {
+      "url": "https://ex.com/a?x=1"
+     }
+    ],
+    "url_policy": {
+     "ignore_query": true
+    }
+   }
+  },
+  {
+   "name": "join-policy-bad",
+   "outcome": {
+    "error": {
+     "class": "EvidenceImportError",
+     "message": "url_policy has unsupported keys: ['nope']"
+    }
+   },
+   "spec": {
+    "crawl": null,
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "state": "unkeyable"
+       }
+      },
+      {
+       "ambiguous": true,
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "pages": [],
+    "url_policy": {
+     "nope": 1
+    }
+   }
+  },
+  {
+   "name": "join-policy-nonbool",
+   "outcome": {
+    "error": {
+     "class": "EvidenceImportError",
+     "message": "url_policy ignore_query must be a boolean"
+    }
+   },
+   "spec": {
+    "crawl": null,
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "state": "unkeyable"
+       }
+      },
+      {
+       "ambiguous": true,
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "pages": [],
+    "url_policy": {
+     "ignore_query": 1
+    }
+   }
+  },
+  {
+   "name": "join-wrong-format",
+   "outcome": {
+    "error": {
+     "class": "EvidenceImportError",
+     "message": "expected a spiderhead.normalized-evidence.v1 document"
+    }
+   },
+   "spec": {
+    "crawl": null,
+    "document": {
+     "format": "x"
+    },
+    "pages": [],
+    "url_policy": null
+   }
+  },
+  {
+   "name": "join-crawl-label",
+   "outcome": {
+    "result": {
+     "collisions": {
+      "multiplicity": [],
+      "pages": [],
+      "rows": []
+     },
+     "crawl": {
+      "scan_uuid": "u1",
+      "source": "scan"
+     },
+     "crawl_only": [],
+     "evidence": {
+      "artifact_reference": null,
+      "attribution": null,
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "field_origins": {},
+      "file": "f.json",
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "operation": "query",
+      "period": null,
+      "privacy": null,
+      "provider": "gsc",
+      "reporting_identity": null,
+      "search_engine": null,
+      "search_type": null,
+      "site_origin": null,
+      "timezone": null
+     },
+     "external_only": [],
+     "format": "spiderhead.evidence-join.v1",
+     "matched": [
+      {
+       "candidate_multiplicity": 1,
+       "key": "https://ex.com/a",
+       "page": {
+        "url": "https://ex.com/a"
+       },
+       "rows": [
+        {
+         "metrics": {
+          "clicks": {
+           "state": "measured",
+           "value": 3
+          }
+         },
+         "url": {
+          "normalized": "https://ex.com/a",
+          "raw": "https://ex.com/a",
+          "resolved": "https://ex.com/a",
+          "state": "keyed"
+         }
+        }
+       ],
+       "url": "https://ex.com/a"
+      }
+     ],
+     "summary": {
+      "ambiguous_rows": 0,
+      "candidate_pairs": 1,
+      "crawl_only": 0,
+      "external_only": 0,
+      "matched": 1,
+      "matched_pages": 1,
+      "matched_rows": 1,
+      "multi_match_keys": 0,
+      "page_key_collisions": 0,
+      "pages": 1,
+      "row_key_collisions": 0,
+      "rows": 1,
+      "unkeyable_pages": 0,
+      "unkeyable_rows": 0
+     },
+     "unkeyable_pages": [],
+     "unkeyable_rows": [],
+     "url_policy": {
+      "casefold_path": false,
+      "ignore_query": false,
+      "ignore_scheme": false,
+      "version": "external_join.v1"
+     }
+    }
+   },
+   "spec": {
+    "crawl": {
+     "scan_uuid": "u1",
+     "source": "scan"
+    },
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "pages": [
+     {
+      "url": "https://ex.com/a"
+     }
+    ],
+    "url_policy": null
+   }
+  },
+  {
+   "name": "join-collision",
+   "outcome": {
+    "result": {
+     "collisions": {
+      "multiplicity": [
+       {
+        "key": "https://ex.com/a",
+        "pages": 2,
+        "rows": 2
+       }
+      ],
+      "pages": [
+       {
+        "key": "https://ex.com/a",
+        "raw_values": [
+         "https://ex.com/a",
+         "https://ex.com/a?x=1"
+        ]
+       }
+      ],
+      "rows": [
+       {
+        "key": "https://ex.com/a",
+        "raw_values": [
+         "https://ex.com/a",
+         "https://ex.com/a?y=9"
+        ]
+       }
+      ]
+     },
+     "crawl": {},
+     "crawl_only": [],
+     "evidence": {
+      "artifact_reference": null,
+      "attribution": null,
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "field_origins": {},
+      "file": "f.json",
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "operation": "query",
+      "period": null,
+      "privacy": null,
+      "provider": "gsc",
+      "reporting_identity": null,
+      "search_engine": null,
+      "search_type": null,
+      "site_origin": null,
+      "timezone": null
+     },
+     "external_only": [],
+     "format": "spiderhead.evidence-join.v1",
+     "matched": [
+      {
+       "candidate_multiplicity": 4,
+       "key": "https://ex.com/a",
+       "page": {
+        "url": "https://ex.com/a"
+       },
+       "rows": [
+        {
+         "metrics": {
+          "clicks": {
+           "state": "measured",
+           "value": 3
+          }
+         },
+         "url": {
+          "normalized": "https://ex.com/a?y=9",
+          "raw": "https://ex.com/a?y=9",
+          "resolved": "https://ex.com/a?y=9",
+          "state": "keyed"
+         }
+        },
+        {
+         "metrics": {
+          "clicks": {
+           "state": "measured",
+           "value": 3
+          }
+         },
+         "url": {
+          "normalized": "https://ex.com/a",
+          "raw": "https://ex.com/a",
+          "resolved": "https://ex.com/a",
+          "state": "keyed"
+         }
+        }
+       ],
+       "url": "https://ex.com/a"
+      },
+      {
+       "candidate_multiplicity": 4,
+       "key": "https://ex.com/a",
+       "page": {
+        "url": "https://ex.com/a?x=1"
+       },
+       "rows": [
+        {
+         "metrics": {
+          "clicks": {
+           "state": "measured",
+           "value": 3
+          }
+         },
+         "url": {
+          "normalized": "https://ex.com/a?y=9",
+          "raw": "https://ex.com/a?y=9",
+          "resolved": "https://ex.com/a?y=9",
+          "state": "keyed"
+         }
+        },
+        {
+         "metrics": {
+          "clicks": {
+           "state": "measured",
+           "value": 3
+          }
+         },
+         "url": {
+          "normalized": "https://ex.com/a",
+          "raw": "https://ex.com/a",
+          "resolved": "https://ex.com/a",
+          "state": "keyed"
+         }
+        }
+       ],
+       "url": "https://ex.com/a?x=1"
+      }
+     ],
+     "summary": {
+      "ambiguous_rows": 0,
+      "candidate_pairs": 4,
+      "crawl_only": 0,
+      "external_only": 0,
+      "matched": 2,
+      "matched_pages": 2,
+      "matched_rows": 2,
+      "multi_match_keys": 1,
+      "page_key_collisions": 1,
+      "pages": 2,
+      "row_key_collisions": 1,
+      "rows": 2,
+      "unkeyable_pages": 0,
+      "unkeyable_rows": 0
+     },
+     "unkeyable_pages": [],
+     "unkeyable_rows": [],
+     "url_policy": {
+      "casefold_path": false,
+      "ignore_query": true,
+      "ignore_scheme": false,
+      "version": "external_join.v1"
+     }
+    }
+   },
+   "spec": {
+    "crawl": null,
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a?y=9",
+        "raw": "https://ex.com/a?y=9",
+        "resolved": "https://ex.com/a?y=9",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "pages": [
+     {
+      "url": "https://ex.com/a"
+     },
+     {
+      "url": "https://ex.com/a?x=1"
+     }
+    ],
+    "url_policy": {
+     "ignore_query": true
+    }
+   }
+  },
+  {
+   "name": "compat-equal",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": null,
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": false,
+     "quadrant": {
+      "eligible": false,
+      "reasons": [],
+      "requested": false
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "reporting_identity",
+       "reason": "same_reporting_source",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "compatible"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": null,
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-period",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": null,
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": false,
+     "quadrant": {
+      "eligible": false,
+      "reasons": [],
+      "requested": false
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_adjacent",
+       "verdict": "incompatible"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "reporting_identity",
+       "reason": "same_reporting_source",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "incompatible"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": null,
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "period": {
+        "value": {
+         "end_date": "2026-02-28",
+         "start_date": "2026-02-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-mismatch",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": null,
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": false,
+     "quadrant": {
+      "eligible": false,
+      "reasons": [],
+      "requested": false
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "reporting_identity",
+       "reason": "reporting_source_mismatch",
+       "verdict": "incompatible"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "incompatible"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": null,
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "ga4"
+       },
+       "reporting_identity": {
+        "value": "prop-1"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-juxtapose",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": "strict",
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": true,
+     "quadrant": {
+      "eligible": false,
+      "reasons": [],
+      "requested": false
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "reporting_identity",
+       "reason": "juxtaposed_sources",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unverified_juxtaposed",
+       "unverified": true,
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_differs_labeled",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_differs_labeled",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "compatible"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": {
+     "boundary_policy": "strict",
+     "cross_source": "juxtapose"
+    },
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "ga4"
+       },
+       "reporting_identity": {
+        "value": "prop-1"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-no-fields",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": null,
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": false,
+     "quadrant": {
+      "eligible": false,
+      "reasons": [],
+      "requested": false
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_not_declared",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_not_declared",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "unknown"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": []
+    },
+    "policy": null,
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": []
+    }
+   }
+  },
+  {
+   "name": "compat-bad-policy",
+   "outcome": {
+    "error": {
+     "class": "EvidenceImportError",
+     "message": "comparison policy may name only ['boundary_policy', 'cross_source', 'quadrant']"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": {
+     "nope": 1
+    },
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-bad-boundary",
+   "outcome": {
+    "error": {
+     "class": "EvidenceImportError",
+     "message": "boundary_policy must be one of ('strict', 'local_calendar')"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": {
+     "boundary_policy": "x"
+    },
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-bad-cross",
+   "outcome": {
+    "error": {
+     "class": "EvidenceImportError",
+     "message": "cross_source must be \"juxtapose\" when declared"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": {
+     "cross_source": "x"
+    },
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-bad-quadrant",
+   "outcome": {
+    "error": {
+     "class": "EvidenceImportError",
+     "message": "policy quadrant may name only left_metric and right_metric"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": {
+     "quadrant": {
+      "a": 1
+     }
+    },
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-quadrant",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "sessions"
+       ],
+       "operation": null,
+       "period": null,
+       "provider": "ga4",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": "strict",
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": true,
+     "quadrant": {
+      "both_measured_zero_keys": 0,
+      "degraded": [],
+      "eligible": false,
+      "eligible_key_count": 0,
+      "excluded": {
+       "left_unmeasured": 0,
+       "right_unmeasured": 0
+      },
+      "left_only_key_count": 0,
+      "reasons": [
+       "unverified_scope"
+      ],
+      "requested": true,
+      "right_only_key_count": 0,
+      "shared_key_count": 1
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "reporting_identity",
+       "reason": "juxtaposed_sources",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unverified_juxtaposed",
+       "unverified": true,
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_differs_labeled",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_differs_labeled",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "compatible"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": {
+     "boundary_policy": "strict",
+     "cross_source": "juxtapose",
+     "quadrant": {
+      "left_metric": "clicks",
+      "right_metric": "sessions"
+     }
+    },
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "sessions"
+       }
+      ],
+      "source": {
+       "provider": "ga4"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "sessions": {
+         "state": "measured",
+         "value": 0
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-quadrant-noboundary",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "sessions"
+       ],
+       "operation": null,
+       "period": null,
+       "provider": "ga4",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": "strict",
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": true,
+     "quadrant": {
+      "both_measured_zero_keys": 0,
+      "degraded": [],
+      "eligible": false,
+      "eligible_key_count": 0,
+      "excluded": {
+       "left_unmeasured": 0,
+       "right_unmeasured": 0
+      },
+      "left_only_key_count": 0,
+      "reasons": [
+       "boundary_policy_undeclared",
+       "unverified_scope"
+      ],
+      "requested": true,
+      "right_only_key_count": 0,
+      "shared_key_count": 1
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "reporting_identity",
+       "reason": "juxtaposed_sources",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unverified_juxtaposed",
+       "unverified": true,
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_differs_labeled",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_differs_labeled",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "compatible"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": {
+     "cross_source": "juxtapose",
+     "quadrant": {
+      "left_metric": "clicks",
+      "right_metric": "sessions"
+     }
+    },
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "sessions"
+       }
+      ],
+      "source": {
+       "provider": "ga4"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "sessions": {
+         "state": "measured",
+         "value": 0
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-quadrant-badmetric",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "sessions"
+       ],
+       "operation": null,
+       "period": null,
+       "provider": "ga4",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": "strict",
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": true,
+     "quadrant": {
+      "both_measured_zero_keys": 0,
+      "degraded": [],
+      "eligible": false,
+      "eligible_key_count": 0,
+      "excluded": {
+       "left_unmeasured": 1,
+       "right_unmeasured": 0
+      },
+      "left_only_key_count": 0,
+      "reasons": [
+       "unverified_scope",
+       "left_metric_undeclared"
+      ],
+      "requested": true,
+      "right_only_key_count": 0,
+      "shared_key_count": 1
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "reporting_identity",
+       "reason": "juxtaposed_sources",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unverified_juxtaposed",
+       "unverified": true,
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_differs_labeled",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_differs_labeled",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "compatible"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": {
+     "boundary_policy": "strict",
+     "cross_source": "juxtapose",
+     "quadrant": {
+      "left_metric": "nope",
+      "right_metric": "sessions"
+     }
+    },
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "sessions"
+       }
+      ],
+      "source": {
+       "provider": "ga4"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "sessions": {
+         "state": "measured",
+         "value": 0
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "public-redacts",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks",
+        "impressions"
+       ],
+       "operation": "query",
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": null,
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": false,
+     "quadrant": {
+      "eligible": false,
+      "reasons": [],
+      "requested": false
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "reporting_identity",
+       "reason": "reporting_source_mismatch",
+       "verdict": "incompatible"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "incompatible"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "attribution": {
+        "value": "last_click"
+       },
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "gsc"
+       },
+       "reporting_identity": {
+        "value": "site-a"
+       },
+       "search_engine": {
+        "value": "google"
+       },
+       "search_type": {
+        "value": "web"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": null,
+    "public": true,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {
+       "period": {
+        "value": {
+         "end_date": "2026-01-31",
+         "start_date": "2026-01-01"
+        }
+       },
+       "provider": {
+        "value": "ga4"
+       },
+       "reporting_identity": {
+        "value": "prop-1"
+       },
+       "timezone": {
+        "value": "UTC"
+       }
+      }
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-degraded",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks"
+       ],
+       "operation": null,
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks"
+       ],
+       "operation": null,
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": null,
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": false,
+     "quadrant": {
+      "eligible": false,
+      "reasons": [],
+      "requested": false
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_not_declared",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_not_declared",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "collection",
+       "degraded": [
+        "left:partial,sampled",
+        "right:partial,sampled"
+       ],
+       "reason": "collection_coverage_degraded",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "unknown"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "sampled": true,
+       "state": "partial"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       }
+      ],
+      "source": {
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": null,
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "sampled": true,
+       "state": "partial"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       }
+      ],
+      "source": {
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "compat-unusable",
+   "outcome": {
+    "result": {
+     "axes": {
+      "left": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks"
+       ],
+       "operation": null,
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      },
+      "right": {
+       "attribution": null,
+       "dimensions": [
+        "page"
+       ],
+       "metrics": [
+        "clicks"
+       ],
+       "operation": null,
+       "period": null,
+       "provider": "gsc",
+       "reporting_identity": null,
+       "search_engine": null,
+       "search_type": null,
+       "timezone": null
+      }
+     },
+     "boundary_policy": null,
+     "format": "spiderhead.evidence-compatibility.v1",
+     "juxtaposed": false,
+     "quadrant": {
+      "eligible": false,
+      "reasons": [],
+      "requested": false
+     },
+     "reasons": [
+      {
+       "aspect": "period",
+       "reason": "period_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "timezone",
+       "reason": "timezone_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "attribution",
+       "reason": "attribution_unknown",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "search_engine",
+       "reason": "search_engine_not_declared",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "search_type",
+       "reason": "search_type_not_declared",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "grain",
+       "reason": "grain_equal",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "metrics",
+       "reason": "metrics_remain_distinct_per_source",
+       "verdict": "compatible"
+      },
+      {
+       "aspect": "collection",
+       "reason": "collection_failed",
+       "side": "left",
+       "unverified": true,
+       "verdict": "unknown"
+      },
+      {
+       "aspect": "collection",
+       "degraded": [
+        "right:partial,sampled"
+       ],
+       "reason": "collection_coverage_degraded",
+       "verdict": "compatible"
+      }
+     ],
+     "verdict": "unknown"
+    }
+   },
+   "spec": {
+    "left": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "failed",
+       "unavailable_reason": "quota"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       }
+      ],
+      "source": {
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "policy": null,
+    "public": false,
+    "right": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "sampled": true,
+       "state": "partial"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       }
+      ],
+      "source": {
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "store-write",
+   "outcome": {
+    "result": {
+     "allocation_policy": {
+      "ambiguous_rows": "preserve_without_collapse",
+      "domain_totals": "never_allocate_to_urls",
+      "missing_or_partial": "preserve_availability_state",
+      "version": "evidence_join_store.v1"
+     },
+     "content_sha256": "bf124fbbdf022c42f76834363394cac7161bad71c368314e994078d2064a2d3f",
+     "crawl": {
+      "page_digest_sha256": "aaa1e8ff491f50849b2e9a49a494d2b42e4789ec930b817725512bba68deff6e",
+      "scan_uuid": "uuid-1",
+      "source": "scan"
+     },
+     "dimension_names": [],
+     "evidence": {
+      "artifact_reference": null,
+      "attribution": null,
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "field_origins": {},
+      "file": "f.json",
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "operation": "query",
+      "period": null,
+      "privacy": null,
+      "provider": "gsc",
+      "reporting_identity": null,
+      "search_engine": null,
+      "search_type": null,
+      "site_origin": null,
+      "timezone": null
+     },
+     "evidence_rows_digest_sha256": "f488eb95cbb433c22a5ed63812fdbf253fec7d016f05f1b41f42fade06a597b3",
+     "format": "spiderhead.evidence-join-sqlite.v1",
+     "path": "$BASE/store/join.sqlite",
+     "summary": {
+      "ambiguous_rows": 0,
+      "candidate_pairs": 1,
+      "crawl_only": 1,
+      "external_only": 1,
+      "matched_pages": 1,
+      "matched_rows": 1,
+      "multi_match_keys": 0,
+      "page_key_collisions": 0,
+      "pages": 2,
+      "row_key_collisions": 0,
+      "rows": 2,
+      "unkeyable_pages": 0,
+      "unkeyable_rows": 0
+     },
+     "url_policy": {
+      "casefold_path": false,
+      "ignore_query": false,
+      "ignore_scheme": false,
+      "version": "external_join.v1"
+     }
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+       "row_index": 0,
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+       "row_index": 1,
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "out": "join.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a"
+     ],
+     [
+      2,
+      "https://ex.com/b"
+     ]
+    ],
+    "policy": null,
+    "uuid": "uuid-1"
+   }
+  },
+  {
+   "name": "store-is",
+   "outcome": {
+    "result": true
+   },
+   "spec": {
+    "out": "join.sqlite"
+   }
+  },
+  {
+   "name": "store-obs",
+   "outcome": {
+    "result": [
+     {
+      "identity": [
+       0,
+       "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      ],
+      "matched_page_count": 1,
+      "population": "matched",
+      "row": {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+       "row_index": 0,
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      }
+     },
+     {
+      "identity": [
+       1,
+       "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      ],
+      "matched_page_count": 0,
+      "population": "external_only",
+      "row": {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+       "row_index": 1,
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      }
+     }
+    ]
+   },
+   "spec": {
+    "out": "join.sqlite"
+   }
+  },
+  {
+   "name": "store-matches",
+   "outcome": {
+    "result": [
+     {
+      "identity": [
+       0,
+       "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      ],
+      "page_ordinal": 1,
+      "url": "https://ex.com/a",
+      "url_key": "https://ex.com/a"
+     }
+    ]
+   },
+   "spec": {
+    "out": "join.sqlite"
+   }
+  },
+  {
+   "name": "store-pages",
+   "outcome": {
+    "result": [
+     {
+      "page_ordinal": 1,
+      "population": "matched",
+      "url": "https://ex.com/a",
+      "url_key": "https://ex.com/a"
+     },
+     {
+      "page_ordinal": 2,
+      "population": "crawl_only",
+      "url": "https://ex.com/b",
+      "url_key": "https://ex.com/b"
+     }
+    ]
+   },
+   "spec": {
+    "out": "join.sqlite"
+   }
+  },
+  {
+   "name": "store-pages-matched",
+   "outcome": {
+    "result": [
+     {
+      "page_ordinal": 1,
+      "population": "matched",
+      "url": "https://ex.com/a",
+      "url_key": "https://ex.com/a"
+     }
+    ]
+   },
+   "spec": {
+    "out": "join.sqlite",
+    "population": "matched"
+   }
+  },
+  {
+   "name": "store-exists",
+   "outcome": {
+    "error": {
+     "class": "EvidenceJoinStoreError",
+     "message": "evidence join store must be a new file in an existing non-symlink directory"
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+       "row_index": 0,
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+       "row_index": 1,
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "out": "join.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a"
+     ],
+     [
+      2,
+      "https://ex.com/b"
+     ]
+    ],
+    "policy": null,
+    "uuid": "u"
+   }
+  },
+  {
+   "name": "store-bad-doc",
+   "outcome": {
+    "error": {
+     "class": "EvidenceJoinStoreError",
+     "message": "expected a spiderhead.normalized-evidence.v1 document"
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "x"
+    },
+    "out": "other.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a"
+     ],
+     [
+      2,
+      "https://ex.com/b"
+     ]
+    ],
+    "policy": null,
+    "uuid": "u"
+   }
+  },
+  {
+   "name": "store-bad-policy",
+   "outcome": {
+    "error": {
+     "class": "EvidenceJoinStoreError",
+     "message": "unsupported evidence-join URL policy"
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+       "row_index": 0,
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+       "row_index": 1,
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "out": "other.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a"
+     ],
+     [
+      2,
+      "https://ex.com/b"
+     ]
+    ],
+    "policy": {
+     "bogus": true
+    },
+    "uuid": "u"
+   }
+  },
+  {
+   "name": "store-nonbool-policy",
+   "outcome": {
+    "error": {
+     "class": "EvidenceJoinStoreError",
+     "message": "URL policy ignore_query must be boolean"
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+       "row_index": 0,
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+       "row_index": 1,
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "out": "other.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a"
+     ],
+     [
+      2,
+      "https://ex.com/b"
+     ]
+    ],
+    "policy": {
+     "ignore_query": 5
+    },
+    "uuid": "u"
+   }
+  },
+  {
+   "name": "store-bad-row",
+   "outcome": {
+    "error": {
+     "class": "EvidenceJoinStoreError",
+     "message": "normalized evidence row lacks its stable identity"
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "natural_key_sha256": "z",
+       "row_index": "x"
+      }
+     ]
+    },
+    "out": "other.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a"
+     ],
+     [
+      2,
+      "https://ex.com/b"
+     ]
+    ],
+    "policy": null,
+    "uuid": "u"
+   }
+  },
+  {
+   "name": "store-nonobject-row",
+   "outcome": {
+    "error": {
+     "class": "EvidenceJoinStoreError",
+     "message": "normalized evidence contains a non-object row"
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      5
+     ]
+    },
+    "out": "other.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a"
+     ],
+     [
+      2,
+      "https://ex.com/b"
+     ]
+    ],
+    "policy": null,
+    "uuid": "u"
+   }
+  },
+  {
+   "name": "store-no-uuid",
+   "outcome": {
+    "error": {
+     "class": "EvidenceJoinStoreError",
+     "message": "saved scan has no scan UUID"
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+       "row_index": 0,
+       "url": {
+        "normalized": "https://ex.com/a",
+        "raw": "https://ex.com/a",
+        "resolved": "https://ex.com/a",
+        "state": "keyed"
+       }
+      },
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+       "row_index": 1,
+       "url": {
+        "normalized": "https://ex.com/c",
+        "raw": "https://ex.com/c",
+        "resolved": "https://ex.com/c",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "out": "other.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a"
+     ],
+     [
+      2,
+      "https://ex.com/b"
+     ]
+    ],
+    "policy": null,
+    "uuid": null
+   }
+  },
+  {
+   "name": "store-is-missing",
+   "outcome": {
+    "result": false
+   },
+   "spec": {
+    "out": "none.sqlite"
+   }
+  },
+  {
+   "name": "store-open-missing",
+   "outcome": {
+    "error": {
+     "class": "EvidenceJoinStoreError",
+     "message": "evidence join store must be a regular non-symlink file"
+    }
+   },
+   "spec": {
+    "out": "missing.sqlite"
+   }
+  },
+  {
+   "name": "store-relaxed",
+   "outcome": {
+    "result": {
+     "allocation_policy": {
+      "ambiguous_rows": "preserve_without_collapse",
+      "domain_totals": "never_allocate_to_urls",
+      "missing_or_partial": "preserve_availability_state",
+      "version": "evidence_join_store.v1"
+     },
+     "content_sha256": "0af35a67053437e6311d77e4ab342c4bf4cb4551851f60e570dc2af01f8963a8",
+     "crawl": {
+      "page_digest_sha256": "453a024587fb57946ee53d387e94be8c370208b3716fcca29788c6a9ffc73a01",
+      "scan_uuid": "uuid-2",
+      "source": "scan"
+     },
+     "dimension_names": [],
+     "evidence": {
+      "artifact_reference": null,
+      "attribution": null,
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "field_origins": {},
+      "file": "f.json",
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "operation": "query",
+      "period": null,
+      "privacy": null,
+      "provider": "gsc",
+      "reporting_identity": null,
+      "search_engine": null,
+      "search_type": null,
+      "site_origin": null,
+      "timezone": null
+     },
+     "evidence_rows_digest_sha256": "7fc14f98edfe4d66f1a77b6b7c470d2f3980a38f0136d8ad6de5ace415d78353",
+     "format": "spiderhead.evidence-join-sqlite.v1",
+     "path": "$BASE/store/other.sqlite",
+     "summary": {
+      "ambiguous_rows": 0,
+      "candidate_pairs": 2,
+      "crawl_only": 0,
+      "external_only": 0,
+      "matched_pages": 2,
+      "matched_rows": 1,
+      "multi_match_keys": 1,
+      "page_key_collisions": 1,
+      "pages": 2,
+      "row_key_collisions": 0,
+      "rows": 1,
+      "unkeyable_pages": 0,
+      "unkeyable_rows": 0
+     },
+     "url_policy": {
+      "casefold_path": false,
+      "ignore_query": true,
+      "ignore_scheme": false,
+      "version": "external_join.v1"
+     }
+    }
+   },
+   "spec": {
+    "document": {
+     "format": "spiderhead.normalized-evidence.v1",
+     "mapping": {
+      "collection": {
+       "state": "complete"
+      },
+      "dimensions": [
+       "page"
+      ],
+      "metrics": [
+       {
+        "name": "clicks"
+       },
+       {
+        "name": "impressions"
+       }
+      ],
+      "source": {
+       "operation": "query",
+       "provider": "gsc"
+      }
+     },
+     "provenance": {
+      "fields": {},
+      "file": "f.json"
+     },
+     "rows": [
+      {
+       "metrics": {
+        "clicks": {
+         "state": "measured",
+         "value": 3
+        }
+       },
+       "natural_key_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+       "row_index": 0,
+       "url": {
+        "normalized": "https://ex.com/a?y=9",
+        "raw": "https://ex.com/a?y=9",
+        "resolved": "https://ex.com/a?y=9",
+        "state": "keyed"
+       }
+      }
+     ]
+    },
+    "out": "other.sqlite",
+    "pages": [
+     [
+      1,
+      "https://ex.com/a?x=1"
+     ],
+     [
+      2,
+      "https://ex.com/a"
+     ]
+    ],
+    "policy": {
+     "ignore_query": true
+    },
+    "uuid": "uuid-2"
+   }
+  }
+ ]
+}

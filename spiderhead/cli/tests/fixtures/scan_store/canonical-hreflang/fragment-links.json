@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "seohead: scan-fragment-links\n",
+    "stdout": "{\n  \"analysis\": \"fragment_links.v1\",\n  \"total\": 0,\n  \"offset\": 0,\n  \"limit\": 100,\n  \"returned\": 0,\n  \"next_offset\": null,\n  \"states\": {\n    \"resolved\": 0,\n    \"missing\": 0,\n    \"skipped\": 0\n  },\n  \"coverage\": {\n    \"state\": \"complete\",\n    \"source_documents_evaluated\": 10,\n    \"source_documents_unavailable\": 0,\n    \"source_documents_non_html\": 0,\n    \"unavailable_sources\": [],\n    \"unavailable_sources_omitted\": 0,\n    \"anchors_seen\": 0,\n    \"anchors_omitted\": 0,\n    \"occurrences_seen\": 0,\n    \"occurrences_omitted\": 0,\n    \"occurrences_skipped\": 0,\n    \"skip_reasons\": {},\n    \"target_ids_recorded\": 0,\n    \"target_names_recorded\": 0,\n    \"target_inventory_truncated_documents\": 0,\n    \"limits\": {\n      \"max_decoded_bytes\": 8388608,\n      \"max_occurrences\": 100000,\n      \"max_anchors_per_document\": 10000,\n      \"max_targets_per_document\": 100000\n    }\n  },\n  \"occurrences\": [],\n  \"ok\": true,\n  \"scope\": \"retained complete HTML/DOM only; missing or incomplete evidence is skipped by name, never reported as a broken fragment\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"analysis\": \"fragment_links.v1\",\n  \"total\": 0,\n  \"offset\": 0,\n  \"limit\": 100,\n  \"returned\": 0,\n  \"next_offset\": null,\n  \"states\": {\n    \"resolved\": 0,\n    \"missing\": 0,\n    \"skipped\": 0\n  },\n  \"coverage\": {\n    \"state\": \"complete\",\n    \"source_documents_evaluated\": 10,\n    \"source_documents_unavailable\": 0,\n    \"source_documents_non_html\": 0,\n    \"unavailable_sources\": [],\n    \"unavailable_sources_omitted\": 0,\n    \"anchors_seen\": 0,\n    \"anchors_omitted\": 0,\n    \"occurrences_seen\": 0,\n    \"occurrences_omitted\": 0,\n    \"occurrences_skipped\": 0,\n    \"skip_reasons\": {},\n    \"target_ids_recorded\": 0,\n    \"target_names_recorded\": 0,\n    \"target_inventory_truncated_documents\": 0,\n    \"limits\": {\n      \"max_decoded_bytes\": 8388608,\n      \"max_occurrences\": 100000,\n      \"max_anchors_per_document\": 10000,\n      \"max_targets_per_document\": 100000\n    }\n  },\n  \"occurrences\": [],\n  \"ok\": true,\n  \"scope\": \"retained complete HTML/DOM only; missing or incomplete evidence is skipped by name, never reported as a broken fragment\"\n}"
+   }
+  ]
+ }
+}

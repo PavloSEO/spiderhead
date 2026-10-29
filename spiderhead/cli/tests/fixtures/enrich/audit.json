@@ -1,0 +1,23 @@
+{
+ "run": {
+  "crawl_partial": false,
+  "source": "https://example.test/"
+ },
+ "pages": [
+  {
+   "url": "https://example.test/",
+   "Indexability": "Indexable"
+  },
+  {
+   "url": "https://example.test/a",
+   "Indexability": "Non-Indexable"
+  },
+  {
+   "url": "https://example.test/b",
+   "Indexability": "Indexable"
+  },
+  {
+   "url": "https://example.test/c"
+  }
+ ]
+}

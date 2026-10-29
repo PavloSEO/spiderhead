@@ -1,0 +1,5329 @@
+{
+ "audit": [],
+ "bodies": [
+  {
+   "decoded_bytes": 575,
+   "sha256": "75828d8b9a89d87945576787056428c48ef40c5de4cee00d3083f3194cfa9c9e",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Redirects site home</title>\n<meta name=\"description\" content=\"Home of the redirect test site.\">\n</head>\n<body>\n<main>\n<h1>Redirects site home</h1>\n<nav><a href=\"/r301\">301 single</a> <a href=\"/chain-a\">Chain of three</a> <a href=\"/loop-a\">Loop</a> <a href=\"/temp\">302 temp</a> <a href=\"/to-404\">Redirect to 404</a> <a href=\"/r307\">307</a> <a href=\"/r308\">308</a> <a href=\"/meta-refresh.html\">Meta refresh</a> <a href=\"/final.html\">Final direct</a></nav>\n<p>Redirect scenarios.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "text": ""
+  },
+  {
+   "decoded_bytes": 315,
+   "sha256": "65272cdafaf9e5bd95d9ff6758573b448207f99a668d6eff7b6c56404d5e8c67",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Meta refresh page</title>\n<meta name=\"description\" content=\"Meta refresh redirect.\">\n<meta http-equiv=\"refresh\" content=\"0; url=/final.html\">\n</head>\n<body>\n<main>\n<h1>Meta refresh page</h1>\n<p>Redirects client-side.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 287,
+   "sha256": "248115e8f5fa83006d4f6852090c4bf4275fa1e38f7669b0a76e92d39d94bbc3",
+   "text": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Final destination</title>\n<meta name=\"description\" content=\"Redirect destination.\">\n</head>\n<body>\n<main>\n<h1>Final destination</h1>\n<nav><a href=\"/\">Home</a></nav>\n<p>Where redirects end.</p>\n</main>\n</body>\n</html>\n"
+  },
+  {
+   "decoded_bytes": 97,
+   "sha256": "0bdf53047600cf281a34315d01aa578552cd57e7dcf0201595810ea7cbc47c5a",
+   "text": "<!doctype html><html><head><title>Not Found</title></head><body><h1>Not Found</h1></body></html>\n"
+  }
+ ],
+ "context_items": [
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "analysis_asset_thresholds",
+   "payload_json": {
+    "schema_version": "analysis_asset_thresholds.v1",
+    "thresholds": {
+     "network_payload_max_bytes": 4194304,
+     "page_weight_max_bytes": 2097152,
+     "resource_max_bytes": 2097152
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "native_config_extension",
+   "payload_json": {
+    "effective_fingerprint": "25c6791d7f05d2c270a5e29446115666eb0c0f868d5d42a588c32bd4f97c1084",
+    "schema_version": "native_config_extension.v1",
+    "settings": {
+     "http.auth": [],
+     "http.auth_acknowledged": false,
+     "http.zstd": false,
+     "rendering.actions": [],
+     "rendering.artifacts.screenshot_mode": "full_page",
+     "rendering.presets": [],
+     "scope.normalize_tracking_parameters": true
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "credential_context",
+   "payload_json": {
+    "implicit_state": false,
+    "verifier": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "run",
+   "kind": "robots_summary",
+   "payload_json": {
+    "fetch_state": "fetched",
+    "final_response_id": null,
+    "note": "",
+    "parsed": {
+     "groups": [
+      {
+       "_line_of": {
+        "allow:/": 2
+       },
+       "allow": [
+        "/"
+       ],
+       "crawl_delay": null,
+       "disallow": [],
+       "request_rate_delay": null,
+       "user_agents": [
+        "*"
+       ]
+      }
+     ],
+     "sitemaps": []
+    },
+    "policy": "respect",
+    "token": "SpiderHeadBot"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "a0c261877dde7db9062d3e69f2fa49bdda22e235b4c5432ad833f19c8ea4947c",
+    "canonical_target": "",
+    "content_tokens": 5,
+    "exact_hash": "9986a473d93ebeb574cbc033f51405bd14f060b5a498f7335c82a620cce6c20b",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "15a967c7aac719f61d4c051a3cc94d61c1ada56c958ff6e9c74b84d139ee28bf",
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "603a4f6eec042991",
+    "source_document_id": 1,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 1,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 1
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 1,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 1,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:1:document:1:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 1,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 1,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:1",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 1,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "0",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 2,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 2,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 2,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 2
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 2,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 2,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 2,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 2,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:2:document:2:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 2,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 2,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:2",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 2,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "1",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 3,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 3,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 3,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 3
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 3,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 3,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 3,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 3,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:3:document:3:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 3,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 3,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:3",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 3,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "2",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 4,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 4,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 4,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 4
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 4,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 4,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 4,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 4,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:4:document:4:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 4,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 4,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:4",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 4,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "3",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 5,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 5,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 5,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 5
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 5,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 5,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 5,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 5,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:5:document:5:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 5,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 5,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:5",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 5,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "4",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 6,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 6,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 6,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 6
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 6,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 6,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 6,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 6,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:6:document:6:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 6,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 6,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:6",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 6,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "5",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 7,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 7,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 7,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 7
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 7,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 7,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 7,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 7,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:7:document:7:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 7,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 7,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:7",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 7,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "6",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 8,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 8,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 8,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 8
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 8,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 8,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 8,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 8,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:8:document:8:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 8,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 8,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:8",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 8,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "7",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": 6,
+    "exact_hash": "8d099b89d0de26eaf9969b631ef52b28928eed029f948a243f8762e333df5ffb",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "f726c3c5132411187f020f3bf5e307ab76b72cff892a9205937fbbb440c16b98",
+    "page_url_id": 9,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "48002c1194820c02",
+    "source_document_id": 9,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 9,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 9
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 9,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 9,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 9,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 9,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:9:document:9:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 9,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 9,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:9",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 9,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "8",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": "67c80236dea352d6dcae209edf3be69c2371bf23d453a337ca7dbe45b5305a37",
+    "canonical_target": "",
+    "content_tokens": 5,
+    "exact_hash": "c0f2ec3eb2d227ebd4048ed2c78ac3feb063bb8c2edf6049588b8410baf25488",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "23f59fecb1f6639f690bb8bfb8293392ba3a7eca3e2a65177f942ad91edd11b4",
+    "page_url_id": 10,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "28026e4721295d50",
+    "source_document_id": 10,
+    "state": "complete",
+    "strategy": "auto_main"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 10,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 10
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 10,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 10,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "en",
+    "page_url_id": 10,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 10,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:10:document:10:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 10,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 10,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:10",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 10,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "9",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:11:document:11:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 11,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 11,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:11:document:11:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 11,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 11
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:11:document:11:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 11,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 11,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:11:document:11:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 11,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 11,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:11:document:11:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 11,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 11,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:11",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 11,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "10",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:12:document:12:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 12,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 12,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:12:document:12:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 12,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 12
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:12:document:12:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 12,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 12,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:12:document:12:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 12,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 12,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:12:document:12:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 12,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 12,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:12",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 12,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "11",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:13:document:13:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": 2,
+    "exact_hash": "be8a8711615d3958b4e004fadae7a526211d3604bc75f1c82f85b3ec62330ea4",
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": "77caec1c0d039202f53cffc09299f56edf339a776f3a1a398b242973ffcf8fd8",
+    "page_url_id": 13,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": "08565cf8a3e3ee3a",
+    "source_document_id": 13,
+    "state": "complete",
+    "strategy": "default_body"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:13:document:13:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": [],
+    "page_url_id": 13,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 13
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:13:document:13:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 13,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 13,
+    "state": "absent",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "structurally_invalid",
+     "syntax_state": "parsed",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:13:document:13:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": "",
+    "page_url_id": 13,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 13,
+    "state": "absent"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "page:13:document:13:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": {
+     "accessibility": {
+      "issues": [
+       {
+        "code": "A11Y_HTML_LANG_MISSING",
+        "count": 1,
+        "samples": [
+         {
+          "lang": null,
+          "tag": "html"
+         }
+        ],
+        "samples_truncated": false
+       },
+       {
+        "code": "A11Y_MAIN_LANDMARK_MISSING",
+        "count": 1,
+        "samples": [
+         {
+          "meaningful_content": true,
+          "tag": "body"
+         }
+        ],
+        "samples_truncated": false
+       }
+      ],
+      "method": "static_html",
+      "sample_limit": 20,
+      "unavailable": [
+       "contrast requires computed styles",
+       "axe-core rendered DOM rules not collected"
+      ]
+     },
+     "amp": {
+      "declared": false,
+      "errors": [],
+      "method": "static_structure",
+      "unavailable": [
+       "boilerplate CSS contents and full AMP validity not validated"
+      ],
+      "validator_reason": "full AMP validator rule set unavailable pending owner licence decision",
+      "validator_state": "unavailable"
+     }
+    },
+    "page_url_id": 13,
+    "reason": "",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 13,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:13",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 13,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "12",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:14:document:14:representation:static",
+   "kind": "content_evidence",
+   "payload_json": {
+    "boilerplate_hash": null,
+    "canonical_target": "",
+    "content_tokens": null,
+    "exact_hash": null,
+    "implementation": {
+     "files": [
+      "storage/content_evidence.py",
+      "checks/content_area.py",
+      "checks/markdown_extract.py",
+      "checks/duplicate.py",
+      "checks/boilerplate_report.py"
+     ],
+     "source_sha256": "4db4f9b8218aeea2726523168e62733d59dd1f3547aae9fe82e4b73a76e2751f",
+     "version": "content_evidence.v2"
+    },
+    "indexable": null,
+    "normalized_hash": null,
+    "page_url_id": 14,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "content_evidence.v2",
+    "simhash": null,
+    "source_document_id": 14,
+    "state": "unavailable",
+    "strategy": null
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:14:document:14:representation:static",
+   "kind": "head_links",
+   "payload_json": {
+    "declarations": null,
+    "page_url_id": 14,
+    "representation": "static",
+    "schema_version": "head_links.v1",
+    "source_document_id": 14
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "head annotations were not parsed as eligible HTML"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:14:document:14:representation:static",
+   "kind": "structured_evidence",
+   "payload_json": {
+    "blocks": [],
+    "edges": [],
+    "nodes": [],
+    "page_url_id": 14,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "structured_evidence.v2",
+    "source_document_id": 14,
+    "state": "unavailable",
+    "validation": {
+     "entity_errors": 0,
+     "entity_warnings": 0,
+     "feature_checks": [],
+     "feature_eligibility_state": "unknown",
+     "structural_state": "unavailable",
+     "syntax_state": "unavailable",
+     "unsupported_context_normalization": false
+    }
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:14:document:14:representation:static",
+   "kind": "language_evidence",
+   "payload_json": {
+    "declarations": [],
+    "html_lang": null,
+    "page_url_id": 14,
+    "reason": "captured document was not parsed",
+    "representation": "static",
+    "schema_version": "language_evidence.v1",
+    "source_document_id": 14,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "captured document was not parsed"
+  },
+  {
+   "completeness": "unavailable",
+   "item_key": "page:14:document:14:representation:static",
+   "kind": "markup_evidence",
+   "payload_json": {
+    "facts": null,
+    "page_url_id": 14,
+    "reason": "static document was not parsed as eligible HTML",
+    "representation": "static",
+    "schema_version": "markup_evidence.v1",
+    "source_document_id": 14,
+    "state": "unavailable"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "static document was not parsed as eligible HTML"
+  },
+  {
+   "completeness": "complete",
+   "item_key": "document:14",
+   "kind": "resource_inventory",
+   "payload_json": {
+    "document_id": 14,
+    "omitted": 0,
+    "state": "complete"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": ""
+  },
+  {
+   "completeness": "complete",
+   "item_key": "13",
+   "kind": "native_commit",
+   "payload_json": {
+    "digest": "<DIGEST>"
+   },
+   "payload_version": "scan_context.v1",
+   "reason": "atomic page commit"
+  }
+ ],
+ "decisions": [],
+ "documents": [
+  {
+   "body_reason": "none",
+   "body_sha256": "75828d8b9a89d87945576787056428c48ef40c5de4cee00d3083f3194cfa9c9e",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 1,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 1,
+   "url_id": 1
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 2,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 2,
+   "url_id": 2
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 3,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 3,
+   "url_id": 3
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 4,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 4,
+   "url_id": 4
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 5,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 5,
+   "url_id": 5
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 6,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 6,
+   "url_id": 6
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 7,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 7,
+   "url_id": 7
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 8,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 8,
+   "url_id": 8
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "65272cdafaf9e5bd95d9ff6758573b448207f99a668d6eff7b6c56404d5e8c67",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 9,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 9,
+   "url_id": 9
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "248115e8f5fa83006d4f6852090c4bf4275fa1e38f7669b0a76e92d39d94bbc3",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 10,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 10,
+   "url_id": 10
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 11,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 11,
+   "url_id": 11
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 12,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 12,
+   "url_id": 12
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "0bdf53047600cf281a34315d01aa578552cd57e7dcf0201595810ea7cbc47c5a",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 13,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 13,
+   "url_id": 13
+  },
+  {
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "captured_at": "<TS>",
+   "decoder_charset": "utf-8",
+   "decoder_errors": "replace",
+   "decoder_source": "content_type_charset",
+   "decoder_version": "scan_decoder.v1",
+   "document_id": 14,
+   "fidelity": "entity_bytes",
+   "renderer_json": {},
+   "representation": "static",
+   "source_response_id": 14,
+   "url_id": 14
+  }
+ ],
+ "forms": [],
+ "frontier": [
+  {
+   "depth": 0,
+   "queue_ordinal": 0,
+   "state": "done",
+   "url_id": 1
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 1,
+   "state": "done",
+   "url_id": 2
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 2,
+   "state": "done",
+   "url_id": 3
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 3,
+   "state": "done",
+   "url_id": 4
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 4,
+   "state": "done",
+   "url_id": 5
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 5,
+   "state": "done",
+   "url_id": 6
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 6,
+   "state": "done",
+   "url_id": 7
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 7,
+   "state": "done",
+   "url_id": 8
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 8,
+   "state": "done",
+   "url_id": 9
+  },
+  {
+   "depth": 1,
+   "queue_ordinal": 9,
+   "state": "done",
+   "url_id": 10
+  },
+  {
+   "depth": 2,
+   "queue_ordinal": 10,
+   "state": "done",
+   "url_id": 11
+  },
+  {
+   "depth": 2,
+   "queue_ordinal": 11,
+   "state": "done",
+   "url_id": 12
+  },
+  {
+   "depth": 2,
+   "queue_ordinal": 12,
+   "state": "done",
+   "url_id": 13
+  },
+  {
+   "depth": 3,
+   "queue_ordinal": 13,
+   "state": "done",
+   "url_id": 14
+  }
+ ],
+ "links": [
+  {
+   "anchor": "301 single",
+   "anchor_source": "",
+   "destination_url_id": 2,
+   "evidence_representation": "static",
+   "link_id": 1,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Chain of three",
+   "anchor_source": "",
+   "destination_url_id": 3,
+   "evidence_representation": "static",
+   "link_id": 2,
+   "nofollow": 0,
+   "ordinal": 1,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Loop",
+   "anchor_source": "",
+   "destination_url_id": 4,
+   "evidence_representation": "static",
+   "link_id": 3,
+   "nofollow": 0,
+   "ordinal": 2,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "302 temp",
+   "anchor_source": "",
+   "destination_url_id": 5,
+   "evidence_representation": "static",
+   "link_id": 4,
+   "nofollow": 0,
+   "ordinal": 3,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Redirect to 404",
+   "anchor_source": "",
+   "destination_url_id": 6,
+   "evidence_representation": "static",
+   "link_id": 5,
+   "nofollow": 0,
+   "ordinal": 4,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "307",
+   "anchor_source": "",
+   "destination_url_id": 7,
+   "evidence_representation": "static",
+   "link_id": 6,
+   "nofollow": 0,
+   "ordinal": 5,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "308",
+   "anchor_source": "",
+   "destination_url_id": 8,
+   "evidence_representation": "static",
+   "link_id": 7,
+   "nofollow": 0,
+   "ordinal": 6,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Meta refresh",
+   "anchor_source": "",
+   "destination_url_id": 9,
+   "evidence_representation": "static",
+   "link_id": 8,
+   "nofollow": 0,
+   "ordinal": 7,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Final direct",
+   "anchor_source": "",
+   "destination_url_id": 10,
+   "evidence_representation": "static",
+   "link_id": 9,
+   "nofollow": 0,
+   "ordinal": 8,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 1,
+   "source_url_id": 1,
+   "target": ""
+  },
+  {
+   "anchor": "Home",
+   "anchor_source": "",
+   "destination_url_id": 1,
+   "evidence_representation": "static",
+   "link_id": 10,
+   "nofollow": 0,
+   "ordinal": 0,
+   "position": "",
+   "raw_href": "",
+   "rel_json": [],
+   "source_document_id": 10,
+   "source_url_id": 10,
+   "target": ""
+  }
+ ],
+ "pages": [
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 5.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 0,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 1,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 0.0,
+   "h1": "Redirects site home",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Redirects site home"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Home of the redirect test site.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 9,
+   "page_ordinal": 0,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 575,
+   "status_code": 200,
+   "text_ratio": 22.43,
+   "title": "Redirects site home",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 1,
+   "viewport": "",
+   "word_count": 5,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 2,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 1,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/final.html",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 301,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 2,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 3,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 2,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/chain-b",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 301,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 3,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 4,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 3,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/loop-b",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 301,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 4,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 5,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 4,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/final.html",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 302,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 5,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 6,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 5,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/does-not-exist.html",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 301,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 6,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 7,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 6,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/final.html",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 307,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 7,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 8,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 7,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/final.html",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 308,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 8,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 5.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 9,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 0.0,
+   "h1": "Meta refresh page",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Meta refresh page"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Meta refresh redirect.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "0; url=/final.html",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 8,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 315,
+   "status_code": 200,
+   "text_ratio": 12.7,
+   "title": "Meta refresh page",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 9,
+   "viewport": "",
+   "word_count": 5,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 5.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 1,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 10,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 0.0,
+   "h1": "Final destination",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "content",
+     "text": "Final destination"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "Redirect destination.",
+   "meta_description_count": 1,
+   "meta_description_outside_head": 0,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 1,
+   "page_ordinal": 9,
+   "plugin_elements": 0,
+   "readability": "very difficult",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 287,
+   "status_code": 200,
+   "text_ratio": 14.98,
+   "title": "Final destination",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 10,
+   "viewport": "",
+   "word_count": 5,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 2,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 11,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 10,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/chain-c",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 302,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 11,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 2,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 12,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 11,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/loop-a",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 301,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 12,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": 2.0,
+   "body_count": 1,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 2,
+   "directives_outside_head": null,
+   "doctype": "<!doctype html>",
+   "document_id": 13,
+   "duplicate_ids_json": [],
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": 100.0,
+   "h1": "Not Found",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 1,
+   "head_not_first": 0,
+   "heading_outline_json": [
+    {
+     "level": 1,
+     "region": "",
+     "text": "Not Found"
+    }
+   ],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 12,
+   "plugin_elements": 0,
+   "readability": "very easy",
+   "redirect_chain_json": [],
+   "redirect_url": "",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": 1,
+   "size_bytes": 97,
+   "status_code": 404,
+   "text_ratio": 9.28,
+   "title": "Not Found",
+   "title_outside_head": 0,
+   "transport_upgraded": 0,
+   "trust_signals_json": {
+    "article": [],
+    "author": [],
+    "dates": []
+   },
+   "url_id": 13,
+   "viewport": "",
+   "word_count": 2,
+   "x_robots": ""
+  },
+  {
+   "ajax_scheme_outlinks": 0,
+   "amphtml": "",
+   "avg_words_per_sentence": null,
+   "body_count": 0,
+   "body_unavailable": "",
+   "cache_status": "",
+   "canonical": "",
+   "canonical_chain_json": [],
+   "canonical_outside_head": null,
+   "charset": "",
+   "content_encoding": "",
+   "content_frames": 0,
+   "content_frames_same_origin": 0,
+   "content_type": "text/html; charset=utf-8",
+   "crawl_depth": 3,
+   "directives_outside_head": null,
+   "doctype": "",
+   "document_id": 14,
+   "duplicate_ids_json": null,
+   "error": "",
+   "error_kind": "",
+   "external_outlinks": 0,
+   "final_canonical": "",
+   "final_url": "",
+   "flesch": null,
+   "h1": "",
+   "h1_2": "",
+   "h1_alt_text": "",
+   "h2": "",
+   "head_count": 0,
+   "head_not_first": 0,
+   "heading_outline_json": [],
+   "hreflang_json": [],
+   "hreflang_outside_head": null,
+   "http_refresh": "",
+   "images_max_alt_length": 0,
+   "images_missing_alt_attr": 0,
+   "images_total": 0,
+   "invalid_head_elements": "",
+   "invalid_link_targets_json": null,
+   "jsonld_blocks_found": 0,
+   "jsonld_blocks_parsed": 0,
+   "link_placement_json": {
+    "image_no_text": [],
+    "image_no_text_total": 0,
+    "in_heading": [],
+    "in_heading_total": 0
+   },
+   "lorem_ipsum_count": 0,
+   "meta_description": "",
+   "meta_description_count": 0,
+   "meta_description_outside_head": null,
+   "meta_fragment": "",
+   "meta_refresh": "",
+   "meta_robots": "",
+   "mobile_alternate_broken": 0,
+   "og_description": "",
+   "og_image": "",
+   "og_title": "",
+   "og_url": "",
+   "outlinks": 0,
+   "page_ordinal": 13,
+   "plugin_elements": 0,
+   "readability": "",
+   "redirect_chain_json": [],
+   "redirect_url": "{BASE}/final.html",
+   "representation": "static",
+   "response_time": "<DURATION>",
+   "sentence_count": null,
+   "size_bytes": 0,
+   "status_code": 301,
+   "text_ratio": null,
+   "title": "",
+   "title_outside_head": null,
+   "transport_upgraded": 0,
+   "trust_signals_json": null,
+   "url_id": 14,
+   "viewport": "",
+   "word_count": 0,
+   "x_robots": ""
+  }
+ ],
+ "query_variants": [
+  {
+   "path_key": "/r301",
+   "query_key": ""
+  },
+  {
+   "path_key": "/chain-a",
+   "query_key": ""
+  },
+  {
+   "path_key": "/loop-a",
+   "query_key": ""
+  },
+  {
+   "path_key": "/temp",
+   "query_key": ""
+  },
+  {
+   "path_key": "/to-404",
+   "query_key": ""
+  },
+  {
+   "path_key": "/r307",
+   "query_key": ""
+  },
+  {
+   "path_key": "/r308",
+   "query_key": ""
+  },
+  {
+   "path_key": "/meta-refresh.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/final.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/chain-b",
+   "query_key": ""
+  },
+  {
+   "path_key": "/loop-b",
+   "query_key": ""
+  },
+  {
+   "path_key": "/does-not-exist.html",
+   "query_key": ""
+  },
+  {
+   "path_key": "/",
+   "query_key": ""
+  },
+  {
+   "path_key": "/chain-c",
+   "query_key": ""
+  }
+ ],
+ "resource_refs": [],
+ "responses": [
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "75828d8b9a89d87945576787056428c48ef40c5de4cee00d3083f3194cfa9c9e",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "575"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 1,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 575,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 0,
+   "request_url_id": 1,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "575"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 1,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "effective_status_code": 301,
+   "effective_url_id": 2,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 1,
+   "request_url_id": 2,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "response_id": 2,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 301,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/chain-b"
+    ]
+   ],
+   "effective_status_code": 301,
+   "effective_url_id": 3,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 2,
+   "request_url_id": 3,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/chain-b"
+    ]
+   ],
+   "response_id": 3,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 301,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/loop-b"
+    ]
+   ],
+   "effective_status_code": 301,
+   "effective_url_id": 4,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 3,
+   "request_url_id": 4,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/loop-b"
+    ]
+   ],
+   "response_id": 4,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 301,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "effective_status_code": 302,
+   "effective_url_id": 5,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 4,
+   "request_url_id": 5,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "response_id": 5,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 302,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/does-not-exist.html"
+    ]
+   ],
+   "effective_status_code": 301,
+   "effective_url_id": 6,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 5,
+   "request_url_id": 6,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/does-not-exist.html"
+    ]
+   ],
+   "response_id": 6,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 301,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "effective_status_code": 307,
+   "effective_url_id": 7,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 6,
+   "request_url_id": 7,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "response_id": 7,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 307,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "effective_status_code": 308,
+   "effective_url_id": 8,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 7,
+   "request_url_id": 8,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "response_id": 8,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 308,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "65272cdafaf9e5bd95d9ff6758573b448207f99a668d6eff7b6c56404d5e8c67",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "315"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 9,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 315,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 8,
+   "request_url_id": 9,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "315"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 9,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "248115e8f5fa83006d4f6852090c4bf4275fa1e38f7669b0a76e92d39d94bbc3",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "287"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 200,
+   "effective_url_id": 10,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 287,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 9,
+   "request_url_id": 10,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "287"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 10,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 200,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/chain-c"
+    ]
+   ],
+   "effective_status_code": 302,
+   "effective_url_id": 11,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 10,
+   "request_url_id": 11,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/chain-c"
+    ]
+   ],
+   "response_id": 11,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 302,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/loop-a"
+    ]
+   ],
+   "effective_status_code": 301,
+   "effective_url_id": 12,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 11,
+   "request_url_id": 12,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/loop-a"
+    ]
+   ],
+   "response_id": 12,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 301,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "0bdf53047600cf281a34315d01aa578552cd57e7dcf0201595810ea7cbc47c5a",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "97"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "effective_status_code": 404,
+   "effective_url_id": 13,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 97,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 12,
+   "request_url_id": 13,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "97"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ]
+   ],
+   "response_id": 13,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 404,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  },
+  {
+   "body_fidelity": "entity_bytes",
+   "body_reason": "none",
+   "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "body_state": "complete",
+   "cache_status": "",
+   "charset": "utf-8",
+   "content_encoding": "",
+   "content_type": "text/html; charset=utf-8",
+   "credentials_used": 0,
+   "effective_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "effective_status_code": 301,
+   "effective_url_id": 14,
+   "error": "",
+   "error_kind": "",
+   "method": "GET",
+   "purpose": "page",
+   "received_at": "<TS>",
+   "redirect_chain_json": [],
+   "reported_size_bytes": 0,
+   "request_headers_redacted_json": [
+    [
+     "accept",
+     "*/*"
+    ],
+    [
+     "user-agent",
+     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    ],
+    [
+     "host",
+     "127.0.0.1:{PORT}"
+    ],
+    [
+     "accept-encoding",
+     "gzip, deflate"
+    ]
+   ],
+   "request_ordinal": 13,
+   "request_url_id": 14,
+   "requested_at": "<TS>",
+   "response_headers_redacted_json": [
+    [
+     "date",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "content-length",
+     "0"
+    ],
+    [
+     "last-modified",
+     "Mon, 01 Jan 2026 00:00:00 GMT"
+    ],
+    [
+     "location",
+     "/final.html"
+    ]
+   ],
+   "response_id": 14,
+   "response_time": "<DURATION>",
+   "source_response_id": null,
+   "status_code": 301,
+   "transport_source": "network",
+   "variant_key": "77cb498ff1f7f7d919e65e483f50a7763120f7da903cbe5d9b56d08ca7314a69"
+  }
+ ],
+ "resume_state": [
+  {
+   "circuit_server_error_streak": 0,
+   "circuit_timeout_streak": 0,
+   "crawl_delay_applied": null,
+   "elapsed_seconds": "<DURATION>",
+   "max_depth_reached": 3,
+   "singleton": 1,
+   "state_version": "scan_resume.v1",
+   "throttle_state_json": {
+    "concurrency": 1,
+    "consecutive_ok": 0,
+    "delay_seconds": "<DURATION>",
+    "requests_used": 15,
+    "schema_version": "scan_throttle.v2"
+   }
+  }
+ ],
+ "scan": [
+  {
+   "capabilities_json": {
+    "html_bodies": {
+     "reason": "",
+     "state": "complete"
+    },
+    "links": {
+     "reason": "committed native crawl observations",
+     "state": "complete"
+    },
+    "offline_reanalysis": {
+     "reason": "",
+     "state": "complete"
+    },
+    "pages": {
+     "reason": "committed native crawl observations",
+     "state": "complete"
+    },
+    "rendered_bodies": {
+     "reason": "no captured rendered documents",
+     "state": "unavailable"
+    },
+    "resource_bodies": {
+     "reason": "resources.fetch disabled",
+     "state": "unavailable"
+    },
+    "resource_refs": {
+     "reason": "",
+     "state": "complete"
+    },
+    "responses": {
+     "reason": "",
+     "state": "complete"
+    },
+    "resume": {
+     "reason": "native frontier and runtime state retained",
+     "state": "complete"
+    }
+   },
+   "config_fingerprint": "<FINGERPRINT>",
+   "config_json": {
+    "analysis": {
+     "canonical_policy": {
+      "filters": [],
+      "pagination": []
+     },
+     "finding_exclusions": [],
+     "segments": []
+    },
+    "cache": {
+     "invalidate": false,
+     "mode": "off"
+    },
+    "discovery": {
+     "external": {
+      "crawl": false,
+      "store": true
+     },
+     "follow_nofollow": false,
+     "hyperlinks": {
+      "crawl": true,
+      "store": true
+     },
+     "record_invalid_targets": false,
+     "redirects": {
+      "crawl": true
+     },
+     "resolve_canonical_destination": false,
+     "resolve_redirect_destination": false
+    },
+    "evidence": {
+     "content_area": {
+      "exclude_selectors": [],
+      "exclude_tags": [
+       "nav",
+       "header",
+       "aside",
+       "footer"
+      ],
+      "include_selector": "",
+      "root_selector": ""
+     },
+     "extraction_rules": [],
+     "retain_no_store_acknowledged": false
+    },
+    "external_checks": {
+     "max_depth": 0,
+     "max_hosts": 20,
+     "max_redirects": 5,
+     "max_requests": 0,
+     "max_targets": 100
+    },
+    "fetch": {
+     "retry_server_errors": 0
+    },
+    "http": {
+     "credential_headers": [],
+     "credentials_acknowledged": false,
+     "headers": {},
+     "proxy": "",
+     "proxy_allow_private": false,
+     "proxy_authenticated": false,
+     "proxy_identity": "",
+     "retry_on_timeout": 0,
+     "timeout_seconds": 15.0,
+     "upgrade_to_https": false,
+     "user_agent": "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+    },
+    "limits": {
+     "max_crawl_seconds": 400,
+     "max_depth": 5,
+     "max_query_variants_per_path": 5,
+     "max_requests": 600,
+     "max_response_bytes": 5242880,
+     "max_url_length": 2000,
+     "max_urls": 200
+    },
+    "link_attributes": {
+     "capture": false
+    },
+    "link_position": {
+     "classify": false,
+     "rules": []
+    },
+    "output": {
+     "dir": "",
+     "write_decisions_jsonl": true,
+     "write_pages_jsonl": true,
+     "write_tasks": true
+    },
+    "rendering": {
+     "artifacts": {
+      "console_errors": false,
+      "screenshots": false
+     },
+     "browser": {
+      "device_pixel_ratio": 1.0,
+      "engine": "chromium",
+      "flatten_iframes": false,
+      "flatten_shadow_dom": false,
+      "mobile_emulation": false,
+      "page_concurrency": 1,
+      "persistent_profile": false,
+      "persistent_profile_dir": "",
+      "remote_endpoint_env": "",
+      "remote_playwright_version": "",
+      "remote_protocol": "playwright",
+      "resize_to_content": false,
+      "resize_to_content_max_height_px": 15000,
+      "script_timeout_seconds": 10.0,
+      "touch_emulation": false,
+      "transport": "local",
+      "viewport": "desktop",
+      "viewport_height": 0,
+      "viewport_width": 0,
+      "wait_until": "load"
+     },
+     "escalation": {
+      "max_render_seconds": 0,
+      "max_render_urls": 30,
+      "policy": "sampled",
+      "sample_per_pattern": 2
+     },
+     "mode": "raw",
+     "rendered_links": {
+      "crawl": false,
+      "store": false
+     }
+    },
+    "resources": {
+     "fetch": false,
+     "graph": {
+      "max_bytes": 104857600,
+      "max_bytes_per_resource": 5242880,
+      "max_nesting": 2,
+      "max_origins": 1,
+      "max_redirects": 0,
+      "max_requests": 2000,
+      "max_seconds": 0
+     },
+     "max_requests": 20000,
+     "max_response_bytes": 5242880
+    },
+    "robots": {
+     "policy": "respect",
+     "unavailable_means_stop": true,
+     "user_agent_token": "SpiderHeadBot"
+    },
+    "scope": {
+     "exclude_extensions": [],
+     "exclude_hosts": [],
+     "exclude_media_types": [],
+     "exclude_patterns": [],
+     "include_extensions": [],
+     "include_media_types": [],
+     "include_patterns": [],
+     "internal": "host",
+     "segments": [],
+     "segments_only": [],
+     "start_folder_only": false
+    },
+    "sitemaps": {
+     "auto_discover": false
+    },
+    "speed": {
+     "adaptive": true,
+     "concurrency": 1,
+     "max_delay_seconds": 60.0,
+     "min_delay_seconds": 0.02,
+     "stop_after_consecutive_timeouts": 5
+    },
+    "storage": {
+     "body_mode": "captured_entity_bytes",
+     "capacity_profile": "stable",
+     "format_version": "scan.v1",
+     "history_warning_bytes": 21474836480,
+     "max_body_bytes": 5242880,
+     "max_body_store_bytes": 10737418240,
+     "min_free_bytes": 1073741824
+    }
+   },
+   "corpus_partial": 0,
+   "crawl_partial": 0,
+   "created_at": "<TS>",
+   "evidence_revision": 14,
+   "evidence_version": "crawl.v1",
+   "finish_reason": "finished",
+   "finished_at": "<TS>",
+   "format_version": "scan.v1",
+   "lifecycle": "finished",
+   "limitations_json": [
+    "browser-network response capture is unavailable"
+   ],
+   "parent_scan_uuid": null,
+   "pinned": 0,
+   "retention_json": {
+    "automatic_delete": false,
+    "body_mode": "captured_entity_bytes",
+    "history_warning_bytes": 21474836480,
+    "max_body_bytes": 5242880,
+    "max_body_store_bytes": 10737418240,
+    "min_free_bytes": 1073741824,
+    "policy_version": "scan_retention.v1"
+   },
+   "runtime_versions_json": {
+    "beautifulsoup4": "4.15.0",
+    "httpx": "0.28.1",
+    "lxml": "6.1.1",
+    "python": "3.14.6",
+    "sqlite": "3.53.3"
+   },
+   "scan_uuid": "<UUID:1>",
+   "singleton": 1,
+   "source_kind": "native",
+   "start_url": "{BASE}/",
+   "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
+   "writer_version": "3.2.0"
+  }
+ ],
+ "urls": [
+  {
+   "url": "{BASE}/",
+   "url_id": 1
+  },
+  {
+   "url": "{BASE}/r301",
+   "url_id": 2
+  },
+  {
+   "url": "{BASE}/chain-a",
+   "url_id": 3
+  },
+  {
+   "url": "{BASE}/loop-a",
+   "url_id": 4
+  },
+  {
+   "url": "{BASE}/temp",
+   "url_id": 5
+  },
+  {
+   "url": "{BASE}/to-404",
+   "url_id": 6
+  },
+  {
+   "url": "{BASE}/r307",
+   "url_id": 7
+  },
+  {
+   "url": "{BASE}/r308",
+   "url_id": 8
+  },
+  {
+   "url": "{BASE}/meta-refresh.html",
+   "url_id": 9
+  },
+  {
+   "url": "{BASE}/final.html",
+   "url_id": 10
+  },
+  {
+   "url": "{BASE}/chain-b",
+   "url_id": 11
+  },
+  {
+   "url": "{BASE}/loop-b",
+   "url_id": 12
+  },
+  {
+   "url": "{BASE}/does-not-exist.html",
+   "url_id": 13
+  },
+  {
+   "url": "{BASE}/chain-c",
+   "url_id": 14
+  }
+ ]
+}

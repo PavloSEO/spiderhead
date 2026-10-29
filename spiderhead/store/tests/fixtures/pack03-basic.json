@@ -1,0 +1,1508 @@
+{
+ "build_tree": [
+  {
+   "call": {},
+   "result": {
+    "children": [],
+    "name": "/",
+    "pages": 0
+   },
+   "urls": []
+  },
+  {
+   "call": {
+    "max_depth": 1
+   },
+   "result": {
+    "children": [],
+    "name": "/",
+    "pages": 0
+   },
+   "urls": []
+  },
+  {
+   "call": {
+    "max_children": 2
+   },
+   "result": {
+    "children": [],
+    "name": "/",
+    "pages": 0
+   },
+   "urls": []
+  },
+  {
+   "call": {
+    "max_children": 0,
+    "max_depth": 0
+   },
+   "result": {
+    "children": [],
+    "name": "/",
+    "pages": 0
+   },
+   "urls": []
+  },
+  {
+   "call": {
+    "max_depth": -1
+   },
+   "error": "max_depth and max_children must be zero or more",
+   "urls": []
+  },
+  {
+   "call": {},
+   "result": {
+    "children": [
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "y",
+        "pages": 2
+       }
+      ],
+      "name": "x",
+      "pages": 3
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "children": [],
+          "name": "d",
+          "other_children": 1,
+          "other_pages": 1,
+          "pages": 1
+         }
+        ],
+        "name": "c",
+        "pages": 1
+       }
+      ],
+      "name": "b",
+      "pages": 1
+     }
+    ],
+    "name": "/",
+    "pages": 5
+   },
+   "urls": [
+    "https://a.test/",
+    "https://a.test/x/y/z.html",
+    "https://a.test/x/y/",
+    "https://a.test/x/q?z=1#f",
+    "https://a.test/b/c/d/e/f/g"
+   ]
+  },
+  {
+   "call": {
+    "max_depth": 1
+   },
+   "result": {
+    "children": [
+     {
+      "children": [],
+      "name": "x",
+      "other_children": 1,
+      "other_pages": 2,
+      "pages": 3
+     },
+     {
+      "children": [],
+      "name": "b",
+      "other_children": 1,
+      "other_pages": 1,
+      "pages": 1
+     }
+    ],
+    "name": "/",
+    "pages": 5
+   },
+   "urls": [
+    "https://a.test/",
+    "https://a.test/x/y/z.html",
+    "https://a.test/x/y/",
+    "https://a.test/x/q?z=1#f",
+    "https://a.test/b/c/d/e/f/g"
+   ]
+  },
+  {
+   "call": {
+    "max_children": 2
+   },
+   "result": {
+    "children": [
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "y",
+        "pages": 2
+       }
+      ],
+      "name": "x",
+      "pages": 3
+     },
+     {
+      "children": [
+       {
+        "children": [
+         {
+          "children": [],
+          "name": "d",
+          "other_children": 1,
+          "other_pages": 1,
+          "pages": 1
+         }
+        ],
+        "name": "c",
+        "pages": 1
+       }
+      ],
+      "name": "b",
+      "pages": 1
+     }
+    ],
+    "name": "/",
+    "pages": 5
+   },
+   "urls": [
+    "https://a.test/",
+    "https://a.test/x/y/z.html",
+    "https://a.test/x/y/",
+    "https://a.test/x/q?z=1#f",
+    "https://a.test/b/c/d/e/f/g"
+   ]
+  },
+  {
+   "call": {
+    "max_children": 0,
+    "max_depth": 0
+   },
+   "result": {
+    "children": [],
+    "name": "/",
+    "other_children": 2,
+    "other_pages": 4,
+    "pages": 5
+   },
+   "urls": [
+    "https://a.test/",
+    "https://a.test/x/y/z.html",
+    "https://a.test/x/y/",
+    "https://a.test/x/q?z=1#f",
+    "https://a.test/b/c/d/e/f/g"
+   ]
+  },
+  {
+   "call": {
+    "max_depth": -1
+   },
+   "error": "max_depth and max_children must be zero or more",
+   "urls": [
+    "https://a.test/",
+    "https://a.test/x/y/z.html",
+    "https://a.test/x/y/",
+    "https://a.test/x/q?z=1#f",
+    "https://a.test/b/c/d/e/f/g"
+   ]
+  },
+  {
+   "call": {},
+   "result": {
+    "children": [
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub2",
+        "pages": 2
+       }
+      ],
+      "name": "dir0",
+      "pages": 6
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub2",
+        "pages": 2
+       }
+      ],
+      "name": "dir1",
+      "pages": 6
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub2",
+        "pages": 2
+       }
+      ],
+      "name": "dir2",
+      "pages": 6
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub2",
+        "pages": 2
+       }
+      ],
+      "name": "dir3",
+      "pages": 6
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub2",
+        "pages": 2
+       }
+      ],
+      "name": "dir4",
+      "pages": 6
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub2",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 1
+       }
+      ],
+      "name": "dir5",
+      "pages": 5
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub2",
+        "pages": 1
+       }
+      ],
+      "name": "dir6",
+      "pages": 5
+     }
+    ],
+    "name": "/",
+    "pages": 40
+   },
+   "urls": [
+    "https://a.test/dir0/sub0/page0.html",
+    "https://a.test/dir1/sub1/page1.html",
+    "https://a.test/dir2/sub2/page2.html",
+    "https://a.test/dir3/sub0/page3.html",
+    "https://a.test/dir4/sub1/page4.html",
+    "https://a.test/dir5/sub2/page5.html",
+    "https://a.test/dir6/sub0/page6.html",
+    "https://a.test/dir0/sub1/page7.html",
+    "https://a.test/dir1/sub2/page8.html",
+    "https://a.test/dir2/sub0/page9.html",
+    "https://a.test/dir3/sub1/page10.html",
+    "https://a.test/dir4/sub2/page11.html",
+    "https://a.test/dir5/sub0/page12.html",
+    "https://a.test/dir6/sub1/page13.html",
+    "https://a.test/dir0/sub2/page14.html",
+    "https://a.test/dir1/sub0/page15.html",
+    "https://a.test/dir2/sub1/page16.html",
+    "https://a.test/dir3/sub2/page17.html",
+    "https://a.test/dir4/sub0/page18.html",
+    "https://a.test/dir5/sub1/page19.html",
+    "https://a.test/dir6/sub2/page20.html",
+    "https://a.test/dir0/sub0/page21.html",
+    "https://a.test/dir1/sub1/page22.html",
+    "https://a.test/dir2/sub2/page23.html",
+    "https://a.test/dir3/sub0/page24.html",
+    "https://a.test/dir4/sub1/page25.html",
+    "https://a.test/dir5/sub2/page26.html",
+    "https://a.test/dir6/sub0/page27.html",
+    "https://a.test/dir0/sub1/page28.html",
+    "https://a.test/dir1/sub2/page29.html",
+    "https://a.test/dir2/sub0/page30.html",
+    "https://a.test/dir3/sub1/page31.html",
+    "https://a.test/dir4/sub2/page32.html",
+    "https://a.test/dir5/sub0/page33.html",
+    "https://a.test/dir6/sub1/page34.html",
+    "https://a.test/dir0/sub2/page35.html",
+    "https://a.test/dir1/sub0/page36.html",
+    "https://a.test/dir2/sub1/page37.html",
+    "https://a.test/dir3/sub2/page38.html",
+    "https://a.test/dir4/sub0/page39.html"
+   ]
+  },
+  {
+   "call": {
+    "max_depth": 1
+   },
+   "result": {
+    "children": [
+     {
+      "children": [],
+      "name": "dir0",
+      "other_children": 3,
+      "other_pages": 6,
+      "pages": 6
+     },
+     {
+      "children": [],
+      "name": "dir1",
+      "other_children": 3,
+      "other_pages": 6,
+      "pages": 6
+     },
+     {
+      "children": [],
+      "name": "dir2",
+      "other_children": 3,
+      "other_pages": 6,
+      "pages": 6
+     },
+     {
+      "children": [],
+      "name": "dir3",
+      "other_children": 3,
+      "other_pages": 6,
+      "pages": 6
+     },
+     {
+      "children": [],
+      "name": "dir4",
+      "other_children": 3,
+      "other_pages": 6,
+      "pages": 6
+     },
+     {
+      "children": [],
+      "name": "dir5",
+      "other_children": 3,
+      "other_pages": 5,
+      "pages": 5
+     },
+     {
+      "children": [],
+      "name": "dir6",
+      "other_children": 3,
+      "other_pages": 5,
+      "pages": 5
+     }
+    ],
+    "name": "/",
+    "pages": 40
+   },
+   "urls": [
+    "https://a.test/dir0/sub0/page0.html",
+    "https://a.test/dir1/sub1/page1.html",
+    "https://a.test/dir2/sub2/page2.html",
+    "https://a.test/dir3/sub0/page3.html",
+    "https://a.test/dir4/sub1/page4.html",
+    "https://a.test/dir5/sub2/page5.html",
+    "https://a.test/dir6/sub0/page6.html",
+    "https://a.test/dir0/sub1/page7.html",
+    "https://a.test/dir1/sub2/page8.html",
+    "https://a.test/dir2/sub0/page9.html",
+    "https://a.test/dir3/sub1/page10.html",
+    "https://a.test/dir4/sub2/page11.html",
+    "https://a.test/dir5/sub0/page12.html",
+    "https://a.test/dir6/sub1/page13.html",
+    "https://a.test/dir0/sub2/page14.html",
+    "https://a.test/dir1/sub0/page15.html",
+    "https://a.test/dir2/sub1/page16.html",
+    "https://a.test/dir3/sub2/page17.html",
+    "https://a.test/dir4/sub0/page18.html",
+    "https://a.test/dir5/sub1/page19.html",
+    "https://a.test/dir6/sub2/page20.html",
+    "https://a.test/dir0/sub0/page21.html",
+    "https://a.test/dir1/sub1/page22.html",
+    "https://a.test/dir2/sub2/page23.html",
+    "https://a.test/dir3/sub0/page24.html",
+    "https://a.test/dir4/sub1/page25.html",
+    "https://a.test/dir5/sub2/page26.html",
+    "https://a.test/dir6/sub0/page27.html",
+    "https://a.test/dir0/sub1/page28.html",
+    "https://a.test/dir1/sub2/page29.html",
+    "https://a.test/dir2/sub0/page30.html",
+    "https://a.test/dir3/sub1/page31.html",
+    "https://a.test/dir4/sub2/page32.html",
+    "https://a.test/dir5/sub0/page33.html",
+    "https://a.test/dir6/sub1/page34.html",
+    "https://a.test/dir0/sub2/page35.html",
+    "https://a.test/dir1/sub0/page36.html",
+    "https://a.test/dir2/sub1/page37.html",
+    "https://a.test/dir3/sub2/page38.html",
+    "https://a.test/dir4/sub0/page39.html"
+   ]
+  },
+  {
+   "call": {
+    "max_children": 2
+   },
+   "result": {
+    "children": [
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 2
+       }
+      ],
+      "name": "dir0",
+      "other_children": 1,
+      "other_pages": 2,
+      "pages": 6
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "sub0",
+        "pages": 2
+       },
+       {
+        "children": [],
+        "name": "sub1",
+        "pages": 2
+       }
+      ],
+      "name": "dir1",
+      "other_children": 1,
+      "other_pages": 2,
+      "pages": 6
+     }
+    ],
+    "name": "/",
+    "other_children": 5,
+    "other_pages": 28,
+    "pages": 40
+   },
+   "urls": [
+    "https://a.test/dir0/sub0/page0.html",
+    "https://a.test/dir1/sub1/page1.html",
+    "https://a.test/dir2/sub2/page2.html",
+    "https://a.test/dir3/sub0/page3.html",
+    "https://a.test/dir4/sub1/page4.html",
+    "https://a.test/dir5/sub2/page5.html",
+    "https://a.test/dir6/sub0/page6.html",
+    "https://a.test/dir0/sub1/page7.html",
+    "https://a.test/dir1/sub2/page8.html",
+    "https://a.test/dir2/sub0/page9.html",
+    "https://a.test/dir3/sub1/page10.html",
+    "https://a.test/dir4/sub2/page11.html",
+    "https://a.test/dir5/sub0/page12.html",
+    "https://a.test/dir6/sub1/page13.html",
+    "https://a.test/dir0/sub2/page14.html",
+    "https://a.test/dir1/sub0/page15.html",
+    "https://a.test/dir2/sub1/page16.html",
+    "https://a.test/dir3/sub2/page17.html",
+    "https://a.test/dir4/sub0/page18.html",
+    "https://a.test/dir5/sub1/page19.html",
+    "https://a.test/dir6/sub2/page20.html",
+    "https://a.test/dir0/sub0/page21.html",
+    "https://a.test/dir1/sub1/page22.html",
+    "https://a.test/dir2/sub2/page23.html",
+    "https://a.test/dir3/sub0/page24.html",
+    "https://a.test/dir4/sub1/page25.html",
+    "https://a.test/dir5/sub2/page26.html",
+    "https://a.test/dir6/sub0/page27.html",
+    "https://a.test/dir0/sub1/page28.html",
+    "https://a.test/dir1/sub2/page29.html",
+    "https://a.test/dir2/sub0/page30.html",
+    "https://a.test/dir3/sub1/page31.html",
+    "https://a.test/dir4/sub2/page32.html",
+    "https://a.test/dir5/sub0/page33.html",
+    "https://a.test/dir6/sub1/page34.html",
+    "https://a.test/dir0/sub2/page35.html",
+    "https://a.test/dir1/sub0/page36.html",
+    "https://a.test/dir2/sub1/page37.html",
+    "https://a.test/dir3/sub2/page38.html",
+    "https://a.test/dir4/sub0/page39.html"
+   ]
+  },
+  {
+   "call": {
+    "max_children": 0,
+    "max_depth": 0
+   },
+   "result": {
+    "children": [],
+    "name": "/",
+    "other_children": 7,
+    "other_pages": 40,
+    "pages": 40
+   },
+   "urls": [
+    "https://a.test/dir0/sub0/page0.html",
+    "https://a.test/dir1/sub1/page1.html",
+    "https://a.test/dir2/sub2/page2.html",
+    "https://a.test/dir3/sub0/page3.html",
+    "https://a.test/dir4/sub1/page4.html",
+    "https://a.test/dir5/sub2/page5.html",
+    "https://a.test/dir6/sub0/page6.html",
+    "https://a.test/dir0/sub1/page7.html",
+    "https://a.test/dir1/sub2/page8.html",
+    "https://a.test/dir2/sub0/page9.html",
+    "https://a.test/dir3/sub1/page10.html",
+    "https://a.test/dir4/sub2/page11.html",
+    "https://a.test/dir5/sub0/page12.html",
+    "https://a.test/dir6/sub1/page13.html",
+    "https://a.test/dir0/sub2/page14.html",
+    "https://a.test/dir1/sub0/page15.html",
+    "https://a.test/dir2/sub1/page16.html",
+    "https://a.test/dir3/sub2/page17.html",
+    "https://a.test/dir4/sub0/page18.html",
+    "https://a.test/dir5/sub1/page19.html",
+    "https://a.test/dir6/sub2/page20.html",
+    "https://a.test/dir0/sub0/page21.html",
+    "https://a.test/dir1/sub1/page22.html",
+    "https://a.test/dir2/sub2/page23.html",
+    "https://a.test/dir3/sub0/page24.html",
+    "https://a.test/dir4/sub1/page25.html",
+    "https://a.test/dir5/sub2/page26.html",
+    "https://a.test/dir6/sub0/page27.html",
+    "https://a.test/dir0/sub1/page28.html",
+    "https://a.test/dir1/sub2/page29.html",
+    "https://a.test/dir2/sub0/page30.html",
+    "https://a.test/dir3/sub1/page31.html",
+    "https://a.test/dir4/sub2/page32.html",
+    "https://a.test/dir5/sub0/page33.html",
+    "https://a.test/dir6/sub1/page34.html",
+    "https://a.test/dir0/sub2/page35.html",
+    "https://a.test/dir1/sub0/page36.html",
+    "https://a.test/dir2/sub1/page37.html",
+    "https://a.test/dir3/sub2/page38.html",
+    "https://a.test/dir4/sub0/page39.html"
+   ]
+  },
+  {
+   "call": {
+    "max_depth": -1
+   },
+   "error": "max_depth and max_children must be zero or more",
+   "urls": [
+    "https://a.test/dir0/sub0/page0.html",
+    "https://a.test/dir1/sub1/page1.html",
+    "https://a.test/dir2/sub2/page2.html",
+    "https://a.test/dir3/sub0/page3.html",
+    "https://a.test/dir4/sub1/page4.html",
+    "https://a.test/dir5/sub2/page5.html",
+    "https://a.test/dir6/sub0/page6.html",
+    "https://a.test/dir0/sub1/page7.html",
+    "https://a.test/dir1/sub2/page8.html",
+    "https://a.test/dir2/sub0/page9.html",
+    "https://a.test/dir3/sub1/page10.html",
+    "https://a.test/dir4/sub2/page11.html",
+    "https://a.test/dir5/sub0/page12.html",
+    "https://a.test/dir6/sub1/page13.html",
+    "https://a.test/dir0/sub2/page14.html",
+    "https://a.test/dir1/sub0/page15.html",
+    "https://a.test/dir2/sub1/page16.html",
+    "https://a.test/dir3/sub2/page17.html",
+    "https://a.test/dir4/sub0/page18.html",
+    "https://a.test/dir5/sub1/page19.html",
+    "https://a.test/dir6/sub2/page20.html",
+    "https://a.test/dir0/sub0/page21.html",
+    "https://a.test/dir1/sub1/page22.html",
+    "https://a.test/dir2/sub2/page23.html",
+    "https://a.test/dir3/sub0/page24.html",
+    "https://a.test/dir4/sub1/page25.html",
+    "https://a.test/dir5/sub2/page26.html",
+    "https://a.test/dir6/sub0/page27.html",
+    "https://a.test/dir0/sub1/page28.html",
+    "https://a.test/dir1/sub2/page29.html",
+    "https://a.test/dir2/sub0/page30.html",
+    "https://a.test/dir3/sub1/page31.html",
+    "https://a.test/dir4/sub2/page32.html",
+    "https://a.test/dir5/sub0/page33.html",
+    "https://a.test/dir6/sub1/page34.html",
+    "https://a.test/dir0/sub2/page35.html",
+    "https://a.test/dir1/sub0/page36.html",
+    "https://a.test/dir2/sub1/page37.html",
+    "https://a.test/dir3/sub2/page38.html",
+    "https://a.test/dir4/sub0/page39.html"
+   ]
+  },
+  {
+   "call": {},
+   "result": {
+    "children": [
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "é",
+        "pages": 1
+       }
+      ],
+      "name": "%C3%A9",
+      "pages": 1
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "slash",
+        "pages": 1
+       }
+      ],
+      "name": "double",
+      "pages": 1
+     }
+    ],
+    "name": "/",
+    "pages": 2
+   },
+   "urls": [
+    "https://a.test//double//slash/file",
+    "https://a.test/%C3%A9/é/x"
+   ]
+  },
+  {
+   "call": {
+    "max_depth": 1
+   },
+   "result": {
+    "children": [
+     {
+      "children": [],
+      "name": "%C3%A9",
+      "other_children": 1,
+      "other_pages": 1,
+      "pages": 1
+     },
+     {
+      "children": [],
+      "name": "double",
+      "other_children": 1,
+      "other_pages": 1,
+      "pages": 1
+     }
+    ],
+    "name": "/",
+    "pages": 2
+   },
+   "urls": [
+    "https://a.test//double//slash/file",
+    "https://a.test/%C3%A9/é/x"
+   ]
+  },
+  {
+   "call": {
+    "max_children": 2
+   },
+   "result": {
+    "children": [
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "é",
+        "pages": 1
+       }
+      ],
+      "name": "%C3%A9",
+      "pages": 1
+     },
+     {
+      "children": [
+       {
+        "children": [],
+        "name": "slash",
+        "pages": 1
+       }
+      ],
+      "name": "double",
+      "pages": 1
+     }
+    ],
+    "name": "/",
+    "pages": 2
+   },
+   "urls": [
+    "https://a.test//double//slash/file",
+    "https://a.test/%C3%A9/é/x"
+   ]
+  },
+  {
+   "call": {
+    "max_children": 0,
+    "max_depth": 0
+   },
+   "result": {
+    "children": [],
+    "name": "/",
+    "other_children": 2,
+    "other_pages": 2,
+    "pages": 2
+   },
+   "urls": [
+    "https://a.test//double//slash/file",
+    "https://a.test/%C3%A9/é/x"
+   ]
+  },
+  {
+   "call": {
+    "max_depth": -1
+   },
+   "error": "max_depth and max_children must be zero or more",
+   "urls": [
+    "https://a.test//double//slash/file",
+    "https://a.test/%C3%A9/é/x"
+   ]
+  }
+ ],
+ "scan_tree": [
+  {
+   "call": {},
+   "result": {
+    "max_children": 50,
+    "max_depth": 3,
+    "max_nodes": 10000,
+    "reason": "",
+    "scope": {
+     "excluded_other_origins": 0,
+     "included_pages": 10,
+     "origin": "127.0.0.1:18701",
+     "total_pages": 10
+    },
+    "source": {
+     "evidence_revision": 10,
+     "lifecycle": "finished",
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+    },
+    "state": "available",
+    "tree": {
+     "children": [],
+     "name": "/",
+     "pages": 10
+    },
+    "validation": "light"
+   }
+  },
+  {
+   "call": {
+    "max_depth": 0
+   },
+   "result": {
+    "max_children": 50,
+    "max_depth": 0,
+    "max_nodes": 10000,
+    "reason": "",
+    "scope": {
+     "excluded_other_origins": 0,
+     "included_pages": 10,
+     "origin": "127.0.0.1:18701",
+     "total_pages": 10
+    },
+    "source": {
+     "evidence_revision": 10,
+     "lifecycle": "finished",
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+    },
+    "state": "available",
+    "tree": {
+     "children": [],
+     "name": "/",
+     "pages": 10
+    },
+    "validation": "light"
+   }
+  },
+  {
+   "call": {
+    "max_children": 1,
+    "max_depth": 1
+   },
+   "result": {
+    "max_children": 1,
+    "max_depth": 1,
+    "max_nodes": 10000,
+    "reason": "",
+    "scope": {
+     "excluded_other_origins": 0,
+     "included_pages": 10,
+     "origin": "127.0.0.1:18701",
+     "total_pages": 10
+    },
+    "source": {
+     "evidence_revision": 10,
+     "lifecycle": "finished",
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+    },
+    "state": "available",
+    "tree": {
+     "children": [],
+     "name": "/",
+     "pages": 10
+    },
+    "validation": "light"
+   }
+  },
+  {
+   "call": {
+    "max_children": 0,
+    "max_depth": 5
+   },
+   "result": {
+    "max_children": 0,
+    "max_depth": 5,
+    "max_nodes": 10000,
+    "reason": "",
+    "scope": {
+     "excluded_other_origins": 0,
+     "included_pages": 10,
+     "origin": "127.0.0.1:18701",
+     "total_pages": 10
+    },
+    "source": {
+     "evidence_revision": 10,
+     "lifecycle": "finished",
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+    },
+    "state": "available",
+    "tree": {
+     "children": [],
+     "name": "/",
+     "pages": 10
+    },
+    "validation": "light"
+   }
+  },
+  {
+   "call": {
+    "max_nodes": 2
+   },
+   "result": {
+    "max_children": 50,
+    "max_depth": 3,
+    "max_nodes": 2,
+    "reason": "",
+    "scope": {
+     "excluded_other_origins": 0,
+     "included_pages": 10,
+     "origin": "127.0.0.1:18701",
+     "total_pages": 10
+    },
+    "source": {
+     "evidence_revision": 10,
+     "lifecycle": "finished",
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+    },
+    "state": "available",
+    "tree": {
+     "children": [],
+     "name": "/",
+     "pages": 10
+    },
+    "validation": "light"
+   }
+  },
+  {
+   "call": {
+    "max_bytes": 4096
+   },
+   "result": {
+    "max_children": 50,
+    "max_depth": 3,
+    "max_nodes": 10000,
+    "reason": "",
+    "scope": {
+     "excluded_other_origins": 0,
+     "included_pages": 10,
+     "origin": "127.0.0.1:18701",
+     "total_pages": 10
+    },
+    "source": {
+     "evidence_revision": 10,
+     "lifecycle": "finished",
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+    },
+    "state": "available",
+    "tree": {
+     "children": [],
+     "name": "/",
+     "pages": 10
+    },
+    "validation": "light"
+   }
+  },
+  {
+   "call": {
+    "max_bytes": 5000,
+    "max_children": 500,
+    "max_depth": 20
+   },
+   "result": {
+    "max_children": 500,
+    "max_depth": 20,
+    "max_nodes": 10000,
+    "reason": "",
+    "scope": {
+     "excluded_other_origins": 0,
+     "included_pages": 10,
+     "origin": "127.0.0.1:18701",
+     "total_pages": 10
+    },
+    "source": {
+     "evidence_revision": 10,
+     "lifecycle": "finished",
+     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+    },
+    "state": "available",
+    "tree": {
+     "children": [],
+     "name": "/",
+     "pages": 10
+    },
+    "validation": "light"
+   }
+  },
+  {
+   "call": {
+    "max_depth": 21
+   },
+   "error": "invalid directory-tree budget; depth 0..20, children 0..500, nodes 1..10000, bytes 4096..8388608, timeout 0.1..30s"
+  },
+  {
+   "call": {
+    "timeout_seconds": 0.05
+   },
+   "error": "invalid directory-tree budget; depth 0..20, children 0..500, nodes 1..10000, bytes 4096..8388608, timeout 0.1..30s"
+  }
+ ],
+ "summaries": {
+  "basic": {
+   "html": {
+    "omitted": {},
+    "retained": 10,
+    "total": 10
+   },
+   "rendered": {
+    "omitted": {},
+    "retained": 0,
+    "total": 0
+   },
+   "summary": {
+    "capabilities": {
+     "html_bodies": {
+      "reason": "",
+      "state": "complete"
+     },
+     "rendered_bodies": {
+      "reason": "no captured rendered documents",
+      "state": "unavailable"
+     },
+     "resource_bodies": {
+      "reason": "resources.fetch disabled",
+      "state": "unavailable"
+     },
+     "resource_refs": {
+      "reason": "",
+      "state": "complete"
+     },
+     "responses": {
+      "reason": "",
+      "state": "complete"
+     }
+    },
+    "corpus_partial": false
+   }
+  },
+  "canonical-hreflang": {
+   "html": {
+    "omitted": {},
+    "retained": 10,
+    "total": 10
+   },
+   "rendered": {
+    "omitted": {},
+    "retained": 0,
+    "total": 0
+   },
+   "summary": {
+    "capabilities": {
+     "html_bodies": {
+      "reason": "",
+      "state": "complete"
+     },
+     "rendered_bodies": {
+      "reason": "no captured rendered documents",
+      "state": "unavailable"
+     },
+     "resource_bodies": {
+      "reason": "resources.fetch disabled",
+      "state": "unavailable"
+     },
+     "resource_refs": {
+      "reason": "",
+      "state": "complete"
+     },
+     "responses": {
+      "reason": "",
+      "state": "complete"
+     }
+    },
+    "corpus_partial": false
+   }
+  },
+  "errors": {
+   "html": {
+    "omitted": {},
+    "retained": 9,
+    "total": 9
+   },
+   "rendered": {
+    "omitted": {},
+    "retained": 0,
+    "total": 0
+   },
+   "summary": {
+    "capabilities": {
+     "html_bodies": {
+      "reason": "",
+      "state": "complete"
+     },
+     "rendered_bodies": {
+      "reason": "no captured rendered documents",
+      "state": "unavailable"
+     },
+     "resource_bodies": {
+      "reason": "resources.fetch disabled",
+      "state": "unavailable"
+     },
+     "resource_refs": {
+      "reason": "",
+      "state": "complete"
+     },
+     "responses": {
+      "reason": "",
+      "state": "complete"
+     }
+    },
+    "corpus_partial": false
+   }
+  },
+  "redirects": {
+   "html": {
+    "omitted": {},
+    "retained": 14,
+    "total": 14
+   },
+   "rendered": {
+    "omitted": {},
+    "retained": 0,
+    "total": 0
+   },
+   "summary": {
+    "capabilities": {
+     "html_bodies": {
+      "reason": "",
+      "state": "complete"
+     },
+     "rendered_bodies": {
+      "reason": "no captured rendered documents",
+      "state": "unavailable"
+     },
+     "resource_bodies": {
+      "reason": "resources.fetch disabled",
+      "state": "unavailable"
+     },
+     "resource_refs": {
+      "reason": "",
+      "state": "complete"
+     },
+     "responses": {
+      "reason": "",
+      "state": "complete"
+     }
+    },
+    "corpus_partial": false
+   }
+  },
+  "robots-sitemap": {
+   "html": {
+    "omitted": {},
+    "retained": 5,
+    "total": 5
+   },
+   "rendered": {
+    "omitted": {},
+    "retained": 0,
+    "total": 0
+   },
+   "summary": {
+    "capabilities": {
+     "html_bodies": {
+      "reason": "",
+      "state": "complete"
+     },
+     "rendered_bodies": {
+      "reason": "no captured rendered documents",
+      "state": "unavailable"
+     },
+     "resource_bodies": {
+      "reason": "resources.fetch disabled",
+      "state": "unavailable"
+     },
+     "resource_refs": {
+      "reason": "",
+      "state": "complete"
+     },
+     "responses": {
+      "reason": "",
+      "state": "complete"
+     }
+    },
+    "corpus_partial": false
+   }
+  },
+  "schema": {
+   "html": {
+    "omitted": {},
+    "retained": 6,
+    "total": 6
+   },
+   "rendered": {
+    "omitted": {},
+    "retained": 0,
+    "total": 0
+   },
+   "summary": {
+    "capabilities": {
+     "html_bodies": {
+      "reason": "",
+      "state": "complete"
+     },
+     "rendered_bodies": {
+      "reason": "no captured rendered documents",
+      "state": "unavailable"
+     },
+     "resource_bodies": {
+      "reason": "resources.fetch disabled",
+      "state": "unavailable"
+     },
+     "resource_refs": {
+      "reason": "",
+      "state": "complete"
+     },
+     "responses": {
+      "reason": "",
+      "state": "complete"
+     }
+    },
+    "corpus_partial": false
+   }
+  }
+ },
+ "validate": [
+  {
+   "mutation": null,
+   "result": {
+    "ok": true
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": null,
+   "result": {
+    "ok": true
+   },
+   "site": "canonical-hreflang"
+  },
+  {
+   "mutation": null,
+   "result": {
+    "ok": true
+   },
+   "site": "errors"
+  },
+  {
+   "mutation": null,
+   "result": {
+    "ok": true
+   },
+   "site": "redirects"
+  },
+  {
+   "mutation": null,
+   "result": {
+    "ok": true
+   },
+   "site": "robots-sitemap"
+  },
+  {
+   "mutation": null,
+   "result": {
+    "ok": true
+   },
+   "site": "schema"
+  },
+  {
+   "mutation": "UPDATE bodies SET stored_bytes=stored_bytes+1",
+   "result": {
+    "error": "mutation failed: CHECK constraint failed: stored_bytes = length(data)",
+    "ok": null
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE bodies SET decoded_bytes=decoded_bytes+1",
+   "result": {
+    "error": "compressed body is truncated, trailing, or length-mismatched",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE bodies SET codec='lz4'",
+   "result": {
+    "error": "mutation failed: CHECK constraint failed: codec IN ('identity','zlib')",
+    "ok": null
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET request_headers_redacted_json='[[\"Authorization\",\"x\"]]'",
+   "result": {
+    "error": "request headers contains an unredacted or malformed header",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET response_headers_redacted_json='{}'",
+   "result": {
+    "error": "response headers must be an ordered header-pair list",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET requested_at='2026-01-01T00:00:00+02:00'",
+   "result": {
+    "error": "response requested_at must be UTC",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET requested_at='yesterday'",
+   "result": {
+    "error": "response requested_at is not an RFC3339 timestamp",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET received_at=7",
+   "result": {
+    "error": "response received_at is not an RFC3339 timestamp",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET variant_key=''",
+   "result": {
+    "error": "response variant key must be a nonempty opaque string",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET body_reason='none', body_state='omitted'",
+   "result": {
+    "error": "omitted corpus row has an invalid reason or body",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET redirect_chain_json='[1]'",
+   "result": {
+    "error": "response redirect hop is malformed or disconnected",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET redirect_chain_json='{}'",
+   "result": {
+    "error": "response redirect chain must be an ordered list",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET redirect_chain_json='nope'",
+   "result": {
+    "error": "response redirect chain is invalid JSON",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET credentials_used=1",
+   "result": {
+    "error": "credentialed or no-store response cannot retain a complete body",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE responses SET transport_source='cache'",
+   "result": {
+    "error": "native corpus response cannot claim legacy cache transport",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE documents SET decoder_charset='x'",
+   "result": {
+    "error": "document decoder metadata is inconsistent with its fidelity",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE documents SET decoder_version='scan_decoder.v0'",
+   "result": {
+    "error": "mutation failed: CHECK constraint failed: decoder_version = 'scan_decoder.v1'",
+    "ok": null
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE documents SET captured_at='2026-01-01T00:00:00+01:00'",
+   "result": {
+    "error": "document captured_at must be UTC",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE documents SET body_sha256=NULL",
+   "result": {
+    "error": "complete corpus row has invalid hash, reason, or fidelity",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE documents SET fidelity='unavailable'",
+   "result": {
+    "error": "complete corpus row has invalid hash, reason, or fidelity",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  },
+  {
+   "mutation": "UPDATE pages SET representation='rendered' WHERE document_id IS NOT NULL",
+   "result": {
+    "error": "selected page document URL or representation disagrees",
+    "ok": false,
+    "type": "ScanError"
+   },
+   "site": "basic"
+  }
+ ]
+}

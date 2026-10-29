@@ -1,0 +1,24 @@
+{
+ "exit": 0,
+ "stdout": {
+  "alternates": [
+   {
+    "href": "{BASE}/fr/",
+    "hreflang": "fr"
+   },
+   {
+    "href": "{BASE}/fr/",
+    "hreflang": "xx-INVALID"
+   }
+  ],
+  "count": 2,
+  "final_url": "{BASE}/fr/",
+  "issues": [
+   "malformed hreflang code: 'xx-INVALID' ('xx' is not an ISO 639-1 language code)",
+   "no x-default alternate"
+  ],
+  "ok": true,
+  "status_code": 200,
+  "url": "{BASE}/fr/"
+ }
+}

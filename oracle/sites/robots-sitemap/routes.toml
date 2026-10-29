@@ -1,0 +1,17 @@
+[site]
+start = "/"
+description = "robots disallow + crawl-delay + sitemap index; sitemap has orphan, disallowed, 404 and redirected URLs"
+
+[[route]]
+path = "/sitemap.xml"
+content_type = "application/xml"
+[[route]]
+path = "/sitemap-ok.xml"
+content_type = "application/xml"
+[[route]]
+path = "/sitemap-pages.xml"
+content_type = "application/xml"
+[[route]]
+path = "/moved.html"
+status = 301
+location = "/a.html"

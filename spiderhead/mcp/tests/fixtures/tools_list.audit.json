@@ -1,0 +1,622 @@
+{
+  "tools": [
+    {
+      "name": "seo_doctor",
+      "description": "Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.\n\nThis is a local read-only diagnostic. It does not write a probe file, launch a browser,\ncrawl a site, or establish Screaming Frog licence validity.\n",
+      "inputSchema": {
+        "properties": {
+          "projects_directory": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Projects Directory"
+          },
+          "config_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Config Path"
+          },
+          "sf_cli": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sf Cli"
+          }
+        },
+        "title": "seo_doctorArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_doctorDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "seo_tool_catalog",
+      "description": "Search source-derived tool metadata with categories, project awareness, and bounded offset paging.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "default": "",
+            "title": "Query",
+            "type": "string"
+          },
+          "limit": {
+            "default": 10,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "title": "Offset",
+            "type": "integer"
+          },
+          "include_arguments": {
+            "default": false,
+            "title": "Include Arguments",
+            "type": "boolean"
+          }
+        },
+        "title": "seo_tool_catalogArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_tool_catalogDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "sf_audit_summary",
+      "description": "Read a compact health summary from audit.json or a scan.v1 SQLite artifact.\n\nReturns the project, health score, severity counts, the first 15 ranked\nchecks, and sitemap statistics without loading the complete issue list\ninto the agent context.\n",
+      "inputSchema": {
+        "properties": {
+          "json_path": {
+            "title": "Json Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "json_path"
+        ],
+        "title": "sf_audit_summaryArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "sf_audit_summaryDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "sf_audit_issues",
+      "description": "Return filtered issues from audit.json or a validated scan.v1 SQLite artifact.\n\nThe requested limit is clamped to 1..1000 to keep MCP payloads bounded.\nOmit both filters to inspect the first issues in report order.\n",
+      "inputSchema": {
+        "properties": {
+          "json_path": {
+            "title": "Json Path",
+            "type": "string"
+          },
+          "check": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Check"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Severity"
+          },
+          "limit": {
+            "default": 50,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "json_path"
+        ],
+        "title": "sf_audit_issuesArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "properties": {
+          "result": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Result",
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "sf_audit_issuesOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "sf_list_exports",
+      "description": "Discover recognized SF exports in a directory.\n\nReturns the matched files by logical export name and the logical exports\nthat are absent, allowing an agent to explain which checks may be skipped\nbefore running the audit.\n",
+      "inputSchema": {
+        "properties": {
+          "exports_dir": {
+            "title": "Exports Dir",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exports_dir"
+        ],
+        "title": "sf_list_exportsArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "sf_list_exportsDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "sf_audit_tasks",
+      "description": "Build tasks.json and tasks.md from audit.json or a scan.v1 SQLite artifact.\n\nPriority, severity inclusion, grouping, effort estimates, and URL caps\ncome from the configured ``tasks_pipeline``. ``check_assignment`` uses\nonly declared template/component URLs or validated audit segments and\npreserves grouping provenance and candidate/declared/confirmed state.\nReturns a compact summary and absolute paths to both backlog files.\n",
+      "inputSchema": {
+        "properties": {
+          "json_path": {
+            "title": "Json Path",
+            "type": "string"
+          },
+          "out": {
+            "default": "report",
+            "title": "Out",
+            "type": "string"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Config"
+          }
+        },
+        "required": [
+          "json_path"
+        ],
+        "title": "sf_audit_tasksArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "sf_audit_tasksDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "sf_snippet_edits",
+      "description": "Import supplied snippet CSV text and write unapplied review tasks to a new JSON file.\n\nThe CSV needs ``url`` and at least one of ``title`` or ``description``. Empty edit cells\nleave that field unchanged. Optional ``metrics`` names local font profiles with\n``font_path`` and ``font_size``; their widths are typography measurements, not Google or\nYandex truncation predictions. ``retained_scan`` can add bounded, offline content context\nfor those exact URLs; ``query`` selects a visible-text excerpt and requires that scan.\nExisting output files are never replaced.\n",
+      "inputSchema": {
+        "properties": {
+          "csv_text": {
+            "title": "Csv Text",
+            "type": "string"
+          },
+          "out": {
+            "title": "Out",
+            "type": "string"
+          },
+          "metrics": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Metrics"
+          },
+          "retained_scan": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Retained Scan"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Query"
+          },
+          "representation": {
+            "default": "static",
+            "title": "Representation",
+            "type": "string"
+          },
+          "variant_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Variant Key"
+          },
+          "content_area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Content Area"
+          },
+          "max_decoded_bytes": {
+            "default": 8388608,
+            "title": "Max Decoded Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "csv_text",
+          "out"
+        ],
+        "title": "sf_snippet_editsArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "sf_snippet_editsDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "seo_inspect_url",
+      "description": "Inspect one URL with bounded metadata/header/robots/redirect/structured/render steps.",
+      "inputSchema": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          },
+          "checks": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Checks"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "seo_inspect_urlArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_inspect_urlDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "seo_audit_workflow",
+      "description": "Use a closed project workflow: status, bounded start/prepare, or an evidence-backed report.\n\nA report without ``audit`` is built from the project's latest complete audited scan.\n",
+      "inputSchema": {
+        "properties": {
+          "directory": {
+            "title": "Directory",
+            "type": "string"
+          },
+          "action": {
+            "default": "status",
+            "enum": [
+              "status",
+              "start",
+              "prepare",
+              "report"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Target"
+          },
+          "competitors": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Competitors"
+          },
+          "template": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Template"
+          },
+          "audit": {
+            "default": null,
+            "title": "Audit"
+          },
+          "fmt": {
+            "default": "md",
+            "title": "Fmt",
+            "type": "string"
+          },
+          "out": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Out"
+          },
+          "approve_large_crawl": {
+            "default": false,
+            "title": "Approve Large Crawl",
+            "type": "boolean"
+          },
+          "max_urls": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Urls"
+          }
+        },
+        "required": [
+          "directory"
+        ],
+        "title": "seo_audit_workflowArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "seo_audit_workflowDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "sf_audit_run",
+      "description": "Run an SF audit and write audit.json plus audit.md.\n\nUse ``parse-exports`` with a directory of existing CSV/XLSX exports;\nthis mode does not require Screaming Frog to be installed. The\n``load-crawl``, ``crawl``, and ``crawl-list`` modes invoke the separately\ninstalled, licensed SF CLI. ``input`` is respectively an exports\ndirectory, .seospider path, start URL, or URL-list file. Returns a compact\nsummary and absolute file paths instead of embedding the large reports.\n\n``config`` may explicitly select ``semantic_similarity.adapter`` and\ncaller-supplied body/title/H1 vectors. No embedding model or provider\nis selected by default; absent bodies or adapters remain unavailable.\n\n``inspect_gsc`` explicitly enables a bounded live Search Console URL Inspection sample.\nIt requires a project-bound GSC property, stores results in that project's private local\ninspection history, and applies a local 2,000-request-per-property-per-UTC-day budget.\nBy default this run reads only retained GSC/analytics history and makes no provider call.\n\nA live crawl can run for a long time; this call runs off the server's\nevent loop, so other sf_* calls stay answerable while it is in\nprogress, and cancelling the request (an MCP CancelledNotification)\nstops the underlying Screaming Frog process instead of leaving it\nrunning. A cancelled or failed run never leaves a completed-looking\n``audit.json``/``audit.md`` behind; on either outcome, or a lost\nresponse, recover by pointing sf_list_exports/sf_audit_summary at the\nsame ``out`` path.\n",
+      "inputSchema": {
+        "properties": {
+          "mode": {
+            "title": "Mode",
+            "type": "string"
+          },
+          "input": {
+            "title": "Input",
+            "type": "string"
+          },
+          "profile": {
+            "default": "full",
+            "title": "Profile",
+            "type": "string"
+          },
+          "out": {
+            "default": "report",
+            "title": "Out",
+            "type": "string"
+          },
+          "config": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Config"
+          },
+          "sitemap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sitemap"
+          },
+          "project": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Project"
+          },
+          "inspect_gsc": {
+            "default": false,
+            "title": "Inspect Gsc",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mode",
+          "input"
+        ],
+        "title": "sf_audit_runArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "title": "sf_audit_runDictOutput",
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    }
+  ]
+}

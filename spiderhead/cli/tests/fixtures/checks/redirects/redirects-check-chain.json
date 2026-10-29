@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "redirects-check",
+  "--url",
+  "{BASE}/chain-a"
+ ],
+ "command": "redirects-check",
+ "exit": 0,
+ "stderr": "seohead: redirects-check\n",
+ "stdout": "{\n  \"chain\": [\n    {\n      \"url\": \"{BASE}/chain-a\",\n      \"status\": 301,\n      \"location\": \"/chain-b\",\n      \"ok\": true\n    },\n    {\n      \"url\": \"{BASE}/chain-b\",\n      \"status\": 302,\n      \"location\": \"/chain-c\",\n      \"ok\": true\n    },\n    {\n      \"url\": \"{BASE}/chain-c\",\n      \"status\": 301,\n      \"location\": \"/final.html\",\n      \"ok\": true\n    },\n    {\n      \"url\": \"{BASE}/final.html\",\n      \"status\": 200,\n      \"location\": null,\n      \"ok\": true\n    }\n  ]\n}\n"
+}

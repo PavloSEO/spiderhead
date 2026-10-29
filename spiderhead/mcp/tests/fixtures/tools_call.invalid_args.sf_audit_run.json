@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Error executing tool sf_audit_run: 1 validation error for sf_audit_runArguments\nmode\n  Input should be a valid string [type=string_type, input_value=123, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+      }
+    ],
+    "isError": true
+  }
+}

@@ -1,0 +1,13 @@
+[package]
+name = "spiderhead-formats"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead storage format layer (scan.v1, audit.v2, ledger.v1)."
+
+[dependencies]
+serde_json = { workspace = true, features = ["preserve_order"] }
+spiderhead-core.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+jsonschema.workspace = true

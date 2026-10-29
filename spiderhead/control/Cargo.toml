@@ -1,0 +1,11 @@
+[package]
+name = "spiderhead-control"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead control channel: loopback JSON-lines port that drives a running UI (or a headless session)"
+
+[dependencies]
+getrandom.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true

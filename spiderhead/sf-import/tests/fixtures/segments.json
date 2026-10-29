@@ -1,0 +1,2912 @@
+[
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [],
+     "https://example.test/blog/b": [],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [],
+    "primary": {
+     "https://example.test/": null,
+     "https://example.test/blog/a": null,
+     "https://example.test/blog/b": null,
+     "https://example.test/shop/x?color=red": null,
+     "https://example.test/shop/y": null
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "empty",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "unsegmented": {
+      "": 1,
+      "BROKEN": 1,
+      "SITE": 2,
+      "THIN": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [],
+     "https://example.test/blog/b": [],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [],
+    "pages_by_segment": {
+     "unsegmented": 7
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {}
+  },
+  "segments": []
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [
+      "big",
+      "blog"
+     ],
+     "https://example.test/blog/b": [
+      "blog"
+     ],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [
+     "big",
+     "blog"
+    ],
+    "primary": {
+     "https://example.test/": null,
+     "https://example.test/blog/a": "big",
+     "https://example.test/blog/b": "blog",
+     "https://example.test/shop/x?color=red": null,
+     "https://example.test/shop/y": null
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "overlap",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "big": {
+      "": 1,
+      "THIN": 1
+     },
+     "blog": {
+      "THIN": 1
+     },
+     "unsegmented": {
+      "BROKEN": 1,
+      "SITE": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [
+      "big",
+      "blog"
+     ],
+     "https://example.test/blog/b": [
+      "blog"
+     ],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [
+     "big",
+     "blog"
+    ],
+    "pages_by_segment": {
+     "big": 1,
+     "blog": 1,
+     "unsegmented": 5
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "big": [
+     "word_count"
+    ],
+    "blog": [
+     "url"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "blog",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "https://example.test/blog/"
+     }
+    ]
+   },
+   {
+    "name": "big",
+    "rules": [
+     {
+      "field": "word_count",
+      "op": "eq",
+      "value": 900
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [],
+     "https://example.test/blog/b": [],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [
+     "none"
+    ],
+    "primary": {
+     "https://example.test/": null,
+     "https://example.test/blog/a": null,
+     "https://example.test/blog/b": null,
+     "https://example.test/shop/x?color=red": null,
+     "https://example.test/shop/y": null
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "nothing",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "none": {},
+     "unsegmented": {
+      "": 1,
+      "BROKEN": 1,
+      "SITE": 2,
+      "THIN": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [],
+     "https://example.test/blog/b": [],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [
+     "none"
+    ],
+    "pages_by_segment": {
+     "none": 0,
+     "unsegmented": 7
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "none": [
+     "url"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "none",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "zzz"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [
+      "canon"
+     ],
+     "https://example.test/blog/b": [
+      "thin"
+     ],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [
+     "canon",
+     "thin"
+    ],
+    "primary": {
+     "https://example.test/": null,
+     "https://example.test/blog/a": "canon",
+     "https://example.test/blog/b": "thin",
+     "https://example.test/shop/x?color=red": null,
+     "https://example.test/shop/y": null
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "metrics_fallback",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "canon": {
+      "": 1,
+      "THIN": 1
+     },
+     "thin": {
+      "THIN": 1
+     },
+     "unsegmented": {
+      "BROKEN": 1,
+      "SITE": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [
+      "canon"
+     ],
+     "https://example.test/blog/b": [
+      "thin"
+     ],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [
+     "canon",
+     "thin"
+    ],
+    "pages_by_segment": {
+     "canon": 1,
+     "thin": 1,
+     "unsegmented": 5
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "canon": [
+     "canonical"
+    ],
+    "thin": [
+     "word_count"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "thin",
+    "rules": [
+     {
+      "field": "word_count",
+      "op": "regex",
+      "value": "^\\d{1,2}$"
+     }
+    ]
+   },
+   {
+    "name": "canon",
+    "rules": [
+     {
+      "field": "canonical",
+      "op": "contains",
+      "value": "blog"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [
+      "parent",
+      "child",
+      "grand"
+     ],
+     "https://example.test/blog/b": [
+      "parent",
+      "child",
+      "grand"
+     ],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": [
+      "child",
+      "grand"
+     ]
+    },
+    "order": [
+     "parent",
+     "child",
+     "grand"
+    ],
+    "primary": {
+     "https://example.test/": null,
+     "https://example.test/blog/a": "parent",
+     "https://example.test/blog/b": "parent",
+     "https://example.test/shop/x?color=red": null,
+     "https://example.test/shop/y": "child"
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "dependency",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "child": {},
+     "grand": {},
+     "parent": {
+      "": 1,
+      "THIN": 2
+     },
+     "unsegmented": {
+      "BROKEN": 1,
+      "SITE": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [
+      "parent",
+      "child",
+      "grand"
+     ],
+     "https://example.test/blog/b": [
+      "parent",
+      "child",
+      "grand"
+     ],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": [
+      "child",
+      "grand"
+     ]
+    },
+    "order": [
+     "parent",
+     "child",
+     "grand"
+    ],
+    "pages_by_segment": {
+     "child": 1,
+     "grand": 0,
+     "parent": 2,
+     "unsegmented": 4
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "child": [
+     "status_code",
+     "url"
+    ],
+    "grand": [
+     "status_code",
+     "url"
+    ],
+    "parent": [
+     "url"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "child",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "parent"
+     },
+     {
+      "field": "status_code",
+      "op": "eq",
+      "value": 301
+     }
+    ]
+   },
+   {
+    "name": "parent",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "https://example.test/blog/"
+     }
+    ]
+   },
+   {
+    "name": "grand",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "child"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [
+      "alpha",
+      "zeta"
+     ],
+     "https://example.test/blog/a": [
+      "alpha",
+      "zeta"
+     ],
+     "https://example.test/blog/b": [
+      "alpha",
+      "zeta"
+     ],
+     "https://example.test/shop/x?color=red": [
+      "alpha",
+      "mid",
+      "zeta"
+     ],
+     "https://example.test/shop/y": [
+      "alpha",
+      "mid",
+      "zeta"
+     ]
+    },
+    "order": [
+     "alpha",
+     "mid",
+     "zeta"
+    ],
+    "primary": {
+     "https://example.test/": "alpha",
+     "https://example.test/blog/a": "alpha",
+     "https://example.test/blog/b": "alpha",
+     "https://example.test/shop/x?color=red": "alpha",
+     "https://example.test/shop/y": "alpha"
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "tie_order",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "alpha": {
+      "": 1,
+      "BROKEN": 1,
+      "THIN": 2
+     },
+     "mid": {},
+     "unsegmented": {
+      "SITE": 2,
+      "ZED": 1
+     },
+     "zeta": {}
+    },
+    "memberships": {
+     "https://example.test/": [
+      "alpha",
+      "zeta"
+     ],
+     "https://example.test/blog/a": [
+      "alpha",
+      "zeta"
+     ],
+     "https://example.test/blog/b": [
+      "alpha",
+      "zeta"
+     ],
+     "https://example.test/shop/x?color=red": [
+      "alpha",
+      "mid",
+      "zeta"
+     ],
+     "https://example.test/shop/y": [
+      "alpha",
+      "mid",
+      "zeta"
+     ]
+    },
+    "order": [
+     "alpha",
+     "mid",
+     "zeta"
+    ],
+    "pages_by_segment": {
+     "alpha": 5,
+     "mid": 0,
+     "unsegmented": 2,
+     "zeta": 0
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "alpha": [
+     "url"
+    ],
+    "mid": [
+     "url"
+    ],
+    "zeta": [
+     "url"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "zeta",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "https://example.test/"
+     }
+    ]
+   },
+   {
+    "name": "alpha",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "https://example.test/"
+     }
+    ]
+   },
+   {
+    "name": "mid",
+    "rules": [
+     {
+      "field": "url",
+      "op": "contains",
+      "value": "shop"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [
+      "codes",
+      "float_eq",
+      "none_eq"
+     ],
+     "https://example.test/blog/a": [
+      "codes",
+      "float_eq"
+     ],
+     "https://example.test/blog/b": [
+      "codes",
+      "float_eq"
+     ],
+     "https://example.test/shop/x?color=red": [
+      "none_eq",
+      "single"
+     ],
+     "https://example.test/shop/y": [
+      "codes",
+      "none_eq",
+      "prod"
+     ]
+    },
+    "order": [
+     "codes",
+     "float_eq",
+     "none_eq",
+     "prod",
+     "single"
+    ],
+    "primary": {
+     "https://example.test/": "codes",
+     "https://example.test/blog/a": "codes",
+     "https://example.test/blog/b": "codes",
+     "https://example.test/shop/x?color=red": "none_eq",
+     "https://example.test/shop/y": "codes"
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "in_and_eq",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "codes": {
+      "": 1,
+      "THIN": 2
+     },
+     "float_eq": {},
+     "none_eq": {
+      "BROKEN": 1
+     },
+     "prod": {},
+     "single": {},
+     "unsegmented": {
+      "SITE": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [
+      "codes",
+      "float_eq",
+      "none_eq"
+     ],
+     "https://example.test/blog/a": [
+      "codes",
+      "float_eq"
+     ],
+     "https://example.test/blog/b": [
+      "codes",
+      "float_eq"
+     ],
+     "https://example.test/shop/x?color=red": [
+      "none_eq",
+      "single"
+     ],
+     "https://example.test/shop/y": [
+      "codes",
+      "none_eq",
+      "prod"
+     ]
+    },
+    "order": [
+     "codes",
+     "float_eq",
+     "none_eq",
+     "prod",
+     "single"
+    ],
+    "pages_by_segment": {
+     "codes": 4,
+     "float_eq": 0,
+     "none_eq": 1,
+     "prod": 0,
+     "single": 0,
+     "unsegmented": 2
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "codes": [
+     "status_code"
+    ],
+    "float_eq": [
+     "status_code"
+    ],
+    "none_eq": [
+     "word_count"
+    ],
+    "prod": [
+     "kind"
+    ],
+    "single": [
+     "status_code"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "codes",
+    "rules": [
+     {
+      "field": "status_code",
+      "op": "in",
+      "value": [
+       200,
+       301
+      ]
+     }
+    ]
+   },
+   {
+    "name": "single",
+    "rules": [
+     {
+      "field": "status_code",
+      "op": "in",
+      "value": 404
+     }
+    ]
+   },
+   {
+    "name": "none_eq",
+    "rules": [
+     {
+      "field": "word_count",
+      "op": "eq",
+      "value": null
+     }
+    ]
+   },
+   {
+    "name": "prod",
+    "rules": [
+     {
+      "field": "kind",
+      "op": "eq",
+      "value": "product"
+     }
+    ]
+   },
+   {
+    "name": "float_eq",
+    "rules": [
+     {
+      "field": "status_code",
+      "op": "eq",
+      "value": 200.0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [],
+     "https://example.test/blog/b": [],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": [
+      "deep"
+     ]
+    },
+    "order": [
+     "deep",
+     "miss"
+    ],
+    "primary": {
+     "https://example.test/": null,
+     "https://example.test/blog/a": null,
+     "https://example.test/blog/b": null,
+     "https://example.test/shop/x?color=red": null,
+     "https://example.test/shop/y": "deep"
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "dotted",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "deep": {},
+     "miss": {},
+     "unsegmented": {
+      "": 1,
+      "BROKEN": 1,
+      "SITE": 2,
+      "THIN": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [],
+     "https://example.test/blog/b": [],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": [
+      "deep"
+     ]
+    },
+    "order": [
+     "deep",
+     "miss"
+    ],
+    "pages_by_segment": {
+     "deep": 1,
+     "miss": 0,
+     "unsegmented": 6
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "deep": [
+     "meta.depth.n"
+    ],
+    "miss": [
+     "meta.nope.n"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "deep",
+    "rules": [
+     {
+      "field": "meta.depth.n",
+      "op": "eq",
+      "value": 3
+     }
+    ]
+   },
+   {
+    "name": "miss",
+    "rules": [
+     {
+      "field": "meta.nope.n",
+      "op": "eq",
+      "value": 3
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [],
+     "https://example.test/blog/b": [],
+     "https://example.test/shop/x?color=red": [
+      "d"
+     ],
+     "https://example.test/shop/y": [
+      "d"
+     ]
+    },
+    "order": [
+     "d"
+    ],
+    "primary": {
+     "https://example.test/": null,
+     "https://example.test/blog/a": null,
+     "https://example.test/blog/b": null,
+     "https://example.test/shop/x?color=red": "d",
+     "https://example.test/shop/y": "d"
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "defaults",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "d": {
+      "BROKEN": 1
+     },
+     "unsegmented": {
+      "": 1,
+      "SITE": 2,
+      "THIN": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [],
+     "https://example.test/blog/b": [],
+     "https://example.test/shop/x?color=red": [
+      "d"
+     ],
+     "https://example.test/shop/y": [
+      "d"
+     ]
+    },
+    "order": [
+     "d"
+    ],
+    "pages_by_segment": {
+     "d": 2,
+     "unsegmented": 5
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "d": [
+     "url"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "d",
+    "rules": [
+     {
+      "value": "https://example.test/shop"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "SegmentError: circular segment dependency: a -> b -> a"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "cycle2",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "SegmentError: circular segment dependency: a -> b -> a"
+  },
+  "required": {
+   "error": "SegmentError: circular segment dependency: a -> b -> a"
+  },
+  "segments": [
+   {
+    "name": "a",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "b"
+     }
+    ]
+   },
+   {
+    "name": "b",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "a"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "SegmentError: circular segment dependency: a -> a"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "cycle_self",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "SegmentError: circular segment dependency: a -> a"
+  },
+  "required": {
+   "error": "SegmentError: circular segment dependency: a -> a"
+  },
+  "segments": [
+   {
+    "name": "a",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "a"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "SegmentError: circular segment dependency: a -> c -> b -> a"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "cycle_tail",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "SegmentError: circular segment dependency: a -> c -> b -> a"
+  },
+  "required": {
+   "error": "SegmentError: circular segment dependency: a -> c -> b -> a"
+  },
+  "segments": [
+   {
+    "name": "x",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "q"
+     }
+    ]
+   },
+   {
+    "name": "a",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "c"
+     }
+    ]
+   },
+   {
+    "name": "b",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "a"
+     }
+    ]
+   },
+   {
+    "name": "c",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "b"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "SegmentError: segment 'a' references unknown segment 'ghost'"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "unknown_ref",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "SegmentError: segment 'a' references unknown segment 'ghost'"
+  },
+  "required": {
+   "error": "SegmentError: segment 'a' references unknown segment 'ghost'"
+  },
+  "segments": [
+   {
+    "name": "a",
+    "rules": [
+     {
+      "field": "url",
+      "op": "segment",
+      "value": "ghost"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "SegmentError: duplicate segment name 'a'"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "duplicate",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "SegmentError: duplicate segment name 'a'"
+  },
+  "required": {
+   "error": "SegmentError: duplicate segment name 'a'"
+  },
+  "segments": [
+   {
+    "name": "a",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "x"
+     }
+    ]
+   },
+   {
+    "name": "a",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "y"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "SegmentError: segment 'empty' has no rules; it would never match anything"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "no_rules",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "SegmentError: segment 'empty' has no rules; it would never match anything"
+  },
+  "required": {
+   "error": "SegmentError: segment 'empty' has no rules; it would never match anything"
+  },
+  "segments": [
+   {
+    "name": "empty",
+    "rules": []
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "SegmentError: a segment definition needs a non-empty 'name'"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "no_name",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "SegmentError: a segment definition needs a non-empty 'name'"
+  },
+  "required": {
+   "error": "SegmentError: a segment definition needs a non-empty 'name'"
+  },
+  "segments": [
+   {
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "x"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "SegmentError: unknown segment rule op 'startswith'; expected one of ['contains', 'eq', 'in', 'prefix', 'regex', 'segment']"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "bad_op",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "SegmentError: unknown segment rule op 'startswith'; expected one of ['contains', 'eq', 'in', 'prefix', 'regex', 'segment']"
+  },
+  "required": {
+   "error": "SegmentError: unknown segment rule op 'startswith'; expected one of ['contains', 'eq', 'in', 'prefix', 'regex', 'segment']"
+  },
+  "segments": [
+   {
+    "name": "a",
+    "rules": [
+     {
+      "field": "url",
+      "op": "startswith",
+      "value": "x"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "error": "PatternError: missing ), unterminated subpattern at position 0"
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "bad_regex",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "error": "PatternError: missing ), unterminated subpattern at position 0"
+  },
+  "required": {
+   "error": "PatternError: missing ), unterminated subpattern at position 0"
+  },
+  "segments": [
+   {
+    "name": "a",
+    "rules": [
+     {
+      "field": "url",
+      "op": "regex",
+      "value": "("
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [
+      "c",
+      "p"
+     ],
+     "https://example.test/blog/a": [
+      "c",
+      "p"
+     ],
+     "https://example.test/blog/b": [
+      "c",
+      "p"
+     ],
+     "https://example.test/shop/x?color=red": [
+      "c"
+     ],
+     "https://example.test/shop/y": [
+      "c"
+     ]
+    },
+    "order": [
+     "c",
+     "p"
+    ],
+    "primary": {
+     "https://example.test/": "c",
+     "https://example.test/blog/a": "c",
+     "https://example.test/blog/b": "c",
+     "https://example.test/shop/x?color=red": "c",
+     "https://example.test/shop/y": "c"
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "numeric_text",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "c": {
+      "": 1,
+      "BROKEN": 1,
+      "THIN": 2
+     },
+     "p": {},
+     "unsegmented": {
+      "SITE": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [
+      "c",
+      "p"
+     ],
+     "https://example.test/blog/a": [
+      "c",
+      "p"
+     ],
+     "https://example.test/blog/b": [
+      "c",
+      "p"
+     ],
+     "https://example.test/shop/x?color=red": [
+      "c"
+     ],
+     "https://example.test/shop/y": [
+      "c"
+     ]
+    },
+    "order": [
+     "c",
+     "p"
+    ],
+    "pages_by_segment": {
+     "c": 5,
+     "p": 0,
+     "unsegmented": 2
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "c": [
+     "status_code"
+    ],
+    "p": [
+     "status_code"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "p",
+    "rules": [
+     {
+      "field": "status_code",
+      "op": "prefix",
+      "value": 20
+     }
+    ]
+   },
+   {
+    "name": "c",
+    "rules": [
+     {
+      "field": "status_code",
+      "op": "contains",
+      "value": "0"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "assign": {
+   "ok": {
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [
+      "unsegmented"
+     ],
+     "https://example.test/blog/b": [
+      "unsegmented"
+     ],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [
+     "unsegmented"
+    ],
+    "primary": {
+     "https://example.test/": null,
+     "https://example.test/blog/a": "unsegmented",
+     "https://example.test/blog/b": "unsegmented",
+     "https://example.test/shop/x?color=red": null,
+     "https://example.test/shop/y": null
+    }
+   }
+  },
+  "issues": [
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/b"
+   },
+   {
+    "check": "THIN",
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "BROKEN",
+    "target_url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "check": "SITE",
+    "target_url": null
+   },
+   {
+    "check": "SITE"
+   },
+   {
+    "target_url": "https://example.test/blog/a"
+   },
+   {
+    "check": "ZED",
+    "target_url": "https://elsewhere.test/"
+   }
+  ],
+  "name": "unsegmented_name",
+  "pages": [
+   {
+    "metrics": {
+     "canonical": "https://example.test/blog/a",
+     "word_count": 900
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/a"
+   },
+   {
+    "metrics": {
+     "word_count": 50
+    },
+    "status_code": 200,
+    "url": "https://example.test/blog/b"
+   },
+   {
+    "metrics": {
+     "word_count": null
+    },
+    "status_code": 404,
+    "url": "https://example.test/shop/x?color=red"
+   },
+   {
+    "kind": "product",
+    "meta": {
+     "depth": {
+      "n": 3
+     }
+    },
+    "status_code": 301,
+    "url": "https://example.test/shop/y"
+   },
+   {
+    "status_code": 200,
+    "url": "https://example.test/"
+   },
+   {
+    "status_code": 200,
+    "url": ""
+   },
+   {
+    "status_code": 200
+   }
+  ],
+  "report": {
+   "ok": {
+    "issues_by_segment": {
+     "unsegmented": {
+      "": 1,
+      "BROKEN": 1,
+      "SITE": 2,
+      "THIN": 2,
+      "ZED": 1
+     }
+    },
+    "memberships": {
+     "https://example.test/": [],
+     "https://example.test/blog/a": [
+      "unsegmented"
+     ],
+     "https://example.test/blog/b": [
+      "unsegmented"
+     ],
+     "https://example.test/shop/x?color=red": [],
+     "https://example.test/shop/y": []
+    },
+    "order": [
+     "unsegmented"
+    ],
+    "pages_by_segment": {
+     "unsegmented": 7
+    },
+    "schema_version": "segments.v1",
+    "totals": {
+     "issues": 7,
+     "pages": 7
+    }
+   }
+  },
+  "required": {
+   "ok": {
+    "unsegmented": [
+     "url"
+    ]
+   }
+  },
+  "segments": [
+   {
+    "name": "unsegmented",
+    "rules": [
+     {
+      "field": "url",
+      "op": "prefix",
+      "value": "https://example.test/blog/"
+     }
+    ]
+   }
+  ]
+ }
+]

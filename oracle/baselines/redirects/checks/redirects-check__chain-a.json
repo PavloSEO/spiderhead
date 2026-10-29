@@ -1,0 +1,31 @@
+{
+ "exit": 0,
+ "stdout": {
+  "chain": [
+   {
+    "location": "/chain-b",
+    "ok": true,
+    "status": 301,
+    "url": "{BASE}/chain-a"
+   },
+   {
+    "location": "/chain-c",
+    "ok": true,
+    "status": 302,
+    "url": "{BASE}/chain-b"
+   },
+   {
+    "location": "/final.html",
+    "ok": true,
+    "status": 301,
+    "url": "{BASE}/chain-c"
+   },
+   {
+    "location": null,
+    "ok": true,
+    "status": 200,
+    "url": "{BASE}/final.html"
+   }
+  ]
+ }
+}

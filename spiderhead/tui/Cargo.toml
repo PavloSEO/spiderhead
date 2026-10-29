@@ -1,0 +1,20 @@
+[package]
+name = "spiderhead-tui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead tui."
+
+[dependencies]
+spiderhead-core.workspace = true
+spiderhead-projects.workspace = true
+libc.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+unicode-general-category.workspace = true
+unicode-width.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

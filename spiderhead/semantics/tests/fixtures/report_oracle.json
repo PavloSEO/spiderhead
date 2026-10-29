@@ -1,0 +1,729 @@
+{
+ "stage": "report",
+ "scenarios": [
+  {
+   "name": "full",
+   "cfg": {
+    "_project": "demo",
+    "exact_cut_exact": 10,
+    "min_base": 20,
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/report-oracle-y0ufdeap"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {
+     "phrases": [
+      {
+       "norm": "дельта один",
+       "base": 600,
+       "exact": 500,
+       "status": "kept",
+       "cluster_id": 1
+      },
+      {
+       "norm": "дельта два",
+       "base": 300,
+       "exact": 200,
+       "status": "kept",
+       "cluster_id": 1
+      },
+      {
+       "norm": "бета один",
+       "base": 100,
+       "exact": 30,
+       "status": "kept",
+       "cluster_id": 2
+      },
+      {
+       "norm": "бета два",
+       "base": 100,
+       "status": "kept",
+       "cluster_id": 2
+      },
+      {
+       "norm": "бета три",
+       "base": 80,
+       "status": "review",
+       "reason": "manual",
+       "reason_stage": "clean",
+       "cluster_id": 2
+      },
+      {
+       "norm": "соло точная",
+       "base": 90,
+       "exact": 50,
+       "status": "kept"
+      },
+      {
+       "norm": "соло широкая",
+       "base": 40,
+       "status": "kept"
+      },
+      {
+       "norm": "соло слабая",
+       "base": 5,
+       "status": "kept"
+      },
+      {
+       "norm": "выброшенная",
+       "base": 70,
+       "status": "dropped",
+       "reason": "offtopic",
+       "reason_stage": "clean"
+      },
+      {
+       "norm": "мёртвая фраза",
+       "base": 60,
+       "status": "dead",
+       "reason": "base<20 and exact<10",
+       "reason_stage": "exact"
+      },
+      {
+       "norm": "инфо фраза",
+       "base": 55,
+       "status": "kept",
+       "route": "info",
+       "cluster_id": 2
+      }
+     ],
+     "clusters": [
+      {
+       "id": 1,
+       "name": "топ дельта",
+       "marker_norm": "дельта один",
+       "coherence": 0.83,
+       "is_real": 1,
+       "source": "serp"
+      },
+      {
+       "id": 2,
+       "name": "бета",
+       "marker_norm": "бета один",
+       "coherence": 0.5,
+       "is_real": 1,
+       "source": "serp"
+      },
+      {
+       "id": 3,
+       "name": "пустой",
+       "coherence": null,
+       "is_real": 0
+      }
+     ],
+     "serp": [
+      {
+       "phrase_norm": "дельта один",
+       "pos": 1,
+       "url": "https://comp1.ru/a",
+       "domain": "comp1.ru",
+       "title": "A"
+      },
+      {
+       "phrase_norm": "дельта один",
+       "pos": 2,
+       "url": "https://comp2.ru/b",
+       "domain": "comp2.ru",
+       "title": "B"
+      },
+      {
+       "phrase_norm": "дельта два",
+       "pos": 1,
+       "url": "https://comp1.ru/c",
+       "domain": "comp1.ru",
+       "title": "C"
+      },
+      {
+       "phrase_norm": "дельта два",
+       "pos": 3,
+       "url": "https://comp1.ru/d",
+       "domain": "comp1.ru",
+       "title": "D"
+      },
+      {
+       "phrase_norm": "бета один",
+       "pos": 4,
+       "url": "https://comp3.ru/e",
+       "domain": "comp3.ru",
+       "title": "E"
+      },
+      {
+       "phrase_norm": "бета один",
+       "pos": 5,
+       "url": "https://comp3.ru/f",
+       "domain": "comp3.ru",
+       "title": "F"
+      },
+      {
+       "phrase_norm": "бета один",
+       "pos": 6,
+       "url": "https://comp1.ru/g",
+       "domain": "comp1.ru",
+       "title": "G"
+      }
+     ],
+     "runs": [
+      {
+       "stage": "collect",
+       "n_requests": 10,
+       "cost_arsenkin": 0,
+       "note": "seeds",
+       "ts": "2025-01-01 10:00:00"
+      },
+      {
+       "stage": "cluster",
+       "n_requests": 3,
+       "cost_arsenkin": 0,
+       "note": "serp",
+       "ts": "2025-01-01 10:05:00"
+      },
+      {
+       "stage": "exact",
+       "n_requests": 0,
+       "cost_arsenkin": 7.5,
+       "note": "task 9",
+       "ts": "2025-01-01 10:10:00"
+      }
+     ]
+    }
+   },
+   "providers": {},
+   "args": {},
+   "files": {},
+   "expect": {
+    "result": {
+     "clusters": 2
+    },
+    "tables": {
+     "clusters": [
+      {
+       "id": 1,
+       "name": "топ дельта",
+       "marker_norm": "дельта один",
+       "coherence": 0.83,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "serp",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 2,
+       "name": "бета",
+       "marker_norm": "бета один",
+       "coherence": 0.5,
+       "is_real": 1,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": "serp",
+       "page_types": null,
+       "level": null
+      },
+      {
+       "id": 3,
+       "name": "пустой",
+       "marker_norm": null,
+       "coherence": null,
+       "is_real": 0,
+       "note": null,
+       "landing_url": null,
+       "intent": null,
+       "source": null,
+       "page_types": null,
+       "level": null
+      }
+     ],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [
+      {
+       "id": 1,
+       "norm": "дельта один",
+       "base": 600,
+       "quoted": null,
+       "exact": 500,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 1,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 2,
+       "norm": "дельта два",
+       "base": 300,
+       "quoted": null,
+       "exact": 200,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 1,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 3,
+       "norm": "бета один",
+       "base": 100,
+       "quoted": null,
+       "exact": 30,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 4,
+       "norm": "бета два",
+       "base": 100,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 5,
+       "norm": "бета три",
+       "base": 80,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "review",
+       "reason": "manual",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 6,
+       "norm": "соло точная",
+       "base": 90,
+       "quoted": null,
+       "exact": 50,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 7,
+       "norm": "соло широкая",
+       "base": 40,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 8,
+       "norm": "соло слабая",
+       "base": 5,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 9,
+       "norm": "выброшенная",
+       "base": 70,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "dropped",
+       "reason": "offtopic",
+       "reason_stage": "clean",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 10,
+       "norm": "мёртвая фраза",
+       "base": 60,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "dead",
+       "reason": "base<20 and exact<10",
+       "reason_stage": "exact",
+       "route": "commercial",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": null,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      },
+      {
+       "id": 11,
+       "norm": "инфо фраза",
+       "base": 55,
+       "quoted": null,
+       "exact": null,
+       "impr": null,
+       "pos_y": null,
+       "pos_g": null,
+       "region": "225",
+       "depth": 0,
+       "src": null,
+       "status": "kept",
+       "reason": null,
+       "reason_stage": null,
+       "route": "info",
+       "page_types": null,
+       "lemma_group": null,
+       "cluster_id": 2,
+       "first_seen": null,
+       "last_update": null,
+       "pos_serp": null,
+       "cluster_soft": null,
+       "cluster_mid": null,
+       "cluster_hard": null,
+       "group_name": null,
+       "subgroup": null,
+       "url": null,
+       "comment": null
+      }
+     ],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "collect",
+       "n_requests": 10,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "seeds"
+      },
+      {
+       "id": 2,
+       "ts": "__ts__",
+       "stage": "cluster",
+       "n_requests": 3,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "serp"
+      },
+      {
+       "id": 3,
+       "ts": "__ts__",
+       "stage": "exact",
+       "n_requests": 0,
+       "cost_rub": null,
+       "cost_arsenkin": 7.5,
+       "note": "task 9"
+      },
+      {
+       "id": 4,
+       "ts": "__ts__",
+       "stage": "report",
+       "n_requests": 0,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "clusters in report=2"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": [
+      {
+       "phrase_norm": "дельта один",
+       "pos": 1,
+       "url": "https://comp1.ru/a",
+       "domain": "comp1.ru",
+       "title": "A",
+       "fetched_at": null
+      },
+      {
+       "phrase_norm": "дельта один",
+       "pos": 2,
+       "url": "https://comp2.ru/b",
+       "domain": "comp2.ru",
+       "title": "B",
+       "fetched_at": null
+      },
+      {
+       "phrase_norm": "дельта два",
+       "pos": 1,
+       "url": "https://comp1.ru/c",
+       "domain": "comp1.ru",
+       "title": "C",
+       "fetched_at": null
+      },
+      {
+       "phrase_norm": "дельта два",
+       "pos": 3,
+       "url": "https://comp1.ru/d",
+       "domain": "comp1.ru",
+       "title": "D",
+       "fetched_at": null
+      },
+      {
+       "phrase_norm": "бета один",
+       "pos": 4,
+       "url": "https://comp3.ru/e",
+       "domain": "comp3.ru",
+       "title": "E",
+       "fetched_at": null
+      },
+      {
+       "phrase_norm": "бета один",
+       "pos": 5,
+       "url": "https://comp3.ru/f",
+       "domain": "comp3.ru",
+       "title": "F",
+       "fetched_at": null
+      },
+      {
+       "phrase_norm": "бета один",
+       "pos": 6,
+       "url": "https://comp1.ru/g",
+       "domain": "comp1.ru",
+       "title": "G",
+       "fetched_at": null
+      }
+     ]
+    },
+    "files": {
+     "report.md": "# Semantic core report — demo\n\nPool: **11** phrases | kept=8 review=1 dropped=1 dead=1 | exact measured=4 | clusters=3\nProvider units: 13 Yandex requests + 7.5 Arsenkin limits (money: `seohead spend-report`)\n\n## Top clusters (by summed exact !W)\n\n| # | Marker | Phrases | Sum !W | Top !W | Coherence | Competitors (top domains) |\n|---|---|---:|---:|---:|---:|---|\n| 1 | топ дельта | 2 | 700 | 500 | 0.83 | comp1.ru(3), comp2.ru(1) |\n| 2 | бета | 4 | 30 | 30 | 0.5 | comp3.ru(2), comp1.ru(1) |\n\n## Kept without a cluster (singleton demand)\n\n- соло точная — !W 50\n- соло широкая — !W ~40\n",
+     "clusters.csv": "﻿marker;phrases;sum_exact;top_exact;coherence;is_real\r\nтоп дельта;2;700;500;0.83;1\r\nбета;4;30;30;0.5;1\r\n"
+    }
+   }
+  },
+  {
+   "name": "empty",
+   "cfg": {
+    "_project": "demo",
+    "exact_cut_exact": 10,
+    "min_base": 20,
+    "_dir": "/var/folders/l4/5gzrn0810797xv_f0xzm8l280000gn/T/report-empty-vogplzc4"
+   },
+   "setup": {
+    "ddl": [],
+    "ops": [],
+    "tables": {}
+   },
+   "providers": {},
+   "args": {},
+   "files": {},
+   "expect": {
+    "result": {
+     "clusters": 0
+    },
+    "tables": {
+     "clusters": [],
+     "domains": [],
+     "edges": [],
+     "expansions": [],
+     "landing_candidates": [],
+     "phrases": [],
+     "runs": [
+      {
+       "id": 1,
+       "ts": "__ts__",
+       "stage": "report",
+       "n_requests": 0,
+       "cost_rub": null,
+       "cost_arsenkin": 0,
+       "note": "clusters in report=0"
+      }
+     ],
+     "semantic_audit": [],
+     "semantic_stage_runs": [],
+     "serp": []
+    },
+    "files": {
+     "report.md": "# Semantic core report — demo\n\nPool: **0** phrases | kept=0 review=0 dropped=0 dead=0 | exact measured=0 | clusters=0\nProvider units: 0 Yandex requests + 0 Arsenkin limits (money: `seohead spend-report`)\n\n## Top clusters (by summed exact !W)\n\n| # | Marker | Phrases | Sum !W | Top !W | Coherence | Competitors (top domains) |\n|---|---|---:|---:|---:|---:|---|\n",
+     "clusters.csv": "﻿marker;phrases;sum_exact;top_exact;coherence;is_real\r\n"
+    }
+   }
+  }
+ ]
+}

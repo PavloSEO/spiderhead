@@ -1,0 +1,12 @@
+{
+ "argv": [
+  "security-check",
+  "--url",
+  "{BASE}/",
+  "--probe-paths"
+ ],
+ "command": "security-check",
+ "exit": 0,
+ "stderr": "seohead: security-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/\",\n  \"final_url\": \"{BASE}/\",\n  \"status_code\": 200,\n  \"score\": 0,\n  \"grade\": \"F\",\n  \"headers_present\": {},\n  \"headers_missing\": [\n    {\n      \"header\": \"strict-transport-security\",\n      \"purpose\": \"forces browsers to use HTTPS\"\n    },\n    {\n      \"header\": \"content-security-policy\",\n      \"purpose\": \"controls allowed script and style sources\"\n    },\n    {\n      \"header\": \"x-content-type-options\",\n      \"purpose\": \"prevents MIME type sniffing\"\n    },\n    {\n      \"header\": \"x-frame-options\",\n      \"purpose\": \"prevents clickjacking, or use frame-ancestors in CSP\"\n    },\n    {\n      \"header\": \"referrer-policy\",\n      \"purpose\": \"limits URL information sent to other sites\"\n    },\n    {\n      \"header\": \"permissions-policy\",\n      \"purpose\": \"controls access to camera, geolocation, and other APIs\"\n    }\n  ],\n  \"version_disclosure\": {\n    \"server\": \"oracle-fixture\"\n  },\n  \"cookies\": [],\n  \"https_redirect\": {\n    \"checked\": true,\n    \"final_url\": \"{BASE}/\",\n    \"upgrades\": false,\n    \"status_code\": 200\n  },\n  \"exposed_paths\": [],\n  \"probed\": true,\n  \"findings\": [\n    \"missing strict-transport-security: forces browsers to use HTTPS\",\n    \"missing content-security-policy: controls allowed script and style sources\",\n    \"missing x-content-type-options: prevents MIME type sniffing\",\n    \"missing x-frame-options: prevents clickjacking, or use frame-ancestors in CSP\",\n    \"missing referrer-policy: limits URL information sent to other sites\",\n    \"missing permissions-policy: controls access to camera, geolocation, and other APIs\",\n    \"http does not redirect to https; some traffic and signals remain unencrypted\"\n  ]\n}\n"
+}

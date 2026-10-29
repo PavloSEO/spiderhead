@@ -1,0 +1,6 @@
+{
+ "command": "scan-url-counts",
+ "exit": 0,
+ "stderr": "seohead: scan-url-counts\n",
+ "stdout": "{\n  \"ok\": true,\n  \"format\": \"spiderhead.scan-url-counts.v1\",\n  \"scan\": \"<WORK>/scan.sqlite\",\n  \"sets\": 1,\n  \"elapsed_ms\": <DURATION>,\n  \"counts\": [\n    {\n      \"filters\": [],\n      \"filtered_total\": 6\n    }\n  ]\n}\n"
+}

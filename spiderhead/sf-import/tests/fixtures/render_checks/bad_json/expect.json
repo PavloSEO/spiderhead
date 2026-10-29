@@ -1,0 +1,50 @@
+{
+ "has_scan": true,
+ "issues": [],
+ "skipped": [
+  {
+   "id": "NOINDEX_ONLY_IN_RAW_HTML",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "NOFOLLOW_ONLY_IN_RAW_HTML",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "CANONICAL_MISMATCH",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "CANONICAL_ONLY_IN_RENDERED_HTML",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "H1_ONLY_IN_RENDERED_HTML",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "H1_UPDATED_BY_JAVASCRIPT",
+   "reason": "retained raw-versus-rendered element comparisons were unavailable"
+  },
+  {
+   "id": "RENDER_RESOURCE_BLOCKED",
+   "reason": "no retained rendered network log was available"
+  }
+ ]
+}

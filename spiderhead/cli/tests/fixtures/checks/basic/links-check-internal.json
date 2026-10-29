@@ -1,0 +1,12 @@
+{
+ "argv": [
+  "links-check",
+  "--url",
+  "{BASE}/",
+  "--internal-only"
+ ],
+ "command": "links-check",
+ "exit": 0,
+ "stderr": "seohead: links-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/\",\n  \"links_found\": 9,\n  \"checked\": 9,\n  \"truncated\": false,\n  \"ok_count\": 8,\n  \"broken\": [\n    {\n      \"href\": \"{BASE}/missing-page.html\",\n      \"status\": 404,\n      \"external\": false\n    }\n  ],\n  \"redirects\": []\n}\n"
+}

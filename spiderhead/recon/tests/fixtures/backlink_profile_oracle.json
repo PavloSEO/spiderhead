@@ -1,0 +1,566 @@
+{
+ "cases": [
+  {
+   "domain": "target.example",
+   "evidence": [
+    {
+     "complete": true,
+     "rows": [
+      {
+       "anchor": "first",
+       "first_seen": "2024-01-01",
+       "last_seen": "2024-05-01",
+       "rel": "nofollow",
+       "source_url": "https://a.example/p1",
+       "target_url": "https://target.example/x"
+      },
+      {
+       "anchor": "second",
+       "first_seen": "2024-02-01",
+       "rel": "ugc",
+       "source_url": "https://a.example/p1",
+       "target_url": "https://target.example/x"
+      },
+      {
+       "anchor": "spam casino bonus",
+       "source_url": "https://b.example/p2",
+       "spam_score": "60",
+       "target_url": "https://target.example/y"
+      },
+      {
+       "anchor": "out of scope",
+       "source_url": "https://c.example/p3",
+       "target_url": "https://other.example/z"
+      }
+     ],
+     "source": "generic"
+    },
+    {
+     "complete": true,
+     "rows": [
+      {
+       "anchor": "third",
+       "dr": "40",
+       "is_lost": "true",
+       "last_seen": "2024-06-01",
+       "source_url": "https://a.example/p1",
+       "target_url": "https://target.example/x"
+      }
+     ],
+     "source": "ahrefs"
+    }
+   ],
+   "expected": {
+    "aggregate_rows": [],
+    "anchors": [
+     {
+      "anchor": "first",
+      "backlinks": 1
+     },
+     {
+      "anchor": "second",
+      "backlinks": 1
+     },
+     {
+      "anchor": "third",
+      "backlinks": 1
+     },
+     {
+      "anchor": "spam casino bonus",
+      "backlinks": 1
+     }
+    ],
+    "coverage": [
+     {
+      "complete": true,
+      "input_rows": 4,
+      "out_of_scope_rows": 1,
+      "rejected_rows": 0,
+      "rows_supplied": true,
+      "scope": "supplied export or provider sample",
+      "source": "generic",
+      "state": "complete",
+      "unknown_targets": 0,
+      "whole_web_complete": false
+     },
+     {
+      "complete": true,
+      "input_rows": 1,
+      "out_of_scope_rows": 0,
+      "rejected_rows": 0,
+      "rows_supplied": true,
+      "scope": "supplied export or provider sample",
+      "source": "ahrefs",
+      "state": "complete",
+      "unknown_targets": 0,
+      "whole_web_complete": false
+     }
+    ],
+    "domain": "target.example",
+    "domain_edges": [],
+    "format": "spiderhead.backlink-profile.v1",
+    "history": null,
+    "observed_at": "2024-07-01T00:00:00.000000+00:00",
+    "ok": true,
+    "pagination": {
+     "has_more": false,
+     "limit": 1000,
+     "offset": 0,
+     "total": 2
+    },
+    "reason": null,
+    "referring_domains": [
+     {
+      "backlinks": 1,
+      "domain": "a.example"
+     },
+     {
+      "backlinks": 1,
+      "domain": "b.example"
+     }
+    ],
+    "rows": [
+     {
+      "anchors": [
+       "first",
+       "second",
+       "third"
+      ],
+      "first_seen": "2024-01-01",
+      "follow": null,
+      "follow_conflict": false,
+      "last_seen": "2024-06-01",
+      "link_types": [
+       "nofollow",
+       "ugc"
+      ],
+      "lost_at": "2024-06-01",
+      "observations": [
+       {
+        "anchor": "first",
+        "first_seen": "2024-01-01",
+        "last_seen": "2024-05-01",
+        "lost_at": null,
+        "metrics": {},
+        "observed_at": "2024-07-01T00:00:00.000000+00:00",
+        "observed_follow": null,
+        "qualification_complete": true,
+        "rel": [
+         "nofollow"
+        ],
+        "rel_complete": true,
+        "source": "generic",
+        "source_url": "https://a.example/p1",
+        "state": "unknown",
+        "target_url": "https://target.example/x"
+       },
+       {
+        "anchor": "second",
+        "first_seen": "2024-02-01",
+        "last_seen": null,
+        "lost_at": null,
+        "metrics": {},
+        "observed_at": "2024-07-01T00:00:00.000000+00:00",
+        "observed_follow": null,
+        "qualification_complete": true,
+        "rel": [
+         "ugc"
+        ],
+        "rel_complete": true,
+        "source": "generic",
+        "source_url": "https://a.example/p1",
+        "state": "unknown",
+        "target_url": "https://target.example/x"
+       },
+       {
+        "anchor": "third",
+        "first_seen": null,
+        "last_seen": "2024-06-01",
+        "lost_at": "2024-06-01",
+        "metrics": {
+         "domain_rating": 40.0
+        },
+        "observed_at": "2024-07-01T00:00:00.000000+00:00",
+        "observed_follow": null,
+        "qualification_complete": false,
+        "rel": null,
+        "rel_complete": false,
+        "source": "ahrefs",
+        "source_url": "https://a.example/p1",
+        "state": "lost",
+        "target_url": "https://target.example/x"
+       }
+      ],
+      "qualification_complete": true,
+      "referring_domain": "a.example",
+      "rel": [
+       "nofollow",
+       "ugc"
+      ],
+      "rel_conflict": true,
+      "source_url": "https://a.example/p1",
+      "sources": [
+       "ahrefs",
+       "generic"
+      ],
+      "spam": {
+       "kind": "review_heuristic",
+       "penalty_evidence": false,
+       "reasons": [],
+       "score": null
+      },
+      "state": "lost",
+      "state_conflict": false,
+      "target_status": null,
+      "target_url": "https://target.example/x",
+      "unknown_rel_observations": 1
+     },
+     {
+      "anchors": [
+       "spam casino bonus"
+      ],
+      "first_seen": null,
+      "follow": null,
+      "follow_conflict": false,
+      "last_seen": null,
+      "link_types": [
+       "unknown"
+      ],
+      "lost_at": null,
+      "observations": [
+       {
+        "anchor": "spam casino bonus",
+        "first_seen": null,
+        "last_seen": null,
+        "lost_at": null,
+        "metrics": {
+         "provider_spam_score": 60.0
+        },
+        "observed_at": "2024-07-01T00:00:00.000000+00:00",
+        "observed_follow": null,
+        "qualification_complete": false,
+        "rel": null,
+        "rel_complete": false,
+        "source": "generic",
+        "source_url": "https://b.example/p2",
+        "state": "unknown",
+        "target_url": "https://target.example/y"
+       }
+      ],
+      "qualification_complete": false,
+      "referring_domain": "b.example",
+      "rel": null,
+      "rel_conflict": false,
+      "source_url": "https://b.example/p2",
+      "sources": [
+       "generic"
+      ],
+      "spam": {
+       "kind": "review_heuristic",
+       "penalty_evidence": false,
+       "reasons": [
+        "provider_reported_spam_score",
+        "spam_topic_anchor_requires_context"
+       ],
+       "score": 90.0
+      },
+      "state": "unknown",
+      "state_conflict": false,
+      "target_status": null,
+      "target_url": "https://target.example/y",
+      "unknown_rel_observations": 1
+     }
+    ],
+    "scope": "explicit source evidence; absent rows do not prove lost links",
+    "state": "complete",
+    "summary": {
+     "backlinks": 2,
+     "link_types": {
+      "nofollow": 1,
+      "ugc": 1,
+      "unknown": 1
+     },
+     "live": 0,
+     "lost": 1,
+     "referring_domains": 2,
+     "target_404": 0,
+     "target_redirect": 0,
+     "unknown_state": 1
+    },
+    "unfiltered_backlinks": 2,
+    "whole_web_complete": false
+   },
+   "name": "dedupe_merge_provenance",
+   "observed_at": "2024-07-01T00:00:00+00:00"
+  },
+  {
+   "domain": "target.example",
+   "evidence": [
+    {
+     "complete": true,
+     "rows": [
+      {
+       "nofollow": "false",
+       "source_url": "https://d.example/",
+       "target_url": "https://target.example/"
+      },
+      {
+       "nofollow": "false",
+       "source_url": "https://e.example/",
+       "sponsored": "false",
+       "target_url": "https://target.example/",
+       "ugc": "false"
+      }
+     ],
+     "source": "generic"
+    }
+   ],
+   "expected": {
+    "aggregate_rows": [],
+    "anchors": [
+     {
+      "anchor": "",
+      "backlinks": 2
+     }
+    ],
+    "coverage": [
+     {
+      "complete": true,
+      "input_rows": 2,
+      "out_of_scope_rows": 0,
+      "rejected_rows": 0,
+      "rows_supplied": true,
+      "scope": "supplied export or provider sample",
+      "source": "generic",
+      "state": "complete",
+      "unknown_targets": 0,
+      "whole_web_complete": false
+     }
+    ],
+    "domain": "target.example",
+    "domain_edges": [],
+    "format": "spiderhead.backlink-profile.v1",
+    "history": null,
+    "observed_at": "2024-07-01T00:00:00.000000+00:00",
+    "ok": true,
+    "pagination": {
+     "has_more": false,
+     "limit": 1000,
+     "offset": 0,
+     "total": 2
+    },
+    "reason": null,
+    "referring_domains": [
+     {
+      "backlinks": 1,
+      "domain": "d.example"
+     },
+     {
+      "backlinks": 1,
+      "domain": "e.example"
+     }
+    ],
+    "rows": [
+     {
+      "anchors": [
+       ""
+      ],
+      "first_seen": null,
+      "follow": null,
+      "follow_conflict": false,
+      "last_seen": null,
+      "link_types": [
+       "unknown"
+      ],
+      "lost_at": null,
+      "observations": [
+       {
+        "anchor": "",
+        "first_seen": null,
+        "last_seen": null,
+        "lost_at": null,
+        "metrics": {},
+        "observed_at": "2024-07-01T00:00:00.000000+00:00",
+        "observed_follow": null,
+        "qualification_complete": false,
+        "rel": null,
+        "rel_complete": false,
+        "source": "generic",
+        "source_url": "https://d.example/",
+        "state": "unknown",
+        "target_url": "https://target.example/"
+       }
+      ],
+      "qualification_complete": false,
+      "referring_domain": "d.example",
+      "rel": null,
+      "rel_conflict": false,
+      "source_url": "https://d.example/",
+      "sources": [
+       "generic"
+      ],
+      "spam": {
+       "kind": "review_heuristic",
+       "penalty_evidence": false,
+       "reasons": [],
+       "score": null
+      },
+      "state": "unknown",
+      "state_conflict": false,
+      "target_status": null,
+      "target_url": "https://target.example/",
+      "unknown_rel_observations": 1
+     },
+     {
+      "anchors": [
+       ""
+      ],
+      "first_seen": null,
+      "follow": true,
+      "follow_conflict": false,
+      "last_seen": null,
+      "link_types": [
+       "normal"
+      ],
+      "lost_at": null,
+      "observations": [
+       {
+        "anchor": "",
+        "first_seen": null,
+        "last_seen": null,
+        "lost_at": null,
+        "metrics": {},
+        "observed_at": "2024-07-01T00:00:00.000000+00:00",
+        "observed_follow": null,
+        "qualification_complete": true,
+        "rel": [],
+        "rel_complete": false,
+        "source": "generic",
+        "source_url": "https://e.example/",
+        "state": "unknown",
+        "target_url": "https://target.example/"
+       }
+      ],
+      "qualification_complete": true,
+      "referring_domain": "e.example",
+      "rel": [],
+      "rel_conflict": false,
+      "source_url": "https://e.example/",
+      "sources": [
+       "generic"
+      ],
+      "spam": {
+       "kind": "review_heuristic",
+       "penalty_evidence": false,
+       "reasons": [],
+       "score": null
+      },
+      "state": "unknown",
+      "state_conflict": false,
+      "target_status": null,
+      "target_url": "https://target.example/",
+      "unknown_rel_observations": 0
+     }
+    ],
+    "scope": "explicit source evidence; absent rows do not prove lost links",
+    "state": "complete",
+    "summary": {
+     "backlinks": 2,
+     "link_types": {
+      "normal": 1,
+      "unknown": 1
+     },
+     "live": 0,
+     "lost": 0,
+     "referring_domains": 2,
+     "target_404": 0,
+     "target_redirect": 0,
+     "unknown_state": 2
+    },
+    "unfiltered_backlinks": 2,
+    "whole_web_complete": false
+   },
+   "name": "partial_negative_flags",
+   "observed_at": "2024-07-01T00:00:00+00:00"
+  },
+  {
+   "domains": [
+    "b.example",
+    "a.example"
+   ],
+   "expected": {
+    "domains": 2,
+    "ok": true,
+    "output": null,
+    "submitted": false,
+    "text": "# Explicit reviewed selection; no search-engine submission was made.\ndomain:a.example\ndomain:b.example\nhttps://x.example/p\nhttps://y.example/\n",
+    "urls": 2
+   },
+   "kind": "disavow",
+   "name": "disavow_sorted",
+   "urls": [
+    "https://x.example/p#frag",
+    "https://y.example/"
+   ]
+  },
+  {
+   "domain": "target.example",
+   "evidence": [
+    {
+     "complete": true,
+     "rows": [],
+     "source": "generic"
+    }
+   ],
+   "expected": {
+    "aggregate_rows": [],
+    "anchors": [],
+    "coverage": [
+     {
+      "complete": true,
+      "input_rows": 0,
+      "out_of_scope_rows": 0,
+      "rejected_rows": 0,
+      "rows_supplied": true,
+      "scope": "supplied export or provider sample",
+      "source": "generic",
+      "state": "complete",
+      "unknown_targets": 0,
+      "whole_web_complete": false
+     }
+    ],
+    "domain": "target.example",
+    "domain_edges": [],
+    "format": "spiderhead.backlink-profile.v1",
+    "history": null,
+    "observed_at": "2024-07-01T00:00:00.000000+00:00",
+    "ok": true,
+    "pagination": {
+     "has_more": false,
+     "limit": 1000,
+     "offset": 0,
+     "total": 0
+    },
+    "reason": null,
+    "referring_domains": [],
+    "rows": [],
+    "scope": "explicit source evidence; absent rows do not prove lost links",
+    "state": "complete",
+    "summary": {
+     "backlinks": 0,
+     "link_types": {},
+     "live": 0,
+     "lost": 0,
+     "referring_domains": 0,
+     "target_404": 0,
+     "target_redirect": 0,
+     "unknown_state": 0
+    },
+    "unfiltered_backlinks": 0,
+    "whole_web_complete": false
+   },
+   "name": "no_evidence_unavailable",
+   "observed_at": "2024-07-01T00:00:00+00:00"
+  }
+ ]
+}

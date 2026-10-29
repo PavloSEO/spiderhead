@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "robots-check",
+  "--url",
+  "{BASE}/"
+ ],
+ "command": "robots-check",
+ "exit": 1,
+ "stderr": "seohead: robots-check\n",
+ "stdout": "{\n  \"ok\": false,\n  \"robots_url\": \"{BASE}/robots.txt\",\n  \"status_code\": 500,\n  \"error\": \"robots.txt returned 500; rules could not be read\"\n}\n"
+}

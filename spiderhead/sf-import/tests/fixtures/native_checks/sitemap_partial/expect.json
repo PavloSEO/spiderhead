@@ -1,0 +1,144 @@
+{
+ "config": {
+  "thresholds": {
+   "sitemap_desync_pct_warn": 20
+  }
+ },
+ "issues": [
+  {
+   "check": "SITEMAP_URL_4XX_5XX",
+   "details": {
+    "evidence_source": "retained_scan",
+    "in_sitemap": true,
+    "reason": "client error",
+    "source_url": "https://example.test/sitemap.xml",
+    "status_code": 404,
+    "target_url": "https://example.test/broken"
+   },
+   "status_code": 404,
+   "target_url": "https://example.test/broken"
+  },
+  {
+   "check": "SITEMAP_FETCH_INCOMPLETE",
+   "details": {
+    "evidence_source": "retained_scan",
+    "reason": "saved sitemap declaration membership is partial"
+   },
+   "status_code": null,
+   "target_url": "https://example.test/"
+  }
+ ],
+ "module": "native_sitemap",
+ "skip_unsupported": {
+  "available": [],
+  "native": [
+   "BODY_MIME_MISMATCH",
+   "BROKEN_INTERNAL_LINK",
+   "CANONICAL_MISMATCH",
+   "CANONICAL_ONLY_IN_RENDERED_HTML",
+   "EXTERNAL_NO_RESPONSE",
+   "H1_ONLY_IN_RENDERED_HTML",
+   "H1_UPDATED_BY_JAVASCRIPT",
+   "HREFLANG_ERROR",
+   "IMG_MISSING_ALT",
+   "IMG_MISSING_DIMENSIONS",
+   "IMG_OVER_KB",
+   "INTERNAL_LINK_NO_ANCHOR",
+   "INTERNAL_LINK_TO_REDIRECT",
+   "LINK_TO_5XX",
+   "META_DESCRIPTION_ONLY_IN_RENDERED_HTML",
+   "META_DESCRIPTION_UPDATED_BY_JAVASCRIPT",
+   "MISSING_HSTS",
+   "MOBILE_CONTENT_OVERFLOW",
+   "MOBILE_TARGET_TOO_SMALL",
+   "MOBILE_TEXT_TOO_SMALL",
+   "NOFOLLOW_ONLY_IN_RAW_HTML",
+   "NOINDEX_ONLY_IN_RAW_HTML",
+   "PAGE_TITLE_ONLY_IN_RENDERED_HTML",
+   "PAGE_TITLE_UPDATED_BY_JAVASCRIPT",
+   "REDIRECT_CHAIN",
+   "REDIRECT_LOOP",
+   "RENDER_RESOURCE_BLOCKED",
+   "SITEMAP_URL_3XX",
+   "SITEMAP_URL_4XX_5XX",
+   "SITEMAP_URL_NON_INDEXABLE"
+  ]
+ },
+ "skipped": [
+  {
+   "id": "PAGINATION_CANONICAL_POLICY",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "FILTER_CANONICAL_POLICY",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "MIXED_CONTENT",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "STRUCTURED_DATA_MISSING",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "HREFLANG_BROKEN_TARGET",
+   "reason": "not measured by this native crawl"
+  },
+  {
+   "id": "SITEMAP_TOO_MANY_URLS",
+   "reason": "retained sitemap membership does not include protocol size or lastmod evidence"
+  },
+  {
+   "id": "SITEMAP_TOO_LARGE",
+   "reason": "retained sitemap membership does not include protocol size or lastmod evidence"
+  },
+  {
+   "id": "SITEMAP_URL_DUPLICATED",
+   "reason": "retained sitemap membership does not include protocol size or lastmod evidence"
+  },
+  {
+   "id": "SITEMAP_STALE_LASTMOD",
+   "reason": "retained sitemap membership does not include protocol size or lastmod evidence"
+  },
+  {
+   "id": "SITEMAP_NOT_IN_ROBOTS",
+   "reason": "no retained fetched robots.txt policy"
+  },
+  {
+   "id": "INTERNALLY_LINKED_ROBOTS_BLOCKED",
+   "reason": "no retained fetched robots.txt policy"
+  },
+  {
+   "id": "ROBOTS_BLOCKS_RESOURCES",
+   "reason": "no retained fetched robots.txt policy or blocked dependency"
+  },
+  {
+   "id": "SITEMAP_URL_BLOCKED_ROBOTS",
+   "reason": "no retained fetched robots.txt policy"
+  },
+  {
+   "id": "SITEMAP_ORPHAN",
+   "reason": "saved sitemap declaration membership is partial"
+  },
+  {
+   "id": "URL_NOT_IN_SITEMAP",
+   "reason": "saved sitemap declaration membership is partial"
+  },
+  {
+   "id": "SITEMAP_DESYNC",
+   "reason": "saved sitemap declaration membership is partial"
+  }
+ ],
+ "summary": {
+  "evidence_source": "retained_scan",
+  "offline": true,
+  "reconciliation_available": false,
+  "reconciliation_reason": "saved sitemap declaration membership is partial",
+  "sitemap_status_unmeasured": 0,
+  "sitemap_url": "https://example.test/sitemap.xml",
+  "sitemap_urls": [
+   "https://example.test/sitemap.xml"
+  ]
+ }
+}

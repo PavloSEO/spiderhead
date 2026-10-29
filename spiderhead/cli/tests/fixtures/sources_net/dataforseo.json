@@ -1,0 +1,1057 @@
+{
+ "group": "dataforseo",
+ "cases": [
+  {
+   "name": "estimate-sandbox",
+   "cli": {
+    "argv": [
+     "dataforseo-estimate",
+     "--operation",
+     "search_volume",
+     "--query-count",
+     "3"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_dataforseo_estimate",
+    "arguments": {
+     "operation": "serp",
+     "query_count": 2,
+     "row_limit": 20
+    }
+   },
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"operation\": \"search_volume\",\n  \"env\": \"sandbox\",\n  \"currency\": \"USD\",\n  \"query_count\": 3,\n  \"cache_hits\": 0,\n  \"cache_basis\": \"caller_declared\",\n  \"billable_queries\": 3,\n  \"row_limit\": 0,\n  \"cost_usd\": 0.0,\n  \"state\": \"complete\",\n  \"reason\": \"sandbox or cached data incurs no new charge\"\n}\n",
+     "stderr": "seohead: dataforseo-estimate\n",
+     "requests": []
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"operation\": \"serp\",\n  \"env\": \"sandbox\",\n  \"currency\": \"USD\",\n  \"query_count\": 2,\n  \"cache_hits\": 0,\n  \"cache_basis\": \"caller_declared\",\n  \"billable_queries\": 2,\n  \"row_limit\": 20,\n  \"cost_usd\": 0.0,\n  \"state\": \"complete\",\n  \"reason\": \"sandbox or cached data incurs no new charge\"\n}",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "estimate-prod-no-prices",
+   "cli": {
+    "argv": [
+     "dataforseo-estimate",
+     "--operation",
+     "keyword_ideas",
+     "--env",
+     "prod",
+     "--row-limit",
+     "100"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"operation\": \"keyword_ideas\",\n  \"env\": \"prod\",\n  \"currency\": \"USD\",\n  \"query_count\": 1,\n  \"cache_hits\": 0,\n  \"cache_basis\": \"caller_declared\",\n  \"billable_queries\": 1,\n  \"row_limit\": 100,\n  \"cost_usd\": null,\n  \"state\": \"unavailable\",\n  \"reason\": \"a current appendix/user_data price snapshot is required\"\n}\n",
+     "stderr": "seohead: dataforseo-estimate\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "estimate-bad-operation",
+   "cli": {
+    "argv": [
+     "dataforseo-estimate",
+     "--operation",
+     "nope"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: dataforseo-estimate\nerror: unsupported DataForSEO operation\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "estimate-cache-hits-too-many",
+   "cli": {
+    "argv": [
+     "dataforseo-estimate",
+     "--operation",
+     "serp",
+     "--query-count",
+     "1",
+     "--cache-hits",
+     "2"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: dataforseo-estimate\nerror: cache_hits cannot exceed query_count\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "estimate-refresh-prices",
+   "cli": {
+    "argv": [
+     "dataforseo-estimate",
+     "--operation",
+     "search_volume",
+     "--env",
+     "prod",
+     "--refresh-prices"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api.dataforseo.com",
+     "method": "GET",
+     "path": "/v3/appendix/user_data",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "result": [
+           {
+            "money": {
+             "balance": 12.5
+            },
+            "rates": {
+             "x": 1
+            },
+            "price": {
+             "keywords_data": {
+              "google_ads": {
+               "search_volume": {
+                "live": {
+                 "cost_type": "per_task",
+                 "cost": 0.075
+                }
+               }
+              }
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"operation\": \"search_volume\",\n  \"env\": \"prod\",\n  \"currency\": \"USD\",\n  \"query_count\": 1,\n  \"cache_hits\": 0,\n  \"cache_basis\": \"caller_declared\",\n  \"billable_queries\": 1,\n  \"row_limit\": 0,\n  \"cost_usd\": null,\n  \"state\": \"unavailable\",\n  \"reason\": \"a current appendix/user_data price snapshot is required\"\n}\n",
+     "stderr": "seohead: dataforseo-estimate\n",
+     "requests": [
+      {
+       "host": "api.dataforseo.com",
+       "method": "GET",
+       "path": "/v3/appendix/user_data",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "estimate-refresh-prices-rejected",
+   "cli": {
+    "argv": [
+     "dataforseo-estimate",
+     "--operation",
+     "search_volume",
+     "--refresh-prices"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "sandbox.dataforseo.com",
+     "method": "GET",
+     "path": "/v3/appendix/user_data",
+     "responses": [
+      {
+       "status": 401,
+       "body": "no"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"state\": \"unavailable\",\n  \"reason\": \"free account price lookup failed\",\n  \"error\": \"DataForSEO 401: account metadata request was rejected\"\n}\n",
+     "stderr": "seohead: dataforseo-estimate\n",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "GET",
+       "path": "/v3/appendix/user_data",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "keywords-volume",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--keywords",
+     "seo audit,site audit"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_google_keywords",
+    "arguments": {
+     "keywords": [
+      "seo audit",
+      "site audit"
+     ],
+     "language": "en"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "sandbox.dataforseo.com",
+     "method": "POST",
+     "path": "/v3/keywords_data/google_ads/search_volume/live",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "status_message": "Ok.",
+        "cost": 0.05,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "result": [
+           {
+            "keyword": "seo audit",
+            "search_volume": 1900,
+            "cpc": 2.1,
+            "competition": "LOW"
+           },
+           {
+            "keyword": "site audit",
+            "search_volume": 880,
+            "cpc": 1.4,
+            "competition": "MEDIUM"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"cost_usd\": 0.05,\n  \"errors\": [],\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit\",\n      \"volume\": 1900,\n      \"cpc\": 2.1,\n      \"competition\": \"LOW\"\n    },\n    {\n      \"phrase\": \"site audit\",\n      \"volume\": 880,\n      \"cpc\": 1.4,\n      \"competition\": \"MEDIUM\"\n    }\n  ]\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/keywords_data/google_ads/search_volume/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit\", \"site audit\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"cost_usd\": 0.05,\n  \"errors\": [],\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit\",\n      \"volume\": 1900,\n      \"cpc\": 2.1,\n      \"competition\": \"LOW\"\n    },\n    {\n      \"phrase\": \"site audit\",\n      \"volume\": 880,\n      \"cpc\": 1.4,\n      \"competition\": \"MEDIUM\"\n    }\n  ]\n}",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/keywords_data/google_ads/search_volume/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit\", \"site audit\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "keywords-ideas",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--seed",
+     "seo audit",
+     "--limit",
+     "5"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "sandbox.dataforseo.com",
+     "method": "POST",
+     "path": "/v3/dataforseo_labs/google/keyword_ideas/live",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "status_message": "Ok.",
+        "cost": 0.0123,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "status_message": "Ok.",
+          "result": [
+           {
+            "items": [
+             {
+              "keyword": "seo audit tool",
+              "keyword_info": {
+               "search_volume": 720
+              },
+              "keyword_properties": {
+               "keyword_difficulty": 41
+              }
+             },
+             {
+              "keyword": "free seo audit",
+              "keyword_info": {
+               "search_volume": 5400
+              },
+              "keyword_properties": {
+               "keyword_difficulty": 63
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"seed\": \"seo audit\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"found\": 2,\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit tool\",\n      \"volume\": 720,\n      \"difficulty\": 41\n    },\n    {\n      \"phrase\": \"free seo audit\",\n      \"volume\": 5400,\n      \"difficulty\": 63\n    }\n  ]\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/dataforseo_labs/google/keyword_ideas/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit\"], \"location_code\": 2840, \"language_code\": \"en\", \"limit\": 5}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "keywords-ideas-difficulty",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--seed",
+     "seo audit",
+     "--difficulty"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_google_keywords",
+    "arguments": {
+     "seed": "seo audit",
+     "difficulty": true
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "sandbox.dataforseo.com",
+     "method": "POST",
+     "path": "/v3/dataforseo_labs/google/keyword_ideas/live",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "status_message": "Ok.",
+        "cost": 0.0123,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "status_message": "Ok.",
+          "result": [
+           {
+            "items": [
+             {
+              "keyword": "seo audit tool",
+              "keyword_info": {
+               "search_volume": 720
+              },
+              "keyword_properties": {
+               "keyword_difficulty": 41
+              }
+             },
+             {
+              "keyword": "free seo audit",
+              "keyword_info": {
+               "search_volume": 5400
+              },
+              "keyword_properties": {
+               "keyword_difficulty": 63
+              }
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "sandbox.dataforseo.com",
+     "method": "POST",
+     "path": "/v3/dataforseo_labs/google/bulk_keyword_difficulty/live",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "status_message": "Ok.",
+        "cost": 0.0123,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "status_message": "Ok.",
+          "result": [
+           {
+            "items": [
+             {
+              "keyword": "seo audit tool",
+              "keyword_difficulty": 40
+             },
+             {
+              "keyword": "free seo audit",
+              "keyword_difficulty": 66
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"seed\": \"seo audit\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"found\": 2,\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit tool\",\n      \"volume\": 720,\n      \"difficulty\": 41\n    },\n    {\n      \"phrase\": \"free seo audit\",\n      \"volume\": 5400,\n      \"difficulty\": 63\n    }\n  ],\n  \"difficulty\": {\n    \"ok\": true,\n    \"env\": \"sandbox\",\n    \"cost_usd\": 0.0123,\n    \"errors\": [],\n    \"keywords\": [\n      {\n        \"phrase\": \"seo audit tool\",\n        \"difficulty\": 40\n      },\n      {\n        \"phrase\": \"free seo audit\",\n        \"difficulty\": 66\n      }\n    ]\n  }\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/dataforseo_labs/google/keyword_ideas/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit\"], \"location_code\": 2840, \"language_code\": \"en\", \"limit\": 100}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/dataforseo_labs/google/bulk_keyword_difficulty/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit tool\", \"free seo audit\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"seed\": \"seo audit\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"found\": 2,\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit tool\",\n      \"volume\": 720,\n      \"difficulty\": 41\n    },\n    {\n      \"phrase\": \"free seo audit\",\n      \"volume\": 5400,\n      \"difficulty\": 63\n    }\n  ],\n  \"difficulty\": {\n    \"ok\": true,\n    \"env\": \"sandbox\",\n    \"cost_usd\": 0.0123,\n    \"errors\": [],\n    \"keywords\": [\n      {\n        \"phrase\": \"seo audit tool\",\n        \"difficulty\": 40\n      },\n      {\n        \"phrase\": \"free seo audit\",\n        \"difficulty\": 66\n      }\n    ]\n  }\n}",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/dataforseo_labs/google/keyword_ideas/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit\"], \"location_code\": 2840, \"language_code\": \"en\", \"limit\": 100}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      },
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/dataforseo_labs/google/bulk_keyword_difficulty/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit tool\", \"free seo audit\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "keywords-difficulty",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--keywords",
+     "seo audit",
+     "--difficulty"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "sandbox.dataforseo.com",
+     "method": "POST",
+     "path": "/v3/dataforseo_labs/google/bulk_keyword_difficulty/live",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "status_message": "Ok.",
+        "cost": 0.0123,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "status_message": "Ok.",
+          "result": [
+           {
+            "items": [
+             {
+              "keyword": "seo audit tool",
+              "keyword_difficulty": 40
+             },
+             {
+              "keyword": "free seo audit",
+              "keyword_difficulty": 66
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit tool\",\n      \"difficulty\": 40\n    },\n    {\n      \"phrase\": \"free seo audit\",\n      \"difficulty\": 66\n    }\n  ]\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/dataforseo_labs/google/bulk_keyword_difficulty/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "keywords-ru-blocked",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--keywords",
+     "seo",
+     "--location-code",
+     "2643"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"unsupported_geo\": \"RU\",\n  \"error\": \"DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP\",\n  \"use_instead\": [\n    \"Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)\",\n    \"Arsenkin for exact !W volume and SERP clustering (keywords-exact)\",\n    \"Yandex SERP via serp-fetch\"\n  ]\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "keywords-needs-input",
+   "cli": {
+    "argv": [
+     "google-keywords"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: google-keywords\nerror: keywords or seed required\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "keywords-provider-error",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--keywords",
+     "seo"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "sandbox.dataforseo.com",
+     "method": "POST",
+     "path": "/v3/keywords_data/google_ads/search_volume/live",
+     "responses": [
+      {
+       "status": 401,
+       "body": "denied"
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"error\": \"denied\",\n  \"status\": 401\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/keywords_data/google_ads/search_volume/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "keywords-no-credential",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--keywords",
+     "seo"
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"state\": \"not_configured\",\n  \"error\": \"credential not found: store it in <WORK>/.config/dataforseo/login or set $DATAFORSEO_LOGIN\"\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "keywords-ceiling-unpriced",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--seed",
+     "seo audit",
+     "--difficulty",
+     "--spend-ceiling-usd",
+     "1"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"error\": \"{\\\"error\\\":\\\"no route\\\"}\",\n  \"status\": 404\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/dataforseo_labs/google/keyword_ideas/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit\"], \"location_code\": 2840, \"language_code\": \"en\", \"limit\": 100}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       },
+       "unmatched": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "keywords-prod-needs-confirm",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--keywords",
+     "seo",
+     "--env",
+     "prod"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "{\n  \"ok\": false,\n  \"state\": \"confirmation_required\",\n  \"operation\": \"search_volume\",\n  \"error\": \"search_volume is paid and requires confirm_paid=true\",\n  \"estimate\": {\n    \"operation\": \"search_volume\",\n    \"env\": \"prod\",\n    \"currency\": \"USD\",\n    \"query_count\": 1,\n    \"cache_hits\": 0,\n    \"cache_basis\": \"caller_declared\",\n    \"billable_queries\": 1,\n    \"row_limit\": 1,\n    \"cost_usd\": null,\n    \"state\": \"unavailable\",\n    \"reason\": \"a current appendix/user_data price snapshot is required\"\n  }\n}\n",
+     "stderr": "seohead: google-keywords\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "serp-ok",
+   "cli": {
+    "argv": [
+     "google-serp",
+     "--query",
+     "seo audit",
+     "--depth",
+     "20"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_google_serp",
+    "arguments": {
+     "query": "seo audit"
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "sandbox.dataforseo.com",
+     "method": "POST",
+     "path": "/v3/serp/google/organic/live/advanced",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "status_message": "Ok.",
+        "cost": 0.0123,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "status_message": "Ok.",
+          "result": [
+           {
+            "items": [
+             {
+              "type": "organic",
+              "rank_absolute": 1,
+              "url": "https://example.test/a",
+              "domain": "example.test",
+              "title": "First",
+              "description": "d1"
+             },
+             {
+              "type": "paid",
+              "rank_absolute": 2,
+              "url": "https://ads.test/",
+              "domain": "ads.test",
+              "title": "Ad"
+             },
+             {
+              "type": "organic",
+              "rank_absolute": 3,
+              "url": "https://example.test/b",
+              "domain": "example.test",
+              "title": "Third",
+              "description": "d3"
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"query\": \"seo audit\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"docs\": [\n    {\n      \"pos\": 1,\n      \"url\": \"https://example.test/a\",\n      \"domain\": \"example.test\",\n      \"title\": \"First\"\n    },\n    {\n      \"pos\": 3,\n      \"url\": \"https://example.test/b\",\n      \"domain\": \"example.test\",\n      \"title\": \"Third\"\n    }\n  ]\n}\n",
+     "stderr": "seohead: google-serp\n",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/serp/google/organic/live/advanced",
+       "query": "",
+       "body": "[{\"keyword\": \"seo audit\", \"location_code\": 2840, \"language_code\": \"en\", \"depth\": 20}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"query\": \"seo audit\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"docs\": [\n    {\n      \"pos\": 1,\n      \"url\": \"https://example.test/a\",\n      \"domain\": \"example.test\",\n      \"title\": \"First\"\n    },\n    {\n      \"pos\": 3,\n      \"url\": \"https://example.test/b\",\n      \"domain\": \"example.test\",\n      \"title\": \"Third\"\n    }\n  ]\n}",
+     "requests": [
+      {
+       "host": "sandbox.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/serp/google/organic/live/advanced",
+       "query": "",
+       "body": "[{\"keyword\": \"seo audit\", \"location_code\": 2840, \"language_code\": \"en\", \"depth\": 10}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "serp-bad-depth",
+   "cli": {
+    "argv": [
+     "google-serp",
+     "--query",
+     "seo",
+     "--depth",
+     "500"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: google-serp\nerror: depth must be between 1 and 200\n",
+     "requests": []
+    }
+   }
+  },
+  {
+   "name": "serp-no-query",
+   "cli": {
+    "argv": [
+     "google-serp",
+     "--query",
+     ""
+    ]
+   },
+   "expect": {
+    "cli": {
+     "exit": 1,
+     "stdout": "",
+     "stderr": "seohead: google-serp\nerror: query required\n",
+     "requests": []
+    }
+   }
+  }
+ ]
+}

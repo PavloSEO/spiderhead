@@ -1,0 +1,859 @@
+{
+ "cases": {
+  "export.export": {
+   "argv": [
+    "project-export",
+    "--directory",
+    "{WORK}/exp",
+    "--dataset",
+    "tasks",
+    "--format",
+    "json",
+    "--output",
+    "tasks-export.json"
+   ],
+   "chain": "export",
+   "exit": 1,
+   "stderr": "seohead: project-export\n",
+   "stdout": "{\n  \"compare_manifest\": null,\n  \"created_at\": \"<TS>\",\n  \"dataset\": \"tasks\",\n  \"finished_at\": \"<TS>\",\n  \"format\": \"json\",\n  \"history_state\": \"not_recorded\",\n  \"job_id\": \"<UUID:11>\",\n  \"ok\": false,\n  \"output\": \"tasks-export.json\",\n  \"phase\": \"complete\",\n  \"processed_rows\": 0,\n  \"project_uuid\": \"<UUID:10>\",\n  \"reason\": \"ProjectExportError: initialize the project checklist before exporting tasks\",\n  \"record_format\": \"spiderhead.project-export-job.v1\",\n  \"result\": null,\n  \"started_at\": \"<TS>\",\n  \"state\": \"failed\",\n  \"total_rows\": null,\n  \"updated_at\": \"<TS>\"\n}",
+   "step": 1
+  },
+  "export.new": {
+   "argv": [
+    "project-new",
+    "--directory",
+    "{WORK}/exp",
+    "--target",
+    "https://example.org",
+    "--label",
+    "Exp"
+   ],
+   "chain": "export",
+   "exit": 0,
+   "stderr": "seohead: project-new\n",
+   "stdout": "{\n  \"checklist\": {\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\",\n    \"state\": \"not_initialized\"\n  },\n  \"ok\": true,\n  \"path\": \"<WORK>/exp\",\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:10>\",\n    \"settings_revision\": 0,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Exp\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1\n  }\n}",
+   "step": 0
+  },
+  "export.page": {
+   "argv": [
+    "project-exports-page",
+    "--directory",
+    "{WORK}/exp"
+   ],
+   "chain": "export",
+   "exit": 0,
+   "stderr": "seohead: project-exports-page\n",
+   "stdout": "{\n  \"items\": [],\n  \"ok\": true,\n  \"pagination\": {\n    \"limit\": 50,\n    \"next_offset\": null,\n    \"offset\": 0,\n    \"previous_offset\": null,\n    \"total\": 0\n  },\n  \"revision\": 0\n}",
+   "step": 3
+  },
+  "export.status": {
+   "argv": [
+    "project-export-status",
+    "--directory",
+    "{WORK}/exp",
+    "--job-id",
+    "{{1:/job_id}}"
+   ],
+   "chain": "export",
+   "exit": 0,
+   "stderr": "seohead: project-export-status\n",
+   "stdout": "{\n  \"compare_manifest\": null,\n  \"created_at\": \"<TS>\",\n  \"dataset\": \"tasks\",\n  \"finished_at\": \"<TS>\",\n  \"format\": \"json\",\n  \"history_state\": \"not_recorded\",\n  \"job_id\": \"<UUID:11>\",\n  \"ok\": true,\n  \"output\": \"tasks-export.json\",\n  \"phase\": \"complete\",\n  \"processed_rows\": 0,\n  \"project_uuid\": \"<UUID:10>\",\n  \"reason\": \"ProjectExportError: initialize the project checklist before exporting tasks\",\n  \"record_format\": \"spiderhead.project-export-job.v1\",\n  \"recoverable\": false,\n  \"result\": null,\n  \"started_at\": \"<TS>\",\n  \"state\": \"failed\",\n  \"total_rows\": null,\n  \"updated_at\": \"<TS>\"\n}",
+   "step": 2
+  },
+  "export.status-bad": {
+   "argv": [
+    "project-export-status",
+    "--directory",
+    "{WORK}/exp",
+    "--job-id",
+    "not-a-uuid"
+   ],
+   "chain": "export",
+   "exit": 1,
+   "stderr": "seohead: project-export-status\nerror: job_id must be a UUID, as returned by project-export; got 'not-a-uuid'\n",
+   "stdout": "",
+   "step": 4
+  },
+  "inbox.acknowledge": {
+   "argv": [
+    "project-inbox-acknowledge",
+    "--directory",
+    "{WORK}/inbox",
+    "--consumer",
+    "owner",
+    "--entry-ids",
+    "{{2:/entry/id}},{{3:/entry/id}}"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-acknowledge\n",
+   "stdout": "{\n  \"entries\": [\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": \"<TS>\",\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": \"proposed\",\n      \"id\": \"inbox:<UUID:3>\",\n      \"kind\": \"proposed_goal\",\n      \"read_at\": \"<TS>\",\n      \"references\": [\n        \"task:titles\",\n        \"task:pagination\"\n      ],\n      \"text\": \"Fix pagination indexing\",\n      \"triage\": []\n    },\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": \"<TS>\",\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": null,\n      \"id\": \"inbox:<UUID:4>\",\n      \"kind\": \"question\",\n      \"read_at\": \"<TS>\",\n      \"references\": [],\n      \"text\": \"Which locale wins for /de/?\",\n      \"triage\": []\n    }\n  ],\n  \"ok\": true,\n  \"revision\": 5\n}",
+   "step": 6
+  },
+  "inbox.action-log": {
+   "argv": [
+    "project-action-log",
+    "--directory",
+    "{WORK}/inbox",
+    "--limit",
+    "20"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-action-log\n",
+   "stdout": "{\n  \"items\": [\n    {\n      \"action\": \"project.goal.completed\",\n      \"client\": \"cli\",\n      \"detail\": \"Updated owner goal state to completed\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"applied\",\n      \"proposal_id\": null,\n      \"sequence\": 7\n    },\n    {\n      \"action\": \"project.goal.completed\",\n      \"client\": \"cli\",\n      \"detail\": \"entry_id=inbox:<UUID:3>\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"applied\",\n      \"proposal_id\": null,\n      \"sequence\": 6\n    },\n    {\n      \"action\": \"project.goal.accepted\",\n      \"client\": \"cli\",\n      \"detail\": \"Updated owner goal state to accepted\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"applied\",\n      \"proposal_id\": null,\n      \"sequence\": 5\n    },\n    {\n      \"action\": \"project.goal.accepted\",\n      \"client\": \"cli\",\n      \"detail\": \"entry_id=inbox:<UUID:3>\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"applied\",\n      \"proposal_id\": null,\n      \"sequence\": 4\n    },\n    {\n      \"action\": \"project.inbox.submit\",\n      \"client\": \"cli\",\n      \"detail\": \"Recorded project inbox question\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"applied\",\n      \"proposal_id\": null,\n      \"sequence\": 3\n    },\n    {\n      \"action\": \"project.inbox.submit\",\n      \"client\": \"cli\",\n      \"detail\": \"Recorded project inbox proposed_goal\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"pending\",\n      \"proposal_id\": null,\n      \"sequence\": 2\n    },\n    {\n      \"action\": \"project.inbox.submit\",\n      \"client\": \"cli\",\n      \"detail\": \"Recorded project inbox note\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"applied\",\n      \"proposal_id\": null,\n      \"sequence\": 1\n    }\n  ],\n  \"ok\": true,\n  \"pagination\": {\n    \"limit\": 20,\n    \"next_offset\": null,\n    \"offset\": 0,\n    \"total\": 7\n  },\n  \"revision\": 7,\n  \"total\": 7\n}",
+   "step": 12
+  },
+  "inbox.goal-accept": {
+   "argv": [
+    "project-inbox-goal",
+    "--directory",
+    "{WORK}/inbox",
+    "--entry-id",
+    "{{2:/entry/id}}",
+    "--state",
+    "accepted"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-goal\n",
+   "stdout": "{\n  \"entry\": {\n    \"accepted_at\": \"<TS>\",\n    \"author_role\": \"specialist\",\n    \"completed_at\": null,\n    \"created_at\": \"<TS>\",\n    \"goal_state\": \"accepted\",\n    \"id\": \"inbox:<UUID:3>\",\n    \"kind\": \"proposed_goal\",\n    \"references\": [\n      \"task:titles\",\n      \"task:pagination\"\n    ],\n    \"text\": \"Fix pagination indexing\",\n    \"triage\": []\n  },\n  \"ok\": true,\n  \"revision\": 6\n}",
+   "step": 7
+  },
+  "inbox.goal-complete": {
+   "argv": [
+    "project-inbox-goal",
+    "--directory",
+    "{WORK}/inbox",
+    "--entry-id",
+    "{{2:/entry/id}}",
+    "--state",
+    "completed"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-goal\n",
+   "stdout": "{\n  \"entry\": {\n    \"accepted_at\": \"<TS>\",\n    \"author_role\": \"specialist\",\n    \"completed_at\": \"<TS>\",\n    \"created_at\": \"<TS>\",\n    \"goal_state\": \"completed\",\n    \"id\": \"inbox:<UUID:3>\",\n    \"kind\": \"proposed_goal\",\n    \"references\": [\n      \"task:titles\",\n      \"task:pagination\"\n    ],\n    \"text\": \"Fix pagination indexing\",\n    \"triage\": []\n  },\n  \"ok\": true,\n  \"revision\": 7\n}",
+   "step": 8
+  },
+  "inbox.list": {
+   "argv": [
+    "project-inbox-list",
+    "--directory",
+    "{WORK}/inbox",
+    "--consumer",
+    "owner"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-list\n",
+   "stdout": "{\n  \"entries\": [\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": null,\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": null,\n      \"id\": \"inbox:<UUID:2>\",\n      \"kind\": \"note\",\n      \"read_at\": null,\n      \"references\": [],\n      \"text\": \"Check the title tags on money pages\",\n      \"triage\": []\n    },\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": null,\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": \"proposed\",\n      \"id\": \"inbox:<UUID:3>\",\n      \"kind\": \"proposed_goal\",\n      \"read_at\": null,\n      \"references\": [\n        \"task:titles\",\n        \"task:pagination\"\n      ],\n      \"text\": \"Fix pagination indexing\",\n      \"triage\": []\n    },\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": null,\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": null,\n      \"id\": \"inbox:<UUID:4>\",\n      \"kind\": \"question\",\n      \"read_at\": null,\n      \"references\": [],\n      \"text\": \"Which locale wins for /de/?\",\n      \"triage\": []\n    }\n  ],\n  \"ok\": true,\n  \"pagination\": {\n    \"limit\": 20,\n    \"next_offset\": null,\n    \"offset\": 0,\n    \"total\": 3\n  },\n  \"revision\": 3\n}",
+   "step": 4
+  },
+  "inbox.list-filtered": {
+   "argv": [
+    "project-inbox-list",
+    "--directory",
+    "{WORK}/inbox",
+    "--consumer",
+    "owner",
+    "--unacknowledged-only"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-list\n",
+   "stdout": "{\n  \"entries\": [\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": null,\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": null,\n      \"id\": \"inbox:<UUID:2>\",\n      \"kind\": \"note\",\n      \"read_at\": \"<TS>\",\n      \"references\": [],\n      \"text\": \"Check the title tags on money pages\",\n      \"triage\": [\n        {\n          \"actor\": \"owner\",\n          \"kind\": \"rejected\",\n          \"reason\": \"answered live in the call\",\n          \"recorded_at\": \"<TS>\"\n        }\n      ]\n    }\n  ],\n  \"ok\": true,\n  \"pagination\": {\n    \"limit\": 20,\n    \"next_offset\": null,\n    \"offset\": 0,\n    \"total\": 1\n  },\n  \"revision\": 8\n}",
+   "step": 11
+  },
+  "inbox.new": {
+   "argv": [
+    "project-new",
+    "--directory",
+    "{WORK}/inbox",
+    "--target",
+    "https://example.org",
+    "--label",
+    "Inbox"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-new\n",
+   "stdout": "{\n  \"checklist\": {\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\",\n    \"state\": \"not_initialized\"\n  },\n  \"ok\": true,\n  \"path\": \"<WORK>/inbox\",\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"settings_revision\": 0,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Inbox\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1\n  }\n}",
+   "step": 0
+  },
+  "inbox.read": {
+   "argv": [
+    "project-inbox-read",
+    "--directory",
+    "{WORK}/inbox",
+    "--consumer",
+    "owner",
+    "--entry-ids",
+    "{{1:/entry/id}}"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-read\n",
+   "stdout": "{\n  \"entries\": [\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": null,\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": null,\n      \"id\": \"inbox:<UUID:2>\",\n      \"kind\": \"note\",\n      \"read_at\": \"<TS>\",\n      \"references\": [],\n      \"text\": \"Check the title tags on money pages\",\n      \"triage\": []\n    }\n  ],\n  \"ok\": true,\n  \"revision\": 4\n}",
+   "step": 5
+  },
+  "inbox.submit-goal": {
+   "argv": [
+    "project-inbox-submit",
+    "--directory",
+    "{WORK}/inbox",
+    "--text",
+    "Fix pagination indexing",
+    "--kind",
+    "proposed_goal",
+    "--references",
+    "task:titles,task:pagination"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-submit\n",
+   "stdout": "{\n  \"entry\": {\n    \"accepted_at\": null,\n    \"author_role\": \"specialist\",\n    \"completed_at\": null,\n    \"created_at\": \"<TS>\",\n    \"goal_state\": \"proposed\",\n    \"id\": \"inbox:<UUID:3>\",\n    \"kind\": \"proposed_goal\",\n    \"references\": [\n      \"task:titles\",\n      \"task:pagination\"\n    ],\n    \"text\": \"Fix pagination indexing\",\n    \"triage\": []\n  },\n  \"ok\": true,\n  \"revision\": 2\n}",
+   "step": 2
+  },
+  "inbox.submit-note": {
+   "argv": [
+    "project-inbox-submit",
+    "--directory",
+    "{WORK}/inbox",
+    "--text",
+    "Check the title tags on money pages",
+    "--kind",
+    "note"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-submit\n",
+   "stdout": "{\n  \"entry\": {\n    \"accepted_at\": null,\n    \"author_role\": \"specialist\",\n    \"completed_at\": null,\n    \"created_at\": \"<TS>\",\n    \"goal_state\": null,\n    \"id\": \"inbox:<UUID:2>\",\n    \"kind\": \"note\",\n    \"references\": [],\n    \"text\": \"Check the title tags on money pages\",\n    \"triage\": []\n  },\n  \"ok\": true,\n  \"revision\": 1\n}",
+   "step": 1
+  },
+  "inbox.submit-question": {
+   "argv": [
+    "project-inbox-submit",
+    "--directory",
+    "{WORK}/inbox",
+    "--text",
+    "Which locale wins for /de/?",
+    "--kind",
+    "question"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-submit\n",
+   "stdout": "{\n  \"entry\": {\n    \"accepted_at\": null,\n    \"author_role\": \"specialist\",\n    \"completed_at\": null,\n    \"created_at\": \"<TS>\",\n    \"goal_state\": null,\n    \"id\": \"inbox:<UUID:4>\",\n    \"kind\": \"question\",\n    \"references\": [],\n    \"text\": \"Which locale wins for /de/?\",\n    \"triage\": []\n  },\n  \"ok\": true,\n  \"revision\": 3\n}",
+   "step": 3
+  },
+  "inbox.triage": {
+   "argv": [
+    "project-inbox-triage",
+    "--directory",
+    "{WORK}/inbox",
+    "--input",
+    "{\"entry_id\": \"{{1:/entry/id}}\", \"outcome\": {\"kind\": \"rejected\", \"reason\": \"answered live in the call\"}, \"actor\": \"owner\"}"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-triage\n",
+   "stdout": "{\n  \"entry\": {\n    \"accepted_at\": null,\n    \"author_role\": \"specialist\",\n    \"completed_at\": null,\n    \"created_at\": \"<TS>\",\n    \"goal_state\": null,\n    \"id\": \"inbox:<UUID:2>\",\n    \"kind\": \"note\",\n    \"references\": [],\n    \"text\": \"Check the title tags on money pages\",\n    \"triage\": [\n      {\n        \"actor\": \"owner\",\n        \"kind\": \"rejected\",\n        \"reason\": \"answered live in the call\",\n        \"recorded_at\": \"<TS>\"\n      }\n    ]\n  },\n  \"ok\": true,\n  \"revision\": 8\n}",
+   "step": 9
+  },
+  "inbox.unread": {
+   "argv": [
+    "project-inbox-unread",
+    "--directory",
+    "{WORK}/inbox",
+    "--consumer",
+    "owner"
+   ],
+   "chain": "inbox",
+   "exit": 0,
+   "stderr": "seohead: project-inbox-unread\n",
+   "stdout": "{\n  \"count\": 1,\n  \"entries\": [\n    {\n      \"id\": \"inbox:<UUID:2>\",\n      \"kind\": \"note\",\n      \"references\": []\n    }\n  ],\n  \"truncated\": false\n}",
+   "step": 10
+  },
+  "monitor.collect-preview": {
+   "argv": [
+    "monitor-collect",
+    "--directory",
+    "{WORK}/mon",
+    "--expected-revision",
+    "{{5:/revision}}"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-collect\n",
+   "stdout": "{\n  \"applied\": false,\n  \"ok\": true,\n  \"preview\": {\n    \"claim_id\": \"monitor:<UUID:6>\",\n    \"dispatched_urls\": [],\n    \"expired\": false,\n    \"lease_expires_at\": \"<TS>\",\n    \"plan\": {\n      \"interval_seconds\": 3600,\n      \"mode\": \"incremental\",\n      \"next_due_at\": \"<TS>\",\n      \"planned_urls\": [\n        \"https://example.org/\"\n      ],\n      \"reason\": \"bounded incremental refresh\",\n      \"render_request_budget\": 0,\n      \"request_budget\": 10,\n      \"state\": \"due\",\n      \"url_limit\": 1\n    },\n    \"remaining_urls\": [\n      \"https://example.org/\"\n    ]\n  },\n  \"revision\": 3\n}",
+   "step": 6
+  },
+  "monitor.configure": {
+   "argv": [
+    "monitor-configure",
+    "--directory",
+    "{WORK}/mon",
+    "--input",
+    "{\"policy\": {\"enabled\": true, \"urls\": [\"https://example.org/\"], \"max_urls\": 1, \"max_requests\": 10, \"full_refresh_every\": 3}}"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-configure\n",
+   "stdout": "{\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"full\",\n    \"next_due_at\": null,\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"periodic full coverage refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"ok\": true,\n  \"policy\": {\n    \"enabled\": true,\n    \"full_refresh_every\": 3,\n    \"interval_seconds\": 3600,\n    \"max_render_requests\": 0,\n    \"max_requests\": 10,\n    \"max_urls\": 1,\n    \"severity_threshold\": \"warning\",\n    \"suppression_runs\": 1,\n    \"urls\": [\n      \"https://example.org/\"\n    ]\n  },\n  \"revision\": 1,\n  \"state\": \"configured_not_scheduled\"\n}",
+   "step": 2
+  },
+  "monitor.local-deliver": {
+   "argv": [
+    "monitor-local-deliver",
+    "--directory",
+    "{WORK}/mon",
+    "--scan-id",
+    "manual-1",
+    "--expected-revision",
+    "{{5:/revision}}"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-local-deliver\n",
+   "stdout": "{\n  \"delivery\": \"quiet\",\n  \"ok\": true,\n  \"receipts\": [],\n  \"revision\": 3\n}",
+   "step": 7
+  },
+  "monitor.new": {
+   "argv": [
+    "project-new",
+    "--directory",
+    "{WORK}/mon",
+    "--target",
+    "https://example.org",
+    "--label",
+    "Mon"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: project-new\n",
+   "stdout": "{\n  \"checklist\": {\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\",\n    \"state\": \"not_initialized\"\n  },\n  \"ok\": true,\n  \"path\": \"<WORK>/mon\",\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:5>\",\n    \"settings_revision\": 0,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Mon\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1\n  }\n}",
+   "step": 0
+  },
+  "monitor.run": {
+   "argv": [
+    "monitor-run",
+    "--directory",
+    "{WORK}/mon",
+    "--input",
+    "{\"scan_id\": \"manual-1\", \"expected_revision\": {{3:/revision}}, \"observations\": [{\"url\": \"https://example.org/\", \"changes\": []}]}"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-run\n",
+   "stdout": "{\n  \"coverage\": {\n    \"complete\": true,\n    \"failed_count\": 0,\n    \"failures\": [],\n    \"fresh_count\": 1,\n    \"observed_url_count\": 1,\n    \"partial_count\": 0,\n    \"planned_url_count\": 1,\n    \"revalidated_count\": 0,\n    \"stale_count\": 0,\n    \"unavailable_count\": 0,\n    \"unobserved_url_count\": 0,\n    \"unobserved_urls\": []\n  },\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"incremental\",\n    \"next_due_at\": \"<TS>\",\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"bounded incremental refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"notification\": \"none\",\n  \"ok\": true,\n  \"revision\": 2,\n  \"run\": {\n    \"alerts\": [],\n    \"baseline\": {\n      \"observations\": [\n        {\n          \"cache_state\": \"fresh\",\n          \"changes\": [],\n          \"failure_reason\": null,\n          \"measured_at\": \"<TS>\",\n          \"measurement\": null,\n          \"qualifier\": \"fresh\",\n          \"render_request_count\": 0,\n          \"request_count\": 1,\n          \"source\": null,\n          \"url\": \"https://example.org/\"\n        }\n      ],\n      \"scan_id\": \"manual-1\"\n    },\n    \"coverage\": {\n      \"complete\": true,\n      \"failed_count\": 0,\n      \"failures\": [],\n      \"fresh_count\": 1,\n      \"observed_url_count\": 1,\n      \"partial_count\": 0,\n      \"planned_url_count\": 1,\n      \"revalidated_count\": 0,\n      \"stale_count\": 0,\n      \"unavailable_count\": 0,\n      \"unobserved_url_count\": 0,\n      \"unobserved_urls\": []\n    },\n    \"mode\": \"full\",\n    \"notification\": \"none\",\n    \"observations\": [\n      {\n        \"cache_state\": \"fresh\",\n        \"changes\": [],\n        \"failure_reason\": null,\n        \"measured_at\": \"<TS>\",\n        \"measurement\": null,\n        \"qualifier\": \"fresh\",\n        \"render_request_count\": 0,\n        \"request_count\": 1,\n        \"source\": null,\n        \"url\": \"https://example.org/\"\n      }\n    ],\n    \"observed_urls\": [\n      \"https://example.org/\"\n    ],\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"recorded_at\": \"<TS>\",\n    \"recoveries\": [],\n    \"scan_id\": \"manual-1\",\n    \"state\": \"quiet\"\n  }\n}",
+   "step": 4
+  },
+  "monitor.schedule-cancel": {
+   "argv": [
+    "monitor-schedule",
+    "--directory",
+    "{WORK}/mon",
+    "--input",
+    "{\"action\": \"cancel\", \"expected_revision\": {{7:/revision}}}"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-schedule\n",
+   "stdout": "{\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"incremental\",\n    \"next_due_at\": \"<TS>\",\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"bounded incremental refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"ok\": true,\n  \"revision\": 4,\n  \"runner\": {\n    \"changed_at\": \"<TS>\",\n    \"claim_id\": \"monitor:<UUID:6>\",\n    \"claimed_at\": \"<TS>\",\n    \"dispatched_urls\": [],\n    \"last_finished_at\": \"<TS>\",\n    \"lease_expires_at\": \"<TS>\",\n    \"next_due_at\": \"<TS>\",\n    \"next_url_offset\": 0,\n    \"plan\": {\n      \"interval_seconds\": 3600,\n      \"mode\": \"incremental\",\n      \"next_due_at\": \"<TS>\",\n      \"planned_urls\": [\n        \"https://example.org/\"\n      ],\n      \"reason\": \"bounded incremental refresh\",\n      \"render_request_budget\": 0,\n      \"request_budget\": 10,\n      \"state\": \"due\",\n      \"url_limit\": 1\n    },\n    \"runs_since_full_refresh\": 0,\n    \"state\": \"cancelled\"\n  },\n  \"scheduled\": false\n}",
+   "step": 8
+  },
+  "monitor.schedule-start": {
+   "argv": [
+    "monitor-schedule",
+    "--directory",
+    "{WORK}/mon",
+    "--input",
+    "{\"action\": \"start\", \"expected_revision\": {{4:/revision}}}"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-schedule\n",
+   "stdout": "{\n  \"due\": {\n    \"reason\": \"a local runner already owns the next bounded pass\",\n    \"state\": \"claimed\"\n  },\n  \"ok\": true,\n  \"revision\": 3,\n  \"runner\": {\n    \"claim_id\": \"monitor:<UUID:6>\",\n    \"claimed_at\": \"<TS>\",\n    \"dispatched_urls\": [],\n    \"last_finished_at\": \"<TS>\",\n    \"lease_expires_at\": \"<TS>\",\n    \"next_due_at\": \"<TS>\",\n    \"next_url_offset\": 0,\n    \"plan\": {\n      \"interval_seconds\": 3600,\n      \"mode\": \"incremental\",\n      \"next_due_at\": \"<TS>\",\n      \"planned_urls\": [\n        \"https://example.org/\"\n      ],\n      \"reason\": \"bounded incremental refresh\",\n      \"render_request_budget\": 0,\n      \"request_budget\": 10,\n      \"state\": \"due\",\n      \"url_limit\": 1\n    },\n    \"runs_since_full_refresh\": 0,\n    \"state\": \"running\"\n  },\n  \"scheduled\": false\n}",
+   "step": 5
+  },
+  "monitor.status": {
+   "argv": [
+    "monitor-status",
+    "--directory",
+    "{WORK}/mon"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-status\n",
+   "stdout": "{\n  \"due\": {\n    \"reason\": \"configure a bounded policy first\",\n    \"state\": \"unconfigured\"\n  },\n  \"last_run\": null,\n  \"ok\": true,\n  \"policy\": null,\n  \"revision\": 0,\n  \"runner\": {\n    \"next_url_offset\": 0,\n    \"runs_since_full_refresh\": 0,\n    \"state\": \"idle\"\n  }\n}",
+   "step": 1
+  },
+  "monitor.status-after-delivery": {
+   "argv": [
+    "monitor-status",
+    "--directory",
+    "{WORK}/mon"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-status\n",
+   "stdout": "{\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"incremental\",\n    \"next_due_at\": \"<TS>\",\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"bounded incremental refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"last_run\": {\n    \"alerts\": [],\n    \"baseline\": {\n      \"observations\": [\n        {\n          \"cache_state\": \"fresh\",\n          \"changes\": [],\n          \"failure_reason\": null,\n          \"measured_at\": \"<TS>\",\n          \"measurement\": null,\n          \"qualifier\": \"fresh\",\n          \"render_request_count\": 0,\n          \"request_count\": 1,\n          \"source\": null,\n          \"url\": \"https://example.org/\"\n        }\n      ],\n      \"scan_id\": \"manual-1\"\n    },\n    \"coverage\": {\n      \"complete\": true,\n      \"failed_count\": 0,\n      \"failures\": [],\n      \"fresh_count\": 1,\n      \"observed_url_count\": 1,\n      \"partial_count\": 0,\n      \"planned_url_count\": 1,\n      \"revalidated_count\": 0,\n      \"stale_count\": 0,\n      \"unavailable_count\": 0,\n      \"unobserved_url_count\": 0,\n      \"unobserved_urls\": []\n    },\n    \"mode\": \"full\",\n    \"notification\": \"none\",\n    \"observations\": [\n      {\n        \"cache_state\": \"fresh\",\n        \"changes\": [],\n        \"failure_reason\": null,\n        \"measured_at\": \"<TS>\",\n        \"measurement\": null,\n        \"qualifier\": \"fresh\",\n        \"render_request_count\": 0,\n        \"request_count\": 1,\n        \"source\": null,\n        \"url\": \"https://example.org/\"\n      }\n    ],\n    \"observed_urls\": [\n      \"https://example.org/\"\n    ],\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"recorded_at\": \"<TS>\",\n    \"recoveries\": [],\n    \"scan_id\": \"manual-1\",\n    \"state\": \"quiet\"\n  },\n  \"ok\": true,\n  \"policy\": {\n    \"enabled\": true,\n    \"full_refresh_every\": 3,\n    \"interval_seconds\": 3600,\n    \"max_render_requests\": 0,\n    \"max_requests\": 10,\n    \"max_urls\": 1,\n    \"severity_threshold\": \"warning\",\n    \"suppression_runs\": 1,\n    \"urls\": [\n      \"https://example.org/\"\n    ]\n  },\n  \"revision\": 4,\n  \"runner\": {\n    \"changed_at\": \"<TS>\",\n    \"claim_id\": \"monitor:<UUID:6>\",\n    \"claimed_at\": \"<TS>\",\n    \"dispatched_urls\": [],\n    \"last_finished_at\": \"<TS>\",\n    \"lease_expires_at\": \"<TS>\",\n    \"next_due_at\": \"<TS>\",\n    \"next_url_offset\": 0,\n    \"plan\": {\n      \"interval_seconds\": 3600,\n      \"mode\": \"incremental\",\n      \"next_due_at\": \"<TS>\",\n      \"planned_urls\": [\n        \"https://example.org/\"\n      ],\n      \"reason\": \"bounded incremental refresh\",\n      \"render_request_budget\": 0,\n      \"request_budget\": 10,\n      \"state\": \"due\",\n      \"url_limit\": 1\n    },\n    \"runs_since_full_refresh\": 0,\n    \"state\": \"cancelled\"\n  }\n}",
+   "step": 9
+  },
+  "monitor.status-configured": {
+   "argv": [
+    "monitor-status",
+    "--directory",
+    "{WORK}/mon"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-status\n",
+   "stdout": "{\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"full\",\n    \"next_due_at\": null,\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"periodic full coverage refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"last_run\": null,\n  \"ok\": true,\n  \"policy\": {\n    \"enabled\": true,\n    \"full_refresh_every\": 3,\n    \"interval_seconds\": 3600,\n    \"max_render_requests\": 0,\n    \"max_requests\": 10,\n    \"max_urls\": 1,\n    \"severity_threshold\": \"warning\",\n    \"suppression_runs\": 1,\n    \"urls\": [\n      \"https://example.org/\"\n    ]\n  },\n  \"revision\": 1,\n  \"runner\": {\n    \"next_url_offset\": 0,\n    \"runs_since_full_refresh\": 0,\n    \"state\": \"idle\"\n  }\n}",
+   "step": 3
+  },
+  "monitor.status-final": {
+   "argv": [
+    "monitor-status",
+    "--directory",
+    "{WORK}/mon"
+   ],
+   "chain": "monitor",
+   "exit": 0,
+   "stderr": "seohead: monitor-status\n",
+   "stdout": "{\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"incremental\",\n    \"next_due_at\": \"<TS>\",\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"bounded incremental refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"last_run\": {\n    \"alerts\": [],\n    \"baseline\": {\n      \"observations\": [\n        {\n          \"cache_state\": \"fresh\",\n          \"changes\": [],\n          \"failure_reason\": null,\n          \"measured_at\": \"<TS>\",\n          \"measurement\": null,\n          \"qualifier\": \"fresh\",\n          \"render_request_count\": 0,\n          \"request_count\": 1,\n          \"source\": null,\n          \"url\": \"https://example.org/\"\n        }\n      ],\n      \"scan_id\": \"manual-1\"\n    },\n    \"coverage\": {\n      \"complete\": true,\n      \"failed_count\": 0,\n      \"failures\": [],\n      \"fresh_count\": 1,\n      \"observed_url_count\": 1,\n      \"partial_count\": 0,\n      \"planned_url_count\": 1,\n      \"revalidated_count\": 0,\n      \"stale_count\": 0,\n      \"unavailable_count\": 0,\n      \"unobserved_url_count\": 0,\n      \"unobserved_urls\": []\n    },\n    \"mode\": \"full\",\n    \"notification\": \"none\",\n    \"observations\": [\n      {\n        \"cache_state\": \"fresh\",\n        \"changes\": [],\n        \"failure_reason\": null,\n        \"measured_at\": \"<TS>\",\n        \"measurement\": null,\n        \"qualifier\": \"fresh\",\n        \"render_request_count\": 0,\n        \"request_count\": 1,\n        \"source\": null,\n        \"url\": \"https://example.org/\"\n      }\n    ],\n    \"observed_urls\": [\n      \"https://example.org/\"\n    ],\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"recorded_at\": \"<TS>\",\n    \"recoveries\": [],\n    \"scan_id\": \"manual-1\",\n    \"state\": \"quiet\"\n  },\n  \"ok\": true,\n  \"policy\": {\n    \"enabled\": true,\n    \"full_refresh_every\": 3,\n    \"interval_seconds\": 3600,\n    \"max_render_requests\": 0,\n    \"max_requests\": 10,\n    \"max_urls\": 1,\n    \"severity_threshold\": \"warning\",\n    \"suppression_runs\": 1,\n    \"urls\": [\n      \"https://example.org/\"\n    ]\n  },\n  \"revision\": 4,\n  \"runner\": {\n    \"changed_at\": \"<TS>\",\n    \"claim_id\": \"monitor:<UUID:6>\",\n    \"claimed_at\": \"<TS>\",\n    \"dispatched_urls\": [],\n    \"last_finished_at\": \"<TS>\",\n    \"lease_expires_at\": \"<TS>\",\n    \"next_due_at\": \"<TS>\",\n    \"next_url_offset\": 0,\n    \"plan\": {\n      \"interval_seconds\": 3600,\n      \"mode\": \"incremental\",\n      \"next_due_at\": \"<TS>\",\n      \"planned_urls\": [\n        \"https://example.org/\"\n      ],\n      \"reason\": \"bounded incremental refresh\",\n      \"render_request_budget\": 0,\n      \"request_budget\": 10,\n      \"state\": \"due\",\n      \"url_limit\": 1\n    },\n    \"runs_since_full_refresh\": 0,\n    \"state\": \"cancelled\"\n  }\n}",
+   "step": 10
+  },
+  "remediation.cases": {
+   "argv": [
+    "remediation-cases",
+    "--ledger",
+    "{WORK}/rem/ledger.sqlite",
+    "--check",
+    "NO_RESPONSE"
+   ],
+   "chain": "remediation",
+   "exit": 0,
+   "stderr": "seohead: remediation-cases\n",
+   "stdout": "{\n  \"findings\": [\n    {\n      \"affected_urls\": [\n        {\n          \"first_seen_at\": \"<TS>\",\n          \"role\": \"subject\",\n          \"url\": \"https://example.test\"\n        }\n      ],\n      \"check\": \"NO_RESPONSE\",\n      \"current_state\": \"detected\",\n      \"finding_id\": 1,\n      \"finding_key\": \"<HEX64:2>\",\n      \"first_seen_at\": \"<TS>\",\n      \"group_memberships\": [],\n      \"occurrences\": [\n        {\n          \"current_state\": \"detected\",\n          \"decisions\": [],\n          \"discriminator_type\": \"primary\",\n          \"discriminator_value\": \"\",\n          \"first_seen_at\": \"<TS>\",\n          \"observations\": [\n            {\n              \"basis\": {\n                \"config_fingerprint\": \"56cabdc834bca4b9\",\n                \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n                \"producer_version\": \"3.2.0\"\n              },\n              \"basis_changed\": null,\n              \"evidence\": {\n                \"reason\": \"\",\n                \"references\": [\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:pages:<HASH>\",\n                    \"observation_id\": \"url_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"pages\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:urls:<HASH>\",\n                    \"observation_id\": \"url_id:1\",\n                    \"representation\": \"\",\n                    \"role\": \"target\",\n                    \"source_table\": \"urls\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:documents:<HASH>\",\n                    \"observation_id\": \"document_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"documents\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:responses:<HASH>\",\n                    \"observation_id\": \"response_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"responses\"\n                  }\n                ],\n                \"state\": \"measured\"\n              },\n              \"evidence_reason\": \"\",\n              \"evidence_state\": \"measured\",\n              \"ingested_at\": \"<TS>\",\n              \"issue_ordinal\": \"ISSUE-000001\",\n              \"observation_id\": 1,\n              \"observation_revision\": 1,\n              \"observed_at\": \"<TS>\",\n              \"observed_at_state\": \"known\",\n              \"payload_sha256\": \"<HEX64:5>\",\n              \"role\": \"target\",\n              \"source_scan\": {\n                \"artifact_state\": \"present\",\n                \"audit_sha256\": \"<HEX64:1>\",\n                \"corpus_partial\": false,\n                \"crawl_partial\": false,\n                \"evidence_revision\": 1,\n                \"format_version\": \"scan.v1\",\n                \"scan_uuid\": \"<UUID:9>\",\n                \"source_scan_id\": 1\n              }\n            }\n          ],\n          \"occurrence_id\": 1,\n          \"occurrence_key\": \"<HEX64:4>\",\n          \"representation\": \"static\",\n          \"subject_type\": \"url\",\n          \"subject_value\": \"https://example.test\"\n        }\n      ],\n      \"projections\": [\n        {\n          \"audit_fingerprint\": \"e99413f281fd\",\n          \"coverage_state\": \"enumerated\",\n          \"enumerated_count\": 1,\n          \"issue_ordinal\": \"ISSUE-000001\",\n          \"message\": \"No response (timeout, DNS, or connection failure)\",\n          \"occurrences_count\": 1,\n          \"payload_sha256\": \"<HEX64:3>\",\n          \"severity\": \"critical\",\n          \"source_scan_id\": 1,\n          \"status_code\": 0\n        }\n      ],\n      \"subject_type\": \"url\",\n      \"subject_value\": \"https://example.test\"\n    }\n  ],\n  \"ledger_revision\": 1,\n  \"limit\": 100,\n  \"offset\": 0,\n  \"ok\": true,\n  \"total\": 1\n}",
+   "step": 4
+  },
+  "remediation.cases-max-bytes": {
+   "argv": [
+    "remediation-cases",
+    "--ledger",
+    "{WORK}/rem/ledger.sqlite",
+    "--max-bytes",
+    "4096"
+   ],
+   "chain": "remediation",
+   "exit": 1,
+   "stderr": "seohead: remediation-cases\nerror: max_bytes requires source_scan_id and group_ref\n",
+   "stdout": "",
+   "step": 6
+  },
+  "remediation.cases-url": {
+   "argv": [
+    "remediation-cases",
+    "--ledger",
+    "{WORK}/rem/ledger.sqlite",
+    "--url",
+    "https://example.test/"
+   ],
+   "chain": "remediation",
+   "exit": 0,
+   "stderr": "seohead: remediation-cases\n",
+   "stdout": "{\n  \"findings\": [\n    {\n      \"affected_urls\": [\n        {\n          \"first_seen_at\": \"<TS>\",\n          \"role\": \"subject\",\n          \"url\": \"https://example.test\"\n        }\n      ],\n      \"check\": \"NO_RESPONSE\",\n      \"current_state\": \"detected\",\n      \"finding_id\": 1,\n      \"finding_key\": \"<HEX64:2>\",\n      \"first_seen_at\": \"<TS>\",\n      \"group_memberships\": [],\n      \"occurrences\": [\n        {\n          \"current_state\": \"detected\",\n          \"decisions\": [],\n          \"discriminator_type\": \"primary\",\n          \"discriminator_value\": \"\",\n          \"first_seen_at\": \"<TS>\",\n          \"observations\": [\n            {\n              \"basis\": {\n                \"config_fingerprint\": \"56cabdc834bca4b9\",\n                \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n                \"producer_version\": \"3.2.0\"\n              },\n              \"basis_changed\": null,\n              \"evidence\": {\n                \"reason\": \"\",\n                \"references\": [\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:pages:<HASH>\",\n                    \"observation_id\": \"url_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"pages\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:urls:<HASH>\",\n                    \"observation_id\": \"url_id:1\",\n                    \"representation\": \"\",\n                    \"role\": \"target\",\n                    \"source_table\": \"urls\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:documents:<HASH>\",\n                    \"observation_id\": \"document_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"documents\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:responses:<HASH>\",\n                    \"observation_id\": \"response_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"responses\"\n                  }\n                ],\n                \"state\": \"measured\"\n              },\n              \"evidence_reason\": \"\",\n              \"evidence_state\": \"measured\",\n              \"ingested_at\": \"<TS>\",\n              \"issue_ordinal\": \"ISSUE-000001\",\n              \"observation_id\": 1,\n              \"observation_revision\": 1,\n              \"observed_at\": \"<TS>\",\n              \"observed_at_state\": \"known\",\n              \"payload_sha256\": \"<HEX64:5>\",\n              \"role\": \"target\",\n              \"source_scan\": {\n                \"artifact_state\": \"present\",\n                \"audit_sha256\": \"<HEX64:1>\",\n                \"corpus_partial\": false,\n                \"crawl_partial\": false,\n                \"evidence_revision\": 1,\n                \"format_version\": \"scan.v1\",\n                \"scan_uuid\": \"<UUID:9>\",\n                \"source_scan_id\": 1\n              }\n            }\n          ],\n          \"occurrence_id\": 1,\n          \"occurrence_key\": \"<HEX64:4>\",\n          \"representation\": \"static\",\n          \"subject_type\": \"url\",\n          \"subject_value\": \"https://example.test\"\n        }\n      ],\n      \"projections\": [\n        {\n          \"audit_fingerprint\": \"e99413f281fd\",\n          \"coverage_state\": \"enumerated\",\n          \"enumerated_count\": 1,\n          \"issue_ordinal\": \"ISSUE-000001\",\n          \"message\": \"No response (timeout, DNS, or connection failure)\",\n          \"occurrences_count\": 1,\n          \"payload_sha256\": \"<HEX64:3>\",\n          \"severity\": \"critical\",\n          \"source_scan_id\": 1,\n          \"status_code\": 0\n        }\n      ],\n      \"subject_type\": \"url\",\n      \"subject_value\": \"https://example.test\"\n    }\n  ],\n  \"ledger_revision\": 1,\n  \"limit\": 100,\n  \"offset\": 0,\n  \"ok\": true,\n  \"total\": 1\n}",
+   "step": 5
+  },
+  "remediation.create": {
+   "argv": [
+    "remediation-create",
+    "--path",
+    "{WORK}/rem/ledger.sqlite",
+    "--project-dir",
+    "{WORK}/rem",
+    "--producer-build",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   ],
+   "chain": "remediation",
+   "exit": 0,
+   "stderr": "seohead: remediation-create\n",
+   "stdout": "{\n  \"ledger\": \"<WORK>/rem/ledger.sqlite\",\n  \"summary\": {\n    \"counts\": {\n      \"affected_url\": 0,\n      \"check_def\": 0,\n      \"decision\": 0,\n      \"distinct_affected_urls\": 0,\n      \"finding\": 0,\n      \"finding_group\": 0,\n      \"finding_observation\": 0,\n      \"observation\": 0,\n      \"occurrence\": 0,\n      \"site\": 1,\n      \"source_group\": 0,\n      \"source_group_member\": 0,\n      \"source_scan\": 0,\n      \"verification_artifact\": 0,\n      \"verification_result\": 0\n    },\n    \"format_version\": \"ledger.v1\",\n    \"ledger_revision\": 0,\n    \"ledger_uuid\": \"<UUID:8>\",\n    \"ok\": true,\n    \"sites\": [\n      {\n        \"created_at\": \"<TS>\",\n        \"host\": \"example.test\",\n        \"netloc\": \"example.test\",\n        \"project_uuid\": \"<UUID:7>\",\n        \"role\": \"primary\",\n        \"site_id\": 1,\n        \"target\": \"https://example.test/\"\n      }\n    ]\n  }\n}",
+   "step": 1
+  },
+  "remediation.ingest": {
+   "argv": [
+    "remediation-ingest",
+    "--ledger",
+    "{WORK}/rem/ledger.sqlite",
+    "--scan",
+    "{WORK}/baseline-cap500.sqlite"
+   ],
+   "chain": "remediation",
+   "exit": 0,
+   "stderr": "seohead: remediation-ingest\n",
+   "stdout": "{\n  \"already_recorded\": false,\n  \"audit_sha256\": \"<HEX64:1>\",\n  \"evidence_revision\": 1,\n  \"format_version\": \"scan.v1\",\n  \"ledger_revision\": 1,\n  \"new_source\": true,\n  \"ok\": true,\n  \"recorded\": {\n    \"affected_urls\": 1,\n    \"finding_observations\": 5,\n    \"findings\": 5,\n    \"group_memberships\": 0,\n    \"group_memberships_state\": \"complete\",\n    \"observations\": 5,\n    \"occurrences\": 5\n  },\n  \"scan_bytes_differ\": false,\n  \"scan_uuid\": \"<UUID:9>\",\n  \"site_id\": 1,\n  \"site_netloc\": \"example.test\",\n  \"source_scan_id\": 1\n}",
+   "step": 2
+  },
+  "remediation.new": {
+   "argv": [
+    "project-new",
+    "--directory",
+    "{WORK}/rem",
+    "--target",
+    "https://example.test",
+    "--label",
+    "Rem"
+   ],
+   "chain": "remediation",
+   "exit": 0,
+   "stderr": "seohead: project-new\n",
+   "stdout": "{\n  \"checklist\": {\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\",\n    \"state\": \"not_initialized\"\n  },\n  \"ok\": true,\n  \"path\": \"<WORK>/rem\",\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:7>\",\n    \"settings_revision\": 0,\n    \"site\": {\n      \"host\": \"example.test\",\n      \"label\": \"Rem\",\n      \"target\": \"https://example.test/\"\n    },\n    \"template_references\": [],\n    \"version\": 1\n  }\n}",
+   "step": 0
+  },
+  "remediation.record-verification": {
+   "argv": [
+    "remediation-record-verification",
+    "--ledger",
+    "{WORK}/rem/ledger.sqlite",
+    "--verification-path",
+    "{WORK}/verification-bad.json",
+    "--actor",
+    "owner",
+    "--expected-revision",
+    "2"
+   ],
+   "chain": "remediation",
+   "exit": 1,
+   "stderr": "seohead: remediation-record-verification\nerror: verification finding has unsupported check, URL or status\n",
+   "stdout": "",
+   "step": 8
+  },
+  "remediation.report": {
+   "argv": [
+    "remediation-report",
+    "--ledger",
+    "{WORK}/rem/ledger.sqlite"
+   ],
+   "chain": "remediation",
+   "exit": 0,
+   "stderr": "seohead: remediation-report\n",
+   "stdout": "{\n  \"cases\": [\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"no retained page/document/response observation matches this finding\",\n          \"references\": [],\n          \"state\": \"unavailable\"\n        },\n        \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n        \"evidence_state\": \"unavailable\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000002\",\n        \"observation_id\": 2,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:8>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"MISSING_ABOUT_PAGE\",\n      \"decision\": null,\n      \"finding_key\": \"<HEX64:6>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"no retained page/document/response observation matches this finding\",\n            \"references\": [],\n            \"state\": \"unavailable\"\n          },\n          \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n          \"evidence_state\": \"unavailable\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000002\",\n          \"observation_id\": 2,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:8>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:7>\",\n      \"state\": \"detected\",\n      \"subject\": \"site\"\n    },\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"no retained page/document/response observation matches this finding\",\n          \"references\": [],\n          \"state\": \"unavailable\"\n        },\n        \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n        \"evidence_state\": \"unavailable\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000003\",\n        \"observation_id\": 3,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:11>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"MISSING_CONTACT_PAGE\",\n      \"decision\": null,\n      \"finding_key\": \"<HEX64:9>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"no retained page/document/response observation matches this finding\",\n            \"references\": [],\n            \"state\": \"unavailable\"\n          },\n          \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n          \"evidence_state\": \"unavailable\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000003\",\n          \"observation_id\": 3,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:11>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:10>\",\n      \"state\": \"detected\",\n      \"subject\": \"site\"\n    },\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"no retained page/document/response observation matches this finding\",\n          \"references\": [],\n          \"state\": \"unavailable\"\n        },\n        \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n        \"evidence_state\": \"unavailable\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000004\",\n        \"observation_id\": 4,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:14>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"MISSING_PRIVACY_POLICY\",\n      \"decision\": null,\n      \"finding_key\": \"<HEX64:12>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"no retained page/document/response observation matches this finding\",\n            \"references\": [],\n            \"state\": \"unavailable\"\n          },\n          \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n          \"evidence_state\": \"unavailable\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000004\",\n          \"observation_id\": 4,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:14>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:13>\",\n      \"state\": \"detected\",\n      \"subject\": \"site\"\n    },\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"no retained page/document/response observation matches this finding\",\n          \"references\": [],\n          \"state\": \"unavailable\"\n        },\n        \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n        \"evidence_state\": \"unavailable\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000005\",\n        \"observation_id\": 5,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:17>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"MISSING_TERMS_PAGE\",\n      \"decision\": null,\n      \"finding_key\": \"<HEX64:15>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"no retained page/document/response observation matches this finding\",\n            \"references\": [],\n            \"state\": \"unavailable\"\n          },\n          \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n          \"evidence_state\": \"unavailable\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000005\",\n          \"observation_id\": 5,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:17>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:16>\",\n      \"state\": \"detected\",\n      \"subject\": \"site\"\n    },\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"\",\n          \"references\": [\n            {\n              \"id\": \"evidence:v1:<UUID:9>:pages:<HASH>\",\n              \"observation_id\": \"url_id:1\",\n              \"representation\": \"static\",\n              \"role\": \"target\",\n              \"source_table\": \"pages\"\n            },\n            {\n              \"id\": \"evidence:v1:<UUID:9>:urls:<HASH>\",\n              \"observation_id\": \"url_id:1\",\n              \"representation\": \"\",\n              \"role\": \"target\",\n              \"source_table\": \"urls\"\n            },\n            {\n              \"id\": \"evidence:v1:<UUID:9>:documents:<HASH>\",\n              \"observation_id\": \"document_id:1\",\n              \"representation\": \"static\",\n              \"role\": \"target\",\n              \"source_table\": \"documents\"\n            },\n            {\n              \"id\": \"evidence:v1:<UUID:9>:responses:<HASH>\",\n              \"observation_id\": \"response_id:1\",\n              \"representation\": \"static\",\n              \"role\": \"target\",\n              \"source_table\": \"responses\"\n            }\n          ],\n          \"state\": \"measured\"\n        },\n        \"evidence_reason\": \"\",\n        \"evidence_state\": \"measured\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000001\",\n        \"observation_id\": 1,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:5>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"NO_RESPONSE\",\n      \"decision\": {\n        \"actor\": \"owner\",\n        \"decided_at\": \"<TS>\",\n        \"decided_at_state\": \"known\",\n        \"decision_id\": 1,\n        \"ledger_revision\": 2,\n        \"observation_id\": null,\n        \"reason\": \"not reachable since the DNS move\",\n        \"state\": \"false_positive_reviewed\",\n        \"verification\": null\n      },\n      \"finding_key\": \"<HEX64:2>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"\",\n            \"references\": [\n              {\n                \"id\": \"evidence:v1:<UUID:9>:pages:<HASH>\",\n                \"observation_id\": \"url_id:1\",\n                \"representation\": \"static\",\n                \"role\": \"target\",\n                \"source_table\": \"pages\"\n              },\n              {\n                \"id\": \"evidence:v1:<UUID:9>:urls:<HASH>\",\n                \"observation_id\": \"url_id:1\",\n                \"representation\": \"\",\n                \"role\": \"target\",\n                \"source_table\": \"urls\"\n              },\n              {\n                \"id\": \"evidence:v1:<UUID:9>:documents:<HASH>\",\n                \"observation_id\": \"document_id:1\",\n                \"representation\": \"static\",\n                \"role\": \"target\",\n                \"source_table\": \"documents\"\n              },\n              {\n                \"id\": \"evidence:v1:<UUID:9>:responses:<HASH>\",\n                \"observation_id\": \"response_id:1\",\n                \"representation\": \"static\",\n                \"role\": \"target\",\n                \"source_table\": \"responses\"\n              }\n            ],\n            \"state\": \"measured\"\n          },\n          \"evidence_reason\": \"\",\n          \"evidence_state\": \"measured\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000001\",\n          \"observation_id\": 1,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:5>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:4>\",\n      \"state\": \"false_positive_reviewed\",\n      \"subject\": \"https://example.test\"\n    }\n  ],\n  \"pagination\": {\n    \"limit\": 100,\n    \"offset\": 0,\n    \"returned\": 5,\n    \"total\": 5\n  },\n  \"schema_version\": \"remediation-report.v1\",\n  \"summary\": {\n    \"counts\": {\n      \"detected\": 4,\n      \"false_positive_reviewed\": 1,\n      \"fix_reported\": 0,\n      \"persisting\": 0,\n      \"recheck_pending\": 0,\n      \"regressed\": 0,\n      \"resolved\": 0,\n      \"unverifiable\": 0,\n      \"verified\": 0\n    },\n    \"denominators\": {\n      \"remediation_cases\": 4,\n      \"verified_original_occurrences\": 5\n    },\n    \"ledger_revision\": 2,\n    \"ok\": true,\n    \"reason\": null,\n    \"rechecked_percent\": 0.0,\n    \"represented_rechecked_percent\": 0.0,\n    \"represented_resolved_percent\": 0.0,\n    \"resolved_percent\": 0.0,\n    \"scope\": {\n      \"incomplete_group_memberships\": 0,\n      \"known_unrepresented_members\": 0,\n      \"represented_occurrences\": 5,\n      \"samples\": [],\n      \"state\": \"complete\",\n      \"unknown_group_memberships\": 0\n    },\n    \"tasks\": {\n      \"unassigned\": {\n        \"counts\": {\n          \"detected\": 4,\n          \"false_positive_reviewed\": 1,\n          \"fix_reported\": 0,\n          \"persisting\": 0,\n          \"recheck_pending\": 0,\n          \"regressed\": 0,\n          \"resolved\": 0,\n          \"unverifiable\": 0,\n          \"verified\": 0\n        },\n        \"denominators\": {\n          \"remediation_cases\": 4,\n          \"verified_original_occurrences\": 5\n        },\n        \"rechecked_percent\": 0.0,\n        \"represented_rechecked_percent\": 0.0,\n        \"represented_resolved_percent\": 0.0,\n        \"resolved_percent\": 0.0,\n        \"scope_state\": \"complete\",\n        \"status\": \"in_progress\"\n      }\n    }\n  }\n}",
+   "step": 9
+  },
+  "remediation.summary": {
+   "argv": [
+    "remediation-summary",
+    "--ledger",
+    "{WORK}/rem/ledger.sqlite"
+   ],
+   "chain": "remediation",
+   "exit": 0,
+   "stderr": "seohead: remediation-summary\n",
+   "stdout": "{\n  \"counts\": {\n    \"detected\": 5,\n    \"false_positive_reviewed\": 0,\n    \"fix_reported\": 0,\n    \"persisting\": 0,\n    \"recheck_pending\": 0,\n    \"regressed\": 0,\n    \"resolved\": 0,\n    \"unverifiable\": 0,\n    \"verified\": 0\n  },\n  \"denominators\": {\n    \"remediation_cases\": 5,\n    \"verified_original_occurrences\": 5\n  },\n  \"ledger_revision\": 1,\n  \"ok\": true,\n  \"reason\": null,\n  \"rechecked_percent\": 0.0,\n  \"represented_rechecked_percent\": 0.0,\n  \"represented_resolved_percent\": 0.0,\n  \"resolved_percent\": 0.0,\n  \"scope\": {\n    \"incomplete_group_memberships\": 0,\n    \"known_unrepresented_members\": 0,\n    \"represented_occurrences\": 5,\n    \"samples\": [],\n    \"state\": \"complete\",\n    \"unknown_group_memberships\": 0\n  },\n  \"tasks\": {\n    \"unassigned\": {\n      \"counts\": {\n        \"detected\": 5,\n        \"false_positive_reviewed\": 0,\n        \"fix_reported\": 0,\n        \"persisting\": 0,\n        \"recheck_pending\": 0,\n        \"regressed\": 0,\n        \"resolved\": 0,\n        \"unverifiable\": 0,\n        \"verified\": 0\n      },\n      \"denominators\": {\n        \"remediation_cases\": 5,\n        \"verified_original_occurrences\": 5\n      },\n      \"rechecked_percent\": 0.0,\n      \"represented_rechecked_percent\": 0.0,\n      \"represented_resolved_percent\": 0.0,\n      \"resolved_percent\": 0.0,\n      \"scope_state\": \"complete\",\n      \"status\": \"in_progress\"\n    }\n  }\n}",
+   "step": 3
+  },
+  "remediation.transition": {
+   "argv": [
+    "remediation-transition",
+    "--ledger",
+    "{WORK}/rem/ledger.sqlite",
+    "--occurrence-key",
+    "{{4:/findings/0/occurrences/0/occurrence_key}}",
+    "--state",
+    "false_positive_reviewed",
+    "--actor",
+    "owner",
+    "--reason",
+    "not reachable since the DNS move",
+    "--expected-revision",
+    "1"
+   ],
+   "chain": "remediation",
+   "exit": 0,
+   "stderr": "seohead: remediation-transition\n",
+   "stdout": "{\n  \"finding_state\": \"false_positive_reviewed\",\n  \"ledger_revision\": 2,\n  \"observation_id\": null,\n  \"occurrence_key\": \"<HEX64:4>\",\n  \"ok\": true,\n  \"previous_state\": \"detected\",\n  \"state\": \"false_positive_reviewed\"\n}",
+   "step": 7
+  }
+ },
+ "mcp": {
+  "export.0.seo_project_new": {
+   "arguments": {
+    "directory": "{WORK}/exp",
+    "label": "Exp",
+    "target": "https://example.org"
+   },
+   "chain": "export",
+   "is_error": false,
+   "step": 0,
+   "text": "{\n  \"checklist\": {\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\",\n    \"state\": \"not_initialized\"\n  },\n  \"ok\": true,\n  \"path\": \"<WORK>/exp\",\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:19>\",\n    \"settings_revision\": 0,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Exp\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1\n  }\n}",
+   "tool": "seo_project_new"
+  },
+  "export.1.seo_project_export": {
+   "arguments": {
+    "dataset": "tasks",
+    "directory": "{WORK}/exp",
+    "fmt": "json",
+    "output": "tasks-export.json"
+   },
+   "chain": "export",
+   "is_error": false,
+   "step": 1,
+   "text": "{\n  \"compare_manifest\": null,\n  \"created_at\": \"<TS>\",\n  \"dataset\": \"tasks\",\n  \"format\": \"json\",\n  \"history_state\": \"not_recorded\",\n  \"job_id\": \"<UUID:20>\",\n  \"ok\": true,\n  \"output\": \"tasks-export.json\",\n  \"phase\": \"preparing\",\n  \"processed_rows\": 0,\n  \"project_uuid\": \"<UUID:19>\",\n  \"record_format\": \"spiderhead.project-export-job.v1\",\n  \"started_at\": \"<TS>\",\n  \"state\": \"running\",\n  \"total_rows\": null,\n  \"updated_at\": \"<TS>\"\n}",
+   "tool": "seo_project_export"
+  },
+  "inbox.0.seo_project_new": {
+   "arguments": {
+    "directory": "{WORK}/inbox",
+    "label": "Inbox",
+    "target": "https://example.org"
+   },
+   "chain": "inbox",
+   "is_error": false,
+   "step": 0,
+   "text": "{\n  \"checklist\": {\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\",\n    \"state\": \"not_initialized\"\n  },\n  \"ok\": true,\n  \"path\": \"<WORK>/inbox\",\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:12>\",\n    \"settings_revision\": 0,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Inbox\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1\n  }\n}",
+   "tool": "seo_project_new"
+  },
+  "inbox.1.seo_project_inbox_submit": {
+   "arguments": {
+    "directory": "{WORK}/inbox",
+    "kind": "note",
+    "text": "Check the title tags on money pages"
+   },
+   "chain": "inbox",
+   "is_error": false,
+   "step": 1,
+   "text": "{\n  \"entry\": {\n    \"accepted_at\": null,\n    \"author_role\": \"specialist\",\n    \"completed_at\": null,\n    \"created_at\": \"<TS>\",\n    \"goal_state\": null,\n    \"id\": \"inbox:<UUID:13>\",\n    \"kind\": \"note\",\n    \"references\": [],\n    \"text\": \"Check the title tags on money pages\",\n    \"triage\": []\n  },\n  \"ok\": true,\n  \"revision\": 1\n}",
+   "tool": "seo_project_inbox_submit"
+  },
+  "inbox.2.seo_project_inbox_submit": {
+   "arguments": {
+    "directory": "{WORK}/inbox",
+    "kind": "proposed_goal",
+    "references": [
+     "task:titles"
+    ],
+    "text": "Fix pagination indexing"
+   },
+   "chain": "inbox",
+   "is_error": false,
+   "step": 2,
+   "text": "{\n  \"entry\": {\n    \"accepted_at\": null,\n    \"author_role\": \"specialist\",\n    \"completed_at\": null,\n    \"created_at\": \"<TS>\",\n    \"goal_state\": \"proposed\",\n    \"id\": \"inbox:<UUID:14>\",\n    \"kind\": \"proposed_goal\",\n    \"references\": [\n      \"task:titles\"\n    ],\n    \"text\": \"Fix pagination indexing\",\n    \"triage\": []\n  },\n  \"ok\": true,\n  \"revision\": 2\n}",
+   "tool": "seo_project_inbox_submit"
+  },
+  "inbox.3.seo_project_inbox_list": {
+   "arguments": {
+    "consumer": "owner",
+    "directory": "{WORK}/inbox"
+   },
+   "chain": "inbox",
+   "is_error": false,
+   "step": 3,
+   "text": "{\n  \"entries\": [\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": null,\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": null,\n      \"id\": \"inbox:<UUID:13>\",\n      \"kind\": \"note\",\n      \"read_at\": null,\n      \"references\": [],\n      \"text\": \"Check the title tags on money pages\",\n      \"triage\": []\n    },\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": null,\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": \"proposed\",\n      \"id\": \"inbox:<UUID:14>\",\n      \"kind\": \"proposed_goal\",\n      \"read_at\": null,\n      \"references\": [\n        \"task:titles\"\n      ],\n      \"text\": \"Fix pagination indexing\",\n      \"triage\": []\n    }\n  ],\n  \"ok\": true,\n  \"pagination\": {\n    \"limit\": 20,\n    \"next_offset\": null,\n    \"offset\": 0,\n    \"total\": 2\n  },\n  \"revision\": 2\n}",
+   "tool": "seo_project_inbox_list"
+  },
+  "inbox.4.seo_project_inbox_read": {
+   "arguments": {
+    "consumer": "owner",
+    "directory": "{WORK}/inbox",
+    "entry_ids": [
+     "{{1:/entry/id}}"
+    ]
+   },
+   "chain": "inbox",
+   "is_error": false,
+   "step": 4,
+   "text": "{\n  \"entries\": [\n    {\n      \"accepted_at\": null,\n      \"acknowledged_at\": null,\n      \"author_role\": \"specialist\",\n      \"completed_at\": null,\n      \"created_at\": \"<TS>\",\n      \"goal_state\": null,\n      \"id\": \"inbox:<UUID:13>\",\n      \"kind\": \"note\",\n      \"read_at\": \"<TS>\",\n      \"references\": [],\n      \"text\": \"Check the title tags on money pages\",\n      \"triage\": []\n    }\n  ],\n  \"ok\": true,\n  \"revision\": 3\n}",
+   "tool": "seo_project_inbox_read"
+  },
+  "inbox.5.seo_project_inbox_unread": {
+   "arguments": {
+    "consumer": "owner",
+    "directory": "{WORK}/inbox"
+   },
+   "chain": "inbox",
+   "is_error": false,
+   "step": 5,
+   "text": "{\n  \"count\": 2,\n  \"entries\": [\n    {\n      \"id\": \"inbox:<UUID:13>\",\n      \"kind\": \"note\",\n      \"references\": []\n    },\n    {\n      \"id\": \"inbox:<UUID:14>\",\n      \"kind\": \"proposed_goal\",\n      \"references\": [\n        \"task:titles\"\n      ]\n    }\n  ],\n  \"truncated\": false\n}",
+   "tool": "seo_project_inbox_unread"
+  },
+  "inbox.6.seo_project_action_log": {
+   "arguments": {
+    "directory": "{WORK}/inbox",
+    "limit": 10
+   },
+   "chain": "inbox",
+   "is_error": false,
+   "step": 6,
+   "text": "{\n  \"items\": [\n    {\n      \"action\": \"project.inbox.submit\",\n      \"client\": \"mcp\",\n      \"detail\": \"Recorded project inbox proposed_goal\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"pending\",\n      \"proposal_id\": null,\n      \"sequence\": 2\n    },\n    {\n      \"action\": \"project.inbox.submit\",\n      \"client\": \"mcp\",\n      \"detail\": \"Recorded project inbox note\",\n      \"occurred_at\": \"<TS>\",\n      \"operation_id\": null,\n      \"outcome\": \"applied\",\n      \"proposal_id\": null,\n      \"sequence\": 1\n    }\n  ],\n  \"ok\": true,\n  \"pagination\": {\n    \"limit\": 10,\n    \"next_offset\": null,\n    \"offset\": 0,\n    \"total\": 2\n  },\n  \"revision\": 2,\n  \"total\": 2\n}",
+   "tool": "seo_project_action_log"
+  },
+  "monitor.0.seo_project_new": {
+   "arguments": {
+    "directory": "{WORK}/mon",
+    "label": "Mon",
+    "target": "https://example.org"
+   },
+   "chain": "monitor",
+   "is_error": false,
+   "step": 0,
+   "text": "{\n  \"checklist\": {\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\",\n    \"state\": \"not_initialized\"\n  },\n  \"ok\": true,\n  \"path\": \"<WORK>/mon\",\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:15>\",\n    \"settings_revision\": 0,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Mon\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1\n  }\n}",
+   "tool": "seo_project_new"
+  },
+  "monitor.1.seo_monitor_configure": {
+   "arguments": {
+    "directory": "{WORK}/mon",
+    "expected_revision": 0,
+    "policy": {
+     "enabled": true,
+     "full_refresh_every": 3,
+     "max_requests": 10,
+     "max_urls": 1,
+     "urls": [
+      "https://example.org/"
+     ]
+    }
+   },
+   "chain": "monitor",
+   "is_error": false,
+   "step": 1,
+   "text": "{\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"full\",\n    \"next_due_at\": null,\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"periodic full coverage refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"ok\": true,\n  \"policy\": {\n    \"enabled\": true,\n    \"full_refresh_every\": 3,\n    \"interval_seconds\": 3600,\n    \"max_render_requests\": 0,\n    \"max_requests\": 10,\n    \"max_urls\": 1,\n    \"severity_threshold\": \"warning\",\n    \"suppression_runs\": 1,\n    \"urls\": [\n      \"https://example.org/\"\n    ]\n  },\n  \"revision\": 1,\n  \"state\": \"configured_not_scheduled\"\n}",
+   "tool": "seo_monitor_configure"
+  },
+  "monitor.2.seo_monitor_run": {
+   "arguments": {
+    "directory": "{WORK}/mon",
+    "expected_revision": 1,
+    "observations": [
+     {
+      "changes": [],
+      "url": "https://example.org/"
+     }
+    ],
+    "scan_id": "manual-1"
+   },
+   "chain": "monitor",
+   "is_error": false,
+   "step": 2,
+   "text": "{\n  \"coverage\": {\n    \"complete\": true,\n    \"failed_count\": 0,\n    \"failures\": [],\n    \"fresh_count\": 1,\n    \"observed_url_count\": 1,\n    \"partial_count\": 0,\n    \"planned_url_count\": 1,\n    \"revalidated_count\": 0,\n    \"stale_count\": 0,\n    \"unavailable_count\": 0,\n    \"unobserved_url_count\": 0,\n    \"unobserved_urls\": []\n  },\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"incremental\",\n    \"next_due_at\": \"<TS>\",\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"bounded incremental refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"notification\": \"none\",\n  \"ok\": true,\n  \"revision\": 2,\n  \"run\": {\n    \"alerts\": [],\n    \"baseline\": {\n      \"observations\": [\n        {\n          \"cache_state\": \"fresh\",\n          \"changes\": [],\n          \"failure_reason\": null,\n          \"measured_at\": \"<TS>\",\n          \"measurement\": null,\n          \"qualifier\": \"fresh\",\n          \"render_request_count\": 0,\n          \"request_count\": 1,\n          \"source\": null,\n          \"url\": \"https://example.org/\"\n        }\n      ],\n      \"scan_id\": \"manual-1\"\n    },\n    \"coverage\": {\n      \"complete\": true,\n      \"failed_count\": 0,\n      \"failures\": [],\n      \"fresh_count\": 1,\n      \"observed_url_count\": 1,\n      \"partial_count\": 0,\n      \"planned_url_count\": 1,\n      \"revalidated_count\": 0,\n      \"stale_count\": 0,\n      \"unavailable_count\": 0,\n      \"unobserved_url_count\": 0,\n      \"unobserved_urls\": []\n    },\n    \"mode\": \"full\",\n    \"notification\": \"none\",\n    \"observations\": [\n      {\n        \"cache_state\": \"fresh\",\n        \"changes\": [],\n        \"failure_reason\": null,\n        \"measured_at\": \"<TS>\",\n        \"measurement\": null,\n        \"qualifier\": \"fresh\",\n        \"render_request_count\": 0,\n        \"request_count\": 1,\n        \"source\": null,\n        \"url\": \"https://example.org/\"\n      }\n    ],\n    \"observed_urls\": [\n      \"https://example.org/\"\n    ],\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"recorded_at\": \"<TS>\",\n    \"recoveries\": [],\n    \"scan_id\": \"manual-1\",\n    \"state\": \"quiet\"\n  }\n}",
+   "tool": "seo_monitor_run"
+  },
+  "monitor.3.seo_monitor_status": {
+   "arguments": {
+    "directory": "{WORK}/mon"
+   },
+   "chain": "monitor",
+   "is_error": false,
+   "step": 3,
+   "text": "{\n  \"due\": {\n    \"interval_seconds\": 3600,\n    \"mode\": \"incremental\",\n    \"next_due_at\": \"<TS>\",\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"reason\": \"bounded incremental refresh\",\n    \"render_request_budget\": 0,\n    \"request_budget\": 10,\n    \"state\": \"due\",\n    \"url_limit\": 1\n  },\n  \"last_run\": {\n    \"alerts\": [],\n    \"baseline\": {\n      \"observations\": [\n        {\n          \"cache_state\": \"fresh\",\n          \"changes\": [],\n          \"failure_reason\": null,\n          \"measured_at\": \"<TS>\",\n          \"measurement\": null,\n          \"qualifier\": \"fresh\",\n          \"render_request_count\": 0,\n          \"request_count\": 1,\n          \"source\": null,\n          \"url\": \"https://example.org/\"\n        }\n      ],\n      \"scan_id\": \"manual-1\"\n    },\n    \"coverage\": {\n      \"complete\": true,\n      \"failed_count\": 0,\n      \"failures\": [],\n      \"fresh_count\": 1,\n      \"observed_url_count\": 1,\n      \"partial_count\": 0,\n      \"planned_url_count\": 1,\n      \"revalidated_count\": 0,\n      \"stale_count\": 0,\n      \"unavailable_count\": 0,\n      \"unobserved_url_count\": 0,\n      \"unobserved_urls\": []\n    },\n    \"mode\": \"full\",\n    \"notification\": \"none\",\n    \"observations\": [\n      {\n        \"cache_state\": \"fresh\",\n        \"changes\": [],\n        \"failure_reason\": null,\n        \"measured_at\": \"<TS>\",\n        \"measurement\": null,\n        \"qualifier\": \"fresh\",\n        \"render_request_count\": 0,\n        \"request_count\": 1,\n        \"source\": null,\n        \"url\": \"https://example.org/\"\n      }\n    ],\n    \"observed_urls\": [\n      \"https://example.org/\"\n    ],\n    \"planned_urls\": [\n      \"https://example.org/\"\n    ],\n    \"recorded_at\": \"<TS>\",\n    \"recoveries\": [],\n    \"scan_id\": \"manual-1\",\n    \"state\": \"quiet\"\n  },\n  \"ok\": true,\n  \"policy\": {\n    \"enabled\": true,\n    \"full_refresh_every\": 3,\n    \"interval_seconds\": 3600,\n    \"max_render_requests\": 0,\n    \"max_requests\": 10,\n    \"max_urls\": 1,\n    \"severity_threshold\": \"warning\",\n    \"suppression_runs\": 1,\n    \"urls\": [\n      \"https://example.org/\"\n    ]\n  },\n  \"revision\": 2,\n  \"runner\": {\n    \"last_finished_at\": \"<TS>\",\n    \"next_due_at\": \"<TS>\",\n    \"next_url_offset\": 0,\n    \"runs_since_full_refresh\": 0,\n    \"state\": \"idle\"\n  }\n}",
+   "tool": "seo_monitor_status"
+  },
+  "monitor.4.seo_monitor_schedule": {
+   "arguments": {
+    "action": "start",
+    "directory": "{WORK}/mon",
+    "expected_revision": 2
+   },
+   "chain": "monitor",
+   "is_error": false,
+   "step": 4,
+   "text": "{\n  \"due\": {\n    \"reason\": \"a local runner already owns the next bounded pass\",\n    \"state\": \"claimed\"\n  },\n  \"ok\": true,\n  \"revision\": 3,\n  \"runner\": {\n    \"claim_id\": \"monitor:<UUID:16>\",\n    \"claimed_at\": \"<TS>\",\n    \"dispatched_urls\": [],\n    \"last_finished_at\": \"<TS>\",\n    \"lease_expires_at\": \"<TS>\",\n    \"next_due_at\": \"<TS>\",\n    \"next_url_offset\": 0,\n    \"plan\": {\n      \"interval_seconds\": 3600,\n      \"mode\": \"incremental\",\n      \"next_due_at\": \"<TS>\",\n      \"planned_urls\": [\n        \"https://example.org/\"\n      ],\n      \"reason\": \"bounded incremental refresh\",\n      \"render_request_budget\": 0,\n      \"request_budget\": 10,\n      \"state\": \"due\",\n      \"url_limit\": 1\n    },\n    \"runs_since_full_refresh\": 0,\n    \"state\": \"running\"\n  },\n  \"scheduled\": false\n}",
+   "tool": "seo_monitor_schedule"
+  },
+  "monitor.5.seo_monitor_local_deliver": {
+   "arguments": {
+    "directory": "{WORK}/mon",
+    "expected_revision": 3,
+    "scan_id": "manual-1"
+   },
+   "chain": "monitor",
+   "is_error": false,
+   "step": 5,
+   "text": "{\n  \"delivery\": \"quiet\",\n  \"ok\": true,\n  \"receipts\": [],\n  \"revision\": 3\n}",
+   "tool": "seo_monitor_local_deliver"
+  },
+  "remediation.0.seo_project_new": {
+   "arguments": {
+    "directory": "{WORK}/rem",
+    "label": "Rem",
+    "target": "https://example.test"
+   },
+   "chain": "remediation",
+   "is_error": false,
+   "step": 0,
+   "text": "{\n  \"checklist\": {\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\",\n    \"state\": \"not_initialized\"\n  },\n  \"ok\": true,\n  \"path\": \"<WORK>/rem\",\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:17>\",\n    \"settings_revision\": 0,\n    \"site\": {\n      \"host\": \"example.test\",\n      \"label\": \"Rem\",\n      \"target\": \"https://example.test/\"\n    },\n    \"template_references\": [],\n    \"version\": 1\n  }\n}",
+   "tool": "seo_project_new"
+  },
+  "remediation.1.seo_remediation_create": {
+   "arguments": {
+    "path": "{WORK}/rem/ledger.sqlite",
+    "producer_build": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "project_dir": "{WORK}/rem"
+   },
+   "chain": "remediation",
+   "is_error": false,
+   "step": 1,
+   "text": "{\n  \"ledger\": \"<WORK>/rem/ledger.sqlite\",\n  \"summary\": {\n    \"counts\": {\n      \"affected_url\": 0,\n      \"check_def\": 0,\n      \"decision\": 0,\n      \"distinct_affected_urls\": 0,\n      \"finding\": 0,\n      \"finding_group\": 0,\n      \"finding_observation\": 0,\n      \"observation\": 0,\n      \"occurrence\": 0,\n      \"site\": 1,\n      \"source_group\": 0,\n      \"source_group_member\": 0,\n      \"source_scan\": 0,\n      \"verification_artifact\": 0,\n      \"verification_result\": 0\n    },\n    \"format_version\": \"ledger.v1\",\n    \"ledger_revision\": 0,\n    \"ledger_uuid\": \"<UUID:18>\",\n    \"ok\": true,\n    \"sites\": [\n      {\n        \"created_at\": \"<TS>\",\n        \"host\": \"example.test\",\n        \"netloc\": \"example.test\",\n        \"project_uuid\": \"<UUID:17>\",\n        \"role\": \"primary\",\n        \"site_id\": 1,\n        \"target\": \"https://example.test/\"\n      }\n    ]\n  }\n}",
+   "tool": "seo_remediation_create"
+  },
+  "remediation.2.seo_remediation_ingest": {
+   "arguments": {
+    "ledger": "{WORK}/rem/ledger.sqlite",
+    "scan": "{WORK}/baseline-cap500.sqlite"
+   },
+   "chain": "remediation",
+   "is_error": false,
+   "step": 2,
+   "text": "{\n  \"already_recorded\": false,\n  \"audit_sha256\": \"<HEX64:1>\",\n  \"evidence_revision\": 1,\n  \"format_version\": \"scan.v1\",\n  \"ledger_revision\": 1,\n  \"new_source\": true,\n  \"ok\": true,\n  \"recorded\": {\n    \"affected_urls\": 1,\n    \"finding_observations\": 5,\n    \"findings\": 5,\n    \"group_memberships\": 0,\n    \"group_memberships_state\": \"complete\",\n    \"observations\": 5,\n    \"occurrences\": 5\n  },\n  \"scan_bytes_differ\": false,\n  \"scan_uuid\": \"<UUID:9>\",\n  \"site_id\": 1,\n  \"site_netloc\": \"example.test\",\n  \"source_scan_id\": 1\n}",
+   "tool": "seo_remediation_ingest"
+  },
+  "remediation.3.seo_remediation_summary": {
+   "arguments": {
+    "ledger": "{WORK}/rem/ledger.sqlite"
+   },
+   "chain": "remediation",
+   "is_error": false,
+   "step": 3,
+   "text": "{\n  \"counts\": {\n    \"detected\": 5,\n    \"false_positive_reviewed\": 0,\n    \"fix_reported\": 0,\n    \"persisting\": 0,\n    \"recheck_pending\": 0,\n    \"regressed\": 0,\n    \"resolved\": 0,\n    \"unverifiable\": 0,\n    \"verified\": 0\n  },\n  \"denominators\": {\n    \"remediation_cases\": 5,\n    \"verified_original_occurrences\": 5\n  },\n  \"ledger_revision\": 1,\n  \"ok\": true,\n  \"reason\": null,\n  \"rechecked_percent\": 0.0,\n  \"represented_rechecked_percent\": 0.0,\n  \"represented_resolved_percent\": 0.0,\n  \"resolved_percent\": 0.0,\n  \"scope\": {\n    \"incomplete_group_memberships\": 0,\n    \"known_unrepresented_members\": 0,\n    \"represented_occurrences\": 5,\n    \"samples\": [],\n    \"state\": \"complete\",\n    \"unknown_group_memberships\": 0\n  },\n  \"tasks\": {\n    \"unassigned\": {\n      \"counts\": {\n        \"detected\": 5,\n        \"false_positive_reviewed\": 0,\n        \"fix_reported\": 0,\n        \"persisting\": 0,\n        \"recheck_pending\": 0,\n        \"regressed\": 0,\n        \"resolved\": 0,\n        \"unverifiable\": 0,\n        \"verified\": 0\n      },\n      \"denominators\": {\n        \"remediation_cases\": 5,\n        \"verified_original_occurrences\": 5\n      },\n      \"rechecked_percent\": 0.0,\n      \"represented_rechecked_percent\": 0.0,\n      \"represented_resolved_percent\": 0.0,\n      \"resolved_percent\": 0.0,\n      \"scope_state\": \"complete\",\n      \"status\": \"in_progress\"\n    }\n  }\n}",
+   "tool": "seo_remediation_summary"
+  },
+  "remediation.4.seo_remediation_cases": {
+   "arguments": {
+    "check": "NO_RESPONSE",
+    "ledger": "{WORK}/rem/ledger.sqlite"
+   },
+   "chain": "remediation",
+   "is_error": false,
+   "step": 4,
+   "text": "{\n  \"findings\": [\n    {\n      \"affected_urls\": [\n        {\n          \"first_seen_at\": \"<TS>\",\n          \"role\": \"subject\",\n          \"url\": \"https://example.test\"\n        }\n      ],\n      \"check\": \"NO_RESPONSE\",\n      \"current_state\": \"detected\",\n      \"finding_id\": 1,\n      \"finding_key\": \"<HEX64:18>\",\n      \"first_seen_at\": \"<TS>\",\n      \"group_memberships\": [],\n      \"occurrences\": [\n        {\n          \"current_state\": \"detected\",\n          \"decisions\": [],\n          \"discriminator_type\": \"primary\",\n          \"discriminator_value\": \"\",\n          \"first_seen_at\": \"<TS>\",\n          \"observations\": [\n            {\n              \"basis\": {\n                \"config_fingerprint\": \"56cabdc834bca4b9\",\n                \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n                \"producer_version\": \"3.2.0\"\n              },\n              \"basis_changed\": null,\n              \"evidence\": {\n                \"reason\": \"\",\n                \"references\": [\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:pages:<HASH>\",\n                    \"observation_id\": \"url_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"pages\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:urls:<HASH>\",\n                    \"observation_id\": \"url_id:1\",\n                    \"representation\": \"\",\n                    \"role\": \"target\",\n                    \"source_table\": \"urls\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:documents:<HASH>\",\n                    \"observation_id\": \"document_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"documents\"\n                  },\n                  {\n                    \"id\": \"evidence:v1:<UUID:9>:responses:<HASH>\",\n                    \"observation_id\": \"response_id:1\",\n                    \"representation\": \"static\",\n                    \"role\": \"target\",\n                    \"source_table\": \"responses\"\n                  }\n                ],\n                \"state\": \"measured\"\n              },\n              \"evidence_reason\": \"\",\n              \"evidence_state\": \"measured\",\n              \"ingested_at\": \"<TS>\",\n              \"issue_ordinal\": \"ISSUE-000001\",\n              \"observation_id\": 1,\n              \"observation_revision\": 1,\n              \"observed_at\": \"<TS>\",\n              \"observed_at_state\": \"known\",\n              \"payload_sha256\": \"<HEX64:5>\",\n              \"role\": \"target\",\n              \"source_scan\": {\n                \"artifact_state\": \"present\",\n                \"audit_sha256\": \"<HEX64:1>\",\n                \"corpus_partial\": false,\n                \"crawl_partial\": false,\n                \"evidence_revision\": 1,\n                \"format_version\": \"scan.v1\",\n                \"scan_uuid\": \"<UUID:9>\",\n                \"source_scan_id\": 1\n              }\n            }\n          ],\n          \"occurrence_id\": 1,\n          \"occurrence_key\": \"<HEX64:19>\",\n          \"representation\": \"static\",\n          \"subject_type\": \"url\",\n          \"subject_value\": \"https://example.test\"\n        }\n      ],\n      \"projections\": [\n        {\n          \"audit_fingerprint\": \"e99413f281fd\",\n          \"coverage_state\": \"enumerated\",\n          \"enumerated_count\": 1,\n          \"issue_ordinal\": \"ISSUE-000001\",\n          \"message\": \"No response (timeout, DNS, or connection failure)\",\n          \"occurrences_count\": 1,\n          \"payload_sha256\": \"<HEX64:3>\",\n          \"severity\": \"critical\",\n          \"source_scan_id\": 1,\n          \"status_code\": 0\n        }\n      ],\n      \"subject_type\": \"url\",\n      \"subject_value\": \"https://example.test\"\n    }\n  ],\n  \"ledger_revision\": 1,\n  \"limit\": 100,\n  \"offset\": 0,\n  \"ok\": true,\n  \"total\": 1\n}",
+   "tool": "seo_remediation_cases"
+  },
+  "remediation.5.seo_remediation_transition": {
+   "arguments": {
+    "actor": "owner",
+    "expected_revision": 1,
+    "ledger": "{WORK}/rem/ledger.sqlite",
+    "occurrence_key": "{{4:/findings/0/occurrences/0/occurrence_key}}",
+    "reason": "not reachable since the DNS move",
+    "state": "false_positive_reviewed"
+   },
+   "chain": "remediation",
+   "is_error": false,
+   "step": 5,
+   "text": "{\n  \"finding_state\": \"false_positive_reviewed\",\n  \"ledger_revision\": 2,\n  \"observation_id\": null,\n  \"occurrence_key\": \"<HEX64:19>\",\n  \"ok\": true,\n  \"previous_state\": \"detected\",\n  \"state\": \"false_positive_reviewed\"\n}",
+   "tool": "seo_remediation_transition"
+  },
+  "remediation.6.seo_remediation_report": {
+   "arguments": {
+    "ledger": "{WORK}/rem/ledger.sqlite"
+   },
+   "chain": "remediation",
+   "is_error": false,
+   "step": 6,
+   "text": "{\n  \"cases\": [\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"no retained page/document/response observation matches this finding\",\n          \"references\": [],\n          \"state\": \"unavailable\"\n        },\n        \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n        \"evidence_state\": \"unavailable\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000002\",\n        \"observation_id\": 2,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:8>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"MISSING_ABOUT_PAGE\",\n      \"decision\": null,\n      \"finding_key\": \"<HEX64:20>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"no retained page/document/response observation matches this finding\",\n            \"references\": [],\n            \"state\": \"unavailable\"\n          },\n          \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n          \"evidence_state\": \"unavailable\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000002\",\n          \"observation_id\": 2,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:8>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:21>\",\n      \"state\": \"detected\",\n      \"subject\": \"site\"\n    },\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"no retained page/document/response observation matches this finding\",\n          \"references\": [],\n          \"state\": \"unavailable\"\n        },\n        \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n        \"evidence_state\": \"unavailable\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000003\",\n        \"observation_id\": 3,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:11>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"MISSING_CONTACT_PAGE\",\n      \"decision\": null,\n      \"finding_key\": \"<HEX64:22>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"no retained page/document/response observation matches this finding\",\n            \"references\": [],\n            \"state\": \"unavailable\"\n          },\n          \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n          \"evidence_state\": \"unavailable\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000003\",\n          \"observation_id\": 3,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:11>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:23>\",\n      \"state\": \"detected\",\n      \"subject\": \"site\"\n    },\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"no retained page/document/response observation matches this finding\",\n          \"references\": [],\n          \"state\": \"unavailable\"\n        },\n        \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n        \"evidence_state\": \"unavailable\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000004\",\n        \"observation_id\": 4,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:14>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"MISSING_PRIVACY_POLICY\",\n      \"decision\": null,\n      \"finding_key\": \"<HEX64:24>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"no retained page/document/response observation matches this finding\",\n            \"references\": [],\n            \"state\": \"unavailable\"\n          },\n          \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n          \"evidence_state\": \"unavailable\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000004\",\n          \"observation_id\": 4,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:14>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:25>\",\n      \"state\": \"detected\",\n      \"subject\": \"site\"\n    },\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"no retained page/document/response observation matches this finding\",\n          \"references\": [],\n          \"state\": \"unavailable\"\n        },\n        \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n        \"evidence_state\": \"unavailable\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000005\",\n        \"observation_id\": 5,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:17>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"MISSING_TERMS_PAGE\",\n      \"decision\": null,\n      \"finding_key\": \"<HEX64:26>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"no retained page/document/response observation matches this finding\",\n            \"references\": [],\n            \"state\": \"unavailable\"\n          },\n          \"evidence_reason\": \"no retained page/document/response observation matches this finding\",\n          \"evidence_state\": \"unavailable\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000005\",\n          \"observation_id\": 5,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:17>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:27>\",\n      \"state\": \"detected\",\n      \"subject\": \"site\"\n    },\n    {\n      \"baseline\": {\n        \"basis\": {\n          \"config_fingerprint\": \"56cabdc834bca4b9\",\n          \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n          \"producer_version\": \"3.2.0\"\n        },\n        \"basis_changed\": null,\n        \"evidence\": {\n          \"reason\": \"\",\n          \"references\": [\n            {\n              \"id\": \"evidence:v1:<UUID:9>:pages:<HASH>\",\n              \"observation_id\": \"url_id:1\",\n              \"representation\": \"static\",\n              \"role\": \"target\",\n              \"source_table\": \"pages\"\n            },\n            {\n              \"id\": \"evidence:v1:<UUID:9>:urls:<HASH>\",\n              \"observation_id\": \"url_id:1\",\n              \"representation\": \"\",\n              \"role\": \"target\",\n              \"source_table\": \"urls\"\n            },\n            {\n              \"id\": \"evidence:v1:<UUID:9>:documents:<HASH>\",\n              \"observation_id\": \"document_id:1\",\n              \"representation\": \"static\",\n              \"role\": \"target\",\n              \"source_table\": \"documents\"\n            },\n            {\n              \"id\": \"evidence:v1:<UUID:9>:responses:<HASH>\",\n              \"observation_id\": \"response_id:1\",\n              \"representation\": \"static\",\n              \"role\": \"target\",\n              \"source_table\": \"responses\"\n            }\n          ],\n          \"state\": \"measured\"\n        },\n        \"evidence_reason\": \"\",\n        \"evidence_state\": \"measured\",\n        \"ingested_at\": \"<TS>\",\n        \"issue_ordinal\": \"ISSUE-000001\",\n        \"observation_id\": 1,\n        \"observation_revision\": 1,\n        \"observed_at\": \"<TS>\",\n        \"observed_at_state\": \"known\",\n        \"payload_sha256\": \"<HEX64:5>\",\n        \"role\": \"target\",\n        \"source_scan\": {\n          \"artifact_state\": \"present\",\n          \"audit_sha256\": \"<HEX64:1>\",\n          \"corpus_partial\": false,\n          \"crawl_partial\": false,\n          \"evidence_revision\": 1,\n          \"format_version\": \"scan.v1\",\n          \"scan_uuid\": \"<UUID:9>\",\n          \"source_scan_id\": 1\n        }\n      },\n      \"check\": \"NO_RESPONSE\",\n      \"decision\": {\n        \"actor\": \"owner\",\n        \"decided_at\": \"<TS>\",\n        \"decided_at_state\": \"known\",\n        \"decision_id\": 1,\n        \"ledger_revision\": 2,\n        \"observation_id\": null,\n        \"reason\": \"not reachable since the DNS move\",\n        \"state\": \"false_positive_reviewed\",\n        \"verification\": null\n      },\n      \"finding_key\": \"<HEX64:18>\",\n      \"observations\": [\n        {\n          \"basis\": {\n            \"config_fingerprint\": \"56cabdc834bca4b9\",\n            \"producer_revision\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n            \"producer_version\": \"3.2.0\"\n          },\n          \"basis_changed\": null,\n          \"evidence\": {\n            \"reason\": \"\",\n            \"references\": [\n              {\n                \"id\": \"evidence:v1:<UUID:9>:pages:<HASH>\",\n                \"observation_id\": \"url_id:1\",\n                \"representation\": \"static\",\n                \"role\": \"target\",\n                \"source_table\": \"pages\"\n              },\n              {\n                \"id\": \"evidence:v1:<UUID:9>:urls:<HASH>\",\n                \"observation_id\": \"url_id:1\",\n                \"representation\": \"\",\n                \"role\": \"target\",\n                \"source_table\": \"urls\"\n              },\n              {\n                \"id\": \"evidence:v1:<UUID:9>:documents:<HASH>\",\n                \"observation_id\": \"document_id:1\",\n                \"representation\": \"static\",\n                \"role\": \"target\",\n                \"source_table\": \"documents\"\n              },\n              {\n                \"id\": \"evidence:v1:<UUID:9>:responses:<HASH>\",\n                \"observation_id\": \"response_id:1\",\n                \"representation\": \"static\",\n                \"role\": \"target\",\n                \"source_table\": \"responses\"\n              }\n            ],\n            \"state\": \"measured\"\n          },\n          \"evidence_reason\": \"\",\n          \"evidence_state\": \"measured\",\n          \"ingested_at\": \"<TS>\",\n          \"issue_ordinal\": \"ISSUE-000001\",\n          \"observation_id\": 1,\n          \"observation_revision\": 1,\n          \"observed_at\": \"<TS>\",\n          \"observed_at_state\": \"known\",\n          \"payload_sha256\": \"<HEX64:5>\",\n          \"role\": \"target\",\n          \"source_scan\": {\n            \"artifact_state\": \"present\",\n            \"audit_sha256\": \"<HEX64:1>\",\n            \"corpus_partial\": false,\n            \"crawl_partial\": false,\n            \"evidence_revision\": 1,\n            \"format_version\": \"scan.v1\",\n            \"scan_uuid\": \"<UUID:9>\",\n            \"source_scan_id\": 1\n          }\n        }\n      ],\n      \"occurrence_key\": \"<HEX64:19>\",\n      \"state\": \"false_positive_reviewed\",\n      \"subject\": \"https://example.test\"\n    }\n  ],\n  \"pagination\": {\n    \"limit\": 100,\n    \"offset\": 0,\n    \"returned\": 5,\n    \"total\": 5\n  },\n  \"schema_version\": \"remediation-report.v1\",\n  \"summary\": {\n    \"counts\": {\n      \"detected\": 4,\n      \"false_positive_reviewed\": 1,\n      \"fix_reported\": 0,\n      \"persisting\": 0,\n      \"recheck_pending\": 0,\n      \"regressed\": 0,\n      \"resolved\": 0,\n      \"unverifiable\": 0,\n      \"verified\": 0\n    },\n    \"denominators\": {\n      \"remediation_cases\": 4,\n      \"verified_original_occurrences\": 5\n    },\n    \"ledger_revision\": 2,\n    \"ok\": true,\n    \"reason\": null,\n    \"rechecked_percent\": 0.0,\n    \"represented_rechecked_percent\": 0.0,\n    \"represented_resolved_percent\": 0.0,\n    \"resolved_percent\": 0.0,\n    \"scope\": {\n      \"incomplete_group_memberships\": 0,\n      \"known_unrepresented_members\": 0,\n      \"represented_occurrences\": 5,\n      \"samples\": [],\n      \"state\": \"complete\",\n      \"unknown_group_memberships\": 0\n    },\n    \"tasks\": {\n      \"unassigned\": {\n        \"counts\": {\n          \"detected\": 4,\n          \"false_positive_reviewed\": 1,\n          \"fix_reported\": 0,\n          \"persisting\": 0,\n          \"recheck_pending\": 0,\n          \"regressed\": 0,\n          \"resolved\": 0,\n          \"unverifiable\": 0,\n          \"verified\": 0\n        },\n        \"denominators\": {\n          \"remediation_cases\": 4,\n          \"verified_original_occurrences\": 5\n        },\n        \"rechecked_percent\": 0.0,\n        \"represented_rechecked_percent\": 0.0,\n        \"represented_resolved_percent\": 0.0,\n        \"resolved_percent\": 0.0,\n        \"scope_state\": \"complete\",\n        \"status\": \"in_progress\"\n      }\n    }\n  }\n}",
+   "tool": "seo_remediation_report"
+  }
+ }
+}

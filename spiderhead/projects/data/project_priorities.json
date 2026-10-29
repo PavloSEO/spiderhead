@@ -1,0 +1,62 @@
+{
+  "format": "spiderhead.project-priorities.v1",
+  "rules": [
+    {
+      "id": "baseline-critical-response-robots-canonical",
+      "facts": {},
+      "priority": "P0",
+      "items": [
+        "check:BROKEN_PAGE_4XX",
+        "check:CANONICAL_MISSING",
+        "check:IMPORTANT_URL_BLOCKED_BY_ROBOTS",
+        "check:LINK_TO_5XX"
+      ]
+    },
+    {
+      "id": "baseline-url-style-review",
+      "facts": {},
+      "priority": "P2",
+      "items": [
+        "check:URL_REPETITIVE_PATH",
+        "check:URL_TOO_LONG",
+        "check:URL_UNDERSCORES",
+        "check:URL_UPPERCASE"
+      ]
+    },
+    {
+      "id": "javascript-framework",
+      "facts": {
+        "framework": [
+          "Next",
+          "Next.js",
+          "Nextjs",
+          "Nuxt",
+          "Nuxt.js",
+          "React",
+          "React.js",
+          "Vue",
+          "Vue.js",
+          "next.js",
+          "nextjs",
+          "nuxt",
+          "react",
+          "vue"
+        ]
+      },
+      "priority": "P0",
+      "items": ["skill:workflow/js-render-check", "scenario:rendering", "scenario:js-content"]
+    },
+    {
+      "id": "php-cms",
+      "facts": {"cms": ["1С-Битрикс", "Bitrix", "PHP", "WordPress", "bitrix", "php", "wordpress"]},
+      "priority": "P0",
+      "items": ["check:URL_HAS_PARAMS", "scenario:security-headers", "scenario:url-hygiene", "skill:workflow/security-audit"]
+    },
+    {
+      "id": "publisher",
+      "facts": {"site_type": ["publisher"]},
+      "priority": "P0",
+      "items": ["check:PAGINATION_URL_NOT_IN_ANCHOR", "check:DEEP_CLICK_DEPTH", "check:SITEMAP_DESYNC"]
+    }
+  ]
+}

@@ -1,0 +1,1173 @@
+[
+ {
+  "args": {
+   "operation": "projects",
+   "params": {
+    "limit": 1,
+    "offset": 0
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 1, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ],
+   "result": {
+    "limit": 1,
+    "limitedBy": 1,
+    "nextOffset": 1,
+    "offset": 0,
+    "ok": true,
+    "operation": "projects",
+    "page_only": true,
+    "result": [
+     {
+      "id": 11,
+      "name": "Example",
+      "url": "example.com"
+     }
+    ],
+    "total": 2
+   }
+  },
+  "isolate_config": false,
+  "name": "projects page with paging metadata",
+  "responses": [
+   {
+    "body": {
+     "limitedBy": 1,
+     "nextOffset": 1,
+     "result": [
+      {
+       "id": 11,
+       "name": "Example",
+       "url": "example.com"
+      }
+     ],
+     "total": 2
+    },
+    "headers": {
+     "Content-Type": "application/json"
+    },
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ],
+   "result": {
+    "limit": 100,
+    "offset": 0,
+    "ok": true,
+    "operation": "projects",
+    "page_only": true,
+    "result": [],
+    "total": 0
+   }
+  },
+  "isolate_config": false,
+  "name": "projects final page has no nextOffset",
+  "responses": [
+   {
+    "body": {
+     "result": [],
+     "total": 0
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "history",
+   "params": {
+    "date1": "2026-10-01",
+    "date2": "2026-10-20",
+    "project_id": 7
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"project_id\": 7, \"date1\": \"2026-10-01\", \"date2\": \"2026-10-20\", \"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/positions_2/history"
+    }
+   ],
+   "result": {
+    "limit": 100,
+    "offset": 0,
+    "ok": true,
+    "operation": "history",
+    "page_only": true,
+    "result": {
+     "keywords": [
+      {
+       "name": "query",
+       "positionsData": [
+        [
+         "2026-10-01",
+         5,
+         "--"
+        ]
+       ]
+      }
+     ]
+    },
+    "total": 1
+   }
+  },
+  "isolate_config": false,
+  "name": "history keeps object shape",
+  "responses": [
+   {
+    "body": {
+     "result": {
+      "keywords": [
+       {
+        "name": "query",
+        "positionsData": [
+         [
+          "2026-10-01",
+          5,
+          "--"
+         ]
+        ]
+       }
+      ]
+     },
+     "total": 1
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "summary",
+   "params": {
+    "project_id": 7
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"project_id\": 7, \"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/positions_2/summary"
+    }
+   ],
+   "result": {
+    "limit": 100,
+    "offset": 0,
+    "ok": true,
+    "operation": "summary",
+    "page_only": true,
+    "result": {
+     "keywords": {
+      "tops": {
+       "1_3": 2
+      }
+     }
+    }
+   }
+  },
+  "isolate_config": false,
+  "name": "summary object",
+  "responses": [
+   {
+    "body": {
+     "result": {
+      "keywords": {
+       "tops": {
+        "1_3": 2
+       }
+      }
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor API errors: 403: u [redacted]: denied [redacted]"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "errors envelope redacts credentials",
+  "responses": [
+   {
+    "body": {
+     "errors": [
+      {
+       "code": 403,
+       "message": "u 123",
+       "string": "denied test-token-123"
+      }
+     ],
+     "result": null
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor API errors: boom"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "errors non-list single object",
+  "responses": [
+   {
+    "body": {
+     "errors": {
+      "message": "boom"
+     },
+     "result": []
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor HTTP 403; response body omitted"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "http 403",
+  "responses": [
+   {
+    "body": "<html>denied</html>",
+    "headers": {},
+    "status": 403
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor HTTP 401; response body omitted"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "http 401",
+  "responses": [
+   {
+    "body": "no",
+    "headers": {},
+    "status": 401
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor HTTP 301; response body omitted"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "redirect is refused and surfaced as http error",
+  "responses": [
+   {
+    "body": "",
+    "headers": {
+     "Location": "/elsewhere"
+    },
+    "status": 301
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor returned invalid JSON"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "invalid json",
+  "responses": [
+   {
+    "body": "not json{",
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor connection failed"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "transport timeout",
+  "responses": [
+   {
+    "transport_error": "timeout"
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor returned an unexpected envelope"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "envelope is a bare array",
+  "responses": [
+   {
+    "body": [
+     1,
+     2
+    ],
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor returned a null result"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "null result is an error",
+  "responses": [
+   {
+    "body": {
+     "result": null
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor response has no result"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "missing result key",
+  "responses": [
+   {
+    "body": {
+     "errors": []
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor projects returned an unexpected result type"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/projects_2/projects"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "list op rejects object result",
+  "responses": [
+   {
+    "body": {
+     "result": {
+      "id": 1
+     }
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "summary",
+   "params": {
+    "project_id": 7
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "TopvisorError",
+    "message": "Topvisor summary returned an unexpected result type"
+   },
+   "pauses": [],
+   "requests": [
+    {
+     "body": "{\"project_id\": 7, \"limit\": 100, \"offset\": 0}",
+     "headers": [
+      [
+       "content-type",
+       "application/json"
+      ],
+      [
+       "user-id",
+       "123"
+      ],
+      [
+       "authorization",
+       "bearer test-token-123"
+      ]
+     ],
+     "method": "POST",
+     "timeout": 30,
+     "url": "https://api.topvisor.com/v2/json/get/positions_2/summary"
+    }
+   ]
+  },
+  "isolate_config": false,
+  "name": "object op rejects array result",
+  "responses": [
+   {
+    "body": {
+     "result": [
+      1
+     ]
+    },
+    "headers": {},
+    "status": 200
+   }
+  ]
+ },
+ {
+  "args": {
+   "operation": "launch"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Unsupported read operation"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "unsupported operation",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects",
+   "params": {
+    "limit": "x"
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "limit must be an integer between 1 and 1000"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "limit as string",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects",
+   "params": {
+    "limit": 1.5
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "limit must be an integer between 1 and 1000"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "limit float",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects",
+   "params": {
+    "limit": 0
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "limit must be an integer between 1 and 1000"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "limit zero",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects",
+   "params": {
+    "limit": 1001
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "limit must be an integer between 1 and 1000"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "limit above max",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects",
+   "params": {
+    "limit": true
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "limit must be an integer between 1 and 1000"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "limit bool rejected",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects",
+   "params": {
+    "offset": -1
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "offset must be an integer between 0 and 1000000"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "offset negative",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "groups"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "project_id is required"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "project_id required for groups",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "groups",
+   "params": {
+    "project_id": 0
+   }
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "test-token-123",
+   "TOPVISOR_USER_ID": "123"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "project_id is required"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "project_id zero is falsy",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "a b",
+   "TOPVISOR_USER_ID": "1"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Topvisor token contains whitespace"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "whitespace token rejected",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [],
+  "env": {
+   "TOPVISOR_TOKEN": "t",
+   "TOPVISOR_USER_ID": "ab"
+  },
+  "expect": {
+   "error": {
+    "class": "ValueError",
+    "message": "Topvisor user_id must contain only ASCII digits"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": false,
+  "name": "non-digit user id rejected",
+  "responses": []
+ },
+ {
+  "args": {
+   "operation": "projects"
+  },
+  "clear_env": [
+   "TOPVISOR_TOKEN",
+   "TOPVISOR_USER_ID"
+  ],
+  "env": {},
+  "expect": {
+   "error": {
+    "class": "MissingCredential",
+    "message": "credential not found: store it in /nonexistent-oracle-config-root/topvisor/access_token or set $TOPVISOR_TOKEN"
+   },
+   "pauses": [],
+   "requests": []
+  },
+  "isolate_config": true,
+  "name": "missing credentials",
+  "responses": []
+ }
+]

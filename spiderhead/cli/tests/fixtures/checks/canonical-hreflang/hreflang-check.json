@@ -1,0 +1,11 @@
+{
+ "argv": [
+  "hreflang-check",
+  "--url",
+  "{BASE}/en/"
+ ],
+ "command": "hreflang-check",
+ "exit": 0,
+ "stderr": "seohead: hreflang-check\n",
+ "stdout": "{\n  \"ok\": true,\n  \"url\": \"{BASE}/en/\",\n  \"final_url\": \"{BASE}/en/\",\n  \"status_code\": 200,\n  \"count\": 4,\n  \"alternates\": [\n    {\n      \"hreflang\": \"en\",\n      \"href\": \"{BASE}/en/\"\n    },\n    {\n      \"hreflang\": \"de\",\n      \"href\": \"{BASE}/de/\"\n    },\n    {\n      \"hreflang\": \"x-default\",\n      \"href\": \"{BASE}/en/\"\n    },\n    {\n      \"hreflang\": \"fr\",\n      \"href\": \"{BASE}/fr/\"\n    }\n  ],\n  \"issues\": []\n}\n"
+}

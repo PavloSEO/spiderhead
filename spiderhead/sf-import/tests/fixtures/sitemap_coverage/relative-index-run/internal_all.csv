@@ -1,0 +1,3 @@
+﻿Address,Content Type,Status Code,Indexability
+https://example.com/sitemaps/relative-page,text/html,200,Indexable
+https://example.com/absolute-page,text/html,200,Indexable

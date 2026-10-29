@@ -1,0 +1,4 @@
+﻿Address,Content Type,Status Code,Indexability
+https://example.com/ok,text/html,200,Indexable
+https://example.com/redir,text/html,200,Indexable
+https://example.com/orph,text/html,200,Indexable

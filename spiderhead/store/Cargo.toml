@@ -1,0 +1,38 @@
+[package]
+name = "spiderhead-store"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SpiderHead storage persistence layer (SQLite stores)."
+
+[dependencies]
+calamine.workspace = true
+csv.workspace = true
+fancy-regex.workspace = true
+flate2.workspace = true
+indexmap.workspace = true
+libc.workspace = true
+# Forces a vendored zlib so `encode_body` bytes equal Creference zlib level 6 on every host.
+libz-sys.workspace = true
+quick-xml.workspace = true
+ruzstd.workspace = true
+rust_xlsxwriter.workspace = true
+url.workspace = true
+caseless.workspace = true
+unicode-general-category.workspace = true
+spiderhead-core.workspace = true
+spiderhead-formats.workspace = true
+encoding_rs.workspace = true
+rusqlite.workspace = true
+spiderhead-parse.workspace = true
+regex.workspace = true
+scraper.workspace = true
+serde.workspace = true
+sha1.workspace = true
+serde_json = { workspace = true, features = ["preserve_order"] }
+sha2.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+calamine.workspace = true

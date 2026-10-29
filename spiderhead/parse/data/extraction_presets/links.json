@@ -1,0 +1,46 @@
+{
+ "name": "links",
+ "description": "Every link: href, anchor text and rel, plus external hrefs as their own column.",
+ "rules": [
+  {
+   "id": "a-href",
+   "kind": "attribute",
+   "selector": "a@href",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "a-text",
+   "kind": "text",
+   "selector": "a",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "a-rel",
+   "kind": "attribute",
+   "selector": "a@rel",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "a-external",
+   "kind": "attribute",
+   "selector": "a[href^=\"http\"]@href",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  },
+  {
+   "id": "a-nofollow",
+   "kind": "count",
+   "selector": "a[rel~=\"nofollow\"]",
+   "operator": "exists",
+   "value": "",
+   "max_matches": 100
+  }
+ ]
+}

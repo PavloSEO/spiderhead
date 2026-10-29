@@ -1,0 +1,11 @@
+[package]
+name = "spiderhead-oracle-diff"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Structural JSON diff between reference baseline baselines and Rust output."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+toml = "0.8"

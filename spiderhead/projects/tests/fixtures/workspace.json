@@ -1,0 +1,1590 @@
+[
+ {
+  "name": "directory-ok",
+  "steps": [
+   {
+    "op": "workspace.directory",
+    "args": {
+     "path": ".",
+     "label": "directory"
+    }
+   },
+   {
+    "op": "workspace.directory",
+    "args": {
+     "path": "missing",
+     "label": "directory"
+    }
+   },
+   {
+    "op": "file.mkdir",
+    "args": {
+     "path": "adir"
+    }
+   },
+   {
+    "op": "workspace.directory",
+    "args": {
+     "path": "adir",
+     "label": "directory"
+    }
+   },
+   {
+    "op": "workspace.directory",
+    "args": {
+     "path": "adir/nested",
+     "label": "directory"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": "/private<DIR>"
+   },
+   {
+    "error": "ValueError: directory must be an existing non-symlink directory"
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": "/private<DIR>/adir"
+   },
+   {
+    "error": "ValueError: directory must be an existing non-symlink directory"
+   }
+  ]
+ },
+ {
+  "name": "target-refs-facts",
+  "steps": [
+   {
+    "op": "workspace.target",
+    "args": {
+     "value": "example.com"
+    }
+   },
+   {
+    "op": "workspace.target",
+    "args": {
+     "value": "https://example.com/path"
+    }
+   },
+   {
+    "op": "workspace.target",
+    "args": {
+     "value": "not a url"
+    }
+   },
+   {
+    "op": "workspace.target",
+    "args": {
+     "value": "ftp://x.example"
+    }
+   },
+   {
+    "op": "workspace.references",
+    "args": {
+     "value": [
+      "a.txt"
+     ],
+     "label": "references"
+    }
+   },
+   {
+    "op": "workspace.references",
+    "args": {
+     "value": null
+    }
+   },
+   {
+    "op": "workspace.references",
+    "args": {
+     "value": "x"
+    }
+   },
+   {
+    "op": "workspace.facts",
+    "args": {
+     "value": [
+      {
+       "key": "k",
+       "value": "v"
+      }
+     ]
+    }
+   },
+   {
+    "op": "workspace.facts",
+    "args": {
+     "value": null
+    }
+   },
+   {
+    "op": "workspace.facts",
+    "args": {
+     "value": [
+      {
+       "bad": 1
+      }
+     ]
+    }
+   },
+   {
+    "op": "workspace.facts",
+    "args": {
+     "value": "x"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": "https://example.com/"
+   },
+   {
+    "ok": "https://example.com/path"
+   },
+   {
+    "error": "ValueError: target must have a valid public hostname"
+   },
+   {
+    "error": "ValueError: target must be a public HTTP(S) site identity without credentials"
+   },
+   {
+    "ok": [
+     "a.txt"
+    ]
+   },
+   {
+    "ok": []
+   },
+   {
+    "error": "ValueError: references must be a list of at most 100 references"
+   },
+   {
+    "error": "ValueError: each fact requires name, value, provenance, and observed_at"
+   },
+   {
+    "ok": []
+   },
+   {
+    "error": "ValueError: each fact requires name, value, provenance, and observed_at"
+   },
+   {
+    "error": "ValueError: facts must be a list of at most 100 provenance-backed values"
+   }
+  ]
+ },
+ {
+  "name": "create-open",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "workspace.load",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj",
+     "expected_site": "https://example.com"
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj",
+     "expected_site": "https://other.com"
+    }
+   },
+   {
+    "op": "workspace.project_status",
+    "args": {
+     "path": "proj"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "root": "/private<DIR>/proj",
+     "document": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "error": "ValueError: project site identity conflicts with the requested site"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "settings_revision": 0,
+      "template_references": [],
+      "profile_references": []
+     },
+     "scans": {
+      "total": 0,
+      "offset": 0,
+      "items": [],
+      "has_more": false,
+      "errors": [],
+      "history_bytes": 0,
+      "history_warning_bytes": 21474836480,
+      "history_warning": false
+     },
+     "summary": {
+      "running_scan": {
+       "running": null,
+       "id": null,
+       "progress": null,
+       "reason": "no collector observation is recorded"
+      },
+      "open_tasks": {
+       "count": null,
+       "state": "unavailable",
+       "scope": "primary_project_custom_checklist",
+       "reason": "the project checklist is not initialized"
+      },
+      "latest_scan": {
+       "uuid": null,
+       "state": null,
+       "completeness": null,
+       "reason": "no retained scan is available"
+      },
+      "folder_health": {
+       "state": "ok",
+       "reason": null
+      }
+     },
+     "agent_state": {
+      "last_seen_at": null,
+      "connected": null,
+      "heartbeat_source": null,
+      "activity_source": null,
+      "reason": "no agent activity is recorded"
+     },
+     "storage": {
+      "state": "unavailable",
+      "relative_path": "scans",
+      "total_bytes": null,
+      "scan_count": null,
+      "measured_at": null,
+      "reason": "measurement has not been recorded"
+     },
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     },
+     "preparation": {
+      "state": "pending",
+      "reason": "bounded project preparation has not run"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "create-labels",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": null
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://www.example.co.uk/a?b=1",
+     "label": "Unicode é"
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": null,
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": null,
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "error": "ValueError: project directory already exists or is not a new path"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": null,
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "create-bad",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example",
+     "facts": [
+      {
+       "key": "k"
+      }
+     ]
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "proj"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "error": "ValueError: target must be a public HTTP(S) site identity without credentials"
+   },
+   {
+    "error": "ValueError: each fact requires name, value, provenance, and observed_at"
+   },
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   }
+  ]
+ },
+ {
+  "name": "open-missing",
+  "steps": [
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "nothing"
+    }
+   },
+   {
+    "op": "file.mkdir",
+    "args": {
+     "path": "empty"
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "empty"
+    }
+   },
+   {
+    "op": "file.write",
+    "args": {
+     "path": "broken/project.json",
+     "text": "not json"
+    }
+   },
+   {
+    "op": "workspace.open_project",
+    "args": {
+     "path": "broken"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   },
+   {
+    "ok": null
+   },
+   {
+    "error": "ValueError: project scans directory is missing or unsafe"
+   },
+   {
+    "ok": null
+   },
+   {
+    "error": "ValueError: project scans directory is missing or unsafe"
+   }
+  ]
+ },
+ {
+  "name": "project-status-missing",
+  "steps": [
+   {
+    "op": "workspace.project_status",
+    "args": {
+     "path": "nope"
+    }
+   },
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "workspace.project_status",
+    "args": {
+     "path": "proj"
+    }
+   },
+   {
+    "op": "workspace.project_status",
+    "args": {
+     "path": "proj",
+     "verify_evidence": false
+    }
+   }
+  ],
+  "expect": [
+   {
+    "error": "ValueError: project directory must be an existing non-symlink directory"
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "settings_revision": 0,
+      "template_references": [],
+      "profile_references": []
+     },
+     "scans": {
+      "total": 0,
+      "offset": 0,
+      "items": [],
+      "has_more": false,
+      "errors": [],
+      "history_bytes": 0,
+      "history_warning_bytes": 21474836480,
+      "history_warning": false
+     },
+     "summary": {
+      "running_scan": {
+       "running": null,
+       "id": null,
+       "progress": null,
+       "reason": "no collector observation is recorded"
+      },
+      "open_tasks": {
+       "count": null,
+       "state": "unavailable",
+       "scope": "primary_project_custom_checklist",
+       "reason": "the project checklist is not initialized"
+      },
+      "latest_scan": {
+       "uuid": null,
+       "state": null,
+       "completeness": null,
+       "reason": "no retained scan is available"
+      },
+      "folder_health": {
+       "state": "ok",
+       "reason": null
+      }
+     },
+     "agent_state": {
+      "last_seen_at": null,
+      "connected": null,
+      "heartbeat_source": null,
+      "activity_source": null,
+      "reason": "no agent activity is recorded"
+     },
+     "storage": {
+      "state": "unavailable",
+      "relative_path": "scans",
+      "total_bytes": null,
+      "scan_count": null,
+      "measured_at": null,
+      "reason": "measurement has not been recorded"
+     },
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     },
+     "preparation": {
+      "state": "pending",
+      "reason": "bounded project preparation has not run"
+     }
+    }
+   },
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "settings_revision": 0,
+      "template_references": [],
+      "profile_references": []
+     },
+     "scans": {
+      "total": 0,
+      "offset": 0,
+      "items": [],
+      "has_more": false,
+      "errors": [],
+      "history_bytes": 0,
+      "history_warning_bytes": 21474836480,
+      "history_warning": false
+     },
+     "summary": {
+      "running_scan": {
+       "running": null,
+       "id": null,
+       "progress": null,
+       "reason": "no collector observation is recorded"
+      },
+      "open_tasks": {
+       "count": null,
+       "state": "unavailable",
+       "scope": "primary_project_custom_checklist",
+       "reason": "the project checklist is not initialized"
+      },
+      "latest_scan": {
+       "uuid": null,
+       "state": null,
+       "completeness": null,
+       "reason": "no retained scan is available"
+      },
+      "folder_health": {
+       "state": "ok",
+       "reason": null
+      }
+     },
+     "agent_state": {
+      "last_seen_at": null,
+      "connected": null,
+      "heartbeat_source": null,
+      "activity_source": null,
+      "reason": "no agent activity is recorded"
+     },
+     "storage": {
+      "state": "unavailable",
+      "relative_path": "scans",
+      "total_bytes": null,
+      "scan_count": null,
+      "measured_at": null,
+      "reason": "measurement has not been recorded"
+     },
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     },
+     "preparation": {
+      "state": "pending",
+      "reason": "bounded project preparation has not run"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "name": "io-documents",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "io.load_document",
+    "args": {
+     "path": "proj",
+     "name": "things",
+     "default": {
+      "format": "x",
+      "items": []
+     }
+    }
+   },
+   {
+    "op": "io.load_document",
+    "args": {
+     "path": "proj",
+     "name": "project"
+    }
+   },
+   {
+    "op": "io.check_owner",
+    "args": {
+     "document": {
+      "project_uuid": "u1"
+     },
+     "project_uuid": "u1",
+     "fmt": "doc-format",
+     "label": "document"
+    }
+   },
+   {
+    "op": "io.check_owner",
+    "args": {
+     "document": {
+      "project_uuid": "u1"
+     },
+     "project_uuid": "u2",
+     "fmt": "doc-format",
+     "label": "document"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": {
+     "root": "/private<DIR>/proj",
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1
+     },
+     "document": {
+      "format": "x",
+      "items": []
+     }
+    }
+   },
+   {
+    "ok": {
+     "root": "/private<DIR>/proj",
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1
+     },
+     "document": null
+    }
+   },
+   {
+    "error": "ValueError: document belongs to another project or format"
+   },
+   {
+    "error": "ValueError: document belongs to another project or format"
+   }
+  ]
+ },
+ {
+  "name": "io-save",
+  "steps": [
+   {
+    "op": "workspace.create_project",
+    "args": {
+     "path": "proj",
+     "target": "https://example.com",
+     "label": "Example"
+    }
+   },
+   {
+    "op": "io.save_revision",
+    "args": {
+     "path": "proj",
+     "name": "doc",
+     "document": {
+      "format": "f",
+      "project_uuid": "PLACEHOLDER",
+      "revision": 0
+     }
+    }
+   },
+   {
+    "op": "io.load_document",
+    "args": {
+     "path": "proj",
+     "name": "doc",
+     "default": {}
+    }
+   },
+   {
+    "op": "io.save_checked",
+    "args": {
+     "path": "proj",
+     "name": "doc2",
+     "document": {
+      "format": "f",
+      "revision": 0
+     },
+     "expected_revision": 0,
+     "label": "document"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "ok": true,
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1,
+      "settings_revision": 0
+     },
+     "path": "/private<DIR>/proj",
+     "checklist": {
+      "state": "not_initialized",
+      "reason": "coverage checklist is initialized by project checklist setup, not project creation"
+     }
+    }
+   },
+   {
+    "ok": null
+   },
+   {
+    "ok": {
+     "root": "/private<DIR>/proj",
+     "project": {
+      "artifact_directories": {
+       "log": "log.md",
+       "reports": "reports",
+       "scans": "scans"
+      },
+      "created_at": "<TS>",
+      "facts": [],
+      "format": "spiderhead.project.v1",
+      "profile_references": [],
+      "project_uuid": "<UUID>",
+      "site": {
+       "host": "example.com",
+       "label": "Example",
+       "target": "https://example.com/"
+      },
+      "template_references": [],
+      "version": 1
+     },
+     "document": {
+      "format": "f",
+      "project_uuid": "PLACEHOLDER",
+      "revision": 1
+     }
+    }
+   },
+   {
+    "ok": null
+   }
+  ]
+ },
+ {
+  "name": "urlsplit-basic",
+  "steps": [
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "https://user:pw@host.example:8443/p/q?x=1&y=2#frag"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "http://example.com"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "//netloc/only"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "relative/path?query#frag"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "https://[::1]:8080/v6"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "http://host:badport/x"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "http://user@h"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "mailto:me@x.example"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "tel:+123"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": ""
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "http://h/%zz"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "https://h/p a t h"
+    }
+   },
+   {
+    "op": "urls.urlsplit",
+    "args": {
+     "input": "a:b:c"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "scheme": "https",
+     "netloc": "user:pw@host.example:8443",
+     "path": "/p/q",
+     "query": "x=1&y=2",
+     "fragment": "frag",
+     "username": "user",
+     "password": "pw",
+     "hostname": "host.example",
+     "port": 8443
+    }
+   },
+   {
+    "ok": {
+     "scheme": "http",
+     "netloc": "example.com",
+     "path": "",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": "example.com",
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "",
+     "netloc": "netloc",
+     "path": "/only",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": "netloc",
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "",
+     "netloc": "",
+     "path": "relative/path",
+     "query": "query",
+     "fragment": "frag",
+     "username": null,
+     "password": null,
+     "hostname": null,
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "https",
+     "netloc": "[::1]:8080",
+     "path": "/v6",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": "::1",
+     "port": 8080
+    }
+   },
+   {
+    "ok": {
+     "scheme": "http",
+     "netloc": "host:badport",
+     "path": "/x",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": "host",
+     "port": {
+      "raised": "Port could not be cast to integer value as 'badport'"
+     }
+    }
+   },
+   {
+    "ok": {
+     "scheme": "http",
+     "netloc": "user@h",
+     "path": "",
+     "query": "",
+     "fragment": "",
+     "username": "user",
+     "password": null,
+     "hostname": "h",
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "mailto",
+     "netloc": "",
+     "path": "me@x.example",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": null,
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "tel",
+     "netloc": "",
+     "path": "+123",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": null,
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "",
+     "netloc": "",
+     "path": "",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": null,
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "http",
+     "netloc": "h",
+     "path": "/%zz",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": "h",
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "https",
+     "netloc": "h",
+     "path": "/p a t h",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": "h",
+     "port": null
+    }
+   },
+   {
+    "ok": {
+     "scheme": "a",
+     "netloc": "",
+     "path": "b:c",
+     "query": "",
+     "fragment": "",
+     "username": null,
+     "password": null,
+     "hostname": null,
+     "port": null
+    }
+   }
+  ]
+ },
+ {
+  "name": "urlunsplit-defrag",
+  "steps": [
+   {
+    "op": "urls.urlunsplit",
+    "args": {
+     "scheme": "https",
+     "netloc": "h.x",
+     "path": "/p",
+     "query": "q=1",
+     "fragment": "f"
+    }
+   },
+   {
+    "op": "urls.urlunsplit",
+    "args": {
+     "scheme": "",
+     "netloc": "h.x",
+     "path": "/p"
+    }
+   },
+   {
+    "op": "urls.urldefrag",
+    "args": {
+     "input": "http://h/x#frag"
+    }
+   },
+   {
+    "op": "urls.urldefrag",
+    "args": {
+     "input": "http://h/x"
+    }
+   },
+   {
+    "op": "urls.urldefrag",
+    "args": {
+     "input": "http://h/x#"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": "https://h.x/p?q=1#f"
+   },
+   {
+    "ok": "//h.x/p"
+   },
+   {
+    "ok": [
+     "http://h/x",
+     "frag"
+    ]
+   },
+   {
+    "ok": [
+     "http://h/x",
+     ""
+    ]
+   },
+   {
+    "ok": [
+     "http://h/x",
+     ""
+    ]
+   }
+  ]
+ },
+ {
+  "name": "fromisoformat",
+  "steps": [
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-01-02T03:04:05"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-01-02T03:04:05.123456"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-01-02 03:04:05"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-01-02"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-01-02T03:04:05Z"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-01-02T03:04:05+03:00"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-01-02T03:04:05.5-05:30"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-13-01"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "not a date"
+    }
+   },
+   {
+    "op": "pytime.fromisoformat",
+    "args": {
+     "text": "2026-01-02T25:00:00"
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": {
+     "civil": "<TS>",
+     "offset_seconds": null
+    }
+   },
+   {
+    "ok": {
+     "civil": "<TS>",
+     "offset_seconds": null
+    }
+   },
+   {
+    "ok": {
+     "civil": "<TS>",
+     "offset_seconds": null
+    }
+   },
+   {
+    "ok": {
+     "civil": "<TS>",
+     "offset_seconds": null
+    }
+   },
+   {
+    "ok": {
+     "civil": "<TS>",
+     "offset_seconds": 0.0
+    }
+   },
+   {
+    "ok": {
+     "civil": "<TS>",
+     "offset_seconds": 10800.0
+    }
+   },
+   {
+    "ok": {
+     "civil": "<TS>",
+     "offset_seconds": -19800.0
+    }
+   },
+   {
+    "error": "ValueError: month must be in 1..12, not 13"
+   },
+   {
+    "error": "ValueError: Invalid isoformat string: 'not a date'"
+   },
+   {
+    "error": "ValueError: hour must be in 0..23, not 25"
+   }
+  ]
+ },
+ {
+  "name": "epoch-z",
+  "steps": [
+   {
+    "op": "pytime.epoch_z",
+    "args": {
+     "seconds": 0
+    }
+   },
+   {
+    "op": "pytime.epoch_z",
+    "args": {
+     "seconds": 1700000000
+    }
+   },
+   {
+    "op": "pytime.epoch_z",
+    "args": {
+     "seconds": -1
+    }
+   },
+   {
+    "op": "pytime.epoch_z",
+    "args": {
+     "seconds": 4102444800.5
+    }
+   }
+  ],
+  "expect": [
+   {
+    "ok": "<TS>"
+   },
+   {
+    "ok": "<TS>"
+   },
+   {
+    "ok": "<TS>"
+   },
+   {
+    "ok": "<TS>"
+   }
+  ]
+ }
+]

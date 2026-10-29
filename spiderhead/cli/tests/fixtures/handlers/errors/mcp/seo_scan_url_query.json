@@ -1,0 +1,5 @@
+{
+ "is_error": true,
+ "text": "Error executing tool seo_scan_url_query: {\"ok\": false, \"state\": \"invalid\", \"format\": \"spiderhead.scan-url-query.v1\", \"reason_code\": \"limit_too_large\", \"error\": \"limit must be at most 200\"}",
+ "tool": "seo_scan_url_query"
+}
