@@ -5,7 +5,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::time::Duration;
 
 use serde_json::{json, Value};
@@ -18,6 +18,8 @@ struct Site {
     hits: Arc<AtomicUsize>,
     dropped: Arc<AtomicUsize>,
     connections: Arc<AtomicUsize>,
+    /// Requests being answered at the same moment: (now, peak).
+    gauge: Arc<(AtomicUsize, AtomicUsize)>,
     stop: Arc<AtomicBool>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
@@ -52,12 +54,14 @@ impl Site {
         let dropped = Arc::new(AtomicUsize::new(0));
         let connections = Arc::new(AtomicUsize::new(0));
         let stop = Arc::new(AtomicBool::new(false));
+        let gauge = Arc::new((AtomicUsize::new(0), AtomicUsize::new(0)));
         let thread = {
-            let (hits, dropped, connections, stop) = (
+            let (hits, dropped, connections, stop, gauge) = (
                 hits.clone(),
                 dropped.clone(),
                 connections.clone(),
                 stop.clone(),
+                gauge.clone(),
             );
             std::thread::spawn(move || {
                 while !stop.load(Ordering::Relaxed) {
@@ -65,10 +69,10 @@ impl Site {
                         Ok((stream, _)) => {
                             connections.fetch_add(1, Ordering::Relaxed);
                             let (route, behavior) = (route.clone(), behavior.clone());
-                            let (hits, dropped, stop) =
-                                (hits.clone(), dropped.clone(), stop.clone());
+                            let (hits, dropped, stop, gauge) =
+                                (hits.clone(), dropped.clone(), stop.clone(), gauge.clone());
                             std::thread::spawn(move || {
-                                serve(stream, &*route, &behavior, &hits, &dropped, &stop)
+                                serve(stream, &*route, &behavior, &hits, &dropped, &gauge, &stop)
                             });
                         }
                         Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
@@ -84,6 +88,7 @@ impl Site {
             hits,
             dropped,
             connections,
+            gauge,
             stop,
             thread: Some(thread),
         }
@@ -105,6 +110,7 @@ fn serve(
     behavior: &Behavior,
     hits: &AtomicUsize,
     dropped: &AtomicUsize,
+    gauge: &(AtomicUsize, AtomicUsize),
     stop: &AtomicBool,
 ) {
     stream.set_nonblocking(false).expect("blocking stream");
@@ -154,7 +160,10 @@ fn serve(
             .next()
             .unwrap_or("/")
             .to_owned();
+        let now = gauge.0.fetch_add(1, Ordering::SeqCst) + 1;
+        gauge.1.fetch_max(now, Ordering::SeqCst);
         std::thread::sleep(behavior.latency);
+        gauge.0.fetch_sub(1, Ordering::SeqCst);
         let (status, kind, body) = match route(&path) {
             Some((kind, body)) => ("200 OK", kind, body),
             None => ("404 Not Found", "text/plain", "not found".to_owned()),
@@ -264,6 +273,58 @@ fn a_large_sitemap_index_never_fails_the_crawl() {
         context_count(&scan, "sitemap_declared_url"),
         (CHILDREN * PER_CHILD) as i64,
         "every declared member is retained"
+    );
+    let _ = std::fs::remove_dir_all(&work);
+}
+
+/// With a fixed rate of 10 requests per second and ten requests in flight, a
+/// server that needs 300 ms per answer is crawled in parallel, not one by one.
+#[test]
+fn a_fixed_rate_crawl_runs_requests_in_parallel() {
+    const PAGES: usize = 100;
+    let site = Site::start(
+        Behavior {
+            latency: Duration::from_millis(300),
+            recycle_after: None,
+        },
+        |_origin, path| {
+            if path == "/robots.txt" {
+                return Some(("text/plain", ROBOTS.to_owned()));
+            }
+            if path == "/" {
+                let links: String = (0..PAGES)
+                    .map(|n| format!("<a href=\"/p/{n}\">p{n}</a>"))
+                    .collect();
+                return Some((
+                    "text/html",
+                    format!("<html><head><title>home</title></head><body>{links}</body></html>"),
+                ));
+            }
+            let n = path.strip_prefix("/p/")?.parse().ok()?;
+            Some(("text/html", page(n)))
+        },
+    );
+    let work = scratch("parallel");
+    let scan = work.join("scan.sqlite");
+    let started = std::time::Instant::now();
+    let result = crawl(json!({
+        "url": format!("{}/", site.base),
+        "max_urls": 500,
+        "min_delay": 0.1,
+        "overrides": {"speed.adaptive": false, "speed.concurrency": 10},
+        "scan_out": scan.to_string_lossy(),
+    }));
+    let elapsed = started.elapsed().as_secs_f64();
+    assert_eq!(result["finish_reason"], "finished", "{result:?}");
+    assert_eq!(result["urls_collected"], json!(PAGES + 1));
+    assert!(
+        elapsed <= 15.0,
+        "{} pages took {elapsed:.1}s; requests were sequential",
+        PAGES + 1
+    );
+    assert!(
+        site.gauge.1.load(Ordering::SeqCst) >= 2,
+        "requests never overlapped (elapsed {elapsed:.1}s)"
     );
     let _ = std::fs::remove_dir_all(&work);
 }

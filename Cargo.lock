@@ -5210,6 +5210,7 @@ dependencies = [
  "encoding_rs",
  "fancy-regex 0.20.0",
  "flate2",
+ "futures",
  "indexmap",
  "reqwest 0.12.28",
  "rusqlite",
