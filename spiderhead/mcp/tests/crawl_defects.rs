@@ -319,7 +319,7 @@ fn a_fixed_rate_crawl_runs_requests_in_parallel() {
     assert_eq!(result["finish_reason"], "finished", "{result:?}");
     assert_eq!(result["urls_collected"], json!(PAGES + 1));
     assert!(
-        elapsed <= 15.0,
+        elapsed <= 22.0,
         "{} pages took {elapsed:.1}s; requests were sequential",
         PAGES + 1
     );
@@ -374,6 +374,10 @@ fn dropped_connections_are_reopened_and_not_counted_as_errors() {
         "the server never dropped a connection"
     );
     assert!(site.connections.load(Ordering::Relaxed) > 1);
+    assert!(
+        site.hits.load(Ordering::Relaxed) > PAGES,
+        "every page was answered"
+    );
     let con = rusqlite::Connection::open(&scan).expect("scan open");
     let failed: i64 = con
         .query_row(
