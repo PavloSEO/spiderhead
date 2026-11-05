@@ -340,6 +340,9 @@ pub async fn crawl_site(
     .await
 }
 
+/// Largest membership write the scan store accepts in one call.
+const MEMBERSHIP_CHUNK: usize = 256;
+
 /// The sitemap input phase (`load_sitemaps` of the collector): every declared
 /// root is replayed from stored membership or captured over the network, its
 /// members persisted and seeded in source order. The declared population is
@@ -407,8 +410,12 @@ async fn load_sitemaps(
                 .enumerate()
                 .map(|(index, member)| json!([index as i64, member]))
                 .collect();
-            scan.write_sitemap_members(sitemap_id, &pairs)
-                .map_err(|e| e.to_string())?;
+            // The store bounds one membership write; a sitemap of any size is
+            // persisted as consecutive chunks that keep source order.
+            for chunk in pairs.chunks(MEMBERSHIP_CHUNK) {
+                scan.write_sitemap_members(sitemap_id, chunk)
+                    .map_err(|e| e.to_string())?;
+            }
         }
         scan.finish_sitemap(sitemap_id, capture.complete, &capture.reason)
             .map_err(|e| e.to_string())?;
