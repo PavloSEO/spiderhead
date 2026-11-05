@@ -182,7 +182,8 @@ fn scratch(name: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("sh-crawl-defects-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("scratch dir");
-    dir
+    // Resolved, because project membership of a scan path is a lexical check.
+    dir.canonicalize().expect("scratch path")
 }
 
 fn context_count(scan: &Path, kind: &str) -> i64 {
@@ -383,4 +384,78 @@ fn dropped_connections_are_reopened_and_not_counted_as_errors() {
         .expect("failed pages");
     assert_eq!(failed, 0, "dropped connections leaked into page records");
     let _ = std::fs::remove_dir_all(&work);
+}
+
+/// Crawl `PAGES` pages from a project folder at 10 requests per second and
+/// report the elapsed seconds with the response.
+fn project_crawl(owned: bool) -> (f64, Value) {
+    const PAGES: usize = 12;
+    let site = Site::start(
+        Behavior {
+            latency: Duration::ZERO,
+            recycle_after: None,
+        },
+        |_origin, path| {
+            if path == "/robots.txt" {
+                return Some(("text/plain", ROBOTS.to_owned()));
+            }
+            if path == "/" {
+                let links: String = (0..PAGES)
+                    .map(|n| format!("<a href=\"/p/{n}\">p{n}</a>"))
+                    .collect();
+                return Some((
+                    "text/html",
+                    format!("<html><head><title>home</title></head><body>{links}</body></html>"),
+                ));
+            }
+            let n = path.strip_prefix("/p/")?.parse().ok()?;
+            Some(("text/html", page(n)))
+        },
+    );
+    let work = scratch(&format!("project-rate-{owned}"));
+    let project = work.join("project");
+    // Project targets must be public names; the crawl itself is pointed at the
+    // loopback origin, which is what the pacer keys its ceiling on.
+    handlers::dispatch(
+        "project_new",
+        &json!({"directory": project.to_string_lossy(), "target": "https://example.com/"}),
+    )
+    .expect("project_new");
+    let scan = project.join("scans").join("rate.sqlite");
+    std::fs::create_dir_all(scan.parent().expect("scans dir")).expect("scans dir");
+    let started = std::time::Instant::now();
+    let result = crawl(json!({
+        "project": project.to_string_lossy(),
+        "url": format!("{}/", site.base),
+        "max_urls": 100,
+        "min_delay": 0.1,
+        "overrides": {"speed.adaptive": false, "speed.concurrency": 10, "speed.owned_host": owned},
+        "scan_out": scan.to_string_lossy(),
+    }));
+    let elapsed = started.elapsed().as_secs_f64();
+    assert_eq!(result["finish_reason"], "finished", "{result:?}");
+    assert_eq!(result["urls_collected"], json!(PAGES + 1));
+    let _ = std::fs::remove_dir_all(&work);
+    (elapsed, result)
+}
+
+/// A host the operator confirmed as their own is crawled at the configured
+/// 10 requests per second, with a notice in the response.
+#[test]
+fn a_project_crawl_of_a_confirmed_host_reaches_the_configured_rate() {
+    let (elapsed, result) = project_crawl(true);
+    // 13 pages at 2 req/s need 6.5 s; at 10 req/s about 1.3 s.
+    assert!(elapsed < 4.0, "project crawl was held back: {elapsed:.1}s");
+    let warnings = result["warnings"].to_string();
+    assert!(warnings.contains("owned-host rate"), "{warnings}");
+}
+
+/// Without the confirmation the project keeps the safe 2 requests per second
+/// and says so.
+#[test]
+fn a_project_crawl_of_an_unconfirmed_host_stays_at_the_safe_rate() {
+    let (elapsed, result) = project_crawl(false);
+    assert!(elapsed > 5.0, "the ceiling was not applied: {elapsed:.1}s");
+    let warnings = result["warnings"].to_string();
+    assert!(warnings.contains("held at 2 req/s"), "{warnings}");
 }

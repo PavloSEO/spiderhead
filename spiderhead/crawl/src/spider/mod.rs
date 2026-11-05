@@ -79,9 +79,11 @@ pub struct CrawlOptions {
     /// stops the run like the project reporter's control interrupt (and
     /// skips the directives, exactly as the raised exception does).
     pub on_batch: Option<OnBatchHook>,
-    /// Pacing slot before every page request (the project origin turn); an
-    /// `Err` parks the run with its message as the interrupt reason.
-    pub request_gate: Option<std::sync::Arc<dyn Fn() -> Result<(), String> + Send + Sync>>,
+    /// Pacing slot before every page request (the project origin turn): the
+    /// slot is reserved and the seconds to wait before dispatch come back, so
+    /// requests of one batch wait side by side. An `Err` parks the run with
+    /// its message as the interrupt reason.
+    pub request_gate: Option<std::sync::Arc<dyn Fn() -> Result<f64, String> + Send + Sync>>,
     /// Sitemap-only mode: the sitemap's own URL is the scan's start URL, its
     /// members are the whole population — no start page, link or redirect
     /// spidering. Also detected on resume from the stored root source.
@@ -642,18 +644,22 @@ async fn crawl_loop(
             // The project origin turn before every page request (pace-only; it
             // never raises in the reference flow). The robots probe keeps local
             // throttle pacing only — one request per run.
+            let mut wait = 0.0;
             if let Some(gate) = &options.request_gate {
-                if let Err(message) = gate() {
-                    return control_stop(
-                        scan,
-                        &message,
-                        robots_blocked,
-                        robots_blocked_reasons,
-                        max_depth_reached,
-                    );
+                match gate() {
+                    Ok(seconds) => wait = seconds,
+                    Err(message) => {
+                        return control_stop(
+                            scan,
+                            &message,
+                            robots_blocked,
+                            robots_blocked_reasons,
+                            max_depth_reached,
+                        );
+                    }
                 }
             }
-            ready.push(lease);
+            ready.push((lease, wait));
         }
         if ready.is_empty() {
             continue;
@@ -663,24 +669,29 @@ async fn crawl_loop(
         // and are committed one page at a time.
         let shared = std::sync::Mutex::new(throttle);
         let media = |content_type: &str| scope.response_media_rejection(content_type);
-        let results = futures::future::join_all(ready.iter().map(|lease| {
+        let (shared_ref, media_ref, opts) = (&shared, &media, options);
+        let results = futures::future::join_all(ready.iter().map(|(lease, wait)| async move {
+            if *wait > 0.0 {
+                spiderhead_fetch::clock::sleep(std::time::Duration::from_secs_f64(*wait)).await;
+            }
             collect::fetch_one(
-                &options.client,
-                &shared,
+                &opts.client,
+                shared_ref,
                 &lease.url,
-                &options.user_agent,
-                options.retry_on_timeout,
-                options.retry_server_errors,
-                options.max_response_bytes,
-                options.entity_capture_limit,
-                &options.parse_options,
-                &media,
+                &opts.user_agent,
+                opts.retry_on_timeout,
+                opts.retry_server_errors,
+                opts.max_response_bytes,
+                opts.entity_capture_limit,
+                &opts.parse_options,
+                media_ref,
             )
+            .await
         }))
         .await;
         throttle = shared.into_inner().unwrap_or_else(|p| p.into_inner());
 
-        for (lease, mut fetched) in ready.into_iter().zip(results) {
+        for ((lease, _), mut fetched) in ready.into_iter().zip(results) {
             fetched
                 .record
                 .insert("crawl_depth".into(), json!(lease.depth));

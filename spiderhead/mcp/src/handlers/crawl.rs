@@ -13,7 +13,9 @@ use spiderhead_core::host::SystemHost;
 use spiderhead_crawl::oracle;
 use spiderhead_crawl::spider::{self, BatchControl, CrawlOptions};
 use spiderhead_parse::ParseOptions;
-use spiderhead_projects::origin_pacing::ProjectOriginPacer;
+use spiderhead_projects::origin_pacing::{
+    project_rate_ceiling, ProjectOriginPacer, PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND,
+};
 use spiderhead_projects::run_control::{ControlledRunReporter, OriginPacer};
 use spiderhead_projects::run_observation;
 use spiderhead_projects::workspace;
@@ -188,6 +190,9 @@ fn resolved_crawl_settings_over(
         }
         None => Map::new(),
     };
+    // The owned-host confirmation steers project pacing only; it is not a
+    // crawler setting and never enters the stored configuration.
+    overrides.remove(OWNED_HOST_KEY);
     if let Some(value) = opt_int(args, "max_urls") {
         overrides.insert("limits.max_urls".into(), json!(value));
     }
@@ -278,13 +283,32 @@ fn producer_revision(producer_build: Option<&str>) -> Result<String, ToolError> 
     }
 }
 
+/// Override path that confirms the crawled host belongs to the operator.
+const OWNED_HOST_KEY: &str = "speed.owned_host";
+
+/// Whether the caller confirmed the host as their own: the `owned_host`
+/// argument or the `speed.owned_host` override, as a boolean or `"true"`.
+fn owned_host_confirmed(args: &Map<String, Value>) -> bool {
+    let truthy = |value: &Value| match value {
+        Value::Bool(flag) => *flag,
+        Value::String(text) => text.eq_ignore_ascii_case("true"),
+        _ => false,
+    };
+    opt(args, "owned_host").is_some_and(truthy)
+        || matches!(opt(args, "overrides"), Some(Value::Object(map))
+            if map.get(OWNED_HOST_KEY).is_some_and(truthy))
+}
+
 /// The project-side state one in-project crawl carries into the spider loop:
 /// the run observation (operator control) and the shared origin pacer.
 struct ProjectRun {
     root: PathBuf,
     run_id: String,
     reporter: Arc<Mutex<ControlledRunReporter>>,
-    request_gate: Arc<dyn Fn() -> Result<(), String> + Send + Sync>,
+    request_gate: Arc<dyn Fn() -> Result<f64, String> + Send + Sync>,
+    /// Rate notices for the response: a clamp of an unconfirmed host, or the
+    /// warning that a confirmed host is being crawled fast.
+    notices: Vec<String>,
 }
 
 /// One pacer shared between the reporter's rate lane and the request gate.
@@ -482,6 +506,15 @@ fn crawl_site_project(args: &Map<String, Value>, project_dir: &Path) -> Result<V
                     counters.as_object(),
                 );
                 if let Some(out) = response.as_object_mut() {
+                    if !run.notices.is_empty() {
+                        let mut warnings = out
+                            .get("warnings")
+                            .and_then(Value::as_array)
+                            .cloned()
+                            .unwrap_or_default();
+                        warnings.extend(run.notices.iter().map(|n| json!(n)));
+                        out.insert("warnings".into(), Value::Array(warnings));
+                    }
                     out.insert("observer_run_id".into(), json!(run.run_id));
                     if let Some(action) = &action {
                         out.insert(
@@ -522,13 +555,35 @@ fn project_run(
     };
     let rate = crawl_settings::effective_request_rate(&Value::Object(settings.clone()));
     let finite = rate.is_finite();
-    let pacer = ProjectOriginPacer::new(
+    let owned = owned_host_confirmed(args);
+    let ceiling = project_rate_ceiling(rate, owned);
+    let mut pacer = ProjectOriginPacer::new(
         Some(project_root),
         url,
         setting("speed", "min_delay_seconds", 0.5),
-        if finite { rate.max(2.0) } else { 0.0 },
+        ceiling,
     )
     .map_err(|e| ToolError::Failed(e.to_string()))?;
+    pacer.set_owned_host(owned);
+    let mut notices = Vec::new();
+    let shown = if finite {
+        format!("{rate:.1} req/s")
+    } else {
+        "unbounded".to_owned()
+    };
+    if rate > PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND {
+        if owned {
+            notices.push(format!(
+                "owned-host rate {shown} applies to this host; make sure it tolerates the load"
+            ));
+        } else {
+            notices.push(format!(
+                "requested rate {shown} is held at {PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND} req/s for a \
+                 host not confirmed as yours; for your own host pass owned_host=true \
+                 (--set speed.owned_host=true)"
+            ));
+        }
+    }
     let origin = pacer.origin().to_owned();
     let aggregate = pacer.max_requests_per_second();
     let fingerprint = crawl_settings::fingerprint(&Value::Object(settings.clone()), host)
@@ -568,9 +623,10 @@ fn project_run(
             gate_pacer
                 .lock()
                 .map_err(|_| "origin pacer poisoned".to_owned())?
-                .wait_turn()
+                .reserve()
                 .map_err(|e| e.to_string())
         }),
+        notices,
     })
 }
 
