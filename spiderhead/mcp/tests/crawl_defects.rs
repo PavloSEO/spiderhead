@@ -328,3 +328,59 @@ fn a_fixed_rate_crawl_runs_requests_in_parallel() {
     );
     let _ = std::fs::remove_dir_all(&work);
 }
+
+/// A server that recycles its keep-alive connections by closing one without
+/// answering: the affected URLs are fetched again on a new connection and are
+/// neither page errors nor a reason to stop the crawl.
+#[test]
+fn dropped_connections_are_reopened_and_not_counted_as_errors() {
+    const PAGES: usize = 60;
+    let site = Site::start(
+        Behavior {
+            latency: Duration::ZERO,
+            recycle_after: Some(5),
+        },
+        |_origin, path| {
+            if path == "/robots.txt" {
+                return Some(("text/plain", ROBOTS.to_owned()));
+            }
+            if path == "/" {
+                let links: String = (0..PAGES)
+                    .map(|n| format!("<a href=\"/p/{n}\">p{n}</a>"))
+                    .collect();
+                return Some((
+                    "text/html",
+                    format!("<html><head><title>home</title></head><body>{links}</body></html>"),
+                ));
+            }
+            let n = path.strip_prefix("/p/")?.parse().ok()?;
+            Some(("text/html", page(n)))
+        },
+    );
+    let work = scratch("recycle");
+    let scan = work.join("scan.sqlite");
+    let result = crawl(json!({
+        "url": format!("{}/", site.base),
+        "max_urls": 500,
+        "min_delay": 0,
+        "overrides": {"speed.adaptive": false, "speed.concurrency": 4},
+        "scan_out": scan.to_string_lossy(),
+    }));
+    assert_eq!(result["finish_reason"], "finished", "{result:?}");
+    assert_eq!(result["urls_collected"], json!(PAGES + 1));
+    assert!(
+        site.dropped.load(Ordering::Relaxed) > 0,
+        "the server never dropped a connection"
+    );
+    assert!(site.connections.load(Ordering::Relaxed) > 1);
+    let con = rusqlite::Connection::open(&scan).expect("scan open");
+    let failed: i64 = con
+        .query_row(
+            "SELECT COUNT(*) FROM pages WHERE error_kind!='' OR status_code IS NULL OR status_code!=200",
+            [],
+            |r| r.get(0),
+        )
+        .expect("failed pages");
+    assert_eq!(failed, 0, "dropped connections leaked into page records");
+    let _ = std::fs::remove_dir_all(&work);
+}
