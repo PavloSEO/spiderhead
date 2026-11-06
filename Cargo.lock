@@ -5329,6 +5329,7 @@ dependencies = [
  "spiderhead-parse",
  "spiderhead-projects",
  "spiderhead-recon",
+ "spiderhead-render",
  "spiderhead-reports",
  "spiderhead-semantics",
  "spiderhead-sf-import",

@@ -10,11 +10,28 @@ use crate::exit::handler_failed;
 use crate::registry::{CommandHandler, Registry};
 use crate::{CliError, ExitCode, Output, ParsedCommand};
 
-/// Register the three commands over the shared handlers.
+/// Register the terminal-shape commands over the shared handlers.
 pub fn register(registry: &mut Registry) {
     registry.register("doctor", Box::new(Doctor));
+    registry.register("version", Box::new(Version));
     registry.register("update-check", Box::new(Update("update_check")));
     registry.register("update-download", Box::new(Update("update_download")));
+}
+
+/// `spiderhead version`: the core version, output formats and command count of
+/// this build — the answer `--version` cannot give.
+struct Version;
+
+impl CommandHandler for Version {
+    fn run(&self, _cmd: &ParsedCommand, out: &mut Output) -> Result<ExitCode, CliError> {
+        out.emit(&json!({
+            "ok": true,
+            "version": env!("CARGO_PKG_VERSION"),
+            "formats": ["json", "csv", "table"],
+            "commands": spiderhead_mcp::handlers::registry().len(),
+        }));
+        Ok(ExitCode::SUCCESS)
+    }
 }
 
 /// The set options of a command as handler kwargs, renaming dests to parameter names.

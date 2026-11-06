@@ -38,4 +38,5 @@ spiderhead-store.workspace = true
 flate2.workspace = true
 spiderhead-oracle-diff.workspace = true
 spiderhead-oracle-testkit.workspace = true
+spiderhead-render.workspace = true
 tempfile.workspace = true
