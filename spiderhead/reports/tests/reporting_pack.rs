@@ -11,8 +11,7 @@ use spiderhead_reports::reporting_pack::{build_worksheets, load_provider_input};
 
 fn fixtures() -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/reports_oracle.json");
-    serde_json::from_str(&std::fs::read_to_string(path).expect("fixture file"))
-        .expect("fixture json")
+    spiderhead_oracle_testkit::fixture_json(&path)
 }
 
 fn pack() -> Value {

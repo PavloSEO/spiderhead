@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "spiderhead: log-scan\n",
+    "stdout": "{\n  \"ok\": true,\n  \"anomalies\": [],\n  \"anomaly_count\": 0,\n  \"review\": [],\n  \"by_rule\": {},\n  \"read\": {\n    \"audit\": true,\n    \"pages\": 1,\n    \"downloaded_files\": 0,\n    \"decisions\": 0\n  },\n  \"rules_run\": [\n    \"recorded_size_matches_the_file\",\n    \"text_ratio_is_a_percentage\",\n    \"a_200_has_bytes\",\n    \"findings_are_about_crawled_urls\",\n    \"a_check_cannot_exceed_its_population\",\n    \"summary_matches_the_issue_rows\",\n    \"canonical_to_redirect_has_no_answering_twin\",\n    \"outside_host_exclusion_matches_its_own_host\",\n    \"representation_is_recorded\"\n  ],\n  \"limitations\": []\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"anomalies\": [],\n  \"anomaly_count\": 0,\n  \"review\": [],\n  \"by_rule\": {},\n  \"read\": {\n    \"audit\": true,\n    \"pages\": 1,\n    \"downloaded_files\": 0,\n    \"decisions\": 0\n  },\n  \"rules_run\": [\n    \"recorded_size_matches_the_file\",\n    \"text_ratio_is_a_percentage\",\n    \"a_200_has_bytes\",\n    \"findings_are_about_crawled_urls\",\n    \"a_check_cannot_exceed_its_population\",\n    \"summary_matches_the_issue_rows\",\n    \"canonical_to_redirect_has_no_answering_twin\",\n    \"outside_host_exclusion_matches_its_own_host\",\n    \"representation_is_recorded\"\n  ],\n  \"limitations\": []\n}"
+   }
+  ]
+ }
+}

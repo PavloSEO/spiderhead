@@ -91,6 +91,10 @@ impl Norm {
 
     fn s(&mut self, text: &str) -> String {
         let mut text = text.to_owned();
+        // The scheduler line embeds the running binary; its location varies by checkout.
+        if let Ok(exe) = std::env::current_exe() {
+            text = text.replace(exe.to_string_lossy().as_ref(), "<EXE>");
+        }
         for (plain, canonical) in self.works.borrow().iter() {
             text = text.replace(canonical, "<WORK>").replace(plain, "<WORK>");
         }
@@ -165,10 +169,12 @@ fn canonical(text: &str) -> String {
     serde_json::to_string_pretty(&sort(&value)).expect("canonical json")
 }
 
+fn fixture_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/project/group4.json")
+}
+
 fn fixture() -> Value {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/project/group4.json");
-    serde_json::from_str(&std::fs::read_to_string(path).expect("fixture file"))
-        .expect("fixture json")
+    spiderhead_oracle_testkit::fixture_json(&fixture_path())
 }
 
 fn unified_diff(field: &str, expected: &str, actual: &str) -> String {
@@ -292,6 +298,8 @@ fn project_group4_matches_the_reference_cli_and_mcp() {
     // both the CLI and the MCP phase so the result does not depend on the time of day.
     std::env::set_var("SPIDERHEAD_NOW", "2026-10-29T12:00:00Z");
     let fixture = fixture();
+    let mut blessed = fixture.clone();
+    let bless = spiderhead_oracle_diff::bless_enabled();
     let mut failures: Vec<String> = Vec::new();
 
     // ── CLI: the chains replay through the real binary in its own work dir ──
@@ -323,16 +331,24 @@ fn project_group4_matches_the_reference_cli_and_mcp() {
             let mut out = Output::default();
             let code = run(&argv, &registry, &mut out).expect("handler run");
             history.push(json!({"exit": code.0, "stdout": out.stdout, "stderr": out.stderr}));
+            let actual_stdout = canonical(&norm.s(&out.stdout));
+            let actual_stderr = norm.s(&out.stderr);
+            if bless {
+                if let Some(obj) = blessed["cases"][name.as_str()].as_object_mut() {
+                    obj.insert("exit".to_owned(), json!(i64::from(code.0)));
+                    obj.insert("stdout".to_owned(), Value::from(actual_stdout));
+                    obj.insert("stderr".to_owned(), Value::from(actual_stderr));
+                }
+                continue;
+            }
             let mut problems = String::new();
             if i64::from(code.0) != case["exit"].as_i64().unwrap_or_default() {
                 problems += &format!("  exit: expected {}, got {}\n", case["exit"], code.0);
             }
-            let actual_stdout = canonical(&norm.s(&out.stdout));
             let expected_stdout = case["stdout"].as_str().unwrap_or_default();
             if actual_stdout != canonical(expected_stdout) {
                 problems += &unified_diff("stdout", expected_stdout, &actual_stdout);
             }
-            let actual_stderr = norm.s(&out.stderr);
             let expected_stderr = case["stderr"].as_str().unwrap_or_default();
             if actual_stderr != expected_stderr {
                 problems += &unified_diff("stderr", expected_stderr, &actual_stderr);
@@ -399,13 +415,20 @@ fn project_group4_matches_the_reference_cli_and_mcp() {
                 .map(str::to_owned)
                 .unwrap_or_default();
             history.push(json!({"stdout": actual_text}));
+            let normalized = canonical(&norm.s(&actual_text));
+            if bless {
+                if let Some(obj) = blessed["mcp"][name.as_str()].as_object_mut() {
+                    obj.insert("is_error".to_owned(), json!(actual_is_error));
+                    obj.insert("text".to_owned(), Value::from(normalized));
+                }
+                continue;
+            }
             let mut problems = String::new();
             let expected_is_error = call["is_error"].as_bool().unwrap_or(false);
             if actual_is_error != expected_is_error {
                 problems +=
                     &format!("  is_error: expected {expected_is_error}, got {actual_is_error}\n");
             }
-            let normalized = canonical(&norm.s(&actual_text));
             let expected_text = call["text"].as_str().unwrap_or_default();
             if normalized != canonical(expected_text) {
                 problems += &unified_diff("text", expected_text, &normalized);
@@ -416,6 +439,7 @@ fn project_group4_matches_the_reference_cli_and_mcp() {
         }
     }
     let _ = std::fs::remove_dir_all(&mcp_work);
+    spiderhead_oracle_diff::bless_json(&fixture_path(), &blessed);
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
 

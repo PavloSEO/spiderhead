@@ -57,7 +57,7 @@ fn json_string(value: &str) -> String {
     serde_json::to_string(value).unwrap_or_else(|_| "\"\"".to_owned())
 }
 
-#[allow(clippy::too_many_arguments)] // Python signature: keyword-only inputs kept positional
+#[allow(clippy::too_many_arguments)] // keyword-only inputs kept positional
 /// Replace one document representation's resource occurrences in the caller transaction.
 /// Defaults: inventory state `complete`, omitted count 0.
 pub fn put_declarations(

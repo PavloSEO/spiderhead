@@ -11,7 +11,7 @@ use crate::bots::detect_bot;
 use crate::clock::{iso_date, iso_utc};
 use crate::dns::Verifier;
 use crate::error::{os_message, LogsError, Result};
-use crate::format::{detect_format, section, Format, LineParser};
+use crate::format::{section, Format, FormatOptions, LineParser, SkipSamples};
 use crate::net::{parse_ip, Network};
 use crate::reader::{open_log, Lines};
 use crate::text::strip;
@@ -40,6 +40,8 @@ pub struct AnalyzeOptions {
     pub ip: Option<String>,
     /// Cap on tracked distinct paths per family.
     pub max_tracked_paths: usize,
+    /// An nginx `log_format` or Apache `LogFormat` string describing the file's layout.
+    pub log_format: Option<String>,
 }
 
 impl Default for AnalyzeOptions {
@@ -54,6 +56,7 @@ impl Default for AnalyzeOptions {
             bot: None,
             ip: None,
             max_tracked_paths: MAX_TRACKED_PATHS,
+            log_format: None,
         }
     }
 }
@@ -175,18 +178,22 @@ where
             None => break,
         }
     }
-    let Some(format) = detect_format(sample.iter().map(String::as_str)) else {
-        return Ok(failure(
-            path,
-            "Unrecognized log format: expected Apache Common/Combined or IIS W3C",
-        ));
+    let options = FormatOptions::with_log_format(o.log_format.as_deref());
+    let Some(mut parser) = LineParser::detect(sample.iter().map(String::as_str), &options)? else {
+        let reason = if options.log_format.is_some() {
+            "Unrecognized log format: the supplied log_format matches none of the sample lines"
+        } else {
+            "Unrecognized log format: expected Apache Common/Combined, IIS W3C, HAProxy, AWS ELB/ALB, CSV/TSV with a header, or JSON Lines"
+        };
+        return Ok(failure(path, reason));
     };
+    let format = parser.format();
     let ips = Connection::open("")?;
     ips.execute_batch(
         "CREATE TABLE ips (bot TEXT, family TEXT, ip TEXT, visits INTEGER, last_visit TEXT, PRIMARY KEY(bot, ip))",
     )?;
-    let mut parser = LineParser::for_format(format);
     let mut t = Totals::default();
+    let mut unrecognized = SkipSamples::default();
     let mut by_family: IndexMap<String, Counter> = IndexMap::new();
     let mut bot_hits = Counter::new();
     let mut bot_bytes: std::collections::HashMap<String, i64> = Default::default();
@@ -201,7 +208,7 @@ where
     for line in all {
         let line = line?;
         let line = line.strip_suffix('\n').unwrap_or(&line);
-        if strip(line).is_empty() {
+        if strip(line).is_empty() || parser.is_header(line) {
             continue;
         }
         if t.total >= o.max_lines as u64 {
@@ -211,6 +218,9 @@ where
         t.total += 1;
         let Some(row) = parser.parse(line)? else {
             t.skipped += 1;
+            if !line.starts_with('#') {
+                unrecognized.note(line);
+            }
             continue;
         };
         t.parsed += 1;
@@ -271,6 +281,7 @@ where
         network,
         verifier,
         &t,
+        &unrecognized,
         &by_family,
         &bot_hits,
         &bot_bytes,
@@ -295,6 +306,7 @@ fn finish(
     network: Option<Network>,
     verifier: &Verifier,
     t: &Totals,
+    unrecognized: &SkipSamples,
     by_family: &IndexMap<String, Counter>,
     bot_hits: &Counter,
     bot_bytes: &std::collections::HashMap<String, i64>,
@@ -400,6 +412,9 @@ fn finish(
         "daily": daily,
         "verification": Value::Object(verification),
     });
+    if !unrecognized.is_empty() {
+        result["lines"]["unrecognized_samples"] = unrecognized.to_json();
+    }
     let notes = findings(&result);
     result["findings"] = json!(notes);
     Ok(result)

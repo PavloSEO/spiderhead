@@ -517,6 +517,57 @@ fn add_page(
     id
 }
 
+/// Retain one page's HTML as its selected static document: body, response and
+/// document rows with the lineage `read_page_document` verifies.
+fn add_body(ctx: &mut AuditContext, con: &Connection, path: &str, html: &str) {
+    use sha2::{Digest, Sha256};
+    let url = format!("{ROOT}{path}");
+    let id = url_id(con, &url);
+    let raw = html.as_bytes();
+    let sha: String = Sha256::digest(raw)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    con.execute(
+        "INSERT INTO bodies VALUES (?1,'identity',?2,?2,?3)",
+        params![sha, raw.len() as i64, raw],
+    )
+    .unwrap();
+    let ordinal: i64 = con
+        .query_row("SELECT COUNT(*) FROM responses", [], |r| r.get(0))
+        .unwrap();
+    con.execute(
+        "INSERT INTO responses (request_url_id, request_ordinal, effective_url_id, redirect_chain_json, \
+         method, purpose, requested_at, request_headers_redacted_json, credentials_used, variant_key, \
+         status_code, effective_status_code, response_headers_redacted_json, effective_headers_redacted_json, \
+         content_type, charset, content_encoding, transport_source, cache_status, body_sha256, \
+         body_fidelity, body_state, body_reason, error, error_kind) \
+         VALUES (?1,?2,?1,'[]','GET','page','2026-01-01T00:00:00Z','[]',0,'',200,200,'[]','[]', \
+         'text/html','utf-8','','network','',?3,'reencoded_text','complete','none','','')",
+        params![id, ordinal + 1, sha],
+    )
+    .unwrap();
+    let response_id = con.last_insert_rowid();
+    con.execute(
+        "INSERT INTO documents (url_id, representation, source_response_id, body_sha256, captured_at, \
+         decoder_version, decoder_source, decoder_charset, decoder_errors, fidelity, body_state, \
+         body_reason, renderer_json) \
+         VALUES (?1,'static',?2,?3,'2026-01-01T00:00:00Z','scan_decoder.v1','legacy_unknown','unknown', \
+         'unknown','reencoded_text','complete','none','{}')",
+        params![id, response_id, sha],
+    )
+    .unwrap();
+    let document_id = con.last_insert_rowid();
+    con.execute(
+        "UPDATE pages SET document_id=?1 WHERE url_id=?2",
+        params![document_id, id],
+    )
+    .unwrap();
+    if let Some(page) = ctx.pages.iter_mut().find(|p| p.url == url) {
+        page.rec.insert("document_id".into(), json!(document_id));
+    }
+}
+
 /// `link()`: schema-driven NOT NULL defaults, like the reference fixture.
 fn add_link(con: &Connection, source: &str, destination: &str, anchor: &str) {
     let src = url_id(con, &format!("{ROOT}{source}"));
@@ -650,6 +701,59 @@ fn empty_anchor_is_its_own_internal_finding() {
     let finding = issue(&ctx, "INTERNAL_LINK_NO_ANCHOR", &format!("{ROOT}/a"));
     assert_eq!(finding.occurrences_count, 1);
     assert_eq!(finding.locations.len(), 1);
+}
+
+// A named link (image alt, aria-label, title) has an accessible name even
+// though its text node is empty; only a nameless occurrence is a defect.
+#[test]
+fn named_empty_anchor_links_do_not_fire() {
+    for (label, html) in [
+        (
+            "image alt",
+            r#"<a href="/b"><img src="/logo.png" alt="Workshop home page"></a>"#,
+        ),
+        (
+            "own aria-label",
+            r#"<a href="/b" aria-label="Workshop home page"></a>"#,
+        ),
+        ("title", r#"<a href="/b" title="Workshop home page"></a>"#),
+        (
+            "nested aria-label",
+            r#"<a href="/b"><span aria-label="Catalogue"></span></a>"#,
+        ),
+    ] {
+        let (mut ctx, con) = corpus();
+        add_page(&mut ctx, &con, "/a", 200, "", &[]);
+        add_page(&mut ctx, &con, "/b", 200, "", &[]);
+        add_body(&mut ctx, &con, "/a", html);
+        add_link(&con, "/a", "/b", "");
+        attach(&mut ctx, con);
+        retained_links::check_retained_links(&mut ctx);
+        assert!(checks(&ctx).is_empty(), "{label}: {:#?}", checks(&ctx));
+    }
+}
+
+#[test]
+fn nameless_empty_anchor_still_fires_with_body_evidence() {
+    let (mut ctx, con) = corpus();
+    add_page(&mut ctx, &con, "/a", 200, "", &[]);
+    add_page(&mut ctx, &con, "/b", 200, "", &[]);
+    add_body(
+        &mut ctx,
+        &con,
+        "/a",
+        // One named occurrence does not excuse a second, nameless one to the
+        // same destination; an empty alt is no name either.
+        r#"<a href="/b" aria-label="Home"></a><a href="/b"><img src="/x.png" alt=""></a>"#,
+    );
+    add_link(&con, "/a", "/b", "");
+    add_link(&con, "/a", "/b", "");
+    attach(&mut ctx, con);
+    retained_links::check_retained_links(&mut ctx);
+
+    let finding = issue(&ctx, "INTERNAL_LINK_NO_ANCHOR", &format!("{ROOT}/a"));
+    assert_eq!(finding.occurrences_count, 2);
+    assert_eq!(finding.locations.len(), 2);
 }
 
 #[test]

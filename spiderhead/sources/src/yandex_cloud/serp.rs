@@ -5,7 +5,7 @@ use super::*;
 /// `time.monotonic() + timeout` — a non-numeric raises the `TypeError` of `float + x`.
 pub(super) fn deadline_seconds(value: &Value) -> Result<f64, CloudError> {
     as_float(value).map_err(|_| {
-        CloudError::python(
+        CloudError::classed(
             "TypeError",
             format!(
                 "unsupported operand type(s) for +: 'float' and '{}'",
@@ -18,7 +18,7 @@ pub(super) fn deadline_seconds(value: &Value) -> Result<f64, CloudError> {
 /// `time.sleep(poll)` — a non-numeric raises `cannot be interpreted as an integer or float`.
 pub(super) fn sleep_seconds(value: &Value) -> Result<f64, CloudError> {
     as_float(value).map_err(|_| {
-        CloudError::python(
+        CloudError::classed(
             "TypeError",
             format!(
                 "'{}' object cannot be interpreted as an integer or float",
@@ -40,7 +40,7 @@ pub(super) fn raw_data(done: &Value) -> Result<Value, CloudError> {
     }
     match &response {
         Value::Object(map) => Ok(map.get("rawData").cloned().unwrap_or(Value::Null)),
-        other => Err(CloudError::python(
+        other => Err(CloudError::classed(
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'get'",
@@ -58,7 +58,7 @@ pub(super) fn serp_xml(raw: &Value) -> Result<String, CloudError> {
     let text = match raw {
         Value::String(text) => text,
         other => {
-            return Err(CloudError::python(
+            return Err(CloudError::classed(
                 "TypeError",
                 format!(
                     "argument should be a bytes-like object or ASCII string, not '{}'",
@@ -80,7 +80,7 @@ pub(super) fn py_len(value: &Value) -> Result<i64, CloudError> {
         Value::Array(items) => Ok(items.len() as i64),
         Value::String(text) => Ok(text.chars().count() as i64),
         Value::Object(map) => Ok(map.len() as i64),
-        other => Err(CloudError::python(
+        other => Err(CloudError::classed(
             "TypeError",
             format!("object of type '{}' has no len()", pystr::type_name(other)),
         )),
@@ -96,7 +96,7 @@ pub(super) fn cloud_credential(
     match resolve() {
         Ok(value) => Ok(value),
         Err(CredentialError::Missing(message)) => Err(CloudError::MissingCredential(message)),
-        Err(err) => Err(CloudError::python(err.python_class(), err.to_string())),
+        Err(err) => Err(CloudError::classed(err.error_class(), err.to_string())),
     }
 }
 

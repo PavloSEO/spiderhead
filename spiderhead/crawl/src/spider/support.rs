@@ -10,8 +10,16 @@ use spiderhead_store::crawl_capture::CaptureEvent;
 use spiderhead_store::native_scan::NativeScan;
 use spiderhead_store::scan_lease::NativeScanLease;
 
-/// One frontier candidate (`apply_candidates` input shape).
+/// One frontier candidate (`apply_candidates` input shape): a discovered link as a frontier candidate. The frontier requires
+/// `frontier_url == defrag(requested_url)`; an href whose parsed form differs
+/// from its text (a bare origin gains `/`, escapes are normalized) is recorded
+/// by its frontier form so one such link cannot abort the whole crawl.
 pub(super) fn candidate(requested_url: &str, frontier_url: &str, depth: i64) -> Map<String, Value> {
+    let requested_url = if requested_url.split('#').next() == Some(frontier_url) {
+        requested_url
+    } else {
+        frontier_url
+    };
     let parsed = url::Url::parse(frontier_url).ok();
     let path_key = parsed
         .as_ref()
@@ -264,7 +272,7 @@ pub fn robots_summary(
         "kind": "robots_summary",
         "item_key": "run",
         "payload_version": "scan_context.v1",
-        "payload_json": serde_json::to_string(&payload).unwrap_or_default(),
+        "payload_json": spiderhead_store::discovery_ledger::py_dumps(&payload, false, true),
         "completeness": if fetch_state == "unavailable" { "partial" } else { "complete" },
         "reason": note,
     })
@@ -494,5 +502,73 @@ pub fn bin_load_delay(rate: f64) -> f64 {
     match spiderhead_core::crawl_settings::delay_for_request_rate(rate) {
         Ok(delay) => delay,
         Err(_) => 1.0 / rate,
+    }
+}
+
+/// True when the effective config asks for JavaScript rendering (`rendering.mode = js`).
+pub(super) fn render_mode_is_js(config: &Value) -> bool {
+    config
+        .get("rendering")
+        .and_then(|r| r.get("mode"))
+        .and_then(Value::as_str)
+        == Some("js")
+}
+
+/// Replace an eligible static HTML result with its browser-rendered DOM.
+///
+/// The record fields, parsed page and body text come from the rendered
+/// document, so discovery follows links that only exist after script
+/// execution. A page that cannot be rendered keeps its static result and the
+/// reason lands in `render_error`. Returns whether the rendered DOM was used.
+pub(super) async fn render_into(
+    fetched: &mut crate::collect::Fetched,
+    url: &str,
+    options: &super::CrawlOptions,
+) -> bool {
+    let status_ok = fetched
+        .record
+        .get("status_code")
+        .and_then(Value::as_i64)
+        .is_some_and(|code| (200..300).contains(&code));
+    if !status_ok || !is_html_record(&fetched.record) || fetched.parsed.is_none() {
+        return false;
+    }
+    // Rendering waits for load plus script time; never longer than the request timeout.
+    let rendered =
+        match spiderhead_render::render_document(url, options.timeout_seconds.max(5.0)).await {
+            Ok(html) => html,
+            Err(message) => {
+                fetched.record.insert("render_error".into(), json!(message));
+                return false;
+            }
+        };
+    match spiderhead_parse::parse_html(&rendered, url, &options.parse_options) {
+        Ok(parsed) => {
+            for (key, value) in crate::record::from_parsed(&parsed) {
+                fetched.record.insert(key, value);
+            }
+            fetched.parsed = Some(parsed);
+            fetched.html = Some(rendered);
+            true
+        }
+        Err(error) => {
+            fetched
+                .record
+                .insert("render_error".into(), json!(error.to_string()));
+            false
+        }
+    }
+}
+
+#[cfg(test)]
+mod candidate_tests {
+    use super::candidate;
+
+    #[test]
+    fn bare_origin_href_keeps_the_frontier_identity() {
+        let row = candidate("https://solana.com#top", "https://solana.com/", 1);
+        assert_eq!(row["requested_url"], "https://solana.com/");
+        let row = candidate("https://a.test/x?y=1#f", "https://a.test/x?y=1", 1);
+        assert_eq!(row["requested_url"], "https://a.test/x?y=1#f");
     }
 }

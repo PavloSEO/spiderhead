@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-link-inspect\n",
+    "stderr": "spiderhead: scan-link-inspect\n",
     "stdout": "{\n  \"ok\": false,\n  \"view\": \"links\",\n  \"error\": \"incoming links support only the default order\",\n  \"reason_code\": \"invalid_filter\"\n}\n"
    }
   ]

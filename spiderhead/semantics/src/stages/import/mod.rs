@@ -314,6 +314,16 @@ fn mapping_for(
 
 /// Integer value of a cell: bools and non-integral floats are rejected by
 /// the caller; strings go through `py_int`.
+/// A cell as a finite number (JSON number or numeric text such as `"12.5"`).
+fn numeric(value: &Value) -> Option<f64> {
+    match value {
+        Value::Number(n) => n.as_f64(),
+        Value::String(s) => s.trim().parse::<f64>().ok(),
+        _ => None,
+    }
+    .filter(|f| f.is_finite())
+}
+
 fn cell_int(value: &Value) -> Result<i64, ()> {
     match value {
         Value::Bool(_) | Value::Null => Err(()),
@@ -330,7 +340,10 @@ fn cell_int(value: &Value) -> Result<i64, ()> {
                 Err(())
             }
         }
-        Value::String(s) => py_int(s).map_err(|_| ()),
+        Value::String(s) => py_int(s).or_else(|_| match numeric(value) {
+            Some(f) if f.fract() == 0.0 => Ok(f as i64),
+            _ => Err(()),
+        }),
         _ => Err(()),
     }
 }
@@ -386,10 +399,21 @@ fn parse_file(
                 .cloned()
                 .unwrap_or(Value::Null);
             let emptyish = value.is_null()
-                || ["", "null", "--", "none"]
+                || ["", "null", "--", "-", "none", "nan", "n/a"]
                     .contains(&py_str(&value).trim().to_lowercase().as_str());
             if emptyish {
                 continue;
+            }
+            // A position is an average: 0 means "not ranked" (NULL), and a
+            // fractional average rounds to the nearest whole position.
+            let mut value = value;
+            if matches!(target_field, "pos_y" | "pos_g") {
+                if let Some(avg) = numeric(&value) {
+                    if avg <= 0.0 {
+                        continue;
+                    }
+                    value = json!(avg.round() as i64);
+                }
             }
             if value.is_boolean()
                 || (value.is_number() && value.as_f64().is_some_and(|f| f.fract() != 0.0))

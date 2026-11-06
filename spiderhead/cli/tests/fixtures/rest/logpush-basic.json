@@ -1,0 +1,41 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "spiderhead: project-new\n",
+    "stdout": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"schema_version\": 1,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "spiderhead: cloudflare-logpush-import\n",
+    "stdout": "{\n  \"ok\": true,\n  \"state\": \"complete\",\n  \"imported\": 2,\n  \"complete\": true,\n  \"log_import\": {\n    \"ok\": true,\n    \"source\": \"<WORK>/proj/logs/<UUID:2>.sqlite\",\n    \"import_id\": \"<UUID:2>\",\n    \"format\": \"logs.v1\",\n    \"project_uuid\": \"<UUID:1>\",\n    \"project_target\": \"https://example.org/\",\n    \"lines\": {\n      \"total\": 2,\n      \"parsed\": 2,\n      \"skipped\": 0,\n      \"truncated\": false,\n      \"unknown_time\": 0,\n      \"unknown_user_agent\": 0\n    },\n    \"period\": {\n      \"from\": \"<TS>\",\n      \"to\": \"<TS>\"\n    },\n    \"complete\": true,\n    \"bot_detection_complete\": true,\n    \"files\": {\n      \"imported\": 1,\n      \"selected\": 1\n    },\n    \"log_format_variants\": {\n      \"combined-3-ident\": 2\n    },\n    \"timezone\": \"UTC; missing Apache offsets and IIS timestamps assume UTC\",\n    \"bot_identity\": \"user-agent claim; DNS verification is separate\",\n    \"created_at\": \"<TS>\"\n  }\n}\n"
+   },
+   {
+    "exit": 0,
+    "stderr": "spiderhead: logs-summary\n",
+    "stdout": "{\n  \"ok\": true,\n  \"source\": \"<WORK>/proj/logs/<UUID:2>.sqlite\",\n  \"view\": \"urls\",\n  \"rows\": [\n    {\n      \"url\": \"/index.html\",\n      \"visits\": 1,\n      \"bytes\": 1234,\n      \"last_visit\": \"<TS>\"\n    },\n    {\n      \"url\": \"/p?q=1\",\n      \"visits\": 1,\n      \"bytes\": 0,\n      \"last_visit\": \"<TS>\"\n    }\n  ],\n  \"total\": 2,\n  \"limit\": 100,\n  \"offset\": 0,\n  \"has_more\": false,\n  \"next_offset\": null,\n  \"urls\": [\n    {\n      \"url\": \"/index.html\",\n      \"visits\": 1,\n      \"bytes\": 1234,\n      \"last_visit\": \"<TS>\"\n    },\n    {\n      \"url\": \"/p?q=1\",\n      \"visits\": 1,\n      \"bytes\": 0,\n      \"last_visit\": \"<TS>\"\n    }\n  ],\n  \"totals\": {\n    \"visits\": 2,\n    \"urls\": 2,\n    \"ips\": 2\n  },\n  \"import\": {\n    \"ok\": true,\n    \"source\": \"<WORK>/proj/logs/<UUID:2>.sqlite\",\n    \"import_id\": \"<UUID:2>\",\n    \"format\": \"logs.v1\",\n    \"project_uuid\": \"<UUID:1>\",\n    \"project_target\": \"https://example.org/\",\n    \"lines\": {\n      \"total\": 2,\n      \"parsed\": 2,\n      \"skipped\": 0,\n      \"truncated\": false,\n      \"unknown_time\": 0,\n      \"unknown_user_agent\": 0\n    },\n    \"period\": {\n      \"from\": \"<TS>\",\n      \"to\": \"<TS>\"\n    },\n    \"complete\": true,\n    \"bot_detection_complete\": true,\n    \"files\": {\n      \"imported\": 1,\n      \"selected\": 1\n    },\n    \"log_format_variants\": {\n      \"combined-3-ident\": 2\n    },\n    \"timezone\": \"UTC; missing Apache offsets and IIS timestamps assume UTC\",\n    \"bot_identity\": \"user-agent claim; DNS verification is separate\",\n    \"created_at\": \"<TS>\"\n  },\n  \"coverage\": \"exact counts for retained and filtered observations; bots are user-agent claims\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"schema_version\": 1,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"state\": \"complete\",\n  \"imported\": 2,\n  \"complete\": true,\n  \"log_import\": {\n    \"ok\": true,\n    \"source\": \"<WORK>/proj/logs/<UUID:2>.sqlite\",\n    \"import_id\": \"<UUID:2>\",\n    \"format\": \"logs.v1\",\n    \"project_uuid\": \"<UUID:1>\",\n    \"project_target\": \"https://example.org/\",\n    \"lines\": {\n      \"total\": 2,\n      \"parsed\": 2,\n      \"skipped\": 0,\n      \"truncated\": false,\n      \"unknown_time\": 0,\n      \"unknown_user_agent\": 0\n    },\n    \"period\": {\n      \"from\": \"<TS>\",\n      \"to\": \"<TS>\"\n    },\n    \"complete\": true,\n    \"bot_detection_complete\": true,\n    \"files\": {\n      \"imported\": 1,\n      \"selected\": 1\n    },\n    \"log_format_variants\": {\n      \"combined-3-ident\": 2\n    },\n    \"timezone\": \"UTC; missing Apache offsets and IIS timestamps assume UTC\",\n    \"bot_identity\": \"user-agent claim; DNS verification is separate\",\n    \"created_at\": \"<TS>\"\n  }\n}"
+   },
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"source\": \"<WORK>/proj/logs/<UUID:2>.sqlite\",\n  \"view\": \"urls\",\n  \"rows\": [\n    {\n      \"url\": \"/index.html\",\n      \"visits\": 1,\n      \"bytes\": 1234,\n      \"last_visit\": \"<TS>\"\n    },\n    {\n      \"url\": \"/p?q=1\",\n      \"visits\": 1,\n      \"bytes\": 0,\n      \"last_visit\": \"<TS>\"\n    }\n  ],\n  \"total\": 2,\n  \"limit\": 100,\n  \"offset\": 0,\n  \"has_more\": false,\n  \"next_offset\": null,\n  \"urls\": [\n    {\n      \"url\": \"/index.html\",\n      \"visits\": 1,\n      \"bytes\": 1234,\n      \"last_visit\": \"<TS>\"\n    },\n    {\n      \"url\": \"/p?q=1\",\n      \"visits\": 1,\n      \"bytes\": 0,\n      \"last_visit\": \"<TS>\"\n    }\n  ],\n  \"totals\": {\n    \"visits\": 2,\n    \"urls\": 2,\n    \"ips\": 2\n  },\n  \"import\": {\n    \"ok\": true,\n    \"source\": \"<WORK>/proj/logs/<UUID:2>.sqlite\",\n    \"import_id\": \"<UUID:2>\",\n    \"format\": \"logs.v1\",\n    \"project_uuid\": \"<UUID:1>\",\n    \"project_target\": \"https://example.org/\",\n    \"lines\": {\n      \"total\": 2,\n      \"parsed\": 2,\n      \"skipped\": 0,\n      \"truncated\": false,\n      \"unknown_time\": 0,\n      \"unknown_user_agent\": 0\n    },\n    \"period\": {\n      \"from\": \"<TS>\",\n      \"to\": \"<TS>\"\n    },\n    \"complete\": true,\n    \"bot_detection_complete\": true,\n    \"files\": {\n      \"imported\": 1,\n      \"selected\": 1\n    },\n    \"log_format_variants\": {\n      \"combined-3-ident\": 2\n    },\n    \"timezone\": \"UTC; missing Apache offsets and IIS timestamps assume UTC\",\n    \"bot_identity\": \"user-agent claim; DNS verification is separate\",\n    \"created_at\": \"<TS>\"\n  },\n  \"coverage\": \"exact counts for retained and filtered observations; bots are user-agent claims\"\n}"
+   }
+  ]
+ }
+}

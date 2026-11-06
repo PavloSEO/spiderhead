@@ -3,7 +3,7 @@
 use super::*;
 
 pub(super) fn store_error(message: impl Into<String>) -> CfError {
-    CfError::Python("EvidenceJoinStoreError", message.into())
+    CfError::Classed("EvidenceJoinStoreError", message.into())
 }
 
 /// `storage.open_scan` — `(scan_uuid, (page_ordinal, url) rows)` for one scan.

@@ -121,7 +121,7 @@ pub fn validate(config: &Value, host: &dyn Host) -> Result<(), ConfigError> {
     }
     if at(config, "http.zstd").as_bool() == Some(true) {
         if !host.zstd_available() {
-            return err("http.zstd requires Python 3.14+ compression.zstd or the optional zstandard package");
+            return err("http.zstd requires a zstd decoder, which this build does not provide");
         }
         if cache_mode != "off" {
             return err("http.zstd requires cache.mode=off so encoded responses are not mixed");

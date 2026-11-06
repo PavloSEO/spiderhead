@@ -18,7 +18,7 @@ pub enum DfsError {
     MissingCredential(String),
     /// Any other failure, such as invalid input, a wrong type or an I/O error.
     #[error("{message}")]
-    Python {
+    Classed {
         /// Name of the error kind.
         class: String,
         /// Error message.
@@ -28,11 +28,11 @@ pub enum DfsError {
 
 impl DfsError {
     /// Name of the error kind.
-    pub fn python_class(&self) -> &str {
+    pub fn error_class(&self) -> &str {
         match self {
             DfsError::Provider { .. } => "DataForSEOError",
             DfsError::MissingCredential(_) => "MissingCredential",
-            DfsError::Python { class, .. } => class.as_str(),
+            DfsError::Classed { class, .. } => class.as_str(),
         }
     }
 
@@ -40,14 +40,14 @@ impl DfsError {
     pub fn message(&self) -> &str {
         match self {
             DfsError::Provider { message, .. } => message,
-            DfsError::MissingCredential(message) | DfsError::Python { message, .. } => message,
+            DfsError::MissingCredential(message) | DfsError::Classed { message, .. } => message,
         }
     }
 }
 
 /// Invalid input value.
 pub(crate) fn value_err(message: &str) -> DfsError {
-    DfsError::Python {
+    DfsError::Classed {
         class: "ValueError".to_owned(),
         message: message.to_owned(),
     }
@@ -55,7 +55,7 @@ pub(crate) fn value_err(message: &str) -> DfsError {
 
 /// Value has the wrong type.
 pub(crate) fn type_err(message: &str) -> DfsError {
-    DfsError::Python {
+    DfsError::Classed {
         class: "TypeError".to_owned(),
         message: message.to_owned(),
     }
@@ -63,7 +63,7 @@ pub(crate) fn type_err(message: &str) -> DfsError {
 
 /// A value was missing an expected attribute.
 pub(crate) fn attr_err(value: &Value, attr: &str) -> DfsError {
-    DfsError::Python {
+    DfsError::Classed {
         class: "AttributeError".to_owned(),
         message: format!(
             "'{}' object has no attribute '{}'",
@@ -75,7 +75,7 @@ pub(crate) fn attr_err(value: &Value, attr: &str) -> DfsError {
 
 /// A failure with an explicit error kind name.
 pub(crate) fn pyerr(class: &str, message: impl Into<String>) -> DfsError {
-    DfsError::Python {
+    DfsError::Classed {
         class: class.to_owned(),
         message: message.into(),
     }
@@ -85,6 +85,6 @@ pub(crate) fn pyerr(class: &str, message: impl Into<String>) -> DfsError {
 pub(super) fn cred_err(err: CredentialError) -> DfsError {
     match err {
         CredentialError::Missing(message) => DfsError::MissingCredential(message),
-        other => pyerr(other.python_class(), other.to_string()),
+        other => pyerr(other.error_class(), other.to_string()),
     }
 }

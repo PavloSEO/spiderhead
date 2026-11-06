@@ -57,7 +57,7 @@ pub enum OAuthError {
 
 impl OAuthError {
     /// Stable error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             OAuthError::Invalid(_) => "ValueError",
             OAuthError::Missing(_) => "MissingCredential",

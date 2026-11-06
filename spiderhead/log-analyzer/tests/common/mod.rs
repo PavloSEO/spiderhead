@@ -18,7 +18,7 @@ pub fn fixtures() -> PathBuf {
 }
 
 pub fn load(name: &str) -> Value {
-    let text = std::fs::read_to_string(fixtures().join(name)).expect("fixture exists");
+    let text = spiderhead_oracle_testkit::fixture_text(&fixtures().join(name));
     serde_json::from_str(&text).expect("fixture is JSON")
 }
 

@@ -35,6 +35,19 @@
         "default": false,
         "title": "Keep Requests",
         "type": "boolean"
+      },
+      "log_format": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Log Format",
+        "description": "nginx log_format or Apache LogFormat string describing the file layout"
       }
     },
     "seo_logs_bots": {
@@ -257,6 +270,21 @@
         ],
         "default": null,
         "title": "Export Max Rows"
+      }
+    },
+    "seo_log_analyze": {
+      "log_format": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Log Format",
+        "description": "nginx log_format or Apache LogFormat string describing the file layout"
       }
     }
   },
@@ -2899,7 +2927,7 @@
       ],
       "spec": {
         "name": "seo_scan_extract",
-        "description": "Run bounded data-only extraction rules on retained complete bodies, without network or writes.\n\nEither pass ``rules`` or name a shipped library ``preset`` (headings, images,\nlinks, structure, inline-css, meta, social, json-ld, media, forms, tables,\nbreadcrumbs, sections, headings-outline-check); ``seo_extraction_presets`` lists them.\n",
+        "description": "Run bounded data-only extraction rules on retained complete bodies, without network or writes.\n\nEither pass ``rules`` or name a shipped library ``preset`` (headings, images,\nlinks, structure, inline-css, meta, social, json-ld, media, forms, tables,\nbreadcrumbs, sections, headings-outline-check); ``seo_extraction_presets`` lists them.\n\n``limit`` is the page size (1..1000); ``offset`` walks the whole result and the answer\ncarries ``total`` and ``next_offset`` (null on the last page).\n",
         "inputSchema": {
           "properties": {
             "input_path": {
@@ -2955,6 +2983,11 @@
               ],
               "default": null,
               "title": "Preset"
+            },
+            "offset": {
+              "default": 0,
+              "title": "Offset",
+              "type": "integer"
             }
           },
           "required": [
@@ -3900,7 +3933,7 @@
       ],
       "spec": {
         "name": "seo_scan_directory_tree",
-        "description": "Read a bounded directory tree from retained page URLs using local SQLite only.\n\nThe tree counts pages at each path ancestor and folds omitted children into exact\n`other_children`/`other_pages` totals. A temporary SQLite aggregation bounds Python memory.\nIt never fetches, replays, or mutates the scan.\n",
+        "description": "Read a bounded directory tree from retained page URLs using local SQLite only.\n\nThe tree counts pages at each path ancestor and folds omitted children into exact\n`other_children`/`other_pages` totals. A temporary SQLite aggregation bounds memory.\nIt never fetches, replays, or mutates the scan.\n",
         "inputSchema": {
           "properties": {
             "input_path": {
@@ -4446,6 +4479,54 @@
         "outputSchema": {
           "additionalProperties": true,
           "title": "seo_scan_archiveDictOutput",
+          "type": "object"
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        }
+      }
+    },
+    {
+      "group": "scan",
+      "profiles": [
+        "full"
+      ],
+      "spec": {
+        "name": "seo_scan_broken_links",
+        "description": "Write the broken links and resources report of a retained scan to a new CSV or XLSX file.\n\nOne row per referencing page and target whose recorded answer is an HTTP error\nstatus or a failed fetch: source_page, target, status (0 when no response\narrived), type (page, image, css, js, font, video, pdf, external) and the link\nanchor or wrapped image alt. Entirely offline: no HTTP, DNS, browser, or\nprovider request is made, and an existing destination is refused.\n",
+        "inputSchema": {
+          "properties": {
+            "input_path": {
+              "title": "Input Path",
+              "type": "string"
+            },
+            "out": {
+              "title": "Out",
+              "type": "string"
+            },
+            "fmt": {
+              "default": "csv",
+              "enum": [
+                "csv",
+                "xlsx"
+              ],
+              "title": "Fmt",
+              "type": "string"
+            }
+          },
+          "required": [
+            "input_path",
+            "out"
+          ],
+          "title": "seo_scan_broken_linksArguments",
+          "type": "object"
+        },
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "seo_scan_broken_linksDictOutput",
           "type": "object"
         },
         "annotations": {
@@ -9501,7 +9582,7 @@
       ],
       "spec": {
         "name": "seo_doctor",
-        "description": "Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.\n\nThis is a local read-only diagnostic. It does not write a probe file, launch a browser,\ncrawl a site, or establish Screaming Frog licence validity.\n",
+        "description": "Inspect runtime, browser, SF, MCP, SQLite and optional project-directory readiness.\n\nThis is a local read-only diagnostic. It does not write a probe file, launch a browser,\ncrawl a site, or establish Screaming Frog licence validity.\n",
         "inputSchema": {
           "properties": {
             "projects_directory": {
@@ -13805,7 +13886,7 @@
               "default": null,
               "title": "Dest"
             },
-            "python": {
+            "executable": {
               "anyOf": [
                 {
                   "type": "string"
@@ -13815,7 +13896,7 @@
                 }
               ],
               "default": null,
-              "title": "Python"
+              "title": "Executable"
             },
             "consumer": {
               "anyOf": [

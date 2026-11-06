@@ -29,7 +29,7 @@ async fn topvisor_oracle_parity() {
         let params = args.get("params").and_then(|v| v.as_object());
         let actual = topvisor::fetch(&host, &root, &transport, operation, params)
             .await
-            .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+            .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
     }
 }

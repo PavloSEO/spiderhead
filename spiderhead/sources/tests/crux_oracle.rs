@@ -208,7 +208,7 @@ async fn crux_oracle_parity() {
             }
             other => panic!("{name}: unknown call {other}"),
         }
-        .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+        .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
         assert_key_not_cached(&dir, arg(&args, "api_key").and_then(Value::as_str));
         if let Some(d) = dir {

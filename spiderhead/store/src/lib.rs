@@ -11,6 +11,7 @@ pub mod audit_v2;
 pub mod bodies;
 pub mod body_diff;
 pub mod body_read;
+pub mod broken_links;
 pub mod browser_artifacts;
 pub mod click_depth;
 pub mod config_diff;

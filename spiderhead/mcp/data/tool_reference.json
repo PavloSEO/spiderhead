@@ -1555,6 +1555,11 @@
     "default": "100"
    },
    {
+    "name": "offset",
+    "type": "int",
+    "default": "0"
+   },
+   {
     "name": "preset",
     "type": "str | None",
     "default": "None"
@@ -2127,7 +2132,7 @@
   "name": "seo_scan_directory_tree",
   "command": "scan-directory-tree",
   "summary": "Read a bounded directory tree from retained page URLs using local SQLite only.",
-  "notes": "The tree counts pages at each path ancestor and folds omitted children into exact\n`other_children`/`other_pages` totals. A temporary SQLite aggregation bounds Python memory.\nIt never fetches, replays, or mutates the scan.",
+  "notes": "The tree counts pages at each path ancestor and folds omitted children into exact\n`other_children`/`other_pages` totals. A temporary SQLite aggregation bounds memory.\nIt never fetches, replays, or mutates the scan.",
   "arguments": [
    {
     "name": "input_path",
@@ -2478,6 +2483,36 @@
     "name": "max_body_bytes",
     "type": "int",
     "default": "64 * 1024 * 1024"
+   }
+  ],
+  "network": false,
+  "writes": true,
+  "destructive": false,
+  "idempotent": false,
+  "paid": false,
+  "category": "scan",
+  "project_aware": false
+ },
+ {
+  "name": "seo_scan_broken_links",
+  "command": "scan-broken-links",
+  "summary": "Write the broken links and resources report of a retained scan to CSV or XLSX.",
+  "notes": "One row per referencing page and target with an HTTP error status or a failed\nfetch: source_page, target, status, type and the link anchor or image alt.\nEntirely offline; an existing destination is refused.",
+  "arguments": [
+   {
+    "name": "input_path",
+    "type": "str",
+    "default": "required"
+   },
+   {
+    "name": "out",
+    "type": "str",
+    "default": "required"
+   },
+   {
+    "name": "fmt",
+    "type": "str",
+    "default": "'csv'"
    }
   ],
   "network": false,
@@ -5662,7 +5697,7 @@
  {
   "name": "seo_doctor",
   "command": "doctor",
-  "summary": "Inspect Python, browser, SF, MCP, SQLite and optional project-directory readiness.",
+  "summary": "Inspect runtime, browser, SF, MCP, SQLite and optional project-directory readiness.",
   "notes": "This is a local read-only diagnostic. It does not write a probe file, launch a browser,\ncrawl a site, or establish Screaming Frog licence validity.",
   "arguments": [
    {

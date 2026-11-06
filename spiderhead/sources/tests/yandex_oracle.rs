@@ -73,7 +73,7 @@ fn wm_outcome(result: Result<Value, WmError>) -> Value {
     match result {
         Ok(value) => json!({"result": value}),
         Err(err) => json!({"error": {
-            "class": err.python_class(),
+            "class": err.error_class(),
             "message": err.to_string(),
         }}),
     }
@@ -84,7 +84,7 @@ fn cloud_outcome<T: serde::Serialize>(result: Result<T, CloudError>) -> Value {
     match result {
         Ok(value) => json!({"result": value}),
         Err(err) => json!({"error": {
-            "class": err.python_class(),
+            "class": err.error_class(),
             "message": err.to_string(),
         }}),
     }
@@ -131,7 +131,7 @@ fn wm_transport(
         }));
         // `queue.pop(0)` — the fake records the call, then IndexError on an empty queue.
         let Some(entry) = queue.lock().unwrap().pop_front() else {
-            return Err(WmError::Python {
+            return Err(WmError::Classed {
                 class: "IndexError".to_owned(),
                 message: "pop from empty list".to_owned(),
             });
@@ -164,7 +164,7 @@ fn wm_transport(
             return Err(WmError::Timeout(message.to_owned()));
         }
         if let Some(spec) = entry.get("other") {
-            return Err(WmError::Python {
+            return Err(WmError::Classed {
                 class: spec
                     .get("class")
                     .and_then(Value::as_str)
@@ -292,7 +292,7 @@ fn cloud_transport(
             "timeout": 45,
         }));
         let Some(entry) = queue.lock().unwrap().pop_front() else {
-            return Err(CloudError::Python {
+            return Err(CloudError::Classed {
                 class: "IndexError".to_owned(),
                 message: "pop from empty list".to_owned(),
             });
@@ -347,7 +347,7 @@ fn cloud_transport(
             return Err(CloudError::Timeout(message.to_owned()));
         }
         if let Some(spec) = entry.get("other") {
-            return Err(CloudError::Python {
+            return Err(CloudError::Classed {
                 class: spec
                     .get("class")
                     .and_then(Value::as_str)

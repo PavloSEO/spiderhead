@@ -8,7 +8,7 @@ fn outcome(result: Result<Value, CfError>) -> Value {
     match result {
         Ok(value) => json!({"result": value}),
         Err(error) => {
-            json!({"error": {"class": error.python_class(), "message": error.to_string()}})
+            json!({"error": {"class": error.error_class(), "message": error.to_string()}})
         }
     }
 }

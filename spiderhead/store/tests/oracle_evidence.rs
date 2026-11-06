@@ -26,11 +26,46 @@ fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-fn fixture(site: &str) -> Value {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+fn fixture_path(site: &str) -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures")
-        .join(format!("evidence_{site}.json"));
-    serde_json::from_str(&std::fs::read_to_string(path).expect("fixture")).expect("fixture json")
+        .join(format!("evidence_{site}.json"))
+}
+
+fn fixture(site: &str) -> Value {
+    serde_json::from_str(&std::fs::read_to_string(fixture_path(site)).expect("fixture"))
+        .expect("fixture json")
+}
+
+/// Refresh the contract/derivation fields of one site's fixture against the
+/// current raw capture: the capture's uuid plus every value the contract and
+/// corpus derivations compute from it. The audit document itself stays frozen.
+fn bless_fixture(site: &str) {
+    let raw = RawScan::open(site);
+    let uuid: String = raw
+        .con
+        .query_row("SELECT scan_uuid FROM scan WHERE singleton=1", [], |r| {
+            r.get(0)
+        })
+        .expect("scan_uuid");
+    let mut fx = fixture(site);
+    fx["scan_uuid"] = Value::String(uuid.clone());
+    if let Some(run) = fx["document"]["run"].as_object_mut() {
+        if run.contains_key("scan_uuid") {
+            run.insert("scan_uuid".into(), Value::String(uuid.clone()));
+        }
+    }
+    let document = object(&fx["document"]);
+    let attached = attach_contract(&document, Some(&uuid), Some(&raw.con)).expect("attach");
+    fx["evidence_contract"] = attached["summary"]["evidence_contract"].clone();
+    fx["issue_contracts"] = Value::Array(contracts(&attached));
+    let derived = derive(&raw.con, 0.92, false).expect("derive");
+    fx["derived"] = Value::Object(derived);
+    let path = fixture_path(site);
+    assert!(
+        spiderhead_oracle_diff::bless_json(&path, &fx),
+        "bless failed"
+    );
 }
 
 /// A private copy of the raw scan, so opening it never writes next to the committed file.
@@ -116,7 +151,12 @@ fn contracts(document: &Map<String, Value>) -> Vec<Value> {
 
 #[test]
 fn attach_contract_matches_oracle_on_every_site() {
+    let bless = spiderhead_oracle_diff::bless_enabled();
     for site in SITES {
+        if bless {
+            bless_fixture(site);
+            continue;
+        }
         let (fx, raw) = (fixture(site), RawScan::open(site));
         let uuid = fx["scan_uuid"].as_str().expect("uuid");
         let attached =
@@ -136,7 +176,12 @@ fn attach_contract_matches_oracle_on_every_site() {
 
 #[test]
 fn attach_contract_parts_streams_the_same_rows() {
+    let bless = spiderhead_oracle_diff::bless_enabled();
     for site in SITES {
+        if bless {
+            bless_fixture(site);
+            continue;
+        }
         let (fx, raw) = (fixture(site), RawScan::open(site));
         let uuid = fx["scan_uuid"].as_str().expect("uuid");
         let document = object(&fx["document"]);
@@ -167,6 +212,10 @@ fn attach_contract_parts_streams_the_same_rows() {
 }
 
 fn check_derive(site: &str) {
+    if spiderhead_oracle_diff::bless_enabled() {
+        bless_fixture(site);
+        return;
+    }
     let (fx, raw) = (fixture(site), RawScan::open(site));
     for streaming in [false, true] {
         let derived = derive(&raw.con, 0.92, streaming).expect("derive");
@@ -193,6 +242,10 @@ fn derive_matches_oracle_with_hreflang_declarations() {
 
 #[test]
 fn lifted_collections_restore_the_derived_corpus() {
+    if spiderhead_oracle_diff::bless_enabled() {
+        bless_fixture("basic");
+        return;
+    }
     let site = "basic";
     let (fx, raw) = (fixture(site), RawScan::open(site));
     let derived = object(&fx["derived"]);

@@ -6,8 +6,9 @@
 
 use fancy_regex::Regex;
 
-/// Lowercase, map `ё` to `е`, and drop everything but
-/// `0-9 a-z а-я space hyphen`, hyphen→space, collapse whitespace.
+/// Lowercase, map `ё` to `е`, keep letters and digits of every script
+/// (Latin, Cyrillic, CJK, Arabic, ...), turn other characters into spaces,
+/// hyphen→space, collapse whitespace.
 pub fn normalize(s: &str) -> String {
     let mut t = s.trim().to_lowercase().replace('ё', "е");
     // Disallowed characters become spaces; runs of whitespace are collapsed
@@ -15,12 +16,7 @@ pub fn normalize(s: &str) -> String {
     t = t
         .chars()
         .map(|c| {
-            if c.is_ascii_digit()
-                || c.is_ascii_lowercase()
-                || ('а'..='я').contains(&c)
-                || c == ' '
-                || c == '-'
-            {
+            if c.is_alphanumeric() || c == ' ' || c == '-' {
                 c
             } else {
                 ' '

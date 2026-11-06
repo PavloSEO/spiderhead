@@ -145,7 +145,7 @@ pub(super) const COMMANDS: &[CommandContract] = &[
     command("schedule-install", Some("schedule_install"), &[
         form(InputKind::ProjectDirectory, &["directory"], ""),
         form(InputKind::Selector, &["kind"], "launchd, cron or windows."),
-        form(InputKind::LocalFile, &["dest", "python"], ""),
+        form(InputKind::LocalFile, &["dest", "executable"], ""),
     ], ""),
     command("schedule-uninstall", Some("schedule_uninstall"), &[
         form(InputKind::ProjectDirectory, &["directory"], ""),

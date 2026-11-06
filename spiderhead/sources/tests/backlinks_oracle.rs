@@ -93,7 +93,7 @@ fn bl_outcome(result: Result<Value, bi::BlError>) -> Value {
     match result {
         Ok(value) => json!({"result": value}),
         Err(err) => {
-            json!({"error": {"class": err.python_class(), "message": err.to_string()}})
+            json!({"error": {"class": err.error_class(), "message": err.to_string()}})
         }
     }
 }
@@ -102,7 +102,7 @@ fn bh_outcome(result: Result<Value, bh::BlhError>) -> Value {
     match result {
         Ok(value) => json!({"result": value}),
         Err(err) => {
-            json!({"error": {"class": err.python_class(), "message": err.to_string()}})
+            json!({"error": {"class": err.error_class(), "message": err.to_string()}})
         }
     }
 }

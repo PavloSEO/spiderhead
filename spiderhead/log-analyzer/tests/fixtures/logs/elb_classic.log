@@ -1,0 +1,2 @@
+2026-10-18T00:07:55.945958Z my-elb 192.0.2.10:2817 10.0.0.1:80 0.000073 0.001048 0.000057 200 200 0 29 "GET http://example.test:80/a?b=1 HTTP/1.1" "curl/7.38.0" - -
+2026-10-18T00:07:56.100000Z my-elb 198.51.100.4:2818 10.0.0.1:80 0.000070 0.250000 0.000050 404 404 0 51 "GET http://example.test:80/missing HTTP/1.1" "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" - -

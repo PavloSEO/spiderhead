@@ -23,7 +23,7 @@ pub fn errors(payload: &Value) -> String {
 
 /// Error for a non-object JSON value where a field lookup was attempted.
 pub(crate) fn attr_get_error(value: &Value) -> CfError {
-    CfError::Python(
+    CfError::Classed(
         "AttributeError",
         format!(
             "'{}' object has no attribute 'get'",
@@ -45,16 +45,16 @@ pub(crate) fn py_subscript<'a>(value: &'a Value, key: &str) -> Result<&'a Value,
     match value {
         Value::Object(map) => map
             .get(key)
-            .ok_or_else(|| CfError::Python("KeyError", pystr::repr_str(key))),
-        Value::String(_) => Err(CfError::Python(
+            .ok_or_else(|| CfError::Classed("KeyError", pystr::repr_str(key))),
+        Value::String(_) => Err(CfError::Classed(
             "TypeError",
             "string indices must be integers, not 'str'".to_owned(),
         )),
-        Value::Array(_) => Err(CfError::Python(
+        Value::Array(_) => Err(CfError::Classed(
             "TypeError",
             "list indices must be integers or slices, not 'str'".to_owned(),
         )),
-        other => Err(CfError::Python(
+        other => Err(CfError::Classed(
             "TypeError",
             format!("'{}' object is not subscriptable", pystr::type_name(other)),
         )),
@@ -68,8 +68,8 @@ pub(crate) fn py_index0(value: &Value) -> Result<Value, CfError> {
         Value::String(text) => Ok(Value::String(
             text.chars().next().unwrap_or_default().to_string(),
         )),
-        Value::Object(_) => Err(CfError::Python("KeyError", "0".to_owned())),
-        other => Err(CfError::Python(
+        Value::Object(_) => Err(CfError::Classed("KeyError", "0".to_owned())),
+        other => Err(CfError::Classed(
             "TypeError",
             format!("'{}' object is not subscriptable", pystr::type_name(other)),
         )),
@@ -83,7 +83,7 @@ pub fn errors_or_attr(payload: &Value) -> Result<String, CfError> {
         Some(v) if pystr::truthy(Some(v)) => v.clone(),
         _ => Value::Array(Vec::new()),
     };
-    let items = pystr::iterate(&raw).map_err(|(class, msg)| CfError::Python(class, msg))?;
+    let items = pystr::iterate(&raw).map_err(|(class, msg)| CfError::Classed(class, msg))?;
     let mut parts = Vec::new();
     for e in items.iter().filter(|e| pystr::truthy(Some(e))) {
         let Value::Object(map) = e else {

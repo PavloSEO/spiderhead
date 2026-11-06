@@ -3,12 +3,12 @@
 //! streamed exports, with a validated output cache and resumable cursors.
 
 use std::collections::{BTreeMap, HashSet};
-use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
 use rusqlite::Connection;
 use serde_json::{json, Value};
 use sha2::Digest as _;
+use spiderhead_core::filesystem::{link_identity, path_identity};
 use spiderhead_core::job_control::JobProgressUpdate;
 use spiderhead_core::timeutil::{stamp, Format};
 use spiderhead_store::evidence_contract::Obj;
@@ -324,13 +324,10 @@ fn compare_to_files_cached(
                     .collect();
                 members.sort();
                 let same_inode = |member: &Path, staged: &Path| match (
-                    std::fs::metadata(member),
-                    std::fs::metadata(staged),
+                    path_identity(member),
+                    path_identity(staged),
                 ) {
-                    (Ok(a), Ok(b)) => {
-                        use std::os::unix::fs::MetadataExt;
-                        a.dev() == b.dev() && a.ino() == b.ino()
-                    }
+                    (Ok(a), Ok(b)) => a.0 == b.0 && a.1 == b.1,
                     _ => false,
                 };
                 let owned = !members.is_empty()
@@ -543,7 +540,7 @@ fn compare_to_files_fresh(
         .map_err(|e| CompareError(e.to_string()))?;
     }
     super::shared::safe_member(work, true, false, 1)?;
-    let work_info = std::fs::symlink_metadata(work)
+    let work_info = link_identity(work)
         .map_err(|e| CompareError(crate::compare::base::os_error_text(&e, work)))?;
     let job_path = work.join("job.json");
     super::shared::safe_member(&job_path, false, false, 1)?;
@@ -610,9 +607,9 @@ fn compare_to_files_fresh(
     drop(lock);
     if outcome.is_ok() {
         let _ = (|| -> Result<(), CompareError> {
-            let current = std::fs::symlink_metadata(work)
+            let current = link_identity(work)
                 .map_err(|e| CompareError(crate::compare::base::os_error_text(&e, work)))?;
-            if work_info.dev() == current.dev() && work_info.ino() == current.ino() {
+            if work_info.0 == current.0 && work_info.1 == current.1 {
                 let _ = std::fs::remove_dir_all(work);
             }
             Ok(())
@@ -890,7 +887,10 @@ fn finalize(
         if path.exists() {
             let info = std::fs::symlink_metadata(path)
                 .map_err(|e| CompareError(crate::compare::base::os_error_text(&e, path)))?;
-            if path.is_symlink() || !info.is_file() || info.nlink() != 1 {
+            let links = link_identity(path)
+                .map_err(|e| CompareError(crate::compare::base::os_error_text(&e, path)))?
+                .2;
+            if path.is_symlink() || !info.is_file() || links != 1 {
                 return Err(CompareError(message.into()));
             }
             std::fs::remove_file(path)
@@ -1743,7 +1743,10 @@ fn export_stream(
     if path.exists() {
         let info = std::fs::symlink_metadata(&path)
             .map_err(|e| CompareError(crate::compare::base::os_error_text(&e, &path)))?;
-        if path.is_symlink() || !info.is_file() || info.nlink() != 1 {
+        let links = link_identity(&path)
+            .map_err(|e| CompareError(crate::compare::base::os_error_text(&e, &path)))?
+            .2;
+        if path.is_symlink() || !info.is_file() || links != 1 {
             return Err(CompareError(
                 "uncheckpointed comparison output file is unsafe to replace".into(),
             ));

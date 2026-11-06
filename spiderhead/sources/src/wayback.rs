@@ -27,7 +27,7 @@ pub struct WaybackError {
 
 impl WaybackError {
     /// Error class name.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         self.class
     }
 }

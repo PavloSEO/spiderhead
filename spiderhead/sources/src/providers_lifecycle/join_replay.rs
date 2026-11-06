@@ -146,10 +146,10 @@ pub fn provider_replay(
             "evidence_file must be a private bounded regular JSON file".to_owned(),
         ));
     }
-    let stored_bytes =
-        std::fs::read(&source).map_err(|e| CfError::Python("OSError", format!("[Errno 2] {e}")))?;
+    let stored_bytes = std::fs::read(&source)
+        .map_err(|e| CfError::Classed("OSError", format!("[Errno 2] {e}")))?;
     let stored: Value = serde_json::from_slice(&stored_bytes)
-        .map_err(|e| CfError::Python("JSONDecodeError", e.to_string()))?;
+        .map_err(|e| CfError::Classed("JSONDecodeError", e.to_string()))?;
     let valid_envelope = stored
         .as_object()
         .map(|m| m.len() == 2 && m.contains_key("evidence") && m.contains_key("result"))

@@ -53,7 +53,7 @@
    "item_key": "run",
    "kind": "native_config_extension",
    "payload_json": {
-    "effective_fingerprint": "25c6791d7f05d2c270a5e29446115666eb0c0f868d5d42a588c32bd4f97c1084",
+    "effective_fingerprint": "cdbd31bd1f6c7a99646eb6ee19fb95b0b0ec13e467b5547afec96833b7d2c286",
     "schema_version": "native_config_extension.v1",
     "settings": {
      "http.auth": [],
@@ -2068,7 +2068,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -2105,7 +2105,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+   "variant_key": "954bcc13747dfae37363066c0f72d6daecf44071ff0e67e2a1d1a8c4204f6e77"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -2151,7 +2151,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -2188,7 +2188,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+   "variant_key": "954bcc13747dfae37363066c0f72d6daecf44071ff0e67e2a1d1a8c4204f6e77"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -2234,7 +2234,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -2271,7 +2271,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+   "variant_key": "954bcc13747dfae37363066c0f72d6daecf44071ff0e67e2a1d1a8c4204f6e77"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -2317,7 +2317,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -2354,7 +2354,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+   "variant_key": "954bcc13747dfae37363066c0f72d6daecf44071ff0e67e2a1d1a8c4204f6e77"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -2400,7 +2400,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -2437,7 +2437,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+   "variant_key": "954bcc13747dfae37363066c0f72d6daecf44071ff0e67e2a1d1a8c4204f6e77"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -2483,7 +2483,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -2520,7 +2520,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "eacad85363e9b876f4aabb52ff3b1424db4d19d087383c4a86dc4d31c261b6c2"
+   "variant_key": "954bcc13747dfae37363066c0f72d6daecf44071ff0e67e2a1d1a8c4204f6e77"
   }
  ],
  "resume_state": [
@@ -2648,7 +2648,7 @@
      "retry_on_timeout": 0,
      "timeout_seconds": 15.0,
      "upgrade_to_https": false,
-     "user_agent": "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "user_agent": "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     },
     "limits": {
      "max_crawl_seconds": 400,
@@ -2787,18 +2787,15 @@
     "policy_version": "scan_retention.v1"
    },
    "runtime_versions_json": {
-    "beautifulsoup4": "4.15.0",
-    "httpx": "0.28.1",
-    "lxml": "6.1.1",
-    "python": "3.14.6",
-    "sqlite": "3.53.3"
+    "sqlite": "3.53.3",
+    "toolkit": "0.9.1"
    },
    "scan_uuid": "<UUID:1>",
    "singleton": 1,
    "source_kind": "native",
    "start_url": "{BASE}/",
    "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
-   "writer_version": "3.2.0"
+   "writer_version": "0.9.1"
   }
  ],
  "urls": [

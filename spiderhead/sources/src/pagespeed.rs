@@ -34,7 +34,7 @@ pub struct PagespeedError {
 
 impl PagespeedError {
     /// Error class name of the matching failure.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         self.class
     }
 }

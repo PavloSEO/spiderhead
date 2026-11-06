@@ -306,7 +306,8 @@ fn asn_step_is_cached_and_failures_are_network_errors() {
         asn: Some(&down),
         ..engine
     };
-    let live = Live::new(Mode::Full, 10);
+    let mut live = Live::new(Mode::Full, 10);
+    live.workers = 1;
     let out = engine.resolve_live(&rows, &live);
     assert_eq!(out[0].status, VerificationStatus::NetworkError);
     assert!(

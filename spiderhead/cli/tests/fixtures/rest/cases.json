@@ -1,0 +1,758 @@
+[
+ {
+  "id": "logpush-basic",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "setup": [
+   {
+    "command": "project-new",
+    "tool": "seo_project_new",
+    "args": {
+     "directory": "{WORK}/proj",
+     "target": "https://example.org",
+     "label": "Demo"
+    }
+   }
+  ],
+  "files_in": {
+   "push.jsonl": "{\"ClientIP\":\"198.51.100.7\",\"ClientRequestURI\":\"/index.html\",\"EdgeStartTimestamp\":\"2026-10-01T12:00:00Z\",\"EdgeResponseStatus\":200,\"ClientRequestMethod\":\"GET\",\"ClientRequestUserAgent\":\"Mozilla/5.0\",\"EdgeResponseBytes\":1234}\n{\"ClientIP\":\"203.0.113.9\",\"ClientRequestURI\":\"/p?q=1\",\"EdgeStartTimestamp\":\"2026-10-01T12:00:01Z\",\"EdgeResponseStatus\":404,\"ClientRequestMethod\":\"POST\",\"ClientRequestUserAgent\":\"curl/8\",\"EdgeResponseBytes\":0}\n"
+  },
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/proj"
+  },
+  "then": [
+   {
+    "command": "logs-summary",
+    "tool": "seo_logs_summary",
+    "args": {
+     "project": "{WORK}/proj"
+    }
+   }
+  ]
+ },
+ {
+  "id": "logpush-empty",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "setup": [
+   {
+    "command": "project-new",
+    "tool": "seo_project_new",
+    "args": {
+     "directory": "{WORK}/proj",
+     "target": "https://example.org",
+     "label": "Demo"
+    }
+   }
+  ],
+  "files_in": {
+   "push.jsonl": ""
+  },
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/proj"
+  }
+ },
+ {
+  "id": "logpush-bad-line",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "setup": [
+   {
+    "command": "project-new",
+    "tool": "seo_project_new",
+    "args": {
+     "directory": "{WORK}/proj",
+     "target": "https://example.org",
+     "label": "Demo"
+    }
+   }
+  ],
+  "files_in": {
+   "push.jsonl": "{not json}\n"
+  },
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/proj"
+  }
+ },
+ {
+  "id": "logpush-non-object",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "setup": [
+   {
+    "command": "project-new",
+    "tool": "seo_project_new",
+    "args": {
+     "directory": "{WORK}/proj",
+     "target": "https://example.org",
+     "label": "Demo"
+    }
+   }
+  ],
+  "files_in": {
+   "push.jsonl": "[1,2]\n"
+  },
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/proj"
+  }
+ },
+ {
+  "id": "logpush-missing-fields",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "setup": [
+   {
+    "command": "project-new",
+    "tool": "seo_project_new",
+    "args": {
+     "directory": "{WORK}/proj",
+     "target": "https://example.org",
+     "label": "Demo"
+    }
+   }
+  ],
+  "files_in": {
+   "push.jsonl": "{\"ClientIP\":\"198.51.100.7\",\"ClientRequestURI\":\"/\"}\n"
+  },
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/proj"
+  }
+ },
+ {
+  "id": "logpush-no-file",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "setup": [
+   {
+    "command": "project-new",
+    "tool": "seo_project_new",
+    "args": {
+     "directory": "{WORK}/proj",
+     "target": "https://example.org",
+     "label": "Demo"
+    }
+   }
+  ],
+  "args": {
+   "input_path": "{WORK}/absent.jsonl",
+   "project": "{WORK}/proj"
+  }
+ },
+ {
+  "id": "logpush-max-events-low",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/proj",
+   "max_events": 0
+  }
+ },
+ {
+  "id": "logpush-over-max",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "files_in": {
+   "push.jsonl": "{\"a\":1}\n{\"a\":2}\n{\"a\":3}\n"
+  },
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/proj",
+   "max_events": 2
+  }
+ },
+ {
+  "id": "logpush-max-events-null",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/proj",
+   "max_events": null
+  }
+ },
+ {
+  "id": "logpush-no-args",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "args": {}
+ },
+ {
+  "id": "logpush-one-missing",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "args": {
+   "project": "p"
+  }
+ },
+ {
+  "id": "logpush-null-path",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "args": {
+   "input_path": null,
+   "project": "p"
+  }
+ },
+ {
+  "id": "logpush-empty-project",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "files_in": {
+   "push.jsonl": "{\"ClientIP\":\"198.51.100.7\",\"ClientRequestURI\":\"/\",\"EdgeStartTimestamp\":\"2026-10-01T12:00:00Z\",\"EdgeResponseStatus\":200}\n"
+  },
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": ""
+  }
+ },
+ {
+  "id": "logpush-project-missing",
+  "command": "cloudflare-logpush-import",
+  "tool": "seo_cloudflare_logpush_import",
+  "files_in": {
+   "push.jsonl": "{\"ClientIP\":\"198.51.100.7\",\"ClientRequestURI\":\"/\",\"EdgeStartTimestamp\":\"2026-10-01T12:00:00Z\",\"EdgeResponseStatus\":200}\n"
+  },
+  "args": {
+   "input_path": "{WORK}/push.jsonl",
+   "project": "{WORK}/noproj"
+  }
+ },
+ {
+  "id": "tpdf-no-args",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {}
+ },
+ {
+  "id": "tpdf-both",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "counter_id": "1",
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{}"
+  }
+ },
+ {
+  "id": "tpdf-gsc-both",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "gsc_rows": [],
+   "gsc_site_url": "sc-domain:example.org",
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"spiderhead.metrika-traffic/1\", \"ok\": true, \"source\": \"yandex_metrika\", \"generated_at\": \"2026-10-01T12:00:00+00:00\", \"counter_ids\": [\"1\"], \"site_label\": null, \"lang\": \"en\", \"period\": {\"date1\": \"2026-09-01\", \"date2\": \"2026-09-30\"}, \"comparisons\": {\"previous\": {\"date1\": \"2026-08-02\", \"date2\": \"2026-08-31\"}, \"year_ago\": {\"date1\": \"2025-09-01\", \"date2\": \"2025-09-30\"}}, \"attribution\": \"last_significant\", \"traffic\": \"organic\", \"methodology\": {\"requests\": 21}, \"warnings\": [], \"blocks\": {\"summary\": {\"status\": \"ok\", \"metrics\": {}}, \"daily\": {\"status\": \"unavailable\", \"reason\": \"no rows\"}, \"gsc_queries\": {\"status\": \"skipped\", \"reason\": \"no Search Console rows or property were supplied\"}}}"
+  }
+ },
+ {
+  "id": "tpdf-bad-lang",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "lang": "de",
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"spiderhead.metrika-traffic/1\", \"ok\": true, \"source\": \"yandex_metrika\", \"generated_at\": \"2026-10-01T12:00:00+00:00\", \"counter_ids\": [\"1\"], \"site_label\": null, \"lang\": \"en\", \"period\": {\"date1\": \"2026-09-01\", \"date2\": \"2026-09-30\"}, \"comparisons\": {\"previous\": {\"date1\": \"2026-08-02\", \"date2\": \"2026-08-31\"}, \"year_ago\": {\"date1\": \"2025-09-01\", \"date2\": \"2025-09-30\"}}, \"attribution\": \"last_significant\", \"traffic\": \"organic\", \"methodology\": {\"requests\": 21}, \"warnings\": [], \"blocks\": {\"summary\": {\"status\": \"ok\", \"metrics\": {}}, \"daily\": {\"status\": \"unavailable\", \"reason\": \"no rows\"}, \"gsc_queries\": {\"status\": \"skipped\", \"reason\": \"no Search Console rows or property were supplied\"}}}"
+  }
+ },
+ {
+  "id": "tpdf-bad-timeout",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "timeout": 0,
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"spiderhead.metrika-traffic/1\", \"ok\": true, \"source\": \"yandex_metrika\", \"generated_at\": \"2026-10-01T12:00:00+00:00\", \"counter_ids\": [\"1\"], \"site_label\": null, \"lang\": \"en\", \"period\": {\"date1\": \"2026-09-01\", \"date2\": \"2026-09-30\"}, \"comparisons\": {\"previous\": {\"date1\": \"2026-08-02\", \"date2\": \"2026-08-31\"}, \"year_ago\": {\"date1\": \"2025-09-01\", \"date2\": \"2025-09-30\"}}, \"attribution\": \"last_significant\", \"traffic\": \"organic\", \"methodology\": {\"requests\": 21}, \"warnings\": [], \"blocks\": {\"summary\": {\"status\": \"ok\", \"metrics\": {}}, \"daily\": {\"status\": \"unavailable\", \"reason\": \"no rows\"}, \"gsc_queries\": {\"status\": \"skipped\", \"reason\": \"no Search Console rows or property were supplied\"}}}"
+  }
+ },
+ {
+  "id": "tpdf-bad-brand",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "brand": "{\"unknown\": 1}",
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"spiderhead.metrika-traffic/1\", \"ok\": true, \"source\": \"yandex_metrika\", \"generated_at\": \"2026-10-01T12:00:00+00:00\", \"counter_ids\": [\"1\"], \"site_label\": null, \"lang\": \"en\", \"period\": {\"date1\": \"2026-09-01\", \"date2\": \"2026-09-30\"}, \"comparisons\": {\"previous\": {\"date1\": \"2026-08-02\", \"date2\": \"2026-08-31\"}, \"year_ago\": {\"date1\": \"2025-09-01\", \"date2\": \"2025-09-30\"}}, \"attribution\": \"last_significant\", \"traffic\": \"organic\", \"methodology\": {\"requests\": 21}, \"warnings\": [], \"blocks\": {\"summary\": {\"status\": \"ok\", \"metrics\": {}}, \"daily\": {\"status\": \"unavailable\", \"reason\": \"no rows\"}, \"gsc_queries\": {\"status\": \"skipped\", \"reason\": \"no Search Console rows or property were supplied\"}}}"
+  }
+ },
+ {
+  "id": "tpdf-doc-missing",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/nope.json",
+   "out_dir": "{WORK}/out"
+  }
+ },
+ {
+  "id": "tpdf-doc-bad-json",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{broken"
+  }
+ },
+ {
+  "id": "tpdf-doc-bad-schema",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"other\"}"
+  }
+ },
+ {
+  "id": "tpdf-render",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"spiderhead.metrika-traffic/1\", \"ok\": true, \"source\": \"yandex_metrika\", \"generated_at\": \"2026-10-01T12:00:00+00:00\", \"counter_ids\": [\"1\"], \"site_label\": null, \"lang\": \"en\", \"period\": {\"date1\": \"2026-09-01\", \"date2\": \"2026-09-30\"}, \"comparisons\": {\"previous\": {\"date1\": \"2026-08-02\", \"date2\": \"2026-08-31\"}, \"year_ago\": {\"date1\": \"2025-09-01\", \"date2\": \"2025-09-30\"}}, \"attribution\": \"last_significant\", \"traffic\": \"organic\", \"methodology\": {\"requests\": 21}, \"warnings\": [], \"blocks\": {\"summary\": {\"status\": \"ok\", \"metrics\": {}}, \"daily\": {\"status\": \"unavailable\", \"reason\": \"no rows\"}, \"gsc_queries\": {\"status\": \"skipped\", \"reason\": \"no Search Console rows or property were supplied\"}}}"
+  },
+  "env": {
+   "SEOHEAD_CHROME": "/nonexistent-chrome"
+  },
+  "collect": [
+   "out"
+  ]
+ },
+ {
+  "id": "tpdf-render-nopdf",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "out_dir": "{WORK}/out",
+   "pdf": false
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"spiderhead.metrika-traffic/1\", \"ok\": true, \"source\": \"yandex_metrika\", \"generated_at\": \"2026-10-01T12:00:00+00:00\", \"counter_ids\": [\"1\"], \"site_label\": null, \"lang\": \"en\", \"period\": {\"date1\": \"2026-09-01\", \"date2\": \"2026-09-30\"}, \"comparisons\": {\"previous\": {\"date1\": \"2026-08-02\", \"date2\": \"2026-08-31\"}, \"year_ago\": {\"date1\": \"2025-09-01\", \"date2\": \"2025-09-30\"}}, \"attribution\": \"last_significant\", \"traffic\": \"organic\", \"methodology\": {\"requests\": 21}, \"warnings\": [], \"blocks\": {\"summary\": {\"status\": \"ok\", \"metrics\": {}}, \"daily\": {\"status\": \"unavailable\", \"reason\": \"no rows\"}, \"gsc_queries\": {\"status\": \"skipped\", \"reason\": \"no Search Console rows or property were supplied\"}}}"
+  },
+  "collect": [
+   "out"
+  ]
+ },
+ {
+  "id": "tpdf-render-norender",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "out_dir": "{WORK}/out",
+   "render": false
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"spiderhead.metrika-traffic/1\", \"ok\": true, \"source\": \"yandex_metrika\", \"generated_at\": \"2026-10-01T12:00:00+00:00\", \"counter_ids\": [\"1\"], \"site_label\": null, \"lang\": \"en\", \"period\": {\"date1\": \"2026-09-01\", \"date2\": \"2026-09-30\"}, \"comparisons\": {\"previous\": {\"date1\": \"2026-08-02\", \"date2\": \"2026-08-31\"}, \"year_ago\": {\"date1\": \"2025-09-01\", \"date2\": \"2025-09-30\"}}, \"attribution\": \"last_significant\", \"traffic\": \"organic\", \"methodology\": {\"requests\": 21}, \"warnings\": [], \"blocks\": {\"summary\": {\"status\": \"ok\", \"metrics\": {}}, \"daily\": {\"status\": \"unavailable\", \"reason\": \"no rows\"}, \"gsc_queries\": {\"status\": \"skipped\", \"reason\": \"no Search Console rows or property were supplied\"}}}"
+  },
+  "collect": [
+   "out"
+  ]
+ },
+ {
+  "id": "tpdf-existing",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "document": "{WORK}/doc.json",
+   "out_dir": "{WORK}/out"
+  },
+  "files_in": {
+   "doc.json": "{\"schema\": \"spiderhead.metrika-traffic/1\", \"ok\": true, \"source\": \"yandex_metrika\", \"generated_at\": \"2026-10-01T12:00:00+00:00\", \"counter_ids\": [\"1\"], \"site_label\": null, \"lang\": \"en\", \"period\": {\"date1\": \"2026-09-01\", \"date2\": \"2026-09-30\"}, \"comparisons\": {\"previous\": {\"date1\": \"2026-08-02\", \"date2\": \"2026-08-31\"}, \"year_ago\": {\"date1\": \"2025-09-01\", \"date2\": \"2025-09-30\"}}, \"attribution\": \"last_significant\", \"traffic\": \"organic\", \"methodology\": {\"requests\": 21}, \"warnings\": [], \"blocks\": {\"summary\": {\"status\": \"ok\", \"metrics\": {}}, \"daily\": {\"status\": \"unavailable\", \"reason\": \"no rows\"}, \"gsc_queries\": {\"status\": \"skipped\", \"reason\": \"no Search Console rows or property were supplied\"}}}",
+   "out/metrika-traffic.html": "old"
+  }
+ },
+ {
+  "id": "tpdf-collect-missing-cred",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "counter_id": "1",
+   "date1": "2026-09-01",
+   "date2": "2026-09-30",
+   "out_dir": "{WORK}/out"
+  }
+ },
+ {
+  "id": "tpdf-bad-dates",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "counter_id": "1",
+   "date1": "2026-09-30",
+   "date2": "2026-09-01",
+   "out_dir": "{WORK}/out"
+  }
+ },
+ {
+  "id": "tpdf-null-attribution",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "counter_id": "1",
+   "date1": "2026-09-01",
+   "date2": "2026-09-30",
+   "attribution": null,
+   "out_dir": "{WORK}/out"
+  }
+ },
+ {
+  "id": "tpdf-collect",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "counter_id": "1",
+   "date1": "2026-09-01",
+   "date2": "2026-09-30",
+   "out_dir": "{WORK}/out"
+  },
+  "env": {
+   "YANDEX_METRIKA_TOKEN": "fake-metrika-token",
+   "SEOHEAD_CHROME": "/nonexistent-chrome"
+  },
+  "routes": [
+   {
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "responses": [
+     {
+      "status": 200,
+      "body": "{\"data\": [], \"totals\": [], \"total_rows\": 0, \"query\": {\"ids\": [1]}}"
+     }
+    ]
+   }
+  ],
+  "collect": [
+   "out"
+  ]
+ },
+ {
+  "id": "tpdf-collect-auth",
+  "command": "metrika-traffic-pdf",
+  "tool": "seo_metrika_traffic_pdf",
+  "args": {
+   "counter_id": "1",
+   "date1": "2026-09-01",
+   "date2": "2026-09-30",
+   "out_dir": "{WORK}/out",
+   "render": false
+  },
+  "env": {
+   "YANDEX_METRIKA_TOKEN": "fake-metrika-token"
+  },
+  "routes": [
+   {
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "responses": [
+     {
+      "status": 401,
+      "body": "{\"message\": \"bad token\", \"code\": 401}"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "lscan-no-run",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "args": {}
+ },
+ {
+  "id": "lscan-missing",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "args": {
+   "run": "{WORK}/no-such-dir"
+  }
+ },
+ {
+  "id": "lscan-empty-run",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "args": {
+   "run": ""
+  }
+ },
+ {
+  "id": "lscan-int-run",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "args": {
+   "run": 5
+  }
+ },
+ {
+  "id": "lscan-clean",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run"
+  }
+ },
+ {
+  "id": "lscan-flags",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "flags": [
+   "--run",
+   "{WORK}/run"
+  ],
+  "args": {
+   "run": "{WORK}/run"
+  }
+ },
+ {
+  "id": "lscan-anomalies",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_MISSING\": 2,\n      \"CANONICAL_TO_REDIRECT\": 1,\n      \"X_BIG\": 5\n    },\n    \"sitemap\": {\n      \"lastmod\": {\n        \"x\": 1\n      }\n    },\n    \"implausible_checks\": [\n      {\n        \"check\": \"X_BIG\",\n        \"share\": 0.9,\n        \"pages\": 9\n      }\n    ]\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_MISSING\",\n      \"target_url\": \"https://ex.org/absent\",\n      \"source\": \"html\",\n      \"details\": {}\n    },\n    {\n      \"check\": \"TITLE_MISSING\",\n      \"target_url\": \"https://ex.org/absent\",\n      \"source\": \"html\",\n      \"details\": {}\n    },\n    {\n      \"check\": \"CANONICAL_TO_REDIRECT\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"canonical\": \"https://ex.org/c/\"\n      }\n    },\n    {\n      \"check\": \"SITEMAP_STALE_LASTMOD\",\n      \"target_url\": \"https://ex.org/\",\n      \"source\": \"sitemap\",\n      \"details\": {\n        \"x\": 1\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 10, \"text_ratio\": 150.0, \"representation\": \"raw\"}\n{\"url\": \"https://ex.org/b\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 0, \"word_count\": 9, \"representation\": \"raw\"}\n{\"url\": \"https://ex.org/c/\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 5, \"word_count\": 1}\n",
+   "run/decisions.jsonl": "{\"type\": \"exclude\", \"reason\": \"outside_host\", \"url\": \"https://ex.org/off\", \"host\": \"ex.org\"}\n{\"type\": \"exclude\", \"reason\": \"outside_host\", \"url\": \"https://other.org/x\", \"host\": \"ex.org\"}\n{\"type\": \"skip\", \"reason\": \"robots\", \"url\": \"https://ex.org/r\", \"host\": \"ex.org\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run"
+  }
+ },
+ {
+  "id": "lscan-max-zero",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_MISSING\": 2,\n      \"CANONICAL_TO_REDIRECT\": 1,\n      \"X_BIG\": 5\n    },\n    \"sitemap\": {\n      \"lastmod\": {\n        \"x\": 1\n      }\n    },\n    \"implausible_checks\": [\n      {\n        \"check\": \"X_BIG\",\n        \"share\": 0.9,\n        \"pages\": 9\n      }\n    ]\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_MISSING\",\n      \"target_url\": \"https://ex.org/absent\",\n      \"source\": \"html\",\n      \"details\": {}\n    },\n    {\n      \"check\": \"TITLE_MISSING\",\n      \"target_url\": \"https://ex.org/absent\",\n      \"source\": \"html\",\n      \"details\": {}\n    },\n    {\n      \"check\": \"CANONICAL_TO_REDIRECT\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"canonical\": \"https://ex.org/c/\"\n      }\n    },\n    {\n      \"check\": \"SITEMAP_STALE_LASTMOD\",\n      \"target_url\": \"https://ex.org/\",\n      \"source\": \"sitemap\",\n      \"details\": {\n        \"x\": 1\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 10, \"text_ratio\": 150.0, \"representation\": \"raw\"}\n{\"url\": \"https://ex.org/b\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 0, \"word_count\": 9, \"representation\": \"raw\"}\n{\"url\": \"https://ex.org/c/\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 5, \"word_count\": 1}\n",
+   "run/decisions.jsonl": "{\"type\": \"exclude\", \"reason\": \"outside_host\", \"url\": \"https://ex.org/off\", \"host\": \"ex.org\"}\n{\"type\": \"exclude\", \"reason\": \"outside_host\", \"url\": \"https://other.org/x\", \"host\": \"ex.org\"}\n{\"type\": \"skip\", \"reason\": \"robots\", \"url\": \"https://ex.org/r\", \"host\": \"ex.org\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "max_per_rule": 0
+  }
+ },
+ {
+  "id": "lscan-max-one",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_MISSING\": 2,\n      \"CANONICAL_TO_REDIRECT\": 1,\n      \"X_BIG\": 5\n    },\n    \"sitemap\": {\n      \"lastmod\": {\n        \"x\": 1\n      }\n    },\n    \"implausible_checks\": [\n      {\n        \"check\": \"X_BIG\",\n        \"share\": 0.9,\n        \"pages\": 9\n      }\n    ]\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_MISSING\",\n      \"target_url\": \"https://ex.org/absent\",\n      \"source\": \"html\",\n      \"details\": {}\n    },\n    {\n      \"check\": \"TITLE_MISSING\",\n      \"target_url\": \"https://ex.org/absent\",\n      \"source\": \"html\",\n      \"details\": {}\n    },\n    {\n      \"check\": \"CANONICAL_TO_REDIRECT\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"canonical\": \"https://ex.org/c/\"\n      }\n    },\n    {\n      \"check\": \"SITEMAP_STALE_LASTMOD\",\n      \"target_url\": \"https://ex.org/\",\n      \"source\": \"sitemap\",\n      \"details\": {\n        \"x\": 1\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 10, \"text_ratio\": 150.0, \"representation\": \"raw\"}\n{\"url\": \"https://ex.org/b\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 0, \"word_count\": 9, \"representation\": \"raw\"}\n{\"url\": \"https://ex.org/c/\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 5, \"word_count\": 1}\n",
+   "run/decisions.jsonl": "{\"type\": \"exclude\", \"reason\": \"outside_host\", \"url\": \"https://ex.org/off\", \"host\": \"ex.org\"}\n{\"type\": \"exclude\", \"reason\": \"outside_host\", \"url\": \"https://other.org/x\", \"host\": \"ex.org\"}\n{\"type\": \"skip\", \"reason\": \"robots\", \"url\": \"https://ex.org/r\", \"host\": \"ex.org\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "max_per_rule": 1
+  }
+ },
+ {
+  "id": "lscan-max-neg",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "max_per_rule": -1
+  }
+ },
+ {
+  "id": "lscan-max-null",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "max_per_rule": null
+  }
+ },
+ {
+  "id": "lscan-max-str",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "max_per_rule": "x"
+  }
+ },
+ {
+  "id": "lscan-max-strnum",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "max_per_rule": "20"
+  }
+ },
+ {
+  "id": "lscan-max-bool",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "max_per_rule": true
+  }
+ },
+ {
+  "id": "lscan-pages-only",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run"
+  }
+ },
+ {
+  "id": "lscan-bad-audit",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{not json",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run"
+  }
+ },
+ {
+  "id": "lscan-images",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 999, \"word_count\": 3}\n",
+   "img/manifest.json": "{\n  \"images\": [\n    {\n      \"url\": \"https://ex.org/a\",\n      \"path\": \"a.bin\"\n    },\n    {\n      \"url\": \"https://ex.org/miss\",\n      \"path\": \"nope.bin\"\n    }\n  ]\n}",
+   "img/a.bin": "0123456789"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "images_dir": "{WORK}/img"
+  }
+ },
+ {
+  "id": "lscan-images-null",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "images_dir": null
+  }
+ },
+ {
+  "id": "lscan-images-int",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{\n  \"summary\": {\n    \"by_check\": {\n      \"TITLE_TOO_LONG\": 1\n    }\n  },\n  \"issues\": [\n    {\n      \"check\": \"TITLE_TOO_LONG\",\n      \"target_url\": \"https://ex.org/a\",\n      \"source\": \"html\",\n      \"details\": {\n        \"length\": 70\n      }\n    }\n  ],\n  \"run\": {\n    \"source\": \"https://ex.org/\"\n  }\n}",
+   "run/pages.jsonl": "{\"url\": \"https://ex.org/a\", \"status_code\": 200, \"content_type\": \"text/html\", \"size_bytes\": 100, \"word_count\": 50, \"text_ratio\": 20.5, \"representation\": \"raw\"}\n"
+  },
+  "args": {
+   "run": "{WORK}/run",
+   "images_dir": 5
+  }
+ },
+ {
+  "id": "lscan-native",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "scan_seeds": [
+   "basic"
+  ],
+  "args": {
+   "run": "{WORK}/scan.sqlite"
+  }
+ },
+ {
+  "id": "lscan-native-dir",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "scan_seeds": [
+   "basic"
+  ],
+  "args": {
+   "run": "{WORK}"
+  }
+ },
+ {
+  "id": "lscan-corrupt",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "fake.sqlite": "SQLite format 3\u0000JUNKJUNKJUNK"
+  },
+  "args": {
+   "run": "{WORK}/fake.sqlite"
+  }
+ },
+ {
+  "id": "lscan-empty-json",
+  "command": "log-scan",
+  "tool": "seo_log_scan",
+  "files_in": {
+   "run/audit.json": "{}"
+  },
+  "args": {
+   "run": "{WORK}/run"
+  }
+ }
+]

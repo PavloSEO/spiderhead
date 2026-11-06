@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.1
+
+- Semantics: Google and DataForSEO data are stored per language and location and linked to topics across engines; `import-google-csv` loads per-language keyword tables; `cluster-google` and `clusters-google` cluster Google phrases by SERP; non-Latin queries are kept during normalisation.
+- Crawl: content-encoded response bodies are decoded before parsing; `--set`, JavaScript rendering and browser lookup on `PATH` are wired; `--config-help` prints the crawl settings reference.
+- Reports and checks: `scan-broken-links` writes a CSV/XLSX broken links and resources report; `scan-extract` pages by offset with total and next offset; `INTERNAL_LINK_NO_ANCHOR` skips links with an image alt, `aria-label` or `title`.
+- Logs: format detection for nginx tails, custom `log_format`, tabular and cloud log layouts.
+- MCP: a bare `mcp` invocation starts the stdio server.
+- Release workflow: pushing a `vX.Y.Z` tag builds the macOS arm64 CLI and creates a draft GitHub Release with `SHA256SUMS`.
+- `spiderhead update`: verified in-place update of the installed binary (atomic replace, no change when current); `update-check` accepts `SHA256SUMS` as the checksum file.
+- Large frozen test fixtures are stored compressed.
+
 ## 0.9.0
 
 First public snapshot. Earlier history was a raw prototype and is not published; history starts at 0.9.

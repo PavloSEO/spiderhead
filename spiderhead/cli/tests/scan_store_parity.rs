@@ -320,9 +320,15 @@ fn scan_store_commands_match_the_reference_oracle() {
             .unwrap_or_else(|| vec!["basic"]);
         for site in sites {
             let path = fixtures_root().join(site).join(format!("{id}.json"));
-            let fixture: Value =
-                serde_json::from_str(&std::fs::read_to_string(&path).expect("fixture"))
-                    .expect("fixture json");
+            let mut fixture = spiderhead_oracle_testkit::fixture_json(&path);
+            if spiderhead_oracle_diff::bless_enabled() {
+                if let Some(obj) = fixture.as_object_mut() {
+                    obj.insert("cli".to_owned(), run_cli(case, site));
+                    obj.insert("mcp".to_owned(), run_mcp(case, site, &server));
+                }
+                spiderhead_oracle_diff::bless_json(&path, &fixture);
+                continue;
+            }
             for (surface, actual) in [
                 ("cli", run_cli(case, site)),
                 ("mcp", run_mcp(case, site, &server)),

@@ -130,7 +130,7 @@ pub async fn fetch_tree<T: Transport>(
         Some(value) if pystr::truthy(Some(value)) => match value {
             Value::String(text) => Some(text.clone()),
             other => {
-                return Err(crate::yandex_cloud::CloudError::python(
+                return Err(crate::yandex_cloud::CloudError::classed(
                     "TypeError",
                     format!(
                         "argument should be a str or an os.PathLike object where __fspath__ returns a str, not '{}'",
@@ -145,12 +145,12 @@ pub async fn fetch_tree<T: Transport>(
         let expanded = expand_tilde(Path::new(text), env.host);
         if let Some(parent) = expanded.parent() {
             std::fs::create_dir_all(parent).map_err(|err| {
-                crate::yandex_cloud::CloudError::python("OSError", err.to_string())
+                crate::yandex_cloud::CloudError::classed("OSError", err.to_string())
             })?;
         }
         // Writes the map as pretty-printed UTF-8 JSON.
         std::fs::write(&expanded, dumps_indent2(&flat))
-            .map_err(|err| crate::yandex_cloud::CloudError::python("OSError", err.to_string()))?;
+            .map_err(|err| crate::yandex_cloud::CloudError::classed("OSError", err.to_string()))?;
     }
     Ok(json!({
         "ok": true,

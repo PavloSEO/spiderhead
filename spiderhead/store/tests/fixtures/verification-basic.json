@@ -1,8 +1,8 @@
 {
  "baseline": {
-  "audit_sha256": "39abfc0501493d2d74003b0ef17df5a5a82d5ce820419d2bb008a48b8065ca44",
-  "results_policy_fingerprint": "2467d4b15b00f98c",
-  "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+  "audit_sha256": "047ec889c7affa0e2f1201adaa289e035d86a0f1bb63060111a1a6d37641bbd1",
+  "results_policy_fingerprint": "7309fbb74d22cbae",
+  "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598"
  },
  "collection": {
   "state": "measured"

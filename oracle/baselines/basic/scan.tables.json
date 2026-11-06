@@ -34,7 +34,7 @@
   {
    "decoded_bytes": 399,
    "sha256": "ae8322ab797e2f326befb69362d16447d4b05daa000597790118530783bba638",
-   "text": "<!doctype html>\n<html lang=\"ru\">\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1251\">\n<title>������ ���������</title>\n<meta name=\"description\" content=\"�������� � ���������� ��������� � ���������� ��������� � meta.\">\n</head>\n<body>\n<main>\n<h1>������ ���������</h1>\n<p>������, ���. ������ ������ � ��������� windows-1251.</p>\n<a href=\"/\">Home</a>\n</main>\n</body>\n</html>\n"
+   "text": "<!doctype html>\n<html lang=\"ru\">\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1251\">\n<title>\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd</title>\n<meta name=\"description\" content=\"\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd meta.\">\n</head>\n<body>\n<main>\n<h1>\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd</h1>\n<p>\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd, \ufffd\ufffd\ufffd. \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd \ufffd \ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd windows-1251.</p>\n<a href=\"/\">Home</a>\n</main>\n</body>\n</html>\n"
   },
   {
    "decoded_bytes": 454,
@@ -68,7 +68,7 @@
    "item_key": "run",
    "kind": "native_config_extension",
    "payload_json": {
-    "effective_fingerprint": "25c6791d7f05d2c270a5e29446115666eb0c0f868d5d42a588c32bd4f97c1084",
+    "effective_fingerprint": "cdbd31bd1f6c7a99646eb6ee19fb95b0b0ec13e467b5547afec96833b7d2c286",
     "schema_version": "native_config_extension.v1",
     "settings": {
      "http.auth": [],
@@ -2864,7 +2864,7 @@
    "final_canonical": "",
    "final_url": "",
    "flesch": 100.0,
-   "h1": "Старая кодировка",
+   "h1": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
    "h1_2": "",
    "h1_alt_text": "",
    "h2": "",
@@ -2874,7 +2874,7 @@
     {
      "level": 1,
      "region": "content",
-     "text": "Старая кодировка"
+     "text": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430"
     }
    ],
    "hreflang_json": [],
@@ -2894,7 +2894,7 @@
     "in_heading_total": 0
    },
    "lorem_ipsum_count": 0,
-   "meta_description": "Страница в устаревшей кодировке с конфликтом заголовка и meta.",
+   "meta_description": "\u0421\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u0432 \u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0435\u0439 \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0435 \u0441 \u043a\u043e\u043d\u0444\u043b\u0438\u043a\u0442\u043e\u043c \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0430 \u0438 meta.",
    "meta_description_count": 1,
    "meta_description_outside_head": 0,
    "meta_fragment": "",
@@ -2917,7 +2917,7 @@
    "size_bytes": 399,
    "status_code": 200,
    "text_ratio": 23.58,
-   "title": "Старая кодировка",
+   "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
    "title_outside_head": 0,
    "transport_upgraded": 0,
    "trust_signals_json": {
@@ -3203,7 +3203,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3240,7 +3240,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3286,7 +3286,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3323,7 +3323,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3369,7 +3369,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3406,7 +3406,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3452,7 +3452,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3489,7 +3489,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3535,7 +3535,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3572,7 +3572,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3618,7 +3618,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3655,7 +3655,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3701,7 +3701,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3738,7 +3738,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3784,7 +3784,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3821,7 +3821,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3867,7 +3867,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3904,7 +3904,7 @@
    "source_response_id": null,
    "status_code": 200,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   },
   {
    "body_fidelity": "entity_bytes",
@@ -3950,7 +3950,7 @@
     ],
     [
      "user-agent",
-     "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     ],
     [
      "host",
@@ -3987,7 +3987,7 @@
    "source_response_id": null,
    "status_code": 404,
    "transport_source": "network",
-   "variant_key": "cc4717438e13d0a56a8eb6afb35a70b4dc24367601ffcde74db207e5bf2d8e3d"
+   "variant_key": "6ecd39068da732cc125d15893d1acb40ad3c40c7c35d58594af473e34963c7b3"
   }
  ],
  "resume_state": [
@@ -4115,7 +4115,7 @@
      "retry_on_timeout": 0,
      "timeout_seconds": 15.0,
      "upgrade_to_https": false,
-     "user_agent": "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)"
+     "user_agent": "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)"
     },
     "limits": {
      "max_crawl_seconds": 400,
@@ -4254,18 +4254,15 @@
     "policy_version": "scan_retention.v1"
    },
    "runtime_versions_json": {
-    "beautifulsoup4": "4.15.0",
-    "httpx": "0.28.1",
-    "lxml": "6.1.1",
-    "python": "3.14.6",
-    "sqlite": "3.53.3"
+    "sqlite": "3.53.3",
+    "toolkit": "0.9.1"
    },
    "scan_uuid": "<UUID:1>",
    "singleton": 1,
    "source_kind": "native",
    "start_url": "{BASE}/",
    "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
-   "writer_version": "3.2.0"
+   "writer_version": "0.9.1"
   }
  ],
  "urls": [

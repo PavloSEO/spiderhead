@@ -139,6 +139,9 @@ pub trait StatCompat {
     fn mtime(&self) -> i64;
     /// Sub-second part of the last write, in nanoseconds (`st_mtime_nsec`).
     fn mtime_nsec(&self) -> i64;
+    /// Change/creation time, whole seconds (`st_ctime`; birth time where
+    /// `st_ctime` does not exist).
+    fn ctime(&self) -> i64;
     /// Sub-second part of the change/creation time (`st_ctime_nsec`; birth time
     /// where `st_ctime` does not exist).
     fn ctime_nsec(&self) -> i64;
@@ -156,6 +159,9 @@ impl StatCompat for Metadata {
     }
     fn mtime_nsec(&self) -> i64 {
         std::os::unix::fs::MetadataExt::mtime_nsec(self)
+    }
+    fn ctime(&self) -> i64 {
+        std::os::unix::fs::MetadataExt::ctime(self)
     }
     fn ctime_nsec(&self) -> i64 {
         std::os::unix::fs::MetadataExt::ctime_nsec(self)
@@ -175,6 +181,9 @@ impl StatCompat for Metadata {
     }
     fn mtime_nsec(&self) -> i64 {
         (self.write_time_nanos() % 1_000_000_000) as i64
+    }
+    fn ctime(&self) -> i64 {
+        (self.creation_time_nanos() / 1_000_000_000) as i64
     }
     fn ctime_nsec(&self) -> i64 {
         (self.creation_time_nanos() % 1_000_000_000) as i64
@@ -308,6 +317,60 @@ fn link_identity_impl(path: &Path) -> io::Result<FileIdentity> {
 #[cfg(windows)]
 fn link_identity_impl(path: &Path) -> io::Result<FileIdentity> {
     open_identity(path, true)
+}
+
+/// Exclusive advisory lock on the whole of `file`, refused at once when
+/// another process holds it: `flock(LOCK_EX|LOCK_NB)` on Unix, `LockFile` on
+/// Windows (which fails on a held range without blocking). The lock dies with
+/// the handle.
+pub fn try_lock_exclusive(file: &File) -> io::Result<()> {
+    try_lock_exclusive_impl(file)
+}
+
+#[cfg(unix)]
+fn try_lock_exclusive_impl(file: &File) -> io::Result<()> {
+    use std::os::fd::AsRawFd;
+    // SAFETY: `flock` takes the descriptor by value; the file outlives the call.
+    if unsafe { libc::flock(file.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) } != 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(())
+}
+
+#[cfg(windows)]
+fn try_lock_exclusive_impl(file: &File) -> io::Result<()> {
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Storage::FileSystem::LockFile;
+    // SAFETY: plain lock call on a live handle; byte range covers the file.
+    if unsafe { LockFile(file.as_raw_handle(), 0, 0, u32::MAX, u32::MAX) } == 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(())
+}
+
+/// Release a lock taken through [`try_lock_exclusive`]; closing the handle
+/// releases it too.
+pub fn unlock_file(file: &File) {
+    unlock_file_impl(file)
+}
+
+#[cfg(unix)]
+fn unlock_file_impl(file: &File) {
+    use std::os::fd::AsRawFd;
+    // SAFETY: `flock` takes the descriptor by value; the file outlives the call.
+    unsafe {
+        libc::flock(file.as_raw_fd(), libc::LOCK_UN);
+    }
+}
+
+#[cfg(windows)]
+fn unlock_file_impl(file: &File) {
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Storage::FileSystem::UnlockFile;
+    // SAFETY: releases exactly the range [`try_lock_exclusive_impl`] took.
+    unsafe {
+        UnlockFile(file.as_raw_handle(), 0, 0, u32::MAX, u32::MAX);
+    }
 }
 
 /// Refuse to follow a symlink at the last path component when opening.

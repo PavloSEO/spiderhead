@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: evidence-join\nerror: pages, scan and audit are alternative crawl inputs, not a set\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_evidence_join: pages, scan and audit are alternative crawl inputs, not a set"
+   }
+  ]
+ }
+}

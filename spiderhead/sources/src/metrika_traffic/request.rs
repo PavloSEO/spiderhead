@@ -4,7 +4,7 @@ use super::*;
 
 /// Invalid request, rejected before any call.
 pub(super) fn request_error(message: impl Into<String>) -> MetrikaFail {
-    MetrikaFail::Python {
+    MetrikaFail::Classed {
         class: "TrafficRequestError".to_owned(),
         message: message.into(),
     }
@@ -13,7 +13,7 @@ pub(super) fn request_error(message: impl Into<String>) -> MetrikaFail {
 /// A key probe on an unhashable value; reported as a type error.
 pub(super) fn unhashable_error(value: &Value) -> MetrikaFail {
     let name = pystr::type_name(value);
-    MetrikaFail::python(
+    MetrikaFail::classed(
         "TypeError",
         format!("cannot use '{name}' as a dict key (unhashable type: '{name}')"),
     )

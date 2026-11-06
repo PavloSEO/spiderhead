@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 0,
-    "stderr": "seohead: scan-evidence\n",
+    "stderr": "spiderhead: scan-evidence\n",
     "stdout": "{\n  \"ok\": true,\n  \"section\": \"resources\",\n  \"evidence\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"resource graph was not stored in this scan\"\n  }\n}\n"
    }
   ]

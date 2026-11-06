@@ -172,7 +172,14 @@ pub fn scan_extract(args: &Value) -> Result<Value, ToolError> {
     use spiderhead_parse::types::ParseOptions;
     use spiderhead_store::bodies::read_document;
 
-    const ACCEPTED: [&str; 5] = ["input_path", "rules", "url", "representation", "limit"];
+    const ACCEPTED: [&str; 6] = [
+        "input_path",
+        "rules",
+        "url",
+        "representation",
+        "limit",
+        "offset",
+    ];
     const OUTPUT_LIMIT: usize = 8 * 1024 * 1024;
     let args = super::kwargs(args);
     let input = need_str(&args, "input_path", "scan-extract", &ACCEPTED)?;
@@ -194,6 +201,16 @@ pub fn scan_extract(args: &Value) -> Result<Value, ToolError> {
             ))
         }
     };
+    // `limit` is the page size; `offset` walks the whole result, so a full
+    // extraction is a sequence of pages rather than one capped call.
+    let offset = match opt(&args, "offset").map_or(Some(0), Value::as_i64) {
+        Some(n) if n >= 0 => n,
+        _ => {
+            return Err(ToolError::Failed(
+                "offset must be a non-negative integer".into(),
+            ))
+        }
+    };
     validate_rules(rules).map_err(|e| ToolError::Failed(e.to_string()))?;
     let con = open_scan(Path::new(input), false, None).map_err(failed)?;
     let mut sql = "SELECT d.document_id,u.url FROM documents d JOIN urls u USING(url_id) \
@@ -205,8 +222,16 @@ pub fn scan_extract(args: &Value) -> Result<Value, ToolError> {
         sql.push_str(" AND u.url=?");
         bound.push(rusqlite::types::Value::Text(url.to_owned()));
     }
-    sql.push_str(" ORDER BY document_id LIMIT ?");
+    let total: i64 = con
+        .query_row(
+            &sql.replacen("d.document_id,u.url", "COUNT(*)", 1),
+            params_from_iter(bound.clone()),
+            |r| r.get(0),
+        )
+        .map_err(sql_error)?;
+    sql.push_str(" ORDER BY document_id LIMIT ? OFFSET ?");
     bound.push((limit + 1).into());
+    bound.push(offset.into());
     let mut statement = con.prepare(&sql).map_err(sql_error)?;
     let rows: Vec<(i64, String)> = statement
         .query_map(params_from_iter(bound), |r| Ok((r.get(0)?, r.get(1)?)))
@@ -252,10 +277,14 @@ pub fn scan_extract(args: &Value) -> Result<Value, ToolError> {
         used += size;
         items.push(item);
     }
+    let truncated = rows.len() as i64 > limit || output_limited;
     Ok(json!({
         "ok": true,
         "items": items,
-        "truncated": rows.len() as i64 > limit || output_limited,
+        "truncated": truncated,
+        "total": total,
+        "offset": offset,
+        "next_offset": if truncated { json!(offset + (items.len() as i64).max(1)) } else { Value::Null },
         "output_limit_bytes": OUTPUT_LIMIT,
         "scope": "retained complete bodies only; no network or artifact mutation",
     }))

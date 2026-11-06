@@ -139,6 +139,13 @@ pub fn apply(
         }
     }
     match command {
+        "extract-suggest" => {
+            // `--html` names a local file supplying the sample document.
+            if let Some(Value::String(path)) = flags.get("html").filter(|value| truthy(value)) {
+                let text = std::fs::read_to_string(path).map_err(|error| format!("{error}"))?;
+                kwargs.insert("html".to_owned(), Value::String(text));
+            }
+        }
         "backlinks-check" => {
             if let Some(Value::String(path)) = flags.get("donors_file") {
                 let text = std::fs::read_to_string(path).map_err(|error| format!("{error}"))?;

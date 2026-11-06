@@ -214,7 +214,7 @@ pub async fn collect<T: Transport>(
     };
     let mut request_id = String::new();
     let cred_outcome: Result<(), BlError> = (|| {
-        let cred_err = |e: CredentialError| -> BlError { pyerr(e.python_class(), e.to_string()) };
+        let cred_err = |e: CredentialError| -> BlError { pyerr(e.error_class(), e.to_string()) };
         match provider_str {
             "ahrefs" => {
                 let key = or_cred(env, args.api_key, "ahrefs/api_key", "AHREFS_API_KEY")
@@ -294,7 +294,7 @@ pub async fn collect<T: Transport>(
     // Only a missing credential is caught; other errors, such as a non-text key, propagate.
     match cred_outcome {
         Ok(()) => {}
-        Err(BlError::Python { class, message }) if class == "MissingCredential" => {
+        Err(BlError::Classed { class, message }) if class == "MissingCredential" => {
             return Ok(json!({
                 "ok": false,
                 "state": "not_configured",

@@ -44,7 +44,7 @@ fn outcome(result: Result<Value, cfh::CfhError>) -> Value {
     match result {
         Ok(value) => json!({"result": value}),
         Err(err) => {
-            json!({"error": {"class": err.python_class(), "message": err.to_string()}})
+            json!({"error": {"class": err.error_class(), "message": err.to_string()}})
         }
     }
 }

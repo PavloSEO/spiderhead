@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: log-scan\nerror: max_per_rule must be a nonnegative integer\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_log_scan: 1 validation error for seo_log_scanArguments\nmax_per_rule\n  Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='x', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_parsing"
+   }
+  ]
+ }
+}

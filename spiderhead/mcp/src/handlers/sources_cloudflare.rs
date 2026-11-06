@@ -46,11 +46,11 @@ pub fn cloudflare_traffic(args: &Value) -> Result<Value, ToolError> {
     let transport = transport()?;
     let bindings = |project: &str| {
         spiderhead_projects::bindings::list_bindings(Path::new(project), None)
-            .map_err(|error| CfError::Python("ValueError", error.to_string()))
+            .map_err(|error| CfError::Classed("ValueError", error.to_string()))
     };
     let history = |result: &Value, project: &str| {
         cloudflare_history::save_snapshot(result, &json!(project), None)
-            .map_err(|error| CfError::Python(error.python_class(), error.to_string()))
+            .map_err(|error| CfError::Classed(error.error_class(), error.to_string()))
     };
     let env = TrafficEnv {
         host: &host,
@@ -85,17 +85,46 @@ pub fn cloudflare_traffic(args: &Value) -> Result<Value, ToolError> {
     .map_err(fail)
 }
 
-/// `cloudflare_logpush_import`: convert one supplied Logpush JSON Lines file
-/// into the project's local logstore.
+/// `cloudflare_logpush_import`: a caller-supplied Logpush JSON Lines file into
+/// the project's local logstore.
+///
+/// Argument presence is read on the raw object — the CLI's own missing-option
+/// text comes from the handler signature, and an explicit `null` still reaches
+/// the domain the way a `None` kwarg would.
 pub fn cloudflare_logpush_import(args: &Value) -> Result<Value, ToolError> {
-    let args = kwargs(args);
+    const ACCEPTED: [&str; 3] = ["input_path", "project", "max_events"];
+    let raw = args.as_object().cloned().unwrap_or_default();
+    let missing: Vec<&str> = ["input_path", "project"]
+        .into_iter()
+        .filter(|name| !raw.contains_key(*name))
+        .collect();
+    match missing.as_slice() {
+        [one] => {
+            return Err(super::missing_option(
+                "cloudflare-logpush-import",
+                one,
+                &ACCEPTED,
+            ))
+        }
+        [] => {}
+        _ => {
+            return Err(fail(format!(
+                "cloudflare_logpush_import() missing {} required positional arguments: {}",
+                missing.len(),
+                missing
+                    .iter()
+                    .map(|name| pystr::repr_str(name))
+                    .collect::<Vec<_>>()
+                    .join(" and ")
+            )))
+        }
+    }
+    let input_path = raw.get("input_path").cloned().unwrap_or(Value::Null);
+    let project = raw.get("project").cloned().unwrap_or(Value::Null);
     let host = SystemHost;
     let seams = log_seams();
     let env = logs_env(&host, &seams);
-    let input_path = opt(&args, "input_path").cloned().unwrap_or(Value::Null);
-    let project = opt(&args, "project").cloned().unwrap_or(Value::Null);
-    let max_events = opt(&args, "max_events").cloned();
-    import_logpush_file(&env, &input_path, &project, max_events.as_ref()).map_err(fail)
+    import_logpush_file(&env, &input_path, &project, raw.get("max_events")).map_err(fail)
 }
 
 /// `cloudflare_instant_logs`: one explicitly confirmed, bounded Instant Logs
@@ -119,7 +148,7 @@ pub fn cloudflare_instant_logs(args: &Value) -> Result<Value, ToolError> {
         opt(&args, "max_events"),
         opt(&args, "max_bytes"),
         opt(&args, "sample"),
-        None, // token — read from the configured store like the Python default
+        None, // token — read from the configured store like the default
         None, // send — live Cloudflare transport
         None, // websocket_factory — not available in this build
         None, // cancel_event — no live cancel channel over JSON arguments
@@ -144,13 +173,13 @@ fn log_seams() -> LogSeams {
     LogSeams {
         bindings: Box::new(|project: &str| {
             spiderhead_projects::bindings::list_bindings(Path::new(project), None)
-                .map_err(|error| CfError::Python("ValueError", error.to_string()))
+                .map_err(|error| CfError::Classed("ValueError", error.to_string()))
         }),
         open_project: Box::new(|project: &str| {
             spiderhead_projects::workspace::open_project(Path::new(project), None).map_err(
                 |error| {
                     let (class, message) = spiderhead_projects::error::py_exception_name(&error);
-                    CfError::Python(class, message)
+                    CfError::Classed(class, message)
                 },
             )
         }),
@@ -166,6 +195,7 @@ fn log_seams() -> LogSeams {
                 project,
                 ImportOptions {
                     max_lines,
+                    keep_requests: false,
                     ..ImportOptions::default()
                 },
             ))

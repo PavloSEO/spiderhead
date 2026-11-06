@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-requeue\nerror: where uses an unsupported field or operator\n",
+    "stderr": "spiderhead: scan-requeue\nerror: where uses an unsupported field or operator\n",
     "stdout": ""
    }
   ]

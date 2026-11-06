@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 0,
-    "stderr": "seohead: scan-evidence\n",
+    "stderr": "spiderhead: scan-evidence\n",
     "stdout": "{\n  \"ok\": true,\n  \"section\": \"routes\",\n  \"evidence\": {\n    \"routes\": [],\n    \"coverage\": [\n      {\n        \"state\": \"unavailable\",\n        \"reason\": \"route ledger is absent from this older scan\"\n      }\n    ],\n    \"run_coverage\": {\n      \"state\": \"unavailable\",\n      \"reason\": \"route ledger is absent from this older scan\"\n    }\n  }\n}\n"
    }
   ]

@@ -95,14 +95,21 @@ pub fn execute(stage: &str, project: &str, options: &Options) -> Result<Executio
         "cluster-show",
         "cluster-queries",
         "insights",
+        "clusters-google",
     ];
     let dry_read =
         options.dry_run && matches!(stage, "import" | "export" | "excel" | "insights-tasks");
     let store = open_store(project, false, readonly_stages.contains(&stage) || dry_read)?;
     match stage {
         "status" => {
-            let result = status_doc(&store, project, &config::db_path(project)?)?;
+            let mut result = status_doc(&store, project, &config::db_path(project)?)?;
+            let google = crate::google::status(&store);
             let mut logs = Vec::new();
+            if google.as_object().is_some_and(|g| !g.is_empty()) {
+                if let Some(doc) = result.as_object_mut() {
+                    doc.insert("google".into(), google.clone());
+                }
+            }
             if !options.json {
                 let counts = result
                     .get("counts")
@@ -127,6 +134,24 @@ pub fn execute(stage: &str, project: &str, options: &Options) -> Result<Executio
                     None => spend.to_string(),
                 };
                 logs.push(format!("provider units: {spend_text}\n"));
+                if let Some(g) = google.as_object().filter(|g| !g.is_empty()) {
+                    logs.push(format!(
+                        "google: phrases={} rankings={} serp={} topics={} cost_usd={}\n",
+                        g["phrases"],
+                        g["rankings"],
+                        g["serp_snapshots"],
+                        g["topics"],
+                        g["cost_usd"]
+                    ));
+                    for l in g["by_locale"].as_array().into_iter().flatten() {
+                        logs.push(format!(
+                            "  {} / {}: {}\n",
+                            l["language"].as_str().unwrap_or(""),
+                            l["location_code"],
+                            l["n"]
+                        ));
+                    }
+                }
                 logs.push(format!(
                     "next: seohead semantics {} --project {project}\n",
                     result
@@ -226,6 +251,16 @@ pub fn execute(stage: &str, project: &str, options: &Options) -> Result<Executio
                 logs: Vec::new(),
             })
         }
+        "clusters-google" => Ok(Execution {
+            result: crate::google::clusters_google(
+                &store,
+                options.language.as_deref(),
+                options.location,
+                options.offset,
+                options.limit,
+            )?,
+            logs: Vec::new(),
+        }),
         "clusters" | "cluster-show" | "cluster-queries" | "set-landing" => {
             let journaled = stage == "set-landing";
             let run_id = if journaled {
@@ -301,7 +336,7 @@ pub fn execute(stage: &str, project: &str, options: &Options) -> Result<Executio
             let run_id = store
                 .start_stage(stage, estimate.as_ref())
                 .map_err(|e| Error::Config(e.to_string()))?;
-            let summary = run_stage(stage, &store, &cfg, &out, options);
+            let summary = run_stage(stage, &store, &cfg, &out, options, project);
             match summary {
                 Ok(summary) => {
                     store
@@ -355,6 +390,7 @@ pub(super) fn run_stage(
     cfg: &Cfg,
     out: &Path,
     options: &Options,
+    project: &str,
 ) -> Result<Value, Error> {
     match stage {
         "clean" => crate::stages::clean::run(store, cfg),
@@ -364,6 +400,35 @@ pub(super) fn run_stage(
         "excel" => crate::stages::excel::run(store, cfg, out, &options.scope),
         "sitematch" => crate::stages::sitematch::run(store, cfg),
         "relevance" => crate::stages::relevance::run(store, cfg, 10),
+        "cluster-google" => crate::google::cluster_google(
+            store,
+            project,
+            options.language.as_deref(),
+            options.location,
+            options.min_shared,
+            options.top,
+        ),
+        "import-dataforseo" => {
+            let dir = options
+                .dir
+                .as_deref()
+                .ok_or_else(|| Error::Config("import-dataforseo requires --dir".to_owned()))?;
+            crate::google::import_dataforseo(store, Path::new(dir))
+        }
+        "import-google-csv" => {
+            let file = options
+                .file
+                .as_deref()
+                .ok_or_else(|| Error::Config("import-google-csv requires --file".to_owned()))?;
+            crate::google::import_google_csv(store, Path::new(file))
+        }
+        "import-topics" => {
+            let file = options
+                .file
+                .as_deref()
+                .ok_or_else(|| Error::Config("import-topics requires --file".to_owned()))?;
+            crate::google::import_topics(store, Path::new(file))
+        }
         "import" => {
             let file = options
                 .file

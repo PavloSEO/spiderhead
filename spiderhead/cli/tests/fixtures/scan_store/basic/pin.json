@@ -4,12 +4,12 @@
   "steps": [
    {
     "exit": 0,
-    "stderr": "seohead: scan-pin\n",
+    "stderr": "spiderhead: scan-pin\n",
     "stdout": "{\n  \"input\": \"<WORK>/scan.sqlite\",\n  \"pinned\": true\n}\n"
    },
    {
     "exit": 0,
-    "stderr": "seohead: scan-pin\n",
+    "stderr": "spiderhead: scan-pin\n",
     "stdout": "{\n  \"input\": \"<WORK>/scan.sqlite\",\n  \"pinned\": false\n}\n"
    }
   ]

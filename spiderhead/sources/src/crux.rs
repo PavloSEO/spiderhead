@@ -60,10 +60,10 @@ pub enum CruxError {
 
 impl CruxError {
     /// Error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             CruxError::Invalid(_) => "ValueError",
-            CruxError::Credential(e) => e.python_class(),
+            CruxError::Credential(e) => e.error_class(),
         }
     }
 }

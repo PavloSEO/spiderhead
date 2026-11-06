@@ -157,7 +157,7 @@ pub async fn instant_logs_capture<T: Transport>(
         Some(id) => id.to_owned(),
         None => {
             // The zone id is URL-quoted; a non-text id is an error.
-            return Err(CfError::Python(
+            return Err(CfError::Classed(
                 "TypeError",
                 "quote_from_bytes() expected bytes".to_owned(),
             ));
@@ -243,7 +243,7 @@ pub async fn instant_logs_capture<T: Transport>(
         Value::Null
     };
     if !created.is_object() {
-        return Err(CfError::Python(
+        return Err(CfError::Classed(
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'get'",

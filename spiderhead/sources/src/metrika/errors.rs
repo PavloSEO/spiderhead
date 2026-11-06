@@ -28,7 +28,7 @@ pub enum MetrikaFail {
     /// `MissingCredential` — no usable token source.
     MissingCredential(String),
     /// Any other failure that was not caught on the way out.
-    Python {
+    Classed {
         /// Error class name.
         class: String,
         /// Error message text.
@@ -38,20 +38,20 @@ pub enum MetrikaFail {
 
 impl MetrikaFail {
     /// Error class name.
-    pub fn python_class(&self) -> &str {
+    pub fn error_class(&self) -> &str {
         match self {
             MetrikaFail::Metrika(_) => "MetrikaError",
             MetrikaFail::MissingCredential(_) => "MissingCredential",
-            MetrikaFail::Python { class, .. } => class.as_str(),
+            MetrikaFail::Classed { class, .. } => class.as_str(),
         }
     }
 
     pub(super) fn type_error(message: impl Into<String>) -> Self {
-        MetrikaFail::python("TypeError", message)
+        MetrikaFail::classed("TypeError", message)
     }
 
     pub(super) fn attribute_get(value: &Value) -> Self {
-        MetrikaFail::python(
+        MetrikaFail::classed(
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'get'",
@@ -61,8 +61,8 @@ impl MetrikaFail {
     }
 
     /// An uncaught failure, such as an invalid value or a type error.
-    pub(crate) fn python(class: &str, message: impl Into<String>) -> Self {
-        MetrikaFail::Python {
+    pub(crate) fn classed(class: &str, message: impl Into<String>) -> Self {
+        MetrikaFail::Classed {
             class: class.to_owned(),
             message: message.into(),
         }
@@ -79,7 +79,7 @@ impl std::fmt::Display for MetrikaFail {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             MetrikaFail::Metrika(err) => err.fmt(f),
-            MetrikaFail::MissingCredential(message) | MetrikaFail::Python { message, .. } => {
+            MetrikaFail::MissingCredential(message) | MetrikaFail::Classed { message, .. } => {
                 f.write_str(message)
             }
         }

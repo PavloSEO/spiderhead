@@ -23,9 +23,12 @@ fn language_guard() -> MutexGuard<'static, ()> {
     guard
 }
 
+fn fixture_path() -> std::path::PathBuf {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tui_oracle.json")
+}
+
 fn fixture() -> Value {
-    let text = include_str!("fixtures/tui_oracle.json");
-    serde_json::from_str(text).expect("fixture parses")
+    spiderhead_oracle_testkit::fixture_json(&fixture_path())
 }
 
 fn plain_palette() -> theme::Palette {
@@ -94,7 +97,14 @@ fn watch_sections_match_reference_lines() {
     let _g = language_guard();
     let fx = fixture();
     let palette = plain_palette();
-    for case in fx["watch_cases"].as_array().expect("cases") {
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let mut blessed = fx.clone();
+    for (case_index, case) in fx["watch_cases"]
+        .as_array()
+        .expect("cases")
+        .iter()
+        .enumerate()
+    {
         let name = case["name"].as_str().expect("name");
         let project = case["project"].as_str().expect("project");
         let section = case["section"].as_str().expect("section");
@@ -115,8 +125,21 @@ fn watch_sections_match_reference_lines() {
             Some(&snapshot),
             Some(&data),
         );
+        if bless {
+            if let Some(obj) = blessed["watch_cases"][case_index].as_object_mut() {
+                obj.insert("lines".to_owned(), json!(plain_lines(&lines)));
+            }
+            continue;
+        }
         assert_eq!(plain_lines(&lines), strs(&case["lines"]), "{name}: lines");
         assert_state(&state, &case["state"], name);
+    }
+    if bless {
+        spiderhead_oracle_diff::bless_json_field(
+            &fixture_path(),
+            "watch_cases",
+            blessed["watch_cases"].clone(),
+        );
     }
 }
 
@@ -125,7 +148,14 @@ fn watch_details_match_reference_lines() {
     let _g = language_guard();
     let fx = fixture();
     let palette = plain_palette();
-    for case in fx["detail_cases"].as_array().expect("cases") {
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let mut blessed = fx.clone();
+    for (case_index, case) in fx["detail_cases"]
+        .as_array()
+        .expect("cases")
+        .iter()
+        .enumerate()
+    {
         let name = case["name"].as_str().expect("name");
         let project = case["project"].as_str().expect("project");
         let kind = case["kind"].as_str().expect("kind");
@@ -179,8 +209,21 @@ fn watch_details_match_reference_lines() {
             Some(&snapshot),
             Some(&data),
         );
+        if bless {
+            if let Some(obj) = blessed["detail_cases"][case_index].as_object_mut() {
+                obj.insert("lines".to_owned(), json!(plain_lines(&lines)));
+            }
+            continue;
+        }
         assert_eq!(plain_lines(&lines), strs(&case["lines"]), "{name}: lines");
         assert_state(&state, &case["state"], name);
+    }
+    if bless {
+        spiderhead_oracle_diff::bless_json_field(
+            &fixture_path(),
+            "detail_cases",
+            blessed["detail_cases"].clone(),
+        );
     }
 }
 
@@ -255,6 +298,25 @@ fn trim_rows(text: &str) -> String {
 fn frames_match_reference_text() {
     let _g = language_guard();
     let fx = fixture();
+    if spiderhead_oracle_diff::bless_enabled() {
+        let mut blessed = fx.clone();
+        for (index, case) in fx["frame_cases"]
+            .as_array()
+            .expect("cases")
+            .iter()
+            .enumerate()
+        {
+            if let Some(obj) = blessed["frame_cases"][index].as_object_mut() {
+                obj.insert("text".to_owned(), Value::from(frame_text(&fx, case)));
+            }
+        }
+        spiderhead_oracle_diff::bless_json_field(
+            &fixture_path(),
+            "frame_cases",
+            blessed["frame_cases"].clone(),
+        );
+        return;
+    }
     for case in fx["frame_cases"].as_array().expect("cases") {
         let name = case["name"].as_str().expect("name");
         let want = case["text"].as_str().expect("text");

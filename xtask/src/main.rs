@@ -7,6 +7,7 @@ use serde_json::Value;
 use std::{
     collections::BTreeMap,
     fs,
+    path::{Path, PathBuf},
     process::{exit, Command},
 };
 
@@ -41,15 +42,18 @@ const LAYERS: &[(&str, u8)] = &[
 fn main() {
     let cmd = std::env::args().nth(1).unwrap_or_default();
     let ok = match cmd.as_str() {
-        "ci" => ci(),
+        "ci" => ci(std::env::args().skip(2).any(|a| a == "--quick")),
         "windows-check" => windows_check(),
         "layers" => layers(),
         "slices" => slices(),
+        "rebaseline" => rebaseline(),
         "oracle" => oracle::run(&std::env::args().skip(2).collect::<Vec<_>>()),
         "dist" => report(dist::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         "package" => report(package::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         _ => {
-            eprintln!("usage: cargo xtask <ci|windows-check|layers|slices|oracle|dist|package>");
+            eprintln!(
+                "usage: cargo xtask <ci [--quick]|windows-check|layers|slices|rebaseline|oracle|dist|package>"
+            );
             false
         }
     };
@@ -66,16 +70,33 @@ fn report(r: Result<(), String>) -> bool {
 
 /// Tests run under nextest (process per test, parallel) when it is installed;
 /// plain `cargo test` otherwise. Doctests always go through `cargo test --doc`.
-fn test_args() -> &'static [&'static str] {
-    let nextest = Command::new("cargo")
-        .args(["nextest", "--version"])
-        .output()
-        .is_ok_and(|o| o.status.success());
-    if nextest {
+fn test_args(quick: bool) -> &'static [&'static str] {
+    if quick {
+        return if has_nextest() {
+            &[
+                "nextest",
+                "run",
+                "--workspace",
+                "--lib",
+                "--bins",
+                "--no-fail-fast",
+            ]
+        } else {
+            &["test", "--workspace", "--lib", "--bins"]
+        };
+    }
+    if has_nextest() {
         &["nextest", "run", "--workspace", "--no-fail-fast"]
     } else {
         &["test", "--workspace", "--lib", "--bins", "--tests"]
     }
+}
+
+fn has_nextest() -> bool {
+    Command::new("cargo")
+        .args(["nextest", "--version"])
+        .output()
+        .is_ok_and(|o| o.status.success())
 }
 
 /// Windows triple the workspace is kept compiling for.
@@ -179,7 +200,9 @@ fn windows_cc_stub() -> Option<std::path::PathBuf> {
     }
 }
 
-fn ci() -> bool {
+/// Full gate, or with `quick` the per-merge subset: fmt, clippy and the unit tests of
+/// every crate (no integration tests, doctests or windows check).
+fn ci(quick: bool) -> bool {
     let steps: [(&str, &[&str]); 4] = [
         ("fmt", &["fmt", "--all", "--check"]),
         (
@@ -193,10 +216,11 @@ fn ci() -> bool {
                 "warnings",
             ],
         ),
-        ("test", test_args()),
+        ("test", test_args(quick)),
         ("doctest", &["test", "--workspace", "--doc"]),
     ];
-    for (name, args) in steps {
+    let steps = if quick { &steps[..3] } else { &steps[..] };
+    for (name, args) in steps.iter().copied() {
         println!("==> {name}: cargo {}", args.join(" "));
         if !Command::new("cargo")
             .args(args)
@@ -207,10 +231,209 @@ fn ci() -> bool {
             return false;
         }
     }
-    // The Windows build is not complete yet (see ROADMAP 0.10), so its check runs on
-    // demand with `cargo xtask windows-check` and does not gate `ci`.
-    println!("==> ci OK");
+    if !quick {
+        println!(
+            "==> windows-check: cargo check --workspace --all-targets --target {WINDOWS_TARGET}"
+        );
+        if !windows_check() {
+            eprintln!("==> windows-check FAILED");
+            return false;
+        }
+    }
+    if quick {
+        println!("==> ci --quick OK");
+    } else {
+        println!("==> ci OK");
+    }
     true
+}
+
+/// Shared baselines regenerated before the full suite, in dependency order:
+/// raw captures first (they feed every downstream baseline), then the
+/// artifacts other fixtures are derived from. Each entry is a separate `cargo
+/// test` invocation so the writes happen before any reader sees them.
+const PRE_BLESS: &[(&str, &[&str])] = &[
+    (
+        "raw captures",
+        &["test", "-p", "spiderhead-crawl", "--test", "parity"],
+    ),
+    (
+        "scan status",
+        &[
+            "test",
+            "-p",
+            "spiderhead-store",
+            "--lib",
+            "scan_status_matches_the_reference_baseline",
+        ],
+    ),
+    (
+        "audit.v2",
+        &[
+            "test",
+            "-p",
+            "spiderhead-store",
+            "--lib",
+            "reader_matches_oracle_baselines_for_every_site",
+        ],
+    ),
+    (
+        "ledger projection",
+        &[
+            "test",
+            "-p",
+            "spiderhead-store",
+            "--test",
+            "ledger_oracle",
+            "prepared_source",
+        ],
+    ),
+];
+
+/// Regenerate the test fixtures from live output, then keep large JSON small.
+///
+/// `SPIDERHEAD_BLESS=1` makes every comparison site rewrite its expected
+/// artifact from the freshly computed value, so a rebaseline always goes
+/// through the same code paths that later verify it. Afterwards any `*.json`
+/// fixture above 1 MiB is stored zstd-compressed as `<name>.zst` and the plain
+/// file removed; the testkit readers prefer the compressed sibling.
+fn rebaseline() -> bool {
+    for (name, args) in PRE_BLESS.iter().copied() {
+        println!("==> pre-bless {name}: cargo {}", args.join(" "));
+        let ok = Command::new("cargo")
+            .args(args)
+            .env("SPIDERHEAD_BLESS", "1")
+            .status()
+            .is_ok_and(|s| s.success());
+        if !ok {
+            eprintln!("==> pre-bless {name} FAILED");
+            return false;
+        }
+    }
+    let ok = Command::new("cargo")
+        .args(test_args(false))
+        .env("SPIDERHEAD_BLESS", "1")
+        .status()
+        .is_ok_and(|s| s.success());
+    if !ok {
+        eprintln!("==> rebaseline FAILED");
+        return false;
+    }
+    let compressed = compress_big_fixtures();
+    refresh_raw_sums();
+    println!("==> rebaseline OK ({compressed} fixture(s) compressed)");
+    true
+}
+
+/// Rewrite `oracle/raw-scans/SHA256SUMS.txt` after captures were republished.
+fn refresh_raw_sums() {
+    let dir = Path::new("oracle/raw-scans");
+    let mut files = Vec::new();
+    collect_paths(dir, &mut files, &|p| {
+        p.extension().is_some_and(|e| e == "sqlite")
+    });
+    files.sort();
+    let mut out = String::new();
+    for path in files {
+        if path.file_name().is_some_and(|n| n == "SHA256SUMS.txt") {
+            continue;
+        }
+        let Ok(bytes) = fs::read(&path) else {
+            continue;
+        };
+        let digest = sha256_hex(&bytes);
+        if let Ok(rel) = path.strip_prefix(dir) {
+            out.push_str(&format!("{digest}  {}\n", rel.display()));
+        }
+    }
+    let _ = fs::write(dir.join("SHA256SUMS.txt"), out);
+}
+
+fn sha256_hex(bytes: &[u8]) -> String {
+    use sha2::Digest;
+    sha2::Sha256::digest(bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
+
+fn collect_paths<F: Fn(&Path) -> bool>(dir: &Path, out: &mut Vec<PathBuf>, accept: &F) {
+    let Ok(read) = fs::read_dir(dir) else {
+        return;
+    };
+    for entry in read.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            collect_paths(&path, out, accept);
+        } else if accept(&path) {
+            out.push(path);
+        }
+    }
+}
+
+/// Walk the fixture trees and return `(compressed_count)`. Fixture scope is
+/// `oracle/**` and every `tests/` subtree; shipped data (`*/data/`) stays
+/// plain. A stale `.zst` sibling of a small `.json` is removed.
+fn compress_big_fixtures() -> usize {
+    let mut files = Vec::new();
+    collect_json(Path::new("oracle"), &mut files);
+    collect_json(Path::new("spiderhead"), &mut files);
+    let mut compressed = 0usize;
+    for path in files {
+        let Ok(meta) = fs::metadata(&path) else {
+            continue;
+        };
+        let zst = zst_sibling(&path);
+        if meta.len() > 1_048_576 {
+            let Ok(raw) = fs::read(&path) else {
+                continue;
+            };
+            let packed = match zstd::encode_all(raw.as_slice(), 3) {
+                Ok(packed) => packed,
+                Err(e) => {
+                    eprintln!("{}: compress failed: {e}", path.display());
+                    continue;
+                }
+            };
+            if fs::write(&zst, packed).is_ok() {
+                let _ = fs::remove_file(&path);
+                compressed += 1;
+            } else {
+                eprintln!("{}: write failed", zst.display());
+            }
+        } else if zst.exists() {
+            let _ = fs::remove_file(&zst);
+        }
+    }
+    compressed
+}
+
+fn zst_sibling(path: &Path) -> PathBuf {
+    let mut name = path.as_os_str().to_owned();
+    name.push(".zst");
+    PathBuf::from(name)
+}
+
+fn is_fixture_path(path: &Path) -> bool {
+    path.starts_with("oracle") || path.components().any(|c| c.as_os_str() == "tests")
+}
+
+fn collect_json(dir: &Path, out: &mut Vec<PathBuf>) {
+    let Ok(entries) = fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            let name = entry.file_name();
+            if name == "target" || name == ".git" {
+                continue;
+            }
+            collect_json(&path, out);
+        } else if path.extension().is_some_and(|e| e == "json") && is_fixture_path(&path) {
+            out.push(path);
+        }
+    }
 }
 
 fn layers() -> bool {

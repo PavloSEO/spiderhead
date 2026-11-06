@@ -19,7 +19,7 @@ use super::{kwargs, opt, opt_bool, opt_str};
 /// as an `ok: false` document instead of failing the call.
 fn is_runtime(error: &CloudError) -> bool {
     matches!(
-        error.python_class(),
+        error.error_class(),
         "MissingCredential" | "NetworkAmbiguousError" | "RuntimeError"
     )
 }
@@ -238,7 +238,7 @@ pub fn keywords_exact(args: &Value) -> Result<Value, ToolError> {
     }
     let payload = match wordstat_payload(&Value::Array(keywords.clone()), &json!(region)) {
         Ok(payload) => payload,
-        Err(ArsError::Python { class, message }) if class == "ValueError" => {
+        Err(ArsError::Classed { class, message }) if class == "ValueError" => {
             return Ok(json!({
                 "ok": false, "error": message, "code": "EMPTY_QUERIES", "cleaned": cleaned,
             }))
@@ -309,6 +309,6 @@ fn arsenkin_failure(error: ArsError, task: Option<&Value>) -> Result<Value, Tool
             }
             Ok(document)
         }
-        ArsError::Python { .. } => Err(fail(error)),
+        ArsError::Classed { .. } => Err(fail(error)),
     }
 }

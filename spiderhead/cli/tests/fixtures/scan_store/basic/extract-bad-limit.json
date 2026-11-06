@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-extract\nerror: invalid representation or page limit\n",
+    "stderr": "spiderhead: scan-extract\nerror: invalid representation or page limit\n",
     "stdout": ""
    }
   ]

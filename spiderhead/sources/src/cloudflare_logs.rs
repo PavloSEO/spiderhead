@@ -66,14 +66,14 @@ pub struct LogsEnv<'a> {
 fn io_error(path: &Path, error: &std::io::Error) -> CfError {
     let text = path.to_string_lossy();
     match error.kind() {
-        std::io::ErrorKind::NotFound => CfError::Python(
+        std::io::ErrorKind::NotFound => CfError::Classed(
             "FileNotFoundError",
             format!(
                 "[Errno 2] No such file or directory: {}",
                 pystr::repr_str(&text)
             ),
         ),
-        std::io::ErrorKind::PermissionDenied => CfError::Python(
+        std::io::ErrorKind::PermissionDenied => CfError::Classed(
             "PermissionError",
             format!("[Errno 13] Permission denied: {}", pystr::repr_str(&text)),
         ),
@@ -90,7 +90,7 @@ fn lstat(path: &Path) -> Result<std::fs::Metadata, CfError> {
 fn to_path(value: &Value) -> Result<PathBuf, CfError> {
     match value.as_str() {
         Some(text) => Ok(PathBuf::from(text)),
-        None => Err(CfError::Python(
+        None => Err(CfError::Classed(
             "TypeError",
             format!(
                 "argument should be a str or an os.PathLike object where __fspath__ returns a str, not '{}'",
@@ -143,7 +143,7 @@ fn write_project_import(
     let root = match crate::cloudflare::py_subscript(&opened, "path")? {
         Value::String(path) => PathBuf::from(path),
         other => {
-            return Err(CfError::Python(
+            return Err(CfError::Classed(
                 "TypeError",
                 format!(
                     "argument should be a str or an os.PathLike object where __fspath__ returns a str, not '{}'",

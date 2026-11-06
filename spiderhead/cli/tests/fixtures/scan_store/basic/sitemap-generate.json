@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-sitemap-generate\n",
+    "stderr": "spiderhead: scan-sitemap-generate\n",
     "stdout": "{\n  \"ok\": false,\n  \"format\": \"spiderhead.scan-sitemaps.v1\",\n  \"error\": \"sitemap_base_url must share the scan start URL origin\"\n}\n"
    }
   ]

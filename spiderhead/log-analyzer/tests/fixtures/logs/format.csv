@@ -1,0 +1,4 @@
+IP,Time,Method,URL,Status,Bytes,Referer,User-Agent,Time Taken
+192.0.2.10,2026-10-18T00:07:55Z,GET,/a?x=1,200,1200,https://example.test/,"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36, extra",120
+198.51.100.4,2026-10-18T00:08:00Z,GET,/b,404,300,-,"Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",15
+short,row

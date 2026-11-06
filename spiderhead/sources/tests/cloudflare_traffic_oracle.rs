@@ -97,10 +97,10 @@ fn raise_err(spec: &Value) -> CfError {
         "CloudflareError" | "RuntimeError" => CfError::Cloudflare(message),
         "ValueError" => CfError::Value(message),
         "URLError" | "TimeoutError" | "OSError" => CfError::Os(message),
-        "KeyError" => CfError::Python("KeyError", message),
-        "TypeError" => CfError::Python("TypeError", message),
-        "AttributeError" => CfError::Python("AttributeError", message),
-        _ => CfError::Python("RuntimeError", format!("{class}: {message}")),
+        "KeyError" => CfError::Classed("KeyError", message),
+        "TypeError" => CfError::Classed("TypeError", message),
+        "AttributeError" => CfError::Classed("AttributeError", message),
+        _ => CfError::Classed("RuntimeError", format!("{class}: {message}")),
     }
 }
 
@@ -108,7 +108,7 @@ fn outcome(result: Result<Value, CfError>) -> Value {
     match result {
         Ok(value) => json!({"result": value}),
         Err(err) => {
-            json!({"error": {"class": err.python_class(), "message": err.to_string()}})
+            json!({"error": {"class": err.error_class(), "message": err.to_string()}})
         }
     }
 }

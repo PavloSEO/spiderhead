@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-navigation\nerror: limit must be between 1 and 1000\n",
+    "stderr": "spiderhead: scan-navigation\nerror: limit must be between 1 and 1000\n",
     "stdout": ""
    }
   ]

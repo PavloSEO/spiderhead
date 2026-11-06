@@ -24,7 +24,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"operation\": \"search_volume\",\n  \"env\": \"sandbox\",\n  \"currency\": \"USD\",\n  \"query_count\": 3,\n  \"cache_hits\": 0,\n  \"cache_basis\": \"caller_declared\",\n  \"billable_queries\": 3,\n  \"row_limit\": 0,\n  \"cost_usd\": 0.0,\n  \"state\": \"complete\",\n  \"reason\": \"sandbox or cached data incurs no new charge\"\n}\n",
-     "stderr": "seohead: dataforseo-estimate\n",
+     "stderr": "spiderhead: dataforseo-estimate\n",
      "requests": []
     },
     "mcp": {
@@ -51,7 +51,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"operation\": \"keyword_ideas\",\n  \"env\": \"prod\",\n  \"currency\": \"USD\",\n  \"query_count\": 1,\n  \"cache_hits\": 0,\n  \"cache_basis\": \"caller_declared\",\n  \"billable_queries\": 1,\n  \"row_limit\": 100,\n  \"cost_usd\": null,\n  \"state\": \"unavailable\",\n  \"reason\": \"a current appendix/user_data price snapshot is required\"\n}\n",
-     "stderr": "seohead: dataforseo-estimate\n",
+     "stderr": "spiderhead: dataforseo-estimate\n",
      "requests": []
     }
    }
@@ -69,7 +69,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: dataforseo-estimate\nerror: unsupported DataForSEO operation\n",
+     "stderr": "spiderhead: dataforseo-estimate\nerror: unsupported DataForSEO operation\n",
      "requests": []
     }
    }
@@ -91,7 +91,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: dataforseo-estimate\nerror: cache_hits cannot exceed query_count\n",
+     "stderr": "spiderhead: dataforseo-estimate\nerror: cache_hits cannot exceed query_count\n",
      "requests": []
     }
    }
@@ -169,7 +169,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"operation\": \"search_volume\",\n  \"env\": \"prod\",\n  \"currency\": \"USD\",\n  \"query_count\": 1,\n  \"cache_hits\": 0,\n  \"cache_basis\": \"caller_declared\",\n  \"billable_queries\": 1,\n  \"row_limit\": 0,\n  \"cost_usd\": null,\n  \"state\": \"unavailable\",\n  \"reason\": \"a current appendix/user_data price snapshot is required\"\n}\n",
-     "stderr": "seohead: dataforseo-estimate\n",
+     "stderr": "spiderhead: dataforseo-estimate\n",
      "requests": [
       {
        "host": "api.dataforseo.com",
@@ -222,7 +222,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"unavailable\",\n  \"reason\": \"free account price lookup failed\",\n  \"error\": \"DataForSEO 401: account metadata request was rejected\"\n}\n",
-     "stderr": "seohead: dataforseo-estimate\n",
+     "stderr": "spiderhead: dataforseo-estimate\n",
      "requests": [
       {
        "host": "sandbox.dataforseo.com",
@@ -312,7 +312,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"cost_usd\": 0.05,\n  \"errors\": [],\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit\",\n      \"volume\": 1900,\n      \"cpc\": 2.1,\n      \"competition\": \"LOW\"\n    },\n    {\n      \"phrase\": \"site audit\",\n      \"volume\": 880,\n      \"cpc\": 1.4,\n      \"competition\": \"MEDIUM\"\n    }\n  ]\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": [
       {
        "host": "sandbox.dataforseo.com",
@@ -423,7 +423,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"seed\": \"seo audit\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"found\": 2,\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit tool\",\n      \"volume\": 720,\n      \"difficulty\": 41\n    },\n    {\n      \"phrase\": \"free seo audit\",\n      \"volume\": 5400,\n      \"difficulty\": 63\n    }\n  ]\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": [
       {
        "host": "sandbox.dataforseo.com",
@@ -563,7 +563,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"seed\": \"seo audit\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"found\": 2,\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit tool\",\n      \"volume\": 720,\n      \"difficulty\": 41\n    },\n    {\n      \"phrase\": \"free seo audit\",\n      \"volume\": 5400,\n      \"difficulty\": 63\n    }\n  ],\n  \"difficulty\": {\n    \"ok\": true,\n    \"env\": \"sandbox\",\n    \"cost_usd\": 0.0123,\n    \"errors\": [],\n    \"keywords\": [\n      {\n        \"phrase\": \"seo audit tool\",\n        \"difficulty\": 40\n      },\n      {\n        \"phrase\": \"free seo audit\",\n        \"difficulty\": 66\n      }\n    ]\n  }\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": [
       {
        "host": "sandbox.dataforseo.com",
@@ -685,7 +685,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit tool\",\n      \"difficulty\": 40\n    },\n    {\n      \"phrase\": \"free seo audit\",\n      \"difficulty\": 66\n    }\n  ]\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": [
       {
        "host": "sandbox.dataforseo.com",
@@ -717,7 +717,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"unsupported_geo\": \"RU\",\n  \"error\": \"DataForSEO does not cover RU: Russia is unavailable in Labs, Google Ads, and SERP\",\n  \"use_instead\": [\n    \"Yandex Wordstat via Yandex Cloud for volume and expansion (keywords-expand)\",\n    \"Arsenkin for exact !W volume and SERP clustering (keywords-exact)\",\n    \"Yandex SERP via serp-fetch\"\n  ]\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": []
     }
    }
@@ -733,7 +733,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: google-keywords\nerror: keywords or seed required\n",
+     "stderr": "spiderhead: google-keywords\nerror: keywords or seed required\n",
      "requests": []
     }
    }
@@ -774,7 +774,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"error\": \"denied\",\n  \"status\": 401\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": [
       {
        "host": "sandbox.dataforseo.com",
@@ -804,7 +804,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"not_configured\",\n  \"error\": \"credential not found: store it in <WORK>/.config/dataforseo/login or set $DATAFORSEO_LOGIN\"\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": []
     }
    }
@@ -835,7 +835,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"error\": \"{\\\"error\\\":\\\"no route\\\"}\",\n  \"status\": 404\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": [
       {
        "host": "sandbox.dataforseo.com",
@@ -878,7 +878,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"confirmation_required\",\n  \"operation\": \"search_volume\",\n  \"error\": \"search_volume is paid and requires confirm_paid=true\",\n  \"estimate\": {\n    \"operation\": \"search_volume\",\n    \"env\": \"prod\",\n    \"currency\": \"USD\",\n    \"query_count\": 1,\n    \"cache_hits\": 0,\n    \"cache_basis\": \"caller_declared\",\n    \"billable_queries\": 1,\n    \"row_limit\": 1,\n    \"cost_usd\": null,\n    \"state\": \"unavailable\",\n    \"reason\": \"a current appendix/user_data price snapshot is required\"\n  }\n}\n",
-     "stderr": "seohead: google-keywords\n",
+     "stderr": "spiderhead: google-keywords\n",
      "requests": []
     }
    }
@@ -971,7 +971,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"env\": \"sandbox\",\n  \"query\": \"seo audit\",\n  \"cost_usd\": 0.0123,\n  \"errors\": [],\n  \"docs\": [\n    {\n      \"pos\": 1,\n      \"url\": \"https://example.test/a\",\n      \"domain\": \"example.test\",\n      \"title\": \"First\"\n    },\n    {\n      \"pos\": 3,\n      \"url\": \"https://example.test/b\",\n      \"domain\": \"example.test\",\n      \"title\": \"Third\"\n    }\n  ]\n}\n",
-     "stderr": "seohead: google-serp\n",
+     "stderr": "spiderhead: google-serp\n",
      "requests": [
       {
        "host": "sandbox.dataforseo.com",
@@ -1030,7 +1030,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: google-serp\nerror: depth must be between 1 and 200\n",
+     "stderr": "spiderhead: google-serp\nerror: depth must be between 1 and 200\n",
      "requests": []
     }
    }
@@ -1048,7 +1048,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: google-serp\nerror: query required\n",
+     "stderr": "spiderhead: google-serp\nerror: query required\n",
      "requests": []
     }
    }

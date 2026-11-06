@@ -142,6 +142,7 @@ pub fn coverage_gaps(
 const SCAN_COMMANDS: &[&str] = &[
     "scan-inspect",
     "scan-archive",
+    "scan-broken-links",
     "scan-url-query",
     "scan-link-inspect",
     "scan-status",

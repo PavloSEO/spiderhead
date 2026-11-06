@@ -22,7 +22,7 @@ async fn crtsh_oracle_parity() {
             .unwrap_or_default();
         let actual = crtsh::subdomains(&transport, domain)
             .await
-            .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+            .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
     }
 }

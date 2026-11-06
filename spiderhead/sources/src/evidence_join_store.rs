@@ -498,8 +498,8 @@ fn write_inner(
     .map_err(|e| store_error(format!("cannot write evidence join store: {e}")))?;
     drop(con);
     spiderhead_core::filesystem::set_permissions_mode(temporary, 0o600)
-        .map_err(|e| CfError::Python("OSError", e.to_string()))?;
-    std::fs::rename(temporary, target).map_err(|e| CfError::Python("OSError", e.to_string()))?;
+        .map_err(|e| CfError::Classed("OSError", e.to_string()))?;
+    std::fs::rename(temporary, target).map_err(|e| CfError::Classed("OSError", e.to_string()))?;
     metadata["path"] = json!(target.to_string_lossy());
     Ok(metadata)
 }

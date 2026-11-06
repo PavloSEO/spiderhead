@@ -35,7 +35,7 @@ pub struct IndexnowError {
 
 impl IndexnowError {
     /// Error class name of the matching failure.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         self.class
     }
 }
@@ -261,11 +261,11 @@ pub async fn submit<T: Transport>(
         None => match credentials::indexnow_key(host, root) {
             Ok(k) => k,
             Err(e) => {
-                if e.python_class() == "MissingCredential" {
+                if e.error_class() == "MissingCredential" {
                     return Ok(json!({"ok": false, "error": e.to_string()}));
                 }
                 return Err(IndexnowError {
-                    class: e.python_class(),
+                    class: e.error_class(),
                     message: e.to_string(),
                 });
             }

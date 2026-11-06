@@ -209,9 +209,31 @@ fn items_label(items: Option<&Value>) -> &'static str {
     }
 }
 
-/// Check a non-union schema leaf: type check, coercion and enum membership.
+/// Check a non-union schema leaf: enum membership first (a `Literal` field
+/// never type-checks or coerces), then type check and coercion.
 fn check_leaf(value: &Value, schema: &Value, loc: &str, tool: &str) -> Result<Value, Vec<Issue>> {
     let mut value = value.clone();
+    if let Some(choices) = schema.get("enum").and_then(Value::as_array) {
+        if !choices.iter().any(|choice| choice == &value) {
+            let text = choices
+                .iter()
+                .map(python_repr)
+                .collect::<Vec<_>>()
+                .join(", ");
+            let sep = text.rfind(", ").map(|at| at + 2);
+            let message = match sep {
+                Some(at) => format!("{} or {}", &text[..at - 2], &text[at..]),
+                None => text,
+            };
+            return Err(vec![issue(
+                loc,
+                &format!("Input should be {message}"),
+                "literal_error",
+                &value,
+            )]);
+        }
+        return Ok(value);
+    }
     match schema.get("type").and_then(Value::as_str) {
         Some("string") => {
             if !value.is_string() {
@@ -280,26 +302,6 @@ fn check_leaf(value: &Value, schema: &Value, loc: &str, tool: &str) -> Result<Va
             )]);
         }
         _ => {}
-    }
-    if let Some(choices) = schema.get("enum").and_then(Value::as_array) {
-        if !choices.iter().any(|choice| choice == &value) {
-            let text = choices
-                .iter()
-                .map(python_repr)
-                .collect::<Vec<_>>()
-                .join(", ");
-            let sep = text.rfind(", ").map(|at| at + 2);
-            let message = match sep {
-                Some(at) => format!("{} or {}", &text[..at - 2], &text[at..]),
-                None => text,
-            };
-            return Err(vec![issue(
-                loc,
-                &format!("Input should be {message}"),
-                "literal_error",
-                &value,
-            )]);
-        }
     }
     Ok(value)
 }

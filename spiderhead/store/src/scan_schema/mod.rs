@@ -35,7 +35,32 @@ pub use lifecycle::WriterLock;
 pub use native_config::{crawl_fingerprint, native_config, resume_fingerprint};
 pub use validate::EXPECTED_CAPABILITY_NAMES;
 
+/// Runtime-provenance keys of the managed-runtime era; existing scans keep them.
 pub const RUNTIME_KEYS: &[&str] = &["python", "sqlite", "httpx", "lxml", "beautifulsoup4"];
+
+/// Runtime-provenance keys written by the native build.
+pub const NATIVE_RUNTIME_KEYS: &[&str] = &["toolkit", "sqlite"];
+
+/// Provenance stamped into newly captured scans: toolkit release and bundled SQLite.
+pub fn native_runtime_versions() -> serde_json::Map<String, serde_json::Value> {
+    let mut runtime = serde_json::Map::new();
+    runtime.insert(
+        "toolkit".into(),
+        serde_json::Value::from(spiderhead_core::user_agents::PRODUCT_VERSION),
+    );
+    runtime.insert(
+        "sqlite".into(),
+        serde_json::Value::from(rusqlite::version()),
+    );
+    runtime
+}
+
+/// True when `versions` is a complete provenance map of either accepted layout.
+pub fn runtime_key_set_is_known(versions: &serde_json::Map<String, serde_json::Value>) -> bool {
+    let given: std::collections::BTreeSet<&str> = versions.keys().map(String::as_str).collect();
+    given == RUNTIME_KEYS.iter().copied().collect()
+        || given == NATIVE_RUNTIME_KEYS.iter().copied().collect()
+}
 
 pub const OPTIONAL_BROWSER_SETTINGS: &[&str] = &[
     "transport",

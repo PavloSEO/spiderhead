@@ -368,6 +368,11 @@ pub(crate) mod oracle_support {
         root().join("raw-scans").join(site).join("scan.sqlite")
     }
 
+    /// Path of one recorded baseline file.
+    pub fn baseline_path(site: &str, file: &str) -> PathBuf {
+        root().join("baselines").join(site).join(file)
+    }
+
     /// The `stdout` payload of one recorded baseline file.
     pub fn baseline(site: &str, file: &str) -> Value {
         let text = std::fs::read_to_string(root().join("baselines").join(site).join(file))
@@ -439,6 +444,7 @@ mod oracle_tests {
     // Light validation: frontier and HTTP outcome counts are disjoint and need no network.
     #[test]
     fn scan_status_matches_the_reference_baseline() {
+        let bless = spiderhead_oracle_diff::bless_enabled();
         let mut divergences = Vec::new();
         for site in SITES {
             let path = raw_scan(site);
@@ -447,6 +453,15 @@ mod oracle_tests {
             })
             .unwrap();
             let actual = normalise(&Value::Object(actual));
+            if bless {
+                let file = baseline_path(site, "scan-status.json");
+                let mut doc: Value =
+                    serde_json::from_str(&std::fs::read_to_string(&file).expect("baseline file"))
+                        .expect("baseline json");
+                doc["stdout"] = actual;
+                spiderhead_oracle_diff::bless_json(&file, &doc);
+                continue;
+            }
             let expected = baseline(site, "scan-status.json");
             if actual != expected {
                 divergences.push(format!("{site}:\nexpected {expected}\nactual   {actual}"));

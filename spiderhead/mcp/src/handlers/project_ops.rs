@@ -908,14 +908,14 @@ pub fn schedule_set(args: &Value) -> Result<Value, ToolError> {
 /// `schedule_install`: write a launchd plist, cron line or Task Scheduler command.
 pub fn schedule_install(args: &Value) -> Result<Value, ToolError> {
     let args = kwargs(args);
-    const ACCEPTED: [&str; 4] = ["directory", "kind", "dest", "python"];
+    const ACCEPTED: [&str; 4] = ["directory", "kind", "dest", "executable"];
     let directory = need_str(&args, "directory", "schedule-install", &ACCEPTED)?;
     let kind = need_str(&args, "kind", "schedule-install", &ACCEPTED)?;
     done(spiderhead_projects::schedule_install::install(
         directory,
         kind,
         opt_str(&args, "dest").map(Path::new),
-        opt_str(&args, "python"),
+        opt_str(&args, "executable"),
     ))
 }
 

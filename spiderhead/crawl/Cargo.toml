@@ -8,6 +8,7 @@ description = "crawl/ (crawler, resume, scheduling)"
 [dependencies]
 spiderhead-core.workspace = true
 spiderhead-fetch.workspace = true
+spiderhead-render.workspace = true
 spiderhead-parse.workspace = true
 spiderhead-store.workspace = true
 flate2.workspace = true
@@ -25,6 +26,7 @@ tokio.workspace = true
 url.workspace = true
 
 [dev-dependencies]
+spiderhead-checks.workspace = true
 spiderhead-oracle-diff.workspace = true
 spiderhead-oracle-testkit.workspace = true
 tempfile.workspace = true

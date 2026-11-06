@@ -188,10 +188,10 @@ fn run_op(op: &Value) -> Value {
         }));
         let _ = path;
         let spec = scan_spec.clone().ok_or_else(|| {
-            CfError::Python("AssertionError", "open_scan not scripted".to_owned())
+            CfError::Classed("AssertionError", "open_scan not scripted".to_owned())
         })?;
         if let Some(err) = spec.get("raise") {
-            return Err(CfError::Python(
+            return Err(CfError::Classed(
                 "Exception",
                 err.get("message")
                     .and_then(Value::as_str)
@@ -374,7 +374,7 @@ fn run_op(op: &Value) -> Value {
         Ok(value) => out["result"] = normalize_updated_at(&scrub(&value, &base)),
         Err(error) => {
             out["error"] = json!({
-                "class": error.python_class(),
+                "class": error.error_class(),
                 "message": error.to_string().replace(&base, "$BASE"),
             })
         }

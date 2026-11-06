@@ -104,11 +104,11 @@ fn impressions(rows: &[&Value]) -> Result<f64, CfError> {
         if entry.get("state").and_then(Value::as_str) == Some("measured") {
             let value = entry
                 .get("value")
-                .ok_or_else(|| CfError::Python("KeyError", "'value'".into()))?;
+                .ok_or_else(|| CfError::Classed("KeyError", "'value'".into()))?;
             total += match value {
                 Value::Bool(flag) => f64::from(u8::from(*flag)),
                 other => other.as_f64().ok_or_else(|| {
-                    CfError::Python(
+                    CfError::Classed(
                         "TypeError",
                         format!(
                             "unsupported operand type(s) for +=: 'float' and '{}'",
@@ -180,7 +180,7 @@ pub fn evaluate(
         Some(Value::String(state)) if state != "complete" => degraded.push(state.clone()),
         None | Some(Value::Null) | Some(Value::String(_)) => {}
         Some(other) => {
-            return Err(CfError::Python(
+            return Err(CfError::Classed(
                 "TypeError",
                 format!(
                     "sequence item {}: expected str instance, {} found",

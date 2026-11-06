@@ -83,7 +83,7 @@ impl<T: Transport> CloudCall for LiveCloudCall<'_, T> {
                 }),
                 Err(TransportError::Connect(kind)) => Err(CloudError::Url(pyerr::url_error(&kind))),
                 Err(TransportError::InvalidRequest(kind)) => {
-                    Err(CloudError::python("ValueError", kind))
+                    Err(CloudError::classed("ValueError", kind))
                 }
             }
         })
@@ -141,7 +141,7 @@ impl<'a, T: Transport> CloudEnv<'a, T> {
             Some(sink) => sink(rec),
             None => spend::record(self.host, rec),
         }
-        .map_err(|err| CloudError::python("OSError", err.to_string()))
+        .map_err(|err| CloudError::classed("OSError", err.to_string()))
     }
 }
 

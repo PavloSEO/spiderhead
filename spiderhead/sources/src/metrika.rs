@@ -108,7 +108,7 @@ impl<'a, T: Transport> MetrikaEnv<'a, T> {
             Some(sink) => sink(rec),
             None => spend::record(self.host, rec),
         }
-        .map_err(|err| MetrikaFail::python("OSError", err.to_string()))
+        .map_err(|err| MetrikaFail::classed("OSError", err.to_string()))
     }
 
     /// Current UTC instant in unix seconds.
@@ -162,7 +162,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
                     }
                     return match serde_json::from_str::<Value>(&body) {
                         Ok(value) => Ok(value),
-                        Err(_) => Err(MetrikaFail::python(
+                        Err(_) => Err(MetrikaFail::classed(
                             "JSONDecodeError",
                             pyjson::decode_error(&body)
                                 .unwrap_or_else(|| "JSON decode error".to_owned()),
@@ -198,7 +198,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
                 }
                 // A malformed URL or method is an error of its own, not a transport failure, so it is not retried.
                 Err(TransportError::InvalidRequest(kind)) => {
-                    return Err(MetrikaFail::python("ValueError", kind));
+                    return Err(MetrikaFail::classed("ValueError", kind));
                 }
             }
         }
@@ -369,7 +369,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
         offset: i64,
     ) -> Result<Value, MetrikaFail> {
         if offset < 1 {
-            return Err(MetrikaFail::python(
+            return Err(MetrikaFail::classed(
                 "ValueError",
                 "offset must be >= 1: the Reporting API numbers report rows from 1",
             ));
@@ -581,7 +581,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
         offset: i64,
     ) -> Result<Value, MetrikaFail> {
         if offset < 1 {
-            return Err(MetrikaFail::python(
+            return Err(MetrikaFail::classed(
                 "ValueError",
                 "offset must be >= 1: the Reporting API numbers report rows from 1",
             ));

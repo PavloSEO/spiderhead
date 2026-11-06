@@ -66,7 +66,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"url\": \"https://example.test/a\",\n  \"count\": 2,\n  \"snapshots\": [\n    {\n      \"urlkey\": \"test,example)/a\",\n      \"timestamp\": \"20240102030405\",\n      \"original\": \"https://example.test/a\",\n      \"mimetype\": \"text/html\",\n      \"statuscode\": \"200\",\n      \"digest\": \"AAA\",\n      \"length\": \"1200\",\n      \"archived_url\": \"https://web.archive.org/web/20240102030405/https://example.test/a\"\n    },\n    {\n      \"urlkey\": \"test,example)/a\",\n      \"timestamp\": \"20250607080910\",\n      \"original\": \"https://example.test/a\",\n      \"mimetype\": \"text/html\",\n      \"statuscode\": \"404\",\n      \"digest\": \"BBB\",\n      \"length\": \"900\",\n      \"archived_url\": \"https://web.archive.org/web/20250607080910/https://example.test/a\"\n    }\n  ]\n}\n",
-     "stderr": "seohead: wayback-history\n",
+     "stderr": "spiderhead: wayback-history\n",
      "requests": [
       {
        "host": "web.archive.org",
@@ -128,7 +128,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"url\": \"https://never.test/\",\n  \"count\": 0,\n  \"snapshots\": []\n}\n",
-     "stderr": "seohead: wayback-history\n",
+     "stderr": "spiderhead: wayback-history\n",
      "requests": [
       {
        "host": "web.archive.org",
@@ -181,7 +181,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"url\": \"https://example.test/a\",\n  \"error\": \"Wayback CDX returned a response that is not JSON\"\n}\n",
-     "stderr": "seohead: wayback-history\n",
+     "stderr": "spiderhead: wayback-history\n",
      "requests": [
       {
        "host": "web.archive.org",
@@ -220,7 +220,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"url\": \"https://example.test/a\",\n  \"error\": \"Wayback CDX request failed: HTTP Error 503: Service Unavailable\"\n}\n",
-     "stderr": "seohead: wayback-history\n",
+     "stderr": "spiderhead: wayback-history\n",
      "requests": [
       {
        "host": "web.archive.org",
@@ -253,7 +253,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: wayback-history\nerror: url required\n",
+     "stderr": "spiderhead: wayback-history\nerror: url required\n",
      "requests": []
     },
     "mcp": {
@@ -310,7 +310,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"domain\": \"example.test\",\n  \"count\": 3,\n  \"subdomains\": [\n    \"example.test\",\n    \"mail.example.test\",\n    \"www.example.test\"\n  ]\n}\n",
-     "stderr": "seohead: crtsh-subdomains\n",
+     "stderr": "spiderhead: crtsh-subdomains\n",
      "requests": [
       {
        "host": "crt.sh",
@@ -351,7 +351,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: crtsh-subdomains\nerror: domain required\n",
+     "stderr": "spiderhead: crtsh-subdomains\nerror: domain required\n",
      "requests": []
     }
    }
@@ -416,7 +416,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"count\": 3,\n  \"regions\": {\n    \"Moscow\": \"213\",\n    \"Moscow Oblast\": \"1\",\n    \"Saint Petersburg\": \"2\"\n  },\n  \"saved_to\": \"<WORK>/out/tree.json\"\n}\n",
-     "stderr": "seohead: regions-tree\n",
+     "stderr": "spiderhead: regions-tree\n",
      "requests": [
       {
        "host": "searchapi.api.cloud.yandex.net",
@@ -489,7 +489,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"region tree could not be parsed (status 200)\",\n  \"raw\": {\n    \"regions\": []\n  }\n}\n",
-     "stderr": "seohead: regions-tree\n",
+     "stderr": "spiderhead: regions-tree\n",
      "requests": [
       {
        "host": "searchapi.api.cloud.yandex.net",
@@ -521,7 +521,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-wordstat/api_key or set $YANDEX_CLOUD_API_KEY. Create it in Yandex AI Studio with the search-api.webSearch.user role.\"\n}\n",
-     "stderr": "seohead: regions-tree\n",
+     "stderr": "spiderhead: regions-tree\n",
      "requests": []
     },
     "mcp": {
@@ -575,7 +575,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"status\": 202,\n  \"submitted\": 2,\n  \"not_adopted_by\": [\n    \"Google\"\n  ],\n  \"message\": \"URLs received; key validation pending. Receipt does not guarantee indexing.\"\n}\n",
-     "stderr": "seohead: indexnow-submit\n",
+     "stderr": "spiderhead: indexnow-submit\n",
      "requests": [
       {
        "host": "api.indexnow.org",
@@ -641,7 +641,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"status\": 403,\n  \"submitted\": 1,\n  \"not_adopted_by\": [\n    \"Google\"\n  ],\n  \"error\": \"key not valid: the key or its published key-location file could not be verified\"\n}\n",
-     "stderr": "seohead: indexnow-submit\n",
+     "stderr": "spiderhead: indexnow-submit\n",
      "requests": [
       {
        "host": "api.indexnow.org",
@@ -678,7 +678,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"URL 1 must be an absolute HTTP(S) URL belonging to host\"\n}\n",
-     "stderr": "seohead: indexnow-submit\n",
+     "stderr": "spiderhead: indexnow-submit\n",
      "requests": []
     }
    }
@@ -696,7 +696,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: indexnow-submit\nerror: host required\n",
+     "stderr": "spiderhead: indexnow-submit\nerror: host required\n",
      "requests": []
     }
    }
@@ -758,7 +758,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"operation\": \"projects\",\n  \"limit\": 100,\n  \"offset\": 0,\n  \"page_only\": true,\n  \"result\": [\n    {\n      \"id\": 1,\n      \"name\": \"demo\"\n    }\n  ],\n  \"nextOffset\": 100,\n  \"total\": 150\n}\n",
-     "stderr": "seohead: topvisor-read\n",
+     "stderr": "spiderhead: topvisor-read\n",
      "requests": [
       {
        "host": "api.topvisor.com",
@@ -839,7 +839,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"Topvisor API errors: 53: bad: x\"\n}\n",
-     "stderr": "seohead: topvisor-read\n",
+     "stderr": "spiderhead: topvisor-read\n",
      "requests": [
       {
        "host": "api.topvisor.com",
@@ -890,7 +890,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"Topvisor HTTP 500; response body omitted\"\n}\n",
-     "stderr": "seohead: topvisor-read\n",
+     "stderr": "spiderhead: topvisor-read\n",
      "requests": [
       {
        "host": "api.topvisor.com",
@@ -930,7 +930,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"project_id is required\"\n}\n",
-     "stderr": "seohead: topvisor-read\n",
+     "stderr": "spiderhead: topvisor-read\n",
      "requests": []
     }
    }
@@ -948,7 +948,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"Unsupported read operation\"\n}\n",
-     "stderr": "seohead: topvisor-read\n",
+     "stderr": "spiderhead: topvisor-read\n",
      "requests": []
     }
    }
@@ -964,7 +964,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/topvisor/access_token or set $TOPVISOR_TOKEN\"\n}\n",
-     "stderr": "seohead: topvisor-read\n",
+     "stderr": "spiderhead: topvisor-read\n",
      "requests": []
     }
    }
@@ -1065,7 +1065,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"target\": \"https://example.test\",\n  \"target_kind\": \"origin\",\n  \"form_factor\": \"PHONE\",\n  \"metric_source\": \"CrUX current field data\",\n  \"retrieved_at\": \"<TS>\",\n  \"ok\": true,\n  \"state\": \"complete\",\n  \"record_target\": \"https://example.test\",\n  \"collection_period\": {\n    \"firstDate\": {\n      \"year\": 2026,\n      \"month\": 9,\n      \"day\": 1\n    },\n    \"lastDate\": {\n      \"year\": 2026,\n      \"month\": 9,\n      \"day\": 28\n    }\n  },\n  \"metrics\": {\n    \"largest_contentful_paint\": {\n      \"p75\": 2300\n    },\n    \"cumulative_layout_shift\": {\n      \"p75\": \"0.08\"\n    },\n    \"interaction_to_next_paint\": {\n      \"p75\": 180\n    }\n  },\n  \"assessment\": {\n    \"schema\": \"spiderhead.field-cwv/1\",\n    \"provider\": \"crux\",\n    \"metric_source\": \"field\",\n    \"policy\": \"web-vitals-2024-03\",\n    \"policy_url\": \"https://web.dev/articles/defining-core-web-vitals-thresholds\",\n    \"target\": \"https://example.test\",\n    \"requested_target\": \"https://example.test\",\n    \"record_target\": \"https://example.test\",\n    \"target_kind\": \"origin\",\n    \"form_factor\": \"PHONE\",\n    \"collection_period\": {\n      \"first_date\": \"2026-09-01\",\n      \"last_date\": \"2026-09-28\"\n    },\n    \"retrieved_at\": \"<TS>\",\n    \"provider_access\": \"read_only\",\n    \"cost_mode\": \"free_within_quota\",\n    \"quota_mode\": \"Google Cloud API quota\",\n    \"overall\": \"good\",\n    \"metrics\": {\n      \"largest_contentful_paint\": {\n        \"label\": \"LCP\",\n        \"p75\": 2300.0,\n        \"unit\": \"ms\",\n        \"state\": \"good\",\n        \"reason\": null\n      },\n      \"interaction_to_next_paint\": {\n        \"label\": \"INP\",\n        \"p75\": 180.0,\n        \"unit\": \"ms\",\n        \"state\": \"good\",\n        \"reason\": null\n      },\n      \"cumulative_layout_shift\": {\n        \"label\": \"CLS\",\n        \"p75\": 0.08,\n        \"unit\": \"score\",\n        \"state\": \"good\",\n        \"reason\": null\n      }\n    },\n    \"missing_metrics\": []\n  }\n}\n",
-     "stderr": "seohead: crux-report\n",
+     "stderr": "spiderhead: crux-report\n",
      "requests": [
       {
        "host": "chromeuxreport.googleapis.com",
@@ -1136,7 +1136,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"target\": \"https://example.test/rare\",\n  \"target_kind\": \"url\",\n  \"form_factor\": \"ALL_FORM_FACTORS\",\n  \"metric_source\": \"CrUX current field data\",\n  \"retrieved_at\": \"<TS>\",\n  \"ok\": true,\n  \"state\": \"no_field_data\",\n  \"metrics\": {},\n  \"note\": \"no CrUX data\",\n  \"assessment\": {\n    \"schema\": \"spiderhead.field-cwv/1\",\n    \"provider\": \"crux\",\n    \"metric_source\": \"field\",\n    \"policy\": \"web-vitals-2024-03\",\n    \"policy_url\": \"https://web.dev/articles/defining-core-web-vitals-thresholds\",\n    \"target\": \"https://example.test/rare\",\n    \"requested_target\": \"https://example.test/rare\",\n    \"record_target\": null,\n    \"target_kind\": \"url\",\n    \"form_factor\": \"ALL_FORM_FACTORS\",\n    \"collection_period\": {\n      \"first_date\": null,\n      \"last_date\": null\n    },\n    \"retrieved_at\": \"<TS>\",\n    \"provider_access\": \"read_only\",\n    \"cost_mode\": \"free_within_quota\",\n    \"quota_mode\": \"Google Cloud API quota\",\n    \"overall\": \"unavailable\",\n    \"metrics\": {\n      \"largest_contentful_paint\": {\n        \"label\": \"LCP\",\n        \"p75\": null,\n        \"unit\": \"ms\",\n        \"state\": \"unavailable\",\n        \"reason\": \"no_field_data\"\n      },\n      \"interaction_to_next_paint\": {\n        \"label\": \"INP\",\n        \"p75\": null,\n        \"unit\": \"ms\",\n        \"state\": \"unavailable\",\n        \"reason\": \"no_field_data\"\n      },\n      \"cumulative_layout_shift\": {\n        \"label\": \"CLS\",\n        \"p75\": null,\n        \"unit\": \"score\",\n        \"state\": \"unavailable\",\n        \"reason\": \"no_field_data\"\n      }\n    },\n    \"missing_metrics\": [\n      \"largest_contentful_paint\",\n      \"interaction_to_next_paint\",\n      \"cumulative_layout_shift\"\n    ]\n  }\n}\n",
-     "stderr": "seohead: crux-report\n",
+     "stderr": "spiderhead: crux-report\n",
      "requests": [
       {
        "host": "chromeuxreport.googleapis.com",
@@ -1249,7 +1249,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"provider\": \"crux\",\n  \"metric_source\": \"field\",\n  \"state\": \"partial\",\n  \"requested\": 2,\n  \"sampled\": 2,\n  \"omitted\": 0,\n  \"requests\": 2,\n  \"cache_hits\": 0,\n  \"duplicate_record_targets\": 0,\n  \"cache_max_age_hours\": null,\n  \"cost_mode\": \"free_within_quota\",\n  \"quota_mode\": \"Google Cloud API quota\",\n  \"records\": [\n    {\n      \"target\": \"https://example.test/a\",\n      \"target_kind\": \"url\",\n      \"form_factor\": \"ALL_FORM_FACTORS\",\n      \"metric_source\": \"CrUX current field data\",\n      \"retrieved_at\": \"<TS>\",\n      \"ok\": true,\n      \"state\": \"complete\",\n      \"record_target\": \"https://example.test/a\",\n      \"collection_period\": {\n        \"firstDate\": {\n          \"year\": 2026,\n          \"month\": 9,\n          \"day\": 1\n        },\n        \"lastDate\": {\n          \"year\": 2026,\n          \"month\": 9,\n          \"day\": 28\n        }\n      },\n      \"metrics\": {\n        \"largest_contentful_paint\": {\n          \"p75\": 2300\n        },\n        \"cumulative_layout_shift\": {\n          \"p75\": \"0.08\"\n        },\n        \"interaction_to_next_paint\": {\n          \"p75\": 180\n        }\n      },\n      \"assessment\": {\n        \"schema\": \"spiderhead.field-cwv/1\",\n        \"provider\": \"crux\",\n        \"metric_source\": \"field\",\n        \"policy\": \"web-vitals-2024-03\",\n        \"policy_url\": \"https://web.dev/articles/defining-core-web-vitals-thresholds\",\n        \"target\": \"https://example.test/a\",\n        \"requested_target\": \"https://example.test/a\",\n        \"record_target\": \"https://example.test/a\",\n        \"target_kind\": \"url\",\n        \"form_factor\": \"ALL_FORM_FACTORS\",\n        \"collection_period\": {\n          \"first_date\": \"2026-09-01\",\n          \"last_date\": \"2026-09-28\"\n        },\n        \"retrieved_at\": \"<TS>\",\n        \"provider_access\": \"read_only\",\n        \"cost_mode\": \"free_within_quota\",\n        \"quota_mode\": \"Google Cloud API quota\",\n        \"overall\": \"good\",\n        \"metrics\": {\n          \"largest_contentful_paint\": {\n            \"label\": \"LCP\",\n            \"p75\": 2300.0,\n            \"unit\": \"ms\",\n            \"state\": \"good\",\n            \"reason\": null\n          },\n          \"interaction_to_next_paint\": {\n            \"label\": \"INP\",\n            \"p75\": 180.0,\n            \"unit\": \"ms\",\n            \"state\": \"good\",\n            \"reason\": null\n          },\n          \"cumulative_layout_shift\": {\n            \"label\": \"CLS\",\n            \"p75\": 0.08,\n            \"unit\": \"score\",\n            \"state\": \"good\",\n            \"reason\": null\n          }\n        },\n        \"missing_metrics\": []\n      },\n      \"cache\": \"disabled\"\n    },\n    {\n      \"target\": \"https://example.test/b\",\n      \"target_kind\": \"url\",\n      \"form_factor\": \"ALL_FORM_FACTORS\",\n      \"metric_source\": \"CrUX current field data\",\n      \"retrieved_at\": \"<TS>\",\n      \"ok\": true,\n      \"state\": \"no_field_data\",\n      \"metrics\": {},\n      \"note\": \"no CrUX data\",\n      \"assessment\": {\n        \"schema\": \"spiderhead.field-cwv/1\",\n        \"provider\": \"crux\",\n        \"metric_source\": \"field\",\n        \"policy\": \"web-vitals-2024-03\",\n        \"policy_url\": \"https://web.dev/articles/defining-core-web-vitals-thresholds\",\n        \"target\": \"https://example.test/b\",\n        \"requested_target\": \"https://example.test/b\",\n        \"record_target\": null,\n        \"target_kind\": \"url\",\n        \"form_factor\": \"ALL_FORM_FACTORS\",\n        \"collection_period\": {\n          \"first_date\": null,\n          \"last_date\": null\n        },\n        \"retrieved_at\": \"<TS>\",\n        \"provider_access\": \"read_only\",\n        \"cost_mode\": \"free_within_quota\",\n        \"quota_mode\": \"Google Cloud API quota\",\n        \"overall\": \"unavailable\",\n        \"metrics\": {\n          \"largest_contentful_paint\": {\n            \"label\": \"LCP\",\n            \"p75\": null,\n            \"unit\": \"ms\",\n            \"state\": \"unavailable\",\n            \"reason\": \"no_field_data\"\n          },\n          \"interaction_to_next_paint\": {\n            \"label\": \"INP\",\n            \"p75\": null,\n            \"unit\": \"ms\",\n            \"state\": \"unavailable\",\n            \"reason\": \"no_field_data\"\n          },\n          \"cumulative_layout_shift\": {\n            \"label\": \"CLS\",\n            \"p75\": null,\n            \"unit\": \"score\",\n            \"state\": \"unavailable\",\n            \"reason\": \"no_field_data\"\n          }\n        },\n        \"missing_metrics\": [\n          \"largest_contentful_paint\",\n          \"interaction_to_next_paint\",\n          \"cumulative_layout_shift\"\n        ]\n      },\n      \"cache\": \"disabled\"\n    }\n  ]\n}\n",
-     "stderr": "seohead: crux-report\n",
+     "stderr": "spiderhead: crux-report\n",
      "requests": [
       {
        "host": "chromeuxreport.googleapis.com",
@@ -1288,7 +1288,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"target\": \"https://example.test\",\n  \"target_kind\": \"origin\",\n  \"form_factor\": \"ALL_FORM_FACTORS\",\n  \"metric_source\": \"CrUX current field data\",\n  \"retrieved_at\": \"<TS>\",\n  \"ok\": false,\n  \"state\": \"not_configured\",\n  \"error\": \"credential not found: store it in <WORK>/.config/crux/api_key or set $CRUX_API_KEY. Create an API key in Google Cloud Console and enable the Chrome UX Report API.\",\n  \"assessment\": {\n    \"schema\": \"spiderhead.field-cwv/1\",\n    \"provider\": \"crux\",\n    \"metric_source\": \"field\",\n    \"policy\": \"web-vitals-2024-03\",\n    \"policy_url\": \"https://web.dev/articles/defining-core-web-vitals-thresholds\",\n    \"target\": \"https://example.test\",\n    \"requested_target\": \"https://example.test\",\n    \"record_target\": null,\n    \"target_kind\": \"origin\",\n    \"form_factor\": \"ALL_FORM_FACTORS\",\n    \"collection_period\": {\n      \"first_date\": null,\n      \"last_date\": null\n    },\n    \"retrieved_at\": \"<TS>\",\n    \"provider_access\": \"read_only\",\n    \"cost_mode\": \"free_within_quota\",\n    \"quota_mode\": \"Google Cloud API quota\",\n    \"overall\": \"unavailable\",\n    \"metrics\": {\n      \"largest_contentful_paint\": {\n        \"label\": \"LCP\",\n        \"p75\": null,\n        \"unit\": \"ms\",\n        \"state\": \"unavailable\",\n        \"reason\": \"not_configured\"\n      },\n      \"interaction_to_next_paint\": {\n        \"label\": \"INP\",\n        \"p75\": null,\n        \"unit\": \"ms\",\n        \"state\": \"unavailable\",\n        \"reason\": \"not_configured\"\n      },\n      \"cumulative_layout_shift\": {\n        \"label\": \"CLS\",\n        \"p75\": null,\n        \"unit\": \"score\",\n        \"state\": \"unavailable\",\n        \"reason\": \"not_configured\"\n      }\n    },\n    \"missing_metrics\": [\n      \"largest_contentful_paint\",\n      \"interaction_to_next_paint\",\n      \"cumulative_layout_shift\"\n    ]\n  }\n}\n",
-     "stderr": "seohead: crux-report\n",
+     "stderr": "spiderhead: crux-report\n",
      "requests": []
     }
    }
@@ -1308,7 +1308,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: crux-report\nerror: exactly one of url or origin is required\n",
+     "stderr": "spiderhead: crux-report\nerror: exactly one of url or origin is required\n",
      "requests": []
     }
    }
@@ -1328,7 +1328,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: crux-report\nerror: urls cannot be combined with url, origin, or metrics\n",
+     "stderr": "spiderhead: crux-report\nerror: urls cannot be combined with url, origin, or metrics\n",
      "requests": []
     }
    }
@@ -1390,7 +1390,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"state\": \"accepted\",\n  \"hash\": \"abc123\",\n  \"paid\": false,\n  \"resumable\": false,\n  \"wait_exhausted\": false,\n  \"author_tables\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"provider_result_has_no_recognized_author_tables\",\n    \"words\": [],\n    \"density_deviation\": [],\n    \"stopwords\": \"provider_not_reported\",\n    \"filters\": \"provider_not_reported\"\n  }\n}\n",
-     "stderr": "seohead: miratext-analyze\n",
+     "stderr": "spiderhead: miratext-analyze\n",
      "requests": [
       {
        "host": "miratext.com",
@@ -1473,7 +1473,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"state\": \"accepted\",\n  \"hash\": \"h1\",\n  \"paid\": false,\n  \"resumable\": false,\n  \"wait_exhausted\": false,\n  \"author_tables\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"provider_result_has_no_recognized_author_tables\",\n    \"words\": [],\n    \"density_deviation\": [],\n    \"stopwords\": \"provider_not_reported\",\n    \"filters\": \"provider_not_reported\"\n  }\n}\n",
-     "stderr": "seohead: miratext-analyze\n",
+     "stderr": "spiderhead: miratext-analyze\n",
      "requests": [
       {
        "host": "miratext.com",
@@ -1536,7 +1536,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"error\": \"Miratext rejected the request\"\n}\n",
-     "stderr": "seohead: miratext-analyze\n",
+     "stderr": "spiderhead: miratext-analyze\n",
      "requests": [
       {
        "host": "miratext.com",
@@ -1584,7 +1584,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"error\": \"Miratext request failed\"\n}\n",
-     "stderr": "seohead: miratext-analyze\n",
+     "stderr": "spiderhead: miratext-analyze\n",
      "requests": [
       {
        "host": "miratext.com",
@@ -1613,7 +1613,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"confirmation_required\",\n  \"error\": \"paid or keyword analysis requires confirm_paid=true\"\n}\n",
-     "stderr": "seohead: miratext-analyze\n",
+     "stderr": "spiderhead: miratext-analyze\n",
      "requests": []
     }
    }
@@ -1631,7 +1631,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"not_configured\",\n  \"error\": \"credential not found: store it in <WORK>/.config/miratext/api_key or set $MIRATEXT_API_KEY\"\n}\n",
-     "stderr": "seohead: miratext-analyze\n",
+     "stderr": "spiderhead: miratext-analyze\n",
      "requests": []
     }
    }
@@ -1647,7 +1647,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: miratext-analyze\nerror: pass hash to resume, or URLs/texts and my\n",
+     "stderr": "spiderhead: miratext-analyze\nerror: pass hash to resume, or URLs/texts and my\n",
      "requests": []
     }
    }

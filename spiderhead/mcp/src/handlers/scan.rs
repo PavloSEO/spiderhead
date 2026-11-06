@@ -570,7 +570,7 @@ pub fn scan_reanalyze(args: &Value) -> Result<Value, ToolError> {
             ));
         }
     }
-    const VERSION: &str = "3.2.0";
+    const VERSION: &str = spiderhead_core::user_agents::PRODUCT_VERSION;
     let revision = match super::opt_str(&args, "producer_build") {
         Some(build) => {
             if build.len() != 40 || !build.chars().all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase()) {
@@ -587,12 +587,7 @@ pub fn scan_reanalyze(args: &Value) -> Result<Value, ToolError> {
             ))
         }
     };
-    let mut runtime = Map::new();
-    runtime.insert("python".into(), json!("-"));
-    runtime.insert("sqlite".into(), json!(rusqlite::version()));
-    runtime.insert("httpx".into(), json!("-"));
-    runtime.insert("lxml".into(), json!("-"));
-    runtime.insert("beautifulsoup4".into(), json!("-"));
+    let runtime = spiderhead_store::scan_schema::native_runtime_versions();
 
     let source_path = Path::new(input_path);
     let mut derived = derived_scan(source_path, Path::new(out), VERSION, &revision, &runtime)

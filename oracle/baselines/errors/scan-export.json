@@ -333,7 +333,7 @@
     },
     {
      "id": "DUPLICATE_BY_HASH",
-     "reason": "stored HTML matched only 3 of 4 indexable pages; no comparable content-area text (1) — duplicates not assessed for the rest"
+     "reason": "stored HTML matched only 3 of 4 indexable pages; no comparable content-area text (1) \u2014 duplicates not assessed for the rest"
     },
     {
      "id": "EXTERNAL_LINK_TO_REDIRECT",
@@ -533,7 +533,7 @@
     },
     {
      "id": "NEAR_DUPLICATE",
-     "reason": "stored HTML matched only 3 of 4 indexable pages; no comparable content-area text (1) — duplicates not assessed for the rest"
+     "reason": "stored HTML matched only 3 of 4 indexable pages; no comparable content-area text (1) \u2014 duplicates not assessed for the rest"
     },
     {
      "id": "NETWORK_DEPENDENCY_TREE",
@@ -833,7 +833,7 @@
  },
  "provenance": {
   "audit": {
-   "analyzer_version": "3.2.0",
+   "analyzer_version": "0.9.1",
    "created_at": "<TS>",
    "schema_version": "2.0",
    "state": "present"
@@ -853,7 +853,7 @@
   "source_kind": "native",
   "start_url": "{BASE}/",
   "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
-  "writer_version": "3.2.0"
+  "writer_version": "0.9.1"
  },
  "records": {
   "findings": [

@@ -1,0 +1,21 @@
+{
+ "cli": {
+  "files": {},
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: evidence-join\nerror: evidence_join needs a crawl input (pages, scan or audit) to join, or a compare source for a compatibility-only decision\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_evidence_join: evidence_join needs a crawl input (pages, scan or audit) to join, or a compare source for a compatibility-only decision"
+   }
+  ]
+ }
+}

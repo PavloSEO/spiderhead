@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: cloudflare-logpush-import\n",
+    "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"reason\": \"record is missing required HTTP request fields\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_cloudflare_logpush_import: Logpush input exceeds max_events"
+   }
+  ]
+ }
+}

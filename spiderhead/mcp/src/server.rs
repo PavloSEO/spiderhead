@@ -492,11 +492,11 @@ mod tests {
                 json!({"jsonrpc": "2.0", "id": 5, "method": "tools/call", "params": {"name": "seo_url_check_batch"}}),
             ],
         );
-        // The oracle executed seo_url_check_batch with defaults in the same situation;
-        // here the handler is NotYetPorted, which still proves validation passed.
+        // The oracle executed seo_url_check_batch with defaults and raised on the
+        // empty urls/scan pair; the port reaches the same validation error.
         assert_eq!(
             out[0]["result"]["content"][0]["text"],
-            "seo_url_check_batch is not yet available in this build"
+            "Error executing tool seo_url_check_batch: provide exactly one of urls[] or scan",
         );
         assert_eq!(out[0]["result"]["isError"], true);
     }

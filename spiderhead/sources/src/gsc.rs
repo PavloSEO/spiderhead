@@ -83,7 +83,7 @@ pub enum GscError {
 
 impl GscError {
     /// Stable error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             GscError::Invalid(_) => "ValueError",
             GscError::TooLarge(_) => "ResponseTooLarge",
@@ -94,13 +94,13 @@ impl GscError {
 
 impl From<CredentialError> for GscError {
     fn from(e: CredentialError) -> Self {
-        GscError::Wrapped(e.python_class(), e.to_string())
+        GscError::Wrapped(e.error_class(), e.to_string())
     }
 }
 
 impl From<OAuthError> for GscError {
     fn from(e: OAuthError) -> Self {
-        GscError::Wrapped(e.python_class(), e.to_string())
+        GscError::Wrapped(e.error_class(), e.to_string())
     }
 }
 

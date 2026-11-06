@@ -6,7 +6,7 @@
 use futures::StreamExt;
 
 /// Locates the Chrome binary: `SPIDERHEAD_CHROME` if set and non-empty, else the
-/// first known install path that exists; `None` when neither is found.
+/// first known install path that exists, else a `chromium`/`google-chrome` on `PATH`; `None` when neither is found.
 pub fn chrome_executable() -> Option<std::path::PathBuf> {
     if let Ok(path) = std::env::var("SPIDERHEAD_CHROME") {
         if !path.is_empty() {
@@ -24,6 +24,15 @@ pub fn chrome_executable() -> Option<std::path::PathBuf> {
         .iter()
         .map(std::path::PathBuf::from)
         .find(|path| path.exists())
+        .or_else(|| on_path(&["chromium", "google-chrome", "chrome"]))
+}
+
+/// First of `names` that resolves to a file in a `PATH` directory.
+fn on_path(names: &[&str]) -> Option<std::path::PathBuf> {
+    let paths = std::env::var_os("PATH")?;
+    std::env::split_paths(&paths)
+        .flat_map(|dir| names.iter().map(move |name| dir.join(name)))
+        .find(|path| path.is_file())
 }
 
 /// Loads `url` in headless Chrome and returns the serialized DOM once navigation

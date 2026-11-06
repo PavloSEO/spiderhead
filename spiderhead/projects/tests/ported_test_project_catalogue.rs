@@ -14,11 +14,22 @@ use spiderhead_projects::catalogue::{definition_hash, load_catalogue};
 // (loader side: packaged document equality against the oracle's load_catalogue)
 #[test]
 fn packaged_catalogue_matches_the_oracle_loader() {
-    let fixture: Value = serde_json::from_str(
-        &std::fs::read_to_string(testkit::fixture("catalogue.json")).expect("fixture"),
-    )
-    .expect("fixture json");
+    let fixture_path = testkit::fixture("catalogue.json");
+    let fixture = spiderhead_oracle_testkit::fixture_json(&fixture_path);
     let loaded = load_catalogue().expect("load_catalogue");
+    if spiderhead_oracle_diff::bless_enabled() {
+        let mut ids: Vec<String> = loaded.keys().cloned().collect();
+        ids.sort();
+        spiderhead_oracle_diff::bless_json(
+            &fixture_path,
+            &serde_json::json!({
+                "count": loaded.len(),
+                "entries": Value::Object(loaded.clone()),
+                "ids": ids,
+            }),
+        );
+        return;
+    }
     let entries = fixture["entries"].as_object().expect("entries");
     assert_eq!(fixture["count"].as_i64().unwrap() as usize, entries.len());
     assert_eq!(loaded.len(), entries.len());

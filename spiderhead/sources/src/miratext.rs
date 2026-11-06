@@ -30,7 +30,7 @@ pub struct MiratextError {
 
 impl MiratextError {
     /// Error class name of the matching failure.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         self.class
     }
 }

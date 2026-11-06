@@ -54,9 +54,13 @@ fn blocked(payload: &(dyn std::any::Any + Send)) -> bool {
 
 #[test]
 fn searches_match_the_reference_oracle() {
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let mut fixture = fixture();
+    let cases = fixture["cases"].as_array().unwrap().clone();
+    let mut blessed: Vec<Value> = Vec::new();
     let mut blocked_cases = 0;
     let mut checked = 0;
-    for case in fixture()["cases"].as_array().unwrap() {
+    for case in &cases {
         let call = case["call"].as_object().unwrap();
         let query = call["query"].as_str().unwrap();
         let mut options = SearchOptions::default();
@@ -91,7 +95,15 @@ fn searches_match_the_reference_oracle() {
             };
             search_scan(&scan, query, &options, Some(&mut collect))
         }));
+        let mut updated = case.clone();
         match (outcome, case.get("error")) {
+            (Ok(Ok(result)), None) if bless => {
+                updated["result"] = normalise(&Value::Object(result));
+                updated["records"] = normalise(&Value::Array(records));
+            }
+            (Ok(Err(e)), Some(_)) if bless => {
+                updated["error"] = Value::String(e.to_string().replace("invalid artifact: ", ""));
+            }
             (Ok(Ok(result)), None) => {
                 assert_eq!(
                     normalise(&Value::Object(result)),
@@ -120,6 +132,13 @@ fn searches_match_the_reference_oracle() {
             (Err(p), _) => std::panic::resume_unwind(p),
             (other, error) => panic!("{} -> {other:?} vs {error:?}", case["call"]),
         }
+        blessed.push(updated);
+    }
+    if bless {
+        fixture["cases"] = Value::Array(blessed);
+        let path = root().join("spiderhead/store/tests/fixtures/pack02-search.json");
+        assert!(spiderhead_oracle_diff::bless_json(&path, &fixture));
+        return;
     }
     eprintln!("compared {checked} case(s); blocked by other slices: {blocked_cases}");
     assert_eq!(blocked_cases, 0, "every case must reach real code");

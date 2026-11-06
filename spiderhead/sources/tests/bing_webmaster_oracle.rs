@@ -35,7 +35,7 @@ async fn bing_webmaster_oracle_parity() {
             },
         )
         .await
-        .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+        .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
     }
 }

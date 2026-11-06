@@ -17,6 +17,7 @@ pub mod control;
 pub mod crawl;
 pub mod crawl_ops;
 pub mod crawl_resume;
+pub mod evidence_join;
 pub mod logs;
 pub mod net;
 pub mod parse;
@@ -41,6 +42,7 @@ pub mod sources_providers;
 pub mod sources_traffic;
 pub mod sources_yandex;
 pub mod update;
+pub mod url_checks;
 pub mod verification;
 pub mod workflow;
 
@@ -75,10 +77,13 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("scan_navigation", scan_ops::scan_navigation),
         ("extraction_presets", scan_ops::extraction_presets),
         ("custom_extract_sample", scan_ops::custom_extract_sample),
+        ("extract_suggest", scan_ops::extract_suggest),
         ("scan_archive", scan_ops::scan_archive),
+        ("scan_broken_links", scan_ops::scan_broken_links),
         ("scan_sitemap_generate", scan_ops::scan_sitemap_generate),
         ("scan_requeue", scan_ops::scan_requeue),
         ("scan_import_urls", scan_ops::scan_import_urls),
+        ("marketing_inventory", checks::marketing_inventory),
         ("scan_fragment_links", scan_ops::scan_fragment_links),
         ("scan_link_inspect", scan_links::scan_link_inspect),
         ("scan_url_detail", scan_ops::scan_url_detail),
@@ -93,18 +98,25 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ),
         ("crawl_site", crawl::crawl_site),
         ("sitemap_crawl", crawl::sitemap_crawl),
+        ("keywords_cluster", content::keywords_cluster),
         ("cdn_check", checks::cdn_check),
         ("headers_check", checks::headers_check),
         ("tech_detect", checks::tech_detect),
         ("security_check", checks::security_check),
         ("regions_check", checks::regions_check),
         ("ai_bots_check", checks::ai_bots_check),
+        ("asset_weight_check", checks::asset_weight_check),
+        ("images_download", checks::images_download),
+        ("mirror_check", checks::mirror_check),
+        ("soft404_check", checks::soft404_check),
         ("robots_check", checks::robots_check),
         ("redirects_check", checks::redirects_check),
         ("links_check", checks::links_check),
         ("hreflang_check", checks::hreflang_check),
         ("domain_profile", checks::domain_profile),
         ("llms_txt_check", checks::llms_txt_check),
+        ("inspect_url", url_checks::inspect_url),
+        ("url_check_batch", url_checks::url_check_batch),
         ("site_audit", audit::site_audit),
         ("sf_audit_run", sf::sf_audit_run),
         ("sf_audit_summary", sf::sf_audit_summary),
@@ -166,8 +178,14 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("remediation_report", workflow::remediation_report),
         ("redirects_generate", content::redirects_generate),
         ("markdown_extract", content::markdown_extract),
+        ("markdown_export", content::markdown_export),
         ("boilerplate_report", content::boilerplate_report),
         ("schema_check", content::schema_check),
+        ("schema_build", content::schema_build),
+        ("semantic_inputs", content::semantic_inputs),
+        ("semantic_similarity", content::semantic_similarity),
+        ("ai_column", content::ai_column),
+        ("meta_description_drafts", content::meta_description_drafts),
         ("citability_check", content::citability_check),
         ("social_meta_check", content::social_meta_check),
         ("doctor", control::doctor),
@@ -280,6 +298,7 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
             crawl_ops::project_competitors_scan_cancel,
         ),
         ("log_analyze", logs::log_analyze),
+        ("log_scan", logs::log_scan),
         ("logs_import", logs::logs_import),
         ("logs_summary", logs::logs_summary),
         ("logs_bots", logs::logs_bots),
@@ -288,6 +307,19 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("semantics_status", semantics::semantics_status),
         ("semantics_run", semantics::semantics_run),
         ("semantics_paid", semantics::semantics_paid),
+        ("semantics_clusters", semantics::semantics_clusters),
+        ("semantics_cluster_show", semantics::semantics_cluster_show),
+        (
+            "semantics_cluster_queries",
+            semantics::semantics_cluster_queries,
+        ),
+        ("semantics_set_landing", semantics::semantics_set_landing),
+        ("semantics_mine", semantics::semantics_mine),
+        ("semantics_insights", semantics::semantics_insights),
+        (
+            "semantics_insights_tasks",
+            semantics::semantics_insights_tasks,
+        ),
         ("spend_report", sources::spend_report),
         ("sources_doctor", sources::sources_doctor),
         ("provider_registry", sources::provider_registry),
@@ -329,6 +361,7 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
             sources_cloudflare::cloudflare_instant_logs,
         ),
         ("evidence_normalize", sources_evidence::evidence_normalize),
+        ("evidence_join", evidence_join::evidence_join),
         (
             "provider_artifact_read",
             sources_evidence::provider_artifact_read,

@@ -27,7 +27,7 @@ use crate::scan_schema::WriterLock;
 /// Wall-clock ceiling for the copy step (`BACKUP_TIMEOUT_SECONDS`).
 const BACKUP_TIMEOUT_SECONDS: u64 = 60;
 /// Required runtime provenance keys; the set is complete by contract.
-const RUNTIME_KEYS: [&str; 5] = ["python", "sqlite", "httpx", "lxml", "beautifulsoup4"];
+const RUNTIME_KEYS: [&str; 2] = ["toolkit", "sqlite"];
 
 /// A derived writer over its private copy plus a read-only source connection.
 ///
@@ -914,10 +914,7 @@ mod tests {
     }
 
     fn versions() -> Map<String, Value> {
-        serde_json::from_str(
-            r#"{"python":"3","sqlite":"3","httpx":"0","lxml":"5","beautifulsoup4":"4"}"#,
-        )
-        .unwrap_or_default()
+        serde_json::from_str(r#"{"toolkit":"0.9.0","sqlite":"3"}"#).unwrap_or_default()
     }
 
     #[test]
@@ -927,7 +924,7 @@ mod tests {
             message(derived_scan(
                 Path::new("/nonexistent-source.sqlite"),
                 Path::new("/tmp/unused-out.sqlite"),
-                "3.2.0",
+                "0.9.0",
                 &"a".repeat(40),
                 &map,
             )),
@@ -941,7 +938,7 @@ mod tests {
             message(derived_scan(
                 Path::new("/nonexistent-source.sqlite"),
                 Path::new("/tmp/unused-out.sqlite"),
-                "3.2.0",
+                "0.9.0",
                 "ZZZ",
                 &versions(),
             )),
@@ -954,7 +951,7 @@ mod tests {
         assert!(message(derived_scan(
             Path::new("/nonexistent-source.sqlite"),
             Path::new("/tmp/unused-out.sqlite"),
-            "3.2.0",
+            "0.9.0",
             &"a".repeat(40),
             &versions(),
         ))

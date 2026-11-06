@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-link-inspect\n",
+    "stderr": "spiderhead: scan-link-inspect\n",
     "stdout": "{\n  \"ok\": false,\n  \"view\": \"context\",\n  \"error\": \"context view requires exactly one of link_id or document_id\"\n}\n"
    }
   ]

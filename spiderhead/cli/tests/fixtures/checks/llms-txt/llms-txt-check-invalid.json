@@ -6,6 +6,6 @@
  ],
  "command": "llms-txt-check",
  "exit": 1,
- "stderr": "seohead: llms-txt-check\n",
+ "stderr": "spiderhead: llms-txt-check\n",
  "stdout": "{\n  \"ok\": false,\n  \"error\": \"Not a valid HTTP(S) URL: 'ftp://x.test'\"\n}\n"
 }

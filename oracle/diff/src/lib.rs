@@ -4,6 +4,10 @@
 //! addressed by a JSON pointer. [`KnownDivergences`] (from `oracle/known-divergences.toml`)
 //! filters approved differences and reports registry entries that matched nothing.
 
+mod bless;
+
+pub use bless::{baseline_text, bless_bytes, bless_enabled, bless_json, bless_json_field, Norm};
+
 use serde::Deserialize;
 use serde_json::Value;
 use std::fmt::Write as _;

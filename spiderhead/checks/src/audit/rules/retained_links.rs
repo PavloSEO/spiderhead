@@ -4,7 +4,10 @@
 use std::collections::{BTreeMap, HashMap};
 
 use serde_json::{json, Value};
-use spiderhead_parse::py_url::urljoin;
+use spiderhead_parse::dom::{self, ElementRef};
+use spiderhead_parse::parser::shared::collapse_whitespace;
+use spiderhead_parse::py_url::{urljoin, urlparse};
+use spiderhead_store::bodies::{read_page_document, MAX_DOCUMENT_BYTES};
 
 use super::details;
 use super::stored::SELECTED_LINKS;
@@ -33,6 +36,83 @@ fn blank_anchor(anchor: &str) -> bool {
     anchor
         .trim_matches(['\t', '\n', '\r', '\u{a0}', ' '])
         .is_empty()
+}
+
+/// Per destination: `(occurrences, occurrences without an accessible name)`.
+type LabelMap = BTreeMap<String, (i64, i64)>;
+
+/// Whether an `<a>` element carries a name a visitor or assistive technology can
+/// read: text, a wrapped image's alt, its own `aria-label`/`title`, or an
+/// `aria-label` on a nested element. An anchor with such a name is not "empty"
+/// just because its text node is.
+fn accessible_name(tag: &ElementRef<'_>) -> bool {
+    let present = |value: Option<&str>| value.is_some_and(|v| !collapse_whitespace(v).is_empty());
+    if !blank_anchor(&collapse_whitespace(&dom::get_text(tag, " "))) {
+        return true;
+    }
+    if present(dom::attr(tag, "aria-label")) || present(dom::attr(tag, "title")) {
+        return true;
+    }
+    tag.descendants()
+        .filter_map(ElementRef::wrap)
+        .any(|el| match el.value().name() {
+            "img" => present(dom::attr(&el, "alt")),
+            _ => present(dom::attr(&el, "aria-label")),
+        })
+}
+
+/// Per destination (fragment stripped): `(occurrences, occurrences without an
+/// accessible name)` among the `<a>` elements of one retained source page.
+fn anchor_label_map(html: &str, base: &str) -> LabelMap {
+    let mut out: BTreeMap<String, (i64, i64)> = BTreeMap::new();
+    let soup = dom::parse_document_lxml(html);
+    for tag in dom::find_all(&soup, "a") {
+        let Some(raw) = dom::attr(&tag, "href").map(str::trim) else {
+            continue;
+        };
+        if raw.is_empty() || raw.starts_with('#') {
+            continue;
+        }
+        let scheme = urlparse(raw)
+            .map(|p| p.scheme.to_lowercase())
+            .unwrap_or_default();
+        if !scheme.is_empty() && scheme != "http" && scheme != "https" {
+            continue;
+        }
+        let Ok(href) = urljoin(base, raw) else {
+            continue;
+        };
+        let entry = out.entry(defrag(&href).to_owned()).or_insert((0, 0));
+        entry.0 += 1;
+        if !accessible_name(&tag) {
+            entry.1 += 1;
+        }
+    }
+    out
+}
+
+/// Whether the source page's retained markup shows that every occurrence of
+/// this edge's destination carries an accessible name, so the empty retained
+/// anchor is a labelling gap rather than an unnamed link. A page whose body was
+/// not retained keeps the finding: the stored anchor is then all the evidence
+/// there is, and it says the link has no name.
+fn excused_by_body(
+    con: &rusqlite::Connection,
+    cache: &mut HashMap<i64, Option<LabelMap>>,
+    edge: &Edge,
+) -> bool {
+    let labels = cache
+        .entry(edge.source_id)
+        .or_insert_with(|| {
+            read_page_document(con, &edge.source, MAX_DOCUMENT_BYTES)
+                .ok()
+                .map(|html| anchor_label_map(&html, &edge.source))
+        })
+        .as_ref();
+    labels.is_some_and(|map| {
+        map.get(defrag(&edge.destination))
+            .is_some_and(|&(occurrences, unnamed)| occurrences > 0 && unnamed == 0)
+    })
 }
 
 fn location(e: &Edge) -> Value {
@@ -175,11 +255,13 @@ pub fn check_retained_links(ctx: &mut AuditContext) {
         }
     }
 
-    // empty anchors, one finding per source page
+    // empty anchors, one finding per source page; occurrences the retained
+    // markup proves are named (image alt, aria-label, title) are not defects
+    let mut labels: HashMap<i64, Option<LabelMap>> = HashMap::new();
     let mut by_source: BTreeMap<i64, Vec<&Edge>> = BTreeMap::new();
     for e in edges
         .iter()
-        .filter(|e| e.internal && blank_anchor(&e.anchor))
+        .filter(|e| e.internal && blank_anchor(&e.anchor) && !excused_by_body(&con, &mut labels, e))
     {
         by_source.entry(e.source_id).or_default().push(e);
     }

@@ -27,7 +27,7 @@ const POLICY_KEYS: &[&str] = &["boundary_policy", "cross_source", "quadrant"];
 const PRIVATE_AXES: &[&str] = &["reporting_identity", "site_origin"];
 
 fn import_error(message: impl Into<String>) -> CfError {
-    CfError::Python("EvidenceImportError", message.into())
+    CfError::Classed("EvidenceImportError", message.into())
 }
 
 /// Field lookup; a non-object value is an error.
@@ -140,7 +140,7 @@ pub fn join_evidence(
     if let Some(spec) = url_policy.filter(|v| pystr::truthy(Some(v))) {
         let entries = spec
             .as_object()
-            .ok_or_else(|| CfError::Python("TypeError", "object is not iterable".to_owned()))?;
+            .ok_or_else(|| CfError::Classed("TypeError", "object is not iterable".to_owned()))?;
         for (name, value) in entries {
             if !URL_POLICY_KEYS.contains(&name.as_str()) {
                 let mut unknown: Vec<String> = entries
@@ -312,7 +312,7 @@ pub fn join_evidence(
         None => json!({}),
         Some(value) if value.is_object() => value.clone(),
         Some(other) => {
-            return Err(CfError::Python(
+            return Err(CfError::Classed(
                 "TypeError",
                 format!("'{}' object is not iterable", pystr::type_name(other)),
             ))

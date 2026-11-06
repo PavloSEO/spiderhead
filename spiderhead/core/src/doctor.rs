@@ -227,10 +227,10 @@ pub fn doctor(host: &dyn Host, options: &DoctorOptions) -> Value {
     let file_name = |path: &Path| path.file_name().map(|n| n.to_string_lossy().into_owned());
     json!({
         "format": DOCTOR_FORMAT,
-        "python": {
+        "runtime": {
             "state": "not_applicable",
             "version": null,
-            "reason": "this build is native and needs no Python runtime",
+            "reason": "this build is native and needs no interpreter",
         },
         "playwright": {
             "state": "not_applicable",
@@ -306,7 +306,7 @@ mod tests {
         let report = doctor(&SystemHost, &DoctorOptions::default());
         assert_eq!(report["format"], DOCTOR_FORMAT);
         for key in [
-            "python",
+            "runtime",
             "playwright",
             "chromium",
             "screaming_frog",

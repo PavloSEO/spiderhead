@@ -59,7 +59,7 @@ fn tree_covers_exactly_the_catalogued_commands() {
     assert_eq!(flat_set, direct_set);
     assert_eq!(flat.len(), flat_set.len());
     assert_eq!(direct.len(), direct_set.len());
-    assert_eq!(flat.len(), 238);
+    assert_eq!(flat.len(), 239);
 }
 
 #[test]

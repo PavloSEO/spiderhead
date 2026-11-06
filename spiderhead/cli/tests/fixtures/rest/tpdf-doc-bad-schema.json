@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: metrika-traffic-pdf\nerror: not a spiderhead.metrika-traffic/1 document (schema: 'other')\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_metrika_traffic_pdf: not a spiderhead.metrika-traffic/1 document (schema: 'other')"
+   }
+  ]
+ }
+}

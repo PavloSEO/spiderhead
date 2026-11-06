@@ -485,7 +485,10 @@ fn writer_lock_is_exclusive_and_refuses_symlinks() {
     drop(first);
     drop(WriterLock::acquire(&lock).unwrap());
     let link = dir.join("link.lock");
+    #[cfg(unix)]
     std::os::unix::fs::symlink(&lock, &link).unwrap();
+    #[cfg(windows)]
+    std::os::windows::fs::symlink_file(&lock, &link).unwrap();
     refused(
         WriterLock::acquire(&link).map(|_| ()),
         "symlink|Too many levels|cannot acquire",

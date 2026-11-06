@@ -327,7 +327,7 @@ pub async fn traffic<T: Transport>(
                 .iter()
                 .map(|member| {
                     py_hash_key(member).map_err(|e| {
-                        CfError::Python(
+                        CfError::Classed(
                             "TypeError",
                             format!("cannot use 'tuple' as a dict key ({e})"),
                         )
@@ -488,12 +488,12 @@ pub async fn traffic<T: Transport>(
                 let mut parts = key.split('\t');
                 let path_part = parts.next().unwrap_or_default();
                 let status_text = parts.next().ok_or_else(|| {
-                    CfError::Python("IndexError", "list index out of range".to_owned())
+                    CfError::Classed("IndexError", "list index out of range".to_owned())
                 })?;
                 let status_v = pystr::to_python_int(&json!(status_text)).map_err(
                     |(class, msg)| match class {
                         "ValueError" => CfError::Value(msg),
-                        other => CfError::Python(other, msg),
+                        other => CfError::Classed(other, msg),
                     },
                 )?;
                 rows.push(json!({"path": path_part, "status": status_v, "hits": v}));
@@ -548,7 +548,7 @@ pub async fn traffic<T: Transport>(
         let zone_id_str = match zone_id.as_str() {
             Some(s) => s.to_owned(),
             None => {
-                return Err(CfError::Python(
+                return Err(CfError::Classed(
                     "TypeError",
                     "quote_from_bytes() expected bytes".to_owned(),
                 ))
@@ -585,9 +585,9 @@ pub async fn traffic<T: Transport>(
             None => {
                 match crate::cloudflare_history::save_snapshot(&result, &json!(project_s), None) {
                     Ok(v) => v,
-                    Err(e) => match e.python_class() {
+                    Err(e) => match e.error_class() {
                         "OSError" | "ValueError" => unavailable(),
-                        other => return Err(CfError::Python(other, e.to_string())),
+                        other => return Err(CfError::Classed(other, e.to_string())),
                     },
                 }
             }

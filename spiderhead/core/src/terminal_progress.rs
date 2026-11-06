@@ -16,7 +16,7 @@ const FRAME_INTERVAL: Duration = Duration::from_millis(200);
 /// Spinner glyphs, cycled in this order.
 const MARKS: [char; 4] = ['|', '/', '-', '\\'];
 
-/// Print one startup line `seohead: <command>` to stderr unless `quiet` is set.
+/// Print one startup line `spiderhead: <command>` to stderr unless `quiet` is set.
 ///
 /// Write errors are ignored: a closed stderr must never abort the command.
 pub fn show_banner(command: &str, quiet: bool) {
@@ -24,7 +24,7 @@ pub fn show_banner(command: &str, quiet: bool) {
         return;
     }
     let mut stderr = std::io::stderr();
-    let _ = writeln!(stderr, "seohead: {command}");
+    let _ = writeln!(stderr, "spiderhead: {command}");
     let _ = stderr.flush();
 }
 

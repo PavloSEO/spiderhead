@@ -26,6 +26,7 @@ calamine.workspace = true
 csv.workspace = true
 
 [dev-dependencies]
+spiderhead-oracle-testkit.workspace = true
 unicode-general-category.workspace = true
 csv.workspace = true
 tokio = { workspace = true, features = ["test-util"] }

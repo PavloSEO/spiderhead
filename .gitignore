@@ -3,3 +3,4 @@
 .DS_Store
 *.sqlite-wal
 *.sqlite-shm
+*.writer.lock

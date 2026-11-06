@@ -1,12 +1,12 @@
 // GENERATED from oracle-baseline the reference suite (b9847831). Do not hand-edit.
 
 /// Product version embedded in the default identity (reference `spiderhead.__version__`).
-pub const PRODUCT_VERSION: &str = "3.2.0";
+pub const PRODUCT_VERSION: &str = "0.9.1";
 /// Default crawler token (reference `DEFAULT_TOKEN`).
 pub const DEFAULT_TOKEN: &str = "SpiderHeadBot";
 /// Default crawler User-Agent (reference `DEFAULT_USER_AGENT`).
 pub const DEFAULT_USER_AGENT: &str =
-    "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)";
+    "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)";
 /// Check downloader identity (reference `CHECKS_DOWNLOADER_USER_AGENT`).
 pub const CHECKS_DOWNLOADER_USER_AGENT: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
@@ -17,7 +17,7 @@ pub const RECON_USER_AGENT: &str =
     "Mozilla/5.0 (compatible; SEOHEAD-Tools/3.0; +https://seohead.tech/seotools)";
 /// Presets as `(name, user agent, robots token)` in reference dict order.
 pub const PRESETS: &[(&str, &str, &str)] = &[
-    ("spiderhead", "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)", "SpiderHeadBot"),
+    ("spiderhead", "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)", "SpiderHeadBot"),
     ("googlebot", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", "Googlebot"),
     ("googlebot-desktop", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Chrome/W.X.Y.Z Safari/537.36", "Googlebot"),
     ("googlebot-smartphone", "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/W.X.Y.Z Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", "Googlebot"),

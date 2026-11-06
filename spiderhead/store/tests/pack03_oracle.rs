@@ -21,8 +21,12 @@ fn fixture() -> Value {
 #[test]
 fn scan_directory_tree_matches_the_reference_oracle() {
     let scan = root().join("oracle/raw-scans/basic/scan.sqlite");
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let mut fixture = fixture();
+    let cases = fixture["scan_tree"].as_array().unwrap().clone();
+    let mut blessed: Vec<Value> = Vec::new();
     let mut blocked = 0;
-    for case in fixture()["scan_tree"].as_array().unwrap() {
+    for case in &cases {
         let call = case["call"].as_object().unwrap();
         let get = |k: &str, d: i64| call.get(k).and_then(Value::as_i64).unwrap_or(d);
         let timeout = call
@@ -53,7 +57,11 @@ fn scan_directory_tree_matches_the_reference_oracle() {
                 continue;
             }
         };
+        let mut updated = case.clone();
         match (actual, case.get("error")) {
+            (Ok(got), None) if bless => {
+                updated["result"] = Value::Object(got);
+            }
             (Err(e), Some(_)) => assert!(
                 e.to_string().contains("invalid directory-tree budget"),
                 "{e}"
@@ -68,6 +76,13 @@ fn scan_directory_tree_matches_the_reference_oracle() {
             }
             (other, error) => panic!("{} -> {other:?} vs {error:?}", case["call"]),
         }
+        blessed.push(updated);
+    }
+    if bless {
+        fixture["scan_tree"] = Value::Array(blessed);
+        let path = root().join("spiderhead/store/tests/fixtures/pack03-basic.json");
+        assert!(spiderhead_oracle_diff::bless_json(&path, &fixture));
+        return;
     }
     eprintln!("blocked by other slices: {blocked} case(s)");
     assert_eq!(blocked, 0, "every case must reach real code");

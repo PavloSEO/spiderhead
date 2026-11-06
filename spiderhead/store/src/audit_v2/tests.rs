@@ -296,10 +296,11 @@ fn reader_matches_oracle_baselines_for_every_site() {
         let base = format!("http://127.0.0.1:{port}");
         let mut norm = Norm::new(base.clone(), body_hash_map(&scan, &base));
         let got = norm.walk(&actual_document(&scan), None);
-        let want: Value = serde_json::from_str(
-            &fs::read_to_string(repo(&format!("oracle/baselines/{site}/audit.v2.json"))).unwrap(),
-        )
-        .unwrap();
+        let file = repo(&format!("oracle/baselines/{site}/audit.v2.json"));
+        if spiderhead_oracle_diff::bless_json(&file, &got) {
+            continue;
+        }
+        let want: Value = serde_json::from_str(&fs::read_to_string(&file).unwrap()).unwrap();
         if got != want {
             panic!(
                 "audit.v2 baseline divergence at {site}: {}",

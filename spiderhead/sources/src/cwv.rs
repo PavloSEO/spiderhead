@@ -33,7 +33,7 @@ pub struct CwvError(pub String);
 
 impl CwvError {
     /// Error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         "ValueError"
     }
 }

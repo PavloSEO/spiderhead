@@ -6,6 +6,6 @@
  ],
  "command": "llms-txt-check",
  "exit": 1,
- "stderr": "seohead: llms-txt-check\n",
+ "stderr": "spiderhead: llms-txt-check\n",
  "stdout": "{\n  \"ok\": false,\n  \"url\": \"{BASE}/llms.txt\",\n  \"status_code\": 500,\n  \"error\": \"llms.txt could not be measured: server returned 500\"\n}\n"
 }

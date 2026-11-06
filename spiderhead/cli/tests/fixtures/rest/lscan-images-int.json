@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: log-scan\nerror: expected str, bytes or os.PathLike object, not int\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_log_scan: 1 validation error for seo_log_scanArguments\nimages_dir\n  Input should be a valid string [type=string_type, input_value=5, input_type=int]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+   }
+  ]
+ }
+}

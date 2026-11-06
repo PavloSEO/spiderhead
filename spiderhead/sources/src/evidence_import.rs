@@ -76,7 +76,7 @@ const MANIFEST_KEYS: [&str; 9] = [
 const PRIVATE_FIELDS: [&str; 2] = ["reporting_identity", "site_origin"];
 
 fn err(message: impl Into<String>) -> CfError {
-    CfError::Python("EvidenceImportError", message.into())
+    CfError::Classed("EvidenceImportError", message.into())
 }
 
 fn sha256(data: &[u8]) -> String {

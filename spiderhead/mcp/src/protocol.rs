@@ -33,12 +33,10 @@ pub fn server_capabilities() -> Value {
     })
 }
 
-/// Name and version advertised in `initialize` (`serverInfo`).
-///
-/// The version mirrors the reference baseline, which reports the mcp SDK's version —
-/// fixtures store it as `{VERSION}` (see `gen/NORMALISATION.md`).
+/// Name and version advertised in `initialize` (`serverInfo`); the version is
+/// the toolkit release, substituted for `{VERSION}` in recorded fixtures.
 pub const SERVER_NAME: &str = "SpiderHead Tools";
-pub const SERVER_VERSION: &str = "1.30.0";
+pub const SERVER_VERSION: &str = spiderhead_core::user_agents::PRODUCT_VERSION;
 
 /// A JSON-RPC response carrying `result`.
 pub fn response(id: Value, result: Value) -> Value {

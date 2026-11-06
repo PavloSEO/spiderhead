@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: metrika-traffic-pdf\nerror: document is not valid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_metrika_traffic_pdf: document is not valid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+   }
+  ]
+ }
+}

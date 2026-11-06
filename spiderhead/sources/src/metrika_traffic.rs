@@ -85,8 +85,8 @@ const BREAKDOWNS: [(&str, &str, Option<i64>, bool); 9] = [
 ];
 
 /// Injected report call `(params, limit, offset)`; the live adapter maps it onto
-/// [`crate::metrika::MetrikaClient::report`] with pagination off. The futures are
-/// awaited on the caller's thread, so `Send` is not required of an adapter.
+/// [`crate::metrika::MetrikaClient::report`] with pagination off. `Send` is not
+/// required — collection always runs on the caller's current-thread runtime.
 pub type ReportFuture<'a> = Pin<Box<dyn Future<Output = Result<Value, MetrikaFail>> + 'a>>;
 /// The injected client seam: `(params, limit, offset)`.
 pub type ReportCall<'a> = dyn Fn(Map<String, Value>, i64, i64) -> ReportFuture<'a> + 'a;
@@ -228,7 +228,10 @@ pub async fn build_traffic_document(
     document.insert(
         "generated_at".to_owned(),
         json!(pytime::isoformat_seconds(
-            input.now.unwrap_or_else(pytime::now_seconds) * 1_000_000
+            input
+                .now
+                .map(|seconds| seconds * 1_000_000)
+                .unwrap_or_else(pytime::now_seconds)
         )),
     );
     document.insert("counter_ids".to_owned(), json!(request.ids));

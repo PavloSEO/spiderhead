@@ -28,6 +28,8 @@ use crate::types::{Json, Result};
 mod oversize;
 pub use oversize::*;
 
+pub use nodes::{flatten, types_of, Node};
+
 /// Embedded rich-result rules (`data/rich_results_rules.json`).
 pub const RICH_RESULTS_RULES_JSON: &str = include_str!("../../data/rich_results_rules.json");
 /// Embedded Schema.org vocabulary snapshot (`data/schemaorg.json`).
@@ -242,7 +244,7 @@ pub enum SchemaSource<'a> {
 }
 
 /// Normalise a URL: an absolute HTTP(S) URL without credentials, or `""`.
-fn normalize_url(value: &str) -> String {
+pub fn normalize_url(value: &str) -> String {
     let raw = py_strip(value);
     if raw.is_empty() {
         return String::new();

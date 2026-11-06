@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: metrika-traffic-pdf\n",
+    "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-metrika/token or set $YANDEX_METRIKA_TOKEN. Create a Yandex Metrica OAuth token at oauth.yandex.ru.\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_metrika_traffic_pdf: {\"ok\": false, \"error\": \"credential not found: store it in <WORK>/.config/yandex-metrika/token or set $YANDEX_METRIKA_TOKEN. Create a Yandex Metrica OAuth token at oauth.yandex.ru.\"}"
+   }
+  ]
+ }
+}

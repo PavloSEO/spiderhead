@@ -1,0 +1,645 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Ausers%2Cym%3As%3Avisits%2Cym%3As%3Apageviews%2Cym%3As%3ApageDepth%2Cym%3As%3AbounceRate%2Cym%3As%3AavgVisitDurationSeconds%2Cym%3As%3ApercentNewVisitors&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3AupTo3VisitsPerUserPercentage&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-08-02&date2=2026-08-31&metrics=ym%3As%3Ausers%2Cym%3As%3Avisits%2Cym%3As%3Apageviews%2Cym%3As%3ApageDepth%2Cym%3As%3AbounceRate%2Cym%3As%3AavgVisitDurationSeconds%2Cym%3As%3ApercentNewVisitors&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-08-02&date2=2026-08-31&metrics=ym%3As%3AupTo3VisitsPerUserPercentage&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-09-01&date2=2025-09-30&metrics=ym%3As%3Ausers%2Cym%3As%3Avisits%2Cym%3As%3Apageviews%2Cym%3As%3ApageDepth%2Cym%3As%3AbounceRate%2Cym%3As%3AavgVisitDurationSeconds%2Cym%3As%3ApercentNewVisitors&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-09-01&date2=2025-09-30&metrics=ym%3As%3AupTo3VisitsPerUserPercentage&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3ArobotPercentage&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-08-02&date2=2026-08-31&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-09-01&date2=2025-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-07-01&date2=2026-09-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-07-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-04-01&date2=2026-06-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-04-01&date2=2026-06-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-04-01&date2=2026-09-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-04-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-10-01&date2=2026-03-31&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-10-01&date2=2026-03-31&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-10-01&date2=2026-09-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-10-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AstartOfMonth&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3AstartOfMonth&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2024-10-01&date2=2025-09-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2024-10-01&date2=2025-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AstartOfMonth&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3AstartOfMonth&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AlastSignSearchEngineRoot&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AregionCity&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AregionCountry&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AdeviceCategory&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AageInterval&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Agender&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AstartURL&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=15&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AlastSignSearchPhrase&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=15&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AlastSignTrafficSource&sort=-ym%3As%3Avisits&limit=20&offset=1"
+   }
+  ],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: metrika-traffic-pdf\n",
+    "stdout": "{\n  \"ok\": false,\n  \"error\": \"Metrica returned no totals for this query\",\n  \"requests\": 31\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Ausers%2Cym%3As%3Avisits%2Cym%3As%3Apageviews%2Cym%3As%3ApageDepth%2Cym%3As%3AbounceRate%2Cym%3As%3AavgVisitDurationSeconds%2Cym%3As%3ApercentNewVisitors&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3AupTo3VisitsPerUserPercentage&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-08-02&date2=2026-08-31&metrics=ym%3As%3Ausers%2Cym%3As%3Avisits%2Cym%3As%3Apageviews%2Cym%3As%3ApageDepth%2Cym%3As%3AbounceRate%2Cym%3As%3AavgVisitDurationSeconds%2Cym%3As%3ApercentNewVisitors&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-08-02&date2=2026-08-31&metrics=ym%3As%3AupTo3VisitsPerUserPercentage&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-09-01&date2=2025-09-30&metrics=ym%3As%3Ausers%2Cym%3As%3Avisits%2Cym%3As%3Apageviews%2Cym%3As%3ApageDepth%2Cym%3As%3AbounceRate%2Cym%3As%3AavgVisitDurationSeconds%2Cym%3As%3ApercentNewVisitors&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-09-01&date2=2025-09-30&metrics=ym%3As%3AupTo3VisitsPerUserPercentage&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3ArobotPercentage&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-08-02&date2=2026-08-31&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-09-01&date2=2025-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-07-01&date2=2026-09-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-07-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-04-01&date2=2026-06-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-04-01&date2=2026-06-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-04-01&date2=2026-09-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-04-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-10-01&date2=2026-03-31&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-10-01&date2=2026-03-31&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Adate&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3Adate&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-10-01&date2=2026-09-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2025-10-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AstartOfMonth&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3AstartOfMonth&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2024-10-01&date2=2025-09-30&metrics=ym%3As%3Avisits%2Cym%3As%3Ausers%2Cym%3As%3Apageviews&lang=en&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&limit=1&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2024-10-01&date2=2025-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AstartOfMonth&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=ym%3As%3AstartOfMonth&limit=1000&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AlastSignSearchEngineRoot&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AregionCity&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AregionCountry&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AdeviceCategory&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AageInterval&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3Agender&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=10&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AstartURL&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=15&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AlastSignSearchPhrase&filters=ym%3As%3AlastSignTrafficSource%3D%3D%27organic%27&sort=-ym%3As%3Avisits&limit=15&offset=1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "authorization": "OAuth fake-metrika-token"
+    },
+    "host": "api-metrika.yandex.net",
+    "method": "GET",
+    "path": "/stat/v1/data",
+    "query": "accuracy=full&ids=1&date1=2026-09-01&date2=2026-09-30&metrics=ym%3As%3Avisits&lang=en&dimensions=ym%3As%3AlastSignTrafficSource&sort=-ym%3As%3Avisits&limit=20&offset=1"
+   }
+  ],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_metrika_traffic_pdf: {\"ok\": false, \"error\": \"Metrica returned no totals for this query\", \"requests\": 31}"
+   }
+  ]
+ }
+}

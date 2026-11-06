@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: cloudflare-logpush-import\nerror: [Errno 2] No such file or directory: '<WORK>/push.jsonl'\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_cloudflare_logpush_import: 1 validation error for seo_cloudflare_logpush_importArguments\nmax_events\n  Input should be a valid integer [type=int_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/int_type"
+   }
+  ]
+ }
+}

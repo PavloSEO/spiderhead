@@ -66,6 +66,19 @@ installers (see [docs/COMPONENTS.md](docs/COMPONENTS.md)). The desktop app has m
 directory) and *Connect to Claude* (copies the MCP config snippet; it never edits client
 configuration files).
 
+### Updating
+
+Releases are published on GitHub with a `SHA256SUMS` file; the macOS arm64 CLI binary is
+`spiderhead-<version>-aarch64-apple-darwin`. Nothing contacts the network unless you run:
+
+```sh
+spiderhead update-check --consent          # read the release feed, report the newest version
+spiderhead update [--dry-run] [--bin-dir DIR]   # verify SHA-256 and replace DIR/spiderhead (default ~/.cargo/bin)
+```
+
+`update` does nothing when the installed version is current, and keeps the old binary if the
+checksum or the downloaded binary's reported version does not match.
+
 ## Quick start
 
 ```sh

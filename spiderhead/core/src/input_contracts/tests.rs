@@ -87,6 +87,11 @@ fn rendered_reference_names_no_crawler_vendor() {
 #[test]
 fn generated_reference_matches_golden_and_names_scan_adapters() {
     let rendered = render_markdown();
+    let golden_path =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/INPUTS.md");
+    if spiderhead_oracle_diff::bless_bytes(&golden_path, rendered.as_bytes()) {
+        return;
+    }
     assert_eq!(rendered, GOLDEN);
     assert!(rendered.contains(
         "`duplicate-check` and\n`boilerplate-report` may instead read one retained scan corpus"

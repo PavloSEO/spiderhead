@@ -318,7 +318,11 @@ fn manifest_rejects_symlinked_dataset_file() {
     let tmp = tempfile::tempdir().unwrap();
     let manifest = copy_bundle(tmp.path(), false, "bundle");
     let root = manifest.parent().unwrap();
+    #[cfg(unix)]
     std::os::unix::fs::symlink(root.join("pages.csv"), root.join("linked-pages.csv")).unwrap();
+    #[cfg(windows)]
+    std::os::windows::fs::symlink_file(root.join("pages.csv"), root.join("linked-pages.csv"))
+        .unwrap();
     rewrite_manifest(&manifest, |raw| {
         raw["datasets"]["pages"]["file"] = serde_json::json!("linked-pages.csv");
     });

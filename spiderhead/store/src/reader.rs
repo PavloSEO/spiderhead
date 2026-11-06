@@ -151,7 +151,7 @@ mod tests {
     fn basic_scan_header_and_second_page() {
         let r = ScanReader::open(&raw("basic")).expect("open");
         let scan = r.scan().expect("scan");
-        assert_eq!(scan.scan_uuid, "ea01145e-be8b-4c8f-893c-583d2a0c517e");
+        assert_eq!(scan.scan_uuid, "68aa22b8-7c8c-47b2-9398-3e7a466e3598");
         assert_eq!(scan.start_url.as_deref(), Some("http://127.0.0.1:18701/"));
         assert_eq!(scan.evidence_revision, 10);
         let w = r.pages_window(1, 1).expect("window");

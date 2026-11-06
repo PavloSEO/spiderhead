@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-link-inspect\n",
+    "stderr": "spiderhead: scan-link-inspect\n",
     "stdout": "{\n  \"ok\": false,\n  \"view\": \"links\",\n  \"error\": \"preset inlinks conflicts with explicit link_type\"\n}\n"
    }
   ]

@@ -66,7 +66,10 @@ fn tree_matches_lxml() {
     let path = std::env::var("DOM_FIXTURE").ok();
     let text = match &path {
         Some(p) => std::fs::read_to_string(p).unwrap_or_default(),
-        None => include_str!("fixtures/parse_oracle.json").to_owned(),
+        None => spiderhead_oracle_testkit::fixture_text(
+            &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/parse_oracle.json"),
+        ),
     };
     let rows: Vec<Value> = serde_json::from_str(&text).unwrap_or_default();
     assert!(!rows.is_empty());

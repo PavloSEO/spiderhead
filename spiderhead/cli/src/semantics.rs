@@ -13,7 +13,7 @@ use crate::exit::result_exit_code;
 use crate::{CliError, ExitCode, Output, ParsedCommand};
 
 /// The stage paths this build wires, in the reference declaration order.
-const STAGES: [&str; 22] = [
+const STAGES: [&str; 27] = [
     "init",
     "import",
     "collect",
@@ -36,6 +36,11 @@ const STAGES: [&str; 22] = [
     "set-landing",
     "insights",
     "insights-tasks",
+    "import-dataforseo",
+    "import-topics",
+    "import-google-csv",
+    "cluster-google",
+    "clusters-google",
 ];
 
 /// Command handler for `semantics <stage>`; registered under every stage path.
@@ -59,6 +64,11 @@ impl crate::registry::CommandHandler for Semantics {
         options.method = string_or(&cmd.values, "method", "serp");
         options.out = str_value(&cmd.values, "out").map(str::to_owned);
         options.file = str_value(&cmd.values, "file").map(str::to_owned);
+        options.language = str_value(&cmd.values, "language").map(str::to_owned);
+        options.location = cmd.values.get("location").and_then(Value::as_i64);
+        options.min_shared = int_or(&cmd.values, "min_shared", 4);
+        options.top = int_or(&cmd.values, "top", 10);
+        options.dir = str_value(&cmd.values, "dir").map(str::to_owned);
         options.sheet = str_value(&cmd.values, "sheet").map(str::to_owned);
         options.merge = string_or(&cmd.values, "merge", "add");
         options.scope = string_or(&cmd.values, "scope", "all");
@@ -106,7 +116,15 @@ impl crate::registry::CommandHandler for Semantics {
                 && !options.confirm_paid)
             || matches!(
                 stage,
-                "clusters" | "cluster-show" | "cluster-queries" | "set-landing"
+                "clusters"
+                    | "cluster-show"
+                    | "cluster-queries"
+                    | "set-landing"
+                    | "import-dataforseo"
+                    | "import-topics"
+                    | "import-google-csv"
+                    | "cluster-google"
+                    | "clusters-google"
             );
         match runner::execute(stage, project, &options) {
             Ok(execution) => {

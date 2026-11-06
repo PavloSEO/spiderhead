@@ -38,8 +38,8 @@ pub(super) fn bearer<T: Transport>(
     match resolved {
         Ok(value) => Ok(Ok(Value::String(value))),
         Err(CredentialError::Missing(message)) => Ok(Err(message)),
-        Err(err) => Err(WmError::Python {
-            class: err.python_class().to_owned(),
+        Err(err) => Err(WmError::Classed {
+            class: err.error_class().to_owned(),
             message: err.to_string(),
         }),
     }
@@ -187,7 +187,7 @@ pub(super) async fn collect_inner<T: Transport>(
                         Err((class, message)) => {
                             return Err(match class {
                                 "ValueError" => WmError::Value(message),
-                                other => WmError::Python {
+                                other => WmError::Classed {
                                     class: other.to_owned(),
                                     message,
                                 },

@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "spiderhead: metrika-traffic-pdf\n",
+    "stdout": "{\n  \"ok\": true,\n  \"schema\": \"spiderhead.metrika-traffic/1\",\n  \"mode\": \"render\",\n  \"period\": {\n    \"date1\": \"2026-09-01\",\n    \"date2\": \"2026-09-30\"\n  },\n  \"attribution\": \"last_significant\",\n  \"traffic\": \"organic\",\n  \"files\": {\n    \"document\": null,\n    \"html\": null,\n    \"pdf\": null\n  },\n  \"pdf\": {\n    \"status\": \"skipped\",\n    \"reason\": \"rendering was not requested\"\n  },\n  \"blocks\": {\n    \"summary\": {\n      \"status\": \"ok\",\n      \"reason\": null\n    },\n    \"daily\": {\n      \"status\": \"unavailable\",\n      \"reason\": \"no rows\"\n    },\n    \"gsc_queries\": {\n      \"status\": \"skipped\",\n      \"reason\": \"no Search Console rows or property were supplied\"\n    }\n  },\n  \"warnings\": [],\n  \"requests\": 0\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"schema\": \"spiderhead.metrika-traffic/1\",\n  \"mode\": \"render\",\n  \"period\": {\n    \"date1\": \"2026-09-01\",\n    \"date2\": \"2026-09-30\"\n  },\n  \"attribution\": \"last_significant\",\n  \"traffic\": \"organic\",\n  \"files\": {\n    \"document\": null,\n    \"html\": null,\n    \"pdf\": null\n  },\n  \"pdf\": {\n    \"status\": \"skipped\",\n    \"reason\": \"rendering was not requested\"\n  },\n  \"blocks\": {\n    \"summary\": {\n      \"status\": \"ok\",\n      \"reason\": null\n    },\n    \"daily\": {\n      \"status\": \"unavailable\",\n      \"reason\": \"no rows\"\n    },\n    \"gsc_queries\": {\n      \"status\": \"skipped\",\n      \"reason\": \"no Search Console rows or property were supplied\"\n    }\n  },\n  \"warnings\": [],\n  \"requests\": 0\n}"
+   }
+  ]
+ }
+}

@@ -512,7 +512,7 @@ fn schedule_install_dispatch(ctx: &Ctx, tail: &str, args: &Value) -> ProjectsRes
             &dir.to_string_lossy(),
             args["kind"].as_str().unwrap_or_default(),
             args.get("dest").map(|v| ctx.path(v)).as_deref(),
-            opt_str(args, "python"),
+            opt_str(args, "executable"),
         ),
         "uninstall" => p::schedule_install::uninstall(
             &dir.to_string_lossy(),

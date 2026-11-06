@@ -3,7 +3,7 @@
  "root": {
   "path": [],
   "prog": "spiderhead",
-  "description": "Headless Python SEO toolkit.",
+  "description": "Local-first SEO toolkit: CLI and MCP server.",
   "epilog": null,
   "usage": null,
   "formatter": "HelpFormatter",
@@ -757,6 +757,12 @@
       "name": "scan-archive",
       "aliases": [],
       "help": "Archive retained complete responses as one offline WARC 1.1 file.",
+      "listed": true
+     },
+     {
+      "name": "scan-broken-links",
+      "aliases": [],
+      "help": "Write the broken links and resources report (CSV or XLSX) from a retained scan; no network.",
       "listed": true
      },
      {
@@ -9881,6 +9887,22 @@
       "required": false,
       "help": "maximum DNS checks, 0..100; plus one canary",
       "metavar": null
+     },
+     {
+      "index": 10,
+      "kind": "store",
+      "option_strings": [
+       "--log-format"
+      ],
+      "dest": "log_format",
+      "nargs": null,
+      "const": null,
+      "default": null,
+      "type": null,
+      "choices": null,
+      "required": false,
+      "help": "nginx log_format or Apache LogFormat string describing the file layout",
+      "metavar": null
      }
     ],
     "groups": [
@@ -9902,7 +9924,8 @@
        6,
        7,
        8,
-       9
+       9,
+       10
       ]
      }
     ],
@@ -9920,7 +9943,8 @@
       "limit",
       "max_dns",
       "bot",
-      "ip"
+      "ip",
+      "log_format"
      ]
     },
     "children": []
@@ -10032,6 +10056,22 @@
       "required": false,
       "help": "directory file budget",
       "metavar": null
+     },
+     {
+      "index": 6,
+      "kind": "store",
+      "option_strings": [
+       "--log-format"
+      ],
+      "dest": "log_format",
+      "nargs": null,
+      "const": null,
+      "default": null,
+      "type": null,
+      "choices": null,
+      "required": false,
+      "help": "nginx log_format or Apache LogFormat string describing the file layout",
+      "metavar": null
      }
     ],
     "groups": [
@@ -10049,7 +10089,8 @@
        2,
        3,
        4,
-       5
+       5,
+       6
       ]
      }
     ],
@@ -10063,7 +10104,8 @@
       "path",
       "project",
       "max_lines",
-      "max_files"
+      "max_files",
+      "log_format"
      ]
     },
     "children": [],
@@ -19679,7 +19721,7 @@
        "regex"
       ],
       "required": false,
-      "help": "query is a literal string (default) or a Python regular expression",
+      "help": "query is a literal string (default) or a regular expression",
       "metavar": null
      },
      {
@@ -20374,6 +20416,134 @@
       "input_path",
       "out",
       "max_body_bytes"
+     ]
+    },
+    "children": []
+   },
+   {
+    "path": [
+     "scan-broken-links"
+    ],
+    "prog": "spiderhead scan-broken-links",
+    "description": null,
+    "epilog": null,
+    "usage": null,
+    "formatter": "HelpFormatter",
+    "allow_abbrev": true,
+    "actions": [
+     {
+      "index": 0,
+      "kind": "help",
+      "option_strings": [
+       "-h",
+       "--help"
+      ],
+      "dest": "help",
+      "nargs": 0,
+      "const": null,
+      "default": "==SUPPRESS==",
+      "type": null,
+      "choices": null,
+      "required": false,
+      "help": "show this help message and exit",
+      "metavar": null
+     },
+     {
+      "index": 1,
+      "kind": "store",
+      "option_strings": [
+       "--input"
+      ],
+      "dest": "input",
+      "nargs": null,
+      "const": null,
+      "default": null,
+      "type": null,
+      "choices": null,
+      "required": false,
+      "help": "JSON object mapped onto the handler arguments",
+      "metavar": null
+     },
+     {
+      "index": 2,
+      "kind": "store",
+      "option_strings": [
+       "--scan"
+      ],
+      "dest": "input_path",
+      "nargs": null,
+      "const": null,
+      "default": null,
+      "type": null,
+      "choices": null,
+      "required": false,
+      "help": "scan.v1 SQLite artifact to read",
+      "metavar": "FILE"
+     },
+     {
+      "index": 3,
+      "kind": "store",
+      "option_strings": [
+       "--out"
+      ],
+      "dest": "out",
+      "nargs": null,
+      "const": null,
+      "default": null,
+      "type": null,
+      "choices": null,
+      "required": false,
+      "help": "new CSV or XLSX file; an existing output is refused",
+      "metavar": "PATH"
+     },
+     {
+      "index": 4,
+      "kind": "store",
+      "option_strings": [
+       "--fmt"
+      ],
+      "dest": "fmt",
+      "nargs": null,
+      "const": null,
+      "default": null,
+      "type": null,
+      "choices": [
+       "csv",
+       "xlsx"
+      ],
+      "required": false,
+      "help": "output format (default csv)",
+      "metavar": null
+     }
+    ],
+    "groups": [
+     {
+      "title": "positional arguments",
+      "description": null,
+      "actions": []
+     },
+     {
+      "title": "options",
+      "description": null,
+      "actions": [
+       0,
+       1,
+       2,
+       3,
+       4
+      ]
+     }
+    ],
+    "mutex": [],
+    "subparser_class": "_SuggestingParser",
+    "command": {
+     "handler": "scan_broken_links",
+     "domain": "scan",
+     "handler_exists": true,
+     "handler_params": [
+      "input_path",
+      "out",
+      "fmt"
      ]
     },
     "children": []
@@ -27477,16 +27647,16 @@
       "index": 5,
       "kind": "store",
       "option_strings": [
-       "--python"
+       "--executable"
       ],
-      "dest": "python",
+      "dest": "executable",
       "nargs": null,
       "const": null,
       "default": null,
       "type": null,
       "choices": null,
       "required": false,
-      "help": "interpreter for the trigger (default: this one)",
+      "help": "executable for the trigger (default: this one)",
       "metavar": null
      }
     ],
@@ -27519,7 +27689,7 @@
       "directory",
       "kind",
       "dest",
-      "python"
+      "executable"
      ]
     },
     "children": []
@@ -35722,6 +35892,22 @@
       "required": false,
       "help": null,
       "metavar": null
+     },
+     {
+      "index": 8,
+      "kind": "store",
+      "option_strings": [
+       "--offset"
+      ],
+      "dest": "offset",
+      "nargs": null,
+      "const": null,
+      "default": null,
+      "type": "int",
+      "choices": null,
+      "required": false,
+      "help": "first page of results to return; continue with next_offset",
+      "metavar": null
      }
     ],
     "groups": [
@@ -35741,7 +35927,8 @@
        4,
        5,
        6,
-       7
+       7,
+       8
       ]
      }
     ],
@@ -35756,7 +35943,8 @@
       "rules",
       "url",
       "representation",
-      "limit"
+      "limit",
+      "offset"
      ]
     },
     "children": []
@@ -39377,7 +39565,7 @@
          "regex"
         ],
         "required": false,
-        "help": "query is a literal string (default) or a Python regular expression",
+        "help": "query is a literal string (default) or a regular expression",
         "metavar": null
        },
        {
@@ -40963,6 +41151,22 @@
         "required": false,
         "help": null,
         "metavar": null
+       },
+       {
+        "index": 8,
+        "kind": "store",
+        "option_strings": [
+         "--offset"
+        ],
+        "dest": "offset",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": "int",
+        "choices": null,
+        "required": false,
+        "help": "first page of results to return; continue with next_offset",
+        "metavar": null
        }
       ],
       "groups": [
@@ -40982,7 +41186,8 @@
          4,
          5,
          6,
-         7
+         7,
+         8
         ]
        }
       ],
@@ -40997,7 +41202,8 @@
         "rules",
         "url",
         "representation",
-        "limit"
+        "limit",
+        "offset"
        ]
       },
       "children": []
@@ -41823,6 +42029,22 @@
         "required": false,
         "help": "directory file budget",
         "metavar": null
+       },
+       {
+        "index": 6,
+        "kind": "store",
+        "option_strings": [
+         "--log-format"
+        ],
+        "dest": "log_format",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": "nginx log_format or Apache LogFormat string describing the file layout",
+        "metavar": null
        }
       ],
       "groups": [
@@ -41840,7 +42062,8 @@
          2,
          3,
          4,
-         5
+         5,
+         6
         ]
        }
       ],
@@ -41854,7 +42077,8 @@
         "path",
         "project",
         "max_lines",
-        "max_files"
+        "max_files",
+        "log_format"
        ]
       },
       "children": [],
@@ -51514,6 +51738,36 @@
         "aliases": [],
         "help": "preview or create selected semantic insight checklist tasks",
         "listed": true
+       },
+       {
+        "name": "import-dataforseo",
+        "aliases": [],
+        "help": "free: import saved DataForSEO responses into the Google tables",
+        "listed": true
+       },
+       {
+        "name": "import-topics",
+        "aliases": [],
+        "help": "free: import the cross-language topic map",
+        "listed": true
+       },
+       {
+        "name": "import-google-csv",
+        "aliases": [],
+        "help": "free: import a per-language keyword CSV as Google phrases",
+        "listed": true
+       },
+       {
+        "name": "cluster-google",
+        "aliases": [],
+        "help": "free: cluster Google phrases by shared SERP results",
+        "listed": true
+       },
+       {
+        "name": "clusters-google",
+        "aliases": [],
+        "help": "read the stored Google clusters (paged)",
+        "listed": true
        }
       ]
      }
@@ -54049,6 +54303,659 @@
          6,
          7,
          8
+        ]
+       }
+      ],
+      "mutex": [],
+      "subparser_class": "ArgumentParser",
+      "command": null,
+      "children": []
+     },
+     {
+      "path": [
+       "semantics",
+       "import-dataforseo"
+      ],
+      "prog": "seohead semantics import-dataforseo",
+      "description": null,
+      "epilog": null,
+      "usage": null,
+      "formatter": "HelpFormatter",
+      "allow_abbrev": true,
+      "actions": [
+       {
+        "index": 0,
+        "kind": "help",
+        "option_strings": [
+         "-h",
+         "--help"
+        ],
+        "dest": "help",
+        "nargs": 0,
+        "const": null,
+        "default": "==SUPPRESS==",
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": "show this help message and exit",
+        "metavar": null
+       },
+       {
+        "index": 1,
+        "kind": "store",
+        "option_strings": [
+         "--project"
+        ],
+        "dest": "project",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": null,
+        "choices": null,
+        "required": true,
+        "help": "semantic project directory, or a SEOHEAD project (uses its semantics/)",
+        "metavar": null
+       },
+       {
+        "index": 2,
+        "kind": "store_true",
+        "option_strings": [
+         "--json"
+        ],
+        "dest": "json",
+        "nargs": 0,
+        "const": true,
+        "default": false,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 3,
+        "kind": "store_true",
+        "option_strings": [
+         "--dry-run"
+        ],
+        "dest": "dry_run",
+        "nargs": 0,
+        "const": true,
+        "default": false,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 4,
+        "kind": "store",
+        "option_strings": [
+         "--dir"
+        ],
+        "dest": "dir",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": "Path",
+        "choices": null,
+        "required": true,
+        "help": "folder with saved DataForSEO JSON responses",
+        "metavar": null
+       }
+      ],
+      "groups": [
+       {
+        "title": "positional arguments",
+        "description": null,
+        "actions": []
+       },
+       {
+        "title": "options",
+        "description": null,
+        "actions": [
+         0,
+         1,
+         2,
+         3,
+         4
+        ]
+       }
+      ],
+      "mutex": [],
+      "subparser_class": "ArgumentParser",
+      "command": null,
+      "children": []
+     },
+     {
+      "path": [
+       "semantics",
+       "import-topics"
+      ],
+      "prog": "seohead semantics import-topics",
+      "description": null,
+      "epilog": null,
+      "usage": null,
+      "formatter": "HelpFormatter",
+      "allow_abbrev": true,
+      "actions": [
+       {
+        "index": 0,
+        "kind": "help",
+        "option_strings": [
+         "-h",
+         "--help"
+        ],
+        "dest": "help",
+        "nargs": 0,
+        "const": null,
+        "default": "==SUPPRESS==",
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": "show this help message and exit",
+        "metavar": null
+       },
+       {
+        "index": 1,
+        "kind": "store",
+        "option_strings": [
+         "--project"
+        ],
+        "dest": "project",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": null,
+        "choices": null,
+        "required": true,
+        "help": "semantic project directory, or a SEOHEAD project (uses its semantics/)",
+        "metavar": null
+       },
+       {
+        "index": 2,
+        "kind": "store_true",
+        "option_strings": [
+         "--json"
+        ],
+        "dest": "json",
+        "nargs": 0,
+        "const": true,
+        "default": false,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 3,
+        "kind": "store_true",
+        "option_strings": [
+         "--dry-run"
+        ],
+        "dest": "dry_run",
+        "nargs": 0,
+        "const": true,
+        "default": false,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 4,
+        "kind": "store",
+        "option_strings": [
+         "--file"
+        ],
+        "dest": "file",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": "Path",
+        "choices": null,
+        "required": true,
+        "help": "topic map CSV (topic_id,en_topic,page_type,<lang>_landing,...)",
+        "metavar": null
+       }
+      ],
+      "groups": [
+       {
+        "title": "positional arguments",
+        "description": null,
+        "actions": []
+       },
+       {
+        "title": "options",
+        "description": null,
+        "actions": [
+         0,
+         1,
+         2,
+         3,
+         4
+        ]
+       }
+      ],
+      "mutex": [],
+      "subparser_class": "ArgumentParser",
+      "command": null,
+      "children": []
+     },
+     {
+      "path": [
+       "semantics",
+       "import-google-csv"
+      ],
+      "prog": "seohead semantics import-google-csv",
+      "description": null,
+      "epilog": null,
+      "usage": null,
+      "formatter": "HelpFormatter",
+      "allow_abbrev": true,
+      "actions": [
+       {
+        "index": 0,
+        "kind": "help",
+        "option_strings": [
+         "-h",
+         "--help"
+        ],
+        "dest": "help",
+        "nargs": 0,
+        "const": null,
+        "default": "==SUPPRESS==",
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": "show this help message and exit",
+        "metavar": null
+       },
+       {
+        "index": 1,
+        "kind": "store",
+        "option_strings": [
+         "--project"
+        ],
+        "dest": "project",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": null,
+        "choices": null,
+        "required": true,
+        "help": "semantic project directory, or a SEOHEAD project (uses its semantics/)",
+        "metavar": null
+       },
+       {
+        "index": 2,
+        "kind": "store_true",
+        "option_strings": [
+         "--json"
+        ],
+        "dest": "json",
+        "nargs": 0,
+        "const": true,
+        "default": false,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 3,
+        "kind": "store_true",
+        "option_strings": [
+         "--dry-run"
+        ],
+        "dest": "dry_run",
+        "nargs": 0,
+        "const": true,
+        "default": false,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 4,
+        "kind": "store",
+        "option_strings": [
+         "--file"
+        ],
+        "dest": "file",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": "Path",
+        "choices": null,
+        "required": true,
+        "help": "per-language keyword CSV (keyword,sv,location,kd,...; language from the file name ...-<lang>.csv)",
+        "metavar": null
+       }
+      ],
+      "groups": [
+       {
+        "title": "positional arguments",
+        "description": null,
+        "actions": []
+       },
+       {
+        "title": "options",
+        "description": null,
+        "actions": [
+         0,
+         1,
+         2,
+         3,
+         4
+        ]
+       }
+      ],
+      "mutex": [],
+      "subparser_class": "ArgumentParser",
+      "command": null,
+      "children": []
+     },
+     {
+      "path": [
+       "semantics",
+       "cluster-google"
+      ],
+      "prog": "seohead semantics cluster-google",
+      "description": null,
+      "epilog": null,
+      "usage": null,
+      "formatter": "HelpFormatter",
+      "allow_abbrev": true,
+      "actions": [
+       {
+        "index": 0,
+        "kind": "help",
+        "option_strings": [
+         "-h",
+         "--help"
+        ],
+        "dest": "help",
+        "nargs": 0,
+        "const": null,
+        "default": "==SUPPRESS==",
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": "show this help message and exit",
+        "metavar": null
+       },
+       {
+        "index": 1,
+        "kind": "store",
+        "option_strings": [
+         "--project"
+        ],
+        "dest": "project",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": null,
+        "choices": null,
+        "required": true,
+        "help": "semantic project directory, or a SEOHEAD project (uses its semantics/)",
+        "metavar": null
+       },
+       {
+        "index": 2,
+        "kind": "store_true",
+        "option_strings": [
+         "--json"
+        ],
+        "dest": "json",
+        "nargs": 0,
+        "const": true,
+        "default": false,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 3,
+        "kind": "store",
+        "option_strings": [
+         "--language"
+        ],
+        "dest": "language",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": "language code (en, de, ...); default: every language with SERP data",
+        "metavar": null
+       },
+       {
+        "index": 4,
+        "kind": "store",
+        "option_strings": [
+         "--location"
+        ],
+        "dest": "location",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": "int",
+        "choices": null,
+        "required": false,
+        "help": "location code (2840 = US); default: every location",
+        "metavar": null
+       },
+       {
+        "index": 5,
+        "kind": "store",
+        "option_strings": [
+         "--min-shared"
+        ],
+        "dest": "min_shared",
+        "nargs": null,
+        "const": null,
+        "default": 4,
+        "type": "int",
+        "choices": null,
+        "required": false,
+        "help": "shared top results needed to link two phrases",
+        "metavar": null
+       },
+       {
+        "index": 6,
+        "kind": "store",
+        "option_strings": [
+         "--top"
+        ],
+        "dest": "top",
+        "nargs": null,
+        "const": null,
+        "default": 10,
+        "type": "int",
+        "choices": null,
+        "required": false,
+        "help": "organic positions compared per phrase",
+        "metavar": null
+       }
+      ],
+      "groups": [
+       {
+        "title": "positional arguments",
+        "description": null,
+        "actions": []
+       },
+       {
+        "title": "options",
+        "description": null,
+        "actions": [
+         0,
+         1,
+         2,
+         3,
+         4,
+         5,
+         6
+        ]
+       }
+      ],
+      "mutex": [],
+      "subparser_class": "ArgumentParser",
+      "command": null,
+      "children": []
+     },
+     {
+      "path": [
+       "semantics",
+       "clusters-google"
+      ],
+      "prog": "seohead semantics clusters-google",
+      "description": null,
+      "epilog": null,
+      "usage": null,
+      "formatter": "HelpFormatter",
+      "allow_abbrev": true,
+      "actions": [
+       {
+        "index": 0,
+        "kind": "help",
+        "option_strings": [
+         "-h",
+         "--help"
+        ],
+        "dest": "help",
+        "nargs": 0,
+        "const": null,
+        "default": "==SUPPRESS==",
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": "show this help message and exit",
+        "metavar": null
+       },
+       {
+        "index": 1,
+        "kind": "store",
+        "option_strings": [
+         "--project"
+        ],
+        "dest": "project",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": null,
+        "choices": null,
+        "required": true,
+        "help": "semantic project directory, or a SEOHEAD project (uses its semantics/)",
+        "metavar": null
+       },
+       {
+        "index": 2,
+        "kind": "store_true",
+        "option_strings": [
+         "--json"
+        ],
+        "dest": "json",
+        "nargs": 0,
+        "const": true,
+        "default": false,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 3,
+        "kind": "store",
+        "option_strings": [
+         "--language"
+        ],
+        "dest": "language",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": null,
+        "choices": null,
+        "required": false,
+        "help": "language code (en, de, ...); default: every language with SERP data",
+        "metavar": null
+       },
+       {
+        "index": 4,
+        "kind": "store",
+        "option_strings": [
+         "--location"
+        ],
+        "dest": "location",
+        "nargs": null,
+        "const": null,
+        "default": null,
+        "type": "int",
+        "choices": null,
+        "required": false,
+        "help": "location code (2840 = US); default: every location",
+        "metavar": null
+       },
+       {
+        "index": 5,
+        "kind": "store",
+        "option_strings": [
+         "--offset"
+        ],
+        "dest": "offset",
+        "nargs": null,
+        "const": null,
+        "default": 0,
+        "type": "int",
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       },
+       {
+        "index": 6,
+        "kind": "store",
+        "option_strings": [
+         "--limit"
+        ],
+        "dest": "limit",
+        "nargs": null,
+        "const": null,
+        "default": 50,
+        "type": "int",
+        "choices": null,
+        "required": false,
+        "help": null,
+        "metavar": null
+       }
+      ],
+      "groups": [
+       {
+        "title": "positional arguments",
+        "description": null,
+        "actions": []
+       },
+       {
+        "title": "options",
+        "description": null,
+        "actions": [
+         0,
+         1,
+         2,
+         3,
+         4,
+         5,
+         6
         ]
        }
       ],

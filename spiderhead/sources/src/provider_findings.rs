@@ -84,7 +84,7 @@ fn url_of(value: Option<&Value>, origin: Option<&str>) -> Result<Option<String>,
         return Ok(None);
     }
     let parts = spiderhead_parse::py_url::urlsplit(text)
-        .map_err(|e| CfError::Python("ValueError", format!("{e}")))?;
+        .map_err(|e| CfError::Classed("ValueError", format!("{e}")))?;
     if (parts.scheme == "http" || parts.scheme == "https") && !parts.netloc.is_empty() {
         return Ok(Some(text.to_owned()));
     }
@@ -115,7 +115,7 @@ pub fn history_source<'a>(bindings: &'a [Value], service: &str) -> Option<&'a Va
 /// Reads a stored count as an integer.
 fn int_of(value: &Value) -> Result<i64, CfError> {
     let err = || {
-        CfError::Python(
+        CfError::Classed(
             "ValueError",
             format!(
                 "invalid literal for int() with base 10: {}",

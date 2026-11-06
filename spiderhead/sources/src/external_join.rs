@@ -59,7 +59,7 @@ fn url_text(url: Option<&Value>) -> Result<Option<String>, CfError> {
     match value.as_str() {
         Some(text) if text.trim().is_empty() => Ok(None),
         Some(text) => Ok(Some(text.to_owned())),
-        _ => Err(CfError::Python(
+        _ => Err(CfError::Classed(
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'strip'",
@@ -87,6 +87,16 @@ pub fn normalize_join_key(
     }
     let (scheme, netloc, path, query) = split4(&canonical);
     let scheme = if ignore_scheme { "https" } else { scheme };
+    // The shared normalizer strips every trailing slash, but the join key keeps
+    // a bare root "/" (only non-root paths lose it), so a root page and its
+    // evidence row still agree with the reference keys.
+    let before_fragment = text.trim().split('#').next().unwrap_or("");
+    let (_, _, raw_path, _) = split4(before_fragment);
+    let path = if path.is_empty() && raw_path == "/" {
+        "/"
+    } else {
+        path
+    };
     let path = if casefold_path {
         path.to_lowercase()
     } else {
@@ -268,7 +278,7 @@ pub fn orphan_urls(
 /// available headers.
 pub fn load_csv_rows(path: &str, url_column: &str) -> Result<Vec<Value>, CfError> {
     let text = std::fs::read_to_string(path)
-        .map_err(|e| CfError::Python("FileNotFoundError", format!("[Errno 2] {e}: '{path}'")))?;
+        .map_err(|e| CfError::Classed("FileNotFoundError", format!("[Errno 2] {e}: '{path}'")))?;
     let text = text.strip_prefix('\u{feff}').unwrap_or(&text);
     let mut reader = csv::Reader::from_reader(text.as_bytes());
     let headers: Vec<String> = reader
@@ -278,7 +288,7 @@ pub fn load_csv_rows(path: &str, url_column: &str) -> Result<Vec<Value>, CfError
         .map(str::to_owned)
         .collect();
     if !headers.iter().any(|h| h == url_column) {
-        return Err(CfError::Python(
+        return Err(CfError::Classed(
             "ExternalJoinError",
             format!(
                 "column {} not found in '{}'; available columns: {}",

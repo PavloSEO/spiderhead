@@ -1,0 +1,32 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 0,
+    "stderr": "spiderhead: project-new\n",
+    "stdout": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"schema_version\": 1,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}\n"
+   },
+   {
+    "exit": 1,
+    "stderr": "spiderhead: cloudflare-logpush-import\n",
+    "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"reason\": \"Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\"\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": false,
+    "text": "{\n  \"ok\": true,\n  \"project\": {\n    \"artifact_directories\": {\n      \"log\": \"log.md\",\n      \"reports\": \"reports\",\n      \"scans\": \"scans\"\n    },\n    \"created_at\": \"<TS>\",\n    \"facts\": [],\n    \"format\": \"spiderhead.project.v1\",\n    \"profile_references\": [],\n    \"project_uuid\": \"<UUID:1>\",\n    \"schema_version\": 1,\n    \"site\": {\n      \"host\": \"example.org\",\n      \"label\": \"Demo\",\n      \"target\": \"https://example.org/\"\n    },\n    \"template_references\": [],\n    \"version\": 1,\n    \"settings_revision\": 0\n  },\n  \"path\": \"<WORK>/proj\",\n  \"checklist\": {\n    \"state\": \"not_initialized\",\n    \"reason\": \"coverage checklist is initialized by project checklist setup, not project creation\"\n  }\n}"
+   },
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_cloudflare_logpush_import: {\"ok\": false, \"state\": \"failed\", \"reason\": \"Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\"}"
+   }
+  ]
+ }
+}

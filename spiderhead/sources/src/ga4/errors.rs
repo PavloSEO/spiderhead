@@ -31,7 +31,7 @@ impl Ga4Fault {
     }
 
     /// Name of the error kind.
-    pub fn python_class(&self) -> &str {
+    pub fn error_class(&self) -> &str {
         match self {
             Ga4Fault::Http { .. } => "HTTPError",
             Ga4Fault::Url(_) => "URLError",
@@ -78,7 +78,7 @@ pub enum Ga4Error {
     TypeError(String),
     /// An error that escaped the transport unchanged; its kind and message are kept.
     #[error("{message}")]
-    Python {
+    Classed {
         /// Name of the error kind.
         class: String,
         /// Error message.
@@ -91,12 +91,12 @@ pub enum Ga4Error {
 
 impl Ga4Error {
     /// Name of the error kind.
-    pub fn python_class(&self) -> &str {
+    pub fn error_class(&self) -> &str {
         match self {
             Ga4Error::Invalid(_) => "ValueError",
             Ga4Error::TypeError(_) => "TypeError",
-            Ga4Error::Python { class, .. } => class.as_str(),
-            Ga4Error::Credential(err) => err.python_class(),
+            Ga4Error::Classed { class, .. } => class.as_str(),
+            Ga4Error::Credential(err) => err.error_class(),
         }
     }
 }

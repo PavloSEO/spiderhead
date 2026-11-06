@@ -216,7 +216,7 @@ fn cli_resume_loads_the_stored_frontier_and_names_the_lines() {
     // long run worth watching; the pre-run rate line describes flags a resume
     // refuses, so it is not printed.
     let expected = format!(
-        "seohead: crawl-site\nresuming {scan_text} (0 MB): loading the stored frontier...\n\
+        "spiderhead: crawl-site\nresuming {scan_text} (0 MB): loading the stored frontier...\n\
          crawl-site: finished; 3 URLs fetched (this run continued an earlier one)\n"
     );
     assert_eq!(out.stderr, expected, "stderr mismatch");
@@ -270,7 +270,7 @@ fn cli_says_a_crawl_stopped_early_and_how_to_continue_it() {
     assert!(out.stderr.contains("URLs fetched"));
     assert!(
         out.stderr
-            .contains(&format!("seohead crawl-site --resume {scan_text}")),
+            .contains(&format!("spiderhead crawl-site --resume {scan_text}")),
         "{}",
         out.stderr
     );

@@ -70,10 +70,12 @@ impl Norm {
     }
 }
 
+fn fixture_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/report/report.json")
+}
+
 fn fixture() -> Value {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/report/report.json");
-    serde_json::from_str(&std::fs::read_to_string(path).expect("fixture file"))
-        .expect("fixture json")
+    spiderhead_oracle_testkit::fixture_json(&fixture_path())
 }
 
 fn oracle_root() -> PathBuf {
@@ -159,6 +161,8 @@ fn prepare_work(work: &Path) {
 #[test]
 fn report_group_matches_the_reference_cli_and_mcp() {
     let fixture = fixture();
+    let mut blessed = fixture.clone();
+    let bless = spiderhead_oracle_diff::bless_enabled();
     let work = std::env::temp_dir().join(format!("sh-report-parity-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&work);
     prepare_work(&work);
@@ -184,35 +188,52 @@ fn report_group_matches_the_reference_cli_and_mcp() {
             .env("TZ", "UTC")
             .output()
             .expect("binary runs");
-        let mut problems = String::new();
         let exit = output.status.code().unwrap_or_default();
-        let expected_exit = case["exit"].as_i64().unwrap_or_default();
-        if i64::from(exit) != expected_exit {
-            problems += &format!("  exit: expected {expected_exit}, got {exit}\n");
-        }
         let stdout = String::from_utf8_lossy(&output.stdout);
         let actual_stdout = norm.s(&stdout);
-        let expected_stdout = case["stdout"].as_str().unwrap_or_default();
-        if actual_stdout != expected_stdout {
-            problems += &unified_diff("stdout", expected_stdout, &actual_stdout);
-        }
         let stderr = String::from_utf8_lossy(&output.stderr);
         let actual_stderr = norm.s(&stderr);
-        let expected_stderr = case["stderr"].as_str().unwrap_or_default();
-        if actual_stderr != expected_stderr {
-            problems += &unified_diff("stderr", expected_stderr, &actual_stderr);
-        }
-        if let Some(expected_file) = case.get("out_file").and_then(Value::as_str) {
+        let actual_file = case.get("out_file").and_then(Value::as_str).map(|_| {
             let out_path = argv
                 .iter()
                 .position(|part| part == "--out")
                 .and_then(|index| argv.get(index + 1))
                 .expect("--out path");
-            let actual_file = std::fs::read_to_string(out_path)
+            std::fs::read_to_string(out_path)
                 .map(|text| norm.s(&text))
-                .unwrap_or_default();
-            if actual_file != expected_file {
-                problems += &unified_diff("out_file", expected_file, &actual_file);
+                .unwrap_or_default()
+        });
+        if bless {
+            if let Some(obj) = blessed["cases"][name.as_str()].as_object_mut() {
+                obj.insert("exit".to_owned(), json!(i64::from(exit)));
+                obj.insert("stdout".to_owned(), Value::from(actual_stdout));
+                obj.insert("stderr".to_owned(), Value::from(actual_stderr));
+                if let Some(file) = actual_file {
+                    obj.insert("out_file".to_owned(), Value::from(file));
+                }
+            }
+            continue;
+        }
+        let mut problems = String::new();
+        let expected_exit = case["exit"].as_i64().unwrap_or_default();
+        if i64::from(exit) != expected_exit {
+            problems += &format!("  exit: expected {expected_exit}, got {exit}\n");
+        }
+        let expected_stdout = case["stdout"].as_str().unwrap_or_default();
+        if actual_stdout != expected_stdout {
+            problems += &unified_diff("stdout", expected_stdout, &actual_stdout);
+        }
+        let expected_stderr = case["stderr"].as_str().unwrap_or_default();
+        if actual_stderr != expected_stderr {
+            problems += &unified_diff("stderr", expected_stderr, &actual_stderr);
+        }
+        if let Some(expected_file) = case.get("out_file").and_then(Value::as_str) {
+            if actual_file.as_deref() != Some(expected_file) {
+                problems += &unified_diff(
+                    "out_file",
+                    expected_file,
+                    actual_file.as_deref().unwrap_or_default(),
+                );
             }
         }
         assert!(
@@ -258,13 +279,20 @@ fn report_group_matches_the_reference_cli_and_mcp() {
             .as_str()
             .map(str::to_owned)
             .unwrap_or_default();
+        let normalized = norm.s(&actual_text);
+        if bless {
+            if let Some(obj) = blessed["mcp"][name.as_str()].as_object_mut() {
+                obj.insert("is_error".to_owned(), json!(actual_is_error));
+                obj.insert("text".to_owned(), Value::from(normalized));
+            }
+            continue;
+        }
         let mut problems = String::new();
         let expected_is_error = call["is_error"].as_bool().unwrap_or(false);
         if actual_is_error != expected_is_error {
             problems +=
                 &format!("  is_error: expected {expected_is_error}, got {actual_is_error}\n");
         }
-        let normalized = norm.s(&actual_text);
         let expected_text = call["text"].as_str().unwrap_or_default();
         if normalized != expected_text {
             problems += &unified_diff("text", expected_text, &normalized);
@@ -272,6 +300,7 @@ fn report_group_matches_the_reference_cli_and_mcp() {
         assert!(problems.is_empty(), "{name} diverges:\n{problems}");
     }
     let _ = std::fs::remove_dir_all(&work);
+    spiderhead_oracle_diff::bless_json(&fixture_path(), &blessed);
 }
 
 /// `{WORK}` placeholders in recorded arguments resolve to the live work dir.

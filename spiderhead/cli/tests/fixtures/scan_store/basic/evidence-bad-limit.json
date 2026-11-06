@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-evidence\nerror: limit must be 1..10000 and offset nonnegative\n",
+    "stderr": "spiderhead: scan-evidence\nerror: limit must be 1..10000 and offset nonnegative\n",
     "stdout": ""
    }
   ]

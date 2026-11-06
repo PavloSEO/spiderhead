@@ -62,7 +62,7 @@ pub(super) fn classify(ua: &Value, category: &Value) -> Result<(String, String),
     let bot = match ua {
         Value::String(text) => detect_bot(text),
         other if pystr::truthy(Some(other)) => {
-            return Err(CfError::Python(
+            return Err(CfError::Classed(
                 "TypeError",
                 format!(
                     "expected string or bytes-like object, got '{}'",
@@ -95,7 +95,7 @@ pub(super) fn section(path: &Value) -> Result<String, CfError> {
                 Ok(format!("/{}", cut.split('/').next().unwrap_or("")))
             }
         }
-        other => Err(CfError::Python(
+        other => Err(CfError::Classed(
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'split'",
@@ -123,11 +123,11 @@ pub(super) fn py_hash_key(value: &Value) -> Result<String, CfError> {
             }
         }
         Value::String(s) => Ok(format!("\u{1}s{s}")),
-        Value::Array(_) => Err(CfError::Python(
+        Value::Array(_) => Err(CfError::Classed(
             "TypeError",
             "unhashable type: 'list'".to_owned(),
         )),
-        Value::Object(_) => Err(CfError::Python(
+        Value::Object(_) => Err(CfError::Classed(
             "TypeError",
             "unhashable type: 'dict'".to_owned(),
         )),
@@ -280,7 +280,7 @@ pub(super) fn py_len(value: &Value) -> Result<usize, CfError> {
         Value::Array(items) => Ok(items.len()),
         Value::Object(map) => Ok(map.len()),
         Value::String(text) => Ok(text.chars().count()),
-        other => Err(CfError::Python(
+        other => Err(CfError::Classed(
             "TypeError",
             format!("object of type '{}' has no len()", pystr::type_name(other)),
         )),
@@ -289,7 +289,7 @@ pub(super) fn py_len(value: &Value) -> Result<usize, CfError> {
 
 /// Iterate a JSON value: array items, object keys, or string characters.
 pub(super) fn py_iter_values(value: &Value) -> Result<Vec<Value>, CfError> {
-    pystr::iterate(value).map_err(|(class, msg)| CfError::Python(class, msg))
+    pystr::iterate(value).map_err(|(class, msg)| CfError::Classed(class, msg))
 }
 
 /// UTC midnight of a date, in microseconds since the epoch.
@@ -313,7 +313,7 @@ pub(super) fn stamp_z(micros: i64) -> String {
 /// Parse an ISO date; a non-text argument is an error before the format check.
 pub(super) fn parse_day(value: &Value, name: &str) -> Result<i64, CfError> {
     if !value.is_string() {
-        return Err(CfError::Python(
+        return Err(CfError::Classed(
             "TypeError",
             "fromisoformat: argument must be str".to_owned(),
         ));
@@ -356,7 +356,7 @@ pub fn resolve_project_zone(
     // A missing `resource` key is an error; a non-text resource fails when the id is URL-quoted.
     match crate::cloudflare::py_subscript(matched.unwrap_or(&Value::Null), "resource")? {
         Value::String(resource) => Ok(resource.clone()),
-        _ => Err(CfError::Python(
+        _ => Err(CfError::Classed(
             "TypeError",
             "quote_from_bytes() expected bytes".to_owned(),
         )),

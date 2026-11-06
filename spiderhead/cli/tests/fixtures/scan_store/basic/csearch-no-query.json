@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-content-search\nerror: content search query must be a nonempty string\n",
+    "stderr": "spiderhead: scan-content-search\nerror: content search query must be a nonempty string\n",
     "stdout": ""
    }
   ]

@@ -1,13 +1,13 @@
 {
  "binding": {
   "analyzer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
-  "analyzer_version": "3.2.0",
+  "analyzer_version": "0.9.1",
   "evidence_revision": 10,
   "scan_uuid": "<UUID:1>"
  },
  "collections": {
   "/groups": 6,
-  "/issues": 154,
+  "/issues": 155,
   "/pages": 10,
   "/summary/saved_corpus_derivations/duplicates/exact_groups": 0,
   "/summary/saved_corpus_derivations/duplicates/excluded": 10,
@@ -99,7 +99,7 @@
   },
   "issues": {
    "$audit_v2_collection": "/issues",
-   "count": 154
+   "count": 155
   },
   "pages": {
    "$audit_v2_collection": "/pages",
@@ -627,7 +627,7 @@
     "http.retry_on_timeout": 0,
     "http.timeout_seconds": 15.0,
     "http.upgrade_to_https": false,
-    "http.user_agent": "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)",
+    "http.user_agent": "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)",
     "http.zstd": false,
     "limits.max_crawl_seconds": 400,
     "limits.max_depth": 5,
@@ -952,6 +952,7 @@
     "INVALID_CHARSET": 1,
     "LARGE_HTML": 1,
     "LOREM_IPSUM_PLACEHOLDER": 2,
+    "LOW_RELEVANCE_CONTENT": 1,
     "LOW_TEXT_RATIO": 1,
     "MISSING_CONTACT_PAGE": 1,
     "MISSING_CSP": 9,
@@ -977,14 +978,14 @@
    },
    "by_severity": {
     "critical": 2,
-    "notice": 74,
+    "notice": 75,
     "warning": 43
    },
    "check_coverage": {
     "checks_disabled": 0,
     "checks_disabled_ids": [],
-    "checks_fired": 38,
-    "checks_silent": 145,
+    "checks_fired": 39,
+    "checks_silent": 144,
     "checks_silent_ids": [
      "A11Y_FORM_LABEL_MISSING",
      "A11Y_HEADING_ORDER",
@@ -1069,7 +1070,6 @@
      "LINK_TO_5XX",
      "LONG_SENTENCES",
      "LOW_LINK_SCORE",
-     "LOW_RELEVANCE_CONTENT",
      "META_REFRESH_REDIRECT",
      "METRIKA_BOUNCE_RATE_ABOVE_70",
      "METRIKA_ORPHAN_URL",
@@ -6700,7 +6700,7 @@
       "state": "measured"
      },
      {
-      "capability": "ran_without_finding",
+      "capability": "finding_recorded",
       "check": "LOW_RELEVANCE_CONTENT",
       "prerequisites": {
        "issue_map_refs": [
@@ -11480,15 +11480,15 @@
       },
       {
        "field": "title",
-       "low_relevance": false,
-       "similarity": 1.0,
+       "low_relevance": true,
+       "similarity": -0.0,
        "threshold": 0.35,
        "url": "{BASE}/legacy.html"
       },
       {
        "field": "h1",
-       "low_relevance": false,
-       "similarity": 1.0,
+       "low_relevance": true,
+       "similarity": -0.0,
        "threshold": 0.35,
        "url": "{BASE}/legacy.html"
       },
@@ -11534,7 +11534,7 @@
     "groups_total": 6,
     "html_indexable": 8,
     "html_pages": 9,
-    "issues_total": 154,
+    "issues_total": 155,
     "pages_by_representation": {
      "static": 10
     },
@@ -11601,7 +11601,7 @@
   "tool": {
    "generated_by": "SEOHead",
    "name": "Export Analyzer",
-   "version": "3.2.0"
+   "version": "0.9.1"
   }
  },
  "items": {
@@ -15365,6 +15365,93 @@
     "target_url": "{BASE}/legacy.html"
    },
    {
+    "check": "LOW_RELEVANCE_CONTENT",
+    "details": {
+     "adapter": "tfidf",
+     "conclusion": "review the heading against the retained content; lexical overlap is not a relevance verdict",
+     "coverage": {
+      "analyzed_documents": 8,
+      "eligible_documents": 8,
+      "input_byte_limit": 16777216,
+      "input_bytes": 187382,
+      "omission_reasons": {},
+      "omitted_documents": 0,
+      "state": "complete"
+     },
+     "field": "title",
+     "low_relevance": true,
+     "similarity": -0.0,
+     "threshold": 0.35,
+     "url": "{BASE}/legacy.html"
+    },
+    "evidence": {
+     "contract": {
+      "finding": {
+       "id": "evidence:v1:<UUID:1>:audit:<HASH>",
+       "observation_id": "issue:ISSUE-000051",
+       "role": "finding_projection",
+       "scan_uuid": "<UUID:1>",
+       "source_table": "audit",
+       "state": "measured"
+      },
+      "id": "evidence:v1:<UUID:1>:pages:<HASH>",
+      "observation_id": "url_id:8",
+      "observations": [
+       {
+        "id": "evidence:v1:<UUID:1>:pages:<HASH>",
+        "observation_id": "url_id:8",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "pages",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:urls:<HASH>",
+        "observation_id": "url_id:8",
+        "representation": "",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "urls",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:documents:<HASH>",
+        "observation_id": "document_id:8",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "documents",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:responses:<HASH>",
+        "observation_id": "response_id:8",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "responses",
+        "state": "measured"
+       }
+      ],
+      "representation": "static",
+      "role": "target",
+      "scan_uuid": "<UUID:1>",
+      "source_table": "pages",
+      "state": "measured"
+     }
+    },
+    "fingerprint": "ecae71fe76ec",
+    "fix_hint": "Review whether the heading describes the page's actual content; lexical overlap alone is not proof of relevance or irrelevance.",
+    "id": "ISSUE-000051",
+    "message": "Title or H1 shares little vocabulary with the page's content area; review candidate",
+    "occurrences_count": 1,
+    "severity": "notice",
+    "source": "crawl:retained-content-area",
+    "status_code": null,
+    "target_url": "{BASE}/legacy.html"
+   },
+   {
     "check": "MISSING_CONTACT_PAGE",
     "details": {
      "crawl_pages": 10,
@@ -15379,7 +15466,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000051",
+       "observation_id": "issue:ISSUE-000052",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15392,7 +15479,7 @@
     },
     "fingerprint": "d29a63940840",
     "fix_hint": "If a Contact page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all.",
-    "id": "ISSUE-000051",
+    "id": "ISSUE-000052",
     "message": "No indexable Contact page was found in the crawl's scope",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15410,7 +15497,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000052",
+       "observation_id": "issue:ISSUE-000053",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15465,7 +15552,7 @@
     },
     "fingerprint": "be583b44a5ac",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000052",
+    "id": "ISSUE-000053",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15483,7 +15570,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000053",
+       "observation_id": "issue:ISSUE-000054",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15538,7 +15625,7 @@
     },
     "fingerprint": "5494ed9082ca",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000053",
+    "id": "ISSUE-000054",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15556,7 +15643,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000054",
+       "observation_id": "issue:ISSUE-000055",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15611,7 +15698,7 @@
     },
     "fingerprint": "babbc75396ff",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000054",
+    "id": "ISSUE-000055",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15629,7 +15716,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000055",
+       "observation_id": "issue:ISSUE-000056",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15684,7 +15771,7 @@
     },
     "fingerprint": "57c7af08814b",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000055",
+    "id": "ISSUE-000056",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15702,7 +15789,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000056",
+       "observation_id": "issue:ISSUE-000057",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15757,7 +15844,7 @@
     },
     "fingerprint": "71325c652a23",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000056",
+    "id": "ISSUE-000057",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15775,7 +15862,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000057",
+       "observation_id": "issue:ISSUE-000058",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15830,7 +15917,7 @@
     },
     "fingerprint": "8aa37cdc85f1",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000057",
+    "id": "ISSUE-000058",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15848,7 +15935,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000058",
+       "observation_id": "issue:ISSUE-000059",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15903,7 +15990,7 @@
     },
     "fingerprint": "8ed1ccefe6f4",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000058",
+    "id": "ISSUE-000059",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15921,7 +16008,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000059",
+       "observation_id": "issue:ISSUE-000060",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -15976,7 +16063,7 @@
     },
     "fingerprint": "10db22369ffd",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000059",
+    "id": "ISSUE-000060",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -15994,7 +16081,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000060",
+       "observation_id": "issue:ISSUE-000061",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16049,7 +16136,7 @@
     },
     "fingerprint": "187831b06c0f",
     "fix_hint": "Send a Content-Security-Policy header that names the script and style sources the page uses.",
-    "id": "ISSUE-000060",
+    "id": "ISSUE-000061",
     "message": "HTML page has no Content-Security-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16067,7 +16154,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000061",
+       "observation_id": "issue:ISSUE-000062",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16122,7 +16209,7 @@
     },
     "fingerprint": "012a72298934",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000061",
+    "id": "ISSUE-000062",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16140,7 +16227,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000062",
+       "observation_id": "issue:ISSUE-000063",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16195,7 +16282,7 @@
     },
     "fingerprint": "804e12cbd0fc",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000062",
+    "id": "ISSUE-000063",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16213,7 +16300,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000063",
+       "observation_id": "issue:ISSUE-000064",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16268,7 +16355,7 @@
     },
     "fingerprint": "3f2835d832b5",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000063",
+    "id": "ISSUE-000064",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16286,7 +16373,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000064",
+       "observation_id": "issue:ISSUE-000065",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16341,7 +16428,7 @@
     },
     "fingerprint": "6ae398f7a0a7",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000064",
+    "id": "ISSUE-000065",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16359,7 +16446,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000065",
+       "observation_id": "issue:ISSUE-000066",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16414,7 +16501,7 @@
     },
     "fingerprint": "126150d0514e",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000065",
+    "id": "ISSUE-000066",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16432,7 +16519,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000066",
+       "observation_id": "issue:ISSUE-000067",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16487,7 +16574,7 @@
     },
     "fingerprint": "ce2cab321e3f",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000066",
+    "id": "ISSUE-000067",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16505,7 +16592,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000067",
+       "observation_id": "issue:ISSUE-000068",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16560,7 +16647,7 @@
     },
     "fingerprint": "404ef42525ba",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000067",
+    "id": "ISSUE-000068",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16578,7 +16665,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000068",
+       "observation_id": "issue:ISSUE-000069",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16633,7 +16720,7 @@
     },
     "fingerprint": "bf0e9fa21a9e",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000068",
+    "id": "ISSUE-000069",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16651,7 +16738,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000069",
+       "observation_id": "issue:ISSUE-000070",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16706,7 +16793,7 @@
     },
     "fingerprint": "d3330db33487",
     "fix_hint": "Add an appropriate Strict-Transport-Security header after confirming the entire site is HTTPS-ready.",
-    "id": "ISSUE-000069",
+    "id": "ISSUE-000070",
     "message": "HSTS header is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16729,7 +16816,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000070",
+       "observation_id": "issue:ISSUE-000071",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16742,7 +16829,7 @@
     },
     "fingerprint": "dd21bf44c3b7",
     "fix_hint": "If a privacy policy exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all.",
-    "id": "ISSUE-000070",
+    "id": "ISSUE-000071",
     "message": "No indexable privacy policy page was found in the crawl's scope",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16760,7 +16847,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000071",
+       "observation_id": "issue:ISSUE-000072",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16815,7 +16902,7 @@
     },
     "fingerprint": "1adb4258f959",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000071",
+    "id": "ISSUE-000072",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16833,7 +16920,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000072",
+       "observation_id": "issue:ISSUE-000073",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16888,7 +16975,7 @@
     },
     "fingerprint": "355fd391e2f2",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000072",
+    "id": "ISSUE-000073",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16906,7 +16993,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000073",
+       "observation_id": "issue:ISSUE-000074",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -16961,7 +17048,7 @@
     },
     "fingerprint": "adac049f9e7d",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000073",
+    "id": "ISSUE-000074",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -16979,7 +17066,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000074",
+       "observation_id": "issue:ISSUE-000075",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17034,7 +17121,7 @@
     },
     "fingerprint": "049996ffb45f",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000074",
+    "id": "ISSUE-000075",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17052,7 +17139,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000075",
+       "observation_id": "issue:ISSUE-000076",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17107,7 +17194,7 @@
     },
     "fingerprint": "dcc17709bd58",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000075",
+    "id": "ISSUE-000076",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17125,7 +17212,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000076",
+       "observation_id": "issue:ISSUE-000077",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17180,7 +17267,7 @@
     },
     "fingerprint": "2840c61a45d4",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000076",
+    "id": "ISSUE-000077",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17198,7 +17285,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000077",
+       "observation_id": "issue:ISSUE-000078",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17253,7 +17340,7 @@
     },
     "fingerprint": "d119f556574c",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000077",
+    "id": "ISSUE-000078",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17271,7 +17358,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000078",
+       "observation_id": "issue:ISSUE-000079",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17326,7 +17413,7 @@
     },
     "fingerprint": "f6dd31324dec",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000078",
+    "id": "ISSUE-000079",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17344,7 +17431,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000079",
+       "observation_id": "issue:ISSUE-000080",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17399,7 +17486,7 @@
     },
     "fingerprint": "afcfabb7ca41",
     "fix_hint": "Send a Referrer-Policy header, for example strict-origin-when-cross-origin.",
-    "id": "ISSUE-000079",
+    "id": "ISSUE-000080",
     "message": "HTML page has no Referrer-Policy header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17422,7 +17509,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000080",
+       "observation_id": "issue:ISSUE-000081",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17435,7 +17522,7 @@
     },
     "fingerprint": "e1161beb307e",
     "fix_hint": "If a terms page exists, make it reachable and indexable; the finding's state says whether it was found non-indexable, broken, linked but never crawled, or not discovered at all.",
-    "id": "ISSUE-000080",
+    "id": "ISSUE-000081",
     "message": "No indexable terms-of-use page was found in the crawl's scope",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17453,7 +17540,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000081",
+       "observation_id": "issue:ISSUE-000082",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17508,7 +17595,7 @@
     },
     "fingerprint": "d5d196f830a8",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000081",
+    "id": "ISSUE-000082",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17526,7 +17613,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000082",
+       "observation_id": "issue:ISSUE-000083",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17581,7 +17668,7 @@
     },
     "fingerprint": "e8cff773399f",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000082",
+    "id": "ISSUE-000083",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17599,7 +17686,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000083",
+       "observation_id": "issue:ISSUE-000084",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17654,7 +17741,7 @@
     },
     "fingerprint": "df89169684ca",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000083",
+    "id": "ISSUE-000084",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17672,7 +17759,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000084",
+       "observation_id": "issue:ISSUE-000085",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17727,7 +17814,7 @@
     },
     "fingerprint": "c3b323b47466",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000084",
+    "id": "ISSUE-000085",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17745,7 +17832,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000085",
+       "observation_id": "issue:ISSUE-000086",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17800,7 +17887,7 @@
     },
     "fingerprint": "82bb5f4921e1",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000085",
+    "id": "ISSUE-000086",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17818,7 +17905,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000086",
+       "observation_id": "issue:ISSUE-000087",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17873,7 +17960,7 @@
     },
     "fingerprint": "bf4238a346cf",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000086",
+    "id": "ISSUE-000087",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17891,7 +17978,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000087",
+       "observation_id": "issue:ISSUE-000088",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -17946,7 +18033,7 @@
     },
     "fingerprint": "00d39176a492",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000087",
+    "id": "ISSUE-000088",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -17964,7 +18051,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000088",
+       "observation_id": "issue:ISSUE-000089",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18019,7 +18106,7 @@
     },
     "fingerprint": "cfcff78c1d97",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000088",
+    "id": "ISSUE-000089",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18037,7 +18124,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000089",
+       "observation_id": "issue:ISSUE-000090",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18092,7 +18179,7 @@
     },
     "fingerprint": "3f185fa423d5",
     "fix_hint": "Send X-Content-Type-Options: nosniff so browsers do not sniff the response into another type.",
-    "id": "ISSUE-000089",
+    "id": "ISSUE-000090",
     "message": "HTML page has no X-Content-Type-Options header",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18110,7 +18197,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000090",
+       "observation_id": "issue:ISSUE-000091",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18165,7 +18252,7 @@
     },
     "fingerprint": "6c02c7536240",
     "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000090",
+    "id": "ISSUE-000091",
     "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18183,7 +18270,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000091",
+       "observation_id": "issue:ISSUE-000092",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18238,7 +18325,7 @@
     },
     "fingerprint": "401dea7fd761",
     "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000091",
+    "id": "ISSUE-000092",
     "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18256,7 +18343,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000092",
+       "observation_id": "issue:ISSUE-000093",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18311,7 +18398,7 @@
     },
     "fingerprint": "29a99d791c99",
     "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000092",
+    "id": "ISSUE-000093",
     "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18329,7 +18416,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000093",
+       "observation_id": "issue:ISSUE-000094",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18384,7 +18471,7 @@
     },
     "fingerprint": "ec07b94d227b",
     "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000093",
+    "id": "ISSUE-000094",
     "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18402,7 +18489,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000094",
+       "observation_id": "issue:ISSUE-000095",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18457,7 +18544,7 @@
     },
     "fingerprint": "c91e06c73909",
     "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000094",
+    "id": "ISSUE-000095",
     "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18475,7 +18562,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000095",
+       "observation_id": "issue:ISSUE-000096",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18530,7 +18617,7 @@
     },
     "fingerprint": "b7390166d301",
     "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000095",
+    "id": "ISSUE-000096",
     "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18548,7 +18635,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000096",
+       "observation_id": "issue:ISSUE-000097",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18603,7 +18690,7 @@
     },
     "fingerprint": "13308b9c6f4f",
     "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000096",
+    "id": "ISSUE-000097",
     "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18621,7 +18708,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000097",
+       "observation_id": "issue:ISSUE-000098",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18676,7 +18763,7 @@
     },
     "fingerprint": "92c2315de8b1",
     "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000097",
+    "id": "ISSUE-000098",
     "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18689,78 +18776,6 @@
     "details": {
      "header": "x-frame-options",
      "target_url": "{BASE}/noindex.html"
-    },
-    "evidence": {
-     "contract": {
-      "finding": {
-       "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000098",
-       "role": "finding_projection",
-       "scan_uuid": "<UUID:1>",
-       "source_table": "audit",
-       "state": "measured"
-      },
-      "id": "evidence:v1:<UUID:1>:pages:<HASH>",
-      "observation_id": "url_id:5",
-      "observations": [
-       {
-        "id": "evidence:v1:<UUID:1>:pages:<HASH>",
-        "observation_id": "url_id:5",
-        "representation": "static",
-        "role": "target",
-        "scan_uuid": "<UUID:1>",
-        "source_table": "pages",
-        "state": "measured"
-       },
-       {
-        "id": "evidence:v1:<UUID:1>:urls:<HASH>",
-        "observation_id": "url_id:5",
-        "representation": "",
-        "role": "target",
-        "scan_uuid": "<UUID:1>",
-        "source_table": "urls",
-        "state": "measured"
-       },
-       {
-        "id": "evidence:v1:<UUID:1>:documents:<HASH>",
-        "observation_id": "document_id:5",
-        "representation": "static",
-        "role": "target",
-        "scan_uuid": "<UUID:1>",
-        "source_table": "documents",
-        "state": "measured"
-       },
-       {
-        "id": "evidence:v1:<UUID:1>:responses:<HASH>",
-        "observation_id": "response_id:5",
-        "representation": "static",
-        "role": "target",
-        "scan_uuid": "<UUID:1>",
-        "source_table": "responses",
-        "state": "measured"
-       }
-      ],
-      "representation": "static",
-      "role": "target",
-      "scan_uuid": "<UUID:1>",
-      "source_table": "pages",
-      "state": "measured"
-     }
-    },
-    "fingerprint": "8a8d10392a16",
-    "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
-    "id": "ISSUE-000098",
-    "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
-    "occurrences_count": 1,
-    "severity": "notice",
-    "source": "crawl:security_headers",
-    "status_code": null,
-    "target_url": "{BASE}/noindex.html"
-   },
-   {
-    "check": "NOINDEX",
-    "details": {
-     "meta_robots": "noindex, nofollow"
     },
     "evidence": {
      "contract": {
@@ -18819,21 +18834,20 @@
       "state": "measured"
      }
     },
-    "fingerprint": "09bd34313b85",
-    "fix_hint": "Confirm that exclusion from indexing is intentional.",
+    "fingerprint": "8a8d10392a16",
+    "fix_hint": "Send X-Frame-Options: SAMEORIGIN or a Content-Security-Policy frame-ancestors directive.",
     "id": "ISSUE-000099",
-    "message": "Page contains a noindex directive",
+    "message": "HTML page has neither X-Frame-Options nor a CSP frame-ancestors directive",
     "occurrences_count": 1,
     "severity": "notice",
-    "source": "SF:Directives:Noindex",
+    "source": "crawl:security_headers",
     "status_code": null,
     "target_url": "{BASE}/noindex.html"
    },
    {
-    "check": "NON_INDEXABLE_LINKED",
+    "check": "NOINDEX",
     "details": {
-     "indexability_status": "noindex",
-     "inlinks": 1
+     "meta_robots": "noindex, nofollow"
     },
     "evidence": {
      "contract": {
@@ -18892,9 +18906,82 @@
       "state": "measured"
      }
     },
+    "fingerprint": "09bd34313b85",
+    "fix_hint": "Confirm that exclusion from indexing is intentional.",
+    "id": "ISSUE-000100",
+    "message": "Page contains a noindex directive",
+    "occurrences_count": 1,
+    "severity": "notice",
+    "source": "SF:Directives:Noindex",
+    "status_code": null,
+    "target_url": "{BASE}/noindex.html"
+   },
+   {
+    "check": "NON_INDEXABLE_LINKED",
+    "details": {
+     "indexability_status": "noindex",
+     "inlinks": 1
+    },
+    "evidence": {
+     "contract": {
+      "finding": {
+       "id": "evidence:v1:<UUID:1>:audit:<HASH>",
+       "observation_id": "issue:ISSUE-000101",
+       "role": "finding_projection",
+       "scan_uuid": "<UUID:1>",
+       "source_table": "audit",
+       "state": "measured"
+      },
+      "id": "evidence:v1:<UUID:1>:pages:<HASH>",
+      "observation_id": "url_id:5",
+      "observations": [
+       {
+        "id": "evidence:v1:<UUID:1>:pages:<HASH>",
+        "observation_id": "url_id:5",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "pages",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:urls:<HASH>",
+        "observation_id": "url_id:5",
+        "representation": "",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "urls",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:documents:<HASH>",
+        "observation_id": "document_id:5",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "documents",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:responses:<HASH>",
+        "observation_id": "response_id:5",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "responses",
+        "state": "measured"
+       }
+      ],
+      "representation": "static",
+      "role": "target",
+      "scan_uuid": "<UUID:1>",
+      "source_table": "pages",
+      "state": "measured"
+     }
+    },
     "fingerprint": "7306d1e45c14",
     "fix_hint": "Decide whether the page should be indexable; otherwise remove unnecessary internal links and account for crawl-budget impact.",
-    "id": "ISSUE-000100",
+    "id": "ISSUE-000101",
     "message": "Internally linked page is non-indexable",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18926,7 +19013,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000101",
+       "observation_id": "issue:ISSUE-000102",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -18982,7 +19069,7 @@
     "fingerprint": "91a9a9b98660",
     "fix_hint": "Review intent and useful internal linking. Lexical similarity alone does not prove duplicate content, cannibalization or topical equivalence.",
     "group_id": "GRP-SEMANT-0006",
-    "id": "ISSUE-000101",
+    "id": "ISSUE-000102",
     "message": "Pages have high lexical similarity in their content areas; review candidate",
     "occurrences_count": 1,
     "severity": "notice",
@@ -18996,75 +19083,6 @@
      "evidence_source": "retained_scan",
      "reason": "retained robots.txt declares no sitemap"
     },
-    "evidence": {
-     "contract": {
-      "finding": {
-       "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000102",
-       "role": "finding_projection",
-       "scan_uuid": "<UUID:1>",
-       "source_table": "audit",
-       "state": "measured"
-      },
-      "id": "evidence:v1:<UUID:1>:pages:<HASH>",
-      "observation_id": "url_id:1",
-      "observations": [
-       {
-        "id": "evidence:v1:<UUID:1>:pages:<HASH>",
-        "observation_id": "url_id:1",
-        "representation": "static",
-        "role": "target",
-        "scan_uuid": "<UUID:1>",
-        "source_table": "pages",
-        "state": "measured"
-       },
-       {
-        "id": "evidence:v1:<UUID:1>:urls:<HASH>",
-        "observation_id": "url_id:1",
-        "representation": "",
-        "role": "target",
-        "scan_uuid": "<UUID:1>",
-        "source_table": "urls",
-        "state": "measured"
-       },
-       {
-        "id": "evidence:v1:<UUID:1>:documents:<HASH>",
-        "observation_id": "document_id:1",
-        "representation": "static",
-        "role": "target",
-        "scan_uuid": "<UUID:1>",
-        "source_table": "documents",
-        "state": "measured"
-       },
-       {
-        "id": "evidence:v1:<UUID:1>:responses:<HASH>",
-        "observation_id": "response_id:1",
-        "representation": "static",
-        "role": "target",
-        "scan_uuid": "<UUID:1>",
-        "source_table": "responses",
-        "state": "measured"
-       }
-      ],
-      "representation": "static",
-      "role": "target",
-      "scan_uuid": "<UUID:1>",
-      "source_table": "pages",
-      "state": "measured"
-     }
-    },
-    "fingerprint": "e9da603ec4cd",
-    "fix_hint": "Add a Sitemap directive to robots.txt with the absolute sitemap URL.",
-    "id": "ISSUE-000102",
-    "message": "robots.txt does not declare a Sitemap directive",
-    "occurrences_count": 1,
-    "severity": "notice",
-    "source": "sitemap",
-    "status_code": null,
-    "target_url": "{BASE}/"
-   },
-   {
-    "check": "STRUCTURED_DATA_MISSING",
     "evidence": {
      "contract": {
       "finding": {
@@ -19122,9 +19140,78 @@
       "state": "measured"
      }
     },
+    "fingerprint": "e9da603ec4cd",
+    "fix_hint": "Add a Sitemap directive to robots.txt with the absolute sitemap URL.",
+    "id": "ISSUE-000103",
+    "message": "robots.txt does not declare a Sitemap directive",
+    "occurrences_count": 1,
+    "severity": "notice",
+    "source": "sitemap",
+    "status_code": null,
+    "target_url": "{BASE}/"
+   },
+   {
+    "check": "STRUCTURED_DATA_MISSING",
+    "evidence": {
+     "contract": {
+      "finding": {
+       "id": "evidence:v1:<UUID:1>:audit:<HASH>",
+       "observation_id": "issue:ISSUE-000104",
+       "role": "finding_projection",
+       "scan_uuid": "<UUID:1>",
+       "source_table": "audit",
+       "state": "measured"
+      },
+      "id": "evidence:v1:<UUID:1>:pages:<HASH>",
+      "observation_id": "url_id:1",
+      "observations": [
+       {
+        "id": "evidence:v1:<UUID:1>:pages:<HASH>",
+        "observation_id": "url_id:1",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "pages",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:urls:<HASH>",
+        "observation_id": "url_id:1",
+        "representation": "",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "urls",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:documents:<HASH>",
+        "observation_id": "document_id:1",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "documents",
+        "state": "measured"
+       },
+       {
+        "id": "evidence:v1:<UUID:1>:responses:<HASH>",
+        "observation_id": "response_id:1",
+        "representation": "static",
+        "role": "target",
+        "scan_uuid": "<UUID:1>",
+        "source_table": "responses",
+        "state": "measured"
+       }
+      ],
+      "representation": "static",
+      "role": "target",
+      "scan_uuid": "<UUID:1>",
+      "source_table": "pages",
+      "state": "measured"
+     }
+    },
     "fingerprint": "e27e53a2fefc",
     "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content.",
-    "id": "ISSUE-000103",
+    "id": "ISSUE-000104",
     "message": "Structured data is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19138,7 +19225,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000104",
+       "observation_id": "issue:ISSUE-000105",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19193,7 +19280,7 @@
     },
     "fingerprint": "c5510576784f",
     "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content.",
-    "id": "ISSUE-000104",
+    "id": "ISSUE-000105",
     "message": "Structured data is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19207,7 +19294,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000105",
+       "observation_id": "issue:ISSUE-000106",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19262,7 +19349,7 @@
     },
     "fingerprint": "ec9b85772cff",
     "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content.",
-    "id": "ISSUE-000105",
+    "id": "ISSUE-000106",
     "message": "Structured data is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19276,7 +19363,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000106",
+       "observation_id": "issue:ISSUE-000107",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19331,7 +19418,7 @@
     },
     "fingerprint": "314fb44242c2",
     "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content.",
-    "id": "ISSUE-000106",
+    "id": "ISSUE-000107",
     "message": "Structured data is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19345,7 +19432,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000107",
+       "observation_id": "issue:ISSUE-000108",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19400,7 +19487,7 @@
     },
     "fingerprint": "804ab7c5d502",
     "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content.",
-    "id": "ISSUE-000107",
+    "id": "ISSUE-000108",
     "message": "Structured data is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19414,7 +19501,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000108",
+       "observation_id": "issue:ISSUE-000109",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19469,7 +19556,7 @@
     },
     "fingerprint": "a16b63c61f83",
     "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content.",
-    "id": "ISSUE-000108",
+    "id": "ISSUE-000109",
     "message": "Structured data is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19483,7 +19570,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000109",
+       "observation_id": "issue:ISSUE-000110",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19538,7 +19625,7 @@
     },
     "fingerprint": "1aa7bff7d47d",
     "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content.",
-    "id": "ISSUE-000109",
+    "id": "ISSUE-000110",
     "message": "Structured data is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19552,7 +19639,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000110",
+       "observation_id": "issue:ISSUE-000111",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19607,7 +19694,7 @@
     },
     "fingerprint": "740673518a76",
     "fix_hint": "Add relevant, accurate Schema.org markup that reflects visible page content.",
-    "id": "ISSUE-000110",
+    "id": "ISSUE-000111",
     "message": "Structured data is missing",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19624,7 +19711,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000111",
+       "observation_id": "issue:ISSUE-000112",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19679,7 +19766,7 @@
     },
     "fingerprint": "ff10c92afe64",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000111",
+    "id": "ISSUE-000112",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19696,7 +19783,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000112",
+       "observation_id": "issue:ISSUE-000113",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19751,7 +19838,7 @@
     },
     "fingerprint": "6a9deb2a38da",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000112",
+    "id": "ISSUE-000113",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19768,7 +19855,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000113",
+       "observation_id": "issue:ISSUE-000114",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19823,7 +19910,7 @@
     },
     "fingerprint": "8b7c4109c0f6",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000113",
+    "id": "ISSUE-000114",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19840,7 +19927,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000114",
+       "observation_id": "issue:ISSUE-000115",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19895,7 +19982,7 @@
     },
     "fingerprint": "e37acf9f6257",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000114",
+    "id": "ISSUE-000115",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19912,7 +19999,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000115",
+       "observation_id": "issue:ISSUE-000116",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -19967,7 +20054,7 @@
     },
     "fingerprint": "8c3051e2811e",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000115",
+    "id": "ISSUE-000116",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -19984,7 +20071,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000116",
+       "observation_id": "issue:ISSUE-000117",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20039,7 +20126,7 @@
     },
     "fingerprint": "94de3fdd86b0",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000116",
+    "id": "ISSUE-000117",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -20056,7 +20143,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000117",
+       "observation_id": "issue:ISSUE-000118",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20111,7 +20198,7 @@
     },
     "fingerprint": "bb1e6182adea",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000117",
+    "id": "ISSUE-000118",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -20128,7 +20215,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000118",
+       "observation_id": "issue:ISSUE-000119",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20183,7 +20270,7 @@
     },
     "fingerprint": "17457ae39cf7",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000118",
+    "id": "ISSUE-000119",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -20200,7 +20287,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000119",
+       "observation_id": "issue:ISSUE-000120",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20255,7 +20342,7 @@
     },
     "fingerprint": "027f62d56f54",
     "fix_hint": "Add `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">` to the document head.",
-    "id": "ISSUE-000119",
+    "id": "ISSUE-000120",
     "message": "No <meta name=viewport> tag at all",
     "occurrences_count": 1,
     "severity": "notice",
@@ -20273,7 +20360,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000120",
+       "observation_id": "issue:ISSUE-000121",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20328,7 +20415,7 @@
     },
     "fingerprint": "eb38142c4bd2",
     "fix_hint": "Expand the description with specific, useful page information.",
-    "id": "ISSUE-000120",
+    "id": "ISSUE-000121",
     "message": "Meta description falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20346,7 +20433,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000121",
+       "observation_id": "issue:ISSUE-000122",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20401,7 +20488,7 @@
     },
     "fingerprint": "96e482166236",
     "fix_hint": "Expand the description with specific, useful page information.",
-    "id": "ISSUE-000121",
+    "id": "ISSUE-000122",
     "message": "Meta description falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20419,7 +20506,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000122",
+       "observation_id": "issue:ISSUE-000123",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20474,7 +20561,7 @@
     },
     "fingerprint": "273bfaa99283",
     "fix_hint": "Expand the description with specific, useful page information.",
-    "id": "ISSUE-000122",
+    "id": "ISSUE-000123",
     "message": "Meta description falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20492,7 +20579,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000123",
+       "observation_id": "issue:ISSUE-000124",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20547,7 +20634,7 @@
     },
     "fingerprint": "a6219cd8f691",
     "fix_hint": "Expand the description with specific, useful page information.",
-    "id": "ISSUE-000123",
+    "id": "ISSUE-000124",
     "message": "Meta description falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20565,7 +20652,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000124",
+       "observation_id": "issue:ISSUE-000125",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20620,7 +20707,7 @@
     },
     "fingerprint": "c6366f773028",
     "fix_hint": "Expand the description with specific, useful page information.",
-    "id": "ISSUE-000124",
+    "id": "ISSUE-000125",
     "message": "Meta description falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20638,7 +20725,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000125",
+       "observation_id": "issue:ISSUE-000126",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20693,7 +20780,7 @@
     },
     "fingerprint": "cec4a94cc0d4",
     "fix_hint": "Expand the description with specific, useful page information.",
-    "id": "ISSUE-000125",
+    "id": "ISSUE-000126",
     "message": "Meta description falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20711,7 +20798,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000126",
+       "observation_id": "issue:ISSUE-000127",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20766,7 +20853,7 @@
     },
     "fingerprint": "f77d0b467246",
     "fix_hint": "Expand the description with specific, useful page information.",
-    "id": "ISSUE-000126",
+    "id": "ISSUE-000127",
     "message": "Meta description falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20784,7 +20871,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000127",
+       "observation_id": "issue:ISSUE-000128",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20839,7 +20926,7 @@
     },
     "fingerprint": "2e957fee45d0",
     "fix_hint": "Expand the description with specific, useful page information.",
-    "id": "ISSUE-000127",
+    "id": "ISSUE-000128",
     "message": "Meta description falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20857,7 +20944,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000128",
+       "observation_id": "issue:ISSUE-000129",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20912,7 +20999,7 @@
     },
     "fingerprint": "eaf3f8254ef8",
     "fix_hint": "Reduce the number of page elements and avoid rendering unnecessary or duplicated components.",
-    "id": "ISSUE-000128",
+    "id": "ISSUE-000129",
     "message": "DOM contains too many nodes",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -20932,7 +21019,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000129",
+       "observation_id": "issue:ISSUE-000130",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -20987,7 +21074,7 @@
     },
     "fingerprint": "5cf6f77ae9c8",
     "fix_hint": "Reduce bytes per word by extracting styles and scripts, removing embedded base64 assets, and simplifying markup.",
-    "id": "ISSUE-000129",
+    "id": "ISSUE-000130",
     "message": "HTML bloat: high document size relative to text content",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21007,7 +21094,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000130",
+       "observation_id": "issue:ISSUE-000131",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21062,7 +21149,7 @@
     },
     "fingerprint": "796afd574994",
     "fix_hint": "Reduce bytes per word by extracting styles and scripts, removing embedded base64 assets, and simplifying markup.",
-    "id": "ISSUE-000130",
+    "id": "ISSUE-000131",
     "message": "HTML bloat: high document size relative to text content",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21086,7 +21173,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000131",
+       "observation_id": "issue:ISSUE-000132",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21142,7 +21229,7 @@
     "fingerprint": "56c8fbee7ff0",
     "fix_hint": "Increase the proportion of meaningful visible content or reduce unnecessary markup; a page with enough words is not missing copy, only carrying a heavy template.",
     "group_id": "GRP-LOW-0001",
-    "id": "ISSUE-000131",
+    "id": "ISSUE-000132",
     "message": "Low text-to-HTML ratio (a native crawl measures text against markup without script, style and JSON data blocks; pages above the thin-content word threshold are never reported)",
     "occurrences_count": 2,
     "severity": "opportunity",
@@ -21160,7 +21247,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000132",
+       "observation_id": "issue:ISSUE-000133",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21215,7 +21302,7 @@
     },
     "fingerprint": "bd733cad7a65",
     "fix_hint": "Enable gzip, Brotli, or deflate compression for text responses on the origin server or CDN.",
-    "id": "ISSUE-000132",
+    "id": "ISSUE-000133",
     "message": "HTML response is served uncompressed above the size where gzip/br would help",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21234,7 +21321,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000133",
+       "observation_id": "issue:ISSUE-000134",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21289,7 +21376,7 @@
     },
     "fingerprint": "bf29b28129ac",
     "fix_hint": "Use clearer wording and shorter sentences while preserving technical accuracy.",
-    "id": "ISSUE-000133",
+    "id": "ISSUE-000134",
     "message": "Text is difficult to read (low Flesch score)",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21308,7 +21395,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000134",
+       "observation_id": "issue:ISSUE-000135",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21363,7 +21450,7 @@
     },
     "fingerprint": "78095c3980de",
     "fix_hint": "Use clearer wording and shorter sentences while preserving technical accuracy.",
-    "id": "ISSUE-000134",
+    "id": "ISSUE-000135",
     "message": "Text is difficult to read (low Flesch score)",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21382,7 +21469,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000135",
+       "observation_id": "issue:ISSUE-000136",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21437,7 +21524,7 @@
     },
     "fingerprint": "9c5f7a180a01",
     "fix_hint": "Use clearer wording and shorter sentences while preserving technical accuracy.",
-    "id": "ISSUE-000135",
+    "id": "ISSUE-000136",
     "message": "Text is difficult to read (low Flesch score)",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21456,7 +21543,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000136",
+       "observation_id": "issue:ISSUE-000137",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21511,7 +21598,7 @@
     },
     "fingerprint": "e299426cc205",
     "fix_hint": "Use clearer wording and shorter sentences while preserving technical accuracy.",
-    "id": "ISSUE-000136",
+    "id": "ISSUE-000137",
     "message": "Text is difficult to read (low Flesch score)",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21530,7 +21617,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000137",
+       "observation_id": "issue:ISSUE-000138",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21585,7 +21672,7 @@
     },
     "fingerprint": "e463c8a7280b",
     "fix_hint": "Use clearer wording and shorter sentences while preserving technical accuracy.",
-    "id": "ISSUE-000137",
+    "id": "ISSUE-000138",
     "message": "Text is difficult to read (low Flesch score)",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21604,7 +21691,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000138",
+       "observation_id": "issue:ISSUE-000139",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21659,7 +21746,7 @@
     },
     "fingerprint": "2650c530eaa3",
     "fix_hint": "Use clearer wording and shorter sentences while preserving technical accuracy.",
-    "id": "ISSUE-000138",
+    "id": "ISSUE-000139",
     "message": "Text is difficult to read (low Flesch score)",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21676,7 +21763,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000139",
+       "observation_id": "issue:ISSUE-000140",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21731,7 +21818,7 @@
     },
     "fingerprint": "c7e020f6c3bb",
     "fix_hint": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
-    "id": "ISSUE-000139",
+    "id": "ISSUE-000140",
     "message": "Title is identical to the H1",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21748,7 +21835,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000140",
+       "observation_id": "issue:ISSUE-000141",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21803,7 +21890,7 @@
     },
     "fingerprint": "3a00c26496f4",
     "fix_hint": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
-    "id": "ISSUE-000140",
+    "id": "ISSUE-000141",
     "message": "Title is identical to the H1",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21820,7 +21907,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000141",
+       "observation_id": "issue:ISSUE-000142",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21875,7 +21962,7 @@
     },
     "fingerprint": "98d7ee5c2100",
     "fix_hint": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
-    "id": "ISSUE-000141",
+    "id": "ISSUE-000142",
     "message": "Title is identical to the H1",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21892,7 +21979,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000142",
+       "observation_id": "issue:ISSUE-000143",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -21947,7 +22034,7 @@
     },
     "fingerprint": "a1bffb418066",
     "fix_hint": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
-    "id": "ISSUE-000142",
+    "id": "ISSUE-000143",
     "message": "Title is identical to the H1",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -21964,7 +22051,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000143",
+       "observation_id": "issue:ISSUE-000144",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22019,7 +22106,7 @@
     },
     "fingerprint": "e227d42d85e5",
     "fix_hint": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
-    "id": "ISSUE-000143",
+    "id": "ISSUE-000144",
     "message": "Title is identical to the H1",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22036,7 +22123,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000144",
+       "observation_id": "issue:ISSUE-000145",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22091,7 +22178,7 @@
     },
     "fingerprint": "0c6a3b42e696",
     "fix_hint": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
-    "id": "ISSUE-000144",
+    "id": "ISSUE-000145",
     "message": "Title is identical to the H1",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22108,7 +22195,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000145",
+       "observation_id": "issue:ISSUE-000146",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22163,7 +22250,7 @@
     },
     "fingerprint": "f37229dd53d4",
     "fix_hint": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
-    "id": "ISSUE-000145",
+    "id": "ISSUE-000146",
     "message": "Title is identical to the H1",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22174,13 +22261,13 @@
    {
     "check": "TITLE_EQUALS_H1",
     "details": {
-     "value": "Ñòàðàÿ êîäèðîâêà"
+     "value": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430"
     },
     "evidence": {
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000146",
+       "observation_id": "issue:ISSUE-000147",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22235,7 +22322,7 @@
     },
     "fingerprint": "48492d32f6ba",
     "fix_hint": "Differentiate the title and H1 by purpose, wording, or keyword emphasis.",
-    "id": "ISSUE-000146",
+    "id": "ISSUE-000147",
     "message": "Title is identical to the H1",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22254,7 +22341,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000147",
+       "observation_id": "issue:ISSUE-000148",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22309,7 +22396,7 @@
     },
     "fingerprint": "aaa3af066973",
     "fix_hint": "Expand the title to an informative length without padding it with boilerplate.",
-    "id": "ISSUE-000147",
+    "id": "ISSUE-000148",
     "message": "Title falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22328,7 +22415,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000148",
+       "observation_id": "issue:ISSUE-000149",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22383,7 +22470,7 @@
     },
     "fingerprint": "fa67028d07e6",
     "fix_hint": "Expand the title to an informative length without padding it with boilerplate.",
-    "id": "ISSUE-000148",
+    "id": "ISSUE-000149",
     "message": "Title falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22402,7 +22489,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000149",
+       "observation_id": "issue:ISSUE-000150",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22457,7 +22544,7 @@
     },
     "fingerprint": "01fd96c7e260",
     "fix_hint": "Expand the title to an informative length without padding it with boilerplate.",
-    "id": "ISSUE-000149",
+    "id": "ISSUE-000150",
     "message": "Title falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22476,7 +22563,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000150",
+       "observation_id": "issue:ISSUE-000151",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22531,7 +22618,7 @@
     },
     "fingerprint": "4bd80b8dc171",
     "fix_hint": "Expand the title to an informative length without padding it with boilerplate.",
-    "id": "ISSUE-000150",
+    "id": "ISSUE-000151",
     "message": "Title falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22550,7 +22637,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000151",
+       "observation_id": "issue:ISSUE-000152",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22605,7 +22692,7 @@
     },
     "fingerprint": "1fe45eb0ea78",
     "fix_hint": "Expand the title to an informative length without padding it with boilerplate.",
-    "id": "ISSUE-000151",
+    "id": "ISSUE-000152",
     "message": "Title falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22624,7 +22711,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000152",
+       "observation_id": "issue:ISSUE-000153",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22679,7 +22766,7 @@
     },
     "fingerprint": "15d2b3e3cc36",
     "fix_hint": "Expand the title to an informative length without padding it with boilerplate.",
-    "id": "ISSUE-000152",
+    "id": "ISSUE-000153",
     "message": "Title falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22698,7 +22785,7 @@
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000153",
+       "observation_id": "issue:ISSUE-000154",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22753,7 +22840,7 @@
     },
     "fingerprint": "3d4e9f5e6250",
     "fix_hint": "Expand the title to an informative length without padding it with boilerplate.",
-    "id": "ISSUE-000153",
+    "id": "ISSUE-000154",
     "message": "Title falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22766,13 +22853,13 @@
     "details": {
      "length": 16,
      "min_chars": 30,
-     "title": "Ñòàðàÿ êîäèðîâêà"
+     "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430"
     },
     "evidence": {
      "contract": {
       "finding": {
        "id": "evidence:v1:<UUID:1>:audit:<HASH>",
-       "observation_id": "issue:ISSUE-000154",
+       "observation_id": "issue:ISSUE-000155",
        "role": "finding_projection",
        "scan_uuid": "<UUID:1>",
        "source_table": "audit",
@@ -22827,7 +22914,7 @@
     },
     "fingerprint": "e62cd4aec2d0",
     "fix_hint": "Expand the title to an informative length without padding it with boilerplate.",
-    "id": "ISSUE-000154",
+    "id": "ISSUE-000155",
     "message": "Title falls below the configured length threshold",
     "occurrences_count": 1,
     "severity": "opportunity",
@@ -22846,18 +22933,18 @@
      "ISSUE-000015",
      "ISSUE-000028",
      "ISSUE-000037",
-     "ISSUE-000052",
-     "ISSUE-000061",
-     "ISSUE-000071",
-     "ISSUE-000081",
-     "ISSUE-000090",
-     "ISSUE-000102",
+     "ISSUE-000053",
+     "ISSUE-000062",
+     "ISSUE-000072",
+     "ISSUE-000082",
+     "ISSUE-000091",
      "ISSUE-000103",
-     "ISSUE-000111",
-     "ISSUE-000120",
-     "ISSUE-000133",
-     "ISSUE-000139",
-     "ISSUE-000147"
+     "ISSUE-000104",
+     "ISSUE-000112",
+     "ISSUE-000121",
+     "ISSUE-000134",
+     "ISSUE-000140",
+     "ISSUE-000148"
     ],
     "issues": [
      "CANONICAL_MISSING",
@@ -22921,16 +23008,16 @@
      "ISSUE-000016",
      "ISSUE-000029",
      "ISSUE-000038",
-     "ISSUE-000053",
-     "ISSUE-000062",
-     "ISSUE-000072",
-     "ISSUE-000082",
-     "ISSUE-000091",
-     "ISSUE-000104",
-     "ISSUE-000112",
-     "ISSUE-000121",
-     "ISSUE-000140",
-     "ISSUE-000148"
+     "ISSUE-000054",
+     "ISSUE-000063",
+     "ISSUE-000073",
+     "ISSUE-000083",
+     "ISSUE-000092",
+     "ISSUE-000105",
+     "ISSUE-000113",
+     "ISSUE-000122",
+     "ISSUE-000141",
+     "ISSUE-000149"
     ],
     "issues": [
      "CANONICAL_MISSING",
@@ -22997,18 +23084,18 @@
      "ISSUE-000039",
      "ISSUE-000044",
      "ISSUE-000047",
-     "ISSUE-000054",
-     "ISSUE-000063",
-     "ISSUE-000073",
-     "ISSUE-000083",
-     "ISSUE-000092",
-     "ISSUE-000101",
-     "ISSUE-000105",
-     "ISSUE-000113",
-     "ISSUE-000122",
-     "ISSUE-000134",
-     "ISSUE-000141",
-     "ISSUE-000149"
+     "ISSUE-000055",
+     "ISSUE-000064",
+     "ISSUE-000074",
+     "ISSUE-000084",
+     "ISSUE-000093",
+     "ISSUE-000102",
+     "ISSUE-000106",
+     "ISSUE-000114",
+     "ISSUE-000123",
+     "ISSUE-000135",
+     "ISSUE-000142",
+     "ISSUE-000150"
     ],
     "issues": [
      "CANONICAL_MISSING",
@@ -23082,17 +23169,17 @@
      "ISSUE-000040",
      "ISSUE-000045",
      "ISSUE-000048",
-     "ISSUE-000055",
-     "ISSUE-000064",
-     "ISSUE-000074",
-     "ISSUE-000084",
-     "ISSUE-000093",
-     "ISSUE-000106",
-     "ISSUE-000114",
-     "ISSUE-000123",
-     "ISSUE-000135",
-     "ISSUE-000142",
-     "ISSUE-000150"
+     "ISSUE-000056",
+     "ISSUE-000065",
+     "ISSUE-000075",
+     "ISSUE-000085",
+     "ISSUE-000094",
+     "ISSUE-000107",
+     "ISSUE-000115",
+     "ISSUE-000124",
+     "ISSUE-000136",
+     "ISSUE-000143",
+     "ISSUE-000151"
     ],
     "issues": [
      "CANONICAL_MISSING",
@@ -23158,14 +23245,14 @@
     "issue_ids": [
      "ISSUE-000023",
      "ISSUE-000036",
-     "ISSUE-000060",
-     "ISSUE-000069",
-     "ISSUE-000079",
-     "ISSUE-000089",
-     "ISSUE-000098",
+     "ISSUE-000061",
+     "ISSUE-000070",
+     "ISSUE-000080",
+     "ISSUE-000090",
      "ISSUE-000099",
      "ISSUE-000100",
-     "ISSUE-000119"
+     "ISSUE-000101",
+     "ISSUE-000120"
     ],
     "issues": [
      "HTTP_URL",
@@ -23224,19 +23311,19 @@
      "ISSUE-000032",
      "ISSUE-000041",
      "ISSUE-000046",
-     "ISSUE-000056",
-     "ISSUE-000065",
-     "ISSUE-000075",
-     "ISSUE-000085",
-     "ISSUE-000094",
-     "ISSUE-000107",
-     "ISSUE-000115",
-     "ISSUE-000124",
-     "ISSUE-000129",
-     "ISSUE-000131",
-     "ISSUE-000136",
-     "ISSUE-000143",
-     "ISSUE-000151"
+     "ISSUE-000057",
+     "ISSUE-000066",
+     "ISSUE-000076",
+     "ISSUE-000086",
+     "ISSUE-000095",
+     "ISSUE-000108",
+     "ISSUE-000116",
+     "ISSUE-000125",
+     "ISSUE-000130",
+     "ISSUE-000132",
+     "ISSUE-000137",
+     "ISSUE-000144",
+     "ISSUE-000152"
     ],
     "issues": [
      "CANONICAL_MISSING",
@@ -23302,19 +23389,19 @@
      "ISSUE-000021",
      "ISSUE-000025",
      "ISSUE-000034",
-     "ISSUE-000058",
-     "ISSUE-000067",
-     "ISSUE-000077",
-     "ISSUE-000087",
-     "ISSUE-000096",
-     "ISSUE-000109",
-     "ISSUE-000117",
-     "ISSUE-000126",
-     "ISSUE-000128",
-     "ISSUE-000132",
-     "ISSUE-000138",
-     "ISSUE-000145",
-     "ISSUE-000153"
+     "ISSUE-000059",
+     "ISSUE-000068",
+     "ISSUE-000078",
+     "ISSUE-000088",
+     "ISSUE-000097",
+     "ISSUE-000110",
+     "ISSUE-000118",
+     "ISSUE-000127",
+     "ISSUE-000129",
+     "ISSUE-000133",
+     "ISSUE-000139",
+     "ISSUE-000146",
+     "ISSUE-000154"
     ],
     "issues": [
      "CANONICAL_MISSING",
@@ -23380,16 +23467,17 @@
      "ISSUE-000035",
      "ISSUE-000043",
      "ISSUE-000050",
-     "ISSUE-000059",
-     "ISSUE-000068",
-     "ISSUE-000078",
-     "ISSUE-000088",
-     "ISSUE-000097",
-     "ISSUE-000110",
-     "ISSUE-000118",
-     "ISSUE-000127",
-     "ISSUE-000146",
-     "ISSUE-000154"
+     "ISSUE-000051",
+     "ISSUE-000060",
+     "ISSUE-000069",
+     "ISSUE-000079",
+     "ISSUE-000089",
+     "ISSUE-000098",
+     "ISSUE-000111",
+     "ISSUE-000119",
+     "ISSUE-000128",
+     "ISSUE-000147",
+     "ISSUE-000155"
     ],
     "issues": [
      "CANONICAL_MISSING",
@@ -23397,6 +23485,7 @@
      "OUTLINK_TO_LOCALHOST",
      "THIN_CONTENT",
      "INVALID_CHARSET",
+     "LOW_RELEVANCE_CONTENT",
      "MISSING_CSP",
      "MISSING_HSTS",
      "MISSING_REFERRER_POLICY",
@@ -23417,7 +23506,7 @@
      "dom_nodes": 10,
      "external_outlinks": 0,
      "h1": [
-      "Ñòàðàÿ êîäèðîâêà"
+      "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430"
      ],
      "h1_count": 1,
      "h2_count": 0,
@@ -23425,7 +23514,7 @@
      "is_in_sitemap": null,
      "link_score": null,
      "link_score_computed": 0.060506,
-     "meta_description": "Ñòðàíèöà â óñòàðåâøåé êîäèðîâêå ñ êîíôëèêòîì çàãîëîâêà è meta.",
+     "meta_description": "\u0421\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u0432 \u0443\u0441\u0442\u0430\u0440\u0435\u0432\u0448\u0435\u0439 \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0435 \u0441 \u043a\u043e\u043d\u0444\u043b\u0438\u043a\u0442\u043e\u043c \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u0430 \u0438 meta.",
      "meta_robots": null,
      "outlinks": 1,
      "representation": "static",
@@ -23434,7 +23523,7 @@
      "size_bytes": 399,
      "size_vs_median_ratio": 0.75,
      "text_ratio": 23.58,
-     "title": "Ñòàðàÿ êîäèðîâêà",
+     "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
      "title_length": 16,
      "title_px": null,
      "unique_inlinks": 1,
@@ -23452,18 +23541,18 @@
      "ISSUE-000020",
      "ISSUE-000033",
      "ISSUE-000042",
-     "ISSUE-000057",
-     "ISSUE-000066",
-     "ISSUE-000076",
-     "ISSUE-000086",
-     "ISSUE-000095",
-     "ISSUE-000108",
-     "ISSUE-000116",
-     "ISSUE-000125",
-     "ISSUE-000130",
-     "ISSUE-000137",
-     "ISSUE-000144",
-     "ISSUE-000152"
+     "ISSUE-000058",
+     "ISSUE-000067",
+     "ISSUE-000077",
+     "ISSUE-000087",
+     "ISSUE-000096",
+     "ISSUE-000109",
+     "ISSUE-000117",
+     "ISSUE-000126",
+     "ISSUE-000131",
+     "ISSUE-000138",
+     "ISSUE-000145",
+     "ISSUE-000153"
     ],
     "issues": [
      "CANONICAL_MISSING",

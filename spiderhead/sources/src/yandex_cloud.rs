@@ -129,7 +129,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                         .map_err(CloudError::Decode)
                         .and_then(|text| {
                             serde_json::from_str(&text).map_err(|_| {
-                                CloudError::python(
+                                CloudError::classed(
                                     "JSONDecodeError",
                                     pyjson::decode_error(&text)
                                         .unwrap_or_else(|| "JSON decode error".to_owned()),
@@ -212,7 +212,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
     ) -> Result<Value, CloudError> {
         let num_phrases = match pystr::to_python_int(limit) {
             Ok(value) => value,
-            Err((class, message)) => return Err(CloudError::python(class, message)),
+            Err((class, message)) => return Err(CloudError::classed(class, message)),
         };
         // Region and device lists are converted before the request is sent, so conversion errors land first.
         let regions = py_list(regions)?;
@@ -249,7 +249,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
             at: None,
         })?;
         if status != 200 {
-            return Err(CloudError::python(
+            return Err(CloudError::classed(
                 "RuntimeError",
                 format!("topRequests {status}: {}", str_value(&body)),
             ));
@@ -303,7 +303,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
             at: None,
         })?;
         if status != 200 {
-            return Err(CloudError::python(
+            return Err(CloudError::classed(
                 "RuntimeError",
                 format!("dynamics {status}: {}", str_value(&body)),
             ));
@@ -323,7 +323,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
         let get = |key: &str| -> Result<&Value, CloudError> {
             match &body {
                 Value::Object(map) => Ok(map.get(key).unwrap_or(&Value::Null)),
-                other => Err(CloudError::python(
+                other => Err(CloudError::classed(
                     "AttributeError",
                     format!(
                         "'{}' object has no attribute 'get'",
@@ -344,7 +344,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                 Value::String(text) => text.chars().map(|c| json!(c.to_string())).collect(),
                 Value::Object(map) => map.keys().cloned().map(Value::String).collect(),
                 other => {
-                    return Err(CloudError::python(
+                    return Err(CloudError::classed(
                         "TypeError",
                         format!("'{}' object is not iterable", pystr::type_name(other)),
                     ))
@@ -354,7 +354,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                 let raw_phrase = match item {
                     Value::Object(map) => map.get("phrase").cloned().unwrap_or(Value::Null),
                     other => {
-                        return Err(CloudError::python(
+                        return Err(CloudError::classed(
                             "AttributeError",
                             format!(
                                 "'{}' object has no attribute 'get'",
@@ -400,7 +400,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
     }
 
     /// `WebSearch.search` — submit one async SERP request and poll until done.
-    #[allow(clippy::too_many_arguments)] // Python signature kept positional
+    #[allow(clippy::too_many_arguments)] // signature kept positional
     pub async fn web_search(
         &self,
         query: &Value,
@@ -438,7 +438,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
             at: None,
         })?;
         if status != 200 {
-            return Err(CloudError::python(
+            return Err(CloudError::classed(
                 "RuntimeError",
                 format!("searchAsync {status}: {}", str_value(&operation)),
             ));
@@ -446,7 +446,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
         let operation_id = match &operation {
             Value::Object(map) => map.get("id").cloned().unwrap_or(Value::Null),
             other => {
-                return Err(CloudError::python(
+                return Err(CloudError::classed(
                     "AttributeError",
                     format!(
                         "'{}' object has no attribute 'get'",
@@ -462,7 +462,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
             let (_, done) = self.request(&op_url, None, "GET", 5, false, None).await?;
             if done.is_object() && pystr::truthy(done.get("done")) {
                 if pystr::truthy(done.get("error")) {
-                    return Err(CloudError::python(
+                    return Err(CloudError::classed(
                         "RuntimeError",
                         format!(
                             "operation returned an error: {}",
@@ -479,7 +479,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                 }));
             }
         }
-        Err(CloudError::python(
+        Err(CloudError::classed(
             "RuntimeError",
             format!(
                 "operation {} did not finish within {}s",
@@ -490,7 +490,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
     }
 
     /// `WebSearch.search_batch` — concurrent submissions keyed by query text.
-    #[allow(clippy::too_many_arguments)] // Python signature kept positional
+    #[allow(clippy::too_many_arguments)] // signature kept positional
     pub async fn search_batch(
         &self,
         queries: &Value,
@@ -508,7 +508,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
             Value::String(text) => text.chars().map(|c| json!(c.to_string())).collect(),
             Value::Object(map) => map.keys().cloned().map(Value::String).collect(),
             other => {
-                return Err(CloudError::python(
+                return Err(CloudError::classed(
                     "TypeError",
                     format!("'{}' object is not iterable", pystr::type_name(other)),
                 ))
@@ -518,7 +518,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
         for query in members {
             if matches!(query, Value::Array(_) | Value::Object(_)) {
                 // Each member is stored as a key; the error names the failing insertion, not a bare unhashable value.
-                return Err(CloudError::python(
+                return Err(CloudError::classed(
                     "TypeError",
                     format!(
                         "cannot use '{}' as a dict key (unhashable type: '{}')",

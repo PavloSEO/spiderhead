@@ -434,3 +434,37 @@ impl Drop for FixtureServer {
         }
     }
 }
+
+/// The compressed sibling path of `path` (`scan.json` -> `scan.json.zst`).
+pub fn zst_path(path: &Path) -> PathBuf {
+    let mut name = path.as_os_str().to_owned();
+    name.push(".zst");
+    PathBuf::from(name)
+}
+
+/// Read a fixture as UTF-8 text, preferring the zstd-compressed sibling.
+///
+/// Large fixture files are stored as `<name>.zst` next to where the plain
+/// file would sit; `fixture_text` transparently picks the compressed file
+/// when it exists and falls back to the plain path otherwise.
+///
+/// # Panics
+/// When the readable file cannot be read or decoded.
+pub fn fixture_text(path: &Path) -> String {
+    let zst = zst_path(path);
+    if zst.exists() {
+        let packed = std::fs::read(&zst).unwrap_or_else(|e| panic!("{}: {e}", zst.display()));
+        let raw = zstd::decode_all(packed.as_slice())
+            .unwrap_or_else(|e| panic!("{}: {e}", zst.display()));
+        return String::from_utf8(raw).unwrap_or_else(|e| panic!("{}: {e}", zst.display()));
+    }
+    std::fs::read_to_string(path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+}
+
+/// Read a JSON fixture, preferring the `.zst` sibling like [`fixture_text`].
+///
+/// # Panics
+/// When the readable file cannot be read, decoded, or parsed as JSON.
+pub fn fixture_json(path: &Path) -> serde_json::Value {
+    serde_json::from_str(&fixture_text(path)).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+}

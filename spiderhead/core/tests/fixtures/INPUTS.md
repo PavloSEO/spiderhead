@@ -172,7 +172,7 @@ and this decision makes no backend migration.
 | `schedule-show` | Project directory (`directory`) | — |
 | `schedule-set` | Project directory (`directory`)<br>Selector (`expected_revision`)<br>Inline JSON (`settings`) | Required; current schedule revision.; Partial schedule.json settings to merge. |
 | `schedule-run-due` | Project directory (`directory`) | — |
-| `schedule-install` | Project directory (`directory`)<br>Selector (`kind`)<br>Local file (`dest, python`) | launchd, cron or windows. |
+| `schedule-install` | Project directory (`directory`)<br>Selector (`kind`)<br>Local file (`dest, executable`) | launchd, cron or windows. |
 | `schedule-uninstall` | Project directory (`directory`)<br>Selector (`kind`)<br>Local file (`dest`) | — |
 | `project-competitors-list` | Project directory (`directory`) | — |
 | `project-competitors-remove` | Project directory (`directory`)<br>Live URL (`url`) | The recorded competitor URL to drop from the shortlist. |
@@ -227,11 +227,12 @@ and this decision makes no backend migration.
 | `scan-snapshot` | Scan artifact (`scan`) | — |
 | `scan-export` | Scan artifact (`input_path`)<br>Selector (`records, fields`) | Also accepts an Export Analyzer audit.json document; links are unavailable there.; Optional record-type and field projection validated before any file is written. |
 | `scan-archive` | Scan artifact (`scan`)<br>Local file (`out`)<br>Selector (`max_body_bytes`) | Retained scan read offline; no network.; New WARC 1.1 destination; an existing output is refused. A sibling manifest names every skipped URL with its reason.; Optional per-body decoded-byte cap; larger retained bodies are skipped with reason body_too_large. |
+| `scan-broken-links` | Scan artifact (`scan`)<br>Local file (`out`)<br>Selector (`fmt`) | Retained scan read offline; no network.; New CSV or XLSX destination; an existing output is refused.; Optional output format, csv (default) or xlsx. |
 | `scan-pin` | Scan artifact (`scan`) | — |
 | `scan-prune` | Local directory (`directory`)<br>Local file (`plan`)<br>Project directory (`project`) | Defaults the directory to project scans/; apply remains explicit. |
 | `scan-body-diff` | Scan artifact (`left, right`)<br>Selector (`url, representation, left_representation, right_representation, variant_key`) | Selects one exact URL and retained representation from both scans. |
 | `scan-evidence` | Scan artifact (`input_path`)<br>Selector (`section`) | capabilities, corpus, structured, routes, resources, or timeline. |
-| `scan-extract` | Scan artifact (`input_path`)<br>Inline JSON (`rules`)<br>Selector (`url`) | Closed declarative rules over retained complete bodies.; Optional exact logical URL. |
+| `scan-extract` | Scan artifact (`input_path`)<br>Inline JSON (`rules`)<br>Selector (`url`)<br>Selector (`representation, limit, offset`) | Closed declarative rules over retained complete bodies.; Optional exact logical URL.; limit is the page size; offset continues from next_offset. |
 | `custom-extract-sample` | Inline text (`html`)<br>Inline JSON (`extractors`)<br>Selector (`url`) | Supplied HTML; never fetched.; Explicit extractor specifications.; Optional output label only; never fetched. |
 | `extract-suggest` | Inline text (`text`)<br>Selector (`url`)<br>Local file (`html`)<br>Scan artifact (`scan`)<br>Selector (`scan_url, representation`)<br>Selector (`emit_rule, rule_id`) | Visible text of the element to locate; required in every form.; One sample page fetch; the command's only request.; Local HTML sample file; no fetch.; Retained scan supplying the sample body.; Optional retained document selection.; Emit a ready extraction_rules.v1 rule for the best candidate. |
 | `scan-structured-blocks` | Scan artifact (`input_path`)<br>Selector (`url`)<br>Selector (`representation`)<br>Selector (`variant_key`) | Exact retained logical URL.; static, rendered, or legacy_fragment source.; Optional exact retained HTTP variant key. |

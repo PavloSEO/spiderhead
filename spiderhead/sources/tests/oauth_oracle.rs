@@ -200,7 +200,7 @@ async fn oauth_oracle_parity() {
             None,
         )
         .await
-        .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+        .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
         // The post-call config-root snapshot is part of the oracle.
         let want_files = scenario
