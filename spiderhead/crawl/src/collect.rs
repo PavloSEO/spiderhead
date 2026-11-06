@@ -4,6 +4,8 @@ use std::collections::BTreeMap;
 
 use serde_json::{json, Map, Value};
 use spiderhead_fetch::client::{self, FetchErrorKind, RawResponse};
+use std::sync::{Mutex, MutexGuard};
+
 use spiderhead_fetch::throttle::{Outcome, Throttle};
 use spiderhead_parse::models::ParsedPage;
 use spiderhead_parse::{parse_html, ParseOptions};
@@ -136,7 +138,7 @@ fn redirect_target(url: &str, location: &str) -> String {
 #[allow(clippy::too_many_arguments)]
 pub async fn fetch_one(
     client: &reqwest::Client,
-    throttle: &mut Throttle,
+    throttle: &Mutex<Throttle>,
     url: &str,
     user_agent: &str,
     retry_on_timeout: u32,
@@ -334,7 +336,7 @@ fn finish(
 
 async fn raw_with_retries(
     client: &reqwest::Client,
-    throttle: &mut Throttle,
+    throttle: &Mutex<Throttle>,
     url: &str,
     user_agent: &str,
     retry_on_timeout: u32,
@@ -345,7 +347,7 @@ async fn raw_with_retries(
     *attempts += 1;
     // Timeout retries: only timeout-classified failures, each a paced request.
     while response.error_kind == Some(FetchErrorKind::Timeout) && *attempts <= retry_on_timeout {
-        throttle.record(Outcome::Timeout, 0.0, None);
+        shared(throttle).record(Outcome::Timeout, 0.0, None);
         response = dispatch(client, throttle, url, user_agent).await;
         *attempts += 1;
     }
@@ -356,7 +358,7 @@ async fn raw_with_retries(
         && *attempts <= retry_server_errors
     {
         let retry_after = retry_after_of(&response);
-        throttle.record(Outcome::ServerError, response.response_time, retry_after);
+        shared(throttle).record(Outcome::ServerError, response.response_time, retry_after);
         response = dispatch(client, throttle, url, user_agent).await;
         *attempts += 1;
     }
@@ -369,7 +371,7 @@ async fn raw_with_retries(
         (Some(_), _) => Outcome::ClientError,
     };
     let retry_after = retry_after_of(&response);
-    throttle.record(outcome, response.response_time, retry_after);
+    shared(throttle).record(outcome, response.response_time, retry_after);
     response
 }
 
@@ -382,13 +384,25 @@ fn retry_after_of(response: &RawResponse) -> Option<f64> {
     value.parse::<f64>().ok().map(|seconds| seconds.max(0.0))
 }
 
+/// The throttle shared by the requests of one batch. A poisoned lock still
+/// holds consistent counters, so it is used as is.
+fn shared(throttle: &Mutex<Throttle>) -> MutexGuard<'_, Throttle> {
+    throttle.lock().unwrap_or_else(|p| p.into_inner())
+}
+
+/// Take a dispatch slot under the lock, then wait for it without holding the
+/// lock, so requests of one batch overlap instead of queueing behind each other.
 async fn dispatch(
     client: &reqwest::Client,
-    throttle: &mut Throttle,
+    throttle: &Mutex<Throttle>,
     url: &str,
     user_agent: &str,
 ) -> RawResponse {
-    throttle.wait().await;
+    let slot = shared(throttle).reserve();
+    let now = spiderhead_fetch::clock::now();
+    if slot > now {
+        spiderhead_fetch::clock::sleep(slot - now).await;
+    }
     client::get(client, url, user_agent).await
 }
 

@@ -229,8 +229,8 @@ fn false_metadata_types_and_order_are_refused() {
         ("UPDATE pages SET page_ordinal=100 WHERE page_ordinal=0", "ordinals"),
         ("UPDATE links SET ordinal=100 WHERE link_id=1", "ordinals"),
         ("UPDATE pages SET size_bytes=-1", "negative"),
-        ("UPDATE pages SET status_code='hello'", "scalar type"),
-        ("UPDATE pages SET response_time=1e999", "non-finite"),
+        ("UPDATE pages SET status_code='hello'", "holds a text value"),
+        ("UPDATE pages SET response_time=1e999", "holds a real value"),
         ("UPDATE scan SET limitations_json='{}'", "string list"),
         (
             "UPDATE context_items SET payload_json='{\"source_format\":null,\"inputs\":\"wrong\",\"recovered_truncated_final_line\":\"yes\",\"resume_eligible\":false}'",

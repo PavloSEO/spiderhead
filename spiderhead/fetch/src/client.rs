@@ -61,10 +61,36 @@ pub fn build_client(timeout_seconds: f64) -> Result<reqwest::Client, String> {
         .map_err(|e| format!("http client build failed: {e}"))
 }
 
+/// Attempts per URL when the server drops a connection under the request.
+const CONNECTION_ATTEMPTS: u32 = 3;
+
 /// One GET request with the fixed header set.
-/// Transport failures are returned in the result, not as an error.
+/// Transport failures are returned in the result, not as an error. A
+/// connection the server closed under the request (keep-alive recycling,
+/// HTTP/2 GOAWAY) is not a page failure: the request is repeated on a fresh
+/// connection and only a persistent drop is reported.
 pub async fn get(client: &reqwest::Client, url: &str, user_agent: &str) -> RawResponse {
     let started = Instant::now();
+    let mut attempt = 1;
+    loop {
+        match get_once(client, url, user_agent).await {
+            Ok(mut response) => {
+                response.response_time = round3(started.elapsed().as_secs_f64());
+                return response;
+            }
+            Err(e) if is_dropped_connection(&e) && attempt < CONNECTION_ATTEMPTS => {
+                attempt += 1;
+            }
+            Err(e) => return failure(&e, round3(started.elapsed().as_secs_f64())),
+        }
+    }
+}
+
+async fn get_once(
+    client: &reqwest::Client,
+    url: &str,
+    user_agent: &str,
+) -> Result<RawResponse, reqwest::Error> {
     let mut request = client.get(url);
     for (name, value) in request_header_template(user_agent, &host_of(url)) {
         if name == "host" {
@@ -72,50 +98,97 @@ pub async fn get(client: &reqwest::Client, url: &str, user_agent: &str) -> RawRe
         }
         request = request.header(name.as_str(), value.as_str());
     }
-    let outcome = request.send().await;
-    let response_time = round3(started.elapsed().as_secs_f64());
-    match outcome {
-        Ok(response) => {
-            let status = response.status().as_u16();
-            let headers: Vec<(String, String)> = response
-                .headers()
-                .iter()
-                .map(|(name, value)| {
-                    (
-                        name.as_str().to_ascii_lowercase(),
-                        value.to_str().unwrap_or("").to_string(),
-                    )
-                })
-                .collect();
-            let body = response.bytes().await.unwrap_or_default().to_vec();
-            RawResponse {
-                status: Some(status),
-                headers,
-                body,
-                response_time,
-                error: String::new(),
-                error_kind: None,
-            }
-        }
-        Err(e) => {
-            let (message, kind) = if e.is_timeout() {
-                (format!("timed out: {e}"), FetchErrorKind::Timeout)
-            } else {
-                (
-                    format!("connection failed: {e}"),
-                    FetchErrorKind::Connection,
-                )
-            };
-            RawResponse {
-                status: None,
-                headers: Vec::new(),
-                body: Vec::new(),
-                response_time,
-                error: message,
-                error_kind: Some(kind),
-            }
-        }
+    let response = request.send().await?;
+    let status = response.status().as_u16();
+    let headers: Vec<(String, String)> = response
+        .headers()
+        .iter()
+        .map(|(name, value)| {
+            (
+                name.as_str().to_ascii_lowercase(),
+                value.to_str().unwrap_or("").to_string(),
+            )
+        })
+        .collect();
+    let body = match response.bytes().await {
+        Ok(bytes) => bytes.to_vec(),
+        // A body cut short by a dropped connection must not pass as a complete page.
+        Err(e) if is_dropped_connection(&e) => return Err(e),
+        Err(_) => Vec::new(),
+    };
+    Ok(RawResponse {
+        status: Some(status),
+        headers,
+        body,
+        response_time: 0.0,
+        error: String::new(),
+        error_kind: None,
+    })
+}
+
+/// The error with its whole cause chain, so a failed page says why.
+fn describe(e: &reqwest::Error) -> String {
+    let mut text = e.to_string();
+    let mut source = std::error::Error::source(e);
+    while let Some(inner) = source {
+        text.push_str(": ");
+        text.push_str(&inner.to_string());
+        source = inner.source();
     }
+    text
+}
+
+fn failure(e: &reqwest::Error, response_time: f64) -> RawResponse {
+    let (message, kind) = if e.is_timeout() {
+        (
+            format!("timed out: {}", describe(e)),
+            FetchErrorKind::Timeout,
+        )
+    } else {
+        (
+            format!("connection failed: {}", describe(e)),
+            FetchErrorKind::Connection,
+        )
+    };
+    RawResponse {
+        status: None,
+        headers: Vec::new(),
+        body: Vec::new(),
+        response_time,
+        error: message,
+        error_kind: Some(kind),
+    }
+}
+
+/// Whether the server closed an established connection under the request, as
+/// opposed to a timeout or a connection that was never made.
+fn is_dropped_connection(e: &reqwest::Error) -> bool {
+    if e.is_timeout() || e.is_connect() {
+        return false;
+    }
+    let mut chain = vec![e.to_string()];
+    let mut source = std::error::Error::source(e);
+    while let Some(inner) = source {
+        chain.push(inner.to_string());
+        source = inner.source();
+    }
+    let text = chain.join(" ").to_ascii_lowercase();
+    [
+        "connection closed",
+        "connection reset",
+        "connection aborted",
+        "broken pipe",
+        "unexpected eof",
+        "unexpected end of file",
+        "incomplete message",
+        "go_away",
+        "goaway",
+        "go away",
+        "channel closed",
+        "canceled",
+    ]
+    .iter()
+    .any(|needle| text.contains(needle))
 }
 
 /// The `host` header value recorded for a request: `host:port` from the URL.

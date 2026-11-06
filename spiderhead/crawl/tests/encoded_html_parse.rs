@@ -45,10 +45,10 @@ fn serve(encoding: Option<&'static str>) -> String {
 
 async fn crawl_one(url: &str) -> spiderhead_crawl::collect::Fetched {
     let client = spiderhead_fetch::client::build_client(10.0).expect("client");
-    let mut throttle = Throttle::new(0.0, 60.0, 1);
+    let throttle = std::sync::Mutex::new(Throttle::new(0.0, 60.0, 1));
     fetch_one(
         &client,
-        &mut throttle,
+        &throttle,
         url,
         "test-agent",
         0,

@@ -79,9 +79,11 @@ pub struct CrawlOptions {
     /// stops the run like the project reporter's control interrupt (and
     /// skips the directives, exactly as the raised exception does).
     pub on_batch: Option<OnBatchHook>,
-    /// Pacing slot before every page request (the project origin turn); an
-    /// `Err` parks the run with its message as the interrupt reason.
-    pub request_gate: Option<std::sync::Arc<dyn Fn() -> Result<(), String> + Send + Sync>>,
+    /// Pacing slot before every page request (the project origin turn): the
+    /// slot is reserved and the seconds to wait before dispatch come back, so
+    /// requests of one batch wait side by side. An `Err` parks the run with
+    /// its message as the interrupt reason.
+    pub request_gate: Option<std::sync::Arc<dyn Fn() -> Result<f64, String> + Send + Sync>>,
     /// Sitemap-only mode: the sitemap's own URL is the scan's start URL, its
     /// members are the whole population — no start page, link or redirect
     /// spidering. Also detected on resume from the stored root source.
@@ -149,6 +151,15 @@ pub async fn crawl_site(
     let mut scope = Scope::from_config(&config_value_of(options)?)?;
     scope.set_start_url(&options.start_url)?;
     let mut throttle = Throttle::new(options.min_delay, options.max_delay, options.concurrency);
+    // `speed.adaptive=false` pins the configured rate: full concurrency from the
+    // first request and no automatic back-off.
+    let adaptive = options
+        .config
+        .get("speed")
+        .and_then(|speed| speed.get("adaptive"))
+        .and_then(Value::as_bool)
+        .unwrap_or(true);
+    throttle.set_adaptive(adaptive);
     let start_instant = spiderhead_fetch::clock::now();
     let existing = options.resumed;
 
@@ -292,6 +303,7 @@ pub async fn crawl_site(
     // rate restatement then applies as a live politeness change.
     if existing {
         restore_throttle(scan, &mut throttle);
+        throttle.set_adaptive(adaptive);
         if let Some((min_delay, concurrency)) = options.rate_override {
             throttle.set_rate(min_delay, concurrency);
         }
@@ -339,6 +351,9 @@ pub async fn crawl_site(
     )
     .await
 }
+
+/// Largest membership write the scan store accepts in one call.
+const MEMBERSHIP_CHUNK: usize = 256;
 
 /// The sitemap input phase (`load_sitemaps` of the collector): every declared
 /// root is replayed from stored membership or captured over the network, its
@@ -407,8 +422,12 @@ async fn load_sitemaps(
                 .enumerate()
                 .map(|(index, member)| json!([index as i64, member]))
                 .collect();
-            scan.write_sitemap_members(sitemap_id, &pairs)
-                .map_err(|e| e.to_string())?;
+            // The store bounds one membership write; a sitemap of any size is
+            // persisted as consecutive chunks that keep source order.
+            for chunk in pairs.chunks(MEMBERSHIP_CHUNK) {
+                scan.write_sitemap_members(sitemap_id, chunk)
+                    .map_err(|e| e.to_string())?;
+            }
         }
         scan.finish_sitemap(sitemap_id, capture.complete, &capture.reason)
             .map_err(|e| e.to_string())?;
@@ -579,126 +598,224 @@ async fn crawl_loop(
                     .map_err(|e| e.to_string())?;
             }
         }
-        let lease = match scan.claim(1).map_err(|e| e.to_string())?.pop() {
-            Some(lease) => lease,
-            None => break, // frontier drained: finished
-        };
-        max_depth_reached = max_depth_reached.max(lease.depth);
+        // One batch: as many leases as the throttle currently allows in
+        // flight, never more than the URL and request budgets have left.
+        let mut want = i64::from(throttle.concurrency().max(1));
+        if options.max_urls > 0 {
+            want = want.min((options.max_urls - materialized).max(1));
+        }
+        if options.max_requests > 0 {
+            want = want.min((options.max_requests - throttle.requests_used() as i64).max(1));
+        }
+        let leases = scan.claim(want).map_err(|e| e.to_string())?;
+        if leases.is_empty() {
+            break; // frontier drained: finished
+        }
+        let mut ready = Vec::with_capacity(leases.len());
+        for lease in leases {
+            max_depth_reached = max_depth_reached.max(lease.depth);
 
-        // The robots gate runs before the fetch.
-        let path = robots::match_path(&lease.url);
-        if options.robots_policy != "ignore" && !robots::is_allowed(&enforcement_group, &path) {
-            if let Some(rule) = robots::blocking_rule(&enforcement_group, &path) {
-                robots_blocked.push(lease.url.clone());
-                robots_blocked_reasons.insert(lease.url.clone(), json!(rule));
+            // The robots gate runs before the fetch.
+            let path = robots::match_path(&lease.url);
+            if options.robots_policy != "ignore" && !robots::is_allowed(&enforcement_group, &path) {
+                if let Some(rule) = robots::blocking_rule(&enforcement_group, &path) {
+                    robots_blocked.push(lease.url.clone());
+                    robots_blocked_reasons.insert(lease.url.clone(), json!(rule));
+                }
+                scan.exclude_lease(
+                    &lease,
+                    "blocked_by_robots",
+                    &runtime_state(&throttle, max_depth_reached, crawl_delay_applied),
+                    &[],
+                )
+                .map_err(|e| e.to_string())?;
+                continue;
             }
-            scan.exclude_lease(
-                &lease,
-                "blocked_by_robots",
-                &runtime_state(&throttle, max_depth_reached, crawl_delay_applied),
-                &[],
-            )
-            .map_err(|e| e.to_string())?;
+
+            if options.max_urls > 0 && materialized + ready.len() as i64 >= options.max_urls {
+                // Refuse the page: it was never fetched, the lease stays queued and
+                // the run ends with the URL limit.
+                scan.recover_inflight().map_err(|e| e.to_string())?;
+                finish_reason = "url_limit".into();
+                stopped_reason = format!("url limit reached ({})", options.max_urls);
+                break;
+            }
+
+            // The project origin turn before every page request (pace-only; it
+            // never raises in the reference flow). The robots probe keeps local
+            // throttle pacing only — one request per run.
+            let mut wait = 0.0;
+            if let Some(gate) = &options.request_gate {
+                match gate() {
+                    Ok(seconds) => wait = seconds,
+                    Err(message) => {
+                        return control_stop(
+                            scan,
+                            &message,
+                            robots_blocked,
+                            robots_blocked_reasons,
+                            max_depth_reached,
+                        );
+                    }
+                }
+            }
+            ready.push((lease, wait));
+        }
+        if ready.is_empty() {
             continue;
         }
 
-        if materialized >= options.max_urls && options.max_urls > 0 {
-            // Refuse the page: it was never fetched, the lease stays queued and
-            // the run ends with the URL limit.
-            scan.recover_inflight().map_err(|e| e.to_string())?;
-            finish_reason = "url_limit".into();
-            stopped_reason = format!("url limit reached ({})", options.max_urls);
-            break;
-        }
-
-        // The project origin turn before every page request (pace-only; it
-        // never raises in the reference flow). The robots probe keeps local
-        // throttle pacing only — one request per run.
-        if let Some(gate) = &options.request_gate {
-            if let Err(message) = gate() {
-                return control_stop(
-                    scan,
-                    &message,
-                    robots_blocked,
-                    robots_blocked_reasons,
-                    max_depth_reached,
-                );
+        // The batch is fetched concurrently; results come back in lease order
+        // and are committed one page at a time.
+        let shared = std::sync::Mutex::new(throttle);
+        let media = |content_type: &str| scope.response_media_rejection(content_type);
+        let (shared_ref, media_ref, opts) = (&shared, &media, options);
+        let results = futures::future::join_all(ready.iter().map(|(lease, wait)| async move {
+            if *wait > 0.0 {
+                spiderhead_fetch::clock::sleep(std::time::Duration::from_secs_f64(*wait)).await;
             }
-        }
-
-        let mut fetched = collect::fetch_one(
-            &options.client,
-            &mut throttle,
-            &lease.url,
-            &options.user_agent,
-            options.retry_on_timeout,
-            options.retry_server_errors,
-            options.max_response_bytes,
-            options.entity_capture_limit,
-            &options.parse_options,
-            &|content_type| scope.response_media_rejection(content_type),
-        )
+            collect::fetch_one(
+                &opts.client,
+                shared_ref,
+                &lease.url,
+                &opts.user_agent,
+                opts.retry_on_timeout,
+                opts.retry_server_errors,
+                opts.max_response_bytes,
+                opts.entity_capture_limit,
+                &opts.parse_options,
+                media_ref,
+            )
+            .await
+        }))
         .await;
-        fetched
-            .record
-            .insert("crawl_depth".into(), json!(lease.depth));
-        if render_js {
-            // The page row, links and evidence below describe the rendered DOM;
-            // the stored document keeps the `static` representation label.
-            support::render_into(&mut fetched, &lease.url, options).await;
-        }
+        throttle = shared.into_inner().unwrap_or_else(|p| p.into_inner());
 
-        // Circuit breakers, folded in queue order.
-        if throttle.should_stop_timeouts() {
-            finish_reason = "errors".into();
-            stopped_reason = "origin stopped responding (repeated timeouts)".into();
-        } else if throttle.should_stop_server_errors() {
-            finish_reason = "errors".into();
-            stopped_reason = "origin refused repeatedly (429/5xx) — crawl stopped".into();
-        }
-        if options.max_crawl_seconds > 0.0
-            && spiderhead_fetch::clock::now()
-                .saturating_duration_since(start_instant)
-                .as_secs_f64()
-                >= options.max_crawl_seconds
-        {
-            finish_reason = "duration_limit".into();
-            stopped_reason = format!("duration limit reached ({:.0}s)", options.max_crawl_seconds);
-        }
+        for ((lease, _), mut fetched) in ready.into_iter().zip(results) {
+            fetched
+                .record
+                .insert("crawl_depth".into(), json!(lease.depth));
+            if render_js {
+                // The page row, links and evidence below describe the rendered DOM;
+                // the stored document keeps the `static` representation label.
+                support::render_into(&mut fetched, &lease.url, options).await;
+            }
 
-        // Links: an edge is stored for every `<a href>`.
-        // Enqueue-time gates decide discovery and record decisions, in gate order.
-        // Sitemap-only runs never spider destinations: no link edges, decisions
-        // or candidates are produced at all.
-        let mut links: Vec<Map<String, Value>> = Vec::new();
-        let mut decisions: Vec<Map<String, Value>> = Vec::new();
-        let mut candidates: Vec<Map<String, Value>> = Vec::new();
-        if !sitemap_only {
-            if let Some(parsed) = &fetched.parsed {
-                for link in parsed.links.iter() {
-                    let mut edge = Map::new();
-                    edge.insert("source".into(), json!(lease.url));
-                    edge.insert("destination".into(), json!(link.href));
-                    edge.insert("anchor".into(), json!(link.text));
-                    edge.insert("nofollow".into(), json!(link.nofollow));
-                    edge.insert("position".into(), json!(""));
-                    edge.insert(
-                        "rel".into(),
-                        json!(link
-                            .rel
-                            .split_whitespace()
-                            .map(str::to_string)
-                            .collect::<Vec<String>>()),
-                    );
-                    edge.insert("target".into(), json!(link.target));
-                    edge.insert("raw_href".into(), json!(""));
-                    edge.insert(
-                        "anchor_source".into(),
-                        json!(link.anchor_source.clone().unwrap_or_default()),
-                    );
-                    links.push(edge);
+            // Circuit breakers, folded in queue order.
+            if throttle.should_stop_timeouts() {
+                finish_reason = "errors".into();
+                stopped_reason = "origin stopped responding (repeated timeouts)".into();
+            } else if throttle.should_stop_server_errors() {
+                finish_reason = "errors".into();
+                stopped_reason = "origin refused repeatedly (429/5xx) — crawl stopped".into();
+            }
+            if options.max_crawl_seconds > 0.0
+                && spiderhead_fetch::clock::now()
+                    .saturating_duration_since(start_instant)
+                    .as_secs_f64()
+                    >= options.max_crawl_seconds
+            {
+                finish_reason = "duration_limit".into();
+                stopped_reason =
+                    format!("duration limit reached ({:.0}s)", options.max_crawl_seconds);
+            }
 
-                    // Enqueue-time gates. The canonical key strips the fragment for the frontier.
+            // Links: an edge is stored for every `<a href>`.
+            // Enqueue-time gates decide discovery and record decisions, in gate order.
+            // Sitemap-only runs never spider destinations: no link edges, decisions
+            // or candidates are produced at all.
+            let mut links: Vec<Map<String, Value>> = Vec::new();
+            let mut decisions: Vec<Map<String, Value>> = Vec::new();
+            let mut candidates: Vec<Map<String, Value>> = Vec::new();
+            if !sitemap_only {
+                if let Some(parsed) = &fetched.parsed {
+                    for link in parsed.links.iter() {
+                        let mut edge = Map::new();
+                        edge.insert("source".into(), json!(lease.url));
+                        edge.insert("destination".into(), json!(link.href));
+                        edge.insert("anchor".into(), json!(link.text));
+                        edge.insert("nofollow".into(), json!(link.nofollow));
+                        edge.insert("position".into(), json!(""));
+                        edge.insert(
+                            "rel".into(),
+                            json!(link
+                                .rel
+                                .split_whitespace()
+                                .map(str::to_string)
+                                .collect::<Vec<String>>()),
+                        );
+                        edge.insert("target".into(), json!(link.target));
+                        edge.insert("raw_href".into(), json!(""));
+                        edge.insert(
+                            "anchor_source".into(),
+                            json!(link.anchor_source.clone().unwrap_or_default()),
+                        );
+                        links.push(edge);
+
+                        // Enqueue-time gates. The canonical key strips the fragment for the frontier.
+                        if lease.depth >= depth_limit {
+                            decisions.push(decision(
+                                &lease.url,
+                                "depth_limit",
+                                &lease.url,
+                                lease.depth + 1,
+                            ));
+                            break;
+                        }
+                        // Resolve against the page before gating: a relative
+                        // href has no host for the scope test, no absolute
+                        // frontier URL to fetch, and no scheme the candidate
+                        // keys can be derived from.
+                        let resolved =
+                            spiderhead_parse::py_url::urljoin(&lease.url, &link.href)
+                                .unwrap_or_else(|_| link.href.clone());
+                        let target = strip_fragment(&resolved);
+                        let rejected = if link.nofollow {
+                            Some("nofollow".to_string())
+                        } else {
+                            scope.rejection(&target).map(|r| {
+                                if r.reason == "outside_host" && is_redirect(&lease.url, &link.href)
+                                {
+                                    "redirect_off_host".to_string()
+                                } else {
+                                    r.reason
+                                }
+                            })
+                        };
+                        match rejected {
+                            Some(reason) => decisions.push(decision(
+                                &target,
+                                &reason,
+                                &lease.url,
+                                lease.depth + 1,
+                            )),
+                            None => {
+                                if target.len() <= options.max_url_length {
+                                    candidates.push(candidate(
+                                        &resolved,
+                                        &target,
+                                        lease.depth + 1,
+                                    ));
+                                } else {
+                                    decisions.push(decision(
+                                        &target,
+                                        "url_too_long",
+                                        &lease.url,
+                                        lease.depth + 1,
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if options.crawl_redirects && !sitemap_only {
+                if let Some(target) = fetched
+                    .record
+                    .get("redirect_url")
+                    .and_then(Value::as_str)
+                    .filter(|value| !value.is_empty())
+                {
                     if lease.depth >= depth_limit {
                         decisions.push(decision(
                             &lease.url,
@@ -706,200 +823,156 @@ async fn crawl_loop(
                             &lease.url,
                             lease.depth + 1,
                         ));
-                        break;
-                    }
-                    let target = strip_fragment(&link.href);
-                    let rejected = if link.nofollow {
-                        Some("nofollow".to_string())
                     } else {
-                        scope.rejection(&target).map(|r| {
-                            if r.reason == "outside_host" && is_redirect(&lease.url, &link.href) {
-                                "redirect_off_host".to_string()
-                            } else {
-                                r.reason
-                            }
-                        })
-                    };
-                    match rejected {
-                        Some(reason) => {
-                            decisions.push(decision(&target, &reason, &lease.url, lease.depth + 1))
-                        }
-                        None => {
-                            if target.len() <= options.max_url_length {
-                                candidates.push(candidate(&link.href, &target, lease.depth + 1));
-                            } else {
+                        let stripped = strip_fragment(target);
+                        match scope.rejection(&stripped) {
+                            Some(rejection) => {
+                                let reason = if rejection.reason == "outside_host" {
+                                    "redirect_off_host".to_string()
+                                } else {
+                                    rejection.reason
+                                };
                                 decisions.push(decision(
-                                    &target,
-                                    "url_too_long",
+                                    &stripped,
+                                    &reason,
                                     &lease.url,
                                     lease.depth + 1,
                                 ));
                             }
+                            None => candidates.push(candidate(target, &stripped, lease.depth + 1)),
                         }
                     }
                 }
             }
-        }
-        if options.crawl_redirects && !sitemap_only {
-            if let Some(target) = fetched
-                .record
-                .get("redirect_url")
-                .and_then(Value::as_str)
-                .filter(|value| !value.is_empty())
-            {
-                if lease.depth >= depth_limit {
-                    decisions.push(decision(
-                        &lease.url,
-                        "depth_limit",
-                        &lease.url,
-                        lease.depth + 1,
-                    ));
-                } else {
-                    let stripped = strip_fragment(target);
-                    match scope.rejection(&stripped) {
-                        Some(rejection) => {
-                            let reason = if rejection.reason == "outside_host" {
-                                "redirect_off_host".to_string()
-                            } else {
-                                rejection.reason
-                            };
-                            decisions.push(decision(
-                                &stripped,
-                                &reason,
-                                &lease.url,
-                                lease.depth + 1,
-                            ));
-                        }
-                        None => candidates.push(candidate(target, &stripped, lease.depth + 1)),
-                    }
-                }
-            }
-        }
-        materialized += 1;
+            materialized += 1;
 
-        // Page-scoped evidence via the store's capture orchestrator; the
-        // document id is predictable (one retained document per page commit).
-        let url_id = lease.url_id;
-        let document_id = documents + 1;
-        let mut context: Vec<Map<String, Value>> = Vec::new();
-        let parsed_map: Option<serde_json::Map<String, Value>> =
-            fetched.parsed.as_ref().map(|parsed| {
-                let mut value = serde_json::to_value(parsed).unwrap_or(Value::Null);
-                if let Value::Object(map) = &mut value {
-                    if let Some(html) = &fetched.html {
-                        map.insert("_raw_html".into(), json!(html));
+            // Page-scoped evidence via the store's capture orchestrator; the
+            // document id is predictable (one retained document per page commit).
+            let url_id = lease.url_id;
+            let document_id = documents + 1;
+            let mut context: Vec<Map<String, Value>> = Vec::new();
+            let parsed_map: Option<serde_json::Map<String, Value>> =
+                fetched.parsed.as_ref().map(|parsed| {
+                    let mut value = serde_json::to_value(parsed).unwrap_or(Value::Null);
+                    if let Value::Object(map) = &mut value {
+                        if let Some(html) = &fetched.html {
+                            map.insert("_raw_html".into(), json!(html));
+                        }
                     }
-                }
-                value.as_object().cloned().unwrap_or_default()
-            });
-        let unavailable = if fetched.parsed.is_some() {
-            ""
-        } else {
-            "static document was not parsed as eligible HTML"
-        };
-        let parsed_btree: Option<std::collections::BTreeMap<String, Value>> = parsed_map
-            .as_ref()
-            .map(|m| m.iter().map(|(k, v)| (k.clone(), v.clone())).collect());
-        let capture = spiderhead_store::crawl_records::content_evidence::capture(
-            url_id,
-            document_id,
-            "static",
-            fetched.html.as_deref(),
-            parsed_btree.as_ref(),
-            &options
-                .config
-                .as_object()
-                .map(|m| {
-                    m.iter()
-                        .map(|(k, v)| (k.clone(), v.clone()))
-                        .collect::<std::collections::BTreeMap<String, Value>>()
-                })
-                .unwrap_or_default(),
-            None,
-            fetched
-                .record
-                .get("canonical")
-                .and_then(Value::as_str)
-                .unwrap_or(""),
-            unavailable,
-            None,
-        );
-        for row in capture {
-            context.push(row.into_iter().collect());
-        }
-        // The inventory context exists for every HTML record: complete when
-        // the parse produced declarations or the body was captured empty
-        // (a bare redirect), unavailable otherwise. Reason strings mirror the
-        // store's `put_declarations`.
-        if is_html_record(&fetched.record) {
-            let empty_body = fetched
-                .capture
-                .entity_bytes
-                .as_ref()
-                .is_some_and(|bytes| bytes.is_empty());
-            let state = if fetched.parsed.is_some() || empty_body {
-                "complete"
+                    value.as_object().cloned().unwrap_or_default()
+                });
+            let unavailable = if fetched.parsed.is_some() {
+                ""
             } else {
-                "unavailable"
+                "static document was not parsed as eligible HTML"
             };
-            let (completeness, reason) = match state {
-                "complete" => ("complete", ""),
-                _ => ("unavailable", "resource declarations were not measured"),
-            };
-            let inventory = json!({
-                "kind": "resource_inventory",
-                "item_key": format!("document:{document_id}"),
-                "payload_version": "scan_context.v1",
-                "payload_json": spiderhead_store::discovery_ledger::py_dumps(
-                    &json!({
-                        "document_id": document_id,
-                        "omitted": 0,
-                        "state": state,
-                    }),
-                    false,
-                    true,
-                ),
-                "completeness": completeness,
-                "reason": reason,
-            });
-            context.push(inventory.as_object().cloned().unwrap_or_default());
-        }
+            let parsed_btree: Option<std::collections::BTreeMap<String, Value>> = parsed_map
+                .as_ref()
+                .map(|m| m.iter().map(|(k, v)| (k.clone(), v.clone())).collect());
+            let capture = spiderhead_store::crawl_records::content_evidence::capture(
+                url_id,
+                document_id,
+                "static",
+                fetched.html.as_deref(),
+                parsed_btree.as_ref(),
+                &options
+                    .config
+                    .as_object()
+                    .map(|m| {
+                        m.iter()
+                            .map(|(k, v)| (k.clone(), v.clone()))
+                            .collect::<std::collections::BTreeMap<String, Value>>()
+                    })
+                    .unwrap_or_default(),
+                None,
+                fetched
+                    .record
+                    .get("canonical")
+                    .and_then(Value::as_str)
+                    .unwrap_or(""),
+                unavailable,
+                None,
+            );
+            for row in capture {
+                context.push(row.into_iter().collect());
+            }
+            // The inventory context exists for every HTML record: complete when
+            // the parse produced declarations or the body was captured empty
+            // (a bare redirect), unavailable otherwise. Reason strings mirror the
+            // store's `put_declarations`.
+            if is_html_record(&fetched.record) {
+                let empty_body = fetched
+                    .capture
+                    .entity_bytes
+                    .as_ref()
+                    .is_some_and(|bytes| bytes.is_empty());
+                let state = if fetched.parsed.is_some() || empty_body {
+                    "complete"
+                } else {
+                    "unavailable"
+                };
+                let (completeness, reason) = match state {
+                    "complete" => ("complete", ""),
+                    _ => ("unavailable", "resource declarations were not measured"),
+                };
+                let inventory = json!({
+                    "kind": "resource_inventory",
+                    "item_key": format!("document:{document_id}"),
+                    "payload_version": "scan_context.v1",
+                    "payload_json": spiderhead_store::discovery_ledger::py_dumps(
+                        &json!({
+                            "document_id": document_id,
+                            "omitted": 0,
+                            "state": state,
+                        }),
+                        false,
+                        true,
+                    ),
+                    "completeness": completeness,
+                    "reason": reason,
+                });
+                context.push(inventory.as_object().cloned().unwrap_or_default());
+            }
 
-        let commit = PageCommit {
-            lease: Some(lease),
-            record: fetched.record,
-            links,
-            forms: Vec::new(),
-            decisions,
-            discovered: Vec::new(),
-            query_reservations: Vec::new(),
-            candidates,
-            partial_reasons: Vec::new(),
-            runtime: Some(runtime_state(
-                &throttle,
-                max_depth_reached,
-                crawl_delay_applied,
-            )),
-            context,
-            content_capture: None,
-            route_observations: Vec::new(),
-            route_coverage: None,
-            captures: vec![fetched.capture],
-            resources: Vec::new(),
-            resource_inventory_state: None,
-            resources_omitted: 0,
-        };
-        scan.commit_page(&commit).map_err(|e| e.to_string())?;
-        documents += 1;
-        // Test seam: park the scan mid-run (inflight stays; no finalization).
-        if options.interrupt_after_pages == Some(documents) {
-            interrupted = true;
+            let commit = PageCommit {
+                lease: Some(lease),
+                record: fetched.record,
+                links,
+                forms: Vec::new(),
+                decisions,
+                discovered: Vec::new(),
+                query_reservations: Vec::new(),
+                candidates,
+                partial_reasons: Vec::new(),
+                runtime: Some(runtime_state(
+                    &throttle,
+                    max_depth_reached,
+                    crawl_delay_applied,
+                )),
+                context,
+                content_capture: None,
+                route_observations: Vec::new(),
+                route_coverage: None,
+                captures: vec![fetched.capture],
+                resources: Vec::new(),
+                resource_inventory_state: None,
+                resources_omitted: 0,
+            };
+            scan.commit_page(&commit).map_err(|e| e.to_string())?;
+            documents += 1;
+            // Test seam: park the scan mid-run (inflight stays; no finalization).
+            if options.interrupt_after_pages == Some(documents) {
+                interrupted = true;
+                break;
+            }
+
+            if throttle.requests_used() as i64 >= options.max_requests && options.max_requests > 0 {
+                finish_reason = "request_limit".into();
+                stopped_reason = "total HTTP request budget exhausted".into();
+            }
+        }
+        if interrupted {
             break;
-        }
-
-        if throttle.requests_used() as i64 >= options.max_requests && options.max_requests > 0 {
-            finish_reason = "request_limit".into();
-            stopped_reason = "total HTTP request budget exhausted".into();
         }
     }
 

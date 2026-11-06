@@ -7,6 +7,9 @@ use super::*;
 pub fn validate_scalar_storage(con: &Connection) -> Result<(), StoreError> {
     for (table, columns) in &expected()?.columns {
         let mut conditions = Vec::new();
+        // Per-column checks kept aside so a violation can name its column,
+        // row and storage class instead of the whole table at once.
+        let mut per_column: Vec<(String, String)> = Vec::new();
         for column in columns {
             let value = format!("\"{}\"", column.name);
             let mut types = match column.kind.as_str() {
@@ -19,9 +22,13 @@ pub fn validate_scalar_storage(con: &Connection) -> Result<(), StoreError> {
             if !column.required && !column.primary {
                 types.push_str(",'null'");
             }
-            conditions.push(format!("typeof({value}) NOT IN ({types})"));
+            let type_check = format!("typeof({value}) NOT IN ({types})");
+            conditions.push(type_check.clone());
+            per_column.push((column.name.clone(), type_check));
             if column.kind == "REAL" {
-                conditions.push(format!("abs({value}) > 1.7976931348623157e308"));
+                let check = format!("abs({value}) > 1.7976931348623157e308");
+                conditions.push(check.clone());
+                per_column.push((column.name.clone(), check));
             }
             if column.kind == "TEXT" {
                 let limit = if column.name == "document_json" {
@@ -29,7 +36,9 @@ pub fn validate_scalar_storage(con: &Connection) -> Result<(), StoreError> {
                 } else {
                     MAX_RECORD_BYTES
                 };
-                conditions.push(format!("length(CAST({value} AS BLOB)) > {limit}"));
+                let check = format!("length(CAST({value} AS BLOB)) > {limit}");
+                conditions.push(check.clone());
+                per_column.push((column.name.clone(), check));
             }
         }
         let sql = format!(
@@ -37,6 +46,20 @@ pub fn validate_scalar_storage(con: &Connection) -> Result<(), StoreError> {
             conditions.join(" OR ")
         );
         if con.prepare(&sql)?.exists([])? {
+            for (name, check) in &per_column {
+                let probe = format!(
+                    "SELECT typeof(\"{name}\"), rowid FROM \"{table}\" WHERE {check} LIMIT 1"
+                );
+                if let Ok((found, rowid)) =
+                    con.query_row(&probe, [], |row| Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?)))
+                {
+                    return Err(bad(format!(
+                        "{table}.\"{name}\" row {rowid} holds a {found} value: the scan was \
+                         written by another schema version (seohead 3.x or an older \
+                         SpiderHead); re-crawl or re-import it with this build"
+                    )));
+                }
+            }
             return Err(bad(format!(
                 "{table}: invalid scalar type, non-finite number or oversized value"
             )));

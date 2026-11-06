@@ -40,6 +40,7 @@ pub struct Throttle {
     last_dispatch: Option<Instant>,
     started: Instant,
     elapsed_offset: f64,
+    adaptive: bool,
 }
 
 impl Throttle {
@@ -59,6 +60,17 @@ impl Throttle {
             last_dispatch: None,
             started: crate::clock::now(),
             elapsed_offset: 0.0,
+            adaptive: true,
+        }
+    }
+
+    /// Switch the adaptive controller on or off. Off, the delay stays at its
+    /// floor and the full concurrency ceiling applies from the first request;
+    /// response outcomes still feed the failure streaks that stop a crawl.
+    pub fn set_adaptive(&mut self, adaptive: bool) {
+        self.adaptive = adaptive;
+        if !adaptive {
+            self.concurrency = self.max_concurrency;
         }
     }
 
@@ -87,30 +99,34 @@ impl Throttle {
         }
     }
 
-    /// Reserve the next dispatch slot: sleep until `last_at + delay`, then take it.
-    pub async fn wait(&mut self) {
+    /// Reserve the next dispatch slot and return when it opens. The slot is
+    /// taken immediately, so concurrent requests each get their own spacing.
+    pub fn reserve(&mut self) -> Instant {
         let now = crate::clock::now();
         let start_at = match self.last_dispatch {
-            Some(last) => {
-                let earliest = last + Duration::from_secs_f64(self.delay);
-                if earliest > now {
-                    earliest
-                } else {
-                    now
-                }
-            }
+            Some(last) => (last + Duration::from_secs_f64(self.delay)).max(now),
             None => now,
         };
+        self.last_dispatch = Some(start_at);
+        self.requests_used += 1;
+        start_at
+    }
+
+    /// Reserve the next dispatch slot: sleep until `last_at + delay`, then take it.
+    pub async fn wait(&mut self) {
+        let start_at = self.reserve();
+        let now = crate::clock::now();
         if start_at > now {
             crate::clock::sleep(start_at - now).await;
         }
-        let dispatched = crate::clock::now();
-        self.last_dispatch = Some(dispatched);
-        self.requests_used += 1;
     }
 
     /// Feed one response outcome back into the controller.
     pub fn record(&mut self, outcome: Outcome, latency_seconds: f64, retry_after: Option<f64>) {
+        if !self.adaptive {
+            self.record_streaks(outcome);
+            return;
+        }
         match outcome {
             Outcome::Ok => {
                 self.consecutive_timeouts = 0;
@@ -154,6 +170,19 @@ impl Throttle {
             Outcome::ClientError => {
                 self.consecutive_ok = 0;
             }
+        }
+    }
+
+    /// Streak bookkeeping alone, for a fixed-rate crawl.
+    fn record_streaks(&mut self, outcome: Outcome) {
+        match outcome {
+            Outcome::Ok => {
+                self.consecutive_timeouts = 0;
+                self.consecutive_server_errors = 0;
+            }
+            Outcome::Timeout => self.consecutive_timeouts += 1,
+            Outcome::RateLimited | Outcome::ServerError => self.consecutive_server_errors += 1,
+            Outcome::ClientError => {}
         }
     }
 
@@ -342,5 +371,29 @@ mod tests {
         throttle.restore(0.1, 8, 0, 0, 0.0);
         assert_eq!(throttle.delay_seconds(), 0.5);
         assert_eq!(throttle.concurrency(), 2);
+    }
+
+    #[test]
+    fn a_fixed_rate_throttle_starts_at_full_concurrency_and_keeps_its_delay() {
+        let mut throttle = Throttle::new(0.1, 60.0, 10);
+        throttle.set_adaptive(false);
+        assert_eq!(throttle.concurrency(), 10);
+        throttle.record(Outcome::Timeout, 0.0, None);
+        throttle.record(Outcome::ServerError, 0.0, None);
+        assert_eq!(throttle.delay_seconds(), 0.1);
+        assert_eq!(throttle.concurrency(), 10);
+        assert_eq!(throttle.server_error_streak(), 1);
+        assert_eq!(throttle.timeout_streak(), 1);
+    }
+
+    #[test]
+    fn reserved_slots_are_spaced_by_the_delay() {
+        let mut throttle = Throttle::new(0.5, 60.0, 4);
+        let first = throttle.reserve();
+        let second = throttle.reserve();
+        let third = throttle.reserve();
+        assert!(second.duration_since(first).as_secs_f64() >= 0.499);
+        assert!(third.duration_since(second).as_secs_f64() >= 0.499);
+        assert_eq!(throttle.requests_used(), 3);
     }
 }
