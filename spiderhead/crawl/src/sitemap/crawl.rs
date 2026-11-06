@@ -197,10 +197,19 @@ impl Walk {
 /// and the counters the result documents report.
 pub(super) struct Accepted {
     urls: Vec<Value>,
+    /// Normalized members seen so far — the same-set test the list scan used
+    /// to do linearly, which turned a large tree into a quadratic crawl.
+    seen: std::collections::BTreeSet<String>,
     duplicates: Vec<String>,
     duplicate_sources: Map<String, Value>,
+    /// True once the duplicate lists hit their cap and stopped recording.
+    duplicates_truncated: bool,
     extension_counts: [i64; 3],
 }
+
+/// Recorded duplicate members are capped: a sitemap tree that repeats its
+/// URLs across thousands of documents must not grow the answer without bound.
+pub(super) const MAX_DUPLICATES: usize = 100_000;
 
 /// Accept one document's entries, applying the shared truncation limits.
 pub(super) fn accept_entries(accepted: &mut Accepted, target: &str, entries: &[Value]) {
@@ -209,19 +218,20 @@ pub(super) fn accept_entries(accepted: &mut Accepted, target: &str, entries: &[V
         let Ok(norm_loc) = normalize_url(raw_loc) else {
             continue;
         };
-        let seen = accepted.urls.iter().any(|stored| {
-            stored.get("loc_normalized").and_then(Value::as_str) == Some(norm_loc.as_str())
-        });
-        if seen {
-            accepted.duplicates.push(norm_loc.clone());
-            let sources = accepted
-                .duplicate_sources
-                .entry(norm_loc.clone())
-                .or_insert_with(|| json!([target]));
-            if let Some(list) = sources.as_array_mut() {
-                if !list.iter().any(|s| s.as_str() == Some(target)) {
-                    list.push(json!(target));
+        if !accepted.seen.insert(norm_loc.clone()) {
+            if accepted.duplicates.len() < MAX_DUPLICATES {
+                accepted.duplicates.push(norm_loc.clone());
+                let sources = accepted
+                    .duplicate_sources
+                    .entry(norm_loc.clone())
+                    .or_insert_with(|| json!([target]));
+                if let Some(list) = sources.as_array_mut() {
+                    if !list.iter().any(|s| s.as_str() == Some(target)) {
+                        list.push(json!(target));
+                    }
                 }
+            } else {
+                accepted.duplicates_truncated = true;
             }
             continue;
         }
@@ -352,8 +362,10 @@ pub async fn crawl(
     };
     let mut accepted = Accepted {
         urls: Vec::new(),
+        seen: Default::default(),
         duplicates: Vec::new(),
         duplicate_sources: Map::new(),
+        duplicates_truncated: false,
         extension_counts: [0; 3],
     };
     let mut discovery_errors: Vec<Value> = Vec::new();
@@ -448,6 +460,7 @@ pub async fn crawl(
         "sitemaps": walk.sitemaps,
         "duplicates": accepted.duplicates,
         "duplicate_sources": accepted.duplicate_sources,
+        "duplicates_truncated": accepted.duplicates_truncated,
         "errors": walk.errors,
         "truncated": walk.truncated,
         "loc_entries": count,
@@ -530,5 +543,49 @@ pub async fn capture_root(
             .and_then(Value::as_str)
             .unwrap_or(url)
             .to_owned(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn entry(loc: &str) -> Value {
+        json!({"loc": loc})
+    }
+
+    /// A sitemap tree that repeats its URLs stays linear (a set test, not a
+    /// scan of the member list) and caps the recorded duplicate lists instead
+    /// of growing them without bound (issue #46: a large tree was killed at
+    /// exit 137 with an empty answer).
+    #[test]
+    fn repeated_urls_are_set_deduplicated_and_duplicate_lists_capped() {
+        let mut accepted = Accepted {
+            urls: Vec::new(),
+            seen: Default::default(),
+            duplicates: Vec::new(),
+            duplicate_sources: Map::new(),
+            duplicates_truncated: false,
+            extension_counts: [0; 3],
+        };
+        // One URL repeated past the duplicate cap: the member list stays at
+        // one row and the duplicate recording stops at the cap. With the old
+        // per-entry scan over `urls` this volume alone would not finish.
+        let repeats: Vec<Value> =
+            std::iter::repeat(entry("https://site.test/a"))
+                .take(MAX_DUPLICATES + 2)
+                .collect();
+        accept_entries(&mut accepted, "https://site.test/sitemap.xml", &repeats);
+        assert_eq!(accepted.urls.len(), 1);
+        assert_eq!(accepted.duplicates.len(), MAX_DUPLICATES);
+        assert!(accepted.duplicates_truncated);
+        // Distinct URLs still join, and the repeat deduplicates against the set.
+        accept_entries(
+            &mut accepted,
+            "https://site.test/sitemap2.xml",
+            &[entry("https://site.test/b"), entry("https://site.test/a")],
+        );
+        assert_eq!(accepted.urls.len(), 2);
+        assert_eq!(accepted.seen.len(), 2);
     }
 }
