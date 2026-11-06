@@ -522,3 +522,60 @@ fn compressed_pages_are_parsed() {
     assert_eq!(titles, ["home", "page 1"]);
     let _ = std::fs::remove_dir_all(&work);
 }
+
+/// Relative and fragment links keep the crawl alive: the href resolves against
+/// the page before it is gated and keyed, so the frontier stays absolute and
+/// the candidate identity check never disagrees (the crawl used to abort with
+/// `invalid artifact: candidate query/request identity disagrees`).
+#[test]
+fn relative_and_fragment_links_do_not_abort_the_crawl() {
+    let site = Site::start(
+        Behavior {
+            latency: Duration::ZERO,
+            recycle_after: None,
+        },
+        |_origin, path| {
+            if path == "/robots.txt" {
+                return Some(("text/plain", ROBOTS.to_owned()));
+            }
+            if path == "/" {
+                return Some((
+                    "text/html",
+                    "<html><head><title>home</title></head><body>\
+                     <a href=\"inner\">inner</a>\
+                     <a href=\"/inner#section\">fragment</a>\
+                     <a href=\"#top\">self</a>\
+                     </body></html>"
+                        .to_owned(),
+                ));
+            }
+            if path == "/inner" {
+                return Some(("text/html", page(1)));
+            }
+            None
+        },
+    );
+    let work = scratch("relative-links");
+    let scan = work.join("scan.sqlite");
+    let result = crawl(json!({
+        "url": format!("{}/", site.base),
+        "max_urls": 10,
+        "min_delay": 0,
+        "scan_out": scan.to_string_lossy(),
+    }));
+    assert_eq!(result["finish_reason"], json!("finished"), "{result:?}");
+    assert_eq!(result["urls_collected"], json!(2), "{result:?}");
+    let con = rusqlite::Connection::open(&scan).expect("scan open");
+    let urls: Vec<String> = con
+        .prepare("SELECT url FROM urls ORDER BY url_id")
+        .expect("prepare")
+        .query_map([], |r| r.get(0))
+        .expect("query")
+        .collect::<Result<_, _>>()
+        .expect("urls");
+    assert!(
+        urls.iter().all(|url| url.starts_with(site.base.as_str())),
+        "frontier URLs must be absolute: {urls:?}"
+    );
+    let _ = std::fs::remove_dir_all(&work);
+}

@@ -762,7 +762,14 @@ async fn crawl_loop(
                             ));
                             break;
                         }
-                        let target = strip_fragment(&link.href);
+                        // Resolve against the page before gating: a relative
+                        // href has no host for the scope test, no absolute
+                        // frontier URL to fetch, and no scheme the candidate
+                        // keys can be derived from.
+                        let resolved =
+                            spiderhead_parse::py_url::urljoin(&lease.url, &link.href)
+                                .unwrap_or_else(|_| link.href.clone());
+                        let target = strip_fragment(&resolved);
                         let rejected = if link.nofollow {
                             Some("nofollow".to_string())
                         } else {
@@ -785,7 +792,7 @@ async fn crawl_loop(
                             None => {
                                 if target.len() <= options.max_url_length {
                                     candidates.push(candidate(
-                                        &link.href,
+                                        &resolved,
                                         &target,
                                         lease.depth + 1,
                                     ));

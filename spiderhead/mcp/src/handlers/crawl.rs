@@ -1374,12 +1374,10 @@ pub fn sitemap_crawl(args: &Value) -> Result<Value, ToolError> {
     const ACCEPTED: [&str; 3] = ["url", "concurrency", "project"];
     let url = need_str(&args, "url", "sitemap-crawl", &ACCEPTED)?;
     let concurrency = opt_int(&args, "concurrency").unwrap_or(3).max(1) as usize;
-    // The project-observed route needs `spiderhead/projects` (a stub on main).
-    if opt_str(&args, "project").is_some() {
-        return Err(ToolError::Failed(
-            "sitemap-crawl project is not yet available in this build".to_owned(),
-        ));
-    }
+    // `project` is accepted but does not gate the fetch: expanding an external
+    // sitemap is read-only, and the CLI fills the option from the working
+    // directory whenever one runs inside a project (issue #39). The local
+    // observation is simply not part of the answer yet.
     let client = spiderhead_fetch::client::build_client(spiderhead_crawl::sitemap::TIMEOUT_SECONDS)
         .map_err(ToolError::Failed)?;
     let outcome = tokio::runtime::Runtime::new()
