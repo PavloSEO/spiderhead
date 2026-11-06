@@ -8,6 +8,7 @@ use spiderhead_core::job_control::JobProgressUpdate;
 use spiderhead_parse::py_str::py_repr;
 
 use crate::compare::base::{iter_rows, key_of, mapped_url, AuditSource, CompareError};
+use crate::pyvalue::py_json_loads;
 use crate::segments::Segment;
 
 use super::checkpoint::{commit_txn, set_state, state_value_or};
@@ -181,18 +182,52 @@ pub(crate) fn index_collection(
                     url,
                     url,
                     ordinal,
-                    if source_backed { None } else { Some(document) },
+                    if source_backed {
+                        None
+                    } else {
+                        Some(document.as_str())
+                    },
                 ],
             );
             if let Err(error) = insert {
                 if integrity_error(&error) {
-                    return Err(CompareError(format!(
-                        "comparison has duplicate finding key ({}, {})",
-                        py_repr(&check),
-                        py_repr(&url)
-                    )));
+                    // A repeated (check, target) key is another page-level hit
+                    // on the same target: fold it into the indexed row rather
+                    // than refusing the comparison.
+                    let existing: Option<Option<String>> =
+                        match con.query_row(
+                            "SELECT document FROM issues WHERE side=?1 AND check_key=?2 AND url=?3",
+                            rusqlite::params![side, check, url],
+                            |row| row.get(0),
+                        ) {
+                            Ok(document) => Some(document),
+                            Err(rusqlite::Error::QueryReturnedNoRows) => None,
+                            Err(error) => return Err(CompareError(error.to_string())),
+                        };
+                    if let (Some(prev), Some(next)) = (existing.flatten(), Some(document.as_str()))
+                    {
+                        if let (Ok(mut hit), Ok(incoming)) =
+                            (py_json_loads(&prev), py_json_loads(next))
+                        {
+                            if let (Some(hit), Some(incoming)) =
+                                (hit.as_object_mut(), incoming.as_object())
+                            {
+                                crate::compare::base::merge_issue_hit(hit, incoming);
+                                let merged = serde_json::Value::Object(hit.clone());
+                                if let Err(error) = con.execute(
+                                    "UPDATE issues SET document=?4 WHERE side=?1 AND check_key=?2 AND url=?3",
+                                    rusqlite::params![side, check, url, py_json(&merged)],
+                                ) {
+                                    return Err(CompareError(error.to_string()));
+                                }
+                            }
+                        }
+                    }
+                    // Source-backed rows keep their document in the audit
+                    // source; the indexed row already covers the key.
+                } else {
+                    return Err(CompareError(error.to_string()));
                 }
-                return Err(CompareError(error.to_string()));
             }
         }
         let next_offset = ordinal + 1;

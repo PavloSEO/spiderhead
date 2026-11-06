@@ -309,24 +309,31 @@ pub fn py_repr(value: &str) -> String {
 }
 
 /// Validate a hop syntactically and resolve it once; the returned addresses are
-/// the only ones the request may connect to (single-resolution pinning).
-fn pin(url: &str, env: &dyn Host) -> Result<(String, Vec<SocketAddr>), String> {
+/// the only ones the request may connect to (single-resolution pinning). The
+/// first element is the client-cache key: scheme, host and port together,
+/// because a pinned client is bound to the port its addresses were resolved
+/// for — reusing an `http://host` client for the `https://host` hop (or a
+/// different port) connects TLS to the plain port and fails as status 0.
+fn pin(url: &str, env: &dyn Host) -> Result<(String, String, Vec<SocketAddr>), String> {
     let parsed = Url::parse(url.trim()).map_err(|error| format!("invalid URL: {error}"))?;
     if !matches!(parsed.scheme(), "http" | "https") {
         return Err("only http:// and https:// URLs are supported".into());
     }
+    let port = parsed
+        .port()
+        .unwrap_or(if parsed.scheme() == "https" { 443 } else { 80 });
     let Some(host_name) = parsed.host_str().filter(|h| !h.is_empty()) else {
         return Err("URL must include a hostname".into());
     };
     if !parsed.username().is_empty() || parsed.password().is_some() {
         return Err("embedded URL credentials are not supported".into());
     }
+    let finish = |host_name: String| {
+        let key = format!("{}://{}:{}", parsed.scheme(), host_name, port);
+        resolve_socket_addresses(&host_name, port, env, None).map(|addrs| (key, host_name, addrs))
+    };
     if private_networks_enabled(env) {
-        let port = parsed
-            .port()
-            .unwrap_or(if parsed.scheme() == "https" { 443 } else { 80 });
-        return resolve_socket_addresses(host_name, port, env, None)
-            .map(|addrs| (host_name.to_string(), addrs));
+        return finish(host_name.to_string());
     }
     let host_name = host_name.trim_end_matches('.').to_lowercase();
     if host_name == "localhost" || host_name.ends_with(".localhost") {
@@ -340,10 +347,7 @@ fn pin(url: &str, env: &dyn Host) -> Result<(String, Vec<SocketAddr>), String> {
             ));
         }
     }
-    let port = parsed
-        .port()
-        .unwrap_or(if parsed.scheme() == "https" { 443 } else { 80 });
-    resolve_socket_addresses(&host_name, port, env, None).map(|addrs| (host_name, addrs))
+    finish(host_name)
 }
 
 /// The real client: validates every hop and connects to the addresses the
@@ -357,11 +361,11 @@ pub struct ReqwestReconClient {
 impl ReqwestReconClient {
     fn client_for(
         &self,
+        key: &str,
         host: &str,
         addrs: &[SocketAddr],
     ) -> Result<reqwest::blocking::Client, FetchError> {
-        let key = host.to_string();
-        if let Some(client) = self.clients.lock().ok().and_then(|m| m.get(&key).cloned()) {
+        if let Some(client) = self.clients.lock().ok().and_then(|m| m.get(key).cloned()) {
             return Ok(client);
         }
         let builder = reqwest::blocking::Client::builder()
@@ -379,7 +383,7 @@ impl ReqwestReconClient {
             .build()
             .map_err(|e| FetchError::Unavailable(e.to_string()))?;
         if let Ok(mut map) = self.clients.lock() {
-            map.insert(key, client.clone());
+            map.insert(key.to_string(), client.clone());
         }
         Ok(client)
     }
@@ -424,8 +428,8 @@ impl ReqwestReconClient {
         params: &[(String, String)],
     ) -> Result<Response, FetchError> {
         let env = SystemHost;
-        let (host, addrs) = pin(url, &env).map_err(FetchError::Invalid)?;
-        let client = self.client_for(&host, &addrs)?;
+        let (key, host, addrs) = pin(url, &env).map_err(FetchError::Invalid)?;
+        let client = self.client_for(&key, &host, &addrs)?;
         let mut request = client.request(
             reqwest::Method::from_bytes(method.as_bytes()).unwrap_or(reqwest::Method::GET),
             url,
@@ -648,6 +652,60 @@ pub fn whois_text(domain: &str, timeout: f64, server: Option<&str>) -> Option<St
 /// Query whois, following one registry referral; returns `(text, server)`
 pub fn whois_lookup(domain: &str, timeout: f64) -> (Option<String>, Option<String>) {
     whois_lookup_with(domain, timeout, whois_text)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn client() -> ReqwestReconClient {
+        ReqwestReconClient {
+            timeout: Duration::from_secs(5),
+            http2: false,
+            clients: Mutex::new(HashMap::new()),
+        }
+    }
+
+    /// A pinned client is bound to the port its addresses were resolved for,
+    /// so the cache key must span scheme, host and port: the https hop after
+    /// an http redirect (or a TLS probe after an http one) used to reuse the
+    /// `http://host` client and connect TLS to the plain port.
+    #[test]
+    fn pinned_clients_are_cached_per_scheme_host_and_port() {
+        let client = client();
+        let addr = |port: u16| {
+            vec![SocketAddr::from(([192, 0, 2, 10], port))]
+        };
+        client.client_for("http://site.test:80", "site.test", &addr(80)).expect("http client");
+        client
+            .client_for("https://site.test:443", "site.test", &addr(443))
+            .expect("https client");
+        client
+            .client_for("http://site.test:8080", "site.test", &addr(8080))
+            .expect("alt-port client");
+        let keys: Vec<String> = {
+            let map = client.clients.lock().expect("clients lock");
+            let mut keys: Vec<String> = map.keys().cloned().collect();
+            keys.sort();
+            keys
+        };
+        assert_eq!(
+            keys,
+            vec![
+                "http://site.test:80".to_string(),
+                "http://site.test:8080".to_string(),
+                "https://site.test:443".to_string(),
+            ],
+            "one pinned client per scheme+host+port"
+        );
+        // The same endpoint twice hands back the cached client: the repeat
+        // adds no fourth cache entry.
+        let _ = client
+            .client_for("https://site.test:443", "site.test", &addr(443))
+            .expect("cached https client");
+        let count = client.clients.lock().expect("clients lock").len();
+        assert_eq!(count, 3, "the repeat reuses the pinned client");
+    }
 }
 
 /// Injectable seam used by tests.

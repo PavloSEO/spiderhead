@@ -382,7 +382,7 @@ pub fn compact_after_source(
     if !reader.collections.contains_key("/issues") || !reader.collections.contains_key("/pages") {
         return fail("after audit.v2 source lacks required /issues or /pages collections");
     }
-    let mut issues = Vec::new();
+    let mut issues: Vec<Value> = Vec::new();
     let mut issue_keys: Vec<(Value, Value)> = Vec::new();
     for item in source.iter_collection("/issues")? {
         let Some(item) = item.as_object() else {
@@ -396,14 +396,19 @@ pub fn compact_after_source(
             .iter()
             .any(|(c, u)| py_eq(c, &key.0) && py_eq(u, &key.1))
         {
-            if issue_keys
+            // A repeated key is another page-level hit on the same target:
+            // fold it into the already-selected finding instead of failing.
+            if let Some(index) = issue_keys
                 .iter()
-                .any(|(c, u)| py_eq(c, &key.0) && py_eq(u, &key.1))
+                .position(|(c, u)| py_eq(c, &key.0) && py_eq(u, &key.1))
             {
-                return fail("selected after audit has duplicate finding keys");
+                if let Some(hit) = issues[index].as_object_mut() {
+                    crate::compare::base::merge_issue_hit(hit, item);
+                }
+            } else {
+                issue_keys.push(key);
+                issues.push(Value::Object(item.clone()));
             }
-            issue_keys.push(key);
-            issues.push(Value::Object(item.clone()));
         }
     }
     let mut pages = Vec::new();
