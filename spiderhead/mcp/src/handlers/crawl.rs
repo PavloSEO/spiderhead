@@ -204,6 +204,12 @@ fn resolved_crawl_settings_over(
         // stays `0.5` — the stored config and its fingerprint are byte-exact
         // with what an int or float spelling produces downstream.
         overrides.insert("speed.min_delay_seconds".into(), value.clone());
+    } else if let Some(value) = opt(args, "max_urls_per_second").filter(|v| v.is_number()) {
+        // `--max-urls-per-second` is the rate view of the same pacing knob:
+        // it becomes the reciprocal delay. An explicit `--min-delay` wins.
+        if let Some(rate) = value.as_f64().filter(|rate| *rate > 0.0) {
+            overrides.insert("speed.min_delay_seconds".into(), json!(1.0 / rate));
+        }
     }
     if let Some(value) = opt_int(args, "retry_server_errors") {
         overrides.insert("fetch.retry_server_errors".into(), json!(value));
@@ -1396,6 +1402,21 @@ pub fn sitemap_crawl(args: &Value) -> Result<Value, ToolError> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn max_urls_per_second_becomes_the_reciprocal_delay() {
+        let mut args = Map::new();
+        args.insert("max_urls_per_second".into(), json!(10));
+        let settings = resolved_crawl_settings(&args).expect("settings resolve");
+        let delay = settings["speed"]["min_delay_seconds"]
+            .as_f64()
+            .expect("min delay");
+        assert!((delay - 0.1).abs() < 1e-12, "10 req/s means a 0.1s delay");
+        // An explicit --min-delay keeps its own value when both are given.
+        args.insert("min_delay".into(), json!(0.25));
+        let settings = resolved_crawl_settings(&args).expect("settings resolve");
+        assert_eq!(settings["speed"]["min_delay_seconds"], json!(0.25));
+    }
 
     // (the native scan-route param; the legacy list-mode route is not wired here)
     #[test]
