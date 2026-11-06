@@ -19,6 +19,52 @@ pub(crate) use crate::verification::AuditSource;
 #[error("{0}")]
 pub struct CompareError(pub String);
 
+/// Severity rank a finding folds to when duplicate keys merge: the surviving
+/// record keeps the worst severity seen, the same ladder the delta uses.
+fn severity_rank(severity: Option<&str>) -> i64 {
+    match severity {
+        Some("critical") => 2,
+        Some("warning") => 1,
+        _ => 0,
+    }
+}
+
+/// Fold a finding that repeats an already-indexed (check, target URL) key into
+/// it: occurrences add up, locations concatenate and the severity keeps its
+/// worst rank. A repeated key is how page-level findings share one target, not
+/// an ambiguity to refuse.
+pub(crate) fn merge_issue_hit(existing: &mut Obj, incoming: &Obj) {
+    let incoming_rank = incoming
+        .get("severity")
+        .and_then(Value::as_str)
+        .and_then(|s| Some((severity_rank(Some(s)), s)));
+    let existing_rank = existing
+        .get("severity")
+        .and_then(Value::as_str)
+        .map(|severity| severity_rank(Some(severity)))
+        .unwrap_or(0);
+    if let Some((rank, text)) = incoming_rank {
+        if rank > existing_rank {
+            existing.insert("severity".into(), Value::String(text.to_owned()));
+        }
+    }
+    if let (Some(a), Some(b)) = (
+        existing.get("occurrences_count").and_then(Value::as_i64),
+        incoming.get("occurrences_count").and_then(Value::as_i64),
+    ) {
+        existing.insert("occurrences_count".into(), Value::from(a + b));
+    }
+    if let Some(Value::Array(extra)) = incoming.get("locations") {
+        let mut merged = existing
+            .get("locations")
+            .and_then(Value::as_array)
+            .cloned()
+            .unwrap_or_default();
+        merged.extend(extra.iter().cloned());
+        existing.insert("locations".into(), Value::Array(merged));
+    }
+}
+
 /// Schema tag of the correspondence declaration.
 pub(crate) const CORRESPONDENCE_SCHEMA: &str = "url-correspondence.v1";
 /// Schema tag of the reviewed-release attachment.
@@ -337,13 +383,11 @@ pub(crate) fn mapped_issues(
                 key.1 = target.clone();
             }
         }
-        if records.contains_key(&key) {
-            return Err(CompareError(format!(
-                "comparison has duplicate finding key {}",
-                repr_key(&key)
-            )));
+        if let Some(hit) = records.get_mut(&key) {
+            merge_issue_hit(hit, issue);
+        } else {
+            records.insert(key, issue.clone());
         }
-        records.insert(key, issue.clone());
     }
     Ok(records)
 }

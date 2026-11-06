@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use serde_json::{json, Map, Value};
 use spiderhead_store::evidence_contract::Obj;
 
-use crate::compare::base::{key_of, repr_key, CompareError};
+use crate::compare::base::{key_of, CompareError};
 use crate::pyvalue::str_or_dumps;
 
 /// The four finding-delta buckets, in report order.
@@ -45,13 +45,11 @@ fn index_findings(findings: &[Value]) -> Result<HashMap<(String, String), Obj>, 
             ));
         }
         let key = key_of(issue);
-        if index.contains_key(&key) {
-            return Err(CompareError(format!(
-                "findings delta has a duplicate finding key {}",
-                repr_key(&key)
-            )));
+        if let Some(hit) = index.get_mut(&key) {
+            crate::compare::base::merge_issue_hit(hit, issue);
+        } else {
+            index.insert(key, issue.clone());
         }
-        index.insert(key, issue.clone());
     }
     Ok(index)
 }
@@ -89,9 +87,9 @@ fn direction(
 }
 
 /// Diff two finding sets by shared identity: severity movements become
-/// improved/regressed, presence changes become added/resolved. Duplicate
-/// findings on either side are refused — a delta over an ambiguous key set
-/// would silently undercount.
+/// improved/regressed, presence changes become added/resolved. Findings that
+/// repeat a key fold into one hit (worst severity, summed occurrences), so a
+/// page-level finding set never undercounts.
 pub fn findings_delta(before: &[Value], after: &[Value]) -> Result<Obj, CompareError> {
     let before_index = index_findings(before)?;
     let after_index = index_findings(after)?;
@@ -246,17 +244,27 @@ mod tests {
     }
 
     #[test]
-    fn duplicate_keys_are_refused() {
+    fn duplicate_keys_fold_into_one_hit() {
         let result = findings_delta(
             &[
-                json!({"check": "a", "target_url": "https://x/1"}),
-                json!({"check": "a", "target_url": "https://x/1"}),
+                json!({"check": "a", "target_url": "https://x/1",
+                       "severity": "warning", "occurrences_count": 1,
+                       "locations": [{"source_url": "https://x/1"}]}),
+                json!({"check": "a", "target_url": "https://x/1",
+                       "severity": "critical", "occurrences_count": 2,
+                       "locations": [{"source_url": "https://x/2"}]}),
             ],
-            &[],
-        );
-        assert_eq!(
-            result.err().map(|e| e.0),
-            Some("findings delta has a duplicate finding key ('a', 'https://x/1')".into())
-        );
+            &[json!({"check": "a", "target_url": "https://x/1", "severity": "warning"})],
+        )
+        .expect("duplicates fold");
+        // Two page-level hits on one target stay one finding, at the worst
+        // severity the repeats carried — not two rows and not a refusal.
+        assert_eq!(result["by_check"]["a"]["improved"], json!(1));
+        assert_eq!(result["by_check"]["a"]["added"], json!(0));
+        assert_eq!(result["by_check"]["a"]["unchanged"], json!(0));
+        let changed = result["changed"].as_array().expect("changed list");
+        assert_eq!(changed.len(), 1);
+        assert_eq!(changed[0]["direction"], json!("improved"));
+        assert_eq!(changed[0]["severity_before"], json!("critical"));
     }
 }
