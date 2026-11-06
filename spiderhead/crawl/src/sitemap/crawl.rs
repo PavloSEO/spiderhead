@@ -460,7 +460,6 @@ pub async fn crawl(
         "sitemaps": walk.sitemaps,
         "duplicates": accepted.duplicates,
         "duplicate_sources": accepted.duplicate_sources,
-        "duplicates_truncated": accepted.duplicates_truncated,
         "errors": walk.errors,
         "truncated": walk.truncated,
         "loc_entries": count,
@@ -468,6 +467,11 @@ pub async fn crawl(
         "news_entries": accepted.extension_counts[1],
         "video_entries": accepted.extension_counts[2],
     });
+    // Present only when it happened: the reference answer has no such field,
+    // and a full recording never trips the cap.
+    if accepted.duplicates_truncated {
+        result["duplicates_truncated"] = json!(true);
+    }
     if discover_from_root {
         result["discovery"] = json!({
             "robots_url": format!("{}://{}/robots.txt", root_parts.scheme, root_parts.netloc),

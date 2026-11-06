@@ -586,7 +586,7 @@ fn project_run(
             notices.push(format!(
                 "requested rate {shown} is held at {PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND} req/s for a \
                  host not confirmed as yours; for your own host pass owned_host=true \
-                 (--set speed.owned_host=true)"
+                 (--input '{{\"owned_host\": true}}')"
             ));
         }
     }
