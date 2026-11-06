@@ -579,3 +579,62 @@ fn relative_and_fragment_links_do_not_abort_the_crawl() {
     );
     let _ = std::fs::remove_dir_all(&work);
 }
+
+/// In `rendering.mode=js` the crawler renders each fetched page and discovery
+/// follows links that only exist after script execution: the JS-injected link
+/// below is absent from the static HTML, so reaching it proves the whole
+/// crawl→render→reparse chain ran (issue #28). Ignored like the render test —
+/// it needs an installed Chrome.
+#[test]
+#[ignore = "requires an installed Chrome"]
+fn js_mode_discovers_script_injected_links() {
+    if spiderhead_render::chrome_executable().is_none() {
+        panic!("this test requires Chrome; run with --run-ignored on a machine with Chrome");
+    }
+    let site = Site::start(
+        Behavior {
+            latency: Duration::ZERO,
+            recycle_after: None,
+        },
+        |_origin, path| {
+            if path == "/robots.txt" {
+                return Some(("text/plain", ROBOTS.to_owned()));
+            }
+            if path == "/" {
+                return Some((
+                    "text/html",
+                    "<html><head><title>home</title></head><body><h1>home</h1>\
+                     <script>document.body.insertAdjacentHTML('beforeend',\
+                     '<a href=\"/js-only\">js</a>')</script>\
+                     </body></html>"
+                        .to_owned(),
+                ));
+            }
+            if path == "/js-only" {
+                return Some(("text/html", page(1)));
+            }
+            None
+        },
+    );
+    let work = scratch("js-render");
+    let scan = work.join("scan.sqlite");
+    let result = crawl(json!({
+        "url": format!("{}/", site.base),
+        "max_urls": 10,
+        "min_delay": 0,
+        "overrides": {"rendering.mode": "js"},
+        "scan_out": scan.to_string_lossy(),
+    }));
+    assert_eq!(result["finish_reason"], "finished", "{result:?}");
+    assert_eq!(result["urls_collected"], json!(2), "{result:?}");
+    let con = rusqlite::Connection::open(&scan).expect("scan open");
+    let titles: Vec<String> = con
+        .prepare("SELECT title FROM pages ORDER BY page_ordinal")
+        .expect("prepare")
+        .query_map([], |r| r.get(0))
+        .expect("query")
+        .collect::<Result<_, _>>()
+        .expect("titles");
+    assert_eq!(titles, ["home", "page 1"]);
+    let _ = std::fs::remove_dir_all(&work);
+}
