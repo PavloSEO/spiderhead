@@ -126,12 +126,27 @@ async fn get_once(
     })
 }
 
+/// The error with its whole cause chain, so a failed page says why.
+fn describe(e: &reqwest::Error) -> String {
+    let mut text = e.to_string();
+    let mut source = std::error::Error::source(e);
+    while let Some(inner) = source {
+        text.push_str(": ");
+        text.push_str(&inner.to_string());
+        source = inner.source();
+    }
+    text
+}
+
 fn failure(e: &reqwest::Error, response_time: f64) -> RawResponse {
     let (message, kind) = if e.is_timeout() {
-        (format!("timed out: {e}"), FetchErrorKind::Timeout)
+        (
+            format!("timed out: {}", describe(e)),
+            FetchErrorKind::Timeout,
+        )
     } else {
         (
-            format!("connection failed: {e}"),
+            format!("connection failed: {}", describe(e)),
             FetchErrorKind::Connection,
         )
     };

@@ -5311,6 +5311,7 @@ version = "0.9.1"
 dependencies = [
  "anyhow",
  "fancy-regex 0.20.0",
+ "flate2",
  "indexmap",
  "jiff",
  "reqwest 0.12.28",

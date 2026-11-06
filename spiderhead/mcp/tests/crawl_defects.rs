@@ -168,14 +168,25 @@ fn serve(
             Some((kind, body)) => ("200 OK", kind, body),
             None => ("404 Not Found", "text/plain", "not found".to_owned()),
         };
-        let response = format!(
-            "HTTP/1.1 {status}\r\ncontent-type: {kind}\r\ncontent-length: {}\r\nconnection: keep-alive\r\n\r\n{body}",
+        // A `+gzip` type is sent compressed, with the matching header.
+        let (kind, body, encoding) = match kind.strip_suffix("+gzip") {
+            Some(kind) => (kind, gzip(body.as_bytes()), "content-encoding: gzip\r\n"),
+            None => (kind, body.into_bytes(), ""),
+        };
+        let head = format!(
+            "HTTP/1.1 {status}\r\ncontent-type: {kind}\r\n{encoding}content-length: {}\r\nconnection: keep-alive\r\n\r\n",
             body.len()
         );
-        if writer.write_all(response.as_bytes()).is_err() {
+        if writer.write_all(head.as_bytes()).is_err() || writer.write_all(&body).is_err() {
             return;
         }
     }
+}
+
+fn gzip(bytes: &[u8]) -> Vec<u8> {
+    let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::fast());
+    encoder.write_all(bytes).expect("gzip write");
+    encoder.finish().expect("gzip finish")
 }
 
 fn scratch(name: &str) -> PathBuf {
@@ -462,4 +473,52 @@ fn a_project_crawl_of_an_unconfirmed_host_stays_at_the_safe_rate() {
     assert!(elapsed > 5.0, "the ceiling was not applied: {elapsed:.1}s");
     let warnings = result["warnings"].to_string();
     assert!(warnings.contains("held at 2 req/s"), "{warnings}");
+}
+
+/// Pages the server sends gzip-compressed are decoded before parsing: titles,
+/// headings and links are found, and the discovery continues through them.
+#[test]
+fn compressed_pages_are_parsed() {
+    let site = Site::start(
+        Behavior {
+            latency: Duration::ZERO,
+            recycle_after: None,
+        },
+        |_origin, path| {
+            if path == "/robots.txt" {
+                return Some(("text/plain", ROBOTS.to_owned()));
+            }
+            if path == "/" {
+                return Some((
+                    "text/html+gzip",
+                    "<html><head><title>home</title></head><body><h1>home</h1>\
+                     <a href=\"/inner\">inner</a></body></html>"
+                        .to_owned(),
+                ));
+            }
+            if path == "/inner" {
+                return Some(("text/html+gzip", page(1)));
+            }
+            None
+        },
+    );
+    let work = scratch("gzip");
+    let scan = work.join("scan.sqlite");
+    let result = crawl(json!({
+        "url": format!("{}/", site.base),
+        "max_urls": 10,
+        "min_delay": 0,
+        "scan_out": scan.to_string_lossy(),
+    }));
+    assert_eq!(result["urls_collected"], json!(2), "{result:?}");
+    let con = rusqlite::Connection::open(&scan).expect("scan open");
+    let titles: Vec<String> = con
+        .prepare("SELECT title FROM pages ORDER BY page_ordinal")
+        .expect("prepare")
+        .query_map([], |r| r.get(0))
+        .expect("query")
+        .collect::<Result<_, _>>()
+        .expect("titles");
+    assert_eq!(titles, ["home", "page 1"]);
+    let _ = std::fs::remove_dir_all(&work);
 }

@@ -35,6 +35,7 @@ spiderhead-sources.workspace = true
 spiderhead-store.workspace = true
 
 [dev-dependencies]
+flate2.workspace = true
 spiderhead-oracle-diff.workspace = true
 spiderhead-oracle-testkit.workspace = true
 tempfile.workspace = true
