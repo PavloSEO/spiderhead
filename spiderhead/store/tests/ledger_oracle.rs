@@ -62,8 +62,16 @@ fn raw_scan() -> PathBuf {
 // evidence, groups with their members).
 #[test]
 fn prepared_source_matches_the_reference_projection() {
-    let expected = json_file("ledger-prepared.json");
+    if spiderhead_oracle_diff::bless_enabled() {
+        let path = fixtures().join("ledger-prepared.json");
+        assert!(spiderhead_oracle_diff::bless_json(
+            &path,
+            &prepared_fixture_value()
+        ));
+        return;
+    }
     let got = prepare_source(&raw_scan()).unwrap();
+    let expected = json_file("ledger-prepared.json");
     let mut failures = Vec::new();
     check(
         "scan",
@@ -182,6 +190,15 @@ fn rec(map: Record) -> Value {
     Value::Object(map)
 }
 
+/// SHA-256 of the raw basic scan file — the ledger's source identity key.
+fn scan_sha256() -> String {
+    use sha2::Digest;
+    sha2::Sha256::digest(std::fs::read(raw_scan()).unwrap())
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
+
 fn first_diff(a: &Value, b: &Value, path: &str) -> Option<String> {
     match (a, b) {
         (Value::Object(x), Value::Object(y)) => {
@@ -219,12 +236,53 @@ fn check(name: &str, actual: &Value, expected: &Value, failures: &mut Vec<String
     }
 }
 
+/// In bless mode records `actual` into `blessed`; otherwise diffs it against `expected`.
+fn step(
+    name: &str,
+    actual: &Value,
+    expected: &Value,
+    failures: &mut Vec<String>,
+    blessed: &mut Option<Map<String, Value>>,
+) {
+    if let Some(map) = blessed.as_mut() {
+        map.insert(name.to_owned(), actual.clone());
+        return;
+    }
+    check(name, actual, expected, failures);
+}
+
+/// The `ledger-prepared.json`-shaped projection of the current raw capture.
+fn prepared_fixture_value() -> Value {
+    let got = prepare_source(&raw_scan()).unwrap();
+    let issues: Vec<Value> = got.issues.map(Result::unwrap).collect();
+    json!({
+        "scan": rec(got.scan.clone()),
+        "audit_row": rec(got.audit_row.clone()),
+        "document": got.document.clone(),
+        "canonical_audit_sha256": got.canonical_audit_sha256.clone(),
+        "issues": issues,
+        "raw_issues": got.raw_issues.clone(),
+        "groups": got.groups.clone().unwrap_or_default(),
+        "representations": got.representations.clone(),
+        "by_url": got.by_url.clone(),
+        "doc_url": got.doc_url.clone(),
+        "group_memberships_state": got.group_memberships_state.clone(),
+        "scan_sha256": scan_sha256(),
+    })
+}
+
 // binding, summaries and reports), replayed against the reference ledger built from the raw scan.
 #[test]
 fn ledger_matches_the_reference_oracle() {
     let expected = json_file("ledger-expected.json");
     let answers = &expected["answers"];
-    let source = json_file("ledger-prepared.json");
+    let mut blessed: Option<Map<String, Value>> =
+        spiderhead_oracle_diff::bless_enabled().then(Map::new);
+    let source = if blessed.is_some() {
+        prepared_fixture_value()
+    } else {
+        json_file("ledger-prepared.json")
+    };
     let dir = std::env::temp_dir().join(format!("sh-ledger-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let path = dir.join("ledger.sqlite");
@@ -240,49 +298,61 @@ fn ledger_matches_the_reference_oracle() {
         // the real path: open the raw scan, project its audit.v2 companion through the evidence
         // contract, write the ledger
         let first = ingest_scan(LedgerRef::Conn(&con), &raw_scan()).unwrap();
-        check("ingest", &rec(first), &answers["ingest"], &mut failures);
+        step(
+            "ingest",
+            &rec(first),
+            &answers["ingest"],
+            &mut failures,
+            &mut blessed,
+        );
         // the reference-projected source, fed through the same writer, must be a no-op replay
         let replay = ingest_prepared(&con, prepared(&source), &scan_sha, now).unwrap();
-        check(
+        step(
             "ingest_replay_of_reference_projection",
             &rec(replay),
             &answers["ingest_again"],
             &mut failures,
+            &mut blessed,
         );
         let again = ingest_scan(LedgerRef::Conn(&con), &raw_scan()).unwrap();
-        check(
+        step(
             "ingest_again",
             &rec(again),
             &answers["ingest_again"],
             &mut failures,
+            &mut blessed,
         );
     }
     let lref = LedgerRef::Path(&path);
-    check(
+    step(
         "summary",
         &rec(ledger_summary(lref).unwrap()),
         &answers["summary"],
         &mut failures,
+        &mut blessed,
     );
-    check(
+    step(
         "remediation_summary_0",
         &rec(remediation_summary(lref).unwrap()),
         &answers["remediation_summary_0"],
         &mut failures,
+        &mut blessed,
     );
     let none = CaseFilter::default();
     let cases = read_cases(lref, &none, Some(1000), 0).unwrap();
-    check(
+    step(
         "cases_all",
         &Value::Object(cases.clone()),
         &answers["cases_all"],
         &mut failures,
+        &mut blessed,
     );
-    check(
+    step(
         "cases_page",
         &rec(read_cases(lref, &none, Some(3), 2).unwrap()),
         &answers["cases_page"],
         &mut failures,
+        &mut blessed,
     );
     let findings = cases["findings"].as_array().unwrap().clone();
     let first = &findings[0];
@@ -290,35 +360,38 @@ fn ledger_matches_the_reference_oracle() {
         check: first["check"].as_str(),
         ..Default::default()
     };
-    check(
+    step(
         "cases_check",
         &rec(read_cases(lref, &by_check, Some(5), 0).unwrap()),
         &answers["cases_check"],
         &mut failures,
+        &mut blessed,
     );
     if first["subject_type"] == "url" {
         let by_url = CaseFilter {
             url: first["subject_value"].as_str(),
             ..Default::default()
         };
-        check(
+        step(
             "cases_url",
             &rec(read_cases(lref, &by_url, Some(5), 0).unwrap()),
             &answers["cases_url"],
             &mut failures,
+            &mut blessed,
         );
     }
     let by_key = CaseFilter {
         finding_key: first["finding_key"].as_str(),
         ..Default::default()
     };
-    check(
+    step(
         "cases_key",
         &rec(read_cases(lref, &by_key, Some(100), 0).unwrap()),
         &answers["cases_key"],
         &mut failures,
+        &mut blessed,
     );
-    if answers.get("group_page").is_some() {
+    if blessed.is_some() || answers.get("group_page").is_some() {
         let member = findings
             .iter()
             .flat_map(|f| f["group_memberships"].as_array().unwrap().iter())
@@ -344,11 +417,12 @@ fn ledger_matches_the_reference_oracle() {
             1024 * 1024,
         )
         .unwrap();
-        check(
+        step(
             "group_page",
             &rec(page),
             &answers["group_page"],
             &mut failures,
+            &mut blessed,
         );
     }
 
@@ -364,7 +438,10 @@ fn ledger_matches_the_reference_oracle() {
         })
         .take(3)
         .collect();
-    let mut revision = answers["summary"]["ledger_revision"].as_i64().unwrap();
+    let mut revision = blessed
+        .as_ref()
+        .and_then(|m| m["summary"]["ledger_revision"].as_i64())
+        .unwrap_or_else(|| answers["summary"]["ledger_revision"].as_i64().unwrap());
     let mut steps = Vec::new();
     for state in ["verified", "fix_reported", "recheck_pending"] {
         for (i, occ) in targets.iter().enumerate() {
@@ -389,11 +466,12 @@ fn ledger_matches_the_reference_oracle() {
             steps.push(rec(r));
         }
     }
-    check(
+    step(
         "transitions",
         &Value::Array(steps),
         &answers["transitions"],
         &mut failures,
+        &mut blessed,
     );
     let refused = |state: &str, key: &str, rev: i64| {
         transition_occurrence(
@@ -413,29 +491,92 @@ fn ledger_matches_the_reference_oracle() {
     };
     let k0 = targets[0]["occurrence_key"].as_str().unwrap();
     let k1 = targets[1]["occurrence_key"].as_str().unwrap();
-    check(
+    step(
         "transition_refused",
         &json!(refused("resolved", k0, revision)),
         &answers["transition_refused"],
         &mut failures,
+        &mut blessed,
     );
-    check(
+    step(
         "transition_invalid",
         &json!(refused("detected", k0, revision)),
         &answers["transition_invalid"],
         &mut failures,
+        &mut blessed,
     );
-    check(
+    step(
         "transition_stale",
         &json!(refused("verified", k1, revision - 1)),
         &answers["transition_stale"],
         &mut failures,
+        &mut blessed,
     );
 
-    let pending_key = answers["verification_pending_key"]
-        .as_str()
-        .unwrap()
-        .to_string();
+    let pending_key = if blessed.is_some() {
+        // The verification artifact binds the baseline the ingest recorded
+        // (`source_scan` identity columns) and the first lifecycle target —
+        // it is regenerated, not edited by hand.
+        let con = rusqlite::Connection::open(&path).unwrap();
+        let (scan_uuid, audit_sha, canonical_sha, policy_fp): (
+            Option<String>,
+            Option<String>,
+            Option<String>,
+            String,
+        ) = con
+            .query_row(
+                "SELECT scan_uuid,audit_sha256,canonical_audit_sha256,config_fingerprint \
+                 FROM source_scan ORDER BY source_scan_id LIMIT 1",
+                [],
+                |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)),
+            )
+            .unwrap();
+        let bound = targets[0];
+        let check = findings
+            .iter()
+            .find(|f| {
+                f["occurrences"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|o| o["occurrence_key"] == bound["occurrence_key"])
+            })
+            .and_then(|f| f["check"].as_str())
+            .expect("bound check")
+            .to_string();
+        let url = bound["subject_value"].as_str().unwrap().to_string();
+        let artifact = json!({
+            "schema_version": "verification.v1",
+            "baseline": {
+                "scan_uuid": scan_uuid,
+                "audit_sha256": audit_sha.or(canonical_sha).unwrap_or_default(),
+                "results_policy_fingerprint": policy_fp,
+            },
+            "collection": {"state": "measured"},
+            "selection": {"checks": [check]},
+            "findings": [{
+                "check": check,
+                "url": url,
+                "status": "resolved",
+                "reason": "fixed in test",
+                "before": {"check": check},
+                "before_page": {"status_code": 200, "url": url},
+                "after": Value::Null,
+                "after_page": {"status_code": 200, "url": url},
+            }],
+        });
+        let artifact_path = fixtures().join("verification-basic.json");
+        assert!(spiderhead_oracle_diff::bless_json(
+            &artifact_path,
+            &artifact
+        ));
+        k0.to_string()
+    } else {
+        answers["verification_pending_key"]
+            .as_str()
+            .unwrap()
+            .to_string()
+    };
     let verification = record_verification(
         lref,
         &fixtures().join("verification-basic.json"),
@@ -445,59 +586,69 @@ fn ledger_matches_the_reference_oracle() {
         "task-1",
     )
     .unwrap();
-    check(
+    step(
         "verification",
         &rec(verification),
         &answers["verification"],
         &mut failures,
+        &mut blessed,
     );
     let again = record_verification(
         lref,
         &fixtures().join("verification-basic.json"),
         "tester",
         revision + 1,
-        Some(&[pending_key]),
+        Some(std::slice::from_ref(&pending_key)),
         "unassigned",
     )
     .unwrap_err()
     .to_string();
-    check(
+    step(
         "verification_again",
         &json!(again),
         &answers["verification_again"],
         &mut failures,
+        &mut blessed,
     );
-    let source_id = answers["ingest"]["source_scan_id"].as_i64().unwrap();
-    check(
+    let source_id = blessed
+        .as_ref()
+        .and_then(|m| m["ingest"]["source_scan_id"].as_i64())
+        .unwrap_or_else(|| answers["ingest"]["source_scan_id"].as_i64().unwrap());
+    step(
         "missing",
         &rec(note_source_missing(lref, source_id, "pruned in test").unwrap()),
         &answers["missing"],
         &mut failures,
+        &mut blessed,
     );
-    check(
+    step(
         "missing_again",
         &rec(note_source_missing(lref, source_id, "pruned in test").unwrap()),
         &answers["missing_again"],
         &mut failures,
+        &mut blessed,
     );
-    check(
+    step(
         "remediation_summary_1",
         &rec(remediation_summary(lref).unwrap()),
         &answers["remediation_summary_1"],
         &mut failures,
+        &mut blessed,
     );
     let report = remediation_report(lref, 5, 1).unwrap();
-    check(
+    step(
         "report",
         &Value::Object(report.clone()),
         &answers["report"],
         &mut failures,
+        &mut blessed,
     );
-    check(
+    step(
         "markdown",
         &json!(remediation_markdown(&report).unwrap()),
         &answers["markdown"],
         &mut failures,
+        &mut blessed,
     );
     let out_dir = dir.join("report");
     write_remediation_report(lref, &out_dir, 4, 0).unwrap();
@@ -505,25 +656,33 @@ fn ledger_matches_the_reference_oracle() {
         "remediation.json": std::fs::read_to_string(out_dir.join("remediation.json")).unwrap(),
         "remediation.md": std::fs::read_to_string(out_dir.join("remediation.md")).unwrap(),
     });
-    check(
+    step(
         "report_files",
         &files,
         &answers["report_files"],
         &mut failures,
+        &mut blessed,
     );
-    check(
+    step(
         "final_summary",
         &rec(ledger_summary(lref).unwrap()),
         &answers["final_summary"],
         &mut failures,
+        &mut blessed,
     );
     // every table, row by row
-    check(
-        "tables",
-        &dump_tables(&path),
-        &expected["tables"],
-        &mut failures,
-    );
+    let tables = dump_tables(&path);
+    if let Some(mut ans) = blessed {
+        ans.insert("verification_pending_key".into(), json!(pending_key));
+        let mut doc = expected.clone();
+        doc["answers"] = Value::Object(ans);
+        doc["tables"] = tables;
+        let file = fixtures().join("ledger-expected.json");
+        assert!(spiderhead_oracle_diff::bless_json(&file, &doc));
+        std::fs::remove_dir_all(&dir).ok();
+        return;
+    }
+    check("tables", &tables, &expected["tables"], &mut failures);
     std::fs::remove_dir_all(&dir).ok();
     assert!(
         failures.is_empty(),

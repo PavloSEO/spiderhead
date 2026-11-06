@@ -76,7 +76,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"phrase\": \"seo audit\",\n  \"found\": 4,\n  \"total_count\": \"5400\",\n  \"from_results\": 3,\n  \"from_associations\": 2,\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit\",\n      \"base_frequency\": 5400,\n      \"origin\": \"results\"\n    },\n    {\n      \"phrase\": \"site audit\",\n      \"base_frequency\": 900,\n      \"origin\": \"associations\"\n    },\n    {\n      \"phrase\": \"seo audit price\",\n      \"base_frequency\": 320,\n      \"origin\": \"results\"\n    },\n    {\n      \"phrase\": \"seo audit tool\",\n      \"base_frequency\": 320,\n      \"origin\": \"results\"\n    }\n  ]\n}\n",
-     "stderr": "seohead: keywords-expand\n",
+     "stderr": "spiderhead: keywords-expand\n",
      "requests": [
       {
        "host": "searchapi.api.cloud.yandex.net",
@@ -149,7 +149,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"topRequests 403: {'raw': 'denied'}\"\n}\n",
-     "stderr": "seohead: keywords-expand\n",
+     "stderr": "spiderhead: keywords-expand\n",
      "requests": [
       {
        "host": "searchapi.api.cloud.yandex.net",
@@ -179,7 +179,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-wordstat/api_key or set $YANDEX_CLOUD_API_KEY. Create it in Yandex AI Studio with the search-api.webSearch.user role.\"\n}\n",
-     "stderr": "seohead: keywords-expand\n",
+     "stderr": "spiderhead: keywords-expand\n",
      "requests": []
     }
    }
@@ -197,7 +197,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: keywords-expand\nerror: phrase required\n",
+     "stderr": "spiderhead: keywords-expand\nerror: phrase required\n",
      "requests": []
     }
    }
@@ -270,7 +270,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"phrase\": \"seo audit\",\n  \"period\": \"PERIOD_MONTHLY\",\n  \"dynamics\": {\n    \"results\": [\n      {\n        \"date\": \"<TS>\",\n        \"count\": \"100\",\n        \"share\": 0.1\n      },\n      {\n        \"date\": \"<TS>\",\n        \"count\": \"140\",\n        \"share\": 0.12\n      }\n    ]\n  }\n}\n",
-     "stderr": "seohead: keywords-seasonality\n",
+     "stderr": "spiderhead: keywords-seasonality\n",
      "requests": [
       {
        "host": "searchapi.api.cloud.yandex.net",
@@ -317,7 +317,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: keywords-seasonality\nerror: phrase, from_date and to_date required\n",
+     "stderr": "spiderhead: keywords-seasonality\nerror: phrase, from_date and to_date required\n",
      "requests": []
     }
    }
@@ -367,7 +367,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"dynamics 400: {'message': 'bad date'}\"\n}\n",
-     "stderr": "seohead: keywords-seasonality\n",
+     "stderr": "spiderhead: keywords-seasonality\n",
      "requests": [
       {
        "host": "searchapi.api.cloud.yandex.net",
@@ -529,7 +529,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"region\": \"213\",\n  \"requested\": 2,\n  \"returned\": 2,\n  \"results\": {\n    \"seo audit\": {\n      \"docs\": [\n        {\n          \"pos\": 1,\n          \"url\": \"https://example.test/a\",\n          \"domain\": \"example.test\",\n          \"title\": \"First hit\"\n        },\n        {\n          \"pos\": 2,\n          \"url\": \"https://example.test/b\",\n          \"domain\": \"example.test\",\n          \"title\": \"Second\"\n        }\n      ],\n      \"error\": null,\n      \"status\": \"ok\",\n      \"operation_id\": \"op1\"\n    },\n    \"site audit\": {\n      \"docs\": [],\n      \"error\": {\n        \"code\": 3,\n        \"message\": \"x\"\n      },\n      \"status\": \"operation_error\",\n      \"operation_id\": \"op2\"\n    }\n  },\n  \"not_returned\": [],\n  \"note\": null\n}\n",
-     "stderr": "seohead: serp-fetch\n",
+     "stderr": "spiderhead: serp-fetch\n",
      "requests": [
       {
        "host": "searchapi.api.cloud.yandex.net",
@@ -628,7 +628,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: serp-fetch\nerror: query or queries required\n",
+     "stderr": "spiderhead: serp-fetch\nerror: query or queries required\n",
      "requests": []
     }
    }
@@ -646,7 +646,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-wordstat/api_key or set $YANDEX_CLOUD_API_KEY. Create it in Yandex AI Studio with the search-api.webSearch.user role.\"\n}\n",
-     "stderr": "seohead: serp-fetch\n",
+     "stderr": "spiderhead: serp-fetch\n",
      "requests": []
     }
    }
@@ -749,7 +749,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"task_id\": 4242,\n  \"cost\": 0.6,\n  \"region\": 213,\n  \"cleaned\": {\n    \"site (audit)!\": \"site audit\"\n  },\n  \"frequencies\": {\n    \"seo audit\": {\n      \"base\": 5400,\n      \"overal\": 900\n    }\n  },\n  \"result\": {\n    \"data\": {\n      \"result\": {\n        \"seo audit\": {\n          \"213\": {\n            \"base\": 5400,\n            \"overal\": 900\n          }\n        },\n        \"site audit\": {\n          \"225\": {\n            \"base\": 1,\n            \"overal\": 1\n          }\n        }\n      }\n    }\n  },\n  \"warnings\": [\n    \"'site audit': no data for requested region 213 (provider returned regions: 225)\"\n  ]\n}\n",
-     "stderr": "seohead: keywords-exact\n",
+     "stderr": "spiderhead: keywords-exact\n",
      "requests": [
       {
        "host": "arsenkin.ru",
@@ -867,7 +867,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"task_id\": 7,\n  \"cost\": 0.1,\n  \"region\": 225,\n  \"cleaned\": {},\n  \"note\": \"task created and billed; retrieve the result later by task_id\"\n}\n",
-     "stderr": "seohead: keywords-exact\n",
+     "stderr": "spiderhead: keywords-exact\n",
      "requests": [
       {
        "host": "arsenkin.ru",
@@ -939,7 +939,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"STATUS: task 9: status failed\",\n  \"code\": \"STATUS\",\n  \"task_id\": 9,\n  \"cost\": 0.1\n}\n",
-     "stderr": "seohead: keywords-exact\n",
+     "stderr": "spiderhead: keywords-exact\n",
      "requests": [
       {
        "host": "arsenkin.ru",
@@ -1006,7 +1006,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"WRONG_TOOL: no\",\n  \"code\": \"WRONG_TOOL\"\n}\n",
-     "stderr": "seohead: keywords-exact\n",
+     "stderr": "spiderhead: keywords-exact\n",
      "requests": [
       {
        "host": "arsenkin.ru",
@@ -1036,7 +1036,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"no usable queries after sanitizing\",\n  \"code\": \"EMPTY_QUERIES\",\n  \"cleaned\": {\n    \"!!!\": \"\",\n    \"???\": \"\"\n  }\n}\n",
-     "stderr": "seohead: keywords-exact\n",
+     "stderr": "spiderhead: keywords-exact\n",
      "requests": []
     }
    }
@@ -1054,7 +1054,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/arsenkin/token or set $ARSENKIN_TOKEN. Create the token in your arsenkin.ru account.\"\n}\n",
-     "stderr": "seohead: keywords-exact\n",
+     "stderr": "spiderhead: keywords-exact\n",
      "requests": []
     }
    }
@@ -1070,7 +1070,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: keywords-exact\nerror: keywords required\n",
+     "stderr": "spiderhead: keywords-exact\nerror: keywords required\n",
      "requests": []
     }
    }

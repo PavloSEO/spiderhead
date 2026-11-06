@@ -127,7 +127,7 @@ pub(super) fn daily_statistics(statistics: &[Value]) -> Result<Vec<Value>, WmErr
 }
 
 /// `text_indicator_to_statistics` request — one bounded POST pagination with retries.
-#[allow(clippy::too_many_arguments)] // mirrors the Python call shape
+#[allow(clippy::too_many_arguments)] // mirrors the recorded call shape
 pub(super) async fn query_analytics_request(
     call: &mut dyn WmCall,
     endpoint: &str,

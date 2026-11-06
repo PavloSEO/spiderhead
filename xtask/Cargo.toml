@@ -10,3 +10,4 @@ serde_json.workspace = true
 toml = "0.8"
 sha2.workspace = true
 spiderhead-oracle-diff.workspace = true
+zstd.workspace = true

@@ -3,6 +3,7 @@
 
 pub mod config;
 pub mod demand;
+pub mod google;
 pub mod louvain;
 pub mod norm;
 pub mod providers;

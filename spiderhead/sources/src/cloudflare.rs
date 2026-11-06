@@ -92,17 +92,17 @@ pub enum CfError {
     Os(String),
     /// Any other failure kind; its class name is kept with the error.
     #[error("{1}")]
-    Python(&'static str, String),
+    Classed(&'static str, String),
 }
 
 impl CfError {
     /// Error class name this variant reports.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             CfError::Cloudflare(_) => "CloudflareError",
             CfError::Value(_) => "ValueError",
             CfError::Os(_) => "OSError",
-            CfError::Python(class, _) => class,
+            CfError::Classed(class, _) => class,
         }
     }
 }

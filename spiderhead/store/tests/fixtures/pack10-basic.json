@@ -153,7 +153,7 @@
    "call": {
     "fmt": "csv"
    },
-   "file": "﻿url_id;url;status_code;content_type;crawl_depth;title;h1;word_count;size_bytes;response_time;indexable\n1;http://127.0.0.1:18701/;200;\"text/html; charset=utf-8\";0;Basic site home;Basic site home;9;672;0.001;true\n2;http://127.0.0.1:18701/about.html;200;\"text/html; charset=utf-8\";1;About the basic site;About the basic site;17;442;0.001;true\n3;http://127.0.0.1:18701/dup-a.html;200;\"text/html; charset=utf-8\";1;Duplicate title;Duplicate title;51;595;0.001;true\n4;http://127.0.0.1:18701/dup-b.html;200;\"text/html; charset=utf-8\";1;Duplicate title;Duplicate title;51;595;0.001;true\n5;http://127.0.0.1:18701/noindex.html;200;\"text/html; charset=utf-8\";1;Noindex page;Noindex page;9;350;0.001;false\n6;http://127.0.0.1:18701/images.html;200;\"text/html; charset=utf-8\";1;Images page;Images page;2;474;0.001;true\n7;http://127.0.0.1:18701/large.html;200;\"text/html; charset=utf-8\";1;Large page;Large page;28802;183641;0.001;true\n8;http://127.0.0.1:18701/legacy.html;200;\"text/html; charset=iso-8859-1\";1;Ñòàðàÿ êîäèðîâêà;Ñòàðàÿ êîäèðîâêà;10;399;0.001;true\n9;http://127.0.0.1:18701/js.html;200;\"text/html; charset=utf-8\";1;JS-rendered page;JS-rendered page;2;454;0.001;true\n10;http://127.0.0.1:18701/missing-page.html;404;\"text/html; charset=utf-8\";1;Not Found;Not Found;2;97;0.001;false\n",
+   "file": "\ufeffurl_id;url;status_code;content_type;crawl_depth;title;h1;word_count;size_bytes;response_time;indexable\n1;http://127.0.0.1:18701/;200;\"text/html; charset=utf-8\";0;Basic site home;Basic site home;9;672;0.0;true\n2;http://127.0.0.1:18701/about.html;200;\"text/html; charset=utf-8\";1;About the basic site;About the basic site;17;442;0.0;true\n3;http://127.0.0.1:18701/dup-a.html;200;\"text/html; charset=utf-8\";1;Duplicate title;Duplicate title;51;595;0.0;true\n4;http://127.0.0.1:18701/dup-b.html;200;\"text/html; charset=utf-8\";1;Duplicate title;Duplicate title;51;595;0.0;true\n5;http://127.0.0.1:18701/noindex.html;200;\"text/html; charset=utf-8\";1;Noindex page;Noindex page;9;350;0.0;false\n6;http://127.0.0.1:18701/images.html;200;\"text/html; charset=utf-8\";1;Images page;Images page;2;474;0.0;true\n7;http://127.0.0.1:18701/large.html;200;\"text/html; charset=utf-8\";1;Large page;Large page;28802;183641;0.001;true\n8;http://127.0.0.1:18701/legacy.html;200;\"text/html; charset=iso-8859-1\";1;\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430;\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430;10;399;0.0;true\n9;http://127.0.0.1:18701/js.html;200;\"text/html; charset=utf-8\";1;JS-rendered page;JS-rendered page;2;454;0.0;true\n10;http://127.0.0.1:18701/missing-page.html;404;\"text/html; charset=utf-8\";1;Not Found;Not Found;2;97;0.0;false\n",
    "result": {
     "columns": [
      "url_id",
@@ -187,7 +187,7 @@
     "fmt": "csv",
     "preset": "title_missing"
    },
-   "file": "﻿url_id;url;status_code;content_type;crawl_depth;title;h1;word_count;size_bytes;response_time;indexable\n",
+   "file": "\ufeffurl_id;url;status_code;content_type;crawl_depth;title;h1;word_count;size_bytes;response_time;indexable\n",
    "result": {
     "columns": [
      "url_id",
@@ -237,7 +237,7 @@
     ],
     "fmt": "csv"
    },
-   "file": "﻿url;status_code;indexable\nhttp://127.0.0.1:18701/;200;true\nhttp://127.0.0.1:18701/about.html;200;true\nhttp://127.0.0.1:18701/dup-a.html;200;true\nhttp://127.0.0.1:18701/dup-b.html;200;true\nhttp://127.0.0.1:18701/noindex.html;200;false\nhttp://127.0.0.1:18701/images.html;200;true\nhttp://127.0.0.1:18701/large.html;200;true\nhttp://127.0.0.1:18701/legacy.html;200;true\nhttp://127.0.0.1:18701/js.html;200;true\n",
+   "file": "\ufeffurl;status_code;indexable\nhttp://127.0.0.1:18701/;200;true\nhttp://127.0.0.1:18701/about.html;200;true\nhttp://127.0.0.1:18701/dup-a.html;200;true\nhttp://127.0.0.1:18701/dup-b.html;200;true\nhttp://127.0.0.1:18701/noindex.html;200;false\nhttp://127.0.0.1:18701/images.html;200;true\nhttp://127.0.0.1:18701/large.html;200;true\nhttp://127.0.0.1:18701/legacy.html;200;true\nhttp://127.0.0.1:18701/js.html;200;true\n",
    "result": {
     "columns": [
      "url",
@@ -357,7 +357,7 @@
      [
       8,
       "http://127.0.0.1:18701/legacy.html",
-      "Ñòàðàÿ êîäèðîâêà",
+      "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       10,
       true
      ],
@@ -419,7 +419,7 @@
      ],
      [
       "source.scan_uuid",
-      "ea01145e-be8b-4c8f-893c-583d2a0c517e"
+      "68aa22b8-7c8c-47b2-9398-3e7a466e3598"
      ],
      [
       "source.format_version",
@@ -509,7 +509,7 @@
   {
    "call": {},
    "result": {
-    "bytes": 2734,
+    "bytes": 2716,
     "columns": [
      "url_id",
      "url",
@@ -545,7 +545,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -558,7 +558,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -571,7 +571,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -584,7 +584,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -597,7 +597,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -610,7 +610,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -634,12 +634,12 @@
      {
       "content_type": "text/html; charset=iso-8859-1",
       "crawl_depth": 1,
-      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "h1": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 399,
       "status_code": 200,
-      "title": "Ñòàðàÿ êîäèðîâêà",
+      "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "url": "http://127.0.0.1:18701/legacy.html",
       "url_id": 8,
       "word_count": 10
@@ -649,7 +649,7 @@
       "crawl_depth": 1,
       "h1": "JS-rendered page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 454,
       "status_code": 200,
       "title": "JS-rendered page",
@@ -662,7 +662,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -688,7 +688,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -702,7 +702,7 @@
     "limit": 5
    },
    "result": {
-    "bytes": 1355,
+    "bytes": 1345,
     "columns": [
      "url_id",
      "url",
@@ -738,7 +738,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -751,7 +751,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -764,7 +764,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -777,7 +777,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -790,7 +790,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -816,7 +816,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -843,7 +843,7 @@
     "offset": 2
    },
    "result": {
-    "bytes": 812,
+    "bytes": 806,
     "columns": [
      "url_id",
      "url",
@@ -879,7 +879,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -892,7 +892,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -905,7 +905,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -931,7 +931,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -952,7 +952,7 @@
     "limit": 4
    },
    "result": {
-    "bytes": 1087,
+    "bytes": 1079,
     "columns": [
      "url_id",
      "url",
@@ -994,7 +994,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -1007,7 +1007,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -1020,7 +1020,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -1033,7 +1033,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -1059,7 +1059,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -1084,7 +1084,7 @@
     "sort": "status_code"
    },
    "result": {
-    "bytes": 1619,
+    "bytes": 1607,
     "columns": [
      "url_id",
      "url",
@@ -1129,7 +1129,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -1142,7 +1142,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -1155,7 +1155,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -1168,7 +1168,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -1181,7 +1181,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -1194,7 +1194,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -1220,7 +1220,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -1240,7 +1240,7 @@
     ]
    },
    "result": {
-    "bytes": 267,
+    "bytes": 265,
     "columns": [
      "url_id",
      "url",
@@ -1282,7 +1282,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -1308,7 +1308,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -1330,7 +1330,7 @@
     "sort": "url"
    },
    "result": {
-    "bytes": 267,
+    "bytes": 265,
     "columns": [
      "url_id",
      "url",
@@ -1372,7 +1372,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -1398,7 +1398,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -1474,7 +1474,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -1495,7 +1495,7 @@
     "sort": "url"
    },
    "result": {
-    "bytes": 2734,
+    "bytes": 2716,
     "columns": [
      "url_id",
      "url",
@@ -1537,7 +1537,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -1550,7 +1550,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -1563,7 +1563,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -1576,7 +1576,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -1589,7 +1589,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -1602,7 +1602,7 @@
       "crawl_depth": 1,
       "h1": "JS-rendered page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 454,
       "status_code": 200,
       "title": "JS-rendered page",
@@ -1626,12 +1626,12 @@
      {
       "content_type": "text/html; charset=iso-8859-1",
       "crawl_depth": 1,
-      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "h1": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 399,
       "status_code": 200,
-      "title": "Ñòàðàÿ êîäèðîâêà",
+      "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "url": "http://127.0.0.1:18701/legacy.html",
       "url_id": 8,
       "word_count": 10
@@ -1641,7 +1641,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -1654,7 +1654,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -1680,7 +1680,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -1752,7 +1752,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -1780,7 +1780,7 @@
     "sort": "size_bytes"
    },
    "result": {
-    "bytes": 2466,
+    "bytes": 2448,
     "columns": [
      "url_id",
      "url",
@@ -1829,7 +1829,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -1842,7 +1842,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -1853,12 +1853,12 @@
      {
       "content_type": "text/html; charset=iso-8859-1",
       "crawl_depth": 1,
-      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "h1": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 399,
       "status_code": 200,
-      "title": "Ñòàðàÿ êîäèðîâêà",
+      "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "url": "http://127.0.0.1:18701/legacy.html",
       "url_id": 8,
       "word_count": 10
@@ -1868,7 +1868,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -1881,7 +1881,7 @@
       "crawl_depth": 1,
       "h1": "JS-rendered page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 454,
       "status_code": 200,
       "title": "JS-rendered page",
@@ -1894,7 +1894,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -1907,7 +1907,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -1920,7 +1920,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -1933,7 +1933,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -1959,7 +1959,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -2081,7 +2081,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -2107,7 +2107,7 @@
     "sort": "crawl_depth"
    },
    "result": {
-    "bytes": 1919,
+    "bytes": 1907,
     "columns": [
      "url_id",
      "url",
@@ -2152,7 +2152,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -2165,7 +2165,7 @@
       "crawl_depth": 1,
       "h1": "JS-rendered page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 454,
       "status_code": 200,
       "title": "JS-rendered page",
@@ -2176,12 +2176,12 @@
      {
       "content_type": "text/html; charset=iso-8859-1",
       "crawl_depth": 1,
-      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "h1": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 399,
       "status_code": 200,
-      "title": "Ñòàðàÿ êîäèðîâêà",
+      "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "url": "http://127.0.0.1:18701/legacy.html",
       "url_id": 8,
       "word_count": 10
@@ -2204,7 +2204,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -2217,7 +2217,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -2230,7 +2230,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -2256,7 +2256,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -2346,7 +2346,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -2523,7 +2523,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -2637,7 +2637,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -2700,11 +2700,11 @@
      },
      {
       "issue_count": 16,
-      "url": "http://127.0.0.1:18701/"
+      "url": "http://127.0.0.1:18701/legacy.html"
      },
      {
-      "issue_count": 15,
-      "url": "http://127.0.0.1:18701/legacy.html"
+      "issue_count": 16,
+      "url": "http://127.0.0.1:18701/"
      },
      {
       "issue_count": 14,
@@ -2736,7 +2736,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -2751,7 +2751,7 @@
     "limit": 2
    },
    "result": {
-    "bytes": 543,
+    "bytes": 539,
     "columns": [
      "url_id",
      "url",
@@ -2838,7 +2838,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -2851,7 +2851,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -2877,7 +2877,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -2897,7 +2897,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -2946,7 +2946,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -2972,7 +2972,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -3025,7 +3025,7 @@
     "limit": 5
    },
    "result": {
-    "bytes": 1355,
+    "bytes": 1345,
     "columns": [
      "url_id",
      "url",
@@ -3061,7 +3061,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -3074,7 +3074,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -3087,7 +3087,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -3100,7 +3100,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -3113,7 +3113,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -3139,7 +3139,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -3157,7 +3157,7 @@
     "limit": 5
    },
    "result": {
-    "bytes": 264,
+    "bytes": 262,
     "columns": [
      "url_id",
      "url",
@@ -3193,7 +3193,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -3219,7 +3219,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -3234,7 +3234,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -3283,7 +3283,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -3309,7 +3309,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -3324,7 +3324,7 @@
     "max_bytes": 4096
    },
    "result": {
-    "bytes": 2734,
+    "bytes": 2716,
     "columns": [
      "url_id",
      "url",
@@ -3360,7 +3360,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -3373,7 +3373,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -3386,7 +3386,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -3399,7 +3399,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -3412,7 +3412,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -3425,7 +3425,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -3449,12 +3449,12 @@
      {
       "content_type": "text/html; charset=iso-8859-1",
       "crawl_depth": 1,
-      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "h1": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 399,
       "status_code": 200,
-      "title": "Ñòàðàÿ êîäèðîâêà",
+      "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "url": "http://127.0.0.1:18701/legacy.html",
       "url_id": 8,
       "word_count": 10
@@ -3464,7 +3464,7 @@
       "crawl_depth": 1,
       "h1": "JS-rendered page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 454,
       "status_code": 200,
       "title": "JS-rendered page",
@@ -3477,7 +3477,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -3503,7 +3503,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -3815,7 +3815,7 @@
     "sort": "title"
    },
    "result": {
-    "bytes": 2734,
+    "bytes": 2716,
     "columns": [
      "url_id",
      "url",
@@ -3851,7 +3851,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -3864,7 +3864,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -3877,7 +3877,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -3890,7 +3890,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -3903,7 +3903,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -3916,7 +3916,7 @@
       "crawl_depth": 1,
       "h1": "JS-rendered page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 454,
       "status_code": 200,
       "title": "JS-rendered page",
@@ -3942,7 +3942,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -3955,7 +3955,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -3966,12 +3966,12 @@
      {
       "content_type": "text/html; charset=iso-8859-1",
       "crawl_depth": 1,
-      "h1": "Ñòàðàÿ êîäèðîâêà",
+      "h1": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 399,
       "status_code": 200,
-      "title": "Ñòàðàÿ êîäèðîâêà",
+      "title": "\u0421\u0442\u0430\u0440\u0430\u044f \u043a\u043e\u0434\u0438\u0440\u043e\u0432\u043a\u0430",
       "url": "http://127.0.0.1:18701/legacy.html",
       "url_id": 8,
       "word_count": 10
@@ -3994,7 +3994,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4063,7 +4063,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4078,7 +4078,7 @@
     "preset": "status_4xx"
    },
    "result": {
-    "bytes": 267,
+    "bytes": 265,
     "columns": [
      "url_id",
      "url",
@@ -4120,7 +4120,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -4146,7 +4146,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4215,7 +4215,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4284,7 +4284,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4352,7 +4352,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4421,7 +4421,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4436,7 +4436,7 @@
     "preset": "meta_description_missing"
    },
    "result": {
-    "bytes": 267,
+    "bytes": 265,
     "columns": [
      "url_id",
      "url",
@@ -4477,7 +4477,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -4503,7 +4503,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4572,7 +4572,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4640,7 +4640,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4708,7 +4708,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4723,7 +4723,7 @@
     "preset": "canonical_missing"
    },
    "result": {
-    "bytes": 815,
+    "bytes": 809,
     "columns": [
      "url_id",
      "url",
@@ -4764,7 +4764,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -4777,7 +4777,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -4790,7 +4790,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -4816,7 +4816,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4831,7 +4831,7 @@
     "preset": "images_missing_alt"
    },
    "result": {
-    "bytes": 264,
+    "bytes": 262,
     "columns": [
      "url_id",
      "url",
@@ -4873,7 +4873,7 @@
       "crawl_depth": 1,
       "h1": "Images page",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 474,
       "status_code": 200,
       "title": "Images page",
@@ -4899,7 +4899,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -4914,7 +4914,7 @@
     "preset": "noindex_meta"
    },
    "result": {
-    "bytes": 268,
+    "bytes": 266,
     "columns": [
      "url_id",
      "url",
@@ -4956,7 +4956,7 @@
       "crawl_depth": 1,
       "h1": "Noindex page",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 350,
       "status_code": 200,
       "title": "Noindex page",
@@ -4982,7 +4982,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5051,7 +5051,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5066,7 +5066,7 @@
     "preset": "no_outlinks"
    },
    "result": {
-    "bytes": 267,
+    "bytes": 265,
     "columns": [
      "url_id",
      "url",
@@ -5108,7 +5108,7 @@
       "crawl_depth": 1,
       "h1": "Not Found",
       "indexable": false,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 97,
       "status_code": 404,
       "title": "Not Found",
@@ -5134,7 +5134,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5203,7 +5203,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5218,7 +5218,7 @@
     "preset": "duplicate_titles"
    },
    "result": {
-    "bytes": 544,
+    "bytes": 540,
     "columns": [
      "url_id",
      "url",
@@ -5260,7 +5260,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -5273,7 +5273,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -5299,7 +5299,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5327,7 +5327,7 @@
     "preset": "inlinks"
    },
    "result": {
-    "bytes": 815,
+    "bytes": 809,
     "columns": [
      "url_id",
      "url",
@@ -5369,7 +5369,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -5382,7 +5382,7 @@
       "crawl_depth": 1,
       "h1": "About the basic site",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 442,
       "status_code": 200,
       "title": "About the basic site",
@@ -5395,7 +5395,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -5421,7 +5421,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5490,7 +5490,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5505,7 +5505,7 @@
     "preset": "description_duplicate"
    },
    "result": {
-    "bytes": 544,
+    "bytes": 540,
     "columns": [
      "url_id",
      "url",
@@ -5547,7 +5547,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -5560,7 +5560,7 @@
       "crawl_depth": 1,
       "h1": "Duplicate title",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 595,
       "status_code": 200,
       "title": "Duplicate title",
@@ -5586,7 +5586,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5655,7 +5655,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5672,7 +5672,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -5715,7 +5715,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -5741,7 +5741,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5758,7 +5758,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -5801,7 +5801,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -5827,7 +5827,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5844,7 +5844,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -5887,7 +5887,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -5913,7 +5913,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -5930,7 +5930,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -5973,7 +5973,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -5999,7 +5999,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6016,7 +6016,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6059,7 +6059,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6085,7 +6085,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6102,7 +6102,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6145,7 +6145,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6171,7 +6171,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6188,7 +6188,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6231,7 +6231,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6257,7 +6257,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6274,7 +6274,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6317,7 +6317,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6343,7 +6343,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6360,7 +6360,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6403,7 +6403,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6429,7 +6429,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6446,7 +6446,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6489,7 +6489,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6515,7 +6515,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6532,7 +6532,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6575,7 +6575,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6601,7 +6601,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6618,7 +6618,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6661,7 +6661,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6687,7 +6687,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6704,7 +6704,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6747,7 +6747,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6773,7 +6773,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6790,7 +6790,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6833,7 +6833,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6859,7 +6859,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6876,7 +6876,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -6919,7 +6919,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -6945,7 +6945,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -6962,7 +6962,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -7005,7 +7005,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -7031,7 +7031,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -7048,7 +7048,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -7091,7 +7091,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -7117,7 +7117,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -7134,7 +7134,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -7177,7 +7177,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -7203,7 +7203,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -7220,7 +7220,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -7263,7 +7263,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -7289,7 +7289,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -7306,7 +7306,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -7349,7 +7349,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -7375,7 +7375,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -7392,7 +7392,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -7435,7 +7435,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -7461,7 +7461,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -7478,7 +7478,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -7521,7 +7521,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -7547,7 +7547,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",
@@ -7564,7 +7564,7 @@
     "limit": 1
    },
    "result": {
-    "bytes": 261,
+    "bytes": 259,
     "columns": [
      "url_id",
      "url",
@@ -7607,7 +7607,7 @@
       "crawl_depth": 0,
       "h1": "Basic site home",
       "indexable": true,
-      "response_time": 0.001,
+      "response_time": 0.0,
       "size_bytes": 672,
       "status_code": 200,
       "title": "Basic site home",
@@ -7633,7 +7633,7 @@
       "reason": "committed native crawl observations",
       "state": "complete"
      },
-     "scan_uuid": "ea01145e-be8b-4c8f-893c-583d2a0c517e",
+     "scan_uuid": "68aa22b8-7c8c-47b2-9398-3e7a466e3598",
      "source_kind": "native"
     },
     "state": "available",

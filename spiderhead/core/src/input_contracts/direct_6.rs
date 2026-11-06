@@ -24,6 +24,11 @@ pub(super) const COMMANDS: &[CommandContract] = &[
         form(InputKind::LocalFile, &["out"], "New WARC 1.1 destination; an existing output is refused. A sibling manifest names every skipped URL with its reason."),
         form(InputKind::Selector, &["max_body_bytes"], "Optional per-body decoded-byte cap; larger retained bodies are skipped with reason body_too_large."),
     ], ""),
+    command("scan-broken-links", Some("scan_broken_links"), &[
+        form(InputKind::ScanArtifact, &["input_path"], "Retained scan read offline; no network."),
+        form(InputKind::LocalFile, &["out"], "New CSV or XLSX destination; an existing output is refused."),
+        form(InputKind::Selector, &["fmt"], "Optional output format, csv (default) or xlsx."),
+    ], ""),
     command("scan-pin", Some("scan_pin"), &[
         form(InputKind::ScanArtifact, &["input_path"], ""),
     ], ""),
@@ -44,6 +49,7 @@ pub(super) const COMMANDS: &[CommandContract] = &[
         form(InputKind::ScanArtifact, &["input_path"], ""),
         form(InputKind::InlineJson, &["rules"], "Closed declarative rules over retained complete bodies."),
         form(InputKind::Selector, &["url"], "Optional exact logical URL."),
+        form(InputKind::Selector, &["representation", "limit", "offset"], "limit is the page size; offset continues from next_offset."),
     ], ""),
     command("custom-extract-sample", Some("custom_extract_sample"), &[
         form(InputKind::InlineText, &["html"], "Supplied HTML; never fetched."),

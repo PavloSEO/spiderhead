@@ -6,6 +6,8 @@ license.workspace = true
 description = "Structural JSON diff between reference baseline baselines and Rust output."
 
 [dependencies]
+regex.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 toml = "0.8"
+zstd.workspace = true

@@ -8,7 +8,7 @@ use serde_json::{Map, Value};
 use super::deps::deps;
 use super::native_config::{crawl_fingerprint, native_config};
 use super::rows::validate_rows;
-use super::{bad, read_effective_config, NativeScanSchemaMixin, RUNTIME_KEYS};
+use super::{bad, read_effective_config, runtime_key_set_is_known, NativeScanSchemaMixin};
 use crate::error::StoreError;
 use crate::retention::{policy_for_config, validate_policy};
 use crate::scan_artifact::{
@@ -411,8 +411,7 @@ fn check_provenance(scan: &Map<String, Value>) -> Result<(), StoreError> {
         .flatten()
         .ok_or_else(|| bad("native scan UUID or runtime provenance is invalid"))?;
     let valid = versions.as_object().is_some_and(|map| {
-        map.keys().map(String::as_str).collect::<BTreeSet<_>>()
-            == RUNTIME_KEYS.iter().copied().collect()
+        runtime_key_set_is_known(map)
             && map
                 .values()
                 .all(|v| v.as_str().is_some_and(|s| !s.is_empty()))

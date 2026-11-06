@@ -6,7 +6,7 @@ use super::*;
 pub(super) fn decimal_lt_one(text: &str) -> Result<bool, Ga4Error> {
     let digits = text.chars().count();
     if digits > 4300 {
-        return Err(Ga4Error::Python {
+        return Err(Ga4Error::Classed {
             class: "ValueError".to_owned(),
             message: format!(
                 "Exceeds the limit (4300 digits) for integer string conversion:                  value has {digits} digits; use sys.set_int_max_str_digits()                  to increase the limit"
@@ -80,7 +80,7 @@ pub(super) fn zoneinfo_probe(name: &str) -> Result<(), Option<String>> {
         return Err(Some(message));
     }
     // Search order: the environment override first, then the platform defaults.
-    let dirs: Vec<PathBuf> = match std::env::var_os("PYTHONTZPATH") {
+    let dirs: Vec<PathBuf> = match std::env::var_os("SPIDERHEAD_TZPATH") {
         Some(value) if !value.is_empty() => std::env::split_paths(&value).collect(),
         _ => [
             "/usr/share/zoneinfo",

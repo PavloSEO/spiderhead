@@ -327,18 +327,18 @@ mod tests {
         ] {
             assert_eq!(
                 line_count(text),
-                text.lines_split_like_python().len() as i64,
+                text.split_lines_keep_crlf().len() as i64,
                 "{text:?}"
             );
         }
     }
 
-    /// Reference line split: split after every boundary, drop the trailing empty record.
-    trait SplitLikePython {
-        fn lines_split_like_python(&self) -> Vec<&str>;
+    /// Strict line split: split after every boundary, drop the trailing empty record.
+    trait SplitLinesKeepCrlf {
+        fn split_lines_keep_crlf(&self) -> Vec<&str>;
     }
-    impl SplitLikePython for str {
-        fn lines_split_like_python(&self) -> Vec<&str> {
+    impl SplitLinesKeepCrlf for str {
+        fn split_lines_keep_crlf(&self) -> Vec<&str> {
             let mut out = Vec::new();
             let mut start = 0;
             let mut it = self.char_indices().peekable();

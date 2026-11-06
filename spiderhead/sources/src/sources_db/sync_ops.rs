@@ -62,7 +62,7 @@ async fn fetch_gsc<T: Transport>(
     let result = gsc::search_analytics_pages(host, root, resource, &args, transport)
         .await
         .map_err(|err| FetcherFault {
-            class: err.python_class().to_owned(),
+            class: err.error_class().to_owned(),
             message: err.to_string(),
         })?;
     fetch_gsc_result(&result)
@@ -98,7 +98,7 @@ async fn fetch_ga4<T: Transport>(
     )
     .await
     .map_err(|err| FetcherFault {
-        class: err.python_class().to_owned(),
+        class: err.error_class().to_owned(),
         message: err.to_string(),
     })?;
     fetch_ga4_result(&result)
@@ -133,7 +133,7 @@ async fn fetch_metrika<T: Transport>(
                 Ok(FetchMetrikaFail::MissingCredential(message))
             }
             other => Err(FetcherFault {
-                class: other.python_class().to_owned(),
+                class: other.error_class().to_owned(),
                 message: other.to_string(),
             }),
         }
@@ -181,7 +181,7 @@ async fn fetch_webmaster<T: Transport>(
         let result = yandex_webmaster::collect("search_performance", &args, &env)
             .await
             .map_err(|err| FetcherFault {
-                class: err.python_class().to_owned(),
+                class: err.error_class().to_owned(),
                 message: err.to_string(),
             })?;
         match webmaster_day(&result, &day)? {
@@ -234,7 +234,7 @@ async fn fetch_webmaster_history<T: Transport>(
         let result = yandex_webmaster::collect(operation, &args, &env)
             .await
             .map_err(|err| FetcherFault {
-                class: err.python_class().to_owned(),
+                class: err.error_class().to_owned(),
                 message: err.to_string(),
             })?;
         if let Some(envelope) = webmaster_history_op(&result, operation, &mut totals)? {

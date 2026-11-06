@@ -35,7 +35,7 @@ async fn indexnow_oracle_parity() {
             args.get("key_location").and_then(Value::as_str),
         )
         .await
-        .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+        .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
     }
 }

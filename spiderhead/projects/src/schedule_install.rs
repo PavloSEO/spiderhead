@@ -47,11 +47,9 @@ fn label(directory: &str) -> String {
     )
 }
 
-fn command(directory: &str, interpreter: &str) -> Vec<String> {
+fn command(directory: &str, executable: &str) -> Vec<String> {
     [
-        interpreter.to_owned(),
-        "-m".into(),
-        "spiderhead.cli".into(),
+        executable.to_owned(),
         "schedule-run-due".into(),
         "--directory".into(),
         abspath(directory),
@@ -67,7 +65,7 @@ fn default_launchd_path(directory: &str) -> PathBuf {
         .join(format!("{}.plist", label(directory)))
 }
 
-fn default_interpreter() -> String {
+fn default_executable() -> String {
     std::env::current_exe()
         .map(|p| p.to_string_lossy().to_string())
         .unwrap_or_else(|_| "spiderhead".into())
@@ -117,15 +115,15 @@ pub fn install(
     directory: &str,
     kind: &str,
     dest: Option<&Path>,
-    python: Option<&str>,
+    executable: Option<&str>,
 ) -> ProjectsResult<Value> {
     if !KINDS.contains(&kind) {
         return Err(value("kind must be launchd, cron or windows"));
     }
-    let interpreter = python
+    let executable = executable
         .map(str::to_owned)
-        .unwrap_or_else(default_interpreter);
-    let argv = command(directory, &interpreter);
+        .unwrap_or_else(default_executable);
+    let argv = command(directory, &executable);
     if kind == "launchd" {
         let path = dest
             .map(Path::to_path_buf)

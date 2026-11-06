@@ -27,7 +27,7 @@ pub(crate) async fn call_send<T: Transport>(
 pub(crate) fn py_quote(value: &Value, safe: &str) -> Result<String, CfError> {
     match value {
         Value::String(text) => Ok(http::quote(text, safe)),
-        _ => Err(CfError::Python(
+        _ => Err(CfError::Classed(
             "TypeError",
             "quote_from_bytes() expected bytes".to_owned(),
         )),
@@ -40,7 +40,7 @@ pub(super) fn py_int_or_zero(value: Option<&Value>) -> Result<i64, CfError> {
         Some(v) if pystr::truthy(Some(v)) => {
             pystr::to_python_int(v).map_err(|(class, msg)| match class {
                 "ValueError" => CfError::Value(msg),
-                other => CfError::Python(other, msg),
+                other => CfError::Classed(other, msg),
             })
         }
         _ => Ok(0),
@@ -74,7 +74,7 @@ pub(super) fn py_scalar_lt(a: &Value, b: &Value) -> Result<bool, CfError> {
         (Value::Number(x), Value::Bool(y)) => {
             Ok(x.as_f64().unwrap_or(f64::NAN) < i64::from(*y) as f64)
         }
-        _ => Err(CfError::Python(
+        _ => Err(CfError::Classed(
             "TypeError",
             format!(
                 "'<' not supported between instances of '{}' and '{}'",

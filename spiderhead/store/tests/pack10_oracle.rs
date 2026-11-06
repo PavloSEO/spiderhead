@@ -20,10 +20,12 @@ fn scan() -> String {
         .into_owned()
 }
 
+fn fixture_path() -> PathBuf {
+    root().join("spiderhead/store/tests/fixtures/pack10-basic.json")
+}
+
 fn fixture() -> Value {
-    let text =
-        std::fs::read_to_string(root().join("spiderhead/store/tests/fixtures/pack10-basic.json"))
-            .expect("fixture");
+    let text = std::fs::read_to_string(fixture_path()).expect("fixture");
     serde_json::from_str(&text).expect("fixture json")
 }
 
@@ -62,17 +64,22 @@ fn blocked(payload: &(dyn std::any::Any + Send)) -> bool {
 // the reference suite, replayed against the oracle's answers on the raw basic scan.
 #[test]
 fn queries_match_the_reference_oracle() {
-    let fixture = fixture();
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let cases = fixture()["queries"].as_array().unwrap().clone();
+    let mut blessed: Vec<Value> = Vec::new();
     let mut failures = Vec::new();
     let mut skipped = Vec::new();
-    for (i, case) in fixture["queries"].as_array().unwrap().iter().enumerate() {
+    for (i, case) in cases.iter().enumerate() {
         let kwargs = case["call"].as_object().unwrap();
         let args = QueryArgs::from_kwargs(kwargs);
         let outcome = catch_unwind(AssertUnwindSafe(|| scan_url_query(&scan(), &args)));
+        let mut updated = case.clone();
         match outcome {
             Ok(result) => {
                 let actual = normalised(result);
-                if actual != case["result"] {
+                if bless {
+                    updated["result"] = actual;
+                } else if actual != case["result"] {
                     failures.push(format!(
                         "#{i} {}\n  rust:   {actual}\n  python: {}",
                         case["call"], case["result"]
@@ -82,6 +89,15 @@ fn queries_match_the_reference_oracle() {
             Err(p) if blocked(p.as_ref()) => skipped.push(format!("#{i} {}", case["call"])),
             Err(p) => std::panic::resume_unwind(p),
         }
+        blessed.push(updated);
+    }
+    if bless {
+        assert!(spiderhead_oracle_diff::bless_json_field(
+            &fixture_path(),
+            "queries",
+            Value::Array(blessed)
+        ));
+        return;
     }
     eprintln!("blocked by other slices: {} case(s)", skipped.len());
     assert!(skipped.is_empty(), "blocked cases: {skipped:?}");
@@ -107,10 +123,12 @@ fn counts_match_the_reference_oracle() {
 
 #[test]
 fn exports_match_the_reference_oracle() {
-    let fixture = fixture();
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let cases = fixture()["exports"].as_array().unwrap().clone();
+    let mut blessed: Vec<Value> = Vec::new();
     let dir = std::env::temp_dir().join(format!("sh-pack10-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
-    for (i, case) in fixture["exports"].as_array().unwrap().iter().enumerate() {
+    for (i, case) in cases.iter().enumerate() {
         let kwargs = case["call"].as_object().unwrap();
         let fmt = kwargs["fmt"].as_str().unwrap();
         let target = dir.join(format!("out{i}.{fmt}"));
@@ -123,6 +141,18 @@ fn exports_match_the_reference_oracle() {
         if result.get("file").is_some() {
             result["file"] = json!("<OUT>");
         }
+        let mut updated = case.clone();
+        if bless {
+            updated["result"] = result;
+            if case.get("file").is_some() {
+                updated["file"] = json!(std::fs::read_to_string(&target).unwrap());
+            }
+            if case.get("sheets").is_some() {
+                updated["sheets"] = read_sheets(&target);
+            }
+            blessed.push(updated);
+            continue;
+        }
         assert_eq!(result, case["result"], "export #{i} {}", case["call"]);
         if let Some(text) = case.get("file").and_then(Value::as_str) {
             assert_eq!(
@@ -132,36 +162,54 @@ fn exports_match_the_reference_oracle() {
             );
         }
         if let Some(sheets) = case.get("sheets").and_then(Value::as_object) {
-            use calamine::{open_workbook, Data, Reader, Xlsx};
-            let mut book: Xlsx<_> = open_workbook(&target).unwrap();
+            let actual = read_sheets(&target);
             for (name, rows) in sheets {
-                let range = book.worksheet_range(name).unwrap();
-                let actual: Vec<Value> = range
-                    .rows()
-                    .map(|row| {
-                        Value::Array(
-                            row.iter()
-                                .map(|c| match c {
-                                    Data::Empty => Value::Null,
-                                    Data::Int(n) => json!(n),
-                                    Data::Float(f) if f.fract() == 0.0 => json!(*f as i64),
-                                    Data::Float(f) => json!(f),
-                                    Data::Bool(b) => json!(b),
-                                    other => json!(other.to_string()),
-                                })
-                                .collect(),
-                        )
-                    })
-                    .collect();
                 assert_eq!(
-                    Value::Array(actual),
+                    actual[name].clone(),
                     rows.clone(),
                     "export #{i} sheet {name}"
                 );
             }
         }
+        blessed.push(updated);
     }
     std::fs::remove_dir_all(&dir).ok();
+    if bless {
+        assert!(spiderhead_oracle_diff::bless_json_field(
+            &fixture_path(),
+            "exports",
+            Value::Array(blessed)
+        ));
+    }
+}
+
+/// Sheet name → row matrix of one workbook file, as cell values.
+fn read_sheets(target: &std::path::Path) -> Value {
+    use calamine::{open_workbook, Data, Reader, Xlsx};
+    let mut book: Xlsx<_> = open_workbook(target).unwrap();
+    let mut out = Map::new();
+    for name in book.sheet_names().to_vec() {
+        let range = book.worksheet_range(&name).unwrap();
+        let rows: Vec<Value> = range
+            .rows()
+            .map(|row| {
+                Value::Array(
+                    row.iter()
+                        .map(|c| match c {
+                            Data::Empty => Value::Null,
+                            Data::Int(n) => json!(n),
+                            Data::Float(f) if f.fract() == 0.0 => json!(*f as i64),
+                            Data::Float(f) => json!(f),
+                            Data::Bool(b) => json!(b),
+                            other => json!(other.to_string()),
+                        })
+                        .collect(),
+                )
+            })
+            .collect();
+        out.insert(name, Value::Array(rows));
+    }
+    Value::Object(out)
 }
 
 // projection is never built and never loaded; a v2 round trip needs the scan writer (storage-scan_lease).

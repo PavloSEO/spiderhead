@@ -1,6 +1,5 @@
 //! Creating and reopening native scan artifacts (`NativeScanSchemaMixin::create` / `open`).
 
-use std::collections::BTreeSet;
 use std::fs::{self, File, OpenOptions};
 use std::io;
 #[cfg(unix)]
@@ -17,7 +16,8 @@ use super::deps::deps;
 use super::native_config::{crawl_fingerprint, native_config, resume_fingerprint};
 use super::{
     bad, config_extension_context, config_extension_values, frozen_header_config,
-    legacy_anonymous_session, read_effective_config, NativeScanSchemaMixin, RUNTIME_KEYS,
+    legacy_anonymous_session, read_effective_config, runtime_key_set_is_known,
+    NativeScanSchemaMixin,
 };
 use crate::error::StoreError;
 use crate::native_scan::NativeScan;
@@ -259,9 +259,7 @@ impl NativeScanSchemaMixin {
                 "native scan writer_revision must be a lowercase 40-character Git SHA",
             ));
         }
-        let wanted: BTreeSet<&str> = RUNTIME_KEYS.iter().copied().collect();
-        let given: BTreeSet<&str> = runtime_versions.keys().map(String::as_str).collect();
-        if given != wanted
+        if !runtime_key_set_is_known(runtime_versions)
             || runtime_versions
                 .values()
                 .any(|v| !v.as_str().is_some_and(|s| !s.is_empty()))

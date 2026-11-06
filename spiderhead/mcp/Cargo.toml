@@ -9,6 +9,7 @@ description = "SpiderHead mcp (MCP server surface)."
 anyhow.workspace = true
 fancy-regex.workspace = true
 indexmap.workspace = true
+jiff.workspace = true
 rusqlite.workspace = true
 reqwest.workspace = true
 serde.workspace = true
@@ -35,4 +36,5 @@ spiderhead-store.workspace = true
 
 [dev-dependencies]
 spiderhead-oracle-diff.workspace = true
+spiderhead-oracle-testkit.workspace = true
 tempfile.workspace = true

@@ -6,7 +6,7 @@
   "steps": [
    {
     "exit": 0,
-    "stderr": "seohead: scan-archive\n",
+    "stderr": "spiderhead: scan-archive\n",
     "stdout": "{\n  \"ok\": true,\n  \"format\": \"scan_archive.v1\",\n  \"warc\": \"<WORK>/a.warc\",\n  \"manifest\": \"<WORK>/a.warc.manifest.json\",\n  \"written\": 9,\n  \"bytes\": 7890,\n  \"manifest_bytes\": 203,\n  \"skipped_total\": 0,\n  \"skipped\": []\n}\n"
    }
   ]

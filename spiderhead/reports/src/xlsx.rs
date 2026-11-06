@@ -317,7 +317,7 @@ fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxRepo
         sheet.rows.push(vec![cell(&Value::String(text.clone()))?]);
     }
     let offset = scope_rows.len() as u32;
-    sheet.rows.push(Vec::new()); // Python leaves the row after scope empty
+    sheet.rows.push(Vec::new()); // the scope block is followed by an empty row
 
     let metrics: Vec<(&str, Value)> = vec![
         (

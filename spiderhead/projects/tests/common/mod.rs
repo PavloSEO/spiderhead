@@ -126,6 +126,11 @@ pub fn normalise(value: &Value, ctx: &Ctx) -> Value {
     match value {
         Value::String(s) => {
             let s = s.replace(ctx.scratch.to_string_lossy().as_ref(), "<DIR>");
+            // The scheduler line embeds the running binary; its location varies by checkout.
+            let s = match std::env::current_exe() {
+                Ok(exe) => s.replace(exe.to_string_lossy().as_ref(), "<EXE>"),
+                Err(_) => s,
+            };
             let s = base_re().replace_all(&s, "<BASE>");
             let s = uuid_re().replace_all(&s, "<UUID>");
             let s = ts_re().replace_all(&s, "<TS>");
@@ -258,20 +263,24 @@ fn walk(expected: &Value, actual: &Value, path: &str, out: &mut Vec<String>) {
 }
 
 /// Replay one fixture file; asserts zero divergences across all steps.
+/// With `SPIDERHEAD_BLESS=1` every case's `expect` array is rewritten from the
+/// freshly computed outcomes instead of compared.
 pub fn run_fixture(fixture: &str) {
-    let text = match std::env::var("PROJECTS_FIXTURE") {
-        Ok(path) => std::fs::read_to_string(path).unwrap_or_default(),
-        Err(_) => std::fs::read_to_string(
+    let fixture_path = std::env::var("PROJECTS_FIXTURE").map_or_else(
+        |_| {
             PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                 .join("tests/fixtures")
-                .join(fixture),
-        )
-        .expect("fixture file"),
-    };
+                .join(fixture)
+        },
+        PathBuf::from,
+    );
+    let text = spiderhead_oracle_testkit::fixture_text(&fixture_path);
     let cases: Vec<Value> = serde_json::from_str(&text).expect("fixture json");
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let mut blessed = cases.clone();
     let mut bad: Vec<String> = Vec::new();
     let mut steps_run = 0usize;
-    for case in &cases {
+    for (case_index, case) in cases.iter().enumerate() {
         let name = case["name"].as_str().unwrap_or_default();
         let scratch =
             std::env::temp_dir().join(format!("sh-proj-oracle-{name}-{}", std::process::id()));
@@ -288,6 +297,7 @@ pub fn run_fixture(fixture: &str) {
             expect.len(),
             "{name}: steps/expect length mismatch"
         );
+        let mut new_expect: Vec<Value> = Vec::new();
         for (i, step) in steps.iter().enumerate() {
             steps_run += 1;
             let op = step["op"].as_str().unwrap_or_default();
@@ -296,6 +306,10 @@ pub fn run_fixture(fixture: &str) {
                 .cloned()
                 .unwrap_or(Value::Object(Map::new()));
             let got = outcome(dispatch::dispatch(&mut ctx, op, &args), &ctx);
+            if bless {
+                new_expect.push(got);
+                continue;
+            }
             let want = &expect[i];
             if got != *want {
                 let mut diffs = Vec::new();
@@ -305,8 +319,17 @@ pub fn run_fixture(fixture: &str) {
                 }
             }
         }
+        if bless {
+            if let Some(obj) = blessed[case_index].as_object_mut() {
+                obj.insert("expect".to_owned(), Value::Array(new_expect));
+            }
+        }
         drop(ctx);
         let _ = std::fs::remove_dir_all(&scratch);
+    }
+    if bless {
+        spiderhead_oracle_diff::bless_json(&fixture_path, &Value::Array(blessed));
+        return;
     }
     let limit = std::env::var("PROJECTS_SHOW")
         .ok()

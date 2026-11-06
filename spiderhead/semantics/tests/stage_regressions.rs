@@ -972,3 +972,26 @@ fn billed_invalid_task_id_retains_charge_without_resubmission() {
         .unwrap();
     assert_eq!(task["cost"].as_f64(), Some(7.0));
 }
+
+#[test]
+fn import_treats_blank_and_zero_positions_as_missing() {
+    let dir = tmp("import-blank-positions");
+    let s = store(&dir);
+    let file = dir.join("p.csv");
+    std::fs::write(
+        &file,
+        "phrase,pos_g,pos_y,impr\na b,,,\nc d,0,0.0,0\ne f,12.5,3,10\ng h, ,nan,-\n",
+    )
+    .unwrap();
+    let cfg = sem_cfg(&dir);
+    spiderhead_semantics::stages::import::run(&s, &cfg, &file, None, None, "add").unwrap();
+    let rows = s
+        .q(
+            "SELECT norm,pos_g,pos_y,impr FROM phrases ORDER BY norm",
+            &[],
+        )
+        .unwrap();
+    assert_eq!(rows.len(), 4);
+    assert!(rows[0]["pos_g"].is_null() && rows[1]["pos_g"].is_null() && rows[3]["pos_y"].is_null());
+    assert_eq!(rows[2]["pos_g"], 13);
+}

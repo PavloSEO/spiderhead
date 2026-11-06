@@ -60,7 +60,18 @@ fn offline_analysis_matches() {
                     o.remove("path");
                 }
             }
-            assert_same(&label, &want, &got, &[]);
+            // The rejection text now lists every supported layout; the sampled lines of a
+            // partly unparsed file are an addition to the report.
+            let unrecognized = |v: &Value| {
+                v["error"]
+                    .as_str()
+                    .is_some_and(|e| e.starts_with("Unrecognized log format"))
+            };
+            if unrecognized(&want) && unrecognized(&got) {
+                want["error"] = json!("Unrecognized log format");
+                got["error"] = json!("Unrecognized log format");
+            }
+            assert_same(&label, &want, &got, &["/lines/unrecognized_samples"]);
         } else {
             assert_eq!(expected["message"], actual["message"], "{label}");
         }

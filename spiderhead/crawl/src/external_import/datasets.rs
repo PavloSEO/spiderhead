@@ -3,11 +3,11 @@
 
 use std::collections::{HashMap, HashSet};
 use std::io::Read;
-use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
+use spiderhead_core::filesystem::StatCompat;
 
 use super::ExternalCrawlImportError;
 use super::ImportLimits;
@@ -449,6 +449,14 @@ pub(super) fn read_dataset(
             io_message(&error)
         ))
     })?;
+    let before_ino = spiderhead_core::filesystem::path_identity(&path)
+        .map_err(|error| {
+            ExternalCrawlImportError(format!(
+                "cannot stat source CSV '{name}': {}",
+                io_message(&error)
+            ))
+        })?
+        .1;
     if !before.is_file() {
         return Err(ExternalCrawlImportError(format!(
             "source CSV '{name}' is not a regular file"
@@ -501,8 +509,16 @@ pub(super) fn read_dataset(
             io_message(&error)
         ))
     })?;
-    if (before.len(), before.mtime_nsec(), before.ino())
-        != (after.len(), after.mtime_nsec(), after.ino())
+    let after_ino = spiderhead_core::filesystem::path_identity(&path)
+        .map_err(|error| {
+            ExternalCrawlImportError(format!(
+                "cannot restat source CSV '{name}': {}",
+                io_message(&error)
+            ))
+        })?
+        .1;
+    if (before.len(), before.mtime_nsec(), before_ino)
+        != (after.len(), after.mtime_nsec(), after_ino)
     {
         return Err(ExternalCrawlImportError(format!(
             "source CSV '{name}' changed during import"

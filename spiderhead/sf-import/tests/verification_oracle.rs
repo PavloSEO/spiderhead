@@ -60,6 +60,32 @@ fn objs(v: &Value) -> Vec<Map<String, Value>> {
         .collect()
 }
 
+/// Render an outcome the way the fixture records it (`{"ok": …}` or `{"error": …}`).
+fn blessed_out<T>(got: Result<T, VerifyError>, render: impl Fn(&T) -> Value) -> Value {
+    match got {
+        Ok(v) => json!({"ok": render(&v)}),
+        Err(e) => json!({"error": e.0}),
+    }
+}
+
+/// Rewrite the recorded `out` of every case in `key` against the live readers.
+fn bless_cases(key: &str, run: impl Fn(&Value) -> Value) {
+    let doc = fixture();
+    let cases = doc[key].as_array().unwrap().clone();
+    let mut updated = Vec::with_capacity(cases.len());
+    for case in &cases {
+        let mut case = case.clone();
+        case["out"] = run(&case);
+        updated.push(case);
+    }
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/verification.json");
+    assert!(spiderhead_oracle_diff::bless_json_field(
+        &path,
+        key,
+        Value::Array(updated)
+    ));
+}
+
 fn outcome<T>(
     expected: &Value,
     got: Result<T, VerifyError>,
@@ -292,6 +318,12 @@ fn classify_matches() {
 
 #[test]
 fn markdown_matches() {
+    if spiderhead_oracle_diff::bless_enabled() {
+        bless_cases("markdown", |case| {
+            Value::String(verification::markdown(&obj(&case["in"])))
+        });
+        return;
+    }
     for (i, case) in fixture()["markdown"].as_array().unwrap().iter().enumerate() {
         assert_eq!(
             verification::markdown(&obj(&case["in"])),
@@ -305,6 +337,15 @@ fn markdown_matches() {
 fn reader_source_identity_matches() {
     let fix = fixture();
     let (_dir, readers) = build_readers(fix["files"].as_object().unwrap());
+    if spiderhead_oracle_diff::bless_enabled() {
+        bless_cases("source_identity_reader", |case| {
+            let source = AuditSource::Reader(reader(&readers, case));
+            blessed_out(verification::source_identity(&source), |o| {
+                Value::Object(o.clone())
+            })
+        });
+        return;
+    }
     for case in fix["source_identity_reader"].as_array().unwrap() {
         let source = AuditSource::Reader(reader(&readers, case));
         let got = verification::source_identity(&source);
@@ -321,6 +362,25 @@ fn reader_source_identity_matches() {
 fn reader_select_source_matches() {
     let fix = fixture();
     let (_dir, readers) = build_readers(fix["files"].as_object().unwrap());
+    if spiderhead_oracle_diff::bless_enabled() {
+        bless_cases("select_source_reader", |case| {
+            let source = AuditSource::Reader(reader(&readers, case));
+            blessed_out(
+                verification::select_source(
+                    &source,
+                    case.get("finding_ids"),
+                    case.get("urls"),
+                    case.get("view"),
+                ),
+                |(doc, chosen, targets, identity)| {
+                    json!({
+                        "document": doc, "chosen": chosen, "targets": targets, "identity": identity
+                    })
+                },
+            )
+        });
+        return;
+    }
     for case in fix["select_source_reader"].as_array().unwrap() {
         let source = AuditSource::Reader(reader(&readers, case));
         let got = verification::select_source(
@@ -346,6 +406,17 @@ fn reader_select_source_matches() {
 fn reader_compact_after_matches() {
     let fix = fixture();
     let (_dir, readers) = build_readers(fix["files"].as_object().unwrap());
+    if spiderhead_oracle_diff::bless_enabled() {
+        bless_cases("compact_after_reader", |case| {
+            let source = AuditSource::Reader(reader(&readers, case));
+            let selected = objs(&case["selected"]);
+            blessed_out(
+                verification::compact_after_source(&source, &selected),
+                |(doc, identity)| json!({"document": doc, "identity": identity}),
+            )
+        });
+        return;
+    }
     for case in fix["compact_after_reader"].as_array().unwrap() {
         let source = AuditSource::Reader(reader(&readers, case));
         let selected = objs(&case["selected"]);

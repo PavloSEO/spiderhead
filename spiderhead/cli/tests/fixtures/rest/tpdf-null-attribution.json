@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: metrika-traffic-pdf\nerror: attribution must be one of ['last_click', 'last_significant']\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_metrika_traffic_pdf: 1 validation error for seo_metrika_traffic_pdfArguments\nattribution\n  Input should be 'last_significant' or 'last_click' [type=literal_error, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+   }
+  ]
+ }
+}

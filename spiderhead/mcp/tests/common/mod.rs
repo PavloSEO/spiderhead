@@ -111,17 +111,41 @@ impl Drop for Client {
     }
 }
 
-/// Load a fixture saved by the reference suite.
+/// Path of a committed fixture (the plain name; a `.zst` sibling may exist).
+pub fn fixture_path(name: &str) -> std::path::PathBuf {
+    std::path::PathBuf::from(format!(
+        "{}/tests/fixtures/{name}",
+        env!("CARGO_MANIFEST_DIR")
+    ))
+}
+
+/// Load a fixture saved by the reference suite, preferring a `.zst` sibling.
 pub fn fixture(name: &str) -> Value {
-    let path = format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"));
-    serde_json::from_str(&std::fs::read_to_string(path).expect("fixture file"))
-        .expect("fixture JSON")
+    spiderhead_oracle_testkit::fixture_json(&fixture_path(name))
+}
+
+/// Undo [`substitute_version`]: the served version becomes the stored token.
+pub fn tokenize_version(value: &Value) -> Value {
+    match value {
+        Value::String(text) => {
+            Value::String(text.replace(spiderhead_mcp::protocol::SERVER_VERSION, "{VERSION}"))
+        }
+        Value::Array(items) => Value::Array(items.iter().map(tokenize_version).collect()),
+        Value::Object(map) => Value::Object(
+            map.iter()
+                .map(|(key, item)| (key.clone(), tokenize_version(item)))
+                .collect(),
+        ),
+        other => other.clone(),
+    }
 }
 
 /// Apply the fixture normalisation rule: `{VERSION}` back to the served constant.
 pub fn substitute_version(value: &Value) -> Value {
     match value {
-        Value::String(text) => Value::String(text.replace("{VERSION}", "1.30.0")),
+        Value::String(text) => {
+            Value::String(text.replace("{VERSION}", spiderhead_mcp::protocol::SERVER_VERSION))
+        }
         Value::Array(items) => Value::Array(items.iter().map(substitute_version).collect()),
         Value::Object(map) => Value::Object(
             map.iter()

@@ -278,7 +278,7 @@ pub async fn page_views<T: Transport>(
         }
         Value::Array(_) | Value::Object(_) => return Err(first_error()),
         other => {
-            return Err(Ga4Error::Python {
+            return Err(Ga4Error::Classed {
                 class: "AttributeError".to_owned(),
                 message: format!(
                     "'{}' object has no attribute 'decode'",

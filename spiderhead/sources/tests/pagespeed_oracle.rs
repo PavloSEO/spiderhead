@@ -101,7 +101,7 @@ async fn pagespeed_oracle_parity() {
             cache_dir.as_deref(),
         )
         .await
-        .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+        .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
         if let Some(d) = cache_dir {
             let _ = std::fs::remove_dir_all(d);

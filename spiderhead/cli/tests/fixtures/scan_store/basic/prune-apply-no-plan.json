@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-prune\nerror: prune --apply requires a reviewed plan object or JSON file\n",
+    "stderr": "spiderhead: scan-prune\nerror: prune --apply requires a reviewed plan object or JSON file\n",
     "stdout": ""
    }
   ]

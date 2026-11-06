@@ -93,7 +93,12 @@ fn imports_store_the_same_aggregates() {
             assert_eq!(result["ok"], json!(false), "{label}");
             continue;
         }
-        assert_same(&label, &case["result"], &drop_volatile(result.clone()), &[]);
+        assert_same(
+            &label,
+            &case["result"],
+            &drop_volatile(result.clone()),
+            &["/lines/unrecognized_samples"],
+        );
         if let Some(expected) = case.get("tables") {
             assert_same(
                 &label,

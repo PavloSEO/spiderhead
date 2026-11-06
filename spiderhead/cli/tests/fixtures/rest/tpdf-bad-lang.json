@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: metrika-traffic-pdf\nerror: lang must be one of ['en', 'ru']\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_metrika_traffic_pdf: 1 validation error for seo_metrika_traffic_pdfArguments\nlang\n  Input should be 'en' or 'ru' [type=literal_error, input_value='de', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+   }
+  ]
+ }
+}

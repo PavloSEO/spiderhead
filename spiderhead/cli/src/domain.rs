@@ -1,7 +1,7 @@
 //! The domain handlers behind the surface: every wired command runs the shared
 //! handler in `spiderhead-mcp`, so the two surfaces cannot drift.
 //!
-//! This is the CLI's half of the surface: the `seohead: <cmd>` banner on
+//! This is the CLI's half of the surface: the `spiderhead: <cmd>` banner on
 //! stderr, `--input` JSON as the kwargs base with flags overriding, the result
 //! document on stdout, and the exit-code tail (`ok: false` → 1, a handler raise
 //! → `error: …` + 1).
@@ -27,7 +27,7 @@ impl CommandHandler for Shared {
     fn run(&self, cmd: &ParsedCommand, out: &mut Output) -> Result<ExitCode, CliError> {
         let command = cmd.path.join("-");
         if cmd.values.get("quiet") != Some(&Value::Bool(true)) {
-            out.eprintln(&format!("seohead: {command}"));
+            out.eprintln(&format!("spiderhead: {command}"));
         }
         let kwargs = match command_kwargs(cmd) {
             Ok(kwargs) => kwargs,
@@ -37,6 +37,10 @@ impl CommandHandler for Shared {
             }
         };
         let quiet = cmd.values.get("quiet") == Some(&Value::Bool(true));
+        if command == "crawl-site" && kwargs.get("config_help") == Some(&Value::Bool(true)) {
+            // The settings reference needs no target and starts no crawl.
+            return Ok(print_config_help(out));
+        }
         if command == "crawl-site" && !quiet {
             crawl_site_pre_run(&kwargs, out);
         }
@@ -71,6 +75,41 @@ impl CommandHandler for Shared {
             }
         }
     }
+}
+
+/// `crawl-site --config-help`: every crawler setting (key, type, default,
+/// description) from the same registry `crawl-describe-settings` serves.
+fn print_config_help(out: &mut Output) -> ExitCode {
+    let settings = match spiderhead_mcp::handlers::dispatch("crawl_describe_settings", &Value::Null)
+    {
+        Ok(result) => result,
+        Err(error) => {
+            out.eprintln(&format!("error: {error:?}"));
+            return ExitCode::FAILURE;
+        }
+    };
+    out.println(
+        "crawl-site configuration settings (--set PATH=VALUE, or a JSON file via --config):",
+    );
+    for item in settings["settings"].as_array().into_iter().flatten() {
+        let text = |key: &str| item.get(key).and_then(Value::as_str).unwrap_or("");
+        let marker = if item["results_affecting"] == Value::Bool(true) {
+            "  [results-affecting]"
+        } else {
+            ""
+        };
+        out.println(&format!(
+            "\n{}  ({}, default {}){marker}",
+            text("path"),
+            text("type"),
+            item.get("default").unwrap_or(&Value::Null)
+        ));
+        let description = text("description");
+        if !description.is_empty() {
+            out.println(&format!("    {description}"));
+        }
+    }
+    ExitCode::SUCCESS
 }
 
 /// The command's handler kwargs: `--input` JSON as the base, flags on top,
@@ -115,6 +154,7 @@ fn command_kwargs(cmd: &ParsedCommand) -> Result<Map<String, Value>, String> {
         // only when set, so an explicit false on resume never conflicts.
         kwargs.remove("sitemap_only");
     }
+    apply_set_settings(&mut kwargs)?;
     crate::sources_kwargs::apply(command, &cmd.values, &base, &mut kwargs)?;
     if cmd.path == ["scan-findings-page"] {
         derive_findings_project(&mut kwargs)?;
@@ -137,6 +177,27 @@ fn command_kwargs(cmd: &ParsedCommand) -> Result<Map<String, Value>, String> {
     list_flags(&cmd.path.join("-"), &mut kwargs);
     remediation_kwargs(&cmd.path.join("-"), &mut kwargs);
     Ok(kwargs)
+}
+
+/// `--set PATH=VALUE` (repeatable) becomes the handler's `overrides` object of
+/// dotted paths; a later flag wins over an `--input` value for the same path.
+fn apply_set_settings(kwargs: &mut Map<String, Value>) -> Result<(), String> {
+    let Some(Value::Array(assignments)) = kwargs.remove("set_settings") else {
+        return Ok(());
+    };
+    let mut overrides = match kwargs.remove("overrides") {
+        Some(Value::Object(map)) => map,
+        _ => Map::new(),
+    };
+    for assignment in assignments.iter().filter_map(Value::as_str) {
+        let (path, value) = spiderhead_core::crawl_settings::parse_setting_assignment(assignment)
+            .map_err(|error| error.to_string())?;
+        overrides.insert(path, value);
+    }
+    if !overrides.is_empty() {
+        kwargs.insert("overrides".into(), Value::Object(overrides));
+    }
+    Ok(())
 }
 
 /// `workflow-start --goal-id`: the flag lands in `context.goal_id`, merged over
@@ -466,7 +527,7 @@ fn print_crawl_outcome(result: &Value, out: &mut Output) {
                  raise it and crawl to a new scan to go further"
             );
         } else if let Some(scan) = scan {
-            line += &format!(". Continue it with: seohead crawl-site --resume {scan}");
+            line += &format!(". Continue it with: spiderhead crawl-site --resume {scan}");
         }
     } else {
         line = format!("crawl-site: finished; {fetched} URLs fetched");
@@ -593,7 +654,7 @@ impl CommandHandler for SiteAudit {
     fn run(&self, cmd: &ParsedCommand, out: &mut Output) -> Result<ExitCode, CliError> {
         let command = cmd.path.join("-");
         if cmd.values.get("quiet") != Some(&Value::Bool(true)) {
-            out.eprintln(&format!("seohead: {command}"));
+            out.eprintln(&format!("spiderhead: {command}"));
         }
         let (kwargs, report_fmt, report_out) = match site_audit_command_kwargs(cmd) {
             Ok(prepared) => prepared,
@@ -697,6 +758,31 @@ pub fn registry() -> Registry {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn config_help_lists_settings_without_a_url_and_the_banner_names_the_binary() {
+        let mut values = Map::new();
+        values.insert("config_help".into(), Value::Bool(true));
+        let cmd = ParsedCommand {
+            path: vec!["crawl-site".into()],
+            values,
+        };
+        let mut out = Output::new(crate::Format::Json);
+        let code = Shared { name: "crawl_site" }.run(&cmd, &mut out).unwrap();
+        assert_eq!(code, ExitCode::SUCCESS);
+        assert!(
+            out.stderr.starts_with("spiderhead: crawl-site"),
+            "{}",
+            out.stderr
+        );
+        assert!(!out.stderr.contains("error"), "{}", out.stderr);
+        assert!(
+            out.stdout.contains("speed.concurrency  (int, default "),
+            "{}",
+            out.stdout
+        );
+        assert!(out.stdout.contains("[results-affecting]"));
+    }
 
     #[test]
     fn unset_options_are_dropped() {
@@ -803,7 +889,7 @@ mod tests {
         assert!(line.starts_with(
             "crawl-site: stopped early (origin stopped responding or refused repeatedly); 2 URLs fetched"
         ));
-        assert!(line.contains("seohead crawl-site --resume /tmp/scan.sqlite"));
+        assert!(line.contains("spiderhead crawl-site --resume /tmp/scan.sqlite"));
     }
 
     #[test]
@@ -925,5 +1011,30 @@ mod tests {
         let kwargs = command_kwargs(&cmd).unwrap();
         assert!(!kwargs.contains_key("no_tls"));
         assert!(!kwargs.contains_key("with_tls"));
+    }
+}
+
+#[cfg(test)]
+mod set_settings_tests {
+    use super::*;
+
+    #[test]
+    fn set_flags_become_dotted_overrides() {
+        let mut kwargs = Map::new();
+        kwargs.insert(
+            "set_settings".into(),
+            serde_json::json!(["rendering.mode=js", "speed.concurrency=3"]),
+        );
+        apply_set_settings(&mut kwargs).expect("valid assignments");
+        assert!(!kwargs.contains_key("set_settings"));
+        assert_eq!(kwargs["overrides"]["rendering.mode"], "js");
+        assert_eq!(kwargs["overrides"]["speed.concurrency"], 3);
+    }
+
+    #[test]
+    fn unknown_setting_is_refused() {
+        let mut kwargs = Map::new();
+        kwargs.insert("set_settings".into(), serde_json::json!(["nope.x=1"]));
+        assert!(apply_set_settings(&mut kwargs).is_err());
     }
 }

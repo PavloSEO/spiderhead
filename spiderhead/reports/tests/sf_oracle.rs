@@ -12,10 +12,12 @@ use spiderhead_formats::models::{AuditResult, Group, Issue, Page, SkippedCheck};
 use spiderhead_reports::sf_reporters;
 use spiderhead_reports::sf_tasks;
 
+fn fixture_path() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/sf_oracle.json")
+}
+
 fn fixtures() -> Value {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/sf_oracle.json");
-    serde_json::from_str(&std::fs::read_to_string(path).expect("fixture file"))
-        .expect("fixture json")
+    spiderhead_oracle_testkit::fixture_json(&fixture_path())
 }
 
 fn scratch(tag: &str) -> PathBuf {
@@ -173,11 +175,33 @@ fn reporters_parity() {
         .and_then(Value::as_object)
         .cloned()
         .unwrap_or_default();
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let mut blessed = cases.clone();
     for (name, row) in &cases {
         let spec = row.get("spec").expect("spec");
         let result = build_result(spec);
 
         let actual_dict = Value::Object(sf_reporters::to_dict(&result));
+        let actual_errors = sf_reporters::validate(&result);
+        let dir = scratch(&format!("reporter-{name}"));
+        let json_path = dir.join("audit.json");
+        let returned = sf_reporters::write_json(&result, json_path.to_str().unwrap_or_default())
+            .expect("write_json");
+        let text = std::fs::read_to_string(&json_path).expect("audit.json text");
+        let actual_md = sf_reporters::render_markdown(&result);
+        if bless {
+            if let Some(obj) = blessed[name].as_object_mut() {
+                obj.insert("to_dict".to_owned(), actual_dict);
+                obj.insert(
+                    "validate".to_owned(),
+                    Value::Array(actual_errors.iter().cloned().map(Value::from).collect()),
+                );
+                obj.insert("write_json_text".to_owned(), Value::from(text));
+                obj.insert("md".to_owned(), Value::from(actual_md));
+            }
+            std::fs::remove_dir_all(&dir).ok();
+            continue;
+        }
         assert_json_eq(
             &format!("{name}: to_dict"),
             row.get("to_dict").unwrap_or(&Value::Null),
@@ -189,16 +213,8 @@ fn reporters_parity() {
             .and_then(Value::as_array)
             .map(|list| text_list(Some(&Value::Array(list.clone()))))
             .unwrap_or_default();
-        assert_eq!(
-            want_errors,
-            sf_reporters::validate(&result),
-            "{name}: validate"
-        );
+        assert_eq!(want_errors, actual_errors, "{name}: validate");
 
-        let dir = scratch(&format!("reporter-{name}"));
-        let json_path = dir.join("audit.json");
-        let returned = sf_reporters::write_json(&result, json_path.to_str().unwrap_or_default())
-            .expect("write_json");
         assert!(
             returned.ends_with(
                 row["write_json_path_suffix"]
@@ -207,7 +223,6 @@ fn reporters_parity() {
             ),
             "{name}: write_json path"
         );
-        let text = std::fs::read_to_string(&json_path).expect("audit.json text");
         assert_eq!(
             row["write_json_text"].as_str().unwrap_or_default(),
             text,
@@ -216,7 +231,7 @@ fn reporters_parity() {
 
         assert_eq!(
             row["md"].as_str().unwrap_or_default(),
-            sf_reporters::render_markdown(&result),
+            actual_md,
             "{name}: markdown"
         );
         let md_path = dir.join("audit.md");
@@ -233,17 +248,27 @@ fn reporters_parity() {
         );
         std::fs::remove_dir_all(&dir).ok();
     }
+    if bless {
+        spiderhead_oracle_diff::bless_json_field(
+            &fixture_path(),
+            "results",
+            Value::Object(blessed),
+        );
+    }
 }
 
 // filters, declared and segment-derived assignments, validation errors.
 #[test]
 fn tasks_parity() {
-    let results = fixtures()
+    let document = fixtures();
+    let mut blessed = document.clone();
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let results = document
         .get("results")
         .and_then(Value::as_object)
         .cloned()
         .unwrap_or_default();
-    let tasks = fixtures()
+    let tasks = document
         .get("tasks")
         .and_then(Value::as_object)
         .cloned()
@@ -383,6 +408,7 @@ fn tasks_parity() {
     for (name, row) in &results {
         let audit = row.get("to_dict").expect("to_dict");
         let want_all = tasks.get(name).expect("tasks row");
+        let mut default_backlog: Option<Value> = None;
         for (variant, cfg) in &variants {
             let want = want_all.get(variant).expect("variant");
             let ctx = format!("{name}:{variant}");
@@ -390,38 +416,73 @@ fn tasks_parity() {
                 (Some(backlog), _) => {
                     let actual = sf_tasks::build_tasks(audit, cfg.as_ref())
                         .unwrap_or_else(|e| panic!("{ctx}: unexpected error {e}"));
-                    assert_json_eq(&ctx, backlog, &actual);
+                    if *variant == "default" {
+                        default_backlog = Some(actual.clone());
+                    }
+                    if bless {
+                        if let Some(obj) = blessed["tasks"][name][variant].as_object_mut() {
+                            obj.insert("backlog".to_owned(), actual);
+                        }
+                    } else {
+                        assert_json_eq(&ctx, backlog, &actual);
+                    }
                 }
                 (_, Some(error)) => {
                     let actual = sf_tasks::build_tasks(audit, cfg.as_ref())
                         .err()
                         .map(|e| e.to_string())
                         .unwrap_or_else(|| panic!("{ctx}: expected an error"));
-                    assert_eq!(
-                        error.as_str().unwrap_or_default(),
-                        actual,
-                        "{ctx}: error message"
-                    );
+                    if bless {
+                        if let Some(obj) = blessed["tasks"][name][variant].as_object_mut() {
+                            obj.insert("error".to_owned(), Value::from(actual));
+                        }
+                    } else {
+                        assert_eq!(
+                            error.as_str().unwrap_or_default(),
+                            actual,
+                            "{ctx}: error message"
+                        );
+                    }
                 }
                 _ => panic!("{ctx}: fixture has neither backlog nor error"),
             }
         }
         // tasks.md and the write_tasks files of the default backlog.
-        if let Some(backlog) = want_all.get("default").and_then(|v| v.get("backlog")) {
-            assert_eq!(
-                want_all["tasks_md"].as_str().unwrap_or_default(),
-                sf_tasks::render_tasks_md(backlog),
-                "{name}: tasks_md"
-            );
+        let backlog = default_backlog.or_else(|| {
+            want_all
+                .get("default")
+                .and_then(|v| v.get("backlog"))
+                .cloned()
+        });
+        if let Some(backlog) = backlog {
+            let rendered_md = sf_tasks::render_tasks_md(&backlog);
             let dir = scratch(&format!("tasks-{name}"));
             let json_target = dir.join("deep").join("tasks.json");
             let md_target = dir.join("deep").join("tasks.md");
             let (jp, mp) = sf_tasks::write_tasks(
-                backlog,
+                &backlog,
                 json_target.to_str().unwrap_or_default(),
                 md_target.to_str().unwrap_or_default(),
             )
             .expect("write_tasks");
+            let json_text = std::fs::read_to_string(&json_target).unwrap_or_default();
+            let md_text = std::fs::read_to_string(&md_target).unwrap_or_default();
+            if bless {
+                if let Some(obj) = blessed["tasks"][name].as_object_mut() {
+                    obj.insert("tasks_md".to_owned(), Value::from(rendered_md));
+                    if let Some(wt) = obj["write_tasks"].as_object_mut() {
+                        wt.insert("json_text".to_owned(), Value::from(json_text));
+                        wt.insert("md_text".to_owned(), Value::from(md_text));
+                    }
+                }
+                std::fs::remove_dir_all(&dir).ok();
+                continue;
+            }
+            assert_eq!(
+                want_all["tasks_md"].as_str().unwrap_or_default(),
+                rendered_md,
+                "{name}: tasks_md"
+            );
             let suffixes = want_all["write_tasks"]["paths_suffix"]
                 .as_array()
                 .map(|a| text_list(Some(&Value::Array(a.clone()))))
@@ -432,18 +493,25 @@ fn tasks_parity() {
                 want_all["write_tasks"]["json_text"]
                     .as_str()
                     .unwrap_or_default(),
-                std::fs::read_to_string(&json_target).unwrap_or_default(),
+                json_text,
                 "{name}: write_tasks json"
             );
             assert_eq!(
                 want_all["write_tasks"]["md_text"]
                     .as_str()
                     .unwrap_or_default(),
-                std::fs::read_to_string(&md_target).unwrap_or_default(),
+                md_text,
                 "{name}: write_tasks md"
             );
             std::fs::remove_dir_all(&dir).ok();
         }
+    }
+    if bless {
+        spiderhead_oracle_diff::bless_json_field(
+            &fixture_path(),
+            "tasks",
+            blessed["tasks"].clone(),
+        );
     }
 }
 
@@ -451,39 +519,47 @@ fn tasks_parity() {
 #[test]
 fn tasks_from_audit_v2_parity() {
     let fixture = fixtures();
-    let streamed = fixture.get("streamed").expect("streamed");
+    let streamed = fixture.get("streamed").expect("streamed").clone();
     let dir = scratch("streamed");
     let scan = dir.join("scan.sqlite");
     let raw =
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite");
     std::fs::copy(&raw, &scan).expect("copy raw scan");
     let companion = PathBuf::from(format!("{}.audit-v2.sqlite", scan.display()));
-    let bytes = {
-        // Base64-decode the reference-written companion without a new dependency.
-        let b64 = streamed["companion_b64"].as_str().expect("companion_b64");
-        let mut out = Vec::new();
-        let mut acc: u32 = 0;
-        let mut bits = 0u32;
-        for ch in b64.bytes() {
-            let v = match ch {
-                b'A'..=b'Z' => ch - b'A',
-                b'a'..=b'z' => ch - b'a' + 26,
-                b'0'..=b'9' => ch - b'0' + 52,
-                b'+' => 62,
-                b'/' => 63,
-                _ => continue,
-            };
-            acc = (acc << 6) | u32::from(v);
-            bits += 6;
-            if bits >= 8 {
-                bits -= 8;
-                out.push((acc >> bits) as u8);
-                acc &= (1 << bits) - 1;
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    if bless {
+        let (header, collections) =
+            spiderhead_checks::audit::audit_v2_document(&scan).expect("audit document");
+        spiderhead_checks::audit::write_audit_v2(&scan, &header, &collections)
+            .expect("audit companion");
+    } else {
+        let bytes = {
+            // Base64-decode the reference-written companion without a new dependency.
+            let b64 = streamed["companion_b64"].as_str().expect("companion_b64");
+            let mut out = Vec::new();
+            let mut acc: u32 = 0;
+            let mut bits = 0u32;
+            for ch in b64.bytes() {
+                let v = match ch {
+                    b'A'..=b'Z' => ch - b'A',
+                    b'a'..=b'z' => ch - b'a' + 26,
+                    b'0'..=b'9' => ch - b'0' + 52,
+                    b'+' => 62,
+                    b'/' => 63,
+                    _ => continue,
+                };
+                acc = (acc << 6) | u32::from(v);
+                bits += 6;
+                if bits >= 8 {
+                    bits -= 8;
+                    out.push((acc >> bits) as u8);
+                    acc &= (1 << bits) - 1;
+                }
             }
-        }
-        out
-    };
-    std::fs::write(&companion, &bytes).expect("write companion");
+            out
+        };
+        std::fs::write(&companion, &bytes).expect("write companion");
+    }
 
     let cases: Vec<(&str, Option<Value>)> = vec![
         ("check", None),
@@ -510,9 +586,17 @@ fn tasks_from_audit_v2_parity() {
             Some(json!({"tasks_pipeline": {"group_by": "check_assignment"}})),
         ),
     ];
+    let mut document = fixture.clone();
     for (name, config) in &cases {
-        let want = streamed.get(name).expect("streamed case");
         let actual = sf_tasks::build_tasks_from_audit_v2(&scan, config.as_ref());
+        if bless {
+            document["streamed"][*name] = match actual {
+                Ok(backlog) => json!({"backlog": backlog}),
+                Err(e) => json!({"error": e.to_string()}),
+            };
+            continue;
+        }
+        let want = streamed.get(name).expect("streamed case");
         match (want.get("backlog"), want.get("error")) {
             (Some(backlog), _) => {
                 let actual = actual.unwrap_or_else(|e| panic!("streamed:{name}: error {e}"));
@@ -531,6 +615,33 @@ fn tasks_from_audit_v2_parity() {
             }
             _ => panic!("streamed:{name}: fixture has neither backlog nor error"),
         }
+    }
+    if bless {
+        const B64: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        let raw = std::fs::read(&companion).expect("companion bytes");
+        let mut out = String::with_capacity(raw.len().div_ceil(3) * 4);
+        for chunk in raw.chunks(3) {
+            let n =
+                chunk.iter().fold(0u32, |a, b| (a << 8) | u32::from(*b)) << ((3 - chunk.len()) * 8);
+            out.push(B64[(n >> 18) as usize & 63] as char);
+            out.push(B64[(n >> 12) as usize & 63] as char);
+            out.push(if chunk.len() > 1 {
+                B64[(n >> 6) as usize & 63] as char
+            } else {
+                '='
+            });
+            out.push(if chunk.len() > 2 {
+                B64[n as usize & 63] as char
+            } else {
+                '='
+            });
+        }
+        document["streamed"]["companion_b64"] = Value::String(out);
+        assert!(spiderhead_oracle_diff::bless_json_field(
+            &fixture_path(),
+            "streamed",
+            document["streamed"].clone()
+        ));
     }
     std::fs::remove_dir_all(&dir).ok();
 }

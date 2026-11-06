@@ -401,10 +401,13 @@ pub fn download_update(
             "asset is not in the checked release metadata",
         ));
     };
-    if !(asset_name.ends_with(".whl") || asset_name.ends_with(".tar.gz")) {
+    if !(asset_name.ends_with(".whl")
+        || asset_name.ends_with(".tar.gz")
+        || asset_name.starts_with("spiderhead-"))
+    {
         return Ok(refusal(
             "unsupported_asset",
-            "only Python wheel and source archive assets are supported",
+            "only wheel and source archive assets are supported",
         ));
     }
     if out.is_empty() || out.chars().count() > 4096 {
@@ -489,6 +492,137 @@ pub fn download_update(
     Ok(Value::Object(done))
 }
 
+// ── Install ──────────────────────────────────────────────────────────────
+
+/// The release-asset triple of this build, or `None` on a platform that has no release build.
+fn target_triple() -> Option<&'static str> {
+    match (std::env::consts::ARCH, std::env::consts::OS) {
+        ("aarch64", "macos") => Some("aarch64-apple-darwin"),
+        ("x86_64", "macos") => Some("x86_64-apple-darwin"),
+        ("x86_64", "linux") => Some("x86_64-unknown-linux-gnu"),
+        ("aarch64", "linux") => Some("aarch64-unknown-linux-gnu"),
+        _ => None,
+    }
+}
+
+/// Where the binary is installed by default: `$CARGO_HOME/bin`, else `~/.cargo/bin`.
+pub fn default_bin_dir() -> PathBuf {
+    std::env::var_os("CARGO_HOME")
+        .filter(|p| !p.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".cargo")))
+        .unwrap_or_default()
+        .join("bin")
+}
+
+/// `spiderhead update`: the one command that reads the network by itself being typed. Checks
+/// the release feed, and unless `dry_run` replaces `bin_dir/spiderhead` with the newer release.
+pub fn update_install(bin_dir: Option<&Path>, dry_run: bool) -> Result<Value, ToolError> {
+    let client = http_client(30.0)
+        .map_err(|e| ToolError::Failed(e.to_string()))?
+        .0;
+    let dir = bin_dir.map_or_else(default_bin_dir, Path::to_path_buf);
+    install_update(&client, &dir, dry_run)
+}
+
+/// Check, download, verify and atomically replace; nothing is touched unless a newer release
+/// has a checksummed asset for this platform and the downloaded binary reports that version.
+pub fn install_update(
+    client: &dyn ReconClient,
+    bin_dir: &Path,
+    dry_run: bool,
+) -> Result<Value, ToolError> {
+    let checked = check_updates(true, false, 5, Some(client))?;
+    let result = &checked["result"];
+    if result["state"] != "available" {
+        return Ok(checked);
+    }
+    let latest = &result["latest"];
+    let (tag, version) = (
+        latest["tag"].as_str().unwrap_or_default(),
+        latest["version"].as_str().unwrap_or_default(),
+    );
+    if result["update_available"] != true {
+        return Ok(json!({
+            "ok": true,
+            "state": "current",
+            "current_version": TOOLKIT_VERSION,
+            "latest": version,
+        }));
+    }
+    let Some(triple) = target_triple() else {
+        return Ok(refusal(
+            "unsupported_platform",
+            "there is no release build for this platform",
+        ));
+    };
+    let asset = format!("spiderhead-{version}-{triple}");
+    if !latest["assets"]
+        .as_array()
+        .is_some_and(|list| list.iter().any(|a| a["name"] == asset.as_str()))
+    {
+        return Ok(refusal(
+            "unavailable",
+            &format!("release {tag} has no {asset} asset"),
+        ));
+    }
+    let target = bin_dir.join("spiderhead");
+    if dry_run {
+        return Ok(json!({
+            "ok": true,
+            "state": "available",
+            "dry_run": true,
+            "current_version": TOOLKIT_VERSION,
+            "latest": version,
+            "asset": asset,
+            "path": target.to_string_lossy(),
+        }));
+    }
+    std::fs::create_dir_all(bin_dir)
+        .map_err(|e| ToolError::Failed(format!("cannot create {}: {e}", bin_dir.display())))?;
+    // Staged next to the target so the final rename never crosses a filesystem.
+    let staged = bin_dir.join(".spiderhead-update-new");
+    let _ = std::fs::remove_file(&staged);
+    let downloaded = download_update(
+        tag,
+        &asset,
+        &staged.to_string_lossy(),
+        DEFAULT_MAX_DOWNLOAD_BYTES as i64,
+        client,
+    )?;
+    if downloaded["state"] != "downloaded" {
+        return Ok(downloaded);
+    }
+    let replace = || -> Result<(), String> {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&staged, std::fs::Permissions::from_mode(0o755))
+                .map_err(|e| e.to_string())?;
+        }
+        let probe = std::process::Command::new(&staged)
+            .arg("--version")
+            .output()
+            .map_err(|e| format!("the downloaded binary does not run: {e}"))?;
+        if !probe.status.success() || !String::from_utf8_lossy(&probe.stdout).contains(version) {
+            return Err(format!("the downloaded binary does not report {version}"));
+        }
+        std::fs::rename(&staged, &target).map_err(|e| e.to_string())
+    };
+    if let Err(reason) = replace() {
+        let _ = std::fs::remove_file(&staged);
+        return Ok(refusal("install_failed", &reason));
+    }
+    Ok(json!({
+        "ok": true,
+        "state": "installed",
+        "from": TOOLKIT_VERSION,
+        "to": version,
+        "path": target.to_string_lossy(),
+        "sha256": downloaded["sha256"],
+    }))
+}
+
 /// The release's SHA-256 for `asset`: its declared digest, else the `SHA256SUMS.txt` entry.
 fn checksum(
     client: &dyn ReconClient,
@@ -500,7 +634,10 @@ fn checksum(
     if let Some(digest) = &asset.sha256 {
         return Ok(digest.clone());
     }
-    let Some(sums) = assets.iter().find(|item| item.name == "SHA256SUMS.txt") else {
+    let Some(sums) = assets
+        .iter()
+        .find(|item| matches!(item.name.as_str(), "SHA256SUMS" | "SHA256SUMS.txt"))
+    else {
         return Err("the release does not provide a SHA-256 checksum for this asset".to_owned());
     };
     let unavailable =
@@ -549,6 +686,9 @@ mod tests {
 
     const BASE: &str = "https://github.com/PavloSEO/spiderhead/releases";
 
+    /// Tests share the process environment (state path), so they run one at a time.
+    static ENV: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
     fn feed(digest: Option<&str>) -> Value {
         let mut asset = json!({
             "name": "spiderhead-9.9.9-py3-none-any.whl",
@@ -568,6 +708,7 @@ mod tests {
 
     #[test]
     fn check_and_download_run_over_an_injected_client() {
+        let _env = ENV.lock().unwrap_or_else(|e| e.into_inner());
         let directory = std::env::temp_dir().join(format!("sh-update-{}", std::process::id()));
         std::fs::create_dir_all(&directory).expect("dir");
         std::env::set_var("SEOHEAD_UPDATE_STATE_PATH", directory.join("state.json"));
@@ -676,5 +817,87 @@ mod tests {
             .responses
             .insert(assets[1].url.clone(), response(200, b"nothing\n"));
         assert!(checksum(&client, &Value::Null, &assets[0], &assets, &[]).is_err());
+    }
+
+    /// A release fixture whose binary is a script printing its version.
+    #[cfg(unix)]
+    fn release_fixture(version: &str, binary: &[u8], digest: &str) -> (FakeClient, String) {
+        let triple = target_triple().expect("supported test platform");
+        let name = format!("spiderhead-{version}-{triple}");
+        let url = format!("{BASE}/download/v{version}/{name}");
+        let feed = json!([{
+            "tag_name": format!("v{version}"),
+            "html_url": format!("{BASE}/tag/v{version}"),
+            "body": "notes",
+            "assets": [{
+                "name": name,
+                "size": binary.len(),
+                "digest": format!("sha256:{digest}"),
+                "browser_download_url": url,
+            }],
+        }]);
+        let mut client = FakeClient::default();
+        client.responses.insert(
+            format!("https://api.github.com/repos/{REPOSITORY}/releases"),
+            response(200, feed.to_string().as_bytes()),
+        );
+        client.responses.insert(url, response(200, binary));
+        (client, name)
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn install_replaces_the_binary_only_for_a_verified_newer_release() {
+        let _env = ENV.lock().unwrap_or_else(|e| e.into_inner());
+        let root = std::env::temp_dir().join(format!("sh-install-{}", std::process::id()));
+        let bin = root.join("bin");
+        std::fs::create_dir_all(&bin).expect("dir");
+        std::env::set_var("SEOHEAD_UPDATE_STATE_PATH", root.join("state.json"));
+        let target = bin.join("spiderhead");
+        std::fs::write(&target, b"old").expect("old binary");
+
+        let script = b"#!/bin/sh\necho spiderhead 9.9.9\n";
+        let digest = format!("{:x}", Sha256::digest(script));
+
+        // A dry run reports the plan and changes nothing.
+        let (client, name) = release_fixture("9.9.9", script, &digest);
+        let plan = install_update(&client, &bin, true).expect("plan");
+        assert_eq!(plan["state"], "available");
+        assert_eq!(plan["asset"], name.as_str());
+        assert_eq!(std::fs::read(&target).expect("read"), b"old");
+
+        // A wrong checksum is refused and the old binary and the staging area stay clean.
+        let (client, _) = release_fixture("9.9.9", script, &"0".repeat(64));
+        let bad = install_update(&client, &bin, false).expect("answer");
+        assert_eq!(bad["state"], "checksum_mismatch");
+        assert_eq!(std::fs::read(&target).expect("read"), b"old");
+        assert!(!bin.join(".spiderhead-update-new").exists());
+
+        // A binary that does not report the release version is refused.
+        let liar = b"#!/bin/sh\necho spiderhead 1.0.0\n";
+        let (client, _) = release_fixture("9.9.9", liar, &format!("{:x}", Sha256::digest(liar)));
+        let refused = install_update(&client, &bin, false).expect("answer");
+        assert_eq!(refused["state"], "install_failed");
+        assert_eq!(std::fs::read(&target).expect("read"), b"old");
+        assert!(!bin.join(".spiderhead-update-new").exists());
+
+        // The verified release replaces the binary, which stays executable.
+        let (client, _) = release_fixture("9.9.9", script, &digest);
+        let done = install_update(&client, &bin, false).expect("install");
+        assert_eq!(done["state"], "installed");
+        assert_eq!(done["to"], "9.9.9");
+        assert_eq!(std::fs::read(&target).expect("read"), script);
+        let run = std::process::Command::new(&target)
+            .arg("--version")
+            .output()
+            .expect("run");
+        assert!(String::from_utf8_lossy(&run.stdout).contains("9.9.9"));
+
+        // A release that is not newer changes nothing.
+        let (client, _) = release_fixture("0.0.1", b"x", &format!("{:x}", Sha256::digest(b"x")));
+        let same = install_update(&client, &bin, false).expect("answer");
+        assert_eq!(same["state"], "current");
+        assert_eq!(std::fs::read(&target).expect("read"), script);
+        let _ = std::fs::remove_dir_all(&root);
     }
 }

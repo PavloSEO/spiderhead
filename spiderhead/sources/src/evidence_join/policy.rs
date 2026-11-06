@@ -26,7 +26,7 @@ pub(super) fn window(value: &Value) -> Result<Option<(i64, i64)>, CfError> {
         match raw {
             None => Ok(pytime::date_fromisoformat("")),
             Some(Value::String(text)) => Ok(pytime::date_fromisoformat(text)),
-            Some(other) => Err(CfError::Python(
+            Some(other) => Err(CfError::Classed(
                 "TypeError",
                 format!(
                     "fromisoformat: argument must be str, not {}",

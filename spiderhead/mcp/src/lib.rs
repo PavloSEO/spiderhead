@@ -8,7 +8,8 @@
 //!
 //! The catalog (`data/tools.json`) is generated from the reference baseline by
 //! the reference suite; serving it verbatim is what keeps `tools/list`
-//! divergence-free. See `DESIGN.md` for the transport decision.
+//! divergence-free. One stdio server serves both surfaces; the CLI calls the
+//! same handler functions the MCP `tools/call` path does.
 
 pub mod catalog;
 pub mod discovery;

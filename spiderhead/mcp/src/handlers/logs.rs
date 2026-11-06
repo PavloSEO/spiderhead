@@ -19,12 +19,14 @@ use spiderhead_log_analyzer::join::{
 use spiderhead_log_analyzer::presets::PresetSet;
 use spiderhead_log_analyzer::rangecache::{HttpGet, RangeCache, UrlFetcher};
 use spiderhead_log_analyzer::ranges::RangeBook;
+use spiderhead_log_analyzer::runscan;
 use spiderhead_log_analyzer::store::latest_source;
 use spiderhead_log_analyzer::summary::{log_summary, Filter, SummaryQuery};
 use spiderhead_log_analyzer::system::{free_space, SystemResolver};
 use spiderhead_log_analyzer::verify::{
     bot_verification_all, bot_verification_page, AllQuery, Engine, Mode, PageQuery, Whois,
 };
+use spiderhead_sources::pystr;
 
 use crate::error::ToolError;
 
@@ -63,6 +65,7 @@ pub fn log_analyze(args: &Value) -> Result<Value, ToolError> {
         max_dns: opt_int(&args, "max_dns").unwrap_or(defaults.max_dns),
         bot: opt_str(&args, "bot").map(str::to_owned),
         ip: opt_str(&args, "ip").map(str::to_owned),
+        log_format: opt_str(&args, "log_format").map(str::to_owned),
         ..defaults
     };
     analyze_log(path, &options, &verifier()).map_err(failed)
@@ -103,6 +106,7 @@ pub fn logs_import(args: &Value) -> Result<Value, ToolError> {
         // opt-in here so the default output stays identical to the oracle's.
         keep_requests: opt_bool(&args, "keep_requests").unwrap_or(false),
         append: opt_bool(&args, "append").unwrap_or(defaults.append),
+        log_format: opt_str(&args, "log_format").map(str::to_owned),
         ..defaults
     };
     let context = ImportContext {
@@ -399,4 +403,70 @@ pub fn logs_join(args: &Value) -> Result<Value, ToolError> {
         offset: opt_int(&args, "offset").unwrap_or(defaults.offset),
     };
     Ok(join_log_scan(source, scan, &NativeScans, &query))
+}
+
+/// `not run` at the Python handler's head: falsy arguments need a run path, and a
+/// truthy non-string dies the way `os.path.expanduser` kills it.
+fn run_path_arg(args: &Value, name: &str) -> Result<Option<String>, ToolError> {
+    let raw = args.as_object().and_then(|o| o.get(name));
+    let Some(value) = raw.filter(|v| !v.is_null()) else {
+        return Ok(None);
+    };
+    let truthy = match value {
+        Value::Bool(b) => *b,
+        Value::Number(n) => n.as_f64() != Some(0.0),
+        Value::String(s) => !s.is_empty(),
+        Value::Array(a) => !a.is_empty(),
+        Value::Object(o) => !o.is_empty(),
+        Value::Null => false,
+    };
+    if !truthy {
+        return Ok(None);
+    }
+    match value {
+        Value::String(s) => Ok(Some(s.clone())),
+        other => Err(ToolError::Failed(format!(
+            "expected str, bytes or os.PathLike object, not {}",
+            pystr::type_name(other)
+        ))),
+    }
+}
+
+/// `log_scan`: pairs of facts inside one finished run that cannot both be true.
+pub fn log_scan(args: &Value) -> Result<Value, ToolError> {
+    let Some(run) = run_path_arg(args, "run")? else {
+        return Err(ToolError::Failed(
+            "log_scan needs a run directory or native scan path".to_owned(),
+        ));
+    };
+    let images_dir = run_path_arg(args, "images_dir")?;
+    let artifacts = runscan::load_run(&run, images_dir.as_deref())
+        .map_err(|error| ToolError::Failed(error.to_string()))?;
+    if artifacts.audit.is_none() && artifacts.pages.is_empty() {
+        return Ok(json!({
+            "ok": false,
+            "error": format!("no audit.json or pages.jsonl or retained native evidence in {run}"),
+            "anomalies": [],
+            "anomaly_count": 0,
+        }));
+    }
+    // `scan` validates the cap only after a run worth scanning loaded.
+    let max_per_rule = match args.as_object().and_then(|o| o.get("max_per_rule")) {
+        None => 20usize,
+        Some(Value::Number(n)) if n.is_i64() || n.is_u64() => {
+            let v = n.as_i64().unwrap_or(i64::MAX);
+            if v < 0 {
+                return Err(ToolError::Failed(
+                    "max_per_rule must be a nonnegative integer".to_owned(),
+                ));
+            }
+            usize::try_from(v).unwrap_or(usize::MAX)
+        }
+        Some(_) => {
+            return Err(ToolError::Failed(
+                "max_per_rule must be a nonnegative integer".to_owned(),
+            ))
+        }
+    };
+    Ok(runscan::scan(&artifacts, max_per_rule))
 }

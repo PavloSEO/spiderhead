@@ -2,8 +2,9 @@
 //! transition commits through, and the removal of a published job's
 //! now-redundant work cache.
 
-use std::os::unix::fs::MetadataExt;
 use std::path::Path;
+
+use spiderhead_core::filesystem::link_identity;
 
 use rusqlite::Connection;
 use serde_json::Value;
@@ -68,7 +69,7 @@ pub(crate) fn discard_completed_checkpoint(work: &Path, job_id: &str) {
     if work.is_symlink() || !work.is_dir() {
         return;
     }
-    let Ok(info) = std::fs::symlink_metadata(work) else {
+    let Ok(info) = link_identity(work) else {
         return;
     };
     let Ok(job_text) = std::fs::read_to_string(work.join("job.json")) else {
@@ -89,10 +90,10 @@ pub(crate) fn discard_completed_checkpoint(work: &Path, job_id: &str) {
     }
     lock.unlock();
     drop(lock);
-    let Ok(current) = std::fs::symlink_metadata(work) else {
+    let Ok(current) = link_identity(work) else {
         return;
     };
-    if info.dev() == current.dev() && info.ino() == current.ino() {
+    if info.0 == current.0 && info.1 == current.1 {
         let _ = std::fs::remove_dir_all(work);
     }
 }

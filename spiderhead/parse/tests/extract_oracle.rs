@@ -27,7 +27,10 @@ fn fixture() -> &'static Value {
     FIXTURE.get_or_init(|| {
         let text = match std::env::var("EXTRACT_FIXTURE") {
             Ok(path) => std::fs::read_to_string(path).unwrap_or_default(),
-            Err(_) => include_str!("fixtures/extract_oracle.json").to_owned(),
+            Err(_) => spiderhead_oracle_testkit::fixture_text(
+                &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("tests/fixtures/extract_oracle.json"),
+            ),
         };
         serde_json::from_str(&text).unwrap_or(Value::Null)
     })

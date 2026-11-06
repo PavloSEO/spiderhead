@@ -521,7 +521,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
                 // A fixed offset of 24 hours or more is refused.
                 let minutes = offset.as_f64().unwrap_or_default() as i64;
                 if minutes.unsigned_abs() >= 1440 {
-                    return Err(MetrikaFail::python(
+                    return Err(MetrikaFail::classed(
                         "ValueError",
                         format!(
                             "offset must be a timedelta strictly between -timedelta(hours=24) \

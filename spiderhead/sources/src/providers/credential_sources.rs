@@ -281,7 +281,7 @@ pub fn manage_credential(
             } else {
                 "CredentialError"
             };
-            CfError::Python(class, message)
+            CfError::Classed(class, message)
         })?;
         return Ok(json!({
             "ok": true,
@@ -300,7 +300,7 @@ pub fn manage_credential(
             ));
         }
         let removed = credentials::revoke_secret(env.root, path)
-            .map_err(|e| CfError::Python("CredentialError", e.to_string()))?;
+            .map_err(|e| CfError::Classed("CredentialError", e.to_string()))?;
         return Ok(json!({
             "ok": true,
             "provider": provider,

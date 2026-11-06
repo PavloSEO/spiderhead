@@ -73,7 +73,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"site_url\": \"sc-domain:example.test\",\n  \"period\": \"2026-01-01..2026-01-28\",\n  \"count\": 2,\n  \"rows\": [\n    {\n      \"keys\": [\n        \"seo audit\"\n      ],\n      \"clicks\": 12,\n      \"impressions\": 340,\n      \"ctr\": 0.0353,\n      \"position\": 4.2\n    },\n    {\n      \"keys\": [\n        \"sitemap check\"\n      ],\n      \"clicks\": 3,\n      \"impressions\": 90,\n      \"ctr\": 0.0333,\n      \"position\": 8.7\n    }\n  ]\n}\n",
-     "stderr": "seohead: gsc-query\n",
+     "stderr": "spiderhead: gsc-query\n",
      "requests": [
       {
        "host": "www.googleapis.com",
@@ -151,7 +151,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"forbidden\",\n  \"status\": 403\n}\n",
-     "stderr": "seohead: gsc-query\n",
+     "stderr": "spiderhead: gsc-query\n",
      "requests": [
       {
        "host": "www.googleapis.com",
@@ -191,7 +191,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"start_date must not be after end_date: '2026-02-01' > '2026-01-28'\"\n}\n",
-     "stderr": "seohead: gsc-query\n",
+     "stderr": "spiderhead: gsc-query\n",
      "requests": []
     }
    }
@@ -213,7 +213,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/gsc/access_token or set $GSC_ACCESS_TOKEN. See docs/SETUP.md for how to obtain a Search Console OAuth token.\"\n}\n",
-     "stderr": "seohead: gsc-query\n",
+     "stderr": "spiderhead: gsc-query\n",
      "requests": []
     }
    }
@@ -276,7 +276,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"site_url\": \"sc-domain:example.test\",\n  \"inspection_url\": \"https://example.test/a\",\n  \"verdict\": \"PASS\",\n  \"coverage_state\": \"Submitted and indexed\",\n  \"indexing_state\": \"INDEXING_ALLOWED\",\n  \"last_crawl_time\": \"<TS>\",\n  \"google_canonical\": \"https://example.test/a\",\n  \"user_canonical\": \"https://example.test/a\"\n}\n",
-     "stderr": "seohead: gsc-query\n",
+     "stderr": "spiderhead: gsc-query\n",
      "requests": [
       {
        "host": "searchconsole.googleapis.com",
@@ -325,7 +325,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: gsc-query\nerror: inspection_url required for mode=inspect_url\n",
+     "stderr": "spiderhead: gsc-query\nerror: inspection_url required for mode=inspect_url\n",
      "requests": []
     }
    }
@@ -363,7 +363,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: gsc-query\nerror: site_url required\n",
+     "stderr": "spiderhead: gsc-query\nerror: site_url required\n",
      "requests": []
     }
    }
@@ -523,7 +523,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"state\": \"complete\",\n  \"host_id\": \"https:example.test:443\",\n  \"property_access\": \"verified\",\n  \"result_state\": \"observed\",\n  \"rows\": [\n    {\n      \"url\": \"https://example.test/a\",\n      \"query\": \"seo audit\",\n      \"daily\": [\n        {\n          \"date\": \"2026-10-20\",\n          \"impressions\": 100.0,\n          \"clicks\": 7.0,\n          \"demand\": 900.0,\n          \"ctr\": 0.07,\n          \"position\": 3.5,\n          \"unit\": \"provider_reported\"\n        }\n      ],\n      \"truncated\": false\n    }\n  ],\n  \"returned_urls\": 1,\n  \"returned_queries\": 1,\n  \"truncated\": false,\n  \"coverage\": null,\n  \"scope\": \"Yandex Webmaster query analytics; provider retention and metric attribution apply\"\n}\n",
-     "stderr": "seohead: webmaster-url-queries\n",
+     "stderr": "spiderhead: webmaster-url-queries\n",
      "requests": [
       {
        "host": "api.webmaster.yandex.net",
@@ -767,7 +767,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"not_granted\",\n  \"host_id\": \"https:other.test:443\"\n}\n",
-     "stderr": "seohead: webmaster-url-queries\n",
+     "stderr": "spiderhead: webmaster-url-queries\n",
      "requests": [
       {
        "host": "api.webmaster.yandex.net",
@@ -832,7 +832,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"failed\",\n  \"error_code\": \"INVALID_OAUTH_TOKEN\"\n}\n",
-     "stderr": "seohead: webmaster-url-queries\n",
+     "stderr": "spiderhead: webmaster-url-queries\n",
      "requests": [
       {
        "host": "api.webmaster.yandex.net",
@@ -862,7 +862,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"state\": \"not_configured\",\n  \"verified\": false,\n  \"error\": \"credential not found: store it in <WORK>/.config/yandex-webmaster/access_token or set $YANDEX_WEBMASTER_TOKEN. Authorize a read-only Yandex Webmaster application before collecting evidence.\"\n}\n",
-     "stderr": "seohead: webmaster-url-queries\n",
+     "stderr": "spiderhead: webmaster-url-queries\n",
      "requests": []
     }
    }
@@ -884,7 +884,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: webmaster-url-queries\nerror: host_id, one optional URL filter, and max_urls in 1..50000 are required\n",
+     "stderr": "spiderhead: webmaster-url-queries\nerror: host_id, one optional URL filter, and max_urls in 1..50000 are required\n",
      "requests": []
     }
    }
@@ -902,7 +902,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: webmaster-url-queries\nerror: host_id required\n",
+     "stderr": "spiderhead: webmaster-url-queries\nerror: host_id required\n",
      "requests": []
     }
    }
@@ -995,7 +995,7 @@
     "cli": {
      "exit": 0,
      "stdout": "{\n  \"ok\": true,\n  \"source\": \"gsc\",\n  \"resource\": \"sc-domain:example.test\",\n  \"period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"requested_period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"available_period\": [\n    \"2026-01-01\",\n    \"2026-01-02\"\n  ],\n  \"lagged_days\": [],\n  \"already_synced_days\": 0,\n  \"synced_days\": 2,\n  \"attempted_days\": 2,\n  \"rows_stored\": 2,\n  \"incomplete_days\": [],\n  \"db\": \"<WORK>/s.sqlite\"\n}\n",
-     "stderr": "seohead: sources-sync\n",
+     "stderr": "spiderhead: sources-sync\n",
      "requests": [
       {
        "host": "www.googleapis.com",
@@ -1098,7 +1098,7 @@
     "cli": {
      "exit": 1,
      "stdout": "{\n  \"ok\": false,\n  \"source\": \"gsc\",\n  \"resource\": \"sc-domain:example.test\",\n  \"error\": \"HTTP Error 400: Bad Request\",\n  \"failed_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"synced_days\": 0,\n  \"attempted_days\": 1,\n  \"rows_stored\": 0,\n  \"requested_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"available_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"lagged_days\": [],\n  \"db\": \"<WORK>/s.sqlite\"\n}\n",
-     "stderr": "seohead: sources-sync\n",
+     "stderr": "spiderhead: sources-sync\n",
      "requests": [
       {
        "host": "www.googleapis.com",
@@ -1150,7 +1150,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: sources-sync\nerror: source required: one of ['ga4', 'gsc', 'metrika', 'webmaster', 'webmaster_history']\n",
+     "stderr": "spiderhead: sources-sync\nerror: source required: one of ['ga4', 'gsc', 'metrika', 'webmaster', 'webmaster_history']\n",
      "requests": []
     }
    }
@@ -1170,7 +1170,7 @@
     "cli": {
      "exit": 1,
      "stdout": "",
-     "stderr": "seohead: sources-sync\nerror: resource is required (sc-domain:…)\n",
+     "stderr": "spiderhead: sources-sync\nerror: resource is required (sc-domain:…)\n",
      "requests": []
     }
    }

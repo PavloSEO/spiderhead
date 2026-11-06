@@ -17,6 +17,18 @@ fn tree_json() -> Value {
 fn help_matches_the_recorded_snapshot() {
     at_80_columns();
     let snapshot = common::fixture("help_snapshot.json");
+    if spiderhead_oracle_diff::bless_enabled() {
+        let mut out = serde_json::Map::new();
+        for (cmd, _) in snapshot.as_object().into_iter().flatten() {
+            let got = common::invoke(&[cmd.clone(), "--help".into()]);
+            out.insert(cmd.clone(), Value::from(got.stdout));
+        }
+        spiderhead_oracle_diff::bless_json(
+            &common::fixture_path("help_snapshot.json"),
+            &Value::Object(out),
+        );
+        return;
+    }
     let mut failures = Vec::new();
     for (cmd, want) in snapshot.as_object().into_iter().flatten() {
         let got = common::invoke(&[cmd.clone(), "--help".into()]);

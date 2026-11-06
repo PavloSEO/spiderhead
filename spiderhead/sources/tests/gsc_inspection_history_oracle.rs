@@ -241,7 +241,7 @@ fn compare(scenario: &str, index: usize, want: &Value, got: Result<Value, gih::H
                 .unwrap_or_else(|| panic!("{scenario}[{index}]: expected error, got Ok"));
             let class = error["class"].as_str().unwrap();
             assert_eq!(
-                err.python_class(),
+                err.error_class(),
                 class,
                 "{scenario}[{index}] error class: {err}"
             );

@@ -3,7 +3,7 @@
 /// Why a tool call did not produce its value.
 ///
 /// The `Display` text is what the client sees in the error result's text block,
-/// so the wording is part of the wire contract (see `DESIGN.md`).
+/// so the wording is part of the wire contract.
 #[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
 pub enum ToolError {
     /// The tool exists in the catalog but its domain crate is not linked into

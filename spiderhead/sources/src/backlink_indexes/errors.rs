@@ -5,7 +5,7 @@ use super::*;
 #[derive(Debug)]
 pub enum BlError {
     /// A typed failure, such as an invalid value, a wrong type or an I/O error.
-    Python {
+    Classed {
         /// Name of the error kind.
         class: String,
         /// Error message.
@@ -15,9 +15,9 @@ pub enum BlError {
 
 impl BlError {
     /// Name of the error kind.
-    pub fn python_class(&self) -> &str {
+    pub fn error_class(&self) -> &str {
         match self {
-            BlError::Python { class, .. } => class.as_str(),
+            BlError::Classed { class, .. } => class.as_str(),
         }
     }
 }
@@ -25,7 +25,7 @@ impl BlError {
 impl std::fmt::Display for BlError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            BlError::Python { message, .. } => f.write_str(message),
+            BlError::Classed { message, .. } => f.write_str(message),
         }
     }
 }
@@ -34,7 +34,7 @@ impl std::error::Error for BlError {}
 
 /// A failure with an explicit error kind name.
 pub(super) fn pyerr(class: &str, message: impl Into<String>) -> BlError {
-    BlError::Python {
+    BlError::Classed {
         class: class.to_owned(),
         message: message.into(),
     }

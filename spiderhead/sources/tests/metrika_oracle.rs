@@ -120,7 +120,7 @@ impl Transport for QueueTransport {
     }
 }
 
-/// `spend.record` kwargs as JSON — Python passes ints for `cost`/`items`.
+/// `spend.record` kwargs as JSON — ints for `cost`/`items`.
 fn spend_json(rec: &Record) -> Value {
     let mut m = Map::new();
     m.insert("source".to_owned(), json!(rec.source));
@@ -156,7 +156,7 @@ fn outcome(result: Result<Value, MetrikaFail>) -> Value {
     match result {
         Ok(value) => json!({"result": value}),
         Err(fail) => json!({"error": {
-            "class": fail.python_class(),
+            "class": fail.error_class(),
             "message": fail.to_string(),
         }}),
     }
@@ -229,7 +229,7 @@ async fn run_client_op(op: &Value) -> Value {
                         .unwrap_or_default()
                         .to_owned(),
                 )),
-                Some(spec) if spec.get("oserror").is_some() => Err(MetrikaFail::Python {
+                Some(spec) if spec.get("oserror").is_some() => Err(MetrikaFail::Classed {
                     class: "OSError".to_owned(),
                     message: spec
                         .get("oserror")
@@ -371,7 +371,7 @@ async fn run_traffic_op(op: &Value) -> Value {
                     }));
                 }
                 if let Some(spec) = entry.get("other") {
-                    return Err(MetrikaFail::Python {
+                    return Err(MetrikaFail::Classed {
                         class: spec
                             .get("class")
                             .and_then(Value::as_str)
@@ -384,7 +384,7 @@ async fn run_traffic_op(op: &Value) -> Value {
                             .to_owned(),
                     });
                 }
-                Err(MetrikaFail::Python {
+                Err(MetrikaFail::Classed {
                     class: "AssertionError".to_owned(),
                     message: format!("unknown client entry {entry}"),
                 })
@@ -458,8 +458,7 @@ async fn run_traffic_op(op: &Value) -> Value {
 #[tokio::test]
 async fn metrika_oracle_replay() {
     let path = fixtures_dir().join("metrika_oracle.json");
-    let text = std::fs::read_to_string(&path)
-        .unwrap_or_else(|e| panic!("fixture {}: {e}", path.display()));
+    let text = spiderhead_oracle_testkit::fixture_text(&path);
     let fixture: Value = serde_json::from_str(&text).expect("fixture parses");
     let ops = fixture
         .get("ops")

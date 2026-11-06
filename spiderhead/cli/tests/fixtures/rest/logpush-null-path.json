@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: cloudflare-logpush-import\nerror: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'NoneType'\n",
+    "stdout": ""
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_cloudflare_logpush_import: 1 validation error for seo_cloudflare_logpush_importArguments\ninput_path\n  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]\n    For further information visit https://errors.pydantic.dev/2.13/v/string_type"
+   }
+  ]
+ }
+}

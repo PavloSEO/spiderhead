@@ -2062,7 +2062,7 @@ mod tests {
         let out = app.dispatch("dashboard.inspect", &json!({}));
         let dash = out.answer.unwrap();
         assert_eq!(dash["state"], "available");
-        assert_eq!(dash["issues_total"], 154);
+        assert_eq!(dash["issues_total"], 155);
         assert_eq!(dash["by_severity"]["critical"], 2);
         assert_eq!(dash["by_severity"]["warning"], 43);
         // Facet → issue filter: HTTP_URL fires on 9 pages (oracle audit.v2).

@@ -3,8 +3,9 @@
 //! made of exactly the staged inodes may be recovered, and the rename never
 //! replaces foreign output.
 
-use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
 use std::path::Path;
+
+use spiderhead_core::filesystem::{path_identity, PrivateMode};
 
 use crate::compare::base::CompareError;
 
@@ -20,8 +21,8 @@ pub(crate) fn reservation_path(destination: &Path, job_id: &str) -> std::path::P
 }
 
 fn same_file(left: &Path, right: &Path) -> bool {
-    match (std::fs::metadata(left), std::fs::metadata(right)) {
-        (Ok(left), Ok(right)) => left.dev() == right.dev() && left.ino() == right.ino(),
+    match (path_identity(left), path_identity(right)) {
+        (Ok(left), Ok(right)) => left.0 == right.0 && left.1 == right.1,
         _ => false,
     }
 }
@@ -38,7 +39,7 @@ pub(crate) fn publish(
     match std::fs::OpenOptions::new()
         .write(true)
         .create_new(true)
-        .mode(0o600)
+        .private_mode(0o600)
         .open(&reservation)
     {
         Ok(mut stream) => {

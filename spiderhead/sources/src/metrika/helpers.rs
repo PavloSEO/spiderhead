@@ -6,7 +6,7 @@ use super::*;
 pub(super) fn credential_fail(err: CredentialError) -> MetrikaFail {
     match err {
         CredentialError::Missing(message) => MetrikaFail::MissingCredential(message),
-        other => MetrikaFail::python(other.python_class(), other.to_string()),
+        other => MetrikaFail::classed(other.error_class(), other.to_string()),
     }
 }
 
@@ -156,7 +156,7 @@ pub(crate) fn py_subscript(value: &Value, index: usize) -> Result<Value, Metrika
             .nth(index)
             .unwrap_or_default()
             .to_string())),
-        Value::Object(_) => Err(MetrikaFail::python("KeyError", index.to_string())),
+        Value::Object(_) => Err(MetrikaFail::classed("KeyError", index.to_string())),
         other => Err(MetrikaFail::type_error(format!(
             "'{}' object is not subscriptable",
             pystr::type_name(other)
@@ -213,7 +213,7 @@ pub(super) fn pairs_to_map(items: Vec<Value>) -> Result<Map<String, Value>, Metr
             }
         };
         if pair.len() != 2 {
-            return Err(MetrikaFail::python(
+            return Err(MetrikaFail::classed(
                 "ValueError",
                 format!(
                     "dictionary update sequence element #{index} has length {}; 2 is required",

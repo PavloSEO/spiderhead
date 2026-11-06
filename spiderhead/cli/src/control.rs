@@ -1,6 +1,6 @@
 //! The three commands whose terminal shape is their own: `doctor` (a component
 //! list or `--json`), `update-check` and `update-download` (the bare result
-//! document, no `seohead: <cmd>` banner). They call the shared handlers.
+//! document, no `spiderhead: <cmd>` banner). They call the shared handlers.
 
 use serde_json::{json, Map, Value};
 

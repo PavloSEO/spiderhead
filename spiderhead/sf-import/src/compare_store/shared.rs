@@ -4,11 +4,10 @@
 
 use std::fs::File;
 use std::io::Read;
-use std::os::fd::AsRawFd;
-use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
 use std::path::Path;
 
 use spiderhead_core::common::canonical_json;
+use spiderhead_core::filesystem::{file_identity, link_identity, NoFollow, PrivateMode};
 use spiderhead_core::job_control::JobProgressUpdate;
 
 use crate::compare::base::{os_error_text, CompareError};
@@ -133,16 +132,20 @@ pub(crate) fn safe_member(
             )));
         }
     };
-    let mode = info.mode();
     let is_dir = info.is_dir();
     let type_ok = if directory { is_dir } else { info.is_file() };
-    if (mode & (libc::S_IFMT as u32)) == (libc::S_IFLNK as u32) || !type_ok {
+    if info.is_symlink() || !type_ok {
         return Err(CompareError(format!(
             "comparison checkpoint member is unsafe: {}",
             path.file_name().unwrap_or_default().to_string_lossy()
         )));
     }
-    if !directory && info.nlink() > max_links {
+    if !directory
+        && link_identity(path)
+            .map_err(|error| CompareError(os_error_text(&error, path)))?
+            .2
+            > max_links
+    {
         return Err(CompareError(format!(
             "comparison checkpoint member has unexpected hard links: {}",
             path.file_name().unwrap_or_default().to_string_lossy()
@@ -151,11 +154,30 @@ pub(crate) fn safe_member(
     Ok(())
 }
 
-/// Flush directory entries on POSIX so a completed rename survives a crash.
+/// Flush directory entries so a completed rename survives a crash.
 pub(crate) fn fsync_directory(path: &Path) -> Result<(), CompareError> {
-    let file = File::open(path).map_err(|error| CompareError(os_error_text(&error, path)))?;
+    let file = open_dir(path).map_err(|error| CompareError(os_error_text(&error, path)))?;
     file.sync_all()
         .map_err(|error| CompareError(os_error_text(&error, path)))
+}
+
+/// A handle on a directory itself: plain `File::open` on POSIX; Windows needs
+/// `FILE_FLAG_BACKUP_SEMANTICS` before `FlushFileBuffers` can sync it.
+#[cfg(windows)]
+fn open_dir(path: &Path) -> std::io::Result<File> {
+    use std::os::windows::fs::OpenOptionsExt;
+    const FILE_FLAG_BACKUP_SEMANTICS: u32 = 0x0200_0000;
+    std::fs::OpenOptions::new()
+        .read(true)
+        .custom_flags(FILE_FLAG_BACKUP_SEMANTICS)
+        .open(path)
+}
+
+/// A handle on a directory itself: plain `File::open` on POSIX; Windows needs
+/// `FILE_FLAG_BACKUP_SEMANTICS` before `FlushFileBuffers` can sync it.
+#[cfg(not(windows))]
+fn open_dir(path: &Path) -> std::io::Result<File> {
+    File::open(path)
 }
 
 /// SHA-256 hex digest and byte count of a file, streamed in 1 MiB blocks.
@@ -207,22 +229,18 @@ impl LockFile {
         if create {
             options.create(true);
         }
-        options.mode(0o600);
-        let nofollow = libc::O_NOFOLLOW;
-        options.custom_flags(nofollow);
+        options.private_mode(0o600).no_follow();
         let file = options
             .open(path)
             .map_err(|error| CompareError(os_error_text(&error, path)))?;
         let opened = file
             .metadata()
             .map_err(|error| CompareError(os_error_text(&error, path)))?;
-        let named = std::fs::symlink_metadata(path)
-            .map_err(|error| CompareError(os_error_text(&error, path)))?;
-        if !opened.is_file()
-            || opened.nlink() != 1
-            || opened.dev() != named.dev()
-            || opened.ino() != named.ino()
-        {
+        let (dev, ino, links) =
+            file_identity(&file).map_err(|error| CompareError(os_error_text(&error, path)))?;
+        let named =
+            link_identity(path).map_err(|error| CompareError(os_error_text(&error, path)))?;
+        if !opened.is_file() || links != 1 || (dev, ino) != (named.0, named.1) {
             return Err(CompareError(
                 "writer lock must be a regular unaliased file".into(),
             ));
@@ -232,21 +250,13 @@ impl LockFile {
 
     /// Try a nonblocking exclusive lock; contention returns an error.
     pub fn try_lock_exclusive(&self) -> Result<(), CompareError> {
-        let result = unsafe { libc::flock(self.file.as_raw_fd(), libc::LOCK_EX | libc::LOCK_NB) };
-        if result != 0 {
-            return Err(CompareError(os_error_text(
-                &std::io::Error::last_os_error(),
-                Path::new("<lock>"),
-            )));
-        }
-        Ok(())
+        spiderhead_core::filesystem::try_lock_exclusive(&self.file)
+            .map_err(|error| CompareError(os_error_text(&error, Path::new("<lock>"))))
     }
 
     /// Release the advisory lock.
     pub fn unlock(&self) {
-        unsafe {
-            libc::flock(self.file.as_raw_fd(), libc::LOCK_UN);
-        }
+        spiderhead_core::filesystem::unlock_file(&self.file);
     }
 }
 
@@ -296,6 +306,8 @@ mod tests {
         std::fs::create_dir(root.join("subdir")).expect("mkdir");
         #[cfg(unix)]
         std::os::unix::fs::symlink("file", root.join("link")).expect("symlink");
+        #[cfg(windows)]
+        std::os::windows::fs::symlink_file("file", root.join("link")).expect("symlink");
         safe_member(&root.join("file"), false, false, 1).expect("file ok");
         safe_member(&root.join("subdir"), true, false, 1).expect("dir ok");
         assert_eq!(

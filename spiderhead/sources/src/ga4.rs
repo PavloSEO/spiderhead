@@ -267,7 +267,7 @@ pub(crate) async fn run_report_paged<T: Transport>(
         let raw = match raw {
             Ok(raw) => raw,
             Err(Ga4Fault::Other { class, message }) => {
-                return Err(Ga4Error::Python { class, message })
+                return Err(Ga4Error::Classed { class, message })
             }
             Err(fault) => return Ok(failed(&fault.to_string())),
         };
@@ -442,7 +442,9 @@ pub async fn landing_pages<T: Transport>(
     };
     let raw = match raw {
         Ok(raw) => raw,
-        Err(Ga4Fault::Other { class, message }) => return Err(Ga4Error::Python { class, message }),
+        Err(Ga4Fault::Other { class, message }) => {
+            return Err(Ga4Error::Classed { class, message })
+        }
         Err(fault) => return Ok(failed(&fault.to_string())),
     };
     let body: Value = match serde_json::from_str(&raw) {

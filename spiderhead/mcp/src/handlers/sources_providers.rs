@@ -66,7 +66,7 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
         "gsc.discover_properties" => go_(gsc::discover_properties(
             &host, &root, None, None, &transport,
         ))?
-        .map_err(|e| dispatch_error(e.python_class(), e.to_string())),
+        .map_err(|e| dispatch_error(e.error_class(), e.to_string())),
         "gsc.sitemap_status" => {
             let kw = checked_kwargs(request, "sitemap_status", &["site_url"])?;
             go_(gsc::sitemap_status(
@@ -77,7 +77,7 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
                 None,
                 &transport,
             ))?
-            .map_err(|e| dispatch_error(e.python_class(), e.to_string()))
+            .map_err(|e| dispatch_error(e.error_class(), e.to_string()))
         }
         "gsc.search_analytics_pages" => {
             let kw = checked_kwargs(
@@ -112,7 +112,7 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
                 &args,
                 &transport,
             ))?
-            .map_err(|e| dispatch_error(e.python_class(), e.to_string()))
+            .map_err(|e| dispatch_error(e.error_class(), e.to_string()))
         }
         "yandex_webmaster.collect" => {
             let kw = checked_kwargs(
@@ -135,7 +135,7 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
             };
             let operation = arg("operation").and_then(Value::as_str).unwrap_or("");
             go_(wm_collect(operation, &args, &env))?
-                .map_err(|e| dispatch_error(e.python_class(), e.to_string()))
+                .map_err(|e| dispatch_error(e.error_class(), e.to_string()))
         }
         "topvisor.fetch" => {
             let operation = arg("operation")
@@ -143,7 +143,7 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
                 .unwrap_or("projects");
             let params = arg("params").and_then(Value::as_object);
             go_(topvisor::fetch(&host, &root, &transport, operation, params))?
-                .map_err(|e| dispatch_error(e.python_class(), e.to_string()))
+                .map_err(|e| dispatch_error(e.error_class(), e.to_string()))
         }
         "wayback.history" => {
             let kw = checked_kwargs(
@@ -158,7 +158,7 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
                 kw.get("from_date").and_then(Value::as_str),
                 kw.get("to_date").and_then(Value::as_str),
             ))?
-            .map_err(|e| dispatch_error(e.python_class(), e.to_string()))
+            .map_err(|e| dispatch_error(e.error_class(), e.to_string()))
         }
         "crtsh.subdomains" => {
             let kw = checked_kwargs(request, "subdomains", &["domain"])?;
@@ -166,7 +166,7 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
                 &transport,
                 kw.get("domain").and_then(Value::as_str).unwrap_or(""),
             ))?
-            .map_err(|e| dispatch_error(e.python_class(), e.to_string()))
+            .map_err(|e| dispatch_error(e.error_class(), e.to_string()))
         }
         "dataforseo.balance" => {
             let env = DfsEnv::live(&host, &root, &transport);
@@ -177,9 +177,9 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
                     ..DfsArgs::default()
                 },
             )
-            .map_err(|e| dispatch_error(e.python_class(), e.to_string()))?;
+            .map_err(|e| dispatch_error(e.error_class(), e.to_string()))?;
             go_(client.balance())?.map_err(|e| {
-                let mut error = dispatch_error(e.python_class(), e.to_string());
+                let mut error = dispatch_error(e.error_class(), e.to_string());
                 if let spiderhead_sources::dataforseo::DfsError::Provider { status, .. } = &e {
                     error.status = Some(*status);
                 }

@@ -52,7 +52,7 @@
    "scan_uuid": "<UUID:1>",
    "source_kind": "native",
    "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
-   "writer_version": "3.2.0"
+   "writer_version": "0.9.1"
   },
   "validation": "light"
  }

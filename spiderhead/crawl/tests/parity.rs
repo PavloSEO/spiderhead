@@ -80,8 +80,8 @@ fn crawl_and_dump_with_seeds(
         client: spiderhead_fetch::client::build_client(15.0).expect("client"),
         start_url: format!("{base}/"),
         seed_urls: seed_urls.to_vec(),
-        user_agent: "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)".into(),
-        robots_token: "SpiderHeadBot".into(),
+        user_agent: spiderhead_core::user_agents::DEFAULT_USER_AGENT.into(),
+        robots_token: spiderhead_core::user_agents::DEFAULT_TOKEN.into(),
         robots_policy: "respect".into(),
         min_delay,
         max_delay: 60.0,
@@ -117,17 +117,63 @@ fn crawl_and_dump_with_seeds(
     scan_tables(&scan_path, &base, work.to_str().unwrap_or("")).expect("dump")
 }
 
-fn baseline(site: &str) -> Value {
-    let path = oracle_root()
+fn baseline_path(site: &str) -> std::path::PathBuf {
+    oracle_root()
         .join("baselines")
         .join(site)
-        .join("scan.tables.json");
-    serde_json::from_str(&std::fs::read_to_string(path).expect("baseline file")).expect("baseline")
+        .join("scan.tables.json")
+}
+
+fn baseline(site: &str) -> Value {
+    spiderhead_oracle_testkit::fixture_json(&baseline_path(site))
+}
+
+/// A bless run also republishes the stored capture: `raw-scans/<site>` must hold
+/// the same capture the `scan.tables.json` baseline describes, or the read-path
+/// tests and the live parity replay diverge.
+fn refresh_raw_capture(site: &str, scan_path: &std::path::Path) {
+    let dir = oracle_root().join("raw-scans").join(site);
+    let target = dir.join("scan.sqlite");
+    // Publish atomically: other test binaries bless downstream fixtures from the
+    // same file in the same suite pass and must never observe a partial copy.
+    let tmp = dir.join("scan.sqlite.tmp");
+    std::fs::copy(scan_path, &tmp).expect("raw scan copy");
+    std::fs::rename(&tmp, &target).expect("raw scan publish");
+    let _ = std::fs::remove_file(dir.join("scan.sqlite.audit-v2.sqlite"));
+    let (header, collections) =
+        spiderhead_checks::audit::audit_v2_document(&target).expect("audit document");
+    spiderhead_checks::audit::write_audit_v2(&target, &header, &collections)
+        .expect("audit companion");
+}
+
+/// True when the stored capture already matches the fresh dump. Republishing an
+/// equivalent capture would only churn volatile fields (timings, scan uuid) and
+/// invalidate the byte fixtures the other tests bless in the same pass.
+fn capture_is_fresh(site: &str, port: u16, actual: &Value) -> bool {
+    let target = oracle_root()
+        .join("raw-scans")
+        .join(site)
+        .join("scan.sqlite");
+    if !target.exists() {
+        return false;
+    }
+    let base = format!("http://127.0.0.1:{port}");
+    match scan_tables(&target, &base, "") {
+        Ok(stored) => diff(&stored, actual, &Options::default()).is_empty(),
+        Err(_) => false,
+    }
 }
 
 fn assert_parity(site: &str, port: u16) {
     let work = Scratch::new(site);
     let actual = crawl_and_dump(site, port, &work.0);
+    if spiderhead_oracle_diff::bless_enabled() {
+        if !capture_is_fresh(site, port, &actual) {
+            refresh_raw_capture(site, &work.0.join("scan.sqlite"));
+        }
+        spiderhead_oracle_diff::bless_json(&baseline_path(site), &actual);
+        return;
+    }
     let expected = baseline(site);
     let divergences = diff(&expected, &actual, &Options::default());
     assert!(
@@ -175,6 +221,13 @@ fn parity_robots_sitemap() {
         &work.0,
         &[format!("{base}/sitemap-ok.xml")],
     );
+    if spiderhead_oracle_diff::bless_enabled() {
+        if !capture_is_fresh("robots-sitemap", 18706, &actual) {
+            refresh_raw_capture("robots-sitemap", &work.0.join("scan.sqlite"));
+        }
+        spiderhead_oracle_diff::bless_json(&baseline_path("robots-sitemap"), &actual);
+        return;
+    }
     let expected = baseline("robots-sitemap");
     let divergences = diff(&expected, &actual, &Options::default());
     assert!(
@@ -202,8 +255,8 @@ fn interrupted_crawl_resumes_to_the_same_scan() {
         client: spiderhead_fetch::client::build_client(15.0).expect("client"),
         start_url: format!("{base}/"),
         seed_urls: Vec::new(),
-        user_agent: "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)".into(),
-        robots_token: "SpiderHeadBot".into(),
+        user_agent: spiderhead_core::user_agents::DEFAULT_USER_AGENT.into(),
+        robots_token: spiderhead_core::user_agents::DEFAULT_TOKEN.into(),
         robots_policy: "respect".into(),
         min_delay: 0.02,
         max_delay: 60.0,

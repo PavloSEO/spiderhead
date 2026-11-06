@@ -25,7 +25,11 @@ use spiderhead_parse::text_normalize::{
 };
 use spiderhead_parse::types::ContentAreaConfig;
 
-const FIXTURE: &str = include_str!("fixtures/checks_oracle.json");
+fn default_fixture() -> String {
+    spiderhead_oracle_testkit::fixture_text(
+        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checks_oracle.json"),
+    )
+}
 
 /// Collect every difference between `expected` and `actual` as a readable path.
 fn walk(expected: &Value, actual: &Value, path: &str, out: &mut Vec<String>) {
@@ -84,7 +88,7 @@ fn raised_message(text: &str) -> &str {
 fn fixture() -> Value {
     let text = match std::env::var("CHECKS_FIXTURE") {
         Ok(path) => std::fs::read_to_string(path).unwrap_or_default(),
-        Err(_) => FIXTURE.to_owned(),
+        Err(_) => default_fixture(),
     };
     serde_json::from_str(&text).unwrap_or(Value::Null)
 }

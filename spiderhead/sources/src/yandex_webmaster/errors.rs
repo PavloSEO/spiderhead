@@ -25,7 +25,7 @@ pub enum WmError {
     /// Missing key; the message is the quoted key.
     Key(String),
     /// Any other failure, identified by its class name and message.
-    Python {
+    Classed {
         /// Error class name.
         class: String,
         /// Error message.
@@ -35,7 +35,7 @@ pub enum WmError {
 
 impl WmError {
     /// Error class name.
-    pub fn python_class(&self) -> &str {
+    pub fn error_class(&self) -> &str {
         match self {
             WmError::MissingCredential(_) => "MissingCredential",
             WmError::Http { .. } => "HTTPError",
@@ -43,7 +43,7 @@ impl WmError {
             WmError::Timeout(_) => "TimeoutError",
             WmError::Value(_) => "ValueError",
             WmError::Key(_) => "KeyError",
-            WmError::Python { class, .. } => class.as_str(),
+            WmError::Classed { class, .. } => class.as_str(),
         }
     }
 
@@ -68,7 +68,7 @@ impl WmError {
     }
 
     pub(super) fn type_error(message: impl Into<String>) -> Self {
-        WmError::Python {
+        WmError::Classed {
             class: "TypeError".to_owned(),
             message: message.into(),
         }
@@ -94,7 +94,7 @@ impl WmError {
 
     /// Calling `get` on a non-mapping is an attribute error.
     pub(super) fn attribute_get(value: &Value) -> Self {
-        WmError::Python {
+        WmError::Classed {
             class: "AttributeError".to_owned(),
             message: format!(
                 "'{}' object has no attribute 'get'",
@@ -113,7 +113,7 @@ impl std::fmt::Display for WmError {
             | WmError::Timeout(message)
             | WmError::Value(message)
             | WmError::Key(message)
-            | WmError::Python { message, .. } => f.write_str(message),
+            | WmError::Classed { message, .. } => f.write_str(message),
         }
     }
 }

@@ -11,6 +11,7 @@ pub mod dom;
 pub mod duplicate;
 pub mod extraction_library;
 pub mod extraction_rules;
+pub mod extraction_suggest;
 pub mod fragment_target;
 pub mod hreflang_code;
 mod hreflang_tables;

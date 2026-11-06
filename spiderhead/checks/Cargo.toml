@@ -7,9 +7,13 @@ description = "SpiderHead checks (the 298 SEO checks)."
 
 [dependencies]
 caseless.workspace = true
+csv.workspace = true
+ego-tree.workspace = true
+fancy-regex.workspace = true
 indexmap.workspace = true
 rusqlite.workspace = true
 regex.workspace = true
+rust-stemmers.workspace = true
 scraper.workspace = true
 serde.workspace = true
 serde_json.workspace = true

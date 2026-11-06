@@ -12,7 +12,7 @@ use crate::py_str::py_strip;
 use crate::types::Result;
 use crate::urlutil::urljoin;
 
-pub(super) type Node = Map<String, Value>;
+pub type Node = Map<String, Value>;
 
 pub(super) fn vocab() -> &'static Json {
     static VOCAB: OnceLock<Json> = OnceLock::new();
@@ -69,7 +69,7 @@ pub(super) fn strip_json(value: &Json) -> String {
     value.as_str().map(strip_term).unwrap_or_default()
 }
 
-pub(super) fn types_of(node: &Node) -> Vec<String> {
+pub fn types_of(node: &Node) -> Vec<String> {
     match node.get("@type") {
         Some(Value::String(s)) => vec![strip_term(s)],
         Some(Value::Array(list)) => list
@@ -196,7 +196,7 @@ pub(super) fn truthy(value: &Json) -> bool {
 }
 
 /// Flatten any JSON-LD payload while preserving each node's source path.
-pub(super) fn flatten(
+pub fn flatten(
     payload: &Json,
     out: &mut Vec<Node>,
     path: &str,

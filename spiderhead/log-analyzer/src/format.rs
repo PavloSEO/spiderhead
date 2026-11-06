@@ -6,6 +6,10 @@ use regex::Regex;
 
 use crate::clock::{self, epoch};
 use crate::error::{LogsError, Result};
+use crate::format_cloud::{elb_kind, parse_elb, parse_haproxy, ElbKind};
+use crate::format_custom::CustomParser;
+use crate::format_fields::tokens;
+use crate::format_tabular::{DelimitedParser, Delimiter, JsonParser};
 use crate::text::{parse_float, parse_int, quoted, split_whitespace, strip};
 
 /// A parsed request record.
@@ -18,8 +22,11 @@ pub struct Row {
     pub path: String,
     pub status: i64,
     pub bytes: i64,
-    /// Response time as logged (unit left to the server).
+    /// Response time in seconds as the server logged it; `None` when the layout has none
+    /// (IIS `time-taken` is only reported through `response_ms`).
     pub time_taken: Option<f64>,
+    /// Response time in milliseconds, normalised from the layout's own unit.
+    pub response_ms: Option<f64>,
     pub referer: Option<String>,
     pub user_agent: Option<String>,
 }
@@ -37,11 +44,23 @@ fn build(pattern: &str) -> Regex {
 // Combined is a superset of Common and is tried first. One or two ident/user tokens sit
 // between the client IP and the timestamp; nginx `main` appends a quoted forwarded-for
 // after the user agent, and a numeric request-time token may sit before or after it.
+// Extra `key=value` and numeric tokens may follow the user agent.
 fn combined_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
         build(
-            r#"^(<N>+)(?:<S>+<N>+){1,2}<S>+\[([^\]]+)\]<S>+"([A-Z!]+)<S>+(<N>+)(?:<S>+[^"]*)?"<S>+(\d{3})<S>+(<N>+)(?:<S>+([\d.,]+))?<S>+"([^"]*)"<S>+"([^"]*)"(?:<S>+"([^"]*)")?(?:<S>+([\d.,]+))?<S>*$"#,
+            r#"^(<N>+)(?:<S>+<N>+){1,2}<S>+\[([^\]]+)\]<S>+"([A-Z!]+)<S>+(<N>+)(?:<S>+[^"]*)?"<S>+(\d{3})<S>+(<N>+)(?:<S>+([\d.,]+))?<S>+"([^"]*)"<S>+"([^"]*)"(?:<S>+"([^"]*)")?(?:<S>+([\d.,]+))?(?:<S>+(?:<N>+=(?:"[^"]*"|<N>*)|[-\d.,]+))*<S>*$"#,
+        )
+    })
+}
+
+// Servers log malformed requests (binary handshakes, odd verbs) as a quoted blob with a 4xx
+// status; only error statuses are accepted this way. This layout takes any quoted request text so those lines still count as traffic.
+fn lenient_re() -> &'static Regex {
+    static CELL: OnceLock<Regex> = OnceLock::new();
+    CELL.get_or_init(|| {
+        build(
+            r#"^(<N>+)(?:<S>+<N>+){1,2}<S>+\[([^\]]+)\]<S>+"([^"]*)"<S>+(\d{3})<S>+(<N>+)(?:<S>+([\d.,]+))?<S>+"([^"]*)"<S>+"([^"]*)"(?:<S>+(?:<N>+=(?:"[^"]*"|<N>*)|[-\d.,]+))*<S>*$"#,
         )
     })
 }
@@ -127,6 +146,28 @@ pub fn parse_apache(line: &str) -> Result<Option<Row>> {
         referer = None;
         agent = None;
         trailing = owned(&m, 7);
+    } else if let Some(m) = lenient_re()
+        .captures(line)
+        .filter(|m| m[4].starts_with(['4', '5']))
+    {
+        let raw = owned(&m, 3).unwrap_or_default();
+        let mut words = raw.split_whitespace();
+        (ip, ts, status, size) = (
+            owned(&m, 1).unwrap_or_default(),
+            owned(&m, 2).unwrap_or_default(),
+            owned(&m, 4).unwrap_or_default(),
+            owned(&m, 5).unwrap_or_default(),
+        );
+        method = words
+            .next()
+            .filter(|_| raw.contains(' '))
+            .unwrap_or("")
+            .to_string();
+        path = words.next().map_or(raw.clone(), str::to_string);
+        between = owned(&m, 6);
+        referer = owned(&m, 7);
+        agent = owned(&m, 8);
+        trailing = None;
     } else {
         return Ok(None);
     }
@@ -154,6 +195,7 @@ pub fn parse_apache(line: &str) -> Result<Option<Row>> {
         status: num(&status),
         bytes: parse_int(&size).unwrap_or(0),
         time_taken,
+        response_ms: time_taken.map(|seconds| seconds * 1000.0),
         referer: dash_to_none(referer.as_deref()),
         user_agent: dash_to_none(agent.as_deref()),
     }))
@@ -240,6 +282,7 @@ impl IisParser {
             status: got("sc-status").and_then(parse_int).unwrap_or(0),
             bytes: got("sc-bytes").and_then(parse_int).unwrap_or(0),
             time_taken: None,
+            response_ms: got("time-taken").and_then(parse_float),
             referer: dash_to_none(got("cs(Referer)")),
             user_agent: (!agent.is_empty()).then(|| agent.to_string()),
         })
@@ -249,9 +292,30 @@ impl IisParser {
 /// Which grammar a log uses.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Format {
+    /// Apache/nginx Combined.
     Combined,
+    /// Apache/nginx Common.
     Common,
+    /// IIS W3C Extended.
     Iis,
+    /// HAProxy HTTP log.
+    Haproxy,
+    /// AWS Classic Load Balancer.
+    ClassicElb,
+    /// AWS Application Load Balancer.
+    Alb,
+    /// Comma-separated values with a header row.
+    Csv,
+    /// Tab-separated values with a header row.
+    Tsv,
+    /// Semicolon-separated values with a header row.
+    CsvSemicolon,
+    /// Pipe-separated values with a header row.
+    CsvPipe,
+    /// One JSON object per line.
+    JsonLines,
+    /// A layout compiled from a caller-supplied `log_format`.
+    Custom,
 }
 
 impl Format {
@@ -261,59 +325,217 @@ impl Format {
             Format::Combined => "combined",
             Format::Common => "common",
             Format::Iis => "iis",
+            Format::Haproxy => "haproxy",
+            Format::ClassicElb => "elb",
+            Format::Alb => "alb",
+            Format::Csv => "csv",
+            Format::Tsv => "tsv",
+            Format::CsvSemicolon => "csv-semicolon",
+            Format::CsvPipe => "csv-pipe",
+            Format::JsonLines => "jsonl",
+            Format::Custom => "custom",
         }
     }
 }
 
-/// Detect the format from sample lines: an IIS `#Fields:` directive wins, then any
-/// Combined line, then any Common line.
-pub fn detect_format<'a>(sample: impl IntoIterator<Item = &'a str>) -> Option<Format> {
-    let (mut combined, mut common) = (false, false);
-    for line in sample {
-        let line = strip(line);
-        if line.is_empty() {
-            continue;
-        }
-        if line.starts_with('#') && line.to_lowercase().contains("fields:") {
-            return Some(Format::Iis);
-        }
-        if combined_re().is_match(line) {
-            combined = true;
-        } else if common_re().is_match(line) {
-            common = true;
+/// Caller choices that steer format detection.
+#[derive(Debug, Clone, Default)]
+pub struct FormatOptions {
+    /// An nginx `log_format` or Apache `LogFormat` string; when set it replaces detection.
+    pub log_format: Option<String>,
+}
+
+impl FormatOptions {
+    /// Options carrying the optional `log_format` argument; blank text means none.
+    pub fn with_log_format(log_format: Option<&str>) -> Self {
+        Self {
+            log_format: log_format
+                .map(str::trim)
+                .filter(|text| !text.is_empty())
+                .map(str::to_string),
         }
     }
-    if combined {
+}
+
+fn is_apache_line(line: &str) -> Option<Format> {
+    if combined_re().is_match(line) {
         Some(Format::Combined)
-    } else if common {
+    } else if common_re().is_match(line) {
         Some(Format::Common)
     } else {
         None
     }
 }
 
-/// The line parser matching a detected format.
+/// Detect the format from sample lines: an IIS `#Fields:` directive wins, then any
+/// Combined line, then any Common line, then the other supported layouts.
+pub fn detect_format<'a>(sample: impl IntoIterator<Item = &'a str>) -> Option<Format> {
+    LineParser::detect(sample, &FormatOptions::default())
+        .ok()
+        .flatten()
+        .map(|parser| parser.format())
+}
+
 #[derive(Debug)]
-pub enum LineParser {
+enum Engine {
     Apache,
     Iis(IisParser),
+    Haproxy,
+    Elb(ElbKind),
+    Delimited(DelimitedParser),
+    Json(JsonParser),
+    Custom(CustomParser),
+}
+
+/// The line parser matching a detected format.
+#[derive(Debug)]
+pub struct LineParser {
+    format: Format,
+    engine: Engine,
 }
 
 impl LineParser {
-    /// Parser for `format`.
+    /// Parser for a layout that needs no per-file state (Combined, Common, IIS, HAProxy,
+    /// JSON Lines); other formats come from [`LineParser::detect`].
     pub fn for_format(format: Format) -> Self {
-        match format {
-            Format::Iis => LineParser::Iis(IisParser::new()),
-            _ => LineParser::Apache,
+        let engine = match format {
+            Format::Iis => Engine::Iis(IisParser::new()),
+            Format::Haproxy => Engine::Haproxy,
+            Format::JsonLines => Engine::Json(JsonParser),
+            _ => Engine::Apache,
+        };
+        Self { format, engine }
+    }
+
+    /// Choose a parser for a file from its sample lines.
+    ///
+    /// With `options.log_format` the compiled layout is used if at least one sample line
+    /// fits it; an invalid layout is an error. Otherwise the cascade is IIS directive,
+    /// Combined/Common, JSON Lines, HAProxy, AWS balancers, then delimited text with a
+    /// header. `Ok(None)` means nothing in the sample was recognised.
+    pub fn detect<'a>(
+        sample: impl IntoIterator<Item = &'a str>,
+        options: &FormatOptions,
+    ) -> Result<Option<Self>> {
+        let lines: Vec<&str> = sample.into_iter().collect();
+        if let Some(spec) = &options.log_format {
+            let parser = CustomParser::compile(spec)?;
+            let fits = lines.iter().any(|l| parser.parse(strip(l)).is_some());
+            return Ok(fits.then_some(Self {
+                format: Format::Custom,
+                engine: Engine::Custom(parser),
+            }));
         }
+        let (mut combined, mut common) = (false, false);
+        for line in lines.iter().map(|l| strip(l)).filter(|l| !l.is_empty()) {
+            if line.starts_with('#') && line.to_lowercase().contains("fields:") {
+                return Ok(Some(Self::for_format(Format::Iis)));
+            }
+            match is_apache_line(line) {
+                Some(Format::Combined) => combined = true,
+                Some(_) => common = true,
+                None => {}
+            }
+        }
+        if combined || common {
+            return Ok(Some(Self::for_format(if combined {
+                Format::Combined
+            } else {
+                Format::Common
+            })));
+        }
+        let body = || lines.iter().map(|l| strip(l)).filter(|l| !l.is_empty());
+        if JsonParser::detect(body()) {
+            return Ok(Some(Self::for_format(Format::JsonLines)));
+        }
+        if body().any(|l| parse_haproxy(l).is_some()) {
+            return Ok(Some(Self::for_format(Format::Haproxy)));
+        }
+        for line in body() {
+            if let Some(kind) = elb_kind(&tokens(line)) {
+                if parse_elb(line, kind).is_some() {
+                    let format = if kind == ElbKind::Alb {
+                        Format::Alb
+                    } else {
+                        Format::ClassicElb
+                    };
+                    return Ok(Some(Self {
+                        format,
+                        engine: Engine::Elb(kind),
+                    }));
+                }
+            }
+        }
+        if let Some((delimiter, parser)) = DelimitedParser::detect(body()) {
+            if body().any(|l| parser.parse(l).is_some()) {
+                let format = match delimiter {
+                    Delimiter::Comma => Format::Csv,
+                    Delimiter::Tab => Format::Tsv,
+                    Delimiter::Semicolon => Format::CsvSemicolon,
+                    Delimiter::Pipe => Format::CsvPipe,
+                };
+                return Ok(Some(Self {
+                    format,
+                    engine: Engine::Delimited(parser),
+                }));
+            }
+        }
+        Ok(None)
+    }
+
+    /// The detected format.
+    pub fn format(&self) -> Format {
+        self.format
+    }
+
+    /// Whether `line` is a column header of a delimited log. Such lines are neither
+    /// records nor failures and must not be counted as skipped.
+    pub fn is_header(&self, line: &str) -> bool {
+        matches!(&self.engine, Engine::Delimited(p) if p.is_header(line))
     }
 
     /// Parse one line without its terminator.
     pub fn parse(&mut self, line: &str) -> Result<Option<Row>> {
-        match self {
-            LineParser::Apache => parse_apache(line),
-            LineParser::Iis(parser) => Ok(parser.parse(line)),
+        match &mut self.engine {
+            Engine::Apache => parse_apache(line),
+            Engine::Iis(parser) => Ok(parser.parse(line)),
+            Engine::Haproxy => Ok(parse_haproxy(line)),
+            Engine::Elb(kind) => Ok(parse_elb(line, *kind)),
+            Engine::Delimited(parser) => Ok(parser.parse(line)),
+            Engine::Json(parser) => Ok(parser.parse(line)),
+            Engine::Custom(parser) => Ok(parser.parse(line)),
         }
+    }
+}
+
+/// How many unparsed lines a report quotes.
+pub const SAMPLE_LIMIT: usize = 5;
+/// Longest quoted line, in characters.
+pub const SAMPLE_CHARS: usize = 300;
+
+/// The first few lines a parser rejected, trimmed for display.
+#[derive(Debug, Default, Clone)]
+pub struct SkipSamples {
+    lines: Vec<String>,
+}
+
+impl SkipSamples {
+    /// Remember `line` if there is still room.
+    pub fn note(&mut self, line: &str) {
+        if self.lines.len() < SAMPLE_LIMIT {
+            let line = strip(line);
+            self.lines.push(line.chars().take(SAMPLE_CHARS).collect());
+        }
+    }
+
+    /// The remembered lines as a JSON array.
+    pub fn to_json(&self) -> serde_json::Value {
+        serde_json::json!(self.lines)
+    }
+
+    /// Whether no line was remembered.
+    pub fn is_empty(&self) -> bool {
+        self.lines.is_empty()
     }
 }
 

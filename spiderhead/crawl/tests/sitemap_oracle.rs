@@ -10,7 +10,7 @@ fn fixture() -> Value {
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/sitemap_oracle.json");
     // the reference json module emits NaN/Infinity literals for float('nan') etc.;
     // swap them for strings on both sides of the comparison.
-    let raw = std::fs::read_to_string(path).expect("fixture file");
+    let raw = spiderhead_oracle_testkit::fixture_text(&path);
     let raw = raw
         .replace(": NaN", ": \"NaN\"")
         .replace(": Infinity", ": \"Infinity\"")

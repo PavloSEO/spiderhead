@@ -31,7 +31,9 @@ fn palette() -> theme::Palette {
 }
 
 fn fixture() -> Value {
-    serde_json::from_str(include_str!("fixtures/tui_oracle.json")).expect("fixture parses")
+    spiderhead_oracle_testkit::fixture_json(
+        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tui_oracle.json"),
+    )
 }
 
 fn pipe() -> (RawFd, RawFd) {

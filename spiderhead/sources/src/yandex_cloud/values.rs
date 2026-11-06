@@ -14,7 +14,7 @@ pub fn normalize(phrase: &Value) -> Result<String, CloudError> {
         match phrase {
             Value::String(text) => text.as_str(),
             other => {
-                return Err(CloudError::python(
+                return Err(CloudError::classed(
                     "AttributeError",
                     format!(
                         "'{}' object has no attribute 'strip'",
@@ -69,7 +69,7 @@ pub(super) fn safe_operation_message(body: &Value) -> String {
 
 /// Items of a value as a list: array items, string characters or object keys; other types are a `TypeError`.
 pub(super) fn py_list(value: &Value) -> Result<Vec<Value>, CloudError> {
-    crate::metrika::py_iter(value).map_err(|err| CloudError::python("TypeError", err.to_string()))
+    crate::metrika::py_iter(value).map_err(|err| CloudError::classed("TypeError", err.to_string()))
 }
 
 /// Key for a result map: string keys as-is, other keys in their JSON spelling.
@@ -85,7 +85,7 @@ pub(super) fn dict_key(query: &Value) -> String {
 pub(super) fn b64decode(text: &str) -> Result<Vec<u8>, CloudError> {
     const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     if !text.is_ascii() {
-        return Err(CloudError::python(
+        return Err(CloudError::classed(
             "ValueError",
             "string argument should contain only ASCII characters",
         ));
@@ -99,7 +99,7 @@ pub(super) fn b64decode(text: &str) -> Result<Vec<u8>, CloudError> {
         .collect();
     let remainder = data.len() % 4;
     if remainder == 1 {
-        return Err(CloudError::python(
+        return Err(CloudError::classed(
             "Error",
             format!(
                 "Invalid base64-encoded string: number of data characters ({}) cannot be 1 more than a multiple of 4",
@@ -108,7 +108,7 @@ pub(super) fn b64decode(text: &str) -> Result<Vec<u8>, CloudError> {
         ));
     }
     if remainder != 0 && pads < 4 - remainder {
-        return Err(CloudError::python("Error", "Incorrect padding"));
+        return Err(CloudError::classed("Error", "Incorrect padding"));
     }
     let mut out = Vec::with_capacity(data.len() * 3 / 4);
     for chunk in data.chunks(4) {
@@ -142,7 +142,7 @@ pub(super) fn as_float(value: &Value) -> Result<f64, CloudError> {
     match value {
         Value::Bool(b) => Ok(i64::from(*b) as f64),
         Value::Number(n) => Ok(n.as_f64().unwrap_or_default()),
-        other => Err(CloudError::python(
+        other => Err(CloudError::classed(
             "TypeError",
             format!(
                 "float() argument must be a string or a real number, not '{}'",
@@ -155,7 +155,7 @@ pub(super) fn as_float(value: &Value) -> Result<f64, CloudError> {
 /// Minimum seconds between requests, `1.0 / rps`. A zero rate is a division error.
 pub(super) fn min_interval(rps: &Value) -> Result<f64, CloudError> {
     let divisor = as_float(rps).map_err(|_| {
-        CloudError::python(
+        CloudError::classed(
             "TypeError",
             format!(
                 "unsupported operand type(s) for /: 'float' and '{}'",
@@ -164,7 +164,7 @@ pub(super) fn min_interval(rps: &Value) -> Result<f64, CloudError> {
         )
     })?;
     if divisor == 0.0 {
-        return Err(CloudError::python(
+        return Err(CloudError::classed(
             "ZeroDivisionError",
             "float division by zero",
         ));

@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 0,
-    "stderr": "seohead: scan-evidence\n",
+    "stderr": "spiderhead: scan-evidence\n",
     "stdout": "{\n  \"ok\": true,\n  \"section\": \"capabilities\",\n  \"evidence\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"no saved audit capability projection\"\n  }\n}\n"
    }
   ]

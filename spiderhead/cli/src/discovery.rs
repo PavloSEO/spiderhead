@@ -57,18 +57,26 @@ pub fn fill_project(cmd: &mut ParsedCommand) {
     }
 }
 
-/// `spiderhead mcp` and `spiderhead init`, handled before argparse.
+/// True for the arguments that start the stdio server: none, or `--transport stdio`.
+fn serves_stdio(args: &[String]) -> bool {
+    match args {
+        [] => true,
+        [flag, mode] => flag == "--transport" && mode == "stdio",
+        _ => false,
+    }
+}
+
+/// `spiderhead mcp`, `init` and `update`, handled before argparse.
 pub fn builtin(argv: &[String], out: &mut Output) -> Option<ExitCode> {
     match argv.first().map(String::as_str) {
         // Bare `spiderhead mcp` (optionally `--transport stdio`) starts the stdio server;
         // any other `mcp` invocation keeps the registered command's parsing and help.
-        Some("mcp") if matches!(&argv[1..], [] | [_, _] if argv[1] == "--transport" && argv[2] == "stdio") => {
-            Some(ExitCode(spiderhead_mcp::stdio::run(
-                "spiderhead mcp",
-                argv[1..].iter().cloned(),
-            )))
-        }
+        Some("mcp") if serves_stdio(&argv[1..]) => Some(ExitCode(spiderhead_mcp::stdio::run(
+            "spiderhead mcp",
+            argv[1..].iter().cloned(),
+        ))),
         Some("init") => Some(init(&argv[1..], out)),
+        Some("update") => Some(update(&argv[1..], out)),
         _ => None,
     }
 }
@@ -111,10 +119,58 @@ fn init(args: &[String], out: &mut Output) -> ExitCode {
     }
 }
 
+const UPDATE_USAGE: &str = "usage: spiderhead update [--dry-run] [--bin-dir DIR]\n\n\
+Fetch the newest stable release, verify its SHA-256 and replace DIR/spiderhead atomically\n\
+(DIR defaults to $CARGO_HOME/bin, else ~/.cargo/bin). Typing this command is the consent to\n\
+read the network; --dry-run only reports what would be installed.";
+
+fn update(args: &[String], out: &mut Output) -> ExitCode {
+    let (mut dry_run, mut bin_dir) = (false, None);
+    let mut it = args.iter();
+    while let Some(arg) = it.next() {
+        match arg.as_str() {
+            "--dry-run" => dry_run = true,
+            "--bin-dir" => bin_dir = it.next().map(std::path::PathBuf::from),
+            "-h" | "--help" => {
+                out.println(UPDATE_USAGE);
+                return ExitCode::SUCCESS;
+            }
+            other => {
+                out.eprintln(UPDATE_USAGE);
+                out.eprintln(&format!("spiderhead update: unknown argument: {other}"));
+                return ExitCode::USAGE;
+            }
+        }
+    }
+    match spiderhead_mcp::handlers::update::update_install(bin_dir.as_deref(), dry_run) {
+        Ok(result) => {
+            out.emit(&result);
+            if result["ok"] == true {
+                ExitCode::SUCCESS
+            } else {
+                ExitCode::FAILURE
+            }
+        }
+        Err(error) => {
+            out.eprintln(&format!("error: {error}"));
+            ExitCode::FAILURE
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::Format;
+
+    #[test]
+    fn bare_mcp_and_stdio_transport_start_the_server() {
+        let args = |list: &[&str]| list.iter().map(|a| a.to_string()).collect::<Vec<_>>();
+        assert!(serves_stdio(&args(&[])));
+        assert!(serves_stdio(&args(&["--transport", "stdio"])));
+        assert!(!serves_stdio(&args(&["--help"])));
+        assert!(!serves_stdio(&args(&["--transport", "http"])));
+    }
 
     #[test]
     fn only_project_flags_trigger_a_retry() {

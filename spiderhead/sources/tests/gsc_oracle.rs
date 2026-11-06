@@ -138,7 +138,7 @@ async fn gsc_oracle_parity() {
             }
             other => panic!("{name}: unknown call {other}"),
         }
-        .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+        .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
     }
 }

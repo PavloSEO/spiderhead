@@ -320,11 +320,14 @@ fn absolute(path: &Path) -> PathBuf {
     }
 }
 
-fn signature(info: &std::fs::Metadata) -> FileSignature {
-    use std::os::unix::fs::MetadataExt;
+fn signature(
+    info: &std::fs::Metadata,
+    identity: spiderhead_core::filesystem::FileIdentity,
+) -> FileSignature {
+    use spiderhead_core::filesystem::StatCompat;
     (
-        info.dev(),
-        info.ino(),
+        identity.0,
+        identity.1,
         info.size(),
         info.mtime() * 1_000_000_000 + info.mtime_nsec(),
         info.ctime() * 1_000_000_000 + info.ctime_nsec(),
@@ -451,13 +454,26 @@ pub fn read_compare_page(
             "comparison file must not be a symbolic link".into(),
         ));
     }
+    let file_identity = spiderhead_core::filesystem::link_identity(&data_path).map_err(|_| {
+        CompareError(format!(
+            "comparison data file is unavailable for {}",
+            crate::pyvalue::py_repr(name)
+        ))
+    })?;
+    let manifest_identity =
+        spiderhead_core::filesystem::path_identity(&manifest_path).map_err(|_| {
+            CompareError(format!(
+                "comparison data file is unavailable for {}",
+                crate::pyvalue::py_repr(name)
+            ))
+        })?;
     let manifest_sha = hex_sha256(&raw_manifest);
     let key = CacheKey(
         manifest_path.clone(),
         name.to_owned(),
         manifest_sha,
-        signature(&file_info),
-        signature(&manifest_info),
+        signature(&file_info, file_identity),
+        signature(&manifest_info, manifest_identity),
     );
 
     let mut guard = cache_guard();

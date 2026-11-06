@@ -280,7 +280,7 @@ pub fn run(
             let base = r["base"].as_i64().filter(|v| *v != 0);
             exact.or(base).unwrap_or(0)
         };
-        key(b).cmp(&key(a)) // stable sort like Python's sorted(key=-k)
+        key(b).cmp(&key(a)) // stable descending sort on the nonzero key
     });
     if limit != 0 {
         rows.truncate(limit.max(0) as usize);

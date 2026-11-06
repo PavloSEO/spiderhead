@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: metrika-traffic-pdf\n",
+    "stdout": "{\n  \"ok\": false,\n  \"error\": \"report files already exist; pass overwrite=true to replace them\",\n  \"existing\": [\n    \"<WORK>/out/metrika-traffic.html\"\n  ]\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_metrika_traffic_pdf: {\"ok\": false, \"error\": \"report files already exist; pass overwrite=true to replace them\", \"existing\": [\"<WORK>/out/metrika-traffic.html\"]}"
+   }
+  ]
+ }
+}

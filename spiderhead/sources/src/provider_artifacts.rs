@@ -38,7 +38,7 @@ pub enum PaError {
 
 impl PaError {
     /// Error class name of this variant.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             PaError::Invalid(_) => "ValueError",
             PaError::TypeErr(_) => "TypeError",

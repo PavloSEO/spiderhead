@@ -91,7 +91,7 @@ fn run() -> Result<Value, String> {
     let config_map = spider::capture_config(&host, args.max_urls, args.max_urls_per_second)?;
     let _min_delay = spider::bin_load_delay(args.max_urls_per_second);
 
-    let runtime_versions = oracle::runtime_versions();
+    let runtime_versions = spiderhead_store::scan_schema::native_runtime_versions();
     let resumed = args.scan_out.exists();
     let mut scan = if resumed {
         reopen(&args.scan_out)?

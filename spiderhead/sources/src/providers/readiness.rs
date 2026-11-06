@@ -100,7 +100,7 @@ pub(super) fn py_len(value: &Value) -> Result<i64, CfError> {
         Value::Array(a) => Ok(a.len() as i64),
         Value::Object(o) => Ok(o.len() as i64),
         Value::String(t) => Ok(t.chars().count() as i64),
-        other => Err(CfError::Python(
+        other => Err(CfError::Classed(
             "TypeError",
             format!("object of type '{}' has no len()", pystr::type_name(other)),
         )),
@@ -134,14 +134,14 @@ pub fn save_local_artifact(directory: &str, value: &Value) -> Result<String, CfE
     }
     let existed = root.is_dir();
     std::fs::create_dir_all(&root)
-        .map_err(|e| CfError::Python("OSError", format!("[Errno 13] {e}")))?;
+        .map_err(|e| CfError::Classed("OSError", format!("[Errno 13] {e}")))?;
     if !existed {
         set_permissions_mode(&root, 0o700)
-            .map_err(|e| CfError::Python("OSError", format!("[Errno 13] {e}")))?;
+            .map_err(|e| CfError::Classed("OSError", format!("[Errno 13] {e}")))?;
     }
     let info = root
         .symlink_metadata()
-        .map_err(|e| CfError::Python("OSError", format!("[Errno 2] {e}")))?;
+        .map_err(|e| CfError::Classed("OSError", format!("[Errno 2] {e}")))?;
     if !info.is_dir() || !credentials::is_private_mode(info.mode()) {
         return Err(CfError::Value(
             "provider artifact directory must be a private directory".to_owned(),
@@ -154,11 +154,11 @@ pub fn save_local_artifact(directory: &str, value: &Value) -> Result<String, CfE
     let body = pyjson::dumps_opts(value, true, false);
     let tmp = destination.with_extension("json.tmp");
     std::fs::write(&tmp, body.as_bytes())
-        .map_err(|e| CfError::Python("OSError", format!("[Errno 13] {e}")))?;
+        .map_err(|e| CfError::Classed("OSError", format!("[Errno 13] {e}")))?;
     set_permissions_mode(&tmp, 0o600)
-        .map_err(|e| CfError::Python("OSError", format!("[Errno 13] {e}")))?;
+        .map_err(|e| CfError::Classed("OSError", format!("[Errno 13] {e}")))?;
     std::fs::rename(&tmp, &destination)
-        .map_err(|e| CfError::Python("OSError", format!("[Errno 13] {e}")))?;
+        .map_err(|e| CfError::Classed("OSError", format!("[Errno 13] {e}")))?;
     Ok(format!("local-artifact:{digest}"))
 }
 

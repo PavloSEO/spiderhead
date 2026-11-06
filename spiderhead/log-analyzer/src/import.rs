@@ -11,7 +11,7 @@ use sha2::{Digest, Sha256};
 use crate::bots::detect_bot;
 use crate::clock::{iso_date, iso_utc, iso_utc_micros};
 use crate::error::{os_message, LogsError, Result};
-use crate::format::{detect_format, ident_tokens, LineParser};
+use crate::format::{ident_tokens, FormatOptions, LineParser, SkipSamples};
 use crate::reader::{open_log, Lines};
 use crate::store::{
     cleanup_stale_imports, collect_files, has_requests, import_metadata, latest_source,
@@ -52,7 +52,7 @@ pub struct ImportContext<'a> {
 }
 
 /// Bounds of one import.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct ImportOptions {
     /// Total non-skipped lines read across all files (1..=100_000_000).
     pub max_lines: i64,
@@ -66,6 +66,8 @@ pub struct ImportOptions {
     /// stored (same line, same occurrence) are skipped, so importing a file twice in
     /// separate calls changes nothing. Without a retained artifact a new one is created.
     pub append: bool,
+    /// An nginx `log_format` or Apache `LogFormat` string describing the files' layout.
+    pub log_format: Option<String>,
 }
 
 impl Default for ImportOptions {
@@ -76,6 +78,7 @@ impl Default for ImportOptions {
             sample_size: 50,
             keep_requests: true,
             append: false,
+            log_format: None,
         }
     }
 }
@@ -290,7 +293,7 @@ fn import_inner(
             keep,
             appending,
         };
-        import_file(&env, &mut con, source, o, &mut s, &mut variants)?;
+        import_file(&env, &mut con, source, &o, &mut s, &mut variants)?;
         imported += 1;
     }
     let period = json!({"from": s.first, "to": s.last});
@@ -314,6 +317,9 @@ fn import_inner(
         "bot_identity": "user-agent claim; DNS verification is separate",
         "created_at": iso_utc_micros((ctx.now)()),
     });
+    if !s.unrecognized.is_empty() {
+        result["lines"]["unrecognized_samples"] = s.unrecognized.to_json();
+    }
     if s.duplicates > 0 {
         result["lines"]["duplicate"] = json!(s.duplicates);
     }
@@ -413,6 +419,7 @@ struct Stats {
     total: u64,
     parsed: u64,
     skipped: u64,
+    unrecognized: SkipSamples,
     unknown_time: u64,
     unknown_agent: u64,
     truncated: bool,
@@ -436,11 +443,16 @@ struct FileEnv<'a> {
     appending: bool,
 }
 
+fn apache_family(format: crate::format::Format) -> bool {
+    use crate::format::Format::{Combined, Common};
+    matches!(format, Combined | Common)
+}
+
 fn import_file(
     env: &FileEnv<'_>,
     con: &mut Connection,
     source: &Path,
-    o: ImportOptions,
+    o: &ImportOptions,
     s: &mut Stats,
     variants: &mut indexmap::IndexMap<String, i64>,
 ) -> Result<()> {
@@ -465,7 +477,9 @@ fn import_file(
             None => break,
         }
     }
-    let Some(format) = detect_format(sample.iter().map(String::as_str)) else {
+    let detect_options = FormatOptions::with_log_format(o.log_format.as_deref());
+    let Some(mut parser) = LineParser::detect(sample.iter().map(String::as_str), &detect_options)?
+    else {
         let name = source
             .file_name()
             .map(|n| n.to_string_lossy().into_owned())
@@ -474,14 +488,14 @@ fn import_file(
             "Unrecognized log format in {name}"
         )));
     };
+    let format = parser.format();
     for line in &sample {
-        if let Some(tokens) = ident_tokens(line) {
+        if let Some(tokens) = ident_tokens(line).filter(|_| apache_family(format)) {
             *variants
                 .entry(format!("{}-{}-ident", format.name(), 1 + tokens))
                 .or_insert(0) += 1;
         }
     }
-    let mut parser = LineParser::for_format(format);
     let mut visits: Vec<Visit> = Vec::new();
     let mut ips: Vec<IpHit> = Vec::new();
     let mut requests: Vec<Request> = Vec::new();
@@ -496,7 +510,7 @@ fn import_file(
         digest.update(line.as_bytes());
         count += 1;
         s.total += 1;
-        if strip(&line).is_empty() || line.starts_with('#') {
+        if strip(&line).is_empty() || line.starts_with('#') || parser.is_header(&line) {
             // IIS directives are consumed by the stateful parser.
             parser.parse(&line)?;
             continue;
@@ -523,6 +537,7 @@ fn import_file(
         let row = parser.parse(line.trim_end_matches('\n'))?;
         let Some(row) = row.filter(|r| (100..=599).contains(&r.status)) else {
             s.skipped += 1;
+            s.unrecognized.note(&line);
             continue;
         };
         s.parsed += 1;

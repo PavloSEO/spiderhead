@@ -6,12 +6,16 @@ use serde_json::{json, Value as Json};
 
 /// Parse robots.txt into `{"groups": [...], "sitemaps": [...]}`. Group keys:
 /// `user_agents`, `allow`, `disallow`,
-/// `crawl_delay`, `request_rate_delay`, `_has_rules`, `_line_of`.
+/// `crawl_delay`, `request_rate_delay`, `_line_of` — the `_has_rules`
+/// bookkeeping flag is popped, exactly as findings never cite it.
 pub fn parse_robots(text: &str) -> Json {
     let mut groups: Vec<Json> = Vec::new();
     let mut sitemaps: Vec<Json> = Vec::new();
     let mut current: Option<usize> = None;
-    let request_rate = regex::Regex::new(r"^\s*(\d+)\s*/\s*(\d+)\s*$").ok();
+    // The non-standard directive has one broadly used, unambiguous shape:
+    // positive whole requests over positive whole seconds. Decimal, locale,
+    // zero and whitespace variants are no rate, not a lenient read.
+    let request_rate = regex::Regex::new(r"^([1-9][0-9]*)/([1-9][0-9]*)$").ok();
 
     let new_group = |groups: &mut Vec<Json>| -> usize {
         groups.push(json!({
@@ -68,10 +72,7 @@ pub fn parse_robots(text: &str) -> Json {
             "request-rate" => {
                 if let Some(i) = current {
                     groups[i]["_has_rules"] = json!(true);
-                    if let Some(m) = request_rate
-                        .as_ref()
-                        .and_then(|re| re.captures(value.trim()))
-                    {
+                    if let Some(m) = request_rate.as_ref().and_then(|re| re.captures(&value)) {
                         if let (Ok(requests), Ok(seconds)) =
                             (m[1].parse::<f64>(), m[2].parse::<f64>())
                         {
@@ -84,6 +85,11 @@ pub fn parse_robots(text: &str) -> Json {
             }
             "sitemap" => sitemaps.push(json!(value)),
             _ => {}
+        }
+    }
+    for group in &mut groups {
+        if let Some(fields) = group.as_object_mut() {
+            fields.remove("_has_rules"); // `_line_of` stays: findings cite it
         }
     }
     json!({"groups": groups, "sitemaps": sitemaps})

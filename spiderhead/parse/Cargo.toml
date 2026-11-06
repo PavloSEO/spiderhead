@@ -21,3 +21,6 @@ spiderhead-core.workspace = true
 thiserror = { workspace = true }
 unicode-general-category = { workspace = true }
 url = { workspace = true }
+
+[dev-dependencies]
+spiderhead-oracle-testkit.workspace = true

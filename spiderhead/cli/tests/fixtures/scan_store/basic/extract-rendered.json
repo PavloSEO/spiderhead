@@ -4,8 +4,8 @@
   "steps": [
    {
     "exit": 0,
-    "stderr": "seohead: scan-extract\n",
-    "stdout": "{\n  \"ok\": true,\n  \"items\": [],\n  \"truncated\": false,\n  \"output_limit_bytes\": 8388608,\n  \"scope\": \"retained complete bodies only; no network or artifact mutation\"\n}\n"
+    "stderr": "spiderhead: scan-extract\n",
+    "stdout": "{\n  \"ok\": true,\n  \"items\": [],\n  \"truncated\": false,\n  \"total\": 0,\n  \"offset\": 0,\n  \"next_offset\": null,\n  \"output_limit_bytes\": 8388608,\n  \"scope\": \"retained complete bodies only; no network or artifact mutation\"\n}\n"
    }
   ]
  },
@@ -14,7 +14,7 @@
   "steps": [
    {
     "is_error": false,
-    "text": "{\n  \"ok\": true,\n  \"items\": [],\n  \"truncated\": false,\n  \"output_limit_bytes\": 8388608,\n  \"scope\": \"retained complete bodies only; no network or artifact mutation\"\n}"
+    "text": "{\n  \"ok\": true,\n  \"items\": [],\n  \"truncated\": false,\n  \"total\": 0,\n  \"offset\": 0,\n  \"next_offset\": null,\n  \"output_limit_bytes\": 8388608,\n  \"scope\": \"retained complete bodies only; no network or artifact mutation\"\n}"
    }
   ]
  }

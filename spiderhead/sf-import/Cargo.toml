@@ -32,3 +32,4 @@ zip.workspace = true
 [dev-dependencies]
 indexmap.workspace = true
 rusqlite.workspace = true
+spiderhead-oracle-diff.workspace = true

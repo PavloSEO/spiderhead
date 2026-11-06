@@ -254,6 +254,7 @@ fn document(
     Ok(json!({
         "format": PROJECT_FORMAT,
         "version": PROJECT_VERSION,
+        "schema_version": spiderhead_core::project_format::SCHEMA_VERSION,
         "project_uuid": Uuid::new_v4().to_string(),
         "created_at": pytime::zulu(),
         "site": site(target, label)?,

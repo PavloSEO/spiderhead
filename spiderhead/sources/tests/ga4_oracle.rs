@@ -391,7 +391,7 @@ async fn run_op(op: &Value) -> (Value, Vec<Value>, Vec<f64>, Vec<Value>) {
     let out = match result {
         Ok(value) => json!({"result": value}),
         Err(error) => {
-            json!({"error": {"class": error.python_class(), "message": error.to_string()}})
+            json!({"error": {"class": error.error_class(), "message": error.to_string()}})
         }
     };
     let recorded_calls = calls.borrow().clone();

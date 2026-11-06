@@ -42,11 +42,11 @@ pub enum TopvisorError {
 
 impl TopvisorError {
     /// Stable error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             TopvisorError::Provider(_) => "TopvisorError",
             TopvisorError::Invalid(_) => "ValueError",
-            TopvisorError::Credential(e) => e.python_class(),
+            TopvisorError::Credential(e) => e.error_class(),
         }
     }
 }

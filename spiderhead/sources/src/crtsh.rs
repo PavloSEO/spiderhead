@@ -27,7 +27,7 @@ pub struct CrtshError {
 
 impl CrtshError {
     /// Error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         self.class
     }
 }

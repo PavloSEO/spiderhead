@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-extract\nerror: extraction rule has unsupported fields\n",
+    "stderr": "spiderhead: scan-extract\nerror: extraction rule has unsupported fields\n",
     "stdout": ""
    }
   ]

@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-link-inspect\n",
+    "stderr": "spiderhead: scan-link-inspect\n",
     "stdout": "{\n  \"ok\": false,\n  \"view\": \"links\",\n  \"state\": \"limit_reached\",\n  \"reason\": \"output_byte_limit_exceeded\",\n  \"scan_uuid\": \"<UUID:1>\",\n  \"evidence_revision\": 10,\n  \"max_bytes\": 4096,\n  \"bytes_required\": 4899\n}\n"
    }
   ]

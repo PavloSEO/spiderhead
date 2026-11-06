@@ -434,7 +434,7 @@ pub async fn logpull<T: Transport>(
         let root = match crate::cloudflare::py_subscript(&opened, "path")? {
             Value::String(path) => PathBuf::from(path),
             other => {
-                return Err(CfError::Python(
+                return Err(CfError::Classed(
                     "TypeError",
                     format!(
                         "argument should be a str or an os.PathLike object where __fspath__ returns str or bytes, not '{}'",

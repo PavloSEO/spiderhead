@@ -1,6 +1,6 @@
 //! Ordered frontier changes; callers supply the writer's active transaction.
 
-use crate::discovery_ledger::{canonical_json, is_py_int};
+use crate::discovery_ledger::is_py_int;
 use crate::error::StoreError;
 use rusqlite::{Connection, OptionalExtension};
 use serde_json::{Map, Value};
@@ -447,7 +447,7 @@ pub fn apply_seeds(
                         "seed_url",
                         format!("url:{url_id}"),
                         "scan_context.v1",
-                        canonical_json(&Value::Object(payload)),
+                        crate::discovery_ledger::py_dumps(&Value::Object(payload), false, true),
                         "complete",
                         "accepted sitemap seed",
                     ],

@@ -69,7 +69,7 @@ pub enum HistoryError {
 
 impl HistoryError {
     /// Stable error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             HistoryError::Invalid(_) => "ValueError",
             HistoryError::JsonDecode(_) => "JSONDecodeError",

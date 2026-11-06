@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-evidence\nerror: scan does not contain the optional event timeline\n",
+    "stderr": "spiderhead: scan-evidence\nerror: scan does not contain the optional event timeline\n",
     "stdout": ""
    }
   ]

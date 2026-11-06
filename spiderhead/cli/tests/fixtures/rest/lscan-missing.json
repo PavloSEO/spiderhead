@@ -1,0 +1,23 @@
+{
+ "cli": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "exit": 1,
+    "stderr": "spiderhead: log-scan\n",
+    "stdout": "{\n  \"ok\": false,\n  \"error\": \"no audit.json or pages.jsonl or retained native evidence in <WORK>/no-such-dir\",\n  \"anomalies\": [],\n  \"anomaly_count\": 0\n}\n"
+   }
+  ]
+ },
+ "mcp": {
+  "files": {},
+  "requests": [],
+  "steps": [
+   {
+    "is_error": true,
+    "text": "Error executing tool seo_log_scan: {\"ok\": false, \"error\": \"no audit.json or pages.jsonl or retained native evidence in <WORK>/no-such-dir\", \"anomalies\": [], \"anomaly_count\": 0}"
+   }
+  ]
+ }
+}

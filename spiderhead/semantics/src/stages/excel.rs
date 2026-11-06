@@ -275,6 +275,7 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path, scope: &str) -> Result<Valu
         &[50.0, 12.0, 14.0, 40.0, 16.0],
     )?;
 
+    crate::google::excel_sheets(store, &mut wb)?;
     let out = out_dir.join(format!("{}_semantic_core.xlsx", safe_name(&proj)));
     std::fs::create_dir_all(out_dir)
         .map_err(|e| crate::Error::Io(format!("{e}: {}", out_dir.display())))?;

@@ -684,10 +684,10 @@ fn crawl_scan(
         .get("rendering")
         .and_then(|r| r.get("mode"))
         .and_then(Value::as_str)
-        != Some("raw")
+        .is_some_and(|mode| !matches!(mode, "raw" | "js"))
     {
         return Err(ToolError::Failed(
-            "crawl-site render escalation is not yet available in this build".to_owned(),
+            "crawl-site supports rendering.mode raw or js in this build".to_owned(),
         ));
     }
     let fingerprint = crawl_settings::fingerprint(&Value::Object(settings.clone()), host).ok();
@@ -699,7 +699,7 @@ fn crawl_scan(
         fingerprint.as_deref(),
         oracle::WRITER_VERSION,
         writer_revision,
-        &oracle::runtime_versions(),
+        &spiderhead_store::scan_schema::native_runtime_versions(),
         &oracle::limitations(),
         None,
         &declared,
@@ -1159,11 +1159,11 @@ fn spider_options(
         seed_urls: sitemap_roots,
         user_agent: get(http, "user_agent")
             .and_then(Value::as_str)
-            .unwrap_or("SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)")
+            .unwrap_or(spiderhead_core::user_agents::DEFAULT_USER_AGENT)
             .to_owned(),
         robots_token: get(robots_cfg, "user_agent_token")
             .and_then(Value::as_str)
-            .unwrap_or("SpiderHeadBot")
+            .unwrap_or(spiderhead_core::user_agents::DEFAULT_TOKEN)
             .to_owned(),
         robots_policy: get(robots_cfg, "policy")
             .and_then(Value::as_str)
@@ -1309,7 +1309,7 @@ fn response(
 }
 
 /// The sitemap fetch uses a plain client identity, not the crawler's.
-const SITEMAP_USER_AGENT: &str = "python-httpx/0.28.1";
+const SITEMAP_USER_AGENT: &str = "SpiderHead/0.9";
 
 /// `sitemap_crawl`: expand one sitemap (or discover one from a site root)
 /// without storing a scan (the reference suite).

@@ -6,7 +6,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use regex::Regex;
-use serde_json::Value;
+use serde_json::{json, Value};
 use spiderhead_cli::{run, Output};
 use spiderhead_oracle_testkit::FixtureServer;
 
@@ -154,22 +154,32 @@ fn check_cli_site(name: &str, _index: usize) {
         "200".to_string(),
         "-q".to_string(),
     ];
-    let raw = std::fs::read_to_string(fixtures_root().join(name).join("crawl-site.json"))
-        .unwrap_or_else(|e| panic!("fixture: {e}"));
-    let fixture: Value = serde_json::from_str(&raw).expect("fixture json");
+    let fixture_path = fixtures_root().join(name).join("crawl-site.json");
+    let fixture = spiderhead_oracle_testkit::fixture_json(&fixture_path);
     let mut out = Output::default();
     let code = run(&argv, &registry, &mut out).expect("handler run");
     let mut norm = Norm::new(&server.base, &work);
+    let actual_stdout = norm.s(&out.stdout);
+    let actual_stderr = norm.s(&out.stderr);
+    if spiderhead_oracle_diff::bless_enabled() {
+        let mut blessed = fixture;
+        if let Some(obj) = blessed.as_object_mut() {
+            obj.insert("exit".to_owned(), json!(i64::from(code.0)));
+            obj.insert("stdout".to_owned(), Value::from(actual_stdout));
+            obj.insert("stderr".to_owned(), Value::from(actual_stderr));
+        }
+        spiderhead_oracle_diff::bless_json(&fixture_path, &blessed);
+        let _ = std::fs::remove_dir_all(&work);
+        return;
+    }
     let mut problems = String::new();
     if i64::from(code.0) != fixture["exit"].as_i64().unwrap_or_default() {
         problems += &format!("  exit: expected {}, got {}\n", fixture["exit"], code.0);
     }
-    let actual_stdout = norm.s(&out.stdout);
     let expected_stdout = fixture["stdout"].as_str().unwrap_or_default();
     if actual_stdout != expected_stdout {
         problems += &unified_diff("stdout", expected_stdout, &actual_stdout);
     }
-    let actual_stderr = norm.s(&out.stderr);
     let expected_stderr = fixture["stderr"].as_str().unwrap_or_default();
     if actual_stderr != expected_stderr {
         problems += &unified_diff("stderr", expected_stderr, &actual_stderr);
@@ -233,16 +243,25 @@ fn check_mcp_site(name: &str, _index: usize) {
         .join(name)
         .join("mcp")
         .join("seo_crawl_site.json");
-    let raw = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
-    let fixture: Value = serde_json::from_str(&raw).expect("fixture json");
+    let fixture = spiderhead_oracle_testkit::fixture_json(&path);
+    let mut norm = Norm::new(&server.base, &work);
+    let normalized = norm.s(&actual_text);
+    if spiderhead_oracle_diff::bless_enabled() {
+        let mut blessed = fixture;
+        if let Some(obj) = blessed.as_object_mut() {
+            obj.insert("is_error".to_owned(), json!(actual_is_error));
+            obj.insert("text".to_owned(), Value::from(normalized));
+        }
+        spiderhead_oracle_diff::bless_json(&path, &blessed);
+        let _ = std::fs::remove_dir_all(&work);
+        return;
+    }
     let expected_is_error = fixture["is_error"].as_bool().unwrap_or(false);
     let expected_text = fixture["text"].as_str().unwrap_or_default();
-    let mut norm = Norm::new(&server.base, &work);
     let mut problems = String::new();
     if actual_is_error != expected_is_error {
         problems += &format!("  is_error: expected {expected_is_error}, got {actual_is_error}\n");
     }
-    let normalized = norm.s(&actual_text);
     if normalized != expected_text {
         problems += &unified_diff("text", expected_text, &normalized);
     }
@@ -288,12 +307,19 @@ fn check_cli_project() {
     let work = std::env::temp_dir().join(format!("sh-crawl-proj-cli-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&work);
     std::fs::create_dir_all(&work).expect("work dir");
-    let raw = std::fs::read_to_string(fixtures_root().join("project.json")).expect("fixture");
-    let fixture: Value = serde_json::from_str(&raw).expect("fixture json");
+    let fixture_path = fixtures_root().join("project.json");
+    let fixture = spiderhead_oracle_testkit::fixture_json(&fixture_path);
+    let mut blessed = fixture.clone();
+    let bless = spiderhead_oracle_diff::bless_enabled();
     let registry = spiderhead_cli::registry();
     let mut norm = Norm::new(&server.base, &work);
     let mut problems = String::new();
-    for step in fixture["cli"].as_array().expect("cli steps") {
+    for (step_index, step) in fixture["cli"]
+        .as_array()
+        .expect("cli steps")
+        .iter()
+        .enumerate()
+    {
         let name = step["name"].as_str().unwrap_or("?").to_owned();
         let argv: Vec<String> = step["argv"]
             .as_array()
@@ -308,21 +334,30 @@ fn check_cli_project() {
             .collect();
         let mut out = Output::default();
         let code = run(&argv, &registry, &mut out).expect("handler run");
+        let actual_stdout = canonical(&norm.s(&out.stdout));
+        let actual_stderr = norm.s(&out.stderr);
+        if bless {
+            if let Some(obj) = blessed["cli"][step_index].as_object_mut() {
+                obj.insert("exit".to_owned(), json!(i64::from(code.0)));
+                obj.insert("stdout".to_owned(), Value::from(actual_stdout));
+                obj.insert("stderr".to_owned(), Value::from(actual_stderr));
+            }
+            continue;
+        }
         if i64::from(code.0) != step["exit"].as_i64().unwrap_or_default() {
             problems += &format!("  {name} exit: expected {}, got {}\n", step["exit"], code.0);
         }
-        let actual_stdout = canonical(&norm.s(&out.stdout));
         let expected_stdout = step["stdout"].as_str().unwrap_or_default();
         if actual_stdout != canonical(expected_stdout) {
             problems += &unified_diff(&format!("{name} stdout"), expected_stdout, &actual_stdout);
         }
-        let actual_stderr = norm.s(&out.stderr);
         let expected_stderr = step["stderr"].as_str().unwrap_or_default();
         if actual_stderr != expected_stderr {
             problems += &unified_diff(&format!("{name} stderr"), expected_stderr, &actual_stderr);
         }
     }
     let _ = std::fs::remove_dir_all(&work);
+    spiderhead_oracle_diff::bless_json(&fixture_path, &blessed);
     assert!(
         problems.is_empty(),
         "project route (cli) diverges from the reference fixture:\n{problems}"
@@ -338,8 +373,10 @@ fn check_mcp_project() {
     let work = std::env::temp_dir().join(format!("sh-crawl-proj-mcp-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&work);
     std::fs::create_dir_all(&work).expect("work dir");
-    let raw = std::fs::read_to_string(fixtures_root().join("project.json")).expect("fixture");
-    let fixture: Value = serde_json::from_str(&raw).expect("fixture json");
+    let fixture_path = fixtures_root().join("project.json");
+    let fixture = spiderhead_oracle_testkit::fixture_json(&fixture_path);
+    let mut blessed = fixture.clone();
+    let bless = spiderhead_oracle_diff::bless_enabled();
     let mcp = Server::new(Profile::Full);
     let mut out: Vec<Value> = Vec::new();
     mcp.handle_line(
@@ -385,19 +422,27 @@ fn check_mcp_project() {
             .as_str()
             .map(str::to_owned)
             .unwrap_or_default();
+        let normalized = canonical(&norm.s(&actual_text));
+        if bless {
+            if let Some(obj) = blessed["mcp"][index].as_object_mut() {
+                obj.insert("is_error".to_owned(), json!(actual_is_error));
+                obj.insert("text".to_owned(), Value::from(normalized));
+            }
+            continue;
+        }
         let expected_is_error = call["is_error"].as_bool().unwrap_or(false);
         if actual_is_error != expected_is_error {
             problems += &format!(
                 "  {tool} is_error: expected {expected_is_error}, got {actual_is_error}\n"
             );
         }
-        let normalized = canonical(&norm.s(&actual_text));
         let expected_text = call["text"].as_str().unwrap_or_default();
         if normalized != canonical(expected_text) {
             problems += &unified_diff(&format!("{tool} text"), expected_text, &normalized);
         }
     }
     let _ = std::fs::remove_dir_all(&work);
+    spiderhead_oracle_diff::bless_json(&fixture_path, &blessed);
     assert!(
         problems.is_empty(),
         "project route (mcp) diverges from the reference fixture:\n{problems}"

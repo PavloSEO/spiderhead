@@ -7,6 +7,7 @@ description = "SpiderHead storage persistence layer (SQLite stores)."
 
 [dependencies]
 calamine.workspace = true
+tempfile.workspace = true
 csv.workspace = true
 fancy-regex.workspace = true
 flate2.workspace = true
@@ -36,3 +37,6 @@ uuid.workspace = true
 
 [dev-dependencies]
 calamine.workspace = true
+tempfile.workspace = true
+spiderhead-oracle-diff.workspace = true
+spiderhead-oracle-testkit.workspace = true

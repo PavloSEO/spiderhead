@@ -50,7 +50,7 @@ pub enum BlhError {
 
 impl BlhError {
     /// Error class name that callers see.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             BlhError::Invalid(_) => "ValueError",
             BlhError::JsonDecode(_) => "JSONDecodeError",

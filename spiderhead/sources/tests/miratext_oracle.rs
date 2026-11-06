@@ -58,7 +58,7 @@ async fn miratext_oracle_parity() {
         };
         let mut actual = miratext::analyze(&transport, &host, &root, &call)
             .await
-            .map_err(|e| (e.python_class().to_owned(), e.to_string()));
+            .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         if let Ok(v) = &mut actual {
             scrub_stamp(v);
         }

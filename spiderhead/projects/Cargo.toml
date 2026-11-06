@@ -32,4 +32,5 @@ zip.workspace = true
 windows-sys = { workspace = true }
 
 [dev-dependencies]
+spiderhead-oracle-diff.workspace = true
 spiderhead-oracle-testkit.workspace = true

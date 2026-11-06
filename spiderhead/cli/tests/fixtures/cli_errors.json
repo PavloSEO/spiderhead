@@ -2425,7 +2425,7 @@
    "--i"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead log-analyze [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--limit LIMIT] [--offset OFFSET] [--bot BOT] [--ip IP]\n                              [--verify-bots] [--max-dns MAX_DNS]\nspiderhead log-analyze: error: ambiguous option: --i could match --input, --ip\n",
+  "stderr": "usage: spiderhead log-analyze [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--limit LIMIT] [--offset OFFSET] [--bot BOT] [--ip IP]\n                              [--verify-bots] [--max-dns MAX_DNS] [--log-format LOG_FORMAT]\nspiderhead log-analyze: error: ambiguous option: --i could match --input, --ip\n",
   "stdout": ""
  },
  "log-analyze::bad_type": {
@@ -2435,7 +2435,7 @@
    "not-a-number"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead log-analyze [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--limit LIMIT] [--offset OFFSET] [--bot BOT] [--ip IP]\n                              [--verify-bots] [--max-dns MAX_DNS]\nspiderhead log-analyze: error: argument --max-lines: invalid int value: 'not-a-number'\n",
+  "stderr": "usage: spiderhead log-analyze [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--limit LIMIT] [--offset OFFSET] [--bot BOT] [--ip IP]\n                              [--verify-bots] [--max-dns MAX_DNS] [--log-format LOG_FORMAT]\nspiderhead log-analyze: error: argument --max-lines: invalid int value: 'not-a-number'\n",
   "stdout": ""
  },
  "log-analyze::extra_positional": {
@@ -2453,7 +2453,7 @@
    "--input"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead log-analyze [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--limit LIMIT] [--offset OFFSET] [--bot BOT] [--ip IP]\n                              [--verify-bots] [--max-dns MAX_DNS]\nspiderhead log-analyze: error: argument --input: expected one argument\n",
+  "stderr": "usage: spiderhead log-analyze [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--limit LIMIT] [--offset OFFSET] [--bot BOT] [--ip IP]\n                              [--verify-bots] [--max-dns MAX_DNS] [--log-format LOG_FORMAT]\nspiderhead log-analyze: error: argument --input: expected one argument\n",
   "stdout": ""
  },
  "log-analyze::unknown_flag": {
@@ -2560,7 +2560,7 @@
    "--m"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead logs import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\nspiderhead logs import: error: ambiguous option: --m could match --max-lines, --max-files\n",
+  "stderr": "usage: spiderhead logs import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\n                              [--log-format LOG_FORMAT]\nspiderhead logs import: error: ambiguous option: --m could match --max-lines, --max-files\n",
   "stdout": ""
  },
  "logs import::bad_type": {
@@ -2571,7 +2571,7 @@
    "not-a-number"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead logs import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\nspiderhead logs import: error: argument --max-lines: invalid int value: 'not-a-number'\n",
+  "stderr": "usage: spiderhead logs import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\n                              [--log-format LOG_FORMAT]\nspiderhead logs import: error: argument --max-lines: invalid int value: 'not-a-number'\n",
   "stdout": ""
  },
  "logs import::extra_positional": {
@@ -2591,7 +2591,7 @@
    "--input"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead logs import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\nspiderhead logs import: error: argument --input: expected one argument\n",
+  "stderr": "usage: spiderhead logs import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\n                              [--log-format LOG_FORMAT]\nspiderhead logs import: error: argument --input: expected one argument\n",
   "stdout": ""
  },
  "logs import::unknown_flag": {
@@ -2759,7 +2759,7 @@
    "--m"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead logs-import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\nspiderhead logs-import: error: ambiguous option: --m could match --max-lines, --max-files\n",
+  "stderr": "usage: spiderhead logs-import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\n                              [--log-format LOG_FORMAT]\nspiderhead logs-import: error: ambiguous option: --m could match --max-lines, --max-files\n",
   "stdout": ""
  },
  "logs-import::bad_type": {
@@ -2769,7 +2769,7 @@
    "not-a-number"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead logs-import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\nspiderhead logs-import: error: argument --max-lines: invalid int value: 'not-a-number'\n",
+  "stderr": "usage: spiderhead logs-import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\n                              [--log-format LOG_FORMAT]\nspiderhead logs-import: error: argument --max-lines: invalid int value: 'not-a-number'\n",
   "stdout": ""
  },
  "logs-import::extra_positional": {
@@ -2787,7 +2787,7 @@
    "--input"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead logs-import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\nspiderhead logs-import: error: argument --input: expected one argument\n",
+  "stderr": "usage: spiderhead logs-import [-h] [--input INPUT] [--path PATH] [--max-lines MAX_LINES]\n                              [--project PROJECT] [--max-files MAX_FILES]\n                              [--log-format LOG_FORMAT]\nspiderhead logs-import: error: argument --input: expected one argument\n",
   "stdout": ""
  },
  "logs-import::unknown_flag": {
@@ -8828,7 +8828,7 @@
    "--l"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead scan extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT]\nspiderhead scan extract: error: ambiguous option: --l could match --list-presets, --limit\n",
+  "stderr": "usage: spiderhead scan extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT] [--offset OFFSET]\nspiderhead scan extract: error: ambiguous option: --l could match --list-presets, --limit\n",
   "stdout": ""
  },
  "scan extract::bad_choice": {
@@ -8839,7 +8839,7 @@
    "zz-bad-choice"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead scan extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT]\nspiderhead scan extract: error: argument --preset: invalid choice: 'zz-bad-choice' (choose from 'breadcrumbs', 'forms', 'headings', 'headings-outline-check', 'images', 'inline-css', 'json-ld', 'links', 'media', 'meta', 'sections', 'social', 'structure', 'tables')\n",
+  "stderr": "usage: spiderhead scan extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT] [--offset OFFSET]\nspiderhead scan extract: error: argument --preset: invalid choice: 'zz-bad-choice' (choose from 'breadcrumbs', 'forms', 'headings', 'headings-outline-check', 'images', 'inline-css', 'json-ld', 'links', 'media', 'meta', 'sections', 'social', 'structure', 'tables')\n",
   "stdout": ""
  },
  "scan extract::bad_type": {
@@ -8850,7 +8850,7 @@
    "not-a-number"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead scan extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT]\nspiderhead scan extract: error: argument --limit: invalid int value: 'not-a-number'\n",
+  "stderr": "usage: spiderhead scan extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT] [--offset OFFSET]\nspiderhead scan extract: error: argument --limit: invalid int value: 'not-a-number'\n",
   "stdout": ""
  },
  "scan extract::missing_value": {
@@ -8860,7 +8860,7 @@
    "--input"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead scan extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT]\nspiderhead scan extract: error: argument --input: expected one argument\n",
+  "stderr": "usage: spiderhead scan extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT] [--offset OFFSET]\nspiderhead scan extract: error: argument --input: expected one argument\n",
   "stdout": ""
  },
  "scan extract::unknown_flag": {
@@ -9993,7 +9993,7 @@
    "--l"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead scan-extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT]\nspiderhead scan-extract: error: ambiguous option: --l could match --list-presets, --limit\n",
+  "stderr": "usage: spiderhead scan-extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT] [--offset OFFSET]\nspiderhead scan-extract: error: ambiguous option: --l could match --list-presets, --limit\n",
   "stdout": ""
  },
  "scan-extract::bad_choice": {
@@ -10003,7 +10003,7 @@
    "zz-bad-choice"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead scan-extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT]\nspiderhead scan-extract: error: argument --preset: invalid choice: 'zz-bad-choice' (choose from 'breadcrumbs', 'forms', 'headings', 'headings-outline-check', 'images', 'inline-css', 'json-ld', 'links', 'media', 'meta', 'sections', 'social', 'structure', 'tables')\n",
+  "stderr": "usage: spiderhead scan-extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT] [--offset OFFSET]\nspiderhead scan-extract: error: argument --preset: invalid choice: 'zz-bad-choice' (choose from 'breadcrumbs', 'forms', 'headings', 'headings-outline-check', 'images', 'inline-css', 'json-ld', 'links', 'media', 'meta', 'sections', 'social', 'structure', 'tables')\n",
   "stdout": ""
  },
  "scan-extract::bad_type": {
@@ -10013,7 +10013,7 @@
    "not-a-number"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead scan-extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT]\nspiderhead scan-extract: error: argument --limit: invalid int value: 'not-a-number'\n",
+  "stderr": "usage: spiderhead scan-extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT] [--offset OFFSET]\nspiderhead scan-extract: error: argument --limit: invalid int value: 'not-a-number'\n",
   "stdout": ""
  },
  "scan-extract::missing_value": {
@@ -10022,7 +10022,7 @@
    "--input"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead scan-extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT]\nspiderhead scan-extract: error: argument --input: expected one argument\n",
+  "stderr": "usage: spiderhead scan-extract [-h] [--input INPUT] [--scan INPUT_PATH]\n                               [--preset {breadcrumbs,forms,headings,headings-outline-check,images,inline-css,json-ld,links,media,meta,sections,social,structure,tables}]\n                               [--list-presets] [--url URL]\n                               [--representation {static,rendered,legacy_fragment}]\n                               [--limit LIMIT] [--offset OFFSET]\nspiderhead scan-extract: error: argument --input: expected one argument\n",
   "stdout": ""
  },
  "scan-extract::unknown_flag": {
@@ -10979,7 +10979,7 @@
    "--d"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST] [--python PYTHON]\nspiderhead schedule-install: error: ambiguous option: --d could match --directory, --dest\n",
+  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST]\n                                   [--executable EXECUTABLE]\nspiderhead schedule-install: error: ambiguous option: --d could match --directory, --dest\n",
   "stdout": ""
  },
  "schedule-install::bad_choice": {
@@ -10989,7 +10989,7 @@
    "zz-bad-choice"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST] [--python PYTHON]\nspiderhead schedule-install: error: argument --kind: invalid choice: 'zz-bad-choice' (choose from 'launchd', 'cron', 'windows')\n",
+  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST]\n                                   [--executable EXECUTABLE]\nspiderhead schedule-install: error: argument --kind: invalid choice: 'zz-bad-choice' (choose from 'launchd', 'cron', 'windows')\n",
   "stdout": ""
  },
  "schedule-install::missing_required": {
@@ -10997,7 +10997,7 @@
    "schedule-install"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST] [--python PYTHON]\nspiderhead schedule-install: error: the following arguments are required: --kind\n",
+  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST]\n                                   [--executable EXECUTABLE]\nspiderhead schedule-install: error: the following arguments are required: --kind\n",
   "stdout": ""
  },
  "schedule-install::missing_value": {
@@ -11006,7 +11006,7 @@
    "--input"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST] [--python PYTHON]\nspiderhead schedule-install: error: argument --input: expected one argument\n",
+  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST]\n                                   [--executable EXECUTABLE]\nspiderhead schedule-install: error: argument --input: expected one argument\n",
   "stdout": ""
  },
  "schedule-install::unknown_flag": {
@@ -11015,7 +11015,7 @@
    "--zz-no-such-flag"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST] [--python PYTHON]\nspiderhead schedule-install: error: the following arguments are required: --kind\n",
+  "stderr": "usage: spiderhead schedule-install [-h] [--input INPUT] [--directory DIRECTORY]\n                                   --kind {launchd,cron,windows} [--dest DEST]\n                                   [--executable EXECUTABLE]\nspiderhead schedule-install: error: the following arguments are required: --kind\n",
   "stdout": ""
  },
  "schedule-run-due::extra_positional": {
@@ -12317,7 +12317,7 @@
    "zz-no-such-cmd"
   ],
   "code": 2,
-  "stderr": "usage: seohead semantics [-h] <stage> ...\nseohead semantics: error: argument <stage>: invalid choice: 'zz-no-such-cmd' (choose from 'init', 'import', 'collect', 'clean', 'graph', 'exact', 'cluster', 'competitors', 'synonyms', 'report', 'excel', 'mine', 'sitematch', 'relevance', 'status', 'export', 'clusters', 'cluster-show', 'cluster-queries', 'set-landing', 'insights', 'insights-tasks')\n",
+  "stderr": "usage: seohead semantics [-h] <stage> ...\nseohead semantics: error: argument <stage>: invalid choice: 'zz-no-such-cmd' (choose from 'init', 'import', 'collect', 'clean', 'graph', 'exact', 'cluster', 'competitors', 'synonyms', 'report', 'excel', 'mine', 'sitematch', 'relevance', 'status', 'export', 'clusters', 'cluster-show', 'cluster-queries', 'set-landing', 'insights', 'insights-tasks', 'import-dataforseo', 'import-topics', 'import-google-csv', 'cluster-google', 'clusters-google')\n",
   "stdout": ""
  },
  "serp-fetch::ambiguous_abbrev": {

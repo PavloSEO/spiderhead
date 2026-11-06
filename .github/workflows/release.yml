@@ -1,0 +1,66 @@
+name: release
+
+# Push a tag `vX.Y.Z` (equal to the workspace version) to build the macOS arm64 CLI and
+# create a DRAFT GitHub Release holding the binary and SHA256SUMS. Publishing the draft by
+# hand is what makes it visible to `spiderhead update-check` / `spiderhead update`.
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to (re)build, e.g. v0.9.1"
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # .cargo/config.toml points at sccache for local worktrees; runners use rust-cache instead.
+  RUSTC_WRAPPER: ""
+  CARGO_TERM_COLOR: always
+  TAG: ${{ inputs.tag || github.ref_name }}
+  TARGET: aarch64-apple-darwin
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - name: Tag matches the code version
+        run: |
+          version="${TAG#v}"
+          workspace=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n1)
+          product=$(sed -n 's/.*PRODUCT_VERSION: &str = "\(.*\)";/\1/p' spiderhead/core/src/user_agents/presets.rs)
+          [ "$version" = "$workspace" ] || { echo "::error::tag $TAG != workspace version $workspace"; exit 1; }
+          [ "$version" = "$product" ] || { echo "::error::tag $TAG != PRODUCT_VERSION $product"; exit 1; }
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release --locked -p spiderhead-cli
+      - name: Stage assets
+        run: |
+          version="${TAG#v}"
+          mkdir out
+          cp target/release/spiderhead "out/spiderhead-$version-$TARGET"
+          # The binary must run and report the released version before it is attached.
+          "out/spiderhead-$version-$TARGET" --version | grep -F "$version"
+          (cd out && shasum -a 256 -- spiderhead-* > SHA256SUMS && cat SHA256SUMS)
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if draft=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
+            [ "$draft" = true ] || { echo "::error::$TAG is already published; bump the version"; exit 1; }
+            gh release upload "$TAG" --clobber out/*
+          else
+            gh release create "$TAG" --draft --verify-tag --title "SpiderHead $TAG" \
+              --generate-notes out/*
+          fi

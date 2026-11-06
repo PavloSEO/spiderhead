@@ -3,7 +3,9 @@
 
 mod common;
 
-use common::{assert_matches_fixture, fixture, substitute_version, Client};
+use common::{
+    assert_matches_fixture, fixture, fixture_path, substitute_version, tokenize_version, Client,
+};
 
 const PROFILES: [&str; 5] = ["audit", "full", "infra", "quick-check", "router"];
 
@@ -11,6 +13,12 @@ const PROFILES: [&str; 5] = ["audit", "full", "infra", "quick-check", "router"];
 fn initialize_matches_the_oracle_for_a_live_session() {
     let mut client = Client::spawn("full");
     let actual = client.initialize();
+    if spiderhead_oracle_diff::bless_json(
+        &fixture_path("initialize.json"),
+        &tokenize_version(&actual),
+    ) {
+        return;
+    }
     let expected = substitute_version(&fixture("initialize.json"));
     assert_matches_fixture(&expected, &actual, "initialize");
 }
@@ -21,6 +29,12 @@ fn tools_list_matches_the_oracle_in_every_profile() {
         let mut client = Client::spawn(profile);
         client.initialize();
         let reply = client.request("tools/list", serde_json::json!({}));
+        if spiderhead_oracle_diff::bless_json(
+            &fixture_path(&format!("tools_list.{profile}.json")),
+            &reply["result"],
+        ) {
+            continue;
+        }
         let expected = fixture(&format!("tools_list.{profile}.json"));
         assert_matches_fixture(
             &expected,

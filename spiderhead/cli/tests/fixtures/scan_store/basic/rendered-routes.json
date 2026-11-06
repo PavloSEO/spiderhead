@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 0,
-    "stderr": "seohead: scan-rendered-routes\n",
+    "stderr": "spiderhead: scan-rendered-routes\n",
     "stdout": "{\n  \"routes\": [],\n  \"coverage\": [\n    {\n      \"state\": \"unavailable\",\n      \"reason\": \"route ledger is absent from this older scan\"\n    }\n  ],\n  \"run_coverage\": {\n    \"state\": \"unavailable\",\n    \"reason\": \"route ledger is absent from this older scan\"\n  }\n}\n"
    }
   ]

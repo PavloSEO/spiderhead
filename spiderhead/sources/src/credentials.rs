@@ -34,7 +34,7 @@ pub enum CredentialError {
 
 impl CredentialError {
     /// Error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             CredentialError::Missing(_) => "MissingCredential",
             CredentialError::Invalid(_) => "ValueError",

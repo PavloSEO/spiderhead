@@ -8,4 +8,6 @@ description = "Deterministic loopback fixture server used by the oracle parity t
 [dependencies]
 indexmap.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 toml.workspace = true
+zstd.workspace = true

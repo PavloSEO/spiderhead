@@ -20,7 +20,7 @@ mod regions_int;
 pub use regions_int::*;
 
 /// Every registered stage, in declaration order.
-pub const STAGES: [&str; 22] = [
+pub const STAGES: [&str; 27] = [
     "init",
     "import",
     "collect",
@@ -43,6 +43,11 @@ pub const STAGES: [&str; 22] = [
     "set-landing",
     "insights",
     "insights-tasks",
+    "import-dataforseo",
+    "import-topics",
+    "import-google-csv",
+    "cluster-google",
+    "clusters-google",
 ];
 
 /// Stages that call a billed provider and need explicit consent.
@@ -52,7 +57,7 @@ pub const PAID_STAGES: [&str; 4] = ["collect", "synonyms", "cluster", "exact"];
 pub const WEB_STAGES: [&str; 1] = ["mine"];
 
 /// Local (offline, no provider) stages.
-pub const LOCAL_STAGES: [&str; 17] = [
+pub const LOCAL_STAGES: [&str; 22] = [
     "init",
     "import",
     "clean",
@@ -70,6 +75,11 @@ pub const LOCAL_STAGES: [&str; 17] = [
     "set-landing",
     "insights",
     "insights-tasks",
+    "import-dataforseo",
+    "import-topics",
+    "import-google-csv",
+    "cluster-google",
+    "clusters-google",
 ];
 
 /// Stages whose phrase table is exported to pool.csv/pool.json afterwards.
@@ -111,6 +121,16 @@ pub struct Options {
     pub out: Option<String>,
     /// `--file` (import).
     pub file: Option<String>,
+    /// `--language` (cluster-google/clusters-google).
+    pub language: Option<String>,
+    /// `--location` (cluster-google/clusters-google).
+    pub location: Option<i64>,
+    /// `--min-shared` (cluster-google).
+    pub min_shared: i64,
+    /// `--top` (cluster-google).
+    pub top: i64,
+    /// `--dir` (import-dataforseo).
+    pub dir: Option<String>,
     /// `--sheet` (import).
     pub sheet: Option<String>,
     /// `--map` parsed into a FIELD=COLUMN object (import).
@@ -126,6 +146,16 @@ pub struct Options {
     pub cluster: Option<String>,
     /// `--url` (set-landing).
     pub url: Option<String>,
+    /// `--period` (insights/insights-tasks), inclusive `YYYY-MM-DD..YYYY-MM-DD`.
+    pub period: Option<String>,
+    /// `--sources` (insights/insights-tasks), comma-joined source names.
+    pub sources: Option<String>,
+    /// `--select` parsed into `{rule_id, cluster_id}` objects (insights-tasks).
+    pub selections: Option<Vec<Value>>,
+    /// `--expected-revision` (insights-tasks).
+    pub expected_revision: Option<i64>,
+    /// `--confirm` (insights-tasks): write only the explicitly selected pairs.
+    pub confirm: bool,
 }
 
 impl Options {
@@ -143,6 +173,11 @@ impl Options {
             method: "serp".to_owned(),
             out: None,
             file: None,
+            dir: None,
+            language: None,
+            location: None,
+            min_shared: 4,
+            top: 10,
             sheet: None,
             mapping: None,
             merge: "add".to_owned(),
@@ -150,6 +185,11 @@ impl Options {
             offset: 0,
             cluster: None,
             url: None,
+            period: None,
+            sources: None,
+            selections: None,
+            expected_revision: None,
+            confirm: false,
         }
     }
 }

@@ -17,7 +17,7 @@ pub enum CloudError {
     /// Response body is not valid UTF-8; billed requests are still recorded.
     Decode(String),
     /// Any other failure, identified by its class name and message.
-    Python {
+    Classed {
         /// Error class name.
         class: String,
         /// Error message.
@@ -27,7 +27,7 @@ pub enum CloudError {
 
 impl CloudError {
     /// Error class name.
-    pub fn python_class(&self) -> &str {
+    pub fn error_class(&self) -> &str {
         match self {
             CloudError::MissingCredential(_) => "MissingCredential",
             CloudError::NetworkAmbiguous(_) => "NetworkAmbiguousError",
@@ -35,7 +35,7 @@ impl CloudError {
             CloudError::Ssl(_) => "SSLError",
             CloudError::Timeout(_) => "TimeoutError",
             CloudError::Decode(_) => "UnicodeDecodeError",
-            CloudError::Python { class, .. } => class.as_str(),
+            CloudError::Classed { class, .. } => class.as_str(),
         }
     }
 
@@ -45,8 +45,8 @@ impl CloudError {
     }
 
     /// Build the generic variant from a class name and message.
-    pub(crate) fn python(class: &str, message: impl Into<String>) -> Self {
-        CloudError::Python {
+    pub(crate) fn classed(class: &str, message: impl Into<String>) -> Self {
+        CloudError::Classed {
             class: class.to_owned(),
             message: message.into(),
         }
@@ -62,7 +62,7 @@ impl std::fmt::Display for CloudError {
             | CloudError::Ssl(message)
             | CloudError::Timeout(message)
             | CloudError::Decode(message)
-            | CloudError::Python { message, .. } => f.write_str(message),
+            | CloudError::Classed { message, .. } => f.write_str(message),
         }
     }
 }

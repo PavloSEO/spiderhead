@@ -12,7 +12,7 @@ use serde_json::Value;
 use thiserror::Error;
 
 /// Version of this toolkit build, compared against the newest release.
-pub const TOOLKIT_VERSION: &str = "3.2.0";
+pub const TOOLKIT_VERSION: &str = crate::user_agents::PRODUCT_VERSION;
 /// Format identifier of the persisted update-check result.
 pub const UPDATE_FORMAT: &str = "spiderhead.update-check.v1";
 /// Source repository of releases, as `owner/name`.

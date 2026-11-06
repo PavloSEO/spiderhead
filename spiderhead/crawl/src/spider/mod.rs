@@ -508,6 +508,7 @@ async fn crawl_loop(
     let mut finish_reason = "finished".to_string();
     let mut stopped_reason = String::new();
     let mut interrupted = false;
+    let render_js = support::render_mode_is_js(&options.config);
 
     loop {
         if finish_reason != "finished" {
@@ -641,6 +642,11 @@ async fn crawl_loop(
         fetched
             .record
             .insert("crawl_depth".into(), json!(lease.depth));
+        if render_js {
+            // The page row, links and evidence below describe the rendered DOM;
+            // the stored document keeps the `static` representation label.
+            support::render_into(&mut fetched, &lease.url, options).await;
+        }
 
         // Circuit breakers, folded in queue order.
         if throttle.should_stop_timeouts() {
@@ -844,12 +850,15 @@ async fn crawl_loop(
                 "kind": "resource_inventory",
                 "item_key": format!("document:{document_id}"),
                 "payload_version": "scan_context.v1",
-                "payload_json": json!({
-                    "document_id": document_id,
-                    "omitted": 0,
-                    "state": state,
-                })
-                .to_string(),
+                "payload_json": spiderhead_store::discovery_ledger::py_dumps(
+                    &json!({
+                        "document_id": document_id,
+                        "omitted": 0,
+                        "state": state,
+                    }),
+                    false,
+                    true,
+                ),
                 "completeness": completeness,
                 "reason": reason,
             });

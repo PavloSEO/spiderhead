@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: headers-analyze\n",
+    "stderr": "spiderhead: headers-analyze\n",
     "stdout": "{\n  \"ok\": false,\n  \"state\": \"invalid\",\n  \"reason_code\": \"invalid_headers_analysis\",\n  \"error\": \"limit must be 1..200\"\n}\n"
    }
   ]

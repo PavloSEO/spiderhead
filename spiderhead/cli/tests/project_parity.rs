@@ -93,10 +93,12 @@ impl Norm {
     }
 }
 
+fn fixture_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/project/project.json")
+}
+
 fn fixture() -> Value {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/project/project.json");
-    serde_json::from_str(&std::fs::read_to_string(path).expect("fixture file"))
-        .expect("fixture json")
+    spiderhead_oracle_testkit::fixture_json(&fixture_path())
 }
 
 fn unified_diff(field: &str, expected: &str, actual: &str) -> String {
@@ -129,6 +131,8 @@ fn fresh_work(tag: &str) -> PathBuf {
 #[test]
 fn project_group_matches_the_reference_cli_and_mcp() {
     let fixture = fixture();
+    let mut blessed = fixture.clone();
+    let bless = spiderhead_oracle_diff::bless_enabled();
 
     // ── CLI: the chain replays through the real binary in its own work dir ──
     let cli_work = fresh_work("cli");
@@ -156,16 +160,24 @@ fn project_group_matches_the_reference_cli_and_mcp() {
             .collect();
         let mut out = Output::default();
         let code = run(&argv, &registry, &mut out).expect("handler run");
+        let actual_stdout = norm.s(&out.stdout);
+        let actual_stderr = norm.s(&out.stderr);
+        if bless {
+            if let Some(obj) = blessed["cases"][name.as_str()].as_object_mut() {
+                obj.insert("exit".to_owned(), json!(i64::from(code.0)));
+                obj.insert("stdout".to_owned(), Value::from(actual_stdout));
+                obj.insert("stderr".to_owned(), Value::from(actual_stderr));
+            }
+            continue;
+        }
         let mut problems = String::new();
         if i64::from(code.0) != case["exit"].as_i64().unwrap_or_default() {
             problems += &format!("  exit: expected {}, got {}\n", case["exit"], code.0);
         }
-        let actual_stdout = norm.s(&out.stdout);
         let expected_stdout = norm.expect(case["stdout"].as_str().unwrap_or_default());
         if actual_stdout != expected_stdout {
             problems += &unified_diff("stdout", &expected_stdout, &actual_stdout);
         }
-        let actual_stderr = norm.s(&out.stderr);
         let expected_stderr = norm.expect(case["stderr"].as_str().unwrap_or_default());
         if actual_stderr != expected_stderr {
             problems += &unified_diff("stderr", &expected_stderr, &actual_stderr);
@@ -220,13 +232,20 @@ fn project_group_matches_the_reference_cli_and_mcp() {
             .as_str()
             .map(str::to_owned)
             .unwrap_or_default();
+        let normalized = norm.s(&actual_text);
+        if bless {
+            if let Some(obj) = blessed["mcp"][name.as_str()].as_object_mut() {
+                obj.insert("is_error".to_owned(), json!(actual_is_error));
+                obj.insert("text".to_owned(), Value::from(normalized));
+            }
+            continue;
+        }
         let mut problems = String::new();
         let expected_is_error = call["is_error"].as_bool().unwrap_or(false);
         if actual_is_error != expected_is_error {
             problems +=
                 &format!("  is_error: expected {expected_is_error}, got {actual_is_error}\n");
         }
-        let normalized = norm.s(&actual_text);
         let expected_text = norm.expect(call["text"].as_str().unwrap_or_default());
         if normalized != expected_text {
             problems += &unified_diff("text", &expected_text, &normalized);
@@ -234,6 +253,7 @@ fn project_group_matches_the_reference_cli_and_mcp() {
         assert!(problems.is_empty(), "{name} diverges:\n{problems}");
     }
     let _ = std::fs::remove_dir_all(&mcp_work);
+    spiderhead_oracle_diff::bless_json(&fixture_path(), &blessed);
 }
 
 /// `{WORK}` placeholders in recorded arguments resolve to the surface's work dir.

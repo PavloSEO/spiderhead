@@ -1602,5 +1602,162 @@
     }
    }
   ]
+ },
+ {
+  "id": "evidence-join-scan",
+  "command": "evidence-join",
+  "tool": "seo_evidence_join",
+  "sites": [
+   "basic"
+  ],
+  "files_in": {
+   "ev.csv": "url,clicks,impressions\n{BASE}/about.html,10,200\n{BASE}/,4,80\nhttps://elsewhere.test/only-here,1,9\n"
+  },
+  "args": {
+   "scan": "{SCAN}",
+   "evidence": "{WORK}/ev.csv",
+   "mapping": {
+    "format": "spiderhead.evidence-mapping.v1",
+    "source": {
+     "kind": "csv",
+     "provider": "demo",
+     "privacy": "supplied"
+    }
+   }
+  }
+ },
+ {
+  "id": "evidence-join-pages",
+  "command": "evidence-join",
+  "tool": "seo_evidence_join",
+  "files_in": {
+   "ev.csv": "url,clicks,impressions\n{BASE}/about.html,10,200\n{BASE}/,4,80\nhttps://elsewhere.test/only-here,1,9\n"
+  },
+  "args": {
+   "pages": [
+    {
+     "url": "{BASE}/",
+     "status_code": 200
+    },
+    {
+     "url": "{BASE}/about.html",
+     "status_code": 200
+    },
+    {
+     "url": "{BASE}/gone.html",
+     "status_code": 404
+    }
+   ],
+   "evidence": "{WORK}/ev.csv",
+   "mapping": {
+    "format": "spiderhead.evidence-mapping.v1",
+    "source": {
+     "kind": "csv",
+     "provider": "demo",
+     "privacy": "supplied"
+    }
+   }
+  }
+ },
+ {
+  "id": "evidence-join-compare",
+  "command": "evidence-join",
+  "tool": "seo_evidence_join",
+  "files_in": {
+   "ev.csv": "url,clicks,impressions\n{BASE}/about.html,10,200\n{BASE}/,4,80\nhttps://elsewhere.test/only-here,1,9\n",
+   "ev2.csv": "url,clicks,impressions\n{BASE}/about.html,8,190\n{BASE}/,5,70\n"
+  },
+  "args": {
+   "evidence": "{WORK}/ev.csv",
+   "mapping": {
+    "format": "spiderhead.evidence-mapping.v1",
+    "source": {
+     "kind": "csv",
+     "provider": "demo",
+     "privacy": "supplied"
+    }
+   },
+   "compare": "{WORK}/ev2.csv",
+   "compare_mapping": {
+    "format": "spiderhead.evidence-mapping.v1",
+    "source": {
+     "kind": "csv",
+     "provider": "demo2",
+     "privacy": "supplied"
+    }
+   },
+   "policy": {
+    "boundary_policy": "strict",
+    "cross_source": "juxtapose"
+   }
+  }
+ },
+ {
+  "id": "evidence-join-two-sources",
+  "command": "evidence-join",
+  "tool": "seo_evidence_join",
+  "files_in": {
+   "ev.csv": "url,clicks,impressions\n{BASE}/about.html,10,200\n{BASE}/,4,80\nhttps://elsewhere.test/only-here,1,9\n"
+  },
+  "args": {
+   "scan": "{SCAN}",
+   "pages": [
+    {
+     "url": "{BASE}/",
+     "status_code": 200
+    }
+   ],
+   "evidence": "{WORK}/ev.csv",
+   "mapping": {
+    "format": "spiderhead.evidence-mapping.v1",
+    "source": {
+     "kind": "csv",
+     "provider": "demo",
+     "privacy": "supplied"
+    }
+   }
+  }
+ },
+ {
+  "id": "evidence-join-no-crawl",
+  "command": "evidence-join",
+  "tool": "seo_evidence_join",
+  "files_in": {
+   "ev.csv": "url,clicks,impressions\n{BASE}/about.html,10,200\n{BASE}/,4,80\nhttps://elsewhere.test/only-here,1,9\n"
+  },
+  "args": {
+   "evidence": "{WORK}/ev.csv",
+   "mapping": {
+    "format": "spiderhead.evidence-mapping.v1",
+    "source": {
+     "kind": "csv",
+     "provider": "demo",
+     "privacy": "supplied"
+    }
+   }
+  }
+ },
+ {
+  "id": "evidence-join-audit",
+  "command": "evidence-join",
+  "tool": "seo_evidence_join",
+  "sites": [
+   "basic"
+  ],
+  "files_in": {
+   "ev.csv": "url,clicks,impressions\n{BASE}/about.html,10,200\n{BASE}/,4,80\nhttps://elsewhere.test/only-here,1,9\n"
+  },
+  "args": {
+   "audit": "{SCAN}",
+   "evidence": "{WORK}/ev.csv",
+   "mapping": {
+    "format": "spiderhead.evidence-mapping.v1",
+    "source": {
+     "kind": "csv",
+     "provider": "demo",
+     "privacy": "supplied"
+    }
+   }
+  }
  }
 ]

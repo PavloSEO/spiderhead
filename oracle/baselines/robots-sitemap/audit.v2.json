@@ -1,7 +1,7 @@
 {
  "binding": {
   "analyzer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
-  "analyzer_version": "3.2.0",
+  "analyzer_version": "0.9.1",
   "evidence_revision": 5,
   "scan_uuid": "<UUID:1>"
  },
@@ -522,7 +522,7 @@
     "http.retry_on_timeout": 0,
     "http.timeout_seconds": 15.0,
     "http.upgrade_to_https": false,
-    "http.user_agent": "SpiderHeadBot/3.2.0 (+https://github.com/PavloSEO/spiderhead)",
+    "http.user_agent": "SpiderHeadBot/0.9.1 (+https://github.com/PavloSEO/spiderhead)",
     "http.zstd": false,
     "limits.max_crawl_seconds": 400,
     "limits.max_depth": 5,
@@ -11482,7 +11482,7 @@
   "tool": {
    "generated_by": "SEOHead",
    "name": "Export Analyzer",
-   "version": "3.2.0"
+   "version": "0.9.1"
   }
  },
  "items": {

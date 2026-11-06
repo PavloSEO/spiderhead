@@ -40,10 +40,10 @@ pub enum BingWebmasterError {
 
 impl BingWebmasterError {
     /// Error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             BingWebmasterError::Invalid(_) => "ValueError",
-            BingWebmasterError::Credential(e) => e.python_class(),
+            BingWebmasterError::Credential(e) => e.error_class(),
         }
     }
 }

@@ -374,6 +374,133 @@ pub fn custom_extract_sample(args: &Value) -> Result<Value, ToolError> {
     serde_json::to_value(report).map_err(|e| ToolError::Failed(e.to_string()))
 }
 
+/// `extract_suggest`: suggest bounded extraction-rule selectors for one element
+/// found by its visible text, over exactly one sample source — a document, a
+/// single fetched URL, or a retained scan body. The `html` value is read as a
+/// file when one exists at that path (the CLI flag's meaning) and as inline
+/// markup otherwise; `scan` is the CLI spelling of the retained-scan path the
+/// MCP schema calls `input_path`.
+pub fn extract_suggest(args: &Value) -> Result<Value, ToolError> {
+    let args = super::kwargs(args);
+    const ACCEPTED: [&str; 9] = [
+        "text",
+        "url",
+        "html",
+        "input_path",
+        "scan",
+        "scan_url",
+        "representation",
+        "emit_rule",
+        "rule_id",
+    ];
+    let text = need_str(&args, "text", "extract-suggest", &ACCEPTED)?;
+    let url = opt_str(&args, "url").filter(|source| !source.is_empty());
+    let html = opt_str(&args, "html").filter(|source| !source.is_empty());
+    let input_path = opt_str(&args, "input_path")
+        .or_else(|| opt_str(&args, "scan"))
+        .filter(|source| !source.is_empty());
+    let sources = [url.is_some(), html.is_some(), input_path.is_some()]
+        .into_iter()
+        .filter(|used| *used)
+        .count();
+    if sources != 1 {
+        return Err(ToolError::Failed(
+            "exactly one sample source is required: url, html, or input_path".to_owned(),
+        ));
+    }
+    let emit_rule = opt_bool(&args, "emit_rule").unwrap_or(false);
+    let rule_id = opt_str(&args, "rule_id").filter(|id| !id.is_empty());
+    let document = if let Some(html) = html {
+        sample_document(html)?
+    } else if let Some(url) = url {
+        fetch_sample(url)?
+    } else if let Some(path) = input_path {
+        let representation = opt_str(&args, "representation").unwrap_or("static");
+        scan_sample(
+            path,
+            opt_str(&args, "scan_url").filter(|u| !u.is_empty()),
+            representation,
+        )?
+    } else {
+        return Err(ToolError::Failed(
+            "exactly one sample source is required: url, html, or input_path".to_owned(),
+        ));
+    };
+    spiderhead_parse::extraction_suggest::suggest(&document, text, emit_rule, rule_id)
+        .map_err(ToolError::Failed)
+}
+
+/// The `html` argument: a local file path when one exists there, inline markup otherwise.
+fn sample_document(html: &str) -> Result<String, ToolError> {
+    match std::fs::read_to_string(html) {
+        Ok(text) => Ok(text),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(html.to_owned()),
+        Err(error) => Err(ToolError::Failed(error.to_string())),
+    }
+}
+
+/// GET one sample page with the shared fetch defaults; a transport failure or a
+/// non-2xx response is a command failure, never a suggestion over an error page.
+fn fetch_sample(url: &str) -> Result<String, ToolError> {
+    use spiderhead_parse::parser::{fetch_html, FetchOutcome};
+    let fetcher = super::parse::HttpFetcher::new().map_err(ToolError::Failed)?;
+    match fetch_html(&fetcher, url, None) {
+        FetchOutcome::Completed {
+            status_code, html, ..
+        } if (200..300).contains(&status_code) => Ok(html),
+        FetchOutcome::Completed {
+            url: requested,
+            status_code,
+            ..
+        } => Err(ToolError::Failed(format!(
+            "GET {requested} returned HTTP {status_code}"
+        ))),
+        FetchOutcome::Failed { url: requested, .. } => Err(ToolError::Failed(format!(
+            "GET {requested} failed: the origin did not return a page"
+        ))),
+    }
+}
+
+/// Read one retained scan document as the sample body; without `scan_url` the
+/// scan's start URL is used.
+fn scan_sample(
+    path: &str,
+    scan_url: Option<&str>,
+    representation: &str,
+) -> Result<String, ToolError> {
+    let con = open_scan(Path::new(path), false, None).map_err(super::failed)?;
+    let url = match scan_url {
+        Some(url) => url.to_owned(),
+        None => con
+            .query_row("SELECT start_url FROM scan WHERE singleton=1", [], |row| {
+                row.get::<_, String>(0)
+            })
+            .map_err(|error| ToolError::Failed(error.to_string()))?,
+    };
+    let document = spiderhead_store::bodies::read_page_document_content(
+        &con,
+        &url,
+        representation,
+        None,
+        spiderhead_parse::extraction_suggest::MAX_HTML_BYTES as i64,
+    )
+    .map_err(super::failed)?;
+    if document.get("state").and_then(Value::as_str) != Some("available") {
+        let reason = document
+            .get("reason")
+            .and_then(Value::as_str)
+            .unwrap_or("unavailable");
+        return Err(ToolError::Failed(format!(
+            "retained document unavailable: {reason}"
+        )));
+    }
+    document
+        .get("text")
+        .and_then(Value::as_str)
+        .map(str::to_owned)
+        .ok_or_else(|| ToolError::Failed("retained document carries no readable text".to_owned()))
+}
+
 /// `scan_archive`: archive retained complete responses as one offline WARC file.
 pub fn scan_archive(args: &Value) -> Result<Value, ToolError> {
     let args = super::kwargs(args);
@@ -385,6 +512,18 @@ pub fn scan_archive(args: &Value) -> Result<Value, ToolError> {
         Some(Path::new(out)),
         opt_int(&args, "max_body_bytes").unwrap_or(64 * 1024 * 1024),
     )))
+}
+
+/// `scan_broken_links`: the broken links and resources report as CSV or XLSX.
+pub fn scan_broken_links(args: &Value) -> Result<Value, ToolError> {
+    let args = super::kwargs(args);
+    const ACCEPTED: [&str; 3] = ["input_path", "out", "fmt"];
+    let input = need_str(&args, "input_path", "scan-broken-links", &ACCEPTED)?;
+    let out = need_str(&args, "out", "scan-broken-links", &ACCEPTED)?;
+    let fmt = opt_str(&args, "fmt").unwrap_or("csv");
+    spiderhead_store::broken_links::write_report(Path::new(input), Path::new(out), fmt)
+        .map(Value::Object)
+        .map_err(failed)
 }
 
 /// `scan_sitemap_generate`: XML sitemaps from retained canonical indexable 200 responses.
@@ -578,4 +717,69 @@ pub fn scan_url_history(args: &Value) -> Result<Value, ToolError> {
     )
     .map(Value::Object)
     .map_err(failed)
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    #[test]
+    fn suggest_runs_over_an_inline_document() {
+        let result = super::extract_suggest(&json!({
+            "text": "Hello world",
+            "html": "<html><body><p id=\"lead\">Hello world</p></body></html>",
+        }))
+        .expect("suggest");
+        assert_eq!(result["ok"], json!(true));
+        assert_eq!(result["candidates"][0]["selector"], json!("#lead"));
+    }
+
+    #[test]
+    fn two_sample_sources_are_refused() {
+        let error = super::extract_suggest(&json!({
+            "text": "Hello world",
+            "html": "<p>Hello world</p>",
+            "url": "http://127.0.0.1:1/",
+        }))
+        .unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "exactly one sample source is required: url, html, or input_path"
+        );
+    }
+
+    #[test]
+    fn a_missing_sample_source_is_refused() {
+        let error = super::extract_suggest(&json!({"text": "Hello world"})).unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "exactly one sample source is required: url, html, or input_path"
+        );
+    }
+
+    #[test]
+    fn an_empty_document_is_a_failed_call_not_a_suggestion() {
+        let error = super::extract_suggest(&json!({"text": "x", "html": " "})).unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "html must be a non-empty document string"
+        );
+    }
+
+    #[test]
+    fn html_names_a_local_file_before_inline_markup() {
+        let path = std::env::temp_dir().join(format!("sh-suggest-{}.html", std::process::id()));
+        std::fs::write(
+            &path,
+            "<html><body><p id=\"file\">From file</p></body></html>",
+        )
+        .expect("write sample");
+        let result = super::extract_suggest(&json!({
+            "text": "From file",
+            "html": path.to_string_lossy(),
+        }))
+        .expect("suggest from file");
+        assert_eq!(result["candidates"][0]["selector"], json!("#file"));
+        let _ = std::fs::remove_file(&path);
+    }
 }

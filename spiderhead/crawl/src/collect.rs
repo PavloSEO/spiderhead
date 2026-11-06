@@ -240,9 +240,28 @@ pub async fn fetch_one(
     }
 
     let is_html = content_type.to_ascii_lowercase().contains("html");
+    // The transport hands back the body still content-encoded (`size_bytes`
+    // stays the wire size). Charset detection and parsing must see the decoded
+    // entity, otherwise a gzip/deflate/zstd page parses as binary noise.
+    let entity = spiderhead_store::crawl_capture::bounded_entity(
+        &raw_body,
+        header(&headers, "content-encoding"),
+        entity_capture_limit,
+    )
+    .ok();
     let mut html_text: Option<String> = None;
-    let parsed = if is_html && !raw_body.is_empty() {
-        let decoded = spiderhead_store::bodies::decode_html(&raw_body, &content_type);
+    let decoded_html = if is_html && !raw_body.is_empty() {
+        match entity.as_deref() {
+            Some(bytes) => Some(spiderhead_store::bodies::decode_html(bytes, &content_type)),
+            None => {
+                record.insert("error_kind".into(), json!("decoding"));
+                None
+            }
+        }
+    } else {
+        None
+    };
+    let parsed = if let Some(decoded) = decoded_html {
         let text = decoded.text;
         match parse_html(&text, url, parse_options) {
             Ok(parsed) => {
@@ -281,12 +300,6 @@ pub async fn fetch_one(
         None
     };
 
-    let entity = spiderhead_store::crawl_capture::bounded_entity(
-        &raw_body,
-        header(&headers, "content-encoding"),
-        entity_capture_limit,
-    )
-    .ok();
     let capture = capture_event(
         url,
         &requested_at,

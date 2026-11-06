@@ -11,7 +11,7 @@ pub fn run(args: &[String]) -> Result<(), String> {
         "linux" if cfg!(target_os = "linux") => linux(&o),
         "windows" if cfg!(windows) => windows(),
         "macos" | "linux" | "windows" => Err(format!(
-            "`package {platform}` builds only on {platform} (see docs/РАБОТА-С-RUST.md)"
+            "`package {platform}` builds only on {platform} (see docs/COMPONENTS.md)"
         )),
         _ => Err("usage: cargo xtask package <macos|linux|windows>".into()),
     }
@@ -79,18 +79,18 @@ const DISTRIBUTION: &str = r#"<?xml version="1.0" encoding="utf-8"?>
     <line choice="desktop"/>
     <line choice="all"/>
   </choices-outline>
-  <choice id="lite" title="Лёгкая" description="Окно SpiderHead в простом режиме. Командная строка в PATH не добавляется." start_selected="false">
+  <choice id="lite" title="Lite" description="SpiderHead window in simple mode. The command line is not added to PATH." start_selected="false">
     <pkg-ref id="com.spiderhead.app"/>
   </choice>
-  <choice id="cli" title="CLI" description="Команды spiderhead и spiderhead-mcp в /usr/local/bin. Без окна." start_selected="false">
+  <choice id="cli" title="CLI" description="spiderhead and spiderhead-mcp commands in /usr/local/bin. No window." start_selected="false">
     <pkg-ref id="com.spiderhead.cli"/>
   </choice>
-  <choice id="desktop" title="Desktop" description="Окно SpiderHead с режимом «С агентом», spiderhead-desktop-ctl и CLI." start_selected="true">
+  <choice id="desktop" title="Desktop" description="SpiderHead window with agent mode, spiderhead-desktop-ctl and the CLI." start_selected="true">
     <pkg-ref id="com.spiderhead.app"/>
     <pkg-ref id="com.spiderhead.cli"/>
     <pkg-ref id="com.spiderhead.desktop-extras"/>
   </choice>
-  <choice id="all" title="Всё" description="Desktop, CLI, MCP-сервер и документация." start_selected="false">
+  <choice id="all" title="Everything" description="Desktop, CLI, MCP server and documentation." start_selected="false">
     <pkg-ref id="com.spiderhead.app"/>
     <pkg-ref id="com.spiderhead.cli"/>
     <pkg-ref id="com.spiderhead.desktop-extras"/>
@@ -386,7 +386,7 @@ fn linux(o: &Opts) -> Result<(), String> {
         )?;
         println!("    {}", tar.display());
     }
-    println!("==> package linux OK (deb/rpm: TODO, see docs/РАБОТА-С-RUST.md)");
+    println!("==> package linux OK (deb/rpm: TODO, see docs/COMPONENTS.md)");
     Ok(())
 }
 

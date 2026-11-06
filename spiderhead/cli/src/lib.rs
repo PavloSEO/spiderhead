@@ -35,7 +35,7 @@ pub use registry::{CommandHandler, NotYetPorted, Registry};
 pub use tree::{tree, Node, Tree};
 
 /// Toolkit release the surface mirrors; substituted for `{VERSION}` in `--version` output.
-pub const TOOLKIT_VERSION: &str = "3.2.0";
+pub const TOOLKIT_VERSION: &str = spiderhead_core::user_agents::PRODUCT_VERSION;
 
 /// Process exit code: 0 success, 1 command failure, 2 usage error (and gate failures).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

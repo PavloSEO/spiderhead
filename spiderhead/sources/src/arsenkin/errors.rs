@@ -12,7 +12,7 @@ pub enum ArsError {
     /// No token source is configured.
     MissingCredential(String),
     /// Any other failure, such as an I/O or decoding error.
-    Python {
+    Classed {
         /// Name of the original error kind.
         class: String,
         /// Message of the original error.
@@ -33,11 +33,11 @@ pub struct ProviderError {
 
 impl ArsError {
     /// Name of the original error kind.
-    pub fn python_class(&self) -> &str {
+    pub fn error_class(&self) -> &str {
         match self {
             ArsError::Provider(_) => "ArsenkinError",
             ArsError::MissingCredential(_) => "MissingCredential",
-            ArsError::Python { class, .. } => class.as_str(),
+            ArsError::Classed { class, .. } => class.as_str(),
         }
     }
 
@@ -57,7 +57,7 @@ impl std::fmt::Display for ArsError {
                 // Displays as `{code}: {message}`; the payload is rendered as text.
                 write!(f, "{}: {}", err.code, pystr::repr_value(&err.message))
             }
-            ArsError::MissingCredential(m) | ArsError::Python { message: m, .. } => f.write_str(m),
+            ArsError::MissingCredential(m) | ArsError::Classed { message: m, .. } => f.write_str(m),
         }
     }
 }
@@ -66,7 +66,7 @@ impl std::error::Error for ArsError {}
 
 /// Invalid input value.
 pub(super) fn value_err(message: impl Into<String>) -> ArsError {
-    ArsError::Python {
+    ArsError::Classed {
         class: "ValueError".to_owned(),
         message: message.into(),
     }
@@ -74,7 +74,7 @@ pub(super) fn value_err(message: impl Into<String>) -> ArsError {
 
 /// Value has the wrong type.
 pub(super) fn type_err(message: impl Into<String>) -> ArsError {
-    ArsError::Python {
+    ArsError::Classed {
         class: "TypeError".to_owned(),
         message: message.into(),
     }
@@ -82,7 +82,7 @@ pub(super) fn type_err(message: impl Into<String>) -> ArsError {
 
 /// Accessed an attribute that a value of this type does not have.
 pub(super) fn attr_err(value: &Value, attr: &str) -> ArsError {
-    ArsError::Python {
+    ArsError::Classed {
         class: "AttributeError".to_owned(),
         message: format!(
             "'{}' object has no attribute '{}'",
@@ -94,7 +94,7 @@ pub(super) fn attr_err(value: &Value, attr: &str) -> ArsError {
 
 /// A failure with an explicit error kind name.
 pub(super) fn pyerr(class: &str, message: impl Into<String>) -> ArsError {
-    ArsError::Python {
+    ArsError::Classed {
         class: class.to_owned(),
         message: message.into(),
     }
@@ -113,6 +113,6 @@ pub(super) fn provider(code: impl Into<String>, message: Value) -> ArsError {
 pub(super) fn cred_err(err: CredentialError) -> ArsError {
     match err {
         CredentialError::Missing(message) => ArsError::MissingCredential(message),
-        other => pyerr(other.python_class(), other.to_string()),
+        other => pyerr(other.error_class(), other.to_string()),
     }
 }

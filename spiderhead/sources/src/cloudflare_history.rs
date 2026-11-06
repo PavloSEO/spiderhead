@@ -54,7 +54,7 @@ pub enum CfhError {
 
 impl CfhError {
     /// Error class name reported to callers.
-    pub fn python_class(&self) -> &'static str {
+    pub fn error_class(&self) -> &'static str {
         match self {
             CfhError::Invalid(_) => "ValueError",
             CfhError::JsonDecode(_) => "JSONDecodeError",

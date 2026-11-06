@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 1,
-    "stderr": "seohead: scan-link-inspect\n",
+    "stderr": "spiderhead: scan-link-inspect\n",
     "stdout": "{\n  \"ok\": false,\n  \"view\": \"invalid\",\n  \"error\": \"view must be path, inlinks, context, or links\"\n}\n"
    }
   ]

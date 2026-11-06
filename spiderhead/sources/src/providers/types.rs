@@ -20,7 +20,7 @@ pub struct DispatchError {
 
 impl From<DispatchError> for CfError {
     fn from(error: DispatchError) -> Self {
-        CfError::Python(Box::leak(error.class.into_boxed_str()), error.message)
+        CfError::Classed(Box::leak(error.class.into_boxed_str()), error.message)
     }
 }
 

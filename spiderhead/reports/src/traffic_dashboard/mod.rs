@@ -9,7 +9,7 @@ use regex::Regex;
 use serde_json::Value;
 
 use crate::join::IsoDate;
-use crate::py::{html_escape, repr};
+use crate::py::{html_escape, repr, repr_str};
 
 mod css;
 mod labels;
@@ -128,8 +128,20 @@ pub fn load_brand(value: Option<&Value>) -> Result<Brand, String> {
     if !unknown.is_empty() {
         let mut expected: Vec<&str> = known.to_vec();
         expected.sort();
+        let list = |items: Vec<&str>| {
+            format!(
+                "[{}]",
+                items
+                    .iter()
+                    .map(|item| repr_str(item))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        };
         return Err(format!(
-            "unknown brand keys: {unknown:?}; expected some of {expected:?}"
+            "unknown brand keys: {}; expected some of {}",
+            list(unknown.iter().map(String::as_str).collect()),
+            list(expected)
         ));
     }
     let fields = document.as_object().cloned().unwrap_or_default();

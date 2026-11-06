@@ -129,11 +129,10 @@ pub fn fixtures_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")
 }
 
-/// Load a fixture file as JSON rows.
+/// Load a fixture file as JSON rows, preferring a `.zst` sibling.
 pub fn load_fixture(name: &str) -> Vec<Value> {
     let path = fixtures_dir().join(name);
-    let text = std::fs::read_to_string(&path)
-        .unwrap_or_else(|e| panic!("fixture {}: {e}", path.display()));
+    let text = spiderhead_oracle_testkit::fixture_text(&path);
     serde_json::from_str(&text).unwrap_or_else(|e| panic!("fixture {}: {e}", path.display()))
 }
 
@@ -168,7 +167,7 @@ pub fn scenario_host(scenario: &Value) -> (spiderhead_core::host::FakeHost, Path
 }
 
 /// Compare the recorded requests + outcome of one scenario with the oracle row; panics with
-/// a readable diff on any mismatch. `actual` is `Ok(value)` or `Err((python_class, message))`.
+/// a readable diff on any mismatch. `actual` is `Ok(value)` or `Err((error_class, message))`.
 pub fn assert_scenario(
     scenario: &Value,
     transport: &StubTransport,

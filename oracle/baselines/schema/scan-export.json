@@ -809,7 +809,7 @@
  },
  "provenance": {
   "audit": {
-   "analyzer_version": "3.2.0",
+   "analyzer_version": "0.9.1",
    "created_at": "<TS>",
    "schema_version": "2.0",
    "state": "present"
@@ -829,7 +829,7 @@
   "source_kind": "native",
   "start_url": "{BASE}/",
   "writer_revision": "b9847831b9127a88504eabb4cd345f4b8f4bfea9",
-  "writer_version": "3.2.0"
+  "writer_version": "0.9.1"
  },
  "records": {
   "findings": [

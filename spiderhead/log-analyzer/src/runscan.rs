@@ -11,6 +11,10 @@ use std::path::Path;
 
 use serde_json::{json, Map, Value};
 use spiderhead_core::finding_policy::IMPLAUSIBLE_SHARE;
+use spiderhead_store::audit_v2::audit_v2_path;
+use spiderhead_store::error::StoreError;
+use spiderhead_store::inputs::{is_sqlite_input, load_audit_source, AuditSource};
+use spiderhead_store::scan_artifact::open_scan;
 
 use crate::error::{LogsError, Result};
 use crate::urlsplit;
@@ -123,9 +127,101 @@ fn expand_home(path: &str) -> std::path::PathBuf {
     }
 }
 
-/// Read the artifacts of one finished run from a directory of loose files.
+/// The Python exception text of a store error, without the crate's own prefixes.
+fn store_message(error: &StoreError) -> String {
+    match error {
+        StoreError::Sqlite(inner) => inner.to_string(),
+        StoreError::Io(inner) => spiderhead_core::common::python_os_error(inner, None),
+        StoreError::Json(inner) => inner.to_string(),
+        StoreError::Invalid(message) => message.clone(),
+        StoreError::ScanError(e) => e.message.clone(),
+        other => other.to_string(),
+    }
+}
+
+/// One stored page row as the dict the consistency rules read.
+fn page_value(row: &rusqlite::Row<'_>) -> rusqlite::Result<Value> {
+    let cell = |index: usize| -> rusqlite::Result<Value> {
+        Ok(match row.get::<_, rusqlite::types::Value>(index)? {
+            rusqlite::types::Value::Null | rusqlite::types::Value::Blob(_) => Value::Null,
+            rusqlite::types::Value::Integer(n) => json!(n),
+            rusqlite::types::Value::Real(f) => json!(f),
+            rusqlite::types::Value::Text(s) => json!(s),
+        })
+    };
+    let mut page = Map::new();
+    for (index, key) in [
+        "url",
+        "status_code",
+        "content_type",
+        "size_bytes",
+        "word_count",
+        "text_ratio",
+        "representation",
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        page.insert(key.to_string(), cell(index)?);
+    }
+    Ok(Value::Object(page))
+}
+
+/// Read a retained native scan: page rows plus its audit (document or audit.v2).
+fn load_native(path: &Path, images_dir: Option<&str>) -> Result<RunArtifacts> {
+    let shown = path.display().to_string();
+    let mut run = RunArtifacts {
+        native: true,
+        audit_path: shown.clone(),
+        pages_path: format!("{shown}#pages"),
+        ..RunArtifacts::default()
+    };
+    let has_audit = {
+        let con = open_scan(path, false, None).map_err(|e| LogsError::value(store_message(&e)))?;
+        let mut statement = con.prepare(
+            "SELECT u.url,p.status_code,p.content_type,p.size_bytes,p.word_count,p.text_ratio,p.representation \
+             FROM pages p JOIN urls u USING(url_id) ORDER BY p.page_ordinal",
+        )?;
+        let rows = statement.query_map([], page_value)?;
+        for row in rows {
+            run.pages.push(row?);
+        }
+        let mut singleton = con.prepare("SELECT 1 FROM audit WHERE singleton=1")?;
+        singleton.exists([])? || audit_v2_path(path).exists()
+    };
+    if has_audit {
+        let source = load_audit_source(&json!(shown), "run", None)
+            .map_err(|e| LogsError::value(store_message(&e)))?;
+        run.audit = Some(match source {
+            AuditSource::Document(document) => document,
+            AuditSource::Streaming(reader) => {
+                let mut audit = reader.header.clone();
+                let issues = reader
+                    .iter_collection("/issues")
+                    .map_err(|e| LogsError::value(store_message(&e)))?;
+                audit["issues"] = Value::Array(issues);
+                audit
+            }
+        });
+    }
+    if let Some(images) = images_dir.filter(|s| !s.is_empty()) {
+        run.files = downloaded_sizes(&expand_home(images));
+    }
+    Ok(run)
+}
+
+/// Read the artifacts of one finished run: a retained native scan, or a directory
+/// of loose files (`audit.json`, `pages.jsonl`, `decisions.jsonl`).
 pub fn load_run(run_dir: &str, images_dir: Option<&str>) -> Result<RunArtifacts> {
     let base = expand_home(run_dir);
+    let native_path = if base.is_file() {
+        base.clone()
+    } else {
+        base.join("scan.sqlite")
+    };
+    if is_sqlite_input(&json!(native_path.display().to_string())) {
+        return load_native(&native_path, images_dir);
+    }
     let mut run = RunArtifacts::default();
     let audit = base.join("audit.json");
     if audit.is_file() {

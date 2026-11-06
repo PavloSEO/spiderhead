@@ -297,7 +297,7 @@ fn sql_params(params: &[Value]) -> Vec<rusqlite::types::Value> {
 }
 
 fn map_sources_error(err: &sources_db::SourcesError, base: &str) -> Value {
-    outcome_error(err.python_class(), &err.to_string(), base)
+    outcome_error(err.error_class(), &err.to_string(), base)
 }
 
 fn map_fetcher_fault(err: &fetchers::FetcherFault, base: &str) -> Value {

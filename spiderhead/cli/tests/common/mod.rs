@@ -19,13 +19,16 @@ pub fn init() {
     });
 }
 
-/// Parse a committed fixture.
-pub fn fixture(name: &str) -> Value {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+/// Path of a committed fixture (the plain name; a `.zst` sibling may exist).
+pub fn fixture_path(name: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures")
-        .join(name);
-    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
-    serde_json::from_str(&text).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
+        .join(name)
+}
+
+/// Parse a committed fixture, preferring a `.zst` sibling when present.
+pub fn fixture(name: &str) -> Value {
+    spiderhead_oracle_testkit::fixture_json(&fixture_path(name))
 }
 
 /// What one invocation produced, normalised like the fixtures.
@@ -71,7 +74,7 @@ pub fn diff(expected: &str, actual: &str) -> String {
         }
     }
     let (mut i, mut j) = (0, 0);
-    let mut out = String::from("--- python\n+++ rust\n");
+    let mut out = String::from("--- fixture\n+++ actual\n");
     while i < a.len() || j < b.len() {
         if i < a.len() && j < b.len() && a[i] == b[j] {
             out.push_str(&format!(" {}\n", a[i]));
@@ -114,7 +117,7 @@ pub fn compare(key: &str, record: &Value) -> Result<(), String> {
     }
     if record["code"].as_i64() != Some(got.code) {
         problems.push_str(&format!(
-            "[{key}] exit code: python {} rust {}\n",
+            "[{key}] exit code: fixture {} actual {}\n",
             record["code"], got.code
         ));
     }
@@ -125,12 +128,33 @@ pub fn compare(key: &str, record: &Value) -> Result<(), String> {
     }
 }
 
+/// Regenerate a fixture: replay every record's argv through the CLI and store
+/// the captured `{argv, code, stdout, stderr}` back in record order.
+fn bless_fixture(name: &str, records: &serde_json::Map<String, Value>) {
+    let mut out = serde_json::Map::new();
+    for (key, record) in records {
+        let got = invoke(&argv_of(record));
+        let mut blessed = record.clone();
+        if let Some(obj) = blessed.as_object_mut() {
+            obj.insert("code".to_owned(), Value::from(got.code));
+            obj.insert("stdout".to_owned(), Value::from(got.stdout));
+            obj.insert("stderr".to_owned(), Value::from(got.stderr));
+        }
+        out.insert(key.clone(), blessed);
+    }
+    spiderhead_oracle_diff::bless_json(&fixture_path(name), &Value::Object(out));
+}
+
 /// Run every record of a fixture and fail with all diffs (capped) when any differ.
 pub fn assert_fixture(name: &str) -> usize {
     let data = fixture(name);
     let records = data
         .as_object()
         .unwrap_or_else(|| panic!("{name}: not an object"));
+    if spiderhead_oracle_diff::bless_enabled() {
+        bless_fixture(name, records);
+        return records.len();
+    }
     let failures: Vec<String> = records
         .iter()
         .filter_map(|(k, v)| compare(k, v).err())

@@ -21,7 +21,7 @@ fn tzpath_file(name: &str) -> Option<PathBuf> {
     if crate::ga4_content::zoneinfo_key_check(name).is_some() {
         return None;
     }
-    let dirs: Vec<PathBuf> = match std::env::var_os("PYTHONTZPATH") {
+    let dirs: Vec<PathBuf> = match std::env::var_os("SPIDERHEAD_TZPATH") {
         Some(value) if !value.is_empty() => std::env::split_paths(&value).collect(),
         _ => [
             "/usr/share/zoneinfo",

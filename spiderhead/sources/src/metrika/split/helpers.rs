@@ -358,7 +358,7 @@ pub fn rows_to_records(report: &Value) -> Result<Vec<Value>, MetrikaFail> {
             .iter()
             .map(|d| match d {
                 Value::String(text) => Ok(text.rsplit(':').next().unwrap_or_default().to_owned()),
-                other => Err(MetrikaFail::python(
+                other => Err(MetrikaFail::classed(
                     "AttributeError",
                     format!(
                         "'{}' object has no attribute 'split'",

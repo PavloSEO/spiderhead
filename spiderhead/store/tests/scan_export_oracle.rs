@@ -75,15 +75,17 @@ fn same_grid(a: &Value, b: &Value) -> bool {
 // replayed against the oracle's files on the raw basic scan and a trimmed audit document.
 #[test]
 fn exports_match_the_reference_oracle() {
-    let cases: Value = serde_json::from_str(
-        &std::fs::read_to_string(fixtures().join("scan-export-basic.json")).unwrap(),
-    )
+    let cases: Value = serde_json::from_str(&spiderhead_oracle_testkit::fixture_text(
+        &fixtures().join("scan-export-basic.json"),
+    ))
     .unwrap();
     let scan = root()
         .join("oracle/raw-scans/basic/scan.sqlite")
         .canonicalize()
         .unwrap();
     let doc = fixtures().join("audit-basic.json").canonicalize().unwrap();
+    let bless = spiderhead_oracle_diff::bless_enabled();
+    let mut blessed: Vec<Value> = Vec::new();
     let mut blocked_cases = Vec::new();
     let mut failures = Vec::new();
     for (i, case) in cases.as_array().unwrap().iter().enumerate() {
@@ -130,6 +132,34 @@ fn exports_match_the_reference_oracle() {
             actual["error"] = json!(normalise(
                 actual["error"].as_str().unwrap_or("").to_string()
             ));
+        }
+        let mut updated = case.clone();
+        if bless {
+            updated["result"] = actual;
+            let mut files = serde_json::Map::new();
+            for (name, expected) in case["files"].as_object().unwrap() {
+                let path = dir.join(name);
+                if !path.exists() {
+                    failures.push(format!("#{i} missing file {name}"));
+                    files.insert(name.clone(), expected.clone());
+                    continue;
+                }
+                if name.ends_with(".xlsx") {
+                    files.insert(
+                        name.clone(),
+                        serde_json::from_str(&normalise(grid(&path).to_string())).unwrap(),
+                    );
+                } else {
+                    files.insert(
+                        name.clone(),
+                        Value::String(normalise(std::fs::read_to_string(&path).unwrap())),
+                    );
+                }
+            }
+            updated["files"] = Value::Object(files);
+            blessed.push(updated);
+            std::fs::remove_dir_all(&dir).ok();
+            continue;
         }
         if actual != case["result"] {
             failures.push(format!(
@@ -191,6 +221,53 @@ fn exports_match_the_reference_oracle() {
             std::fs::copy(dir.join("export.json"), keep).unwrap();
         }
         std::fs::remove_dir_all(&dir).ok();
+    }
+    if bless {
+        let path = fixtures().join("scan-export-basic.json");
+        assert!(spiderhead_oracle_diff::bless_json(
+            &path,
+            &Value::Array(blessed)
+        ));
+        // The per-site baseline export is the same full JSON document over each
+        // raw scan, normalised the way the recorded baselines are.
+        let null = Value::Null;
+        for (site, port) in [
+            ("basic", 18701u16),
+            ("canonical-hreflang", 18704),
+            ("errors", 18702),
+            ("redirects", 18703),
+            ("robots-sitemap", 18706),
+            ("schema", 18705),
+        ] {
+            let dir =
+                std::env::temp_dir().join(format!("sh-sexport-{site}-{}", std::process::id()));
+            std::fs::create_dir_all(&dir).unwrap();
+            let input = root()
+                .join("oracle/raw-scans")
+                .join(site)
+                .join("scan.sqlite")
+                .canonicalize()
+                .unwrap();
+            let target = dir.join("export.json");
+            export_scan_data(
+                &json!(input.to_string_lossy()),
+                Some(&target),
+                "json",
+                &null,
+                &null,
+            );
+            let text = std::fs::read_to_string(&target).expect("export doc");
+            let doc: Value = serde_json::from_str(&text).expect("export json");
+            let mut norm = spiderhead_oracle_diff::Norm::new(&format!("http://127.0.0.1:{port}"));
+            let doc = norm.walk(&doc, None);
+            let file = root()
+                .join("oracle/baselines")
+                .join(site)
+                .join("scan-export.json");
+            assert!(spiderhead_oracle_diff::bless_json(&file, &doc));
+            std::fs::remove_dir_all(&dir).ok();
+        }
+        return;
     }
     eprintln!("blocked by other slices: {} case(s)", blocked_cases.len());
     assert!(blocked_cases.is_empty(), "blocked cases: {blocked_cases:?}");

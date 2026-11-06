@@ -214,6 +214,7 @@ fn check_site(name: &str, _index: usize) {
     )
     .expect("raw scan copy");
     let registry = spiderhead_cli::registry();
+    let bless = spiderhead_oracle_diff::bless_enabled();
     let mut norm = Norm::new(&server.base, &work);
     for invocation in invocations(&server.base, &work) {
         // Each captured command ran in its own reference process: drop the in-process
@@ -222,6 +223,25 @@ fn check_site(name: &str, _index: usize) {
         let expected = expectation(name, invocation.name);
         let mut out = Output::default();
         let code = run(&invocation.argv, &registry, &mut out).expect("handler run");
+        if bless {
+            let path = fixtures_root()
+                .join(name)
+                .join(format!("{}.json", invocation.name));
+            let mut doc: Value = serde_json::from_str(
+                &std::fs::read_to_string(&path)
+                    .unwrap_or_else(|e| panic!("{}: {e}", path.display())),
+            )
+            .expect("fixture json");
+            doc["exit"] = serde_json::json!(i64::from(code.0));
+            doc["stdout"] = serde_json::json!(norm.s(&out.stdout));
+            doc["stderr"] = serde_json::json!(norm.s(&out.stderr));
+            if let Some(p) = &invocation.out_file {
+                doc["out_file"] =
+                    serde_json::json!(norm.s(&std::fs::read_to_string(p).unwrap_or_default()));
+            }
+            assert!(spiderhead_oracle_diff::bless_json(&path, &doc));
+            continue;
+        }
         let mut problems = String::new();
         if i64::from(code.0) != expected.exit {
             problems += &format!("  exit: expected {}, got {}\n", expected.exit, code.0);
@@ -423,6 +443,13 @@ fn check_mcp_site(name: &str, _index: usize) {
         let raw =
             std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
         let fixture: Value = serde_json::from_str(&raw).expect("fixture json");
+        if spiderhead_oracle_diff::bless_enabled() {
+            let mut doc = fixture.clone();
+            doc["is_error"] = Value::Bool(actual_is_error);
+            doc["text"] = Value::String(norm.s(&actual_text));
+            assert!(spiderhead_oracle_diff::bless_json(&path, &doc));
+            continue;
+        }
         let expected_is_error = fixture["is_error"].as_bool().unwrap_or(false);
         let expected_text = fixture["text"].as_str().unwrap_or_default();
         let mut problems = String::new();

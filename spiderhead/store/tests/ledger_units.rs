@@ -33,7 +33,7 @@ fn make(dir: &Path) -> PathBuf {
         &dir.join("ledger.sqlite"),
         PROJECT,
         "https://example.test/",
-        "3.2.0",
+        "0.9.0",
         BUILD,
     )
     .unwrap()
@@ -49,13 +49,13 @@ fn create_binds_project_and_never_overwrites() {
     assert_eq!(summary["sites"][0]["role"], "primary");
     assert_eq!(summary["sites"][0]["host"], "example.test");
     let again =
-        create_ledger(&ledger, PROJECT, "https://example.test/", "3.2.0", BUILD).unwrap_err();
+        create_ledger(&ledger, PROJECT, "https://example.test/", "0.9.0", BUILD).unwrap_err();
     assert!(again.to_string().contains("never overwrite"), "{again}");
     let bad = create_ledger(
         &dir.join("third.sqlite"),
         PROJECT,
         "https://example.test/",
-        "3.2.0",
+        "0.9.0",
         "not-a-sha",
     )
     .unwrap_err();
@@ -65,7 +65,7 @@ fn create_binds_project_and_never_overwrites() {
         &dir.join("no/such/ledger.sqlite"),
         PROJECT,
         "https://example.test/",
-        "3.2.0",
+        "0.9.0",
         BUILD,
     );
     assert!(missing_parent.is_err());
@@ -167,7 +167,7 @@ fn v0_stub(path: &Path, project_uuid: &str, target: &str) {
             uuid::Uuid::new_v4().to_string(),
             project_uuid,
             target,
-            "3.2.0",
+            "0.9.0",
             BUILD,
             "2026-09-01T00:00:00Z"
         ],
