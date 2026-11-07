@@ -41,6 +41,7 @@ pub fn credential_sources(provider: &str) -> &'static [(&'static str, &'static s
         "moz" => &[("api_token", "moz/api_token", "MOZ_API_TOKEN")],
         "cloudflare" => &[("api_token", "cloudflare/api-token", "CLOUDFLARE_API_TOKEN")],
         "indexnow" => &[("submission_key", "indexnow/key", "INDEXNOW_KEY")],
+        "clarity" => &[("api_key", "clarity/api_key", "CLARITY_API_KEY")],
         _ => &[],
     }
 }
@@ -70,6 +71,7 @@ pub(super) fn collectable(provider: &str, operation: &str) -> bool {
                 | "domain_pages_summary"
         ),
         "wayback" => operation == "history",
+        "clarity" => operation == "live_insights",
         "crtsh" => operation == "subdomains",
         _ => false,
     }

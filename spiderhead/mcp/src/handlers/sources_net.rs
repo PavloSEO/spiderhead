@@ -78,6 +78,29 @@ pub fn crtsh_subdomains(args: &Value) -> Result<Value, ToolError> {
     run(spiderhead_sources::crtsh::subdomains(&transport, domain))?.map_err(fail)
 }
 
+/// `clarity_live_insights`: one project's live behavioral insights from the
+/// Clarity Data Export API (dead clicks, rage clicks, scroll depth...).
+pub fn clarity_live_insights(args: &Value) -> Result<Value, ToolError> {
+    let args = kwargs(args);
+    let Some(api_key) = present(&args, "api_key") else {
+        return Err(fail(
+            "api_key required: generate one in Clarity under Settings → Project Settings → API Key",
+        ));
+    };
+    let Some(project_id) = present(&args, "project_id") else {
+        return Err(fail("project_id required"));
+    };
+    let transport = transport()?;
+    run(spiderhead_sources::clarity::live_insights(
+        &transport,
+        api_key,
+        project_id,
+        opt_str(&args, "start_date").unwrap_or_default(),
+        opt_str(&args, "end_date").unwrap_or_default(),
+    ))?
+    .map_err(fail)
+}
+
 /// `regions_tree`: the free Yandex region tree, optionally saved to a file.
 pub fn regions_tree(args: &Value) -> Result<Value, ToolError> {
     use spiderhead_sources::yandex_cloud::{CloudArgs, CloudEnv};

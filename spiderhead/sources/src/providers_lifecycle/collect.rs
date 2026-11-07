@@ -92,6 +92,11 @@ pub fn provider_collect(
         )?,
         "wayback" => dispatch_value(env, "wayback.history", Some(&json!({"kwargs": request})))?,
         "crtsh" => dispatch_value(env, "crtsh.subdomains", Some(&json!({"kwargs": request})))?,
+        "clarity" => dispatch_value(
+            env,
+            "clarity.live_insights",
+            Some(&json!({"kwargs": request})),
+        )?,
         "cloudflare" => match operation {
             "traffic" => {
                 dispatch_value(env, "cloudflare.traffic", Some(&json!({"kwargs": request})))?

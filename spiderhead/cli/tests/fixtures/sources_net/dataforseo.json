@@ -884,6 +884,145 @@
    }
   },
   {
+   "name": "keywords-prod-ceiling-refreshes-prices",
+   "cli": {
+    "argv": [
+     "google-keywords",
+     "--keywords",
+     "seo audit",
+     "--env",
+     "prod",
+     "--confirm-paid",
+     "--spend-ceiling-usd",
+     "0.2"
+    ]
+   },
+   "seed": [
+    {
+     "path": ".config/dataforseo/login",
+     "text": "test-login"
+    },
+    {
+     "path": ".config/dataforseo/password",
+     "text": "test-password"
+    }
+   ],
+   "routes": [
+    {
+     "host": "api.dataforseo.com",
+     "method": "GET",
+     "path": "/v3/appendix/user_data",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "result": [
+           {
+            "money": {
+             "balance": 12.5
+            },
+            "rates": {
+             "x": 1
+            },
+            "price": {
+             "keywords_data": {
+              "google_ads": {
+               "search_volume": {
+                "live": {
+                 "priority_normal": [
+                  {
+                   "cost_type": "per_request",
+                   "cost": 0.075
+                  }
+                 ]
+                }
+               }
+              }
+             }
+            }
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "host": "api.dataforseo.com",
+     "method": "POST",
+     "path": "/v3/keywords_data/google_ads/search_volume/live",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "status_code": 20000,
+        "status_message": "Ok.",
+        "cost": 0.075,
+        "tasks_count": 1,
+        "tasks_error": 0,
+        "tasks": [
+         {
+          "status_code": 20000,
+          "result": [
+           {
+            "keyword": "seo audit",
+            "search_volume": 1900,
+            "cpc": 2.1,
+            "competition": "LOW"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"env\": \"prod\",\n  \"cost_usd\": 0.075,\n  \"errors\": [],\n  \"keywords\": [\n    {\n      \"phrase\": \"seo audit\",\n      \"volume\": 1900,\n      \"cpc\": 2.1,\n      \"competition\": \"LOW\"\n    }\n  ]\n}\n",
+     "stderr": "spiderhead: google-keywords\n",
+     "requests": [
+      {
+       "host": "api.dataforseo.com",
+       "method": "GET",
+       "path": "/v3/appendix/user_data",
+       "query": "",
+       "body": "",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk"
+       }
+      },
+      {
+       "host": "api.dataforseo.com",
+       "method": "POST",
+       "path": "/v3/keywords_data/google_ads/search_volume/live",
+       "query": "",
+       "body": "[{\"keywords\": [\"seo audit\"], \"location_code\": 2840, \"language_code\": \"en\"}]",
+       "headers": {
+        "authorization": "Basic dGVzdC1sb2dpbjp0ZXN0LXBhc3N3b3Jk",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
    "name": "serp-ok",
    "cli": {
     "argv": [

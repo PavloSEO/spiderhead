@@ -6,6 +6,7 @@ license.workspace = true
 description = "SpiderHead reports (xlsx, docx, pdf)."
 
 [dependencies]
+krilla.workspace = true
 calamine.workspace = true
 csv.workspace = true
 indexmap.workspace = true
@@ -32,6 +33,7 @@ uuid.workspace = true
 zip.workspace = true
 
 [dev-dependencies]
+tempfile.workspace = true
 spiderhead-checks.workspace = true
 spiderhead-oracle-diff.workspace = true
 spiderhead-oracle-testkit.workspace = true
