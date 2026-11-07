@@ -4052,6 +4052,50 @@
       }
     },
     {
+      "group": "checks",
+      "profiles": [
+        "full"
+      ],
+      "spec": {
+        "name": "seo_boilerplate_report",
+        "description": "Group a retained corpus by header/nav/footer hash and report minority template groups.",
+        "inputSchema": {
+          "properties": {
+            "input_path": {
+              "title": "Scan",
+              "type": "string"
+            },
+            "max_bytes": {
+              "title": "Max bytes",
+              "type": "integer",
+              "default": 8388608
+            },
+            "sample": {
+              "title": "Sample",
+              "type": "integer",
+              "default": 5
+            }
+          },
+          "required": [
+            "input_path"
+          ],
+          "title": "seo_boilerplate_reportArguments",
+          "type": "object"
+        },
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "seo_boilerplate_reportDictOutput",
+          "type": "object"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        }
+      }
+    },
+    {
       "group": "scan",
       "profiles": [
         "full"
@@ -16253,7 +16297,7 @@
       ],
       "spec": {
         "name": "seo_parse",
-        "description": "Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6,\nJSON-LD, links, visible text, word count) from one URL or a list of URLs.",
+        "description": "Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6,\nJSON-LD, links, visible text, main-content word count) from one URL or a list of URLs.",
         "inputSchema": {
           "properties": {
             "url": {

@@ -3,7 +3,7 @@
   "name": "seo_parse",
   "command": "parse",
   "summary": "Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6, JSON-LD, links, visible text, word count) from one URL or a list of URLs.",
-  "notes": "",
+  "notes": "word_count applies the content-area heuristic (content_area_strategy reports how the area was picked); count words of the text field for the whole visible page.",
   "arguments": [
    {
     "name": "url",
@@ -2216,6 +2216,36 @@
   "idempotent": true,
   "paid": false,
   "category": "content",
+  "project_aware": false
+ },
+ {
+  "name": "seo_boilerplate_report",
+  "command": "",
+  "summary": "Group a retained corpus by header/nav/footer hash and report minority template groups.",
+  "notes": "Hashes the first header, the first nav and the last footer of every retained page body and groups pages by that triple; the largest group is the site template, every other group is a minority chrome variant (hand-built pages, split templates, broken chrome). Pages whose bodies were not retained are counted, not guessed from; a report over zero bodies says so.",
+  "arguments": [
+   {
+    "name": "input_path",
+    "type": "str",
+    "default": "required"
+   },
+   {
+    "name": "max_bytes",
+    "type": "int",
+    "default": "8388608"
+   },
+   {
+    "name": "sample",
+    "type": "int",
+    "default": "5"
+   }
+  ],
+  "network": false,
+  "writes": false,
+  "destructive": false,
+  "idempotent": true,
+  "paid": false,
+  "category": "checks",
   "project_aware": false
  },
  {

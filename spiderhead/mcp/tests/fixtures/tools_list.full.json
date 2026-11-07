@@ -3426,6 +3426,44 @@
     "openWorldHint": false,
     "readOnlyHint": true
    },
+   "description": "Group a retained corpus by header/nav/footer hash and report minority template groups.",
+   "inputSchema": {
+    "properties": {
+     "input_path": {
+      "title": "Scan",
+      "type": "string"
+     },
+     "max_bytes": {
+      "default": 8388608,
+      "title": "Max bytes",
+      "type": "integer"
+     },
+     "sample": {
+      "default": 5,
+      "title": "Sample",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "input_path"
+    ],
+    "title": "seo_boilerplate_reportArguments",
+    "type": "object"
+   },
+   "name": "seo_boilerplate_report",
+   "outputSchema": {
+    "additionalProperties": true,
+    "title": "seo_boilerplate_reportDictOutput",
+    "type": "object"
+   }
+  },
+  {
+   "annotations": {
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+   },
    "description": "Inspect saved shortest paths, reverse inlinks, per-link DOM context, or one URL's links.\n\nview=links pages the outgoing (direction=out) or incoming (direction=in) hyperlinks of\none URL (`url`, not a document id): anchor, rel with nofollow/sponsored/ugc flags,\ninternal/external, position when classified at scan time, and the HTTP status of the\ntarget (outgoing) or source (incoming); the status is null when that page was not\nscanned. Filters: link_type, follow, status_class (2xx..5xx, broken, error, unscanned),\ncontains; sort (out only): order, url, status. At most 200 rows per page with offset;\npreset=inlinks selects internal incoming links; preset=broken_links selects internal\noutgoing links whose saved targets are broken.\n`total` and `filtered_total` are exact or flagged capped/null. The scan is opened\nread-only without full validation; failures carry a machine `reason_code`\n(url_not_found, scan_not_available, url_not_scanned, links_not_retained).\n\nPath hops and inlinks cite exact link IDs and scan identity; absence in a\npartial graph is never a confirmed orphan. Inlinks use a cursor bound to\nscan/revision/target/representation. Context requires link_id or\ndocument_id, and missing retained bodies return unavailable evidence.\nNo network request or scan mutation occurs. Path defaults to 10,000\nvisited nodes, 200,000 examined edges, 20 hops and 15 seconds (hard\nmaxima 100,000/2,000,000/100/30). Inlinks page at most 500 rows; context\npages at most 500 rows and one document, with an 8 MiB body hard cap.\nmax_bytes bounds serialized item output (4 KiB..8 MiB); an over-budget\nfull response returns a named limit result. Invalid scans and URLs are\nerror results, not empty or clean graph evidence.\n",
    "inputSchema": {
     "properties": {
@@ -14460,7 +14498,7 @@
     "openWorldHint": true,
     "readOnlyHint": true
    },
-   "description": "Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6,\nJSON-LD, links, visible text, word count) from one URL or a list of URLs.",
+   "description": "Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6,\nJSON-LD, links, visible text, main-content word count) from one URL or a list of URLs.",
    "inputSchema": {
     "properties": {
      "options": {

@@ -25,6 +25,7 @@ pub mod project_ops;
 pub mod projects;
 pub mod reports;
 pub mod scan;
+pub mod scan_boilerplate;
 pub mod scan_content;
 pub mod scan_evidence;
 pub mod scan_headers;
@@ -89,6 +90,7 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("scan_url_detail", scan_ops::scan_url_detail),
         ("scan_url_history", scan_ops::scan_url_history),
         ("headers_analyze", scan_headers::headers_analyze),
+        ("boilerplate_report", scan_boilerplate::boilerplate_report),
         ("scan_evidence", scan_evidence::scan_evidence),
         ("scan_extract", scan_evidence::scan_extract),
         ("scan_content_search", scan_content::scan_content_search),

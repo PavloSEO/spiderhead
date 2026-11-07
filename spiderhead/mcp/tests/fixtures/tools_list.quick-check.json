@@ -573,7 +573,7 @@
     "openWorldHint": true,
     "readOnlyHint": true
    },
-   "description": "Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6,\nJSON-LD, links, visible text, word count) from one URL or a list of URLs.",
+   "description": "Parse SEO data (title, meta description, canonical, OG/Twitter, H1-H6,\nJSON-LD, links, visible text, main-content word count) from one URL or a list of URLs.",
    "inputSchema": {
     "properties": {
      "options": {
