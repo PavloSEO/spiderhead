@@ -90,6 +90,28 @@ fn sub(p: &str, root: &Path) -> String {
     p.replace("{root}", &root.display().to_string())
 }
 
+/// Give the globbed fixture files strictly ordered mtimes (oldest → newest).
+fn pin_fixture_mtimes() {
+    use std::time::{Duration, SystemTime};
+    let ordered = [
+        "spiderconfig_fs/c1/crawl-a.seospiderconfig",
+        "spiderconfig_fs/c2/crawl-b.seospiderconfig",
+        "spiderconfig_fs/out/throttle-ok.seospiderconfig",
+    ];
+    let now = SystemTime::now();
+    for (index, name) in ordered.iter().enumerate() {
+        let path = fs_root().join(name);
+        if let Ok(file) = fs::File::options().write(true).open(&path) {
+            let mtime = now - Duration::from_secs((ordered.len() - index) as u64 * 3600);
+            let _ = file.set_times(
+                std::fs::FileTimes::new()
+                    .set_accessed(mtime)
+                    .set_modified(mtime),
+            );
+        }
+    }
+}
+
 fn check(expect: &Value, got: Result<Value, String>, name: &str) {
     match (expect.get("ok"), expect.get("error")) {
         (Some(want), _) => {
@@ -110,6 +132,11 @@ fn check(expect: &Value, got: Result<Value, String>, name: &str) {
 
 #[test]
 fn oracle_cases() {
+    // `find-glob-latest` picks the newest match, and git checkout gives every
+    // fixture file the same mtime — so "newest" would fall back to glob order,
+    // which the filesystem is free to change per host. Pin the mtimes so the
+    // newest file is `out/throttle-ok.seospiderconfig` on every platform.
+    pin_fixture_mtimes();
     for case in cases().as_array().unwrap() {
         let name = case["name"].as_str().unwrap();
         let kind = case["kind"].as_str().unwrap();

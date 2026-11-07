@@ -325,9 +325,10 @@ mod tests {
         let port = held.local_addr().expect("addr").port();
         let state = mcp_http_bind_state("127.0.0.1", port);
         assert_eq!(state["state"], "busy");
+        // EADDRINUSE is 48 on macOS and 98 on Linux; the text mirrors the OS value.
         assert!(state["reason"]
             .as_str()
             .unwrap_or_default()
-            .starts_with("[Errno 48]"));
+            .starts_with(&format!("[Errno {}]", libc::EADDRINUSE)));
     }
 }

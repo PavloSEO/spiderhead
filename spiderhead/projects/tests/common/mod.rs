@@ -104,6 +104,12 @@ fn base_re() -> &'static regex::Regex {
     &RE
 }
 
+/// `launchctl bootstrap gui/<uid> …` embeds the recording user's uid.
+fn uid_re() -> &'static regex::Regex {
+    static RE: LazyLock<regex::Regex> = LazyLock::new(|| regex::Regex::new(r"gui/\d+").unwrap());
+    &RE
+}
+
 /// Keys that carry freshly generated ids (`uuid4().hex`) — volatile across runs.
 const ID_KEYS: &[&str] = &[
     "id",
@@ -125,7 +131,18 @@ const ID_KEYS: &[&str] = &[
 pub fn normalise(value: &Value, ctx: &Ctx) -> Value {
     match value {
         Value::String(s) => {
+            // The real path of the scratch dir first: on macOS the temp realpath
+            // carries a `/private` prefix, and outputs that resolved through it
+            // (archived project paths, restored dirs) must tokenise like the
+            // plain form so every host compares equal.
+            let s = match ctx.scratch.canonicalize() {
+                Ok(real) => s.replace(real.to_string_lossy().as_ref(), "<DIR>"),
+                Err(_) => s.clone(),
+            };
             let s = s.replace(ctx.scratch.to_string_lossy().as_ref(), "<DIR>");
+            // Fixtures recorded on macOS hold the resolved `/private` prefix
+            // baked into the `<DIR>` token itself.
+            let s = s.replace("/private<DIR>", "<DIR>");
             // The scheduler line embeds the running binary; its location varies by checkout.
             let s = match std::env::current_exe() {
                 Ok(exe) => s.replace(exe.to_string_lossy().as_ref(), "<EXE>"),
@@ -133,6 +150,7 @@ pub fn normalise(value: &Value, ctx: &Ctx) -> Value {
             };
             let s = base_re().replace_all(&s, "<BASE>");
             let s = uuid_re().replace_all(&s, "<UUID>");
+            let s = uid_re().replace_all(&s, "gui/<UID>");
             let s = ts_re().replace_all(&s, "<TS>");
             let s = compact_ts_re().replace_all(&s, "<TS>");
             let s = ts_id_re().replace_all(&s, "<TS>-<ID>");
@@ -311,9 +329,13 @@ pub fn run_fixture(fixture: &str) {
                 continue;
             }
             let want = &expect[i];
-            if got != *want {
+            // The recorded side goes through the same normalisation: fixtures
+            // recorded on macOS bake host-bound bits (`/private<DIR>`, `gui/501`)
+            // into otherwise-stable placeholders.
+            let want = normalise(want, &ctx);
+            if got != want {
                 let mut diffs = Vec::new();
-                walk(want, &got, "", &mut diffs);
+                walk(&want, &got, "", &mut diffs);
                 for d in diffs {
                     bad.push(format!("{name} step {i} ({op}) {d}"));
                 }
