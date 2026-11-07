@@ -94,21 +94,24 @@ fn sub(p: &str, root: &Path) -> String {
 fn pin_fixture_mtimes() {
     use std::time::{Duration, SystemTime};
     let ordered = [
-        "spiderconfig_fs/c1/crawl-a.seospiderconfig",
-        "spiderconfig_fs/c2/crawl-b.seospiderconfig",
-        "spiderconfig_fs/out/throttle-ok.seospiderconfig",
+        "c1/crawl-a.seospiderconfig",
+        "c2/crawl-b.seospiderconfig",
+        "out/throttle-ok.seospiderconfig",
     ];
     let now = SystemTime::now();
     for (index, name) in ordered.iter().enumerate() {
         let path = fs_root().join(name);
-        if let Ok(file) = fs::File::options().write(true).open(&path) {
-            let mtime = now - Duration::from_secs((ordered.len() - index) as u64 * 3600);
-            let _ = file.set_times(
-                std::fs::FileTimes::new()
-                    .set_accessed(mtime)
-                    .set_modified(mtime),
-            );
-        }
+        let file = fs::File::options()
+            .write(true)
+            .open(&path)
+            .unwrap_or_else(|e| panic!("pin {name}: {e}"));
+        let mtime = now - Duration::from_secs((ordered.len() - index) as u64 * 3600);
+        file.set_times(
+            std::fs::FileTimes::new()
+                .set_accessed(mtime)
+                .set_modified(mtime),
+        )
+        .unwrap_or_else(|e| panic!("pin {name}: {e}"));
     }
 }
 

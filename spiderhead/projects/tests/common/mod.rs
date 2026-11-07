@@ -300,8 +300,15 @@ pub fn run_fixture(fixture: &str) {
     let mut steps_run = 0usize;
     for (case_index, case) in cases.iter().enumerate() {
         let name = case["name"].as_str().unwrap_or_default();
-        let scratch =
-            std::env::temp_dir().join(format!("sh-proj-oracle-{name}-{}", std::process::id()));
+        // The scratch lives under the temp dir's real path: on macOS the given
+        // temp path is a symlink into /private, and the evidence artifact
+        // safety check (canonicalize the artifact, compare against the root as
+        // given) would answer "unsafe" purely because of that prefix — a
+        // host-bound answer, not a semantic one.
+        let temp = std::env::temp_dir()
+            .canonicalize()
+            .unwrap_or_else(|_| std::env::temp_dir());
+        let scratch = temp.join(format!("sh-proj-oracle-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&scratch);
         std::fs::create_dir_all(&scratch).expect("scratch dir");
         let mut ctx = Ctx {
