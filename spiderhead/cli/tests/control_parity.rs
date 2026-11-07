@@ -321,6 +321,10 @@ fn prepare_work(work: &Path) {
     std::env::set_var("SEOHEAD_UPDATE_STATE_PATH", work.join("update-state.json"));
     // Keep the doctor from finding a crawler installed on the host.
     std::env::set_var("SPIDERHEAD_DOCTOR_APP_DIRS", "");
+    // Keep the doctor host-independent: CI images ship a Chromium on PATH,
+    // and the fixtures hold the "not on PATH" answer. The work dir holds no
+    // executables, and nothing in these chains resolves programs by name.
+    std::env::set_var("PATH", work.as_os_str());
 }
 
 /// The doctor keys that name the interpreter, optional modules or the live

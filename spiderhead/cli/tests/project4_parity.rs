@@ -45,6 +45,7 @@ struct Norm {
     evid_re: Regex,
     ts_re: Regex,
     duration_re: Regex,
+    uid_re: Regex,
 }
 
 impl Norm {
@@ -75,6 +76,7 @@ impl Norm {
                 r"-?[0-9][0-9.eE+-]*",
             ))
             .expect("duration regex"),
+            uid_re: Regex::new(r"gui/\d+").expect("uid regex"),
         }
     }
 
@@ -140,7 +142,11 @@ impl Norm {
         for (found, token) in shorts {
             text = text.replace(&found, &token);
         }
-        text
+        // `launchctl bootstrap gui/<uid> …` embeds the running user's uid.
+        let text = self.uid_re.replace_all(&text, "gui/<UID>").into_owned();
+        // Fixtures recorded on macOS bake the temp realpath's `/private` prefix
+        // into the `<WORK>` token.
+        text.replace("/private<WORK>", "<WORK>")
     }
 }
 
@@ -345,13 +351,15 @@ fn project_group4_matches_the_reference_cli_and_mcp() {
             if i64::from(code.0) != case["exit"].as_i64().unwrap_or_default() {
                 problems += &format!("  exit: expected {}, got {}\n", case["exit"], code.0);
             }
-            let expected_stdout = case["stdout"].as_str().unwrap_or_default();
-            if actual_stdout != canonical(expected_stdout) {
-                problems += &unified_diff("stdout", expected_stdout, &actual_stdout);
+            // The recorded side goes through the same host-normalisation
+            // (macOS-recorded `gui/501` uid text, `/private<WORK>` prefixes).
+            let expected_stdout = norm.s(case["stdout"].as_str().unwrap_or_default());
+            if actual_stdout != canonical(&expected_stdout) {
+                problems += &unified_diff("stdout", &expected_stdout, &actual_stdout);
             }
-            let expected_stderr = case["stderr"].as_str().unwrap_or_default();
+            let expected_stderr = norm.s(case["stderr"].as_str().unwrap_or_default());
             if actual_stderr != expected_stderr {
-                problems += &unified_diff("stderr", expected_stderr, &actual_stderr);
+                problems += &unified_diff("stderr", &expected_stderr, &actual_stderr);
             }
             if !problems.is_empty() {
                 failures.push(format!("{name} diverges:\n{problems}"));
@@ -429,9 +437,9 @@ fn project_group4_matches_the_reference_cli_and_mcp() {
                 problems +=
                     &format!("  is_error: expected {expected_is_error}, got {actual_is_error}\n");
             }
-            let expected_text = call["text"].as_str().unwrap_or_default();
-            if normalized != canonical(expected_text) {
-                problems += &unified_diff("text", expected_text, &normalized);
+            let expected_text = norm.s(call["text"].as_str().unwrap_or_default());
+            if normalized != canonical(&expected_text) {
+                problems += &unified_diff("text", &expected_text, &normalized);
             }
             if !problems.is_empty() {
                 failures.push(format!("{name} diverges:\n{problems}"));

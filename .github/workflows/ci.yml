@@ -22,9 +22,6 @@ jobs:
   ci:
     name: ci (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    # The parity fixtures were recorded on macOS (temp-dir realpaths, uid, errno text, mtimes);
-    # the Linux leg reports but does not gate until those are made host-independent.
-    continue-on-error: ${{ matrix.os == 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       # A Windows job is added once the Windows build of every component lands.
