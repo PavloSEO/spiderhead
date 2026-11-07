@@ -15,7 +15,6 @@ use crate::error::ToolError;
 use super::kwargs;
 
 const FORMAT: &str = "spiderhead.boilerplate-report.v1";
-const ACCEPTED: [&str; 5] = ["input_path", "max_bytes", "offset", "limit", "sample"];
 /// Per-page body decode budget; a whole retained corpus fits many times over.
 const DEFAULT_MAX_BYTES: i64 = 8 * 1024 * 1024;
 /// Sample URLs listed per group.
