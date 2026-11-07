@@ -13,6 +13,7 @@ pub mod arsenkin;
 pub mod backlink_history;
 pub mod backlink_indexes;
 pub mod bing_webmaster;
+pub mod clarity;
 pub mod cloudflare;
 pub mod cloudflare_history;
 pub mod cloudflare_logs;

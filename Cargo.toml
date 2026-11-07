@@ -11,6 +11,7 @@ repository = "https://github.com/PavloSEO/spiderhead"
 [workspace.dependencies]
 chromiumoxide = "0.9"
 eframe = "0.33"
+krilla = "0.8"
 encoding_rs = "0.8"
 egui = "0.33"
 egui_extras = "0.33"

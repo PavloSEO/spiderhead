@@ -1,0 +1,116 @@
+[
+ {
+  "name": "live insights ok",
+  "args": {
+   "api_key": "tok",
+   "project_id": "p1",
+   "start_date": "2026-11-05",
+   "end_date": "2026-11-07"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 200,
+    "body": "[{\"url\":\"/\",\"deadClickCount\":2,\"rageClickCount\":1,\"scrollDepth\":75,\"activeTimeSeconds\":41}]"
+   }
+  ],
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "authorization",
+       "Bearer tok"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 60,
+     "url": "https://www.clarity.ms/export-data/api/v1/project-live-insights?projectId=p1&startDate=2026-11-05&endDate=2026-11-07&medium=json"
+    }
+   ],
+   "result": {
+    "ok": true,
+    "provider": "clarity",
+    "operation": "live_insights",
+    "project_id": "p1",
+    "start_date": "2026-11-05",
+    "end_date": "2026-11-07",
+    "row_count": 1,
+    "rows": [
+     {
+      "url": "/",
+      "deadClickCount": 2,
+      "rageClickCount": 1,
+      "scrollDepth": 75,
+      "activeTimeSeconds": 41
+     }
+    ],
+    "snapshot_note": "the export API keeps no history; store this dated answer to build trends"
+   }
+  }
+ },
+ {
+  "name": "rejected token",
+  "args": {
+   "api_key": "bad",
+   "project_id": "p1",
+   "start_date": "2026-11-05",
+   "end_date": "2026-11-07"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [
+   {
+    "status": 401,
+    "body": "{}"
+   }
+  ],
+  "expect": {
+   "pauses": [],
+   "requests": [
+    {
+     "body": "",
+     "headers": [
+      [
+       "authorization",
+       "Bearer bad"
+      ]
+     ],
+     "method": "GET",
+     "timeout": 60,
+     "url": "https://www.clarity.ms/export-data/api/v1/project-live-insights?projectId=p1&startDate=2026-11-05&endDate=2026-11-07&medium=json"
+    }
+   ],
+   "error": {
+    "class": "PermissionError",
+    "message": "clarity export request rejected with HTTP 401"
+   }
+  }
+ },
+ {
+  "name": "bad dates never request",
+  "args": {
+   "api_key": "tok",
+   "project_id": "p1",
+   "start_date": "november",
+   "end_date": "2026-11-07"
+  },
+  "env": {},
+  "clear_env": [],
+  "isolate_config": false,
+  "responses": [],
+  "expect": {
+   "pauses": [],
+   "requests": [],
+   "error": {
+    "class": "ValueError",
+    "message": "start_date and end_date must be YYYY-MM-DD"
+   }
+  }
+ }
+]
