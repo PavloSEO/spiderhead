@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
-use serde_json::{json, Value};
+use serde_json::json;
 use spiderhead_mcp::handlers;
 
 /// A loopback HTTP origin: path → (content-type, body), every requested path
