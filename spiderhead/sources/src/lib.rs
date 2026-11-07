@@ -18,6 +18,7 @@ pub mod cloudflare_history;
 pub mod cloudflare_logs;
 pub mod cloudflare_traffic;
 pub mod credentials;
+pub mod clarity;
 pub mod crtsh;
 pub mod crux;
 pub mod cwv;
