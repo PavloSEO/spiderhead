@@ -654,6 +654,45 @@ pub fn whois_lookup(domain: &str, timeout: f64) -> (Option<String>, Option<Strin
     whois_lookup_with(domain, timeout, whois_text)
 }
 
+/// Injectable seam used by tests.
+pub fn whois_lookup_with(
+    domain: &str,
+    timeout: f64,
+    whois_text: impl Fn(&str, f64, Option<&str>) -> Option<String>,
+) -> (Option<String>, Option<String>) {
+    if domain.is_empty() {
+        return (None, None);
+    }
+    let tld = domain.rsplit('.').next().unwrap_or("").to_lowercase();
+    let mapped = whois_server_for_tld(&tld).map(str::to_string);
+    if let Some(mapped) = &mapped {
+        if let Some(text) = whois_text(domain, timeout, Some(mapped)) {
+            return (Some(text), Some(mapped.clone()));
+        }
+    }
+    let Some(text) = whois_text(domain, timeout, None) else {
+        return (None, None);
+    };
+    let referral = whois_field(&text, WHOIS_REFERRAL_KEYS)
+        .map(|r| {
+            r.split("//")
+                .last()
+                .unwrap_or("")
+                .split('/')
+                .next()
+                .unwrap_or("")
+                .trim()
+                .to_lowercase()
+        })
+        .unwrap_or_default();
+    if !referral.is_empty() && Some(&referral) != mapped.as_ref() {
+        if let Some(deeper) = whois_text(domain, timeout, Some(&referral)) {
+            return (Some(deeper), Some(referral));
+        }
+    }
+    (Some(text), None)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -706,43 +745,4 @@ mod tests {
         let count = client.clients.lock().expect("clients lock").len();
         assert_eq!(count, 3, "the repeat reuses the pinned client");
     }
-}
-
-/// Injectable seam used by tests.
-pub fn whois_lookup_with(
-    domain: &str,
-    timeout: f64,
-    whois_text: impl Fn(&str, f64, Option<&str>) -> Option<String>,
-) -> (Option<String>, Option<String>) {
-    if domain.is_empty() {
-        return (None, None);
-    }
-    let tld = domain.rsplit('.').next().unwrap_or("").to_lowercase();
-    let mapped = whois_server_for_tld(&tld).map(str::to_string);
-    if let Some(mapped) = &mapped {
-        if let Some(text) = whois_text(domain, timeout, Some(mapped)) {
-            return (Some(text), Some(mapped.clone()));
-        }
-    }
-    let Some(text) = whois_text(domain, timeout, None) else {
-        return (None, None);
-    };
-    let referral = whois_field(&text, WHOIS_REFERRAL_KEYS)
-        .map(|r| {
-            r.split("//")
-                .last()
-                .unwrap_or("")
-                .split('/')
-                .next()
-                .unwrap_or("")
-                .trim()
-                .to_lowercase()
-        })
-        .unwrap_or_default();
-    if !referral.is_empty() && Some(&referral) != mapped.as_ref() {
-        if let Some(deeper) = whois_text(domain, timeout, Some(&referral)) {
-            return (Some(deeper), Some(referral));
-        }
-    }
-    (Some(text), None)
 }
