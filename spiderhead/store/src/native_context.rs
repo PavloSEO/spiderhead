@@ -553,10 +553,30 @@ pub fn validate_context(
         "seed_url" => validate_seed_url(con, item, &payload)?,
         "robots_summary" => validate_robots_summary(item, &payload)?,
         "robots_blocked_url" => validate_robots_blocked_url(con, item, &payload)?,
+        "list_urls" => {
+            // The URL-list input marker of a list-mode scan: the whole list,
+            // stored once on the fresh run so a resume restates nothing.
+            let ok = complete_run(item)
+                && text(item, "item_key") == "run"
+                && obj.is_some_and(|p| {
+                    exact_keys(p, &["urls"])
+                        && p["urls"].as_array().is_some_and(|urls| {
+                            !urls.is_empty()
+                                && urls.iter().all(|url| {
+                                    url.as_str().is_some_and(|s| {
+                                        s.starts_with("http://") || s.starts_with("https://")
+                                    })
+                                })
+                        })
+                });
+            if !ok {
+                return Err(bad("native url list context is invalid"));
+            }
+        }
         _ => {
             return Err(bad(
                 "native context kind is unsupported; expected native_commit, \
-                 robots_blocked_url, robots_summary or seed_url",
+                 robots_blocked_url, robots_summary, seed_url or list_urls",
             ))
         }
     }

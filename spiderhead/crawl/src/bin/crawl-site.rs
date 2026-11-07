@@ -154,6 +154,7 @@ fn run() -> Result<Value, String> {
         on_batch: None,
         request_gate: None,
         sitemap_only: false,
+        url_list: Vec::new(),
         resumed,
         rate_override: None,
     };

@@ -194,16 +194,15 @@ pub(crate) fn index_collection(
                     // A repeated (check, target) key is another page-level hit
                     // on the same target: fold it into the indexed row rather
                     // than refusing the comparison.
-                    let existing: Option<Option<String>> =
-                        match con.query_row(
-                            "SELECT document FROM issues WHERE side=?1 AND check_key=?2 AND url=?3",
-                            rusqlite::params![side, check, url],
-                            |row| row.get(0),
-                        ) {
-                            Ok(document) => Some(document),
-                            Err(rusqlite::Error::QueryReturnedNoRows) => None,
-                            Err(error) => return Err(CompareError(error.to_string())),
-                        };
+                    let existing: Option<Option<String>> = match con.query_row(
+                        "SELECT document FROM issues WHERE side=?1 AND check_key=?2 AND url=?3",
+                        rusqlite::params![side, check, url],
+                        |row| row.get(0),
+                    ) {
+                        Ok(document) => Some(document),
+                        Err(rusqlite::Error::QueryReturnedNoRows) => None,
+                        Err(error) => return Err(CompareError(error.to_string())),
+                    };
                     if let (Some(prev), Some(next)) = (existing.flatten(), Some(document.as_str()))
                     {
                         if let (Ok(mut hit), Ok(incoming)) =

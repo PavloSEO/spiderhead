@@ -673,10 +673,10 @@ mod tests {
     #[test]
     fn pinned_clients_are_cached_per_scheme_host_and_port() {
         let client = client();
-        let addr = |port: u16| {
-            vec![SocketAddr::from(([192, 0, 2, 10], port))]
-        };
-        client.client_for("http://site.test:80", "site.test", &addr(80)).expect("http client");
+        let addr = |port: u16| vec![SocketAddr::from(([192, 0, 2, 10], port))];
+        client
+            .client_for("http://site.test:80", "site.test", &addr(80))
+            .expect("http client");
         client
             .client_for("https://site.test:443", "site.test", &addr(443))
             .expect("https client");

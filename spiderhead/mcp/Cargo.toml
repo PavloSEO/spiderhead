@@ -35,6 +35,7 @@ spiderhead-sources.workspace = true
 spiderhead-store.workspace = true
 
 [dev-dependencies]
+rust_xlsxwriter.workspace = true
 flate2.workspace = true
 spiderhead-oracle-diff.workspace = true
 spiderhead-oracle-testkit.workspace = true

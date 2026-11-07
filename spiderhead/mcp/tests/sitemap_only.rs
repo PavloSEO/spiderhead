@@ -469,6 +469,7 @@ fn interrupted_scan_with(
     let options = CrawlOptions {
         config: Value::Object(settings.clone()),
         interrupt_after_pages: Some(1),
+        url_list: Vec::new(),
         client: spiderhead_fetch::client::build_client(15.0).expect("client"),
         start_url: start_url.to_owned(),
         seed_urls: roots.iter().map(|(url, _)| url.clone()).collect(),
@@ -881,6 +882,7 @@ fn filtered_decision_survives_native_resume_with_the_same_filters() {
         parse_options: Default::default(),
         crawl_redirects: true,
         sitemap_only: false,
+        url_list: Vec::new(),
         resumed: false,
         rate_override: None,
         on_batch: None,
