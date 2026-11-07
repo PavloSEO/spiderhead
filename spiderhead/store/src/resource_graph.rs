@@ -303,6 +303,24 @@ pub fn extract(
                 );
             }
         }
+        if name == "a" {
+            // A linked PDF is a fetchable resource of the page, not a crawl
+            // destination: document links the scanner measures, not spiders.
+            if let Some(href) = dom::attr(&tag, "href") {
+                let path = href.split(['?', '#']).next().unwrap_or("");
+                if path.to_lowercase().ends_with(".pdf") {
+                    append_one(
+                        &mut values,
+                        "pdf",
+                        "a[href]",
+                        href,
+                        &base_url,
+                        integrity,
+                        integrity_state,
+                    );
+                }
+            }
+        }
         for (attribute, kind) in carried(&name) {
             let Some(raw) = dom::attr(&tag, attribute) else {
                 continue;

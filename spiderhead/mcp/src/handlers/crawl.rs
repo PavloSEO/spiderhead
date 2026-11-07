@@ -753,6 +753,30 @@ fn crawl_scan(
         ));
     }
     let fingerprint = crawl_settings::fingerprint(&Value::Object(settings.clone()), host).ok();
+    // The artifact format follows the effective configuration; the resource
+    // graph (and with it resources.fetch) exists only on scan.v2.
+    let format_version = settings
+        .get("storage")
+        .and_then(|s| s.get("format_version"))
+        .and_then(Value::as_str)
+        .unwrap_or("scan.v1")
+        .to_owned();
+    if format_version != "scan.v1" && format_version != "scan.v2" {
+        return Err(ToolError::Failed(format!(
+            "crawl-site cannot create a {format_version} artifact"
+        )));
+    }
+    if settings
+        .get("resources")
+        .and_then(|r| r.get("fetch"))
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+        && format_version != "scan.v2"
+    {
+        return Err(ToolError::Failed(
+            "resources.fetch requires storage.format_version=scan.v2".to_owned(),
+        ));
+    }
     let declared: Vec<(String, String)> = sitemap_roots.clone();
     let mut scan = NativeScanSchemaMixin::create(
         scan_path,
@@ -765,7 +789,7 @@ fn crawl_scan(
         &oracle::limitations(),
         None,
         &declared,
-        "scan.v1",
+        &format_version,
     )
     .map_err(failed)?;
     let mut options = spider_options(
