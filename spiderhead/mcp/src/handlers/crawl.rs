@@ -160,17 +160,22 @@ pub fn crawl_site(args: &Value) -> Result<Value, ToolError> {
                 .unwrap_or_default()
         )));
     }
+    // The external phase needs the scan.v2 external_checks tables; its probes
+    // run after the internal frontier closes (see spider::external_pass).
     if settings
         .get("discovery")
         .and_then(|d| d.get("external"))
         .and_then(|e| e.get("crawl"))
         .and_then(Value::as_bool)
         .unwrap_or(false)
+        && settings
+            .get("storage")
+            .and_then(|s| s.get("format_version"))
+            .and_then(Value::as_str)
+            != Some("scan.v2")
     {
         return Err(ToolError::Failed(
-            "discovery.external.crawl is unavailable for native SQLite capture; \
-             pass --out-dir for the legacy directory route"
-                .to_owned(),
+            "discovery.external.crawl requires storage.format_version=scan.v2".to_owned(),
         ));
     }
     crawl_scan(
@@ -839,7 +844,7 @@ fn crawl_scan(
     }
     let fingerprint = crawl_settings::fingerprint(&Value::Object(settings.clone()), host).ok();
     // The artifact format follows the effective configuration; the resource
-    // graph (and with it resources.fetch) exists only on scan.v2.
+    // graph and the external checks exist only on scan.v2.
     let format_version = settings
         .get("storage")
         .and_then(|s| s.get("format_version"))
