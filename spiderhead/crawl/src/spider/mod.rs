@@ -88,6 +88,11 @@ pub struct CrawlOptions {
     /// members are the whole population — no start page, link or redirect
     /// spidering. Also detected on resume from the stored root source.
     pub sitemap_only: bool,
+    /// URL-list mode: the caller's list is the whole population — the first
+    /// entry is the scan's start URL, every entry is seeded, and no link or
+    /// redirect is spidered. A resume reads the list back from the scan's
+    /// stored input marker, so it need not restate it.
+    pub url_list: Vec<String>,
     /// True when the scan file already exists: this run continues it — stored
     /// roots, robots context and inflight leases are reused, nothing is
     /// re-declared.
@@ -206,6 +211,55 @@ pub async fn crawl_site(
         }
     }
 
+    // URL-list mode: the list is the whole population, stored durably on the
+    // fresh run so a resume (which restates no inputs) crawls the same list
+    // with the same no-discovery behaviour; a restated list must match it.
+    let mut url_list = options.url_list.clone();
+    match scan
+        .read_context("list_urls", "run")
+        .map_err(|e| e.to_string())?
+    {
+        Some(stored) => {
+            let stored_list: Vec<String> = stored
+                .get("urls")
+                .and_then(Value::as_array)
+                .map(|urls| {
+                    urls.iter()
+                        .filter_map(Value::as_str)
+                        .map(str::to_owned)
+                        .collect()
+                })
+                .unwrap_or_default();
+            if url_list.is_empty() {
+                url_list = stored_list;
+            } else if url_list != stored_list {
+                return Err("url list inputs changed; refusing unsafe resume".to_owned());
+            }
+        }
+        None => {
+            if !url_list.is_empty() {
+                if existing {
+                    return Err("resumable native scan is missing its url list".to_owned());
+                }
+                let payload = json!({ "urls": url_list });
+                scan.write_context(&[json!({
+                    "kind": "list_urls",
+                    "item_key": "run",
+                    "payload_version": "scan_context.v1",
+                    "payload_json":
+                        spiderhead_store::discovery_ledger::py_dumps(&payload, false, true),
+                    "completeness": "complete",
+                    "reason": "",
+                })])
+                .map_err(|e| e.to_string())?;
+            }
+        }
+    }
+    let list_mode = !url_list.is_empty();
+    if list_mode && !selected.is_empty() {
+        return Err("sitemap inputs do not combine with the url list mode".to_owned());
+    }
+
     // robots.txt: a resumed scan reuses its stored summary after validating the
     // requested policy/token against it; a fresh run fetches and records one.
     let saved_robots = if existing {
@@ -319,7 +373,9 @@ pub async fn crawl_site(
     if !seeded {
         // The input phase: the start seed unless sitemap-only, then the sitemap
         // members replayed or captured into the frontier.
-        if !sitemap_only {
+        if list_mode {
+            seed_url_list(scan, options, &scope, &url_list)?;
+        } else if !sitemap_only {
             scan.seed_frontier(&[start_entry(&options.start_url)])
                 .map_err(|e| e.to_string())?;
         }
@@ -347,9 +403,57 @@ pub async fn crawl_site(
         throttle,
         start_instant,
         enforcement_group,
-        sitemap_only,
+        sitemap_only || list_mode,
     )
     .await
+}
+
+/// The URL-list input phase: every entry seeds the frontier through the same
+/// gates a sitemap member passes (scope, URL length, query-variant budget),
+/// and the population is budgeted before collection starts. Entries the scope
+/// rejects stay visible as excluded seeds with their reason.
+fn seed_url_list(
+    scan: &mut NativeScan,
+    options: &CrawlOptions,
+    scope: &crate::scope::Scope,
+    urls: &[String],
+) -> Result<(), String> {
+    let normalize_tracking = options
+        .config
+        .get("scope")
+        .and_then(|s| s.get("normalize_tracking_parameters"))
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let mut population = 0i64;
+    let mut crawlable = 0i64;
+    let mut batch: Vec<Map<String, Value>> = Vec::new();
+    for member in urls {
+        population += 1;
+        if options.max_urls > 0 && population > options.max_urls {
+            return Err("url list exceeds the configured URL budget".to_owned());
+        }
+        let entry = seed_entry(member, scope, options.max_url_length, normalize_tracking);
+        if entry
+            .get("reason")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .is_empty()
+        {
+            crawlable += 1;
+        }
+        batch.push(entry);
+        if batch.len() >= 256 {
+            scan.seed_frontier(&batch).map_err(|e| e.to_string())?;
+            batch.clear();
+        }
+    }
+    if !batch.is_empty() {
+        scan.seed_frontier(&batch).map_err(|e| e.to_string())?;
+    }
+    if crawlable == 0 {
+        return Err("url list declared no crawlable URLs".to_owned());
+    }
+    Ok(())
 }
 
 /// Largest membership write the scan store accepts in one call.
@@ -508,7 +612,7 @@ async fn crawl_loop(
     mut throttle: Throttle,
     start_instant: Instant,
     enforcement_group: robots::RobotsGroup,
-    sitemap_only: bool,
+    no_discovery: bool,
 ) -> Result<CrawlOutcome, String> {
     let mut robots_blocked: Vec<String> = Vec::new();
     let mut robots_blocked_reasons: Map<String, Value> = Map::new();
@@ -722,12 +826,12 @@ async fn crawl_loop(
 
             // Links: an edge is stored for every `<a href>`.
             // Enqueue-time gates decide discovery and record decisions, in gate order.
-            // Sitemap-only runs never spider destinations: no link edges, decisions
-            // or candidates are produced at all.
+            // Sitemap-only and URL-list runs never spider destinations: no link
+            // edges, decisions or candidates are produced at all.
             let mut links: Vec<Map<String, Value>> = Vec::new();
             let mut decisions: Vec<Map<String, Value>> = Vec::new();
             let mut candidates: Vec<Map<String, Value>> = Vec::new();
-            if !sitemap_only {
+            if !no_discovery {
                 if let Some(parsed) = &fetched.parsed {
                     for link in parsed.links.iter() {
                         let mut edge = Map::new();
@@ -804,7 +908,7 @@ async fn crawl_loop(
                     }
                 }
             }
-            if options.crawl_redirects && !sitemap_only {
+            if options.crawl_redirects && !no_discovery {
                 if let Some(target) = fetched
                     .record
                     .get("redirect_url")

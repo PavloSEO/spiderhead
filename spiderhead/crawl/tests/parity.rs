@@ -101,6 +101,7 @@ fn crawl_and_dump_with_seeds(
         on_batch: None,
         request_gate: None,
         sitemap_only: false,
+        url_list: Vec::new(),
         resumed: false,
         rate_override: None,
     };
@@ -276,6 +277,7 @@ fn interrupted_crawl_resumes_to_the_same_scan() {
         on_batch: None,
         request_gate: None,
         sitemap_only: false,
+        url_list: Vec::new(),
         resumed,
         rate_override: None,
     };

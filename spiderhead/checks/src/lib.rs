@@ -31,3 +31,5 @@ pub mod semantic_similarity;
 pub mod site_audit;
 pub mod social_meta;
 pub mod soft404;
+/// `crawl-site --urls-file`: one URL list from a TXT/CSV/XLSX/XML container.
+pub mod url_lists;

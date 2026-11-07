@@ -7,6 +7,7 @@ description = "SpiderHead checks (the 298 SEO checks)."
 
 [dependencies]
 caseless.workspace = true
+calamine.workspace = true
 csv.workspace = true
 ego-tree.workspace = true
 fancy-regex.workspace = true
@@ -26,6 +27,7 @@ spiderhead-store.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
+rust_xlsxwriter.workspace = true
 spiderhead-fetch.workspace = true
 spiderhead-oracle-diff.workspace = true
 spiderhead-sources.workspace = true

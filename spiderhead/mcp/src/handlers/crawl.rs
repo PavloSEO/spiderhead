@@ -57,13 +57,14 @@ const ACCEPTED: [&str; 22] = [
 /// silently differ, so the handler refuses instead of approximating.
 /// `observer_run_id` is consumed by the project route only, so it refuses
 /// separately on the plain route.
-const UNPORTED: [&str; 4] = ["urls", "urls_file", "profile", "out_dir"];
+const UNPORTED: [&str; 2] = ["profile", "out_dir"];
 
 /// `crawl_site`: crawl a start URL into a native scan artifact, then audit it.
 ///
-/// The plain scan route carries sitemap seeding, the sitemap-only mode and
-/// resume of a retained artifact; project admission and render escalation
-/// still refuse (see [`UNPORTED`]).
+/// The plain scan route carries sitemap seeding, the sitemap-only mode, the
+/// URL-list modes (`urls` / `urls_file`, no discovery) and resume of a retained
+/// artifact; project admission and render escalation still refuse (see
+/// [`UNPORTED`]).
 pub fn crawl_site(args: &Value) -> Result<Value, ToolError> {
     let mut args = kwargs(args);
     // Both surfaces normalize the default `sitemap_only=False` to absent so a
@@ -101,16 +102,34 @@ pub fn crawl_site(args: &Value) -> Result<Value, ToolError> {
             "sitemap_only requires an explicit sitemap".to_owned(),
         ));
     }
+    let url_list = requested_urls(&args)?;
+    if url_list.is_some() && (sitemap_only || opt_str(&args, "sitemap").is_some()) {
+        return Err(ToolError::Failed(
+            "crawl-site list mode does not combine with sitemap inputs".to_owned(),
+        ));
+    }
     let resume = opt_str(&args, "resume").map(str::to_owned);
     // The sitemap URL becomes the start URL when sitemap-only is the only
-    // input; on the resume route `url` is the identity check, not a seed.
-    let url = opt_str(&args, "url").map(str::to_owned).or_else(|| {
-        if sitemap_only {
-            opt_str(&args, "sitemap").map(str::to_owned)
-        } else {
-            None
+    // input, and the first list entry does in list mode; on the resume route
+    // `url` is the identity check, not a seed.
+    let url = if let Some(list) = &url_list {
+        Some(list[0].clone())
+    } else {
+        opt_str(&args, "url").map(str::to_owned).or_else(|| {
+            if sitemap_only {
+                opt_str(&args, "sitemap").map(str::to_owned)
+            } else {
+                None
+            }
+        })
+    };
+    if let (Some(list), Some(url)) = (&url_list, opt_str(&args, "url")) {
+        if url != list[0] {
+            return Err(ToolError::Failed(
+                "crawl-site url must be the first entry of the url list".to_owned(),
+            ));
         }
-    });
+    }
     if let Some(resume) = resume {
         return resume_scan(&args, &resume, url.as_deref());
     }
@@ -163,7 +182,69 @@ pub fn crawl_site(args: &Value) -> Result<Value, ToolError> {
         sitemap_only,
         &writer_revision,
         None,
+        url_list.as_deref().unwrap_or_default(),
     )
+}
+
+/// The URL list a `crawl_site` request declares: `urls` (an array, or the
+/// CLI's comma-separated string) or `urls_file` (TXT/CSV/XLSX/XML). Exactly
+/// one shape may carry the list; entries are validated absolute HTTP(S) URLs,
+/// deduplicated in declaration order. `None` means no list was requested.
+fn requested_urls(args: &Map<String, Value>) -> Result<Option<Vec<String>>, ToolError> {
+    let inline = opt(args, "urls").filter(|value| !value.is_null() && value != &&json!([]));
+    let file = opt_str(args, "urls_file").filter(|path| !path.is_empty());
+    if inline.is_some() && file.is_some() {
+        return Err(ToolError::Failed(
+            "crawl-site urls and urls_file are mutually exclusive".to_owned(),
+        ));
+    }
+    let (raw, empty_message) = if let Some(value) = inline {
+        let list = match value {
+            Value::Array(items) => items
+                .iter()
+                .filter_map(Value::as_str)
+                .map(str::to_owned)
+                .collect::<Vec<String>>(),
+            Value::String(text) => text
+                .split(',')
+                .map(str::trim)
+                .filter(|part| !part.is_empty())
+                .map(str::to_owned)
+                .collect(),
+            _ => {
+                return Err(ToolError::Failed(
+                    "crawl-site urls must be a comma-separated list or an array of URLs".to_owned(),
+                ))
+            }
+        };
+        (list, "crawl-site urls is empty".to_owned())
+    } else if let Some(path) = file {
+        (
+            spiderhead_checks::url_lists::read_url_list(path).map_err(ToolError::Failed)?,
+            format!("urls_file {path} declared no URLs"),
+        )
+    } else {
+        return Ok(None);
+    };
+    if raw.is_empty() {
+        return Err(ToolError::Failed(empty_message));
+    }
+    let mut seen = std::collections::BTreeSet::new();
+    let mut list = Vec::new();
+    for entry in &raw {
+        let scheme = spiderhead_parse::py_url::urlsplit(entry)
+            .map(|parts| parts.scheme)
+            .unwrap_or_default();
+        if scheme != "http" && scheme != "https" {
+            return Err(ToolError::Failed(format!(
+                "url list entries must be absolute http(s) URLs: {entry}"
+            )));
+        }
+        if seen.insert(entry.clone()) {
+            list.push(entry.clone());
+        }
+    }
+    Ok(Some(list))
 }
 
 /// The effective crawl configuration a `crawl_site` dispatch resolves
@@ -438,6 +519,9 @@ fn crawl_site_project(args: &Map<String, Value>, project_dir: &Path) -> Result<V
         false,
         &writer_revision,
         project_run.as_ref(),
+        // The project route carries no list mode yet; the plain route parses
+        // its own lists before it gets here.
+        &[],
     );
     match result {
         Err(error) => {
@@ -726,6 +810,7 @@ fn crawl_scan(
     sitemap_only: bool,
     writer_revision: &str,
     project: Option<&ProjectRun>,
+    url_list: &[String],
 ) -> Result<Value, ToolError> {
     // `initial_sitemaps`: one normalized root, declared with its route's source.
     let sitemap_roots: Vec<(String, String)> = match sitemap {
@@ -776,6 +861,7 @@ fn crawl_scan(
         false,
         None,
     );
+    options.url_list = url_list.to_vec();
     if let Some(project) = project {
         // The batch boundary is where the operator's pending control requests
         // are read: a pause/stop parks the run, everything else steers it.
@@ -1270,6 +1356,7 @@ fn spider_options(
         crawl_redirects: true,
         on_batch: None,
         request_gate: None,
+        url_list: Vec::new(),
         sitemap_only,
         resumed,
         rate_override,
