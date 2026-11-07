@@ -54,7 +54,13 @@ fn sanitize_metadata(path: &Path, lang: &str) -> Result<(), String> {
 ///
 /// Returns a result object (`ok`/`status`/`error`), never an exception: `Err` is
 /// reserved for model and brand contract violations.
+///
+/// The default engine is native (no browser, issue #43); `SPIDERHEAD_PDF_ENGINE=chromium`
+/// keeps the headless-Chromium path.
 pub fn write_pdf_report(model: &Value, path: &Path, lang: &str) -> Value {
+    if std::env::var("SPIDERHEAD_PDF_ENGINE").as_deref() != Ok("chromium") {
+        return crate::pdf_native::write_pdf_report_native(model, path, lang);
+    }
     let html = match crate::audit_pdf::render_audit_pdf_html(model, lang, None) {
         Ok(html) => html,
         Err(e) => {
