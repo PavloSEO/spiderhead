@@ -5296,6 +5296,7 @@ dependencies = [
 name = "spiderhead-checks"
 version = "0.9.1"
 dependencies = [
+ "calamine",
  "caseless",
  "csv",
  "ego-tree",
@@ -5304,6 +5305,7 @@ dependencies = [
  "regex",
  "rusqlite",
  "rust-stemmers",
+ "rust_xlsxwriter",
  "scraper",
  "serde",
  "serde_json",
@@ -5483,6 +5485,7 @@ dependencies = [
  "jiff",
  "reqwest 0.12.28",
  "rusqlite",
+ "rust_xlsxwriter",
  "serde",
  "serde_json",
  "sha2",

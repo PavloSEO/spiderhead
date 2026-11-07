@@ -88,6 +88,11 @@ pub struct CrawlOptions {
     /// members are the whole population — no start page, link or redirect
     /// spidering. Also detected on resume from the stored root source.
     pub sitemap_only: bool,
+    /// URL-list mode: the caller's list is the whole population — the first
+    /// entry is the scan's start URL, every entry is seeded, and no link or
+    /// redirect is spidered. A resume reads the list back from the scan's
+    /// stored input marker, so it need not restate it.
+    pub url_list: Vec<String>,
     /// True when the scan file already exists: this run continues it — stored
     /// roots, robots context and inflight leases are reused, nothing is
     /// re-declared.
@@ -206,6 +211,55 @@ pub async fn crawl_site(
         }
     }
 
+    // URL-list mode: the list is the whole population, stored durably on the
+    // fresh run so a resume (which restates no inputs) crawls the same list
+    // with the same no-discovery behaviour; a restated list must match it.
+    let mut url_list = options.url_list.clone();
+    match scan
+        .read_context("list_urls", "run")
+        .map_err(|e| e.to_string())?
+    {
+        Some(stored) => {
+            let stored_list: Vec<String> = stored
+                .get("urls")
+                .and_then(Value::as_array)
+                .map(|urls| {
+                    urls.iter()
+                        .filter_map(Value::as_str)
+                        .map(str::to_owned)
+                        .collect()
+                })
+                .unwrap_or_default();
+            if url_list.is_empty() {
+                url_list = stored_list;
+            } else if url_list != stored_list {
+                return Err("url list inputs changed; refusing unsafe resume".to_owned());
+            }
+        }
+        None => {
+            if !url_list.is_empty() {
+                if existing {
+                    return Err("resumable native scan is missing its url list".to_owned());
+                }
+                let payload = json!({ "urls": url_list });
+                scan.write_context(&[json!({
+                    "kind": "list_urls",
+                    "item_key": "run",
+                    "payload_version": "scan_context.v1",
+                    "payload_json":
+                        spiderhead_store::discovery_ledger::py_dumps(&payload, false, true),
+                    "completeness": "complete",
+                    "reason": "",
+                })])
+                .map_err(|e| e.to_string())?;
+            }
+        }
+    }
+    let list_mode = !url_list.is_empty();
+    if list_mode && !selected.is_empty() {
+        return Err("sitemap inputs do not combine with the url list mode".to_owned());
+    }
+
     // robots.txt: a resumed scan reuses its stored summary after validating the
     // requested policy/token against it; a fresh run fetches and records one.
     let saved_robots = if existing {
@@ -319,7 +373,9 @@ pub async fn crawl_site(
     if !seeded {
         // The input phase: the start seed unless sitemap-only, then the sitemap
         // members replayed or captured into the frontier.
-        if !sitemap_only {
+        if list_mode {
+            seed_url_list(scan, options, &scope, &url_list)?;
+        } else if !sitemap_only {
             scan.seed_frontier(&[start_entry(&options.start_url)])
                 .map_err(|e| e.to_string())?;
         }
@@ -340,16 +396,107 @@ pub async fn crawl_site(
         scan.begin_collection(true).map_err(|e| e.to_string())?;
     }
 
-    crawl_loop(
+    let outcome = crawl_loop(
         scan,
         options,
         scope,
         throttle,
         start_instant,
         enforcement_group,
-        sitemap_only,
+        sitemap_only || list_mode,
     )
-    .await
+    .await?;
+    if outcome.finish_reason != "interrupted" {
+        resource_pass(scan, options)?;
+    }
+    Ok(outcome)
+}
+
+/// The scan.v2 resource fetch pass: after the frontier closes, every pending
+/// resource-graph declaration is fetched once under the `resources.graph`
+/// budgets (scope, requests, bytes, origins, redirects, nesting), its exchange
+/// recorded, and stylesheet children (`@font-face`, `url()`) declared one
+/// level deeper. scan.v1 artifacts carry no graph, so the pass is a no-op
+/// there; a parked run skips it and a later resume repeats it — URLs already
+/// fetched answer `stored` and are not requested again.
+fn resource_pass(scan: &mut NativeScan, options: &CrawlOptions) -> Result<(), String> {
+    let fetch = options
+        .config
+        .pointer("/resources/fetch")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    if !fetch {
+        return Ok(());
+    }
+    let mut fetcher = HttpResourceFetcher::new(options);
+    let started = Instant::now();
+    let mut clock = || started.elapsed().as_secs_f64();
+    let totals = spiderhead_store::resource_capture::capture(
+        scan.con(),
+        &options.config,
+        &mut fetcher,
+        &mut clock,
+    )
+    .map_err(|e| e.to_string())?;
+    let count = |name: &str| totals.get(name).copied().unwrap_or(0);
+    scan.note(&format!(
+        "resource graph pass: {} fetched, {} stored, {} excluded, {} failed, {} budget",
+        count("fetched"),
+        count("stored"),
+        count("excluded"),
+        count("failed"),
+        count("budget"),
+    ))
+    .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+/// The URL-list input phase: every entry seeds the frontier through the same
+/// gates a sitemap member passes (scope, URL length, query-variant budget),
+/// and the population is budgeted before collection starts. Entries the scope
+/// rejects stay visible as excluded seeds with their reason.
+fn seed_url_list(
+    scan: &mut NativeScan,
+    options: &CrawlOptions,
+    scope: &crate::scope::Scope,
+    urls: &[String],
+) -> Result<(), String> {
+    let normalize_tracking = options
+        .config
+        .get("scope")
+        .and_then(|s| s.get("normalize_tracking_parameters"))
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let mut population = 0i64;
+    let mut crawlable = 0i64;
+    let mut batch: Vec<Map<String, Value>> = Vec::new();
+    for member in urls {
+        population += 1;
+        if options.max_urls > 0 && population > options.max_urls {
+            return Err("url list exceeds the configured URL budget".to_owned());
+        }
+        let entry = seed_entry(member, scope, options.max_url_length, normalize_tracking);
+        if entry
+            .get("reason")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .is_empty()
+        {
+            crawlable += 1;
+        }
+        batch.push(entry);
+        if batch.len() >= 256 {
+            scan.seed_frontier(&batch).map_err(|e| e.to_string())?;
+            batch.clear();
+        }
+    }
+    if !batch.is_empty() {
+        scan.seed_frontier(&batch).map_err(|e| e.to_string())?;
+    }
+    if crawlable == 0 {
+        return Err("url list declared no crawlable URLs".to_owned());
+    }
+    Ok(())
 }
 
 /// Largest membership write the scan store accepts in one call.
@@ -508,7 +655,7 @@ async fn crawl_loop(
     mut throttle: Throttle,
     start_instant: Instant,
     enforcement_group: robots::RobotsGroup,
-    sitemap_only: bool,
+    no_discovery: bool,
 ) -> Result<CrawlOutcome, String> {
     let mut robots_blocked: Vec<String> = Vec::new();
     let mut robots_blocked_reasons: Map<String, Value> = Map::new();
@@ -528,6 +675,11 @@ async fn crawl_loop(
     let mut stopped_reason = String::new();
     let mut interrupted = false;
     let render_js = support::render_mode_is_js(&options.config);
+    let graph_v2 = scan
+        .con()
+        .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
+        .map(|version| version == 2)
+        .unwrap_or(false);
 
     loop {
         if finish_reason != "finished" {
@@ -722,12 +874,12 @@ async fn crawl_loop(
 
             // Links: an edge is stored for every `<a href>`.
             // Enqueue-time gates decide discovery and record decisions, in gate order.
-            // Sitemap-only runs never spider destinations: no link edges, decisions
-            // or candidates are produced at all.
+            // Sitemap-only and URL-list runs never spider destinations: no link
+            // edges, decisions or candidates are produced at all.
             let mut links: Vec<Map<String, Value>> = Vec::new();
             let mut decisions: Vec<Map<String, Value>> = Vec::new();
             let mut candidates: Vec<Map<String, Value>> = Vec::new();
-            if !sitemap_only {
+            if !no_discovery {
                 if let Some(parsed) = &fetched.parsed {
                     for link in parsed.links.iter() {
                         let mut edge = Map::new();
@@ -804,7 +956,7 @@ async fn crawl_loop(
                     }
                 }
             }
-            if options.crawl_redirects && !sitemap_only {
+            if options.crawl_redirects && !no_discovery {
                 if let Some(target) = fetched
                     .record
                     .get("redirect_url")
@@ -864,33 +1016,65 @@ async fn crawl_loop(
             let parsed_btree: Option<std::collections::BTreeMap<String, Value>> = parsed_map
                 .as_ref()
                 .map(|m| m.iter().map(|(k, v)| (k.clone(), v.clone())).collect());
-            let capture = spiderhead_store::crawl_records::content_evidence::capture(
-                url_id,
-                document_id,
-                "static",
-                fetched.html.as_deref(),
-                parsed_btree.as_ref(),
-                &options
-                    .config
-                    .as_object()
-                    .map(|m| {
-                        m.iter()
-                            .map(|(k, v)| (k.clone(), v.clone()))
-                            .collect::<std::collections::BTreeMap<String, Value>>()
-                    })
-                    .unwrap_or_default(),
-                None,
-                fetched
-                    .record
-                    .get("canonical")
-                    .and_then(Value::as_str)
-                    .unwrap_or(""),
-                unavailable,
-                None,
-            );
-            for row in capture {
-                context.push(row.into_iter().collect());
-            }
+            // scan.v2 artifacts ride the commit's content capture: the store
+            // sink writes the same evidence rows and fills the resource graph
+            // from the page HTML. scan.v1 keeps the loop-built rows, so its
+            // bytes stay exactly what they were.
+            let settings_map = options
+                .config
+                .as_object()
+                .map(|m| {
+                    m.iter()
+                        .map(|(k, v)| (k.clone(), v.clone()))
+                        .collect::<std::collections::BTreeMap<String, Value>>()
+                })
+                .unwrap_or_default();
+            let canonical = fetched
+                .record
+                .get("canonical")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_owned();
+            let content_capture = if graph_v2 {
+                let parsed_value = parsed_btree
+                    .as_ref()
+                    .map(|m| serde_json::to_value(m).unwrap_or(Value::Null))
+                    .unwrap_or(Value::Null);
+                Some(Map::from_iter([
+                    ("html".to_owned(), json!(fetched.html)),
+                    ("parsed".to_owned(), parsed_value),
+                    (
+                        "settings".to_owned(),
+                        Value::Object(
+                            settings_map
+                                .iter()
+                                .map(|(k, v)| (k.clone(), v.clone()))
+                                .collect(),
+                        ),
+                    ),
+                    ("indexable".to_owned(), Value::Null),
+                    ("canonical_target".to_owned(), json!(canonical)),
+                    ("unavailable_reason".to_owned(), json!(unavailable)),
+                    ("extraction_rules".to_owned(), json!([])),
+                ]))
+            } else {
+                let capture = spiderhead_store::crawl_records::content_evidence::capture(
+                    url_id,
+                    document_id,
+                    "static",
+                    fetched.html.as_deref(),
+                    parsed_btree.as_ref(),
+                    &settings_map,
+                    None,
+                    &canonical,
+                    unavailable,
+                    None,
+                );
+                for row in capture {
+                    context.push(row.into_iter().collect());
+                }
+                None
+            };
             // The inventory context exists for every HTML record: complete when
             // the parse produced declarations or the body was captured empty
             // (a bare redirect), unavailable otherwise. Reason strings mirror the
@@ -945,7 +1129,7 @@ async fn crawl_loop(
                     crawl_delay_applied,
                 )),
                 context,
-                content_capture: None,
+                content_capture,
                 route_observations: Vec::new(),
                 route_coverage: None,
                 captures: vec![fetched.capture],
@@ -1070,6 +1254,8 @@ fn control_stop(
 }
 
 mod external;
+mod resources;
 mod support;
 pub use external::external_pass;
+pub use resources::HttpResourceFetcher;
 pub use support::*;

@@ -21,6 +21,7 @@ fn oracle_root() -> PathBuf {
 /// The oracle's text normalisation: volatile shapes become stable tokens.
 struct Norm {
     work: String,
+    real_work: String,
     uuids: std::collections::BTreeMap<String, String>,
     patterns: [Regex; 4],
 }
@@ -30,6 +31,13 @@ impl Norm {
         let re = |text: &str| Regex::new(text).expect("regex");
         Norm {
             work: work.to_string_lossy().into_owned(),
+            // The temp realpath (macOS prefixes it with `/private`) must
+            // tokenise like the plain form so every host compares equal.
+            real_work: work
+                .canonicalize()
+                .unwrap_or_else(|_| work.to_path_buf())
+                .to_string_lossy()
+                .into_owned(),
             uuids: Default::default(),
             patterns: [
                 re(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"),
@@ -45,6 +53,7 @@ impl Norm {
     }
 
     fn s(&mut self, text: &str) -> String {
+        let text = text.replace(&self.real_work, "<WORK>");
         let text = text.replace(&self.work, "<WORK>");
         let text = Regex::new(r"127\.0\.0\.1:\d+")
             .expect("port")
@@ -296,6 +305,19 @@ fn first_difference(expected: &Value, actual: &Value) -> String {
     text.chars().take(1500).collect()
 }
 
+/// Fixtures recorded on macOS bake the temp realpath's `/private` prefix into
+/// the `<WORK>` token; strip it so the recorded side compares host-independent.
+fn strip_private_work(value: &mut Value) {
+    match value {
+        Value::String(text) => {
+            *text = text.replace("/private<WORK>", "<WORK>");
+        }
+        Value::Array(items) => items.iter_mut().for_each(strip_private_work),
+        Value::Object(map) => map.values_mut().for_each(strip_private_work),
+        _ => {}
+    }
+}
+
 /// Every case, every site, both surfaces: 0 divergences.
 #[test]
 fn scan_store_commands_match_the_reference_oracle() {
@@ -333,10 +355,12 @@ fn scan_store_commands_match_the_reference_oracle() {
                 ("cli", run_cli(case, site)),
                 ("mcp", run_mcp(case, site, &server)),
             ] {
-                if actual != fixture[surface] {
+                let mut expected = fixture[surface].clone();
+                strip_private_work(&mut expected);
+                if actual != expected {
                     failures.push(format!(
                         "{site}/{id} ({surface}): {}",
-                        first_difference(&fixture[surface], &actual)
+                        first_difference(&expected, &actual)
                     ));
                 }
             }
