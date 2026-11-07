@@ -161,7 +161,7 @@
       "state": "not_initialized"
      },
      "ok": true,
-     "path": "/private<DIR>/proj",
+     "path": "<DIR>/proj",
      "project": {
       "artifact_directories": {
        "log": "log.md",
@@ -192,7 +192,7 @@
     "error": "ValueError: evidence artifact is missing or unsafe"
    },
    {
-    "error": "ValueError: evidence artifact is missing or unsafe"
+    "ok": "<DIR>/proj/reports/r.md"
    },
    {
     "error": "ValueError: artifact must be a portable project-relative path"
@@ -242,10 +242,27 @@
     "error": "ValueError: completion requires approved artifact review"
    },
    {
-    "error": "ValueError: evidence artifact is missing or unsafe"
+    "ok": {
+     "artifact": "reports/r.md",
+     "artifact_verification": {
+      "identity": "<ID>",
+      "sha256": "e4f934f321eb76c9bf8b5103e0a0d9afe72d6e62ace3d3ea849790619bf7487a",
+      "verified_at": "<TS>"
+     },
+     "measurement": {
+      "reason": "specialist review or signoff; no automatic measurement is implied",
+      "state": "not_measured"
+     },
+     "reason": "done",
+     "review": "approved",
+     "reviewer": "Pavel",
+     "scope": "project",
+     "sha256": "e4f934f321eb76c9bf8b5103e0a0d9afe72d6e62ace3d3ea849790619bf7487a",
+     "status": "succeeded"
+    }
    },
    {
-    "error": "ValueError: evidence artifact is missing or unsafe"
+    "error": "ValueError: cannot read scan: file is not a database"
    },
    {
     "ok": {
@@ -257,7 +274,19 @@
     }
    },
    {
-    "error": "ValueError: evidence artifact is missing or unsafe"
+    "ok": {
+     "artifact": "reports/r.md",
+     "artifact_verification": {
+      "identity": "<ID>",
+      "sha256": "e4f934f321eb76c9bf8b5103e0a0d9afe72d6e62ace3d3ea849790619bf7487a",
+      "verified_at": "<TS>"
+     },
+     "measurement": null,
+     "reason": "n/a",
+     "reviewer": "Pavel",
+     "sha256": "e4f934f321eb76c9bf8b5103e0a0d9afe72d6e62ace3d3ea849790619bf7487a",
+     "status": "not_applicable"
+    }
    },
    {
     "error": "ValueError: applicability review requires an inspectable evidence basis"
@@ -266,7 +295,7 @@
     "error": "KeyError: 'execution_kind'"
    },
    {
-    "ok": "evidence artifact is missing or unsafe"
+    "ok": "evidence artifact changed"
    }
   ],
   "name": "evidence-validation",
@@ -543,7 +572,7 @@
       "state": "not_initialized"
      },
      "ok": true,
-     "path": "/private<DIR>/proj",
+     "path": "<DIR>/proj",
      "project": {
       "artifact_directories": {
        "log": "log.md",
@@ -671,7 +700,7 @@
       "state": "not_initialized"
      },
      "ok": true,
-     "path": "/private<DIR>/proj",
+     "path": "<DIR>/proj",
      "project": {
       "artifact_directories": {
        "log": "log.md",
@@ -822,7 +851,7 @@
       "template_references": [],
       "version": 1
      },
-     "root": "/private<DIR>/restored"
+     "root": "<DIR>/restored"
     }
    },
    {
@@ -972,7 +1001,7 @@
       "state": "not_initialized"
      },
      "ok": true,
-     "path": "/private<DIR>/proj",
+     "path": "<DIR>/proj",
      "project": {
       "artifact_directories": {
        "log": "log.md",
@@ -1314,7 +1343,7 @@
       "state": "not_initialized"
      },
      "ok": true,
-     "path": "/private<DIR>/proj",
+     "path": "<DIR>/proj",
      "project": {
       "artifact_directories": {
        "log": "log.md",
@@ -1419,7 +1448,7 @@
       "state": "not_initialized"
      },
      "ok": true,
-     "path": "/private<DIR>/proj",
+     "path": "<DIR>/proj",
      "project": {
       "artifact_directories": {
        "log": "log.md",
