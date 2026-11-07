@@ -575,10 +575,9 @@ mod tests {
         // One URL repeated past the duplicate cap: the member list stays at
         // one row and the duplicate recording stops at the cap. With the old
         // per-entry scan over `urls` this volume alone would not finish.
-        let repeats: Vec<Value> =
-            std::iter::repeat(entry("https://site.test/a"))
-                .take(MAX_DUPLICATES + 2)
-                .collect();
+        let repeats: Vec<Value> = std::iter::repeat(entry("https://site.test/a"))
+            .take(MAX_DUPLICATES + 2)
+            .collect();
         accept_entries(&mut accepted, "https://site.test/sitemap.xml", &repeats);
         assert_eq!(accepted.urls.len(), 1);
         assert_eq!(accepted.duplicates.len(), MAX_DUPLICATES);
