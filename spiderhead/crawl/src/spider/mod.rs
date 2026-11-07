@@ -396,7 +396,7 @@ pub async fn crawl_site(
         scan.begin_collection(true).map_err(|e| e.to_string())?;
     }
 
-    crawl_loop(
+    let outcome = crawl_loop(
         scan,
         options,
         scope,
@@ -405,7 +405,50 @@ pub async fn crawl_site(
         enforcement_group,
         sitemap_only || list_mode,
     )
-    .await
+    .await?;
+    if outcome.finish_reason != "interrupted" {
+        resource_pass(scan, options)?;
+    }
+    Ok(outcome)
+}
+
+/// The scan.v2 resource fetch pass: after the frontier closes, every pending
+/// resource-graph declaration is fetched once under the `resources.graph`
+/// budgets (scope, requests, bytes, origins, redirects, nesting), its exchange
+/// recorded, and stylesheet children (`@font-face`, `url()`) declared one
+/// level deeper. scan.v1 artifacts carry no graph, so the pass is a no-op
+/// there; a parked run skips it and a later resume repeats it — URLs already
+/// fetched answer `stored` and are not requested again.
+fn resource_pass(scan: &mut NativeScan, options: &CrawlOptions) -> Result<(), String> {
+    let fetch = options
+        .config
+        .pointer("/resources/fetch")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    if !fetch {
+        return Ok(());
+    }
+    let mut fetcher = HttpResourceFetcher::new(options);
+    let started = Instant::now();
+    let mut clock = || started.elapsed().as_secs_f64();
+    let totals = spiderhead_store::resource_capture::capture(
+        scan.con(),
+        &options.config,
+        &mut fetcher,
+        &mut clock,
+    )
+    .map_err(|e| e.to_string())?;
+    let count = |name: &str| totals.get(name).copied().unwrap_or(0);
+    scan.note(&format!(
+        "resource graph pass: {} fetched, {} stored, {} excluded, {} failed, {} budget",
+        count("fetched"),
+        count("stored"),
+        count("excluded"),
+        count("failed"),
+        count("budget"),
+    ))
+    .map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 /// The URL-list input phase: every entry seeds the frontier through the same
@@ -632,6 +675,11 @@ async fn crawl_loop(
     let mut stopped_reason = String::new();
     let mut interrupted = false;
     let render_js = support::render_mode_is_js(&options.config);
+    let graph_v2 = scan
+        .con()
+        .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
+        .map(|version| version == 2)
+        .unwrap_or(false);
 
     loop {
         if finish_reason != "finished" {
@@ -968,33 +1016,65 @@ async fn crawl_loop(
             let parsed_btree: Option<std::collections::BTreeMap<String, Value>> = parsed_map
                 .as_ref()
                 .map(|m| m.iter().map(|(k, v)| (k.clone(), v.clone())).collect());
-            let capture = spiderhead_store::crawl_records::content_evidence::capture(
-                url_id,
-                document_id,
-                "static",
-                fetched.html.as_deref(),
-                parsed_btree.as_ref(),
-                &options
-                    .config
-                    .as_object()
-                    .map(|m| {
-                        m.iter()
-                            .map(|(k, v)| (k.clone(), v.clone()))
-                            .collect::<std::collections::BTreeMap<String, Value>>()
-                    })
-                    .unwrap_or_default(),
-                None,
-                fetched
-                    .record
-                    .get("canonical")
-                    .and_then(Value::as_str)
-                    .unwrap_or(""),
-                unavailable,
-                None,
-            );
-            for row in capture {
-                context.push(row.into_iter().collect());
-            }
+            // scan.v2 artifacts ride the commit's content capture: the store
+            // sink writes the same evidence rows and fills the resource graph
+            // from the page HTML. scan.v1 keeps the loop-built rows, so its
+            // bytes stay exactly what they were.
+            let settings_map = options
+                .config
+                .as_object()
+                .map(|m| {
+                    m.iter()
+                        .map(|(k, v)| (k.clone(), v.clone()))
+                        .collect::<std::collections::BTreeMap<String, Value>>()
+                })
+                .unwrap_or_default();
+            let canonical = fetched
+                .record
+                .get("canonical")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_owned();
+            let content_capture = if graph_v2 {
+                let parsed_value = parsed_btree
+                    .as_ref()
+                    .map(|m| serde_json::to_value(m).unwrap_or(Value::Null))
+                    .unwrap_or(Value::Null);
+                Some(Map::from_iter([
+                    ("html".to_owned(), json!(fetched.html)),
+                    ("parsed".to_owned(), parsed_value),
+                    (
+                        "settings".to_owned(),
+                        Value::Object(
+                            settings_map
+                                .iter()
+                                .map(|(k, v)| (k.clone(), v.clone()))
+                                .collect(),
+                        ),
+                    ),
+                    ("indexable".to_owned(), Value::Null),
+                    ("canonical_target".to_owned(), json!(canonical)),
+                    ("unavailable_reason".to_owned(), json!(unavailable)),
+                    ("extraction_rules".to_owned(), json!([])),
+                ]))
+            } else {
+                let capture = spiderhead_store::crawl_records::content_evidence::capture(
+                    url_id,
+                    document_id,
+                    "static",
+                    fetched.html.as_deref(),
+                    parsed_btree.as_ref(),
+                    &settings_map,
+                    None,
+                    &canonical,
+                    unavailable,
+                    None,
+                );
+                for row in capture {
+                    context.push(row.into_iter().collect());
+                }
+                None
+            };
             // The inventory context exists for every HTML record: complete when
             // the parse produced declarations or the body was captured empty
             // (a bare redirect), unavailable otherwise. Reason strings mirror the
@@ -1049,7 +1129,7 @@ async fn crawl_loop(
                     crawl_delay_applied,
                 )),
                 context,
-                content_capture: None,
+                content_capture,
                 route_observations: Vec::new(),
                 route_coverage: None,
                 captures: vec![fetched.capture],
@@ -1160,5 +1240,7 @@ fn control_stop(
     })
 }
 
+mod resources;
 mod support;
+pub use resources::HttpResourceFetcher;
 pub use support::*;

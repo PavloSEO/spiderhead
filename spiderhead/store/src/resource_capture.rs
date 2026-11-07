@@ -287,6 +287,56 @@ pub fn capture(
             bump(&mut totals, "stored");
             continue;
         }
+        // A URL the crawl itself already measured as a page exchange is not
+        // requested again: the page's response row is the resource's exchange
+        // (a PDF the frontier crawled is recorded, never re-fetched).
+        let page_exchange: Option<(i64, String)> = {
+            let mut stmt = con.prepare(
+                "SELECT r.status_code, r.content_type FROM responses r \
+                 JOIN urls u ON u.url_id=r.request_url_id \
+                 WHERE u.url=?1 AND r.purpose='page' \
+                 ORDER BY r.response_id DESC LIMIT 1",
+            )?;
+            let mut rows = stmt.query([&url])?;
+            match rows.next()? {
+                Some(row) => Some((row.get(0)?, row.get(1)?)),
+                None => None,
+            }
+        };
+        if let Some((status, content_type)) = page_exchange {
+            let ok = (200..300).contains(&status);
+            con.execute(
+                "INSERT INTO resource_graph_fetches(resolved_url,state,reason,status_code,content_type,bytes_received,elapsed_seconds,origin_host,redirects,nesting_depth,final_url,compression,cache_state,integrity_state,width,height,body_state) \
+                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                rusqlite::params![
+                    url,
+                    if ok { "complete" } else { "failed" },
+                    "measured as a page exchange",
+                    status,
+                    content_type,
+                    0,
+                    None::<f64>,
+                    host,
+                    0,
+                    row.depth,
+                    url,
+                    "identity",
+                    "unknown",
+                    fetch_integrity_state(con, &url)?,
+                    None::<i64>,
+                    None::<i64>,
+                    "unavailable",
+                ],
+            )?;
+            set_occurrence_state(
+                con,
+                &url,
+                if ok { "complete" } else { "failed" },
+                "measured as a page exchange",
+            )?;
+            bump(&mut totals, "stored");
+            continue;
+        }
         let before = clock();
         let pass = Pass {
             graph: &graph,
