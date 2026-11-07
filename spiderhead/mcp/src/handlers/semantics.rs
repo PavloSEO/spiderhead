@@ -120,6 +120,45 @@ pub fn semantics_clusters(args: &Value) -> Result<Value, ToolError> {
     ))
 }
 
+/// `seo_cluster_google`: offline SERP clustering of Google phrases.
+pub fn cluster_google(args: &Value) -> Result<Value, ToolError> {
+    let args = kwargs(args);
+    let Some(project) = args.get("project").and_then(Value::as_str) else {
+        return Err(ToolError::Failed("project is required".to_owned()));
+    };
+    let mut options = Opts::defaults();
+    options.json = true;
+    options.language = opt_str(&args, "language").map(str::to_owned);
+    options.location = args.get("location").and_then(Value::as_i64);
+    options.min_shared = args.get("min_shared").and_then(Value::as_i64).unwrap_or(4);
+    options.top = args.get("top").and_then(Value::as_i64).unwrap_or(10);
+    checked(run_quiet_value(
+        "cluster-google",
+        project,
+        &["cluster-google"],
+        false,
+        &options,
+    ))
+}
+
+/// `seo_clusters_google`: one page of the stored Google clusters.
+pub fn clusters_google(args: &Value) -> Result<Value, ToolError> {
+    let args = kwargs(args);
+    let Some(project) = args.get("project").and_then(Value::as_str) else {
+        return Err(ToolError::Failed("project is required".to_owned()));
+    };
+    let mut options = read_options(&args);
+    options.language = opt_str(&args, "language").map(str::to_owned);
+    options.location = args.get("location").and_then(Value::as_i64);
+    checked(run_quiet_value(
+        "clusters-google",
+        project,
+        &["clusters-google"],
+        false,
+        &options,
+    ))
+}
+
 /// `seo_semantics_cluster_show`: one cluster, its phrases aggregate and landings.
 pub fn semantics_cluster_show(args: &Value) -> Result<Value, ToolError> {
     let args = kwargs(args);

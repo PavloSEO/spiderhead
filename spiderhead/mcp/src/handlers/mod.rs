@@ -25,6 +25,7 @@ pub mod project_ops;
 pub mod projects;
 pub mod reports;
 pub mod scan;
+pub mod scan_boilerplate;
 pub mod scan_content;
 pub mod scan_evidence;
 pub mod scan_headers;
@@ -89,6 +90,7 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("scan_url_detail", scan_ops::scan_url_detail),
         ("scan_url_history", scan_ops::scan_url_history),
         ("headers_analyze", scan_headers::headers_analyze),
+        ("boilerplate_report", scan_boilerplate::boilerplate_report),
         ("scan_evidence", scan_evidence::scan_evidence),
         ("scan_extract", scan_evidence::scan_extract),
         ("scan_content_search", scan_content::scan_content_search),
@@ -308,6 +310,8 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("semantics_run", semantics::semantics_run),
         ("semantics_paid", semantics::semantics_paid),
         ("semantics_clusters", semantics::semantics_clusters),
+        ("cluster_google", semantics::cluster_google),
+        ("clusters_google", semantics::clusters_google),
         ("semantics_cluster_show", semantics::semantics_cluster_show),
         (
             "semantics_cluster_queries",

@@ -203,7 +203,7 @@ mod tests {
     #[test]
     fn profile_counts_match_the_reference_registry() {
         let catalog = Catalog::global();
-        assert_eq!(catalog.names_for_profile(Profile::Full).len(), 255);
+        assert_eq!(catalog.names_for_profile(Profile::Full).len(), 258);
         assert_eq!(catalog.names_for_profile(Profile::Audit).len(), 10);
         assert_eq!(catalog.names_for_profile(Profile::Infra).len(), 11);
         assert_eq!(catalog.names_for_profile(Profile::QuickCheck).len(), 10);

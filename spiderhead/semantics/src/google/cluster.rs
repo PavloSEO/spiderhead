@@ -22,6 +22,8 @@ const TOP_DOMAINS: usize = 5;
 const MEMBER_CAP: usize = 100;
 
 /// URL identity for overlap: no scheme, `www.`, query, fragment or trailing slash.
+/// `google.com/goto?url=…` redirect tokens are dropped: the opaque token differs
+/// between SERPs, so such results can never match (issue #42).
 pub fn url_key(url: &str) -> Option<String> {
     let u = url.trim();
     let u = u.split_once("://").map_or(u, |x| x.1);
@@ -30,6 +32,9 @@ pub fn url_key(url: &str) -> Option<String> {
     let host = host.to_lowercase();
     let host = host.strip_prefix("www.").unwrap_or(&host);
     let path = path.trim_end_matches('/');
+    if host == "google.com" && (path == "goto" || path.starts_with("goto/")) {
+        return None;
+    }
     if host.is_empty() {
         None
     } else if path.is_empty() {
@@ -569,4 +574,25 @@ pub fn counts(conn: &Connection) -> Value {
             .map(|it| out.extend(it.flatten()));
     }
     Value::Array(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::url_key;
+
+    /// A google.com/goto redirect token differs between SERPs, so it can never
+    /// match: it must not enter overlap or domain statistics (issue #42).
+    #[test]
+    fn google_goto_tokens_are_dropped() {
+        assert_eq!(url_key("https://google.com/goto?url=abc"), None);
+        assert_eq!(url_key("https://www.google.com/goto?q=x"), None);
+        assert_eq!(
+            url_key("https://www.google.com/"),
+            Some("google.com".to_owned())
+        );
+        assert_eq!(
+            url_key("https://maps.google.com/maps"),
+            Some("maps.google.com/maps".to_owned())
+        );
+    }
 }

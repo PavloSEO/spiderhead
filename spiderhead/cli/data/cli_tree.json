@@ -17452,7 +17452,7 @@
       "type": "int",
       "choices": null,
       "required": false,
-      "help": null,
+      "help": "characters to read, 1..65536; continue with --offset",
       "metavar": null
      },
      {
@@ -17905,7 +17905,7 @@
       "type": "int",
       "choices": null,
       "required": false,
-      "help": null,
+      "help": "page size, 1..200 (page through with --offset)",
       "metavar": null
      },
      {
@@ -19041,7 +19041,7 @@
       "type": "int",
       "choices": null,
       "required": false,
-      "help": null,
+      "help": "page size, 1..200 (page through with --offset)",
       "metavar": null
      },
      {
@@ -37675,7 +37675,7 @@
         "type": "int",
         "choices": null,
         "required": false,
-        "help": null,
+        "help": "page size, 1..200 (page through with --offset)",
         "metavar": null
        },
        {
@@ -38528,7 +38528,7 @@
         "type": "int",
         "choices": null,
         "required": false,
-        "help": null,
+        "help": "page size, 1..200 (page through with --offset)",
         "metavar": null
        },
        {

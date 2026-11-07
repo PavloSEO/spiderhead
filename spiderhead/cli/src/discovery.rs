@@ -39,6 +39,17 @@ pub fn fill_project(cmd: &mut ParsedCommand) {
     if creates(&cmd.path) {
         return;
     }
+    // An explicit `--audit` pins the report source: the working-directory
+    // project must not override it, or a site mismatch would refuse a report
+    // the caller never asked to bind (issue #29).
+    if cmd.path == ["report-build"]
+        && cmd
+            .values
+            .get("audit")
+            .is_some_and(|value| !value.is_null())
+    {
+        return;
+    }
     let unset = |cmd: &ParsedCommand, key: &str| cmd.values.get(key).is_some_and(Value::is_null);
     let keys: Vec<&str> = ["project", "directory"]
         .into_iter()
