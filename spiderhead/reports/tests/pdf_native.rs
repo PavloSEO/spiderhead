@@ -48,13 +48,14 @@ fn native_pdf_is_a_valid_document_with_pages_and_cyrillic() {
     );
     let bytes = std::fs::read(&path).expect("pdf bytes");
     assert!(bytes.starts_with(b"%PDF-"), "not a PDF");
-    assert!(bytes.len() > 1_000, "suspiciously small pdf: {}", bytes.len());
-    // The Cyrillic title survives as embedded font data, not a panic path.
-    let result_en = write_pdf_report_native(
-        &model("en-check"),
-        &dir.path().join("report-en.pdf"),
-        "en",
+    assert!(
+        bytes.len() > 1_000,
+        "suspiciously small pdf: {}",
+        bytes.len()
     );
+    // The Cyrillic title survives as embedded font data, not a panic path.
+    let result_en =
+        write_pdf_report_native(&model("en-check"), &dir.path().join("report-en.pdf"), "en");
     assert_eq!(result_en["ok"], json!(true), "{result_en:?}");
 }
 

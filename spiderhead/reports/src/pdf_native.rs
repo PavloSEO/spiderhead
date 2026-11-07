@@ -137,7 +137,11 @@ pub fn write_pdf_report_native(model: &Value, path: &Path, lang: &str) -> Value 
         .get("findings_by_severity")
         .cloned()
         .unwrap_or(json!({}));
-    let pages_label = if ru { "Страниц проверено" } else { "Pages checked" };
+    let pages_label = if ru {
+        "Страниц проверено"
+    } else {
+        "Pages checked"
+    };
     let findings_label = if ru { "Находок" } else { "Findings" };
     layout.line(
         &format!(
@@ -171,7 +175,10 @@ pub fn write_pdf_report_native(model: &Value, path: &Path, lang: &str) -> Value 
     for row in rows.iter().take(MAX_ROWS) {
         let record = row.get("record").cloned().unwrap_or(Value::Null);
         let display = row.get("display").cloned().unwrap_or(Value::Null);
-        let severity = record.get("severity").and_then(Value::as_str).unwrap_or("—");
+        let severity = record
+            .get("severity")
+            .and_then(Value::as_str)
+            .unwrap_or("—");
         let check = display
             .get("check_key")
             .and_then(Value::as_str)
@@ -228,8 +235,8 @@ pub fn write_pdf_report_native(model: &Value, path: &Path, lang: &str) -> Value 
         if lines.is_empty() && layout.pages.len() > 1 {
             continue;
         }
-        let mut page = document
-            .start_page_with(PageSettings::from_wh(A4_W, A4_H).expect("A4 size"));
+        let mut page =
+            document.start_page_with(PageSettings::from_wh(A4_W, A4_H).expect("A4 size"));
         let mut surface = page.surface();
         let mut y = MARGIN;
         for spec in lines {

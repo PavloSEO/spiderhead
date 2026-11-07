@@ -54,7 +54,10 @@ fn first_span(html: &str, tag: &str) -> Option<String> {
     let start = loop {
         let at = lower[from..].find(&open)? + from;
         let after = lower[at + open.len()..].chars().next();
-        if matches!(after, Some(' ') | Some('>') | Some('/') | Some('\n') | Some('\t') | None) {
+        if matches!(
+            after,
+            Some(' ') | Some('>') | Some('/') | Some('\n') | Some('\t') | None
+        ) {
             break at;
         }
         from = at + open.len();
@@ -193,11 +196,7 @@ pub fn boilerplate_report(args: &Value) -> Result<Value, ToolError> {
             })
         })
         .collect();
-    let minority: i64 = ranked
-        .iter()
-        .skip(1)
-        .map(|(_, count)| *count)
-        .sum();
+    let minority: i64 = ranked.iter().skip(1).map(|(_, count)| *count).sum();
     Ok(json!({
         "ok": true,
         "format": FORMAT,

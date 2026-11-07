@@ -50,9 +50,9 @@ pub fn validate_scalar_storage(con: &Connection) -> Result<(), StoreError> {
                 let probe = format!(
                     "SELECT typeof(\"{name}\"), rowid FROM \"{table}\" WHERE {check} LIMIT 1"
                 );
-                if let Ok((found, rowid)) =
-                    con.query_row(&probe, [], |row| Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?)))
-                {
+                if let Ok((found, rowid)) = con.query_row(&probe, [], |row| {
+                    Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?))
+                }) {
                     return Err(bad(format!(
                         "{table}.\"{name}\" row {rowid} holds a {found} value: the scan was \
                          written by another schema version (seohead 3.x or an older \
