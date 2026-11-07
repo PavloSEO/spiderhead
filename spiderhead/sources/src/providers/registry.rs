@@ -174,6 +174,16 @@ pub const REGISTRY: &[(&str, RegistryEntry)] = &[
         ),
     ),
     (
+        "clarity",
+        entry(
+            &["api_key"],
+            "read_only",
+            &["live_insights"],
+            "Clarity per-project API daily request limit",
+            "restricted",
+        ),
+    ),
+    (
         "crtsh",
         entry(
             &[],

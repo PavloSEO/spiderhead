@@ -101,7 +101,29 @@ pub fn google_keywords(args: &Value) -> Result<Value, ToolError> {
     let (host, root) = environment();
     let transport = transport()?;
     let env = DfsEnv::live(&host, &root, &transport);
-    let prices = opt(&args, "prices");
+    let mut prices = opt(&args, "prices").cloned();
+    // A spend ceiling needs prices: when none was supplied, pull the free
+    // appendix/user_data snapshot the way `dataforseo-estimate --refresh-prices`
+    // does, so the gate can run without a manual snapshot (issue #34). A failed
+    // lookup falls through to the caller's own unpriced-ceiling refusal.
+    if prices.is_none()
+        && opt(&args, "spend_ceiling_usd").is_some_and(|v| !v.is_null())
+        && opt(&args, "env").and_then(Value::as_str) == Some("prod")
+    {
+        let client = Client::new(
+            &env,
+            &ClientArgs {
+                env_name: opt(&args, "env"),
+                ..ClientArgs::default()
+            },
+        );
+        if let Ok(client) = client {
+            if let Ok(account) = run(client.balance())? {
+                prices = account.get("prices").cloned();
+            }
+        }
+    }
+    let prices = prices.as_ref();
     let ceiling = opt(&args, "spend_ceiling_usd");
     let seed = present(&args, "seed");
     let difficulty = opt_bool(&args, "difficulty").unwrap_or(false);
