@@ -332,6 +332,7 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("sources_export", sources::sources_export),
         ("wayback_history", sources_net::wayback_history),
         ("crtsh_subdomains", sources_net::crtsh_subdomains),
+        ("clarity_live_insights", sources_net::clarity_live_insights),
         ("regions_tree", sources_net::regions_tree),
         ("indexnow_submit", sources_net::indexnow_submit),
         ("topvisor_read", sources_net::topvisor_read),

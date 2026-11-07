@@ -28,6 +28,7 @@ pub mod json_out;
 pub mod looker_link;
 pub mod md;
 pub mod pdf_model;
+pub mod pdf_native;
 pub mod pdf_output;
 pub mod pdf_stream;
 pub mod pdf_validation;

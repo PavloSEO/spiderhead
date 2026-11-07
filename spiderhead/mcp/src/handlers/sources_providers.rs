@@ -160,6 +160,21 @@ fn live_dispatch(route: &str, request: Option<&Value>) -> Result<Value, Dispatch
             ))?
             .map_err(|e| dispatch_error(e.error_class(), e.to_string()))
         }
+        "clarity.live_insights" => {
+            let kw = checked_kwargs(
+                request,
+                "live_insights",
+                &["api_key", "project_id", "start_date", "end_date"],
+            )?;
+            go_(spiderhead_sources::clarity::live_insights(
+                &transport,
+                kw.get("api_key").and_then(Value::as_str).unwrap_or(""),
+                kw.get("project_id").and_then(Value::as_str).unwrap_or(""),
+                kw.get("start_date").and_then(Value::as_str).unwrap_or(""),
+                kw.get("end_date").and_then(Value::as_str).unwrap_or(""),
+            ))?
+            .map_err(|e| dispatch_error(e.error_class(), e.to_string()))
+        }
         "crtsh.subdomains" => {
             let kw = checked_kwargs(request, "subdomains", &["domain"])?;
             go_(spiderhead_sources::crtsh::subdomains(

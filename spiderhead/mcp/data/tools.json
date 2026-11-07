@@ -7960,6 +7960,53 @@
         "full"
       ],
       "spec": {
+        "name": "seo_clarity_live_insights",
+        "description": "Pull one Microsoft Clarity project's live behavioral insights (dead clicks, rage clicks, scroll depth, engagement) as a dated snapshot.",
+        "inputSchema": {
+          "properties": {
+            "api_key": {
+              "title": "API key",
+              "type": "string"
+            },
+            "project_id": {
+              "title": "Project id",
+              "type": "string"
+            },
+            "start_date": {
+              "title": "Start date (YYYY-MM-DD)",
+              "type": "string"
+            },
+            "end_date": {
+              "title": "End date (YYYY-MM-DD)",
+              "type": "string"
+            }
+          },
+          "required": [
+            "api_key",
+            "project_id"
+          ],
+          "title": "seo_clarity_live_insightsArguments",
+          "type": "object"
+        },
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "seo_clarity_live_insightsDictOutput",
+          "type": "object"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        }
+      }
+    },
+    {
+      "group": "sources",
+      "profiles": [
+        "full"
+      ],
+      "spec": {
         "name": "seo_miratext_analyze",
         "description": "Start or resume Miratext analysis; paid and keyword modes need confirmation.",
         "inputSchema": {
