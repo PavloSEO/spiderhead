@@ -308,6 +308,8 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("semantics_run", semantics::semantics_run),
         ("semantics_paid", semantics::semantics_paid),
         ("semantics_clusters", semantics::semantics_clusters),
+        ("cluster_google", semantics::cluster_google),
+        ("clusters_google", semantics::clusters_google),
         ("semantics_cluster_show", semantics::semantics_cluster_show),
         (
             "semantics_cluster_queries",

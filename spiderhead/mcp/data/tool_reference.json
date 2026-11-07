@@ -9628,6 +9628,86 @@
   "project_aware": true
  },
  {
+  "name": "seo_cluster_google",
+  "command": "",
+  "summary": "Cluster Google phrases offline by shared organic top results.",
+  "notes": "Phrases of one language and location link when their organic top results share at least min_shared normalized URLs; links are transitive. google.com/goto redirect tokens never enter the overlap. Run semantics import-dataforseo first: clustering needs stored organic SERP rows.",
+  "arguments": [
+   {
+    "name": "project",
+    "type": "str",
+    "default": "required"
+   },
+   {
+    "name": "language",
+    "type": "str",
+    "default": "None"
+   },
+   {
+    "name": "location",
+    "type": "int",
+    "default": "None"
+   },
+   {
+    "name": "min_shared",
+    "type": "int",
+    "default": "4"
+   },
+   {
+    "name": "top",
+    "type": "int",
+    "default": "10"
+   }
+  ],
+  "network": false,
+  "writes": false,
+  "destructive": false,
+  "idempotent": true,
+  "paid": false,
+  "category": "semantic",
+  "project_aware": true
+ },
+ {
+  "name": "seo_clusters_google",
+  "command": "",
+  "summary": "Read one page of the stored Google phrase clusters, largest demand first.",
+  "notes": "Pages the g_clusters table written by cluster-google; every cluster carries size, volume sum, top domains, intent, page type, our position and up to 100 members. next_offset continues the page.",
+  "arguments": [
+   {
+    "name": "project",
+    "type": "str",
+    "default": "required"
+   },
+   {
+    "name": "language",
+    "type": "str",
+    "default": "None"
+   },
+   {
+    "name": "location",
+    "type": "int",
+    "default": "None"
+   },
+   {
+    "name": "offset",
+    "type": "int",
+    "default": "0"
+   },
+   {
+    "name": "limit",
+    "type": "int",
+    "default": "50"
+   }
+  ],
+  "network": false,
+  "writes": false,
+  "destructive": false,
+  "idempotent": true,
+  "paid": false,
+  "category": "semantic",
+  "project_aware": true
+ },
+ {
   "name": "seo_semantics_cluster_show",
   "command": "",
   "summary": "Read one semantic cluster, its phrases aggregate and stored landing candidates.",

@@ -15883,6 +15883,110 @@
         "full"
       ],
       "spec": {
+        "name": "seo_cluster_google",
+        "description": "Cluster Google phrases offline by shared organic top results (the semantics cluster-google stage).",
+        "inputSchema": {
+          "properties": {
+            "project": {
+              "title": "Project",
+              "type": "string"
+            },
+            "language": {
+              "title": "Language",
+              "type": "string"
+            },
+            "location": {
+              "title": "Location",
+              "type": "integer"
+            },
+            "min_shared": {
+              "title": "Min shared",
+              "type": "integer",
+              "default": 4
+            },
+            "top": {
+              "title": "Top",
+              "type": "integer",
+              "default": 10
+            }
+          },
+          "required": [
+            "project"
+          ],
+          "title": "seo_cluster_googleArguments",
+          "type": "object"
+        },
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "seo_cluster_googleDictOutput",
+          "type": "object"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        }
+      }
+    },
+    {
+      "group": "semantics",
+      "profiles": [
+        "full"
+      ],
+      "spec": {
+        "name": "seo_clusters_google",
+        "description": "Read one page of the stored Google phrase clusters, largest demand first.",
+        "inputSchema": {
+          "properties": {
+            "project": {
+              "title": "Project",
+              "type": "string"
+            },
+            "language": {
+              "title": "Language",
+              "type": "string"
+            },
+            "location": {
+              "title": "Location",
+              "type": "integer"
+            },
+            "offset": {
+              "title": "Offset",
+              "type": "integer",
+              "default": 0
+            },
+            "limit": {
+              "title": "Limit",
+              "type": "integer",
+              "default": 50
+            }
+          },
+          "required": [
+            "project"
+          ],
+          "title": "seo_clusters_googleArguments",
+          "type": "object"
+        },
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "seo_clusters_googleDictOutput",
+          "type": "object"
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        }
+      }
+    },
+    {
+      "group": "semantics",
+      "profiles": [
+        "full"
+      ],
+      "spec": {
         "name": "seo_semantics_cluster_show",
         "description": "Read one semantic cluster, its phrases aggregate and stored landing candidates.",
         "inputSchema": {

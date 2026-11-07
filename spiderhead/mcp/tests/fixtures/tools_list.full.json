@@ -14134,6 +14134,98 @@
     "openWorldHint": false,
     "readOnlyHint": true
    },
+   "description": "Cluster Google phrases offline by shared organic top results (the semantics cluster-google stage).",
+   "inputSchema": {
+    "properties": {
+     "language": {
+      "title": "Language",
+      "type": "string"
+     },
+     "location": {
+      "title": "Location",
+      "type": "integer"
+     },
+     "min_shared": {
+      "default": 4,
+      "title": "Min shared",
+      "type": "integer"
+     },
+     "project": {
+      "title": "Project",
+      "type": "string"
+     },
+     "top": {
+      "default": 10,
+      "title": "Top",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "project"
+    ],
+    "title": "seo_cluster_googleArguments",
+    "type": "object"
+   },
+   "name": "seo_cluster_google",
+   "outputSchema": {
+    "additionalProperties": true,
+    "title": "seo_cluster_googleDictOutput",
+    "type": "object"
+   }
+  },
+  {
+   "annotations": {
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+   },
+   "description": "Read one page of the stored Google phrase clusters, largest demand first.",
+   "inputSchema": {
+    "properties": {
+     "language": {
+      "title": "Language",
+      "type": "string"
+     },
+     "limit": {
+      "default": 50,
+      "title": "Limit",
+      "type": "integer"
+     },
+     "location": {
+      "title": "Location",
+      "type": "integer"
+     },
+     "offset": {
+      "default": 0,
+      "title": "Offset",
+      "type": "integer"
+     },
+     "project": {
+      "title": "Project",
+      "type": "string"
+     }
+    },
+    "required": [
+     "project"
+    ],
+    "title": "seo_clusters_googleArguments",
+    "type": "object"
+   },
+   "name": "seo_clusters_google",
+   "outputSchema": {
+    "additionalProperties": true,
+    "title": "seo_clusters_googleDictOutput",
+    "type": "object"
+   }
+  },
+  {
+   "annotations": {
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+   },
    "description": "Read one semantic cluster, its phrases aggregate and stored landing candidates.",
    "inputSchema": {
     "properties": {
