@@ -325,9 +325,13 @@ mod tests {
         let port = held.local_addr().expect("addr").port();
         let state = mcp_http_bind_state("127.0.0.1", port);
         assert_eq!(state["state"], "busy");
+        // The reason mirrors the OS errno of the collision (48 on macOS, 98 on
+        // Linux): take the code from a failing bind instead of naming a constant.
+        let dup = TcpListener::bind(("127.0.0.1", port)).expect_err("second bind fails");
+        let expected = format!("[Errno {}]", dup.raw_os_error().expect("os error"));
         assert!(state["reason"]
             .as_str()
             .unwrap_or_default()
-            .starts_with("[Errno 48]"));
+            .starts_with(&expected));
     }
 }

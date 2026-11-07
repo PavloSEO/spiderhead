@@ -105,7 +105,10 @@ pub async fn live_insights<T: Transport>(
             };
             return Err(ClarityError {
                 class,
-                message: format!("clarity export request rejected with HTTP {}", response.status),
+                message: format!(
+                    "clarity export request rejected with HTTP {}",
+                    response.status
+                ),
                 status: Some(i64::from(response.status)),
             });
         }

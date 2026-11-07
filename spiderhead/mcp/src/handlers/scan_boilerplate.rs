@@ -15,7 +15,6 @@ use crate::error::ToolError;
 use super::kwargs;
 
 const FORMAT: &str = "spiderhead.boilerplate-report.v1";
-const ACCEPTED: [&str; 5] = ["input_path", "max_bytes", "offset", "limit", "sample"];
 /// Per-page body decode budget; a whole retained corpus fits many times over.
 const DEFAULT_MAX_BYTES: i64 = 8 * 1024 * 1024;
 /// Sample URLs listed per group.
@@ -54,7 +53,10 @@ fn first_span(html: &str, tag: &str) -> Option<String> {
     let start = loop {
         let at = lower[from..].find(&open)? + from;
         let after = lower[at + open.len()..].chars().next();
-        if matches!(after, Some(' ') | Some('>') | Some('/') | Some('\n') | Some('\t') | None) {
+        if matches!(
+            after,
+            Some(' ') | Some('>') | Some('/') | Some('\n') | Some('\t') | None
+        ) {
             break at;
         }
         from = at + open.len();
@@ -193,11 +195,7 @@ pub fn boilerplate_report(args: &Value) -> Result<Value, ToolError> {
             })
         })
         .collect();
-    let minority: i64 = ranked
-        .iter()
-        .skip(1)
-        .map(|(_, count)| *count)
-        .sum();
+    let minority: i64 = ranked.iter().skip(1).map(|(_, count)| *count).sum();
     Ok(json!({
         "ok": true,
         "format": FORMAT,

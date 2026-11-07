@@ -37,7 +37,7 @@ pub(crate) fn merge_issue_hit(existing: &mut Obj, incoming: &Obj) {
     let incoming_rank = incoming
         .get("severity")
         .and_then(Value::as_str)
-        .and_then(|s| Some((severity_rank(Some(s)), s)));
+        .map(|s| (severity_rank(Some(s)), s));
     let existing_rank = existing
         .get("severity")
         .and_then(Value::as_str)
@@ -162,11 +162,6 @@ pub(crate) fn key_of(issue: &Obj) -> (String, String) {
         None => String::new(),
     };
     (check, target)
-}
-
-/// reference `repr` of a `(check, target_url)` finding key, for error text parity.
-pub(crate) fn repr_key(key: &(String, String)) -> String {
-    format!("({}, {})", py_repr(&key.0), py_repr(&key.1))
 }
 
 /// `scheme://netloc` of a URL, verbatim from the split.

@@ -654,60 +654,6 @@ pub fn whois_lookup(domain: &str, timeout: f64) -> (Option<String>, Option<Strin
     whois_lookup_with(domain, timeout, whois_text)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn client() -> ReqwestReconClient {
-        ReqwestReconClient {
-            timeout: Duration::from_secs(5),
-            http2: false,
-            clients: Mutex::new(HashMap::new()),
-        }
-    }
-
-    /// A pinned client is bound to the port its addresses were resolved for,
-    /// so the cache key must span scheme, host and port: the https hop after
-    /// an http redirect (or a TLS probe after an http one) used to reuse the
-    /// `http://host` client and connect TLS to the plain port.
-    #[test]
-    fn pinned_clients_are_cached_per_scheme_host_and_port() {
-        let client = client();
-        let addr = |port: u16| {
-            vec![SocketAddr::from(([192, 0, 2, 10], port))]
-        };
-        client.client_for("http://site.test:80", "site.test", &addr(80)).expect("http client");
-        client
-            .client_for("https://site.test:443", "site.test", &addr(443))
-            .expect("https client");
-        client
-            .client_for("http://site.test:8080", "site.test", &addr(8080))
-            .expect("alt-port client");
-        let keys: Vec<String> = {
-            let map = client.clients.lock().expect("clients lock");
-            let mut keys: Vec<String> = map.keys().cloned().collect();
-            keys.sort();
-            keys
-        };
-        assert_eq!(
-            keys,
-            vec![
-                "http://site.test:80".to_string(),
-                "http://site.test:8080".to_string(),
-                "https://site.test:443".to_string(),
-            ],
-            "one pinned client per scheme+host+port"
-        );
-        // The same endpoint twice hands back the cached client: the repeat
-        // adds no fourth cache entry.
-        let _ = client
-            .client_for("https://site.test:443", "site.test", &addr(443))
-            .expect("cached https client");
-        let count = client.clients.lock().expect("clients lock").len();
-        assert_eq!(count, 3, "the repeat reuses the pinned client");
-    }
-}
-
 /// Injectable seam used by tests.
 pub fn whois_lookup_with(
     domain: &str,
@@ -745,4 +691,58 @@ pub fn whois_lookup_with(
         }
     }
     (Some(text), None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn client() -> ReqwestReconClient {
+        ReqwestReconClient {
+            timeout: Duration::from_secs(5),
+            http2: false,
+            clients: Mutex::new(HashMap::new()),
+        }
+    }
+
+    /// A pinned client is bound to the port its addresses were resolved for,
+    /// so the cache key must span scheme, host and port: the https hop after
+    /// an http redirect (or a TLS probe after an http one) used to reuse the
+    /// `http://host` client and connect TLS to the plain port.
+    #[test]
+    fn pinned_clients_are_cached_per_scheme_host_and_port() {
+        let client = client();
+        let addr = |port: u16| vec![SocketAddr::from(([192, 0, 2, 10], port))];
+        client
+            .client_for("http://site.test:80", "site.test", &addr(80))
+            .expect("http client");
+        client
+            .client_for("https://site.test:443", "site.test", &addr(443))
+            .expect("https client");
+        client
+            .client_for("http://site.test:8080", "site.test", &addr(8080))
+            .expect("alt-port client");
+        let keys: Vec<String> = {
+            let map = client.clients.lock().expect("clients lock");
+            let mut keys: Vec<String> = map.keys().cloned().collect();
+            keys.sort();
+            keys
+        };
+        assert_eq!(
+            keys,
+            vec![
+                "http://site.test:80".to_string(),
+                "http://site.test:8080".to_string(),
+                "https://site.test:443".to_string(),
+            ],
+            "one pinned client per scheme+host+port"
+        );
+        // The same endpoint twice hands back the cached client: the repeat
+        // adds no fourth cache entry.
+        let _ = client
+            .client_for("https://site.test:443", "site.test", &addr(443))
+            .expect("cached https client");
+        let count = client.clients.lock().expect("clients lock").len();
+        assert_eq!(count, 3, "the repeat reuses the pinned client");
+    }
 }
