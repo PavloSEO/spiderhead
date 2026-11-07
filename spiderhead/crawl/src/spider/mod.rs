@@ -984,6 +984,19 @@ async fn crawl_loop(
         });
     }
 
+    // The external phase runs once the internal frontier has closed and
+    // before the lifecycle finalizes: the linked-but-not-followed
+    // destinations are probed under the external_checks budgets (scan.v2
+    // only — the pass self-gates on the retained tables).
+    if options
+        .config
+        .pointer("/discovery/external/crawl")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
+        external_pass(scan, options, &options.client).await?;
+    }
+
     // Final runtime state + finish. A budget stop is a finished capture by
     // design (queued work remains deliberately); an error circuit or another
     // explicit stop keeps the interrupted lifecycle and its recorded reason.
@@ -1056,5 +1069,7 @@ fn control_stop(
     })
 }
 
+mod external;
 mod support;
+pub use external::external_pass;
 pub use support::*;
