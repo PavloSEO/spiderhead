@@ -426,7 +426,13 @@ async fn run_op(op: &Value, base: &str) -> (Value, Map<String, Value>, Vec<Value
                 bindings: bindings_ref,
                 history: history_ref,
                 spend: Some(spend_sink),
-                today: opt("today").and_then(Value::as_str).map(day_of),
+                // Cases recorded without an explicit `today` pin it to their
+                // own `since`: the 32-day history window is measured against
+                // the recording session's clock, not the test runner's.
+                today: opt("today")
+                    .and_then(Value::as_str)
+                    .map(day_of)
+                    .or_else(|| opt("since").and_then(Value::as_str).map(day_of)),
                 page_size: limits.get("page_size").and_then(Value::as_i64),
                 max_url_facts: limits
                     .get("max_url_facts")
