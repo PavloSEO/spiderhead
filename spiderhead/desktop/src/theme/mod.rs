@@ -1,6 +1,7 @@
-//! Design tokens of the window: palette (light and dark), spacing scale, radii,
-//! type scale and the bundled fonts (Inter, SIL OFL; Phosphor icons, MIT).
-//! The model stores only the theme name; `apply` maps it to egui visuals.
+//! Design tokens of the window: palette (light, dark, high contrast), spacing
+//! scale, radii, type scale, control metrics and the bundled fonts (Roboto,
+//! Roboto Mono; Material Symbols icons). The model stores only the theme name;
+//! `apply` maps it to egui visuals.
 
 pub mod tokens;
 
@@ -64,6 +65,34 @@ pub mod row {
     pub const STATUS_BAR: f32 = 22.0;
     /// Navigation panel width.
     pub const NAV_WIDTH: f32 = 200.0;
+}
+
+/// Control metrics (points) shared by fields, buttons, menus and overlays.
+pub mod control {
+    /// Height of buttons, fields, selects and segmented controls.
+    pub const H: f32 = 28.0;
+    /// Height of the compact variants.
+    pub const H_SM: f32 = 24.0;
+    /// Glyph size inside controls.
+    pub const ICON: f32 = 18.0;
+    /// Checkbox and radio box side.
+    pub const BOX: f32 = 16.0;
+    /// Switch track width.
+    pub const SWITCH_W: f32 = 32.0;
+    /// Switch track height.
+    pub const SWITCH_H: f32 = 18.0;
+    /// Menu item height.
+    pub const ITEM_H: f32 = 28.0;
+    /// Progress track thickness.
+    pub const BAR_H: f32 = 6.0;
+    /// Pill badge height (status and indexability).
+    pub const BADGE_H: f32 = 20.0;
+    /// Default modal width.
+    pub const MODAL_W: f32 = 440.0;
+    /// Toast and banner card width.
+    pub const TOAST_W: f32 = 340.0;
+    /// Opacity of the scrim behind a modal.
+    pub const SCRIM_ALPHA: u8 = 96;
 }
 
 /// The Roboto Medium face (the tokens' emphasis weight), by name.
@@ -148,6 +177,8 @@ pub struct Palette {
     pub opportunity: Color32,
     /// Status code colours: 2xx, 3xx, 4xx, 5xx.
     pub status_codes: [Color32; 4],
+    /// Categorical series colours of charts, most prominent first.
+    pub series: [Color32; 6],
 }
 
 fn rgb(hex: u32) -> Color32 {
@@ -233,6 +264,12 @@ impl Theme {
             notice: Color32::TRANSPARENT,
             opportunity: Color32::TRANSPARENT,
             status_codes: [rgb(r.s2xx), rgb(r.s3xx), rgb(r.s4xx), rgb(r.s5xx)],
+            series: match self {
+                Theme::Light => [0x1565C0, 0x64B5F6, 0xE0A100, 0x00897B, 0x7E57C2, 0x9AA0AA],
+                Theme::Dark => [0x5B9BE8, 0x9EC4F8, 0xEBA559, 0x4DB6AC, 0xB39DDB, 0x6A717D],
+                Theme::HighContrast => [0x003C8F, 0x5D5D5D, 0x7A4300, 0x0B4A22, 0x2E1F66, 0x000000],
+            }
+            .map(rgb),
         };
         p.critical = p.tone(S::Error).1;
         p.warning = p.tone(S::Warning).1;

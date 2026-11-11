@@ -5,6 +5,8 @@
 use egui::{pos2, vec2, Align2, Color32, CornerRadius, FontId, Rect, Response, Sense, Stroke, Ui};
 pub mod controls;
 pub mod icons;
+pub mod inputs;
+pub mod overlay;
 pub use controls::{button, icon_button, kbd, status_chip, BtnKind};
 use icons as ph;
 
