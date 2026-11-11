@@ -1,41 +1,27 @@
-//! The per-host rate ceiling of project crawls: held for hosts nobody
-//! confirmed, lifted for hosts the operator owns.
+//! The per-host pacing of project crawls follows the operator's configured rate.
 
 #[path = "common/testkit.rs"]
 mod testkit;
 
-use spiderhead_projects::origin_pacing::{
-    project_rate_ceiling, ProjectOriginPacer, PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND as PUBLIC,
-};
+use spiderhead_projects::origin_pacing::{paced_rate, ProjectOriginPacer};
 
 #[test]
-fn an_unconfirmed_host_is_held_at_the_public_ceiling() {
-    assert_eq!(project_rate_ceiling(10.0, false), PUBLIC);
-    assert_eq!(project_rate_ceiling(f64::INFINITY, false), PUBLIC);
-    assert_eq!(project_rate_ceiling(0.5, false), PUBLIC);
-    assert_eq!(project_rate_ceiling(PUBLIC, false), PUBLIC);
+fn the_configured_rate_stands_for_any_host() {
+    assert_eq!(paced_rate(10.0), 10.0);
+    assert_eq!(paced_rate(0.5), 0.5);
+    assert_eq!(paced_rate(200.0), 200.0);
+    // A zero delay asks for no pacing at all.
+    assert_eq!(paced_rate(f64::INFINITY), 0.0);
 }
 
 #[test]
-fn a_confirmed_host_keeps_the_requested_rate() {
-    assert_eq!(project_rate_ceiling(10.0, true), 10.0);
-    // An unbounded request means unpaced, which only a confirmed host gets.
-    assert_eq!(project_rate_ceiling(f64::INFINITY, true), 0.0);
-    assert_eq!(project_rate_ceiling(1.0, true), PUBLIC);
-}
-
-#[test]
-fn a_live_rate_change_follows_the_ownership_rule() {
+fn a_live_rate_change_takes_effect_as_given() {
     let dir = testkit::scratch("pacing", "ceiling");
     std::env::set_var(
         "SPIDERHEAD_CONFIG_DIR",
         dir.0.join("state").join("spiderhead"),
     );
-    let mut pacer =
-        ProjectOriginPacer::new(None, "https://example.com/", 0.5, PUBLIC).expect("pacer");
-    pacer.set_min_delay(0.1);
-    assert_eq!(pacer.max_requests_per_second(), PUBLIC);
-    pacer.set_owned_host(true);
+    let mut pacer = ProjectOriginPacer::new(None, "https://example.com/", 0.5, 2.0).expect("pacer");
     pacer.set_min_delay(0.1);
     assert!((pacer.max_requests_per_second() - 10.0).abs() < 1e-9);
     pacer.set_min_delay(0.0);

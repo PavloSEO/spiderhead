@@ -10,22 +10,10 @@ use std::path::{Path, PathBuf};
 use crate::error::{io, value, ProjectsError, ProjectsResult};
 use crate::workspace::load as workspace_load;
 
-/// The shared per-host ceiling applied to public crawls.
-pub const PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND: f64 = 2.0;
-
-/// The request rate a project may use against a host. Up to the public
-/// ceiling the requested rate stands; above it only a host the operator has
-/// confirmed as their own may go faster, every other host
-/// is held at the ceiling. `0.0` means unpaced and is reachable only for
-/// confirmed hosts. `requested` is the configured rate (infinite when the
-/// delay is zero).
-pub fn project_rate_ceiling(requested: f64, owned_host: bool) -> f64 {
-    if requested <= PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND {
-        return PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND;
-    }
-    if !owned_host {
-        return PUBLIC_PROJECT_MAX_REQUESTS_PER_SECOND;
-    }
+/// The pacer ceiling for a configured request rate: the operator's rate
+/// stands as given. `0.0` means unpaced; `requested` is infinite when the
+/// configured delay is zero.
+pub fn paced_rate(requested: f64) -> f64 {
     if requested.is_finite() {
         requested
     } else {
@@ -88,7 +76,6 @@ pub struct ProjectOriginPacer {
     origin: String,
     max_requests_per_second: f64,
     interval_seconds: f64,
-    owned_host: bool,
     path: PathBuf,
 }
 
@@ -123,25 +110,18 @@ impl ProjectOriginPacer {
             origin: origin(target)?,
             max_requests_per_second,
             interval_seconds: interval,
-            owned_host: false,
             path,
         })
     }
 
-    /// Record that the operator confirmed the host as their own, which lets
-    /// later live rate changes exceed the public ceiling.
-    pub fn set_owned_host(&mut self, owned: bool) {
-        self.owned_host = owned;
-    }
-
-    /// `set_min_delay`: follow a live operator rate change with the same ceiling rule.
+    /// `set_min_delay`: follow a live operator rate change.
     pub fn set_min_delay(&mut self, min_delay_seconds: f64) {
         let rate = if min_delay_seconds > 0.0 {
             1.0 / min_delay_seconds
         } else {
             f64::INFINITY
         };
-        self.max_requests_per_second = project_rate_ceiling(rate, self.owned_host);
+        self.max_requests_per_second = paced_rate(rate);
         self.interval_seconds = if self.max_requests_per_second != 0.0 {
             1.0 / self.max_requests_per_second
         } else {
