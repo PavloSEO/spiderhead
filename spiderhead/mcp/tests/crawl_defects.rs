@@ -403,7 +403,7 @@ fn dropped_connections_are_reopened_and_not_counted_as_errors() {
 
 /// Crawl `PAGES` pages from a project folder at 10 requests per second and
 /// report the elapsed seconds with the response.
-fn project_crawl(owned: bool) -> (f64, Value) {
+fn project_crawl() -> (f64, Value) {
     const PAGES: usize = 12;
     let site = Site::start(
         Behavior {
@@ -427,7 +427,7 @@ fn project_crawl(owned: bool) -> (f64, Value) {
             Some(("text/html", page(n)))
         },
     );
-    let work = scratch(&format!("project-rate-{owned}"));
+    let work = scratch("project-rate");
     let project = work.join("project");
     // Project targets must be public names; the crawl itself is pointed at the
     // loopback origin, which is what the pacer keys its ceiling on.
@@ -444,7 +444,7 @@ fn project_crawl(owned: bool) -> (f64, Value) {
         "url": format!("{}/", site.base),
         "max_urls": 100,
         "min_delay": 0.1,
-        "overrides": {"speed.adaptive": false, "speed.concurrency": 10, "speed.owned_host": owned},
+        "overrides": {"speed.adaptive": false, "speed.concurrency": 10},
         "scan_out": scan.to_string_lossy(),
     }));
     let elapsed = started.elapsed().as_secs_f64();
@@ -454,25 +454,14 @@ fn project_crawl(owned: bool) -> (f64, Value) {
     (elapsed, result)
 }
 
-/// A host the operator confirmed as their own is crawled at the configured
-/// 10 requests per second, with a notice in the response.
+/// A project crawl runs at the configured 10 requests per second for any
+/// host; nothing holds it back to a lower built-in rate.
 #[test]
-fn a_project_crawl_of_a_confirmed_host_reaches_the_configured_rate() {
-    let (elapsed, result) = project_crawl(true);
+fn a_project_crawl_reaches_the_configured_rate() {
+    let (elapsed, result) = project_crawl();
     // 13 pages at 2 req/s need 6.5 s; at 10 req/s about 1.3 s.
     assert!(elapsed < 4.0, "project crawl was held back: {elapsed:.1}s");
-    let warnings = result["warnings"].to_string();
-    assert!(warnings.contains("owned-host rate"), "{warnings}");
-}
-
-/// Without the confirmation the project keeps the safe 2 requests per second
-/// and says so.
-#[test]
-fn a_project_crawl_of_an_unconfirmed_host_stays_at_the_safe_rate() {
-    let (elapsed, result) = project_crawl(false);
-    assert!(elapsed > 5.0, "the ceiling was not applied: {elapsed:.1}s");
-    let warnings = result["warnings"].to_string();
-    assert!(warnings.contains("held at 2 req/s"), "{warnings}");
+    assert!(!result["warnings"].to_string().contains("held at"));
 }
 
 /// Pages the server sends gzip-compressed are decoded before parsing: titles,

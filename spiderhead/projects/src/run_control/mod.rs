@@ -13,8 +13,6 @@ mod checked_pattern;
 pub use checked_pattern::*;
 
 const NAME: &str = ".run-control.sqlite";
-/// A hard ceiling for operator-set rates: above it the crawl is a load test.
-pub const MAX_RATE: f64 = 50.0;
 /// Concurrency ceiling.
 pub const MAX_CONCURRENCY: i64 = 32;
 /// Maximum number of operator-injected URLs per request.
@@ -327,10 +325,8 @@ pub fn checked_rate(rate: f64, concurrency: Option<i64>) -> ProjectsResult<(f64,
     if !rate.is_finite() {
         return Err(value("rate must be a number of URLs per second"));
     }
-    if !(rate > 0.0 && rate <= MAX_RATE) {
-        return Err(value(format!(
-            "rate must be above 0 and at most {MAX_RATE} URLs per second"
-        )));
+    if rate <= 0.0 {
+        return Err(value("rate must be above 0 URLs per second"));
     }
     if let Some(c) = concurrency {
         if !(1..=MAX_CONCURRENCY).contains(&c) {

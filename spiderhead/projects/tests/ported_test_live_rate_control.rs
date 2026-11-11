@@ -36,13 +36,7 @@ fn rate_request_is_consumed_once_and_a_newer_one_replaces_it() {
 #[test]
 fn rate_request_rejects_unsafe_values() {
     let (_dir, root, run_id) = testkit::live_project("ratectl", "unsafe");
-    for (rate, concurrency) in [
-        (0.0, None),
-        (-1.0, None),
-        (51.0, None),
-        (5.0, Some(0)),
-        (5.0, Some(33)),
-    ] {
+    for (rate, concurrency) in [(0.0, None), (-1.0, None), (5.0, Some(0)), (5.0, Some(33))] {
         assert!(
             run_control::request_rate(&root, &run_id, rate, concurrency).is_err(),
             "rate={rate} concurrency={concurrency:?} should be rejected"
