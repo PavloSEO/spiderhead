@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Crawl: `crawl-site` takes URL lists through `--urls` and `--urls-file`; `resources.fetch` runs on the native crawl (scan.v2); the external checks phase runs on the native crawl.
+- Reports: the audit PDF is rendered natively; `boilerplate-report` groups a retained corpus by chrome hashes; reports can be pinned.
+- Sources: Microsoft Clarity is available as a provider; `google-keywords` refreshes the price snapshot when a spend ceiling needs it.
+- Semantics: `cluster-google` tools drop Google tracking (goto) tokens from SERP overlap.
+- CLI: `version` command.
+- CI: fixtures are host-independent; the Linux CI leg gates the build.
+
 ## 0.9.1
 
 - Semantics: Google and DataForSEO data are stored per language and location and linked to topics across engines; `import-google-csv` loads per-language keyword tables; `cluster-google` and `clusters-google` cluster Google phrases by SERP; non-Latin queries are kept during normalisation.
