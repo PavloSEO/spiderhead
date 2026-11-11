@@ -41,7 +41,7 @@ html5ever = "0.40"
 indexmap = { version = "2", features = ["serde"] }
 jsonschema = { version = "0.60", default-features = false }
 libc = "0.2"
-lopdf = "0.37"
+lopdf = "0.47"
 muda = "0.17"
 rusqlite = { version = "0.37", features = ["bundled", "hooks", "functions", "backup"] }
 libz-sys = { version = "1", features = ["static"] }
