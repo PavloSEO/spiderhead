@@ -81,7 +81,7 @@ quick-xml = "0.41"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "http2"] }
 rust-stemmers = "1"
 ruzstd = "0.9"
-rust_xlsxwriter = { version = "0.101", features = ["constant_memory"] }
+rust_xlsxwriter = { version = "0.102", features = ["constant_memory"] }
 zip = { version = "9.1", default-features = false, features = ["deflate"] }
 zstd = "0.13"
 windows-sys = { version = "0.59", features = ["Win32_Storage_FileSystem", "Win32_Networking_WinSock", "Win32_Foundation", "Win32_System_Threading"] }
