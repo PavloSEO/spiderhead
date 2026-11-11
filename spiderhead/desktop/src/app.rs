@@ -552,6 +552,10 @@ pub struct AppModel {
     pub compare: CompareState,
     /// Navigation folded to the icon rail (`ui.sidebar`).
     pub nav_collapsed: bool,
+    /// The component gallery replaces the shell (`ui.gallery`).
+    pub gallery: bool,
+    /// Gallery block to scroll to on the next frame.
+    pub gallery_section: Option<String>,
     /// Details panel visible under the URL table (`details.toggle`).
     pub details_open: bool,
     /// Per-computer settings store (`settings.*` commands).
@@ -621,6 +625,8 @@ impl AppModel {
             search: SearchState::new(),
             compare: CompareState::default(),
             nav_collapsed: false,
+            gallery: false,
+            gallery_section: None,
             details_open: true,
             settings,
             settings_page: "general".into(),
@@ -726,7 +732,16 @@ impl AppModel {
                     None => Outcome::err_msg(format!("unknown theme {mode:?} (light, dark or hc)")),
                 }
             }
+            "ui.gallery" => {
+                self.gallery = params.get("open").and_then(Value::as_bool).unwrap_or(true);
+                self.gallery_section = params
+                    .get("section")
+                    .and_then(Value::as_str)
+                    .map(str::to_owned);
+                Outcome::ok(json!({"open": self.gallery, "section": self.gallery_section}))
+            }
             "ui.mode" => {
+                self.gallery = false;
                 let id = params
                     .get("mode")
                     .and_then(Value::as_str)
@@ -777,6 +792,7 @@ impl AppModel {
                 Outcome::ok(json!({"fullscreen": "toggle"})).effect(Effect::Fullscreen)
             }
             "ui.navigate" => {
+                self.gallery = false;
                 let id = params.get("id").and_then(Value::as_str).unwrap_or("");
                 match Nav::parse(id) {
                     Some(nav) => {
@@ -2244,6 +2260,19 @@ mod tests {
     }
 
     #[test]
+    fn gallery_opens_and_any_navigation_closes_it() {
+        let mut app = app_with_basic();
+        let out = app.dispatch("ui.gallery", &json!({"section": "charts"}));
+        assert_eq!(out.answer.unwrap()["section"], "charts");
+        assert!(app.gallery);
+        app.dispatch("ui.mode", &json!({"mode": "logs"}));
+        assert!(!app.gallery);
+        app.dispatch("ui.gallery", &json!({}));
+        app.dispatch("ui.gallery", &json!({"open": false}));
+        assert!(!app.gallery);
+    }
+
+    #[test]
     fn commands_cover_the_whole_ui_surface() {
         let app = app_with_basic();
         for id in [
@@ -2267,6 +2296,7 @@ mod tests {
             "ui.navigate",
             "ui.window",
             "ui.find",
+            "ui.gallery",
             "ui.screenshot",
             "ui.inspect",
             "window.list",

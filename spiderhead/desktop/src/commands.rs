@@ -66,6 +66,11 @@ pub fn registry(scan_open: bool) -> Vec<CommandInfo> {
             "Switch the product mode or return to the chooser",
             r#"{"mode": "crawler"|"logs"|"agent"|"start", "nav": "urls"}"#,
         ),
+        cmd(
+            "ui.gallery",
+            "Show the component gallery (a block id scrolls to it)",
+            r#"{"open": true, "section": "charts"}"#,
+        ),
         cmd("ui.inspect", "The state of the window", "{}"),
         cmd(
             "ui.navigate",

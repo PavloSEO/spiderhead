@@ -3,6 +3,7 @@
 //! `AppModel::dispatch` so the control channel and the window never diverge.
 
 pub mod checks;
+pub mod gallery;
 pub mod grid;
 pub mod kit;
 pub mod menubar;
@@ -292,6 +293,18 @@ impl eframe::App for DesktopApp {
             }
         }
 
+        if self.model.gallery {
+            let p = self.model.theme.palette();
+            let section = self.model.gallery_section.take();
+            egui::CentralPanel::default()
+                .frame(
+                    egui::Frame::new()
+                        .fill(p.bg)
+                        .inner_margin(egui::Margin::same(crate::theme::space::LG as i8)),
+                )
+                .show(ctx, |ui| gallery::show(ui, self, section.as_deref()));
+            return;
+        }
         match self.model.mode {
             None => modes::start::show(ctx, self),
             Some(_) => {
