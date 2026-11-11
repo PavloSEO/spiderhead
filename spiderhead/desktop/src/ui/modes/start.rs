@@ -51,13 +51,6 @@ pub fn show(ctx: &egui::Context, app: &mut DesktopApp) {
             ui.vertical_centered(|ui| {
                 let top = (ui.available_height() - 420.0).max(48.0) * 0.5;
                 ui.add_space(top);
-                ui.label(
-                    RichText::new(i18n::APP_TITLE.to_uppercase())
-                        .size(ty::OVERLINE)
-                        .family(semibold())
-                        .color(p.accent),
-                );
-                ui.add_space(space::SM);
                 ui.label(kit::bold(i18n::START_TITLE).size(ty::HEADING + 4.0));
                 ui.add_space(space::XS);
                 ui.label(RichText::new(i18n::START_SUB).color(p.weak));

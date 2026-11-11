@@ -369,13 +369,12 @@ fn cell_ui(ui: &mut egui::Ui, p: &Palette, id: &str, kind: Kind, cell: Option<&V
         }
         _ if col_is_url(id) => {
             let text = format_cell(v);
-            ui.add(egui::Label::new(mono(text.clone())).truncate())
-                .on_hover_text(&text);
+            // A truncated label already shows its full text on hover.
+            ui.add(egui::Label::new(mono(text)).truncate());
         }
         _ => {
             let text = format_cell(v);
-            ui.add(egui::Label::new(RichText::new(&text).size(ty::BODY)).truncate())
-                .on_hover_text(&text);
+            ui.add(egui::Label::new(RichText::new(&text).size(ty::BODY)).truncate());
         }
     }
 }

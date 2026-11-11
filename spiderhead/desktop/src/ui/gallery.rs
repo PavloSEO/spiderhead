@@ -362,8 +362,8 @@ fn data(ui: &mut Ui, p: &Palette, d: &mut Demo) {
     row(ui, p, t::GAL_KEY_VALUE, |ui| {
         ui.vertical(|ui| {
             ui.set_width(300.0);
-            key_value(ui, p, t::GAL_KV_URLS, "1 314", true);
-            key_value(ui, p, t::GAL_KV_TIME, "284 мс", true);
+            key_value(ui, p, t::GAL_KV_URLS, "1 314", false);
+            key_value(ui, p, t::GAL_KV_TIME, "284 мс", false);
             key_value(ui, p, t::GAL_KV_TYPE, "text/html", false);
         });
     });

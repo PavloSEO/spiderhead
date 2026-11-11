@@ -1769,7 +1769,7 @@ pub const START_LOGS_D: &str = "Логи сервера: боты, обход и
 /// Start card: agent-mode description.
 pub const START_AGENT_D: &str = "Проект целиком: цель, задачи, входящие, семантика и отчёты.";
 /// Start screen footer hint.
-pub const START_HINT: &str = "⌘1 · ⌘2 · ⌘3 — режимы · ⌘K — действия и переходы";
+pub const START_HINT: &str = "⌘1, ⌘2, ⌘3 — инструменты, ⌘K — действия и переходы";
 
 /// Nav item: one-URL check (the former simple page).
 pub const NAV_CHECK: &str = "Проверка страницы";
@@ -1813,21 +1813,21 @@ pub const GAL_SUB: &str = "Все элементы кита в своих сос
 /// Gallery sample label.
 pub const GAL_CLOSE: &str = "Закрыть";
 /// Gallery sample label.
-pub const GAL_BUTTONS: &str = "КНОПКИ · РОЛЬ · С ИКОНКОЙ · ИКОНКИ";
+pub const GAL_BUTTONS: &str = "Кнопки";
 /// Gallery sample label.
-pub const GAL_FIELDS: &str = "ПОЛЯ · ВЫПАДАЮЩИЙ СПИСОК";
+pub const GAL_FIELDS: &str = "Поля и списки";
 /// Gallery sample label.
-pub const GAL_CHOICE: &str = "ВЫБОР · ЧЕКБОКС · РАДИО · ПЕРЕКЛЮЧАТЕЛЬ · СЕГМЕНТ";
+pub const GAL_CHOICE: &str = "Выбор";
 /// Gallery sample label.
-pub const GAL_BADGES: &str = "БЕЙДЖИ · КОД ОТВЕТА · ИНДЕКСАЦИЯ · СТАТУС";
+pub const GAL_BADGES: &str = "Бейджи";
 /// Gallery sample label.
-pub const GAL_OVERLAYS: &str = "МЕНЮ · МОДАЛЬНОЕ ОКНО · ТОСТ · БАННЕР";
+pub const GAL_OVERLAYS: &str = "Меню, окна и уведомления";
 /// Gallery sample label.
-pub const GAL_FEEDBACK: &str = "ПРОГРЕСС · СКЕЛЕТОН · ПОДСКАЗКА";
+pub const GAL_FEEDBACK: &str = "Прогресс и подсказки";
 /// Gallery sample label.
-pub const GAL_DATA: &str = "ДАННЫЕ · ВКЛАДКИ · KPI · АВАТАР · КЛЮЧ-ЗНАЧЕНИЕ";
+pub const GAL_DATA: &str = "Данные";
 /// Gallery sample label.
-pub const GAL_CHARTS: &str = "ГРАФИКИ";
+pub const GAL_CHARTS: &str = "Графики";
 /// Gallery sample label.
 pub const GAL_KINDS: &str = "Роль";
 /// Gallery sample label.
