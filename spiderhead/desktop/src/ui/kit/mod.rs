@@ -3,6 +3,7 @@
 //! both themes stay consistent.
 
 use egui::{pos2, vec2, Align2, Color32, CornerRadius, FontId, Rect, Response, Sense, Stroke, Ui};
+pub mod chart;
 pub mod controls;
 pub mod data;
 pub mod icons;
