@@ -18,10 +18,10 @@ pub fn top_bar(ctx: &egui::Context, app: &mut DesktopApp) {
     let p = app.model.theme.palette();
     egui::TopBottomPanel::top("topbar")
         .exact_height(36.0)
+        .show_separator_line(false)
         .frame(
             egui::Frame::new()
                 .fill(p.surface)
-                .stroke(egui::Stroke::new(1.0_f32, p.border))
                 // Under the transparent macOS titlebar the traffic lights
                 // occupy the left ~78 px; the toolbar starts right of them.
                 .inner_margin(egui::Margin {
@@ -47,6 +47,13 @@ pub fn top_bar(ctx: &egui::Context, app: &mut DesktopApp) {
                 app.act(method, params);
             }
         });
+    // egui's separator line and a frame border both render heavier than the
+    // `border` token, so the 1 px divider is a panel of its own.
+    egui::TopBottomPanel::top("topbar-rule")
+        .exact_height(1.0)
+        .show_separator_line(false)
+        .frame(egui::Frame::new().fill(p.border))
+        .show(ctx, |_| {});
 }
 
 /// A click in the bar: the command and its params, run after layout.
@@ -71,17 +78,21 @@ fn left_group(ui: &mut egui::Ui, app: &DesktopApp, p: &Palette, url: Option<&str
         _ => i18n::SHELL_NO_PROJECT,
     };
     kit::status_chip(ui, p, Status::NotAgreed, chip).on_hover_text(i18n::PROJECTS_TIP);
-    match app.model.scan.is_some() {
-        true => {
-            let n = total(app);
-            kit::status_chip(ui, p, Status::Done, &i18n::scan_ready(n));
+    // The scan state and its target belong to the scan-based modes; the log
+    // analyser has its own subject and must not show the crawler's.
+    if app.model.mode != Some(Mode::Logs) {
+        match app.model.scan.is_some() {
+            true => {
+                let n = total(app);
+                kit::status_chip(ui, p, Status::Done, &i18n::scan_ready(n));
+            }
+            false => {
+                kit::status_chip(ui, p, Status::NotAgreed, i18n::SCAN_NONE);
+            }
         }
-        false => {
-            kit::status_chip(ui, p, Status::NotAgreed, i18n::SCAN_NONE);
+        if let Some(url) = url {
+            target_field(ui, p, url);
         }
-    }
-    if let Some(url) = url {
-        target_field(ui, p, url);
     }
     click
 }
