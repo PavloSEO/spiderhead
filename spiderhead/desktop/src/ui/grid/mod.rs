@@ -31,6 +31,8 @@ const THUMB_MIN: f32 = 24.0;
 const RESIZE_GRAB: f32 = 4.0;
 /// Width of the header filter-button hit zone.
 const FILTER_BTN_W: f32 = 18.0;
+/// Room the sort arrow takes beside a header caption.
+const SORT_ARROW_W: f32 = 14.0;
 /// Pointer distance from an edge that triggers drag-selection autoscroll.
 const AUTOSCROLL_EDGE: f32 = 24.0;
 /// Autoscroll speed at an edge, in points per frame.
@@ -190,12 +192,12 @@ pub fn show<S: RowSource>(
             .filter(|(i, _)| *i != s)
             .map(|(_, w)| *w)
             .sum();
-        let min = widths[s].max(vis[s].min_width * z);
-        widths[s] = if canvas_w > fixed + min {
-            canvas_w - fixed
-        } else {
-            min
-        };
+        // The caller's floor (widest loaded address) holds only while it
+        // fits; otherwise the column keeps its base width and never pushes
+        // the last columns under the scrollbar.
+        let room = (canvas_w - fixed).max(0.0);
+        let min = widths[s].max((vis[s].min_width * z).min(room));
+        widths[s] = room.max(min);
     }
 
     // The scroll position is the top row number in f64 (the fraction is the
@@ -600,19 +602,27 @@ fn draw_header(
             continue;
         }
         let rect = Rect::from_min_size(Pos2::new(left, origin.y), Vec2::new(w, header_h));
-        let mut hui = ui.new_child(
-            egui::UiBuilder::new()
-                .max_rect(rect)
-                .layout(Layout::left_to_right(Align::Center)),
-        );
-        hui.set_clip_rect(rect);
-        hui.add_space(space::SM);
         let sorted = sort.0.as_deref() == Some(col.id.as_str());
         let ink = if sorted { p.text } else { p.weak };
-        hui.label(
-            egui::RichText::new(&col.header)
-                .size(ty::CAPTION * z.max(0.85))
-                .color(ink),
+        // Caption, sort arrow and filter button share the cell: the caption
+        // takes what the other two leave and truncates instead of spilling.
+        let arrow_w = if sorted { SORT_ARROW_W } else { 0.0 };
+        let avail = (w - space::SM - FILTER_BTN_W - 4.0 - arrow_w).max(0.0);
+        let mut job = egui::text::LayoutJob::simple_singleline(
+            col.header.clone(),
+            FontId::proportional(ty::CAPTION * z.max(0.85)),
+            ink,
+        );
+        job.wrap = egui::text::TextWrapping::truncate_at_width(avail);
+        let galley = ui.painter().layout_job(job);
+        let clip = ui.painter().with_clip_rect(rect.intersect(ui.clip_rect()));
+        clip.galley(
+            Pos2::new(
+                rect.left() + space::SM,
+                rect.center().y - galley.size().y / 2.0,
+            ),
+            galley.clone(),
+            ink,
         );
         if sorted {
             let arrow = if sort.1 {
@@ -620,10 +630,15 @@ fn draw_header(
             } else {
                 crate::ui::kit::icons::ARROW_DOWNWARD
             };
-            hui.label(
-                egui::RichText::new(arrow)
-                    .size(ty::OVERLINE)
-                    .color(p.accent),
+            clip.text(
+                Pos2::new(
+                    rect.left() + space::SM + galley.size().x + 2.0,
+                    rect.center().y,
+                ),
+                Align2::LEFT_CENTER,
+                arrow,
+                FontId::proportional(ty::OVERLINE),
+                p.accent,
             );
         }
         // Filter-button slot on the right edge of the header cell.

@@ -3,8 +3,12 @@
 //! both themes stay consistent.
 
 use egui::{pos2, vec2, Align2, Color32, CornerRadius, FontId, Rect, Response, Sense, Stroke, Ui};
+pub mod chart;
 pub mod controls;
+pub mod data;
 pub mod icons;
+pub mod inputs;
+pub mod overlay;
 pub use controls::{button, icon_button, kbd, status_chip, BtnKind};
 use icons as ph;
 
@@ -395,9 +399,9 @@ pub fn page_header(ui: &mut Ui, p: &Palette, title: &str, subtitle: &str) {
     }
 }
 
-/// Uppercase caption above a group.
+/// Quiet caption above a group, set in sentence case as written.
 pub fn caption(ui: &mut Ui, p: &Palette, text: &str) {
-    ui.label(bold(text.to_uppercase()).size(ty::OVERLINE).color(p.faint));
+    ui.label(bold(text).size(ty::CAPTION).color(p.weak));
 }
 
 /// Human byte size: `812 Б`, `12,4 КБ`, `3,1 МБ`.

@@ -1769,7 +1769,7 @@ pub const START_LOGS_D: &str = "Логи сервера: боты, обход и
 /// Start card: agent-mode description.
 pub const START_AGENT_D: &str = "Проект целиком: цель, задачи, входящие, семантика и отчёты.";
 /// Start screen footer hint.
-pub const START_HINT: &str = "⌘1 · ⌘2 · ⌘3 — режимы · ⌘K — действия и переходы";
+pub const START_HINT: &str = "⌘1, ⌘2, ⌘3 — инструменты, ⌘K — действия и переходы";
 
 /// Nav item: one-URL check (the former simple page).
 pub const NAV_CHECK: &str = "Проверка страницы";
@@ -1803,6 +1803,212 @@ pub const SHORTCUT_MODES: &str = "Режимы";
 pub const SHORTCUT_APP: &str = "Приложение";
 /// Shortcuts window: edit menu keys group.
 pub const SHORTCUT_EDIT: &str = "Правка";
+
+// ---- component gallery (developer screen, `ui.gallery`) -----------------
+
+/// Gallery sample label.
+pub const GAL_TITLE: &str = "Библиотека компонентов";
+/// Gallery sample label.
+pub const GAL_SUB: &str = "Все элементы кита в своих состояниях на текущей теме";
+/// Gallery sample label.
+pub const GAL_CLOSE: &str = "Закрыть";
+/// Gallery sample label.
+pub const GAL_BUTTONS: &str = "Кнопки";
+/// Gallery sample label.
+pub const GAL_FIELDS: &str = "Поля и списки";
+/// Gallery sample label.
+pub const GAL_CHOICE: &str = "Выбор";
+/// Gallery sample label.
+pub const GAL_BADGES: &str = "Бейджи";
+/// Gallery sample label.
+pub const GAL_OVERLAYS: &str = "Меню, окна и уведомления";
+/// Gallery sample label.
+pub const GAL_FEEDBACK: &str = "Прогресс и подсказки";
+/// Gallery sample label.
+pub const GAL_DATA: &str = "Данные";
+/// Gallery sample label.
+pub const GAL_CHARTS: &str = "Графики";
+/// Gallery sample label.
+pub const GAL_KINDS: &str = "Роль";
+/// Gallery sample label.
+pub const GAL_DISABLED: &str = "Недоступны";
+/// Gallery sample label.
+pub const GAL_ICONS: &str = "Иконки";
+/// Gallery sample label.
+pub const GAL_RUN: &str = "Запустить";
+/// Gallery sample label.
+pub const GAL_CANCEL: &str = "Отмена";
+/// Gallery sample label.
+pub const GAL_EXPORT: &str = "Экспорт";
+/// Gallery sample label.
+pub const GAL_MORE: &str = "Подробнее";
+/// Gallery sample label.
+pub const GAL_REFRESH: &str = "Обновить";
+/// Gallery sample label.
+pub const GAL_SETTINGS: &str = "Настройки";
+/// Gallery sample label.
+pub const GAL_SAMPLE_URL: &str = "https://shop.example.test/";
+/// Gallery sample label.
+pub const GAL_SAMPLE_PATH: &str = "/Users/pablo/Work/projects/shop";
+/// Gallery sample label.
+pub const GAL_HINT_URL: &str = "Адрес сайта";
+/// Gallery sample label.
+pub const GAL_HINT_SEARCH: &str = "Поиск по URL";
+/// Gallery sample label.
+pub const GAL_STATE_DEFAULT: &str = "Обычное";
+/// Gallery sample label.
+pub const GAL_STATE_FOCUS: &str = "Фокус";
+/// Gallery sample label.
+pub const GAL_STATE_ERROR: &str = "Ошибка";
+/// Gallery sample label.
+pub const GAL_STATE_LOCKED: &str = "Только чтение";
+/// Gallery sample label.
+pub const GAL_STATE_OFF: &str = "Недоступно";
+/// Gallery sample label.
+pub const GAL_ERR_LIMIT: &str = "Для боевого сайта не больше 2 запросов в секунду";
+/// Gallery sample label.
+pub const GAL_SELECT: &str = "Список";
+/// Gallery sample label.
+pub const GAL_DEFAULT_HINT: &str = "по умолч.";
+/// Gallery sample label.
+pub const GAL_CHECKBOX: &str = "Чекбокс";
+/// Gallery sample label.
+pub const GAL_RADIO: &str = "Радио";
+/// Gallery sample label.
+pub const GAL_SWITCH: &str = "Переключатель";
+/// Gallery sample label.
+pub const GAL_SEGMENTED: &str = "Сегмент";
+/// Gallery sample label.
+pub const GAL_YES: &str = "Да";
+/// Gallery sample label.
+pub const GAL_NO: &str = "Нет";
+/// Gallery sample label.
+pub const GAL_PART: &str = "Часть";
+/// Gallery sample label.
+pub const GAL_UNAVAILABLE: &str = "Недоступно";
+/// Gallery sample label.
+pub const GAL_SAVE_HTML: &str = "Сохранять HTML";
+/// Gallery sample label.
+pub const GAL_LIMIT_URL: &str = "Лимит URL";
+/// Gallery sample label.
+pub const GAL_HTTP: &str = "Код ответа";
+/// Gallery sample label.
+pub const GAL_INDEX: &str = "Индексация";
+/// Gallery sample label.
+pub const GAL_STATUS: &str = "Статус";
+/// Gallery sample label.
+pub const GAL_SEVERITY: &str = "Важность";
+/// Gallery sample label.
+pub const GAL_BLOCKED: &str = "Закрыто";
+/// Gallery sample label.
+pub const GAL_NOTICE: &str = "Важно";
+/// Gallery sample label.
+pub const GAL_MENU: &str = "Меню и окно";
+/// Gallery sample label.
+pub const GAL_COPY: &str = "Копировать";
+/// Gallery sample label.
+pub const GAL_OPEN: &str = "Открыть в браузере";
+/// Gallery sample label.
+pub const GAL_DELETE: &str = "Удалить";
+/// Gallery sample label.
+pub const GAL_MODAL_TITLE: &str = "Переименовать проект";
+/// Gallery sample label.
+pub const GAL_MODAL_BODY: &str = "Название видно в списке проектов и в отчётах.";
+/// Gallery sample label.
+pub const GAL_SAVE: &str = "Сохранить";
+/// Gallery sample label.
+pub const GAL_TOAST: &str = "Тост";
+/// Gallery sample label.
+pub const GAL_TOAST_OK: &str = "Скан сохранён";
+/// Gallery sample label.
+pub const GAL_TOAST_OK_D: &str = "139 URL, копия лежит рядом с проектом.";
+/// Gallery sample label.
+pub const GAL_TOAST_ERR: &str = "Не удалось импортировать";
+/// Gallery sample label.
+pub const GAL_TOAST_ERR_D: &str = "В файле логов нет нужных колонок.";
+/// Gallery sample label.
+pub const GAL_BANNER: &str = "Баннер";
+/// Gallery sample label.
+pub const GAL_BANNER_INFO: &str = "Доступна новая версия SpiderHead";
+/// Gallery sample label.
+pub const GAL_BANNER_WARN: &str = "Скан неполный: часть страниц не успели обойти";
+/// Gallery sample label.
+pub const GAL_BANNER_ERR: &str = "Нет сети, данные могут быть устаревшими";
+/// Gallery sample label.
+pub const GAL_UPDATE: &str = "Обновить";
+/// Gallery sample label.
+pub const GAL_DETAILS: &str = "Подробнее";
+/// Gallery sample label.
+pub const GAL_RETRY: &str = "Повторить";
+/// Gallery sample label.
+pub const GAL_PROGRESS: &str = "Прогресс";
+/// Gallery sample label.
+pub const GAL_SKELETON: &str = "Скелетон";
+/// Gallery sample label.
+pub const GAL_TOOLTIP: &str = "Подсказка";
+/// Gallery sample label.
+pub const GAL_COLUMNS_TIP: &str = "Колонки и их порядок";
+/// Gallery sample label.
+pub const GAL_HOVER_ME: &str = "Наведите курсор";
+/// Gallery sample label.
+pub const GAL_TABS: &str = "Вкладки";
+/// Gallery sample label.
+pub const GAL_KPI: &str = "Полоса KPI";
+/// Gallery sample label.
+pub const GAL_AVATAR: &str = "Аватар";
+/// Gallery sample label.
+pub const GAL_KEY_VALUE: &str = "Ключ — значение";
+/// Gallery sample label.
+pub const GAL_HEADER: &str = "Шапка раздела";
+/// Gallery sample label.
+pub const GAL_VISITS: &str = "визитов ботов";
+/// Gallery sample label.
+pub const GAL_KV_URLS: &str = "Всего URL";
+/// Gallery sample label.
+pub const GAL_KV_TIME: &str = "Средний ответ";
+/// Gallery sample label.
+pub const GAL_KV_TYPE: &str = "Тип";
+/// Gallery sample label.
+pub const GAL_PAGE_TITLE: &str = "Анализ логов сервера";
+/// Gallery sample label.
+pub const GAL_PAGE_SUB: &str = "Мебельный магазин · скан №3";
+/// Gallery sample label.
+pub const GAL_IMPORT: &str = "Импорт логов";
+/// Gallery sample label.
+pub const GAL_CHART_VISITS: &str = "Визиты по дням";
+/// Gallery sample label.
+pub const GAL_CHART_CODES: &str = "Коды ответов по дням";
+/// Gallery sample label.
+pub const GAL_CHART_BARS: &str = "Столбцы";
+/// Gallery sample label.
+pub const GAL_CHART_LINES: &str = "Линии";
+/// Gallery sample label.
+pub const GAL_SPARK: &str = "Спарклайн";
+/// Gallery sample label.
+pub const GAL_DIST: &str = "Распределение";
+/// Gallery: options of the select sample.
+pub const GAL_OPTIONS: [&str; 4] = [
+    "Каталог · стандарт",
+    "Блог · с рендерингом",
+    "Быстрый · 200 OK",
+    "Перепроверка списком",
+];
+/// Gallery: radio sample labels.
+pub const GAL_RADIOS: [&str; 2] = ["Исходный HTML", "С JS"];
+/// Gallery: segmented sample labels.
+pub const GAL_SEGMENTS: [&str; 3] = ["HTML", "С JS", "Оба"];
+/// Gallery: tab strip sample with counters.
+pub const GAL_TAB_LIST: [(&str, Option<i64>); 3] =
+    [("Сведения", None), ("Входящие", Some(14)), ("HTML", None)];
+/// Gallery: bot names of the stacked chart.
+pub const GAL_BOTS: [&str; 6] = [
+    "GB смартфон",
+    "GB ПК",
+    "YandexBot",
+    "Bingbot",
+    "AI-боты",
+    "Прочие",
+];
 
 #[cfg(test)]
 mod tests {
