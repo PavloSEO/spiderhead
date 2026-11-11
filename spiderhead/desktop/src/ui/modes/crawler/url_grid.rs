@@ -9,9 +9,11 @@ use serde_json::{json, Value};
 use super::super::format_cell;
 use crate::data::columns::{column, Kind, COLUMNS};
 use crate::i18n;
+use crate::theme::tokens::Status;
 use crate::theme::{radius, space, ty, Palette};
 use crate::ui::grid::{self, GridColumn, GridOut, GridUi, RowSource};
 use crate::ui::kit;
+use crate::ui::kit::icons as ph;
 use crate::ui::DesktopApp;
 
 /// Row access for the grid: the table's scroll cache backed by the open scan.
@@ -81,7 +83,9 @@ fn base_width(id: &str, kind: Kind) -> Option<f32> {
         "indexable" => Some(84.0),
         "content_type" | "meta_robots" | "x_robots" => Some(96.0),
         "title" | "h1" | "canonical" | "final_url" | "redirect_url" => Some(210.0),
-        "crawl_depth" | "word_count" | "inlinks" | "outlinks" | "external_outlinks" => Some(66.0),
+        "crawl_depth" => Some(100.0),
+        "inlinks" | "outlinks" | "external_outlinks" => Some(96.0),
+        "word_count" => Some(72.0),
         "size_bytes" | "response_time" => Some(78.0),
         "page_ordinal" => Some(56.0),
         _ => match kind {
@@ -309,41 +313,21 @@ fn cell_ui(ui: &mut egui::Ui, p: &Palette, id: &str, kind: Kind, cell: Option<&V
     }
     match (id, kind) {
         ("status_code", _) => {
-            let code = v.as_i64();
-            let color = kit::status_color(p, code);
-            ui.label(RichText::new("●").size(ty::OVERLINE).color(color));
-            match code {
-                Some(c) => ui.label(mono(c.to_string()).color(color)),
-                None => ui.label(none()),
-            };
+            kit::data::status_badge(ui, p, v.as_i64());
         }
         ("indexable" | "canonical_self" | "canonical_other" | "robots_blocked", _) => {
-            match v.as_bool() {
-                Some(true) if id == "robots_blocked" => {
-                    ui.label(
-                        RichText::new(crate::ui::kit::icons::BLOCK)
-                            .size(ty::TITLE)
-                            .color(p.critical),
-                    )
-                    .on_hover_text(i18n::NO);
+            let blocked = id == "robots_blocked";
+            match (v.as_bool(), blocked) {
+                (Some(true), true) => {
+                    kit::data::flag_badge(ui, p, Status::Error, ph::BLOCK, i18n::YES);
                 }
-                Some(true) => {
-                    ui.label(
-                        RichText::new(crate::ui::kit::icons::CHECK_CIRCLE)
-                            .size(ty::TITLE)
-                            .color(p.opportunity),
-                    )
-                    .on_hover_text(i18n::YES);
+                (Some(false), true) => {
+                    kit::data::flag_badge(ui, p, Status::Unavailable, ph::CHECK, i18n::NO);
                 }
-                Some(false) => {
-                    ui.label(
-                        RichText::new(crate::ui::kit::icons::BLOCK)
-                            .size(ty::TITLE)
-                            .color(p.disabled),
-                    )
-                    .on_hover_text(i18n::NO);
+                (state, false) => {
+                    kit::data::indexability_badge(ui, p, state);
                 }
-                None => {
+                (None, true) => {
                     ui.label(none());
                 }
             }
