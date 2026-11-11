@@ -14,6 +14,9 @@ use crate::ui::DesktopApp;
 /// Empty hides the download button.
 pub const TEST_BUILD_URL: &str = "";
 
+/// Height of a chooser card.
+const CARD_H: f32 = 160.0;
+
 /// One chooser card: mode id, icon, title, description, available in this release.
 const CARDS: [(Mode, &str, &str, &str, bool); 3] = [
     (
@@ -60,16 +63,19 @@ pub fn show(ctx: &egui::Context, app: &mut DesktopApp) {
                 ui.label(RichText::new(i18n::START_SUB).color(p.weak));
                 ui.add_space(space::XL);
                 ui.horizontal(|ui| {
+                    ui.spacing_mut().item_spacing.x = 0.0;
                     let width = 640.0_f32.min(ui.available_width());
                     let gap = space::MD;
                     let card_w = (width - gap * 2.0) / 3.0;
                     let left = (ui.available_width() - width).max(0.0) / 2.0;
                     ui.add_space(left);
-                    for (mode, icon, title, desc, enabled) in CARDS {
+                    for (i, (mode, icon, title, desc, enabled)) in CARDS.into_iter().enumerate() {
+                        if i > 0 {
+                            ui.add_space(gap);
+                        }
                         if mode_card(ui, &p, icon, title, desc, card_w, enabled) {
                             app.act("ui.mode", json!({"mode": mode.name()}));
                         }
-                        ui.add_space(gap);
                     }
                 });
                 ui.add_space(space::XL);
@@ -97,7 +103,7 @@ fn mode_card(
     } else {
         Sense::hover()
     };
-    let (rect, response) = ui.allocate_exact_size(vec2(width, 150.0), sense);
+    let (rect, response) = ui.allocate_exact_size(vec2(width, CARD_H), sense);
     let hovered = enabled && response.hovered();
     let fill = if hovered { p.hover } else { p.surface };
     let stroke = if hovered { p.accent } else { p.border };
@@ -108,7 +114,7 @@ fn mode_card(
         egui::Stroke::new(if hovered { 1.5_f32 } else { 1.0_f32 }, stroke),
         egui::StrokeKind::Inside,
     );
-    let chip = Rect::from_center_size(rect.left_top() + vec2(30.0, 32.0), vec2(34.0, 34.0));
+    let chip = Rect::from_center_size(rect.left_top() + vec2(33.0, 33.0), vec2(34.0, 34.0));
     ui.painter()
         .rect_filled(chip, CornerRadius::same(radius::MD), p.accent_soft);
     ui.painter().text(
@@ -118,34 +124,52 @@ fn mode_card(
         FontId::new(20.0, egui::FontFamily::Proportional),
         p.on_selected,
     );
-    ui.painter().text(
-        rect.left_top() + vec2(52.0, 34.0),
-        Align2::LEFT_CENTER,
-        title,
+    // The title sits under the icon on the full card width and wraps, so a
+    // long mode name never reaches the «soon» label in the corner.
+    let inner_w = rect.width() - 2.0 * space::LG;
+    let heading = ui.painter().layout(
+        title.to_owned(),
         FontId::new(ty::BODY + 1.0, semibold()),
         p.text,
+        inner_w,
     );
+    let heading_h = heading.size().y;
+    ui.painter()
+        .galley(rect.left_top() + vec2(space::LG, 62.0), heading, p.text);
     let text = ui.painter().layout(
         desc.to_owned(),
         FontId::new(ty::CAPTION + 0.5, egui::FontFamily::Proportional),
         p.weak,
-        rect.width() - 32.0,
+        inner_w,
     );
-    ui.painter()
-        .galley(rect.left_top() + vec2(16.0, 64.0), text, p.weak);
+    ui.painter().galley(
+        rect.left_top() + vec2(space::LG, 62.0 + heading_h + space::XS),
+        text,
+        p.weak,
+    );
     if !enabled {
         ui.painter().rect_filled(
             rect,
             CornerRadius::same(radius::LG),
             p.bg.gamma_multiply(0.55),
         );
-        ui.painter().text(
-            rect.right_top() + vec2(-14.0, 20.0),
-            Align2::RIGHT_CENTER,
-            i18n::START_SOON,
+        let soon = ui.painter().layout_no_wrap(
+            i18n::START_SOON.to_owned(),
             FontId::new(ty::CAPTION, semibold()),
             p.weak,
         );
+        let pill = Rect::from_min_size(
+            rect.right_top()
+                + vec2(
+                    -soon.size().x - 2.0 * space::MD - space::SM,
+                    space::SM + 8.0,
+                ),
+            soon.size() + vec2(2.0 * space::SM, space::XS),
+        );
+        ui.painter()
+            .rect_filled(pill, CornerRadius::same(radius::BADGE), p.surface_hi);
+        ui.painter()
+            .galley(pill.center() - soon.size() / 2.0, soon, p.weak);
         if !TEST_BUILD_URL.is_empty() {
             let button = Rect::from_min_size(
                 rect.left_bottom() + vec2(16.0, -38.0),
