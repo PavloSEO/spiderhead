@@ -2,7 +2,7 @@
 
 <p align="center">
 <img src="https://img.shields.io/badge/Rust-stable-1565C0">
-<img src="https://img.shields.io/badge/version-0.9.0-0B4A94">
+<img src="https://img.shields.io/badge/version-0.9.1-0B4A94">
 <img src="https://img.shields.io/badge/MCP-local%20stdio-151A25">
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-1565C0"></a>
 <img src="https://img.shields.io/badge/macOS%20%C2%B7%20Linux-supported-0B4A94">

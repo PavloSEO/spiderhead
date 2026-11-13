@@ -34,16 +34,11 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ env.TAG }}
-      - name: Tag matches the code version
-        run: |
-          version="${TAG#v}"
-          workspace=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n1)
-          product=$(sed -n 's/.*PRODUCT_VERSION: &str = "\(.*\)";/\1/p' spiderhead/core/src/user_agents/presets.rs)
-          [ "$version" = "$workspace" ] || { echo "::error::tag $TAG != workspace version $workspace"; exit 1; }
-          [ "$version" = "$product" ] || { echo "::error::tag $TAG != PRODUCT_VERSION $product"; exit 1; }
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           toolchain: stable
+      - name: Tag matches every spelling of the version
+        run: cargo xtask version check --tag "$TAG"
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
       - name: Build
         run: cargo build --release --locked -p spiderhead-cli
