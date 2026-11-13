@@ -89,6 +89,35 @@ jobs:
           # A binary that cannot run here (the x86_64 mac build on an arm runner runs under
           # Rosetta) must still report the released version before it is attached.
           "out/spiderhead-$VERSION-$TARGET" --version | grep -F "$VERSION"
+      - name: Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev libx11-dev libxcb1-dev libgtk-3-dev libssl-dev pkg-config
+      - name: Build the installers (macOS .dmg/.pkg)
+        if: runner.os == 'macOS'
+        run: |
+          cargo xtask dist --target "$TARGET"
+          cargo xtask package macos --target "$TARGET"
+          cp target/dist/"$VERSION"/installers/* out/
+      - name: Build the installers (Linux .tar.gz/.deb/.AppImage)
+        if: runner.os == 'Linux'
+        env:
+          # appimagetool 1.9.1, pinned by the digest GitHub publishes for the release asset.
+          APPIMAGETOOL_X86_64: ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0
+          APPIMAGETOOL_AARCH64: f0837e7448a0c1e4e650a93bb3e85802546e60654ef287576f46c71c126a9158
+        run: |
+          arch=$(uname -m)
+          sum=$(eval echo "\$APPIMAGETOOL_$(echo "$arch" | tr a-z A-Z)")
+          curl -fsSL -o "$RUNNER_TEMP/appimagetool" \
+            "https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-$arch.AppImage"
+          echo "$sum  $RUNNER_TEMP/appimagetool" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/appimagetool"
+          export APPIMAGETOOL="$RUNNER_TEMP/appimagetool"
+          cargo xtask dist --target "$TARGET"
+          cargo xtask package linux --target "$TARGET"
+          cp target/dist/"$VERSION"/installers/* out/
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: spiderhead-${{ matrix.target }}
