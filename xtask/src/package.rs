@@ -113,11 +113,7 @@ fn macos(o: &Opts) -> Result<(), String> {
     let _ = fs::remove_dir_all(&stage);
     let out = dist_root().join("installers");
     fs::create_dir_all(&out).map_err(|e| e.to_string())?;
-    let arch = if cfg!(target_arch = "aarch64") {
-        "arm64"
-    } else {
-        "x86_64"
-    };
+    let arch = if is_arm(o) { "arm64" } else { "x86_64" };
 
     // .app bundle (default mode = simple: no profile file is written by this component)
     let app = stage.join("app-root/Applications/SpiderHead.app/Contents");
@@ -362,12 +358,25 @@ fn make_icon(resources: &Path, stage: &Path) -> Result<(), String> {
     )
 }
 
-/// Linux: one `.tar.gz` per profile (binaries, `profile.toml`, `install.sh`, checksums).
+/// Whether the build targets arm64: the `--target` triple when given, else the host.
+fn is_arm(o: &Opts) -> bool {
+    match &o.target {
+        Some(t) => t.starts_with("aarch64"),
+        None => cfg!(target_arch = "aarch64"),
+    }
+}
+
+const DESKTOP_ENTRY: &str = "[Desktop Entry]\nType=Application\nName=SpiderHead\n\
+    Exec=spiderhead-desktop\nIcon=spiderhead\nCategories=Development;Network;\n";
+
+/// Linux: one `.tar.gz` per profile (binaries, `profile.toml`, `install.sh`, checksums),
+/// plus a `.deb` and an AppImage of the full profile. The AppImage needs `appimagetool`
+/// (path in `APPIMAGETOOL`, or on PATH) and is skipped with a notice when it is missing.
 fn linux(o: &Opts) -> Result<(), String> {
     ensure_dist(o)?;
     let out = dist_root().join("installers");
     fs::create_dir_all(&out).map_err(|e| e.to_string())?;
-    let arch = std::env::consts::ARCH;
+    let arch = if is_arm(o) { "aarch64" } else { "x86_64" };
     for p in dist::PROFILES {
         let tar = out.join(format!(
             "spiderhead-{}-{}-linux-{arch}.tar.gz",
@@ -386,7 +395,105 @@ fn linux(o: &Opts) -> Result<(), String> {
         )?;
         println!("    {}", tar.display());
     }
-    println!("==> package linux OK (deb/rpm: TODO, see docs/COMPONENTS.md)");
+    let stage = dist_root().join("_stage-linux");
+    let _ = fs::remove_dir_all(&stage);
+    deb(&stage, &out, arch)?;
+    appimage(&stage, &out, arch)?;
+    println!("==> package linux OK (rpm: not planned)");
+    Ok(())
+}
+
+/// `.deb` of the full profile: real files in /usr/lib/spiderhead/bin, symlinks in /usr/bin.
+fn deb(stage: &Path, out: &Path, arch: &str) -> Result<(), String> {
+    let v = version();
+    let bins = dist_root().join("all/bin");
+    let root = stage.join("deb");
+    let lib = root.join("usr/lib/spiderhead/bin");
+    let usr_bin = root.join("usr/bin");
+    fs::create_dir_all(&lib).map_err(|e| e.to_string())?;
+    fs::create_dir_all(&usr_bin).map_err(|e| e.to_string())?;
+    let apps = root.join("usr/share/applications");
+    let icons = root.join("usr/share/icons/hicolor/256x256/apps");
+    fs::create_dir_all(&apps).map_err(|e| e.to_string())?;
+    fs::create_dir_all(&icons).map_err(|e| e.to_string())?;
+    let entries = fs::read_dir(&bins).map_err(|e| e.to_string())?;
+    for e in entries.flatten() {
+        let name = e.file_name().to_string_lossy().into_owned();
+        copy_bin(&bins, &lib, &name)?;
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(
+            format!("/usr/lib/spiderhead/bin/{name}"),
+            usr_bin.join(&name),
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    fs::write(apps.join("spiderhead.desktop"), DESKTOP_ENTRY).map_err(|e| e.to_string())?;
+    fs::copy(
+        "packaging/macos/icon-placeholder.png",
+        icons.join("spiderhead.png"),
+    )
+    .map_err(|e| e.to_string())?;
+    let deb_arch = if arch == "aarch64" { "arm64" } else { "amd64" };
+    fs::create_dir_all(root.join("DEBIAN")).map_err(|e| e.to_string())?;
+    fs::write(
+        root.join("DEBIAN/control"),
+        format!(
+            "Package: spiderhead\nVersion: {v}\nSection: web\nPriority: optional\n\
+             Architecture: {deb_arch}\nMaintainer: Pavel Barushka <noreply@spiderhead.dev>\n\
+             Homepage: https://spiderhead.dev\n\
+             Description: SEO toolkit: site crawler, log analyzer, project workspace\n\
+             \x20SpiderHead command line, MCP server and desktop window.\n"
+        ),
+    )
+    .map_err(|e| e.to_string())?;
+    let file = out.join(format!("spiderhead_{v}_{deb_arch}.deb"));
+    sh(
+        "dpkg-deb",
+        &[
+            "--build",
+            "--root-owner-group",
+            &root.to_string_lossy(),
+            &file.to_string_lossy(),
+        ],
+    )?;
+    println!("    {}", file.display());
+    Ok(())
+}
+
+/// AppImage of the desktop window and the CLI.
+fn appimage(stage: &Path, out: &Path, arch: &str) -> Result<(), String> {
+    let tool = std::env::var("APPIMAGETOOL").unwrap_or_else(|_| "appimagetool".into());
+    if Command::new(&tool).arg("--version").output().is_err() {
+        println!("    AppImage skipped: `{tool}` not found (set APPIMAGETOOL)");
+        return Ok(());
+    }
+    let bins = dist_root().join("all/bin");
+    let dir = stage.join("SpiderHead.AppDir");
+    let lib = dir.join("usr/bin");
+    fs::create_dir_all(&lib).map_err(|e| e.to_string())?;
+    for e in fs::read_dir(&bins).map_err(|e| e.to_string())?.flatten() {
+        copy_bin(&bins, &lib, &e.file_name().to_string_lossy())?;
+    }
+    fs::write(dir.join("spiderhead.desktop"), DESKTOP_ENTRY).map_err(|e| e.to_string())?;
+    fs::copy(
+        "packaging/macos/icon-placeholder.png",
+        dir.join("spiderhead.png"),
+    )
+    .map_err(|e| e.to_string())?;
+    write_exec(
+        &dir.join("AppRun"),
+        "#!/bin/sh\nHERE=$(dirname \"$(readlink -f \"$0\")\")\nexec \"$HERE/usr/bin/spiderhead-desktop\" \"$@\"\n",
+    )?;
+    let file = out.join(format!("SpiderHead-{}-linux-{arch}.AppImage", version()));
+    // CI runners have no FUSE; the tool runs extracted.
+    run_cmd(
+        Command::new(&tool)
+            .env("ARCH", arch)
+            .env("APPIMAGE_EXTRACT_AND_RUN", "1")
+            .arg(&dir)
+            .arg(&file),
+    )?;
+    println!("    {}", file.display());
     Ok(())
 }
 
