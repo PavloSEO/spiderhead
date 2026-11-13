@@ -4,8 +4,8 @@ changelog:
     authors: [dependabot]
   categories:
     - title: Features
-      labels: [feature, enhancement]
+      labels: [enhancement]
     - title: Fixes
-      labels: [bug, fix]
+      labels: [bug, "type:bug"]
     - title: Everything else
       labels: ["*"]
