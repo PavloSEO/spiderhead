@@ -33,9 +33,9 @@ jobs:
       tag: ${{ steps.v.outputs.tag }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # 1.99.1
         with:
-          toolchain: stable
+          toolchain: 1.99.1
       - name: Every spelling of the version agrees
         run: cargo xtask version check
       - name: Version is not published yet
@@ -71,13 +71,15 @@ jobs:
       TARGET: ${{ matrix.target }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # 1.99.1
         with:
-          toolchain: stable
-          targets: ${{ matrix.target }}
+          toolchain: 1.99.1
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           key: ${{ matrix.target }}
+      - name: Install the target for the pinned toolchain
+        # rust-toolchain.toml pins the compiler, so the target must be added to that one.
+        run: rustup target add "$TARGET"
       - name: Build the CLI
         run: cargo build --release --locked --target "$TARGET" -p spiderhead-cli
       - name: Stage the binary
