@@ -1,63 +1,126 @@
 name: release
 
-# Push a tag `vX.Y.Z` (equal to the workspace version) to build the macOS arm64 CLI and
-# create a DRAFT GitHub Release holding the binary and SHA256SUMS. Publishing the draft by
-# hand is what makes it visible to `spiderhead update-check` / `spiderhead update`.
+# Pushing to the `release` branch builds every target and (re)writes a DRAFT GitHub Release
+# for the workspace version. Publishing the draft in the GitHub UI is what creates the tag
+# `vX.Y.Z` at the built commit and makes the release visible to `spiderhead update-check`.
+# A version that is already published can never be rebuilt: bump it with
+# `cargo xtask version set` first.
+#
+# A manual run from any other branch builds and uploads the artifacts but publishes nothing.
 on:
   push:
-    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+    branches: [release]
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Existing tag to (re)build, e.g. v0.9.1"
-        type: string
-        required: true
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release
   cancel-in-progress: false
 
 env:
   # .cargo/config.toml points at sccache for local worktrees; runners use rust-cache instead.
   RUSTC_WRAPPER: ""
   CARGO_TERM_COLOR: always
-  TAG: ${{ inputs.tag || github.ref_name }}
-  TARGET: aarch64-apple-darwin
 
 jobs:
-  release:
-    runs-on: macos-latest
+  plan:
+    name: plan
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      tag: ${{ steps.v.outputs.tag }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          ref: ${{ env.TAG }}
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           toolchain: stable
-      - name: Tag matches every spelling of the version
-        run: cargo xtask version check --tag "$TAG"
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
-      - name: Build
-        run: cargo build --release --locked -p spiderhead-cli
-      - name: Stage assets
-        run: |
-          version="${TAG#v}"
-          mkdir out
-          cp target/release/spiderhead "out/spiderhead-$version-$TARGET"
-          # The binary must run and report the released version before it is attached.
-          "out/spiderhead-$version-$TARGET" --version | grep -F "$version"
-          (cd out && shasum -a 256 -- spiderhead-* > SHA256SUMS && cat SHA256SUMS)
-      - name: Draft release
+      - name: Every spelling of the version agrees
+        run: cargo xtask version check
+      - name: Version is not published yet
+        id: v
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if draft=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
+          version=$(cargo xtask version show)
+          tag="v$version"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "::error::$tag already exists; bump the version with 'cargo xtask version set'"; exit 1
+          fi
+          if published=$(gh release view "$tag" --json isDraft --jq '.isDraft == false' 2>/dev/null) && [ "$published" = true ]; then
+            echo "::error::$tag is already published; bump the version"; exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: build (${{ matrix.target }})
+    needs: plan
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { os: macos-latest, target: aarch64-apple-darwin }
+          - { os: macos-latest, target: x86_64-apple-darwin }
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu }
+          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-gnu }
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+      TARGET: ${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: ${{ matrix.target }}
+      - name: Build the CLI
+        run: cargo build --release --locked --target "$TARGET" -p spiderhead-cli
+      - name: Stage the binary
+        run: |
+          mkdir out
+          cp "target/$TARGET/release/spiderhead" "out/spiderhead-$VERSION-$TARGET"
+          # A binary that cannot run here (the x86_64 mac build on an arm runner runs under
+          # Rosetta) must still report the released version before it is attached.
+          "out/spiderhead-$VERSION-$TARGET" --version | grep -F "$VERSION"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: spiderhead-${{ matrix.target }}
+          path: out/*
+          if-no-files-found: error
+
+  draft:
+    name: draft release
+    # Only the `release` branch writes a draft; other runs stop after the build.
+    if: github.ref == 'refs/heads/release'
+    needs: [plan, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.plan.outputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: out
+          merge-multiple: true
+      - name: Checksums
+        run: |
+          cd out
+          sha256sum -- spiderhead-* > SHA256SUMS
+          cat SHA256SUMS
+      - name: Write the draft
+        run: |
+          if draft=$(gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft 2>/dev/null); then
             [ "$draft" = true ] || { echo "::error::$TAG is already published; bump the version"; exit 1; }
-            gh release upload "$TAG" --clobber out/*
+            gh release edit "$TAG" -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA"
+            gh release upload "$TAG" -R "$GITHUB_REPOSITORY" --clobber out/*
           else
-            gh release create "$TAG" --draft --verify-tag --title "SpiderHead $TAG" \
-              --generate-notes out/*
+            gh release create "$TAG" -R "$GITHUB_REPOSITORY" --draft --target "$GITHUB_SHA" \
+              --title "SpiderHead $TAG" --generate-notes out/*
           fi
