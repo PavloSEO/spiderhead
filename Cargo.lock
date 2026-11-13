@@ -5287,14 +5287,14 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-catalog"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "spiderhead-core",
 ]
 
 [[package]]
 name = "spiderhead-checks"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "calamine",
  "caseless",
@@ -5324,7 +5324,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-cli"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "anyhow",
  "fancy-regex 0.20.0",
@@ -5346,7 +5346,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-control"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "getrandom 0.3.4",
  "serde",
@@ -5355,7 +5355,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-core"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "fancy-regex 0.20.0",
  "icu_normalizer",
@@ -5373,7 +5373,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-crawl"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "csv",
  "encoding_rs",
@@ -5402,7 +5402,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-desktop"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "anyhow",
  "eframe",
@@ -5428,7 +5428,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-fetch"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "fancy-regex 0.20.0",
  "reqwest 0.12.28",
@@ -5440,7 +5440,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-formats"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "jsonschema",
  "serde",
@@ -5451,7 +5451,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-log-analyzer"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "calamine",
  "csv",
@@ -5476,7 +5476,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-mcp"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "anyhow",
  "fancy-regex 0.20.0",
@@ -5514,7 +5514,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-oracle-diff"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "regex",
  "serde",
@@ -5525,7 +5525,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-oracle-testkit"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "indexmap",
  "serde",
@@ -5536,7 +5536,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-parse"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "caseless",
  "ego-tree",
@@ -5558,7 +5558,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-projects"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "fancy-regex 0.20.0",
  "flate2",
@@ -5588,7 +5588,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-recon"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "csv",
  "encoding_rs",
@@ -5609,14 +5609,14 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-remote"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "spiderhead-core",
 ]
 
 [[package]]
 name = "spiderhead-render"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "chromiumoxide",
  "futures",
@@ -5628,7 +5628,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-reports"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "calamine",
  "csv",
@@ -5664,7 +5664,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-semantics"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "calamine",
  "csv",
@@ -5683,7 +5683,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-sf-import"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "calamine",
  "csv",
@@ -5712,7 +5712,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-sources"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "calamine",
  "csv",
@@ -5737,7 +5737,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-store"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "calamine",
  "caseless",
@@ -5772,7 +5772,7 @@ dependencies = [
 
 [[package]]
 name = "spiderhead-tui"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "libc",
  "serde",
@@ -7602,7 +7602,7 @@ checksum = "9440ea3e5aeabb0ac63af70daf835274065238cdd0cec83418f417eae38bacee"
 
 [[package]]
 name = "xtask"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "serde_json",
  "sha2",

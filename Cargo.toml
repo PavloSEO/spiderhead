@@ -3,7 +3,7 @@ resolver = "2"
 members = ["xtask", "spiderhead/core", "spiderhead/formats", "spiderhead/store", "spiderhead/parse", "spiderhead/checks", "spiderhead/log-analyzer", "spiderhead/render", "spiderhead/fetch", "spiderhead/crawl", "spiderhead/sf-import", "spiderhead/catalog", "spiderhead/reports", "spiderhead/projects", "spiderhead/sources", "spiderhead/semantics", "spiderhead/recon", "spiderhead/mcp", "spiderhead/tui", "spiderhead/remote", "spiderhead/control", "spiderhead/cli", "spiderhead/desktop", "oracle/diff", "oracle/testkit"]
 
 [workspace.package]
-version = "0.9.1"
+version = "0.10.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/PavloSEO/spiderhead"
