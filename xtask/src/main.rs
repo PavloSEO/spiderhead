@@ -1,7 +1,8 @@
-//! Repo automation: `cargo xtask <ci|layers|slices|oracle|dist|package>`.
+//! Repo automation: `cargo xtask <ci|layers|slices|oracle|dist|package|version>`.
 mod dist;
 mod oracle;
 mod package;
+mod version;
 
 use serde_json::Value;
 use std::{
@@ -50,9 +51,10 @@ fn main() {
         "oracle" => oracle::run(&std::env::args().skip(2).collect::<Vec<_>>()),
         "dist" => report(dist::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         "package" => report(package::run(&std::env::args().skip(2).collect::<Vec<_>>())),
+        "version" => report(version::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         _ => {
             eprintln!(
-                "usage: cargo xtask <ci [--quick]|windows-check|layers|slices|rebaseline|oracle|dist|package>"
+                "usage: cargo xtask <ci [--quick]|windows-check|layers|slices|rebaseline|oracle|dist|package|version>"
             );
             false
         }
@@ -219,6 +221,11 @@ fn ci(quick: bool) -> bool {
         ("test", test_args(quick)),
         ("doctest", &["test", "--workspace", "--doc"]),
     ];
+    println!("==> version: every spelling of the product version agrees");
+    if let Err(e) = version::run(&["check".to_string()]) {
+        eprintln!("{e}\n==> version FAILED");
+        return false;
+    }
     let steps = if quick { &steps[..3] } else { &steps[..] };
     for (name, args) in steps.iter().copied() {
         println!("==> {name}: cargo {}", args.join(" "));
