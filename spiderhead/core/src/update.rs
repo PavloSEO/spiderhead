@@ -13,6 +13,7 @@ use std::path::{Path, PathBuf};
 use serde_json::Value;
 use thiserror::Error;
 
+pub mod archive;
 pub mod download;
 pub mod feed;
 pub mod install;
@@ -355,6 +356,15 @@ pub enum Outcome {
         /// Processes that keep running the old file until restarted.
         restart: Vec<&'static str>,
     },
+    /// A system package: the installer was downloaded and verified, and the user installs it.
+    ManualInstall {
+        /// Release version.
+        version: String,
+        /// The verified installer file.
+        installer: PathBuf,
+        /// How to install it (never run by this program).
+        hint: String,
+    },
     /// Nothing was changed; `state` is the stable machine-readable reason.
     Refused {
         /// Reason code.
@@ -383,8 +393,7 @@ pub fn run(releases: &[Release], current: &str, fetch: &dyn Fetch, opts: &Option
             latest: latest.version.clone(),
         };
     }
-    let target = match &opts.kind {
-        InstallKind::Standalone { exe } => exe.clone(),
+    match &opts.kind {
         InstallKind::DevBuild => {
             return refused(
                 "dev_build",
@@ -397,7 +406,8 @@ pub fn run(releases: &[Release], current: &str, fetch: &dyn Fetch, opts: &Option
                 format!("updating an {what} installation is not supported yet"),
             )
         }
-    };
+        _ => {}
+    }
     let Some(name) = install::asset_for(&opts.kind, &latest.version) else {
         return refused(
             "unsupported_platform",
@@ -411,6 +421,9 @@ pub fn run(releases: &[Release], current: &str, fetch: &dyn Fetch, opts: &Option
             format!("release {} has no {name} asset", latest.tag),
         );
     };
+    // Packages are only downloaded; their "target" is the cached installer.
+    let target = install::target_of(&opts.kind)
+        .unwrap_or_else(|| opts.updates_dir.join(&latest.tag).join(&name));
     if opts.dry_run {
         return Outcome::Planned {
             version: latest.version.clone(),
@@ -418,8 +431,12 @@ pub fn run(releases: &[Release], current: &str, fetch: &dyn Fetch, opts: &Option
             target,
         };
     }
-    match install_release(latest, asset, &target, fetch, opts) {
-        Ok((sha256, signature, backup)) => Outcome::Installed {
+    match install_release(latest, asset, fetch, opts) {
+        Ok(Done::Replaced {
+            sha256,
+            signature,
+            backup,
+        }) => Outcome::Installed {
             from: current.to_owned(),
             to: latest.version.clone(),
             target,
@@ -428,8 +445,26 @@ pub fn run(releases: &[Release], current: &str, fetch: &dyn Fetch, opts: &Option
             backup,
             restart: vec!["spiderhead mcp"],
         },
+        Ok(Done::Manual { installer, hint }) => Outcome::ManualInstall {
+            version: latest.version.clone(),
+            installer,
+            hint,
+        },
         Err((state, reason)) => Outcome::Refused { state, reason },
     }
+}
+
+/// What a successful install step produced.
+enum Done {
+    Replaced {
+        sha256: String,
+        signature: SignatureState,
+        backup: PathBuf,
+    },
+    Manual {
+        installer: PathBuf,
+        hint: String,
+    },
 }
 
 /// A refusal: reason code and explanation.
@@ -442,20 +477,22 @@ fn no(state: &'static str, reason: impl Into<String>) -> Refusal {
 fn install_release(
     release: &Release,
     asset: &Asset,
-    target: &Path,
     fetch: &dyn Fetch,
     opts: &Options,
-) -> Result<(String, SignatureState, PathBuf), Refusal> {
+) -> Result<Done, Refusal> {
     let find = |wanted: &str| release.assets.iter().find(|a| a.name == wanted);
-    match install::prepare_stage(target) {
-        Err(InstallError::NotWritable(dir)) => {
-            return Err(no(
-                "not_writable",
-                format!("{} is not writable", dir.display()),
-            ))
+    let target = install::target_of(&opts.kind);
+    if let Some(target) = &target {
+        match install::prepare_stage(target) {
+            Err(InstallError::NotWritable(dir)) => {
+                return Err(no(
+                    "not_writable",
+                    format!("{} is not writable", dir.display()),
+                ))
+            }
+            Err(other) => return Err(no("install_failed", other.to_string())),
+            Ok(_) => {}
         }
-        Err(other) => return Err(no("install_failed", other.to_string())),
-        Ok(_) => {}
     }
     let _lock = install::lock(opts.updates_dir).map_err(|e| match e {
         InstallError::Busy => no("busy", e.to_string()),
@@ -518,16 +555,73 @@ fn install_release(
         other => no("error", other.to_string()),
     })?;
     let version = release.version.clone();
-    let replaced = install::replace_file(&file, &sha256, target, &|exe| {
-        install::probe_version(exe, &version)
+    let replaced = match (&opts.kind, &target) {
+        (InstallKind::Managed { installer }, _) => {
+            // The cache is kept: the user runs this file.
+            let hint = match *installer {
+                "deb" => format!("sudo apt install {}", file.display()),
+                _ => format!("open {}", file.display()),
+            };
+            return Ok(Done::Manual {
+                installer: file,
+                hint,
+            });
+        }
+        (InstallKind::Prefix { profile, .. }, Some(target)) => {
+            install_prefix(&file, profile, target, &version)?
+        }
+        (InstallKind::AppImage { .. }, Some(target)) => {
+            // Starting an AppImage opens the window, so only the digest is checked.
+            install::replace_file(&file, &sha256, target, &|_| Ok(())).map_err(replace_refusal)?
+        }
+        (_, Some(target)) => install::replace_file(&file, &sha256, target, &|exe| {
+            install::probe_version(exe, &version)
+        })
+        .map_err(replace_refusal)?,
+        (_, None) => return Err(no("unsupported_install", "nothing to replace")),
+    };
+    let _ = std::fs::remove_dir_all(&cache);
+    Ok(Done::Replaced {
+        sha256,
+        signature,
+        backup: replaced.backup,
     })
-    .map_err(|e| match e {
+}
+
+fn replace_refusal(e: InstallError) -> Refusal {
+    match e {
         InstallError::RolledBack(_) => no("rolled_back", e.to_string()),
         InstallError::NotWritable(_) => no("not_writable", e.to_string()),
         other => no("install_failed", other.to_string()),
-    })?;
-    let _ = std::fs::remove_dir_all(&cache);
-    Ok((sha256, signature, replaced.backup))
+    }
+}
+
+/// Unpack a profile archive next to `target`, check it, and swap the `bin` directory.
+fn install_prefix(
+    archive: &Path,
+    profile: &str,
+    target: &Path,
+    version: &str,
+) -> Result<install::Replaced, Refusal> {
+    let stage = install::prepare_stage(target).map_err(replace_refusal)?;
+    let extracted = stage.join("archive.extract");
+    let _ = std::fs::remove_dir_all(&extracted);
+    let result = (|| {
+        let root = archive::extract_tar_gz(archive, &extracted, profile)
+            .and_then(|root| archive::verify_tree(&root).map(|()| root))
+            .map_err(|e| no("install_failed", e.to_string()))?;
+        install::replace_dir(&root.join("bin"), target, &|dir| {
+            // A profile without the CLI (lite) is covered by the archive checksums alone.
+            if dir.join("spiderhead").exists() {
+                install::probe_version(&dir.join("spiderhead"), version)
+            } else {
+                Ok(())
+            }
+        })
+        .map_err(replace_refusal)
+    })();
+    let _ = std::fs::remove_dir_all(&extracted);
+    result
 }
 
 #[cfg(test)]
@@ -739,5 +833,50 @@ mod tests {
         .expect("sig");
         assert_eq!(state(go()), "verified");
         assert_eq!(std::fs::read(&target).expect("read"), binary);
+    }
+
+    #[test]
+    fn a_package_install_is_downloaded_and_verified_but_never_installed() {
+        use sha2::{Digest, Sha256};
+
+        let tmp = tempfile::tempdir().expect("tmp");
+        let dir = tmp.path().join("feed/download/v0.10.1");
+        std::fs::create_dir_all(&dir).expect("feed");
+        let kind = InstallKind::Managed { installer: "deb" };
+        let name = install::asset_for(&kind, "0.10.1").expect("deb name");
+        let package = b"not really a package";
+        std::fs::write(dir.join(&name), package).expect("asset");
+        let listed = |bytes: &[u8]| format!("{:x}  {name}\n", Sha256::digest(bytes));
+        std::fs::write(dir.join("SHA256SUMS"), listed(package)).expect("sums");
+        let go = || {
+            let releases = feed::list_local(&tmp.path().join("feed"), 5).expect("list");
+            let opts = Options {
+                dry_run: false,
+                max_bytes: 1 << 20,
+                policy: SignaturePolicy::Disabled,
+                updates_dir: &tmp.path().join("updates"),
+                kind: kind.clone(),
+            };
+            run(&releases, "0.10.0", &download::FileFetch, &opts)
+        };
+        match go() {
+            Outcome::ManualInstall {
+                installer, hint, ..
+            } => {
+                assert_eq!(std::fs::read(&installer).expect("kept"), package);
+                assert!(hint.starts_with("sudo apt install ") && hint.contains(&name));
+            }
+            other => panic!("unexpected {other:?}"),
+        }
+        // A package that does not match its checksum is refused and not kept.
+        std::fs::write(dir.join("SHA256SUMS"), listed(b"other")).expect("sums");
+        std::fs::remove_dir_all(tmp.path().join("updates")).expect("cache");
+        assert!(matches!(
+            go(),
+            Outcome::Refused {
+                state: "checksum_mismatch",
+                ..
+            }
+        ));
     }
 }

@@ -144,7 +144,10 @@ jobs:
       - name: Checksums
         run: |
           cd out
-          sha256sum -- spiderhead-* > SHA256SUMS
+          # Every release asset (dmg, pkg, AppImage, deb, tar.gz, binaries), not only spiderhead-*.
+          find . -maxdepth 1 -type f ! -name 'SHA256SUMS*' -printf '%f\n' | LC_ALL=C sort \
+            | xargs -d '\n' sha256sum -- > SHA256SUMS
+          [ -s SHA256SUMS ] || { echo "::error::no release assets to checksum"; exit 1; }
           cat SHA256SUMS
       - name: Sign the checksums
         # Ed25519 over SHA256SUMS. The private key (PEM) lives only in the repository secret
