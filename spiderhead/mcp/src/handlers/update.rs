@@ -518,10 +518,8 @@ fn install_kind(bin_dir: Option<&Path>) -> Result<InstallKind, ToolError> {
     let exe = std::env::current_exe()
         .and_then(|exe| exe.canonicalize())
         .map_err(|e| ToolError::Failed(format!("cannot locate the running binary: {e}")))?;
-    Ok(install::detect(
-        &exe,
-        std::env::var_os("APPIMAGE").is_some(),
-    ))
+    let appimage = std::env::var_os("APPIMAGE").map(PathBuf::from);
+    Ok(install::detect(&exe, appimage.as_deref()))
 }
 
 /// `spiderhead update`: the one command that reads the network by itself being typed. Finds the
@@ -553,21 +551,32 @@ pub fn install_with(
     dry_run: bool,
     rollback: bool,
 ) -> Result<Value, ToolError> {
-    let InstallKind::Standalone { exe: target } = &kind else {
-        return Ok(match kind {
-            InstallKind::DevBuild => refusal(
+    match &kind {
+        InstallKind::DevBuild => {
+            return Ok(refusal(
                 "dev_build",
                 "this is a development build; use --bin-dir to install into a directory",
-            ),
-            _ => refusal(
+            ))
+        }
+        InstallKind::Unsupported(_) => {
+            return Ok(refusal(
                 "unsupported_install",
                 "this installation cannot be updated by the CLI yet",
-            ),
-        });
-    };
-    let recovered = install::recover(target);
+            ))
+        }
+        _ => {}
+    }
+    let label = kind.label();
+    let target = install::target_of(&kind);
+    let recovered = target.as_deref().and_then(install::recover);
     let updates = updates_dir();
     let mut answer = if rollback {
+        let Some(target) = &target else {
+            return Ok(refusal(
+                "unsupported_install",
+                "this installation is managed by a package manager; there is nothing to restore",
+            ));
+        };
         let _lock = match install::lock(&updates) {
             Ok(lock) => lock,
             Err(e) => return Ok(refusal("busy", &e.to_string())),
@@ -604,7 +613,11 @@ pub fn install_with(
             updates_dir: &updates,
             kind,
         };
-        outcome_json(update::run(&releases, current, fetch, &options), current)
+        outcome_json(
+            update::run(&releases, current, fetch, &options),
+            current,
+            label,
+        )
     };
     if let (Some(note), Some(object)) = (recovered, answer.as_object_mut()) {
         object.insert("recovered".to_owned(), json!(note));
@@ -612,7 +625,7 @@ pub fn install_with(
     Ok(answer)
 }
 
-fn outcome_json(outcome: Outcome, current: &str) -> Value {
+fn outcome_json(outcome: Outcome, current: &str, kind: &str) -> Value {
     match outcome {
         Outcome::Current { latest } => json!({
             "ok": true, "state": "current", "current_version": current, "latest": latest,
@@ -634,9 +647,18 @@ fn outcome_json(outcome: Outcome, current: &str) -> Value {
             backup,
             restart,
         } => json!({
-            "ok": true, "state": "installed", "from": from, "to": to, "kind": "standalone",
+            "ok": true, "state": "installed", "from": from, "to": to, "kind": kind,
             "path": target.to_string_lossy(), "sha256": sha256, "signature": signature.as_str(),
             "backup": backup.to_string_lossy(), "restart_required": restart,
+        }),
+        Outcome::ManualInstall {
+            version,
+            installer,
+            hint,
+        } => json!({
+            "ok": true, "state": "manual_install", "kind": kind, "version": version,
+            "installer": installer.to_string_lossy(), "hint": hint,
+            "note": "downloaded and verified; run the installer yourself, nothing was installed",
         }),
         Outcome::Refused { state, reason } => refusal(state, &reason),
     }

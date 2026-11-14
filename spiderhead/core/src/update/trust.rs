@@ -125,6 +125,11 @@ impl Sums {
     pub fn get(&self, name: &str) -> Option<&str> {
         self.0.get(name).map(String::as_str)
     }
+
+    /// All `(name, digest)` pairs, ordered by name.
+    pub fn entries(&self) -> impl Iterator<Item = (&str, &str)> {
+        self.0.iter().map(|(n, d)| (n.as_str(), d.as_str()))
+    }
 }
 
 /// Parse `<hex64>  name` and `<hex64> *name` lines (CRLF accepted); a name listed twice with
