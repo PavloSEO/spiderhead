@@ -8,14 +8,19 @@ use std::path::{Path, PathBuf};
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 
+use spiderhead_core::host::SystemHost;
 use spiderhead_core::timeutil::{stamp, Format};
+use spiderhead_core::update::download::{Fetch, FileFetch};
+use spiderhead_core::update::feed::{self, FeedSource};
+use spiderhead_core::update::install::{self, InstallError, InstallKind};
+use spiderhead_core::update::trust::SignaturePolicy;
 use spiderhead_core::update::{
-    asset_of, normalize_releases, state_shape_is_valid, version_of, Asset, Release,
+    self, asset_of, normalize_releases, state_shape_is_valid, version_of, Asset, Outcome, Release,
     AUTO_CHECK_SECONDS, DEFAULT_MAX_DOWNLOAD_BYTES, MAX_ASSETS, MAX_CHECKSUM_BYTES,
     MAX_DOWNLOAD_BYTES, MAX_FEED_BYTES, MAX_RELEASES, MAX_STATE_BYTES, REPOSITORY, TOOLKIT_VERSION,
     UPDATE_FORMAT,
 };
-use spiderhead_recon::net_client::{http_client, ReconClient};
+use spiderhead_recon::net_client::{http_client, ReconClient, ReconFetch};
 
 use crate::error::ToolError;
 
@@ -494,133 +499,175 @@ pub fn download_update(
 
 // ── Install ──────────────────────────────────────────────────────────────
 
-/// The release-asset triple of this build, or `None` on a platform that has no release build.
-fn target_triple() -> Option<&'static str> {
-    match (std::env::consts::ARCH, std::env::consts::OS) {
-        ("aarch64", "macos") => Some("aarch64-apple-darwin"),
-        ("x86_64", "macos") => Some("x86_64-apple-darwin"),
-        ("x86_64", "linux") => Some("x86_64-unknown-linux-gnu"),
-        ("aarch64", "linux") => Some("aarch64-unknown-linux-gnu"),
-        _ => None,
+/// The directory of the update lock and the download cache, next to the state file.
+fn updates_dir() -> PathBuf {
+    state_path()
+        .parent()
+        .unwrap_or_else(|| Path::new("."))
+        .join("updates")
+}
+
+/// What `spiderhead update` replaces: `bin_dir/spiderhead` when a directory is given, else the
+/// running binary itself.
+fn install_kind(bin_dir: Option<&Path>) -> Result<InstallKind, ToolError> {
+    if let Some(dir) = bin_dir {
+        return Ok(InstallKind::Standalone {
+            exe: dir.join("spiderhead"),
+        });
     }
+    let exe = std::env::current_exe()
+        .and_then(|exe| exe.canonicalize())
+        .map_err(|e| ToolError::Failed(format!("cannot locate the running binary: {e}")))?;
+    Ok(install::detect(
+        &exe,
+        std::env::var_os("APPIMAGE").is_some(),
+    ))
 }
 
-/// Where the binary is installed by default: `$CARGO_HOME/bin`, else `~/.cargo/bin`.
-pub fn default_bin_dir() -> PathBuf {
-    std::env::var_os("CARGO_HOME")
-        .filter(|p| !p.is_empty())
-        .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".cargo")))
-        .unwrap_or_default()
-        .join("bin")
-}
-
-/// `spiderhead update`: the one command that reads the network by itself being typed. Checks
-/// the release feed, and unless `dry_run` replaces `bin_dir/spiderhead` with the newer release.
-pub fn update_install(bin_dir: Option<&Path>, dry_run: bool) -> Result<Value, ToolError> {
-    let client = http_client(30.0)
+/// `spiderhead update`: the one command that reads the network by itself being typed. Finds the
+/// newest release (GitHub, or the local feed from `--feed` / `SPIDERHEAD_UPDATE_FEED`) and unless
+/// `dry_run` replaces the running binary (or `bin_dir/spiderhead`) with it; `rollback` restores
+/// the previous generation instead.
+pub fn update_install(
+    bin_dir: Option<&Path>,
+    feed: Option<&Path>,
+    dry_run: bool,
+    rollback: bool,
+) -> Result<Value, ToolError> {
+    let host = SystemHost;
+    let client = http_client(120.0)
         .map_err(|e| ToolError::Failed(e.to_string()))?
         .0;
-    let dir = bin_dir.map_or_else(default_bin_dir, Path::to_path_buf);
-    install_update(&client, &dir, dry_run)
+    let kind = install_kind(bin_dir)?;
+    let source = FeedSource::resolve(feed, &host);
+    let current = feed::current_version(&host);
+    install_with(&client, &source, kind, &current, dry_run, rollback)
 }
 
-/// Check, download, verify and atomically replace; nothing is touched unless a newer release
-/// has a checksummed asset for this platform and the downloaded binary reports that version.
-pub fn install_update(
+/// The engine behind [`update_install`] with every outside dependency injected.
+pub fn install_with(
     client: &dyn ReconClient,
-    bin_dir: &Path,
+    source: &FeedSource,
+    kind: InstallKind,
+    current: &str,
     dry_run: bool,
+    rollback: bool,
 ) -> Result<Value, ToolError> {
-    let checked = check_updates(true, false, 5, Some(client))?;
-    let result = &checked["result"];
-    if result["state"] != "available" {
-        return Ok(checked);
-    }
-    let latest = &result["latest"];
-    let (tag, version) = (
-        latest["tag"].as_str().unwrap_or_default(),
-        latest["version"].as_str().unwrap_or_default(),
-    );
-    if result["update_available"] != true {
-        return Ok(json!({
-            "ok": true,
-            "state": "current",
-            "current_version": TOOLKIT_VERSION,
-            "latest": version,
-        }));
-    }
-    let Some(triple) = target_triple() else {
-        return Ok(refusal(
-            "unsupported_platform",
-            "there is no release build for this platform",
-        ));
+    let InstallKind::Standalone { exe: target } = &kind else {
+        return Ok(match kind {
+            InstallKind::DevBuild => refusal(
+                "dev_build",
+                "this is a development build; use --bin-dir to install into a directory",
+            ),
+            _ => refusal(
+                "unsupported_install",
+                "this installation cannot be updated by the CLI yet",
+            ),
+        });
     };
-    let asset = format!("spiderhead-{version}-{triple}");
-    if !latest["assets"]
+    let recovered = install::recover(target);
+    let updates = updates_dir();
+    let mut answer = if rollback {
+        let _lock = match install::lock(&updates) {
+            Ok(lock) => lock,
+            Err(e) => return Ok(refusal("busy", &e.to_string())),
+        };
+        match install::rollback(target) {
+            Ok(()) => json!({"ok": true, "state": "restored", "path": target.to_string_lossy()}),
+            Err(InstallError::NoBackup) => {
+                refusal("no_backup", "there is no previous version to restore")
+            }
+            Err(e) => refusal("error", &e.to_string()),
+        }
+    } else {
+        let (releases, remote);
+        let fetch: &dyn Fetch = match source {
+            FeedSource::Local(root) => {
+                releases = feed::list_local(root, MAX_RELEASES)
+                    .map_err(|e| ToolError::Failed(format!("local feed: {e}")))?;
+                &FileFetch
+            }
+            FeedSource::GitHub => {
+                let checked = check_updates(true, false, 5, Some(client))?;
+                if checked["result"]["state"] != "available" {
+                    return Ok(checked);
+                }
+                releases = releases_from_json(&checked["result"]["releases"]);
+                remote = ReconFetch(client);
+                &remote
+            }
+        };
+        let options = update::Options {
+            dry_run,
+            max_bytes: DEFAULT_MAX_DOWNLOAD_BYTES,
+            policy: SignaturePolicy::embedded(),
+            updates_dir: &updates,
+            kind,
+        };
+        outcome_json(update::run(&releases, current, fetch, &options), current)
+    };
+    if let (Some(note), Some(object)) = (recovered, answer.as_object_mut()) {
+        object.insert("recovered".to_owned(), json!(note));
+    }
+    Ok(answer)
+}
+
+fn outcome_json(outcome: Outcome, current: &str) -> Value {
+    match outcome {
+        Outcome::Current { latest } => json!({
+            "ok": true, "state": "current", "current_version": current, "latest": latest,
+        }),
+        Outcome::Planned {
+            version,
+            asset,
+            target,
+        } => json!({
+            "ok": true, "state": "available", "dry_run": true, "current_version": current,
+            "latest": version, "asset": asset, "path": target.to_string_lossy(),
+        }),
+        Outcome::Installed {
+            from,
+            to,
+            target,
+            sha256,
+            signature,
+            backup,
+            restart,
+        } => json!({
+            "ok": true, "state": "installed", "from": from, "to": to, "kind": "standalone",
+            "path": target.to_string_lossy(), "sha256": sha256, "signature": signature.as_str(),
+            "backup": backup.to_string_lossy(), "restart_required": restart,
+        }),
+        Outcome::Refused { state, reason } => refusal(state, &reason),
+    }
+}
+
+/// Rebuild typed releases from the normalised JSON that `check_updates` returns.
+fn releases_from_json(value: &Value) -> Vec<Release> {
+    let text = |v: &Value, key: &str| v[key].as_str().unwrap_or_default().to_owned();
+    value
         .as_array()
-        .is_some_and(|list| list.iter().any(|a| a["name"] == asset.as_str()))
-    {
-        return Ok(refusal(
-            "unavailable",
-            &format!("release {tag} has no {asset} asset"),
-        ));
-    }
-    let target = bin_dir.join("spiderhead");
-    if dry_run {
-        return Ok(json!({
-            "ok": true,
-            "state": "available",
-            "dry_run": true,
-            "current_version": TOOLKIT_VERSION,
-            "latest": version,
-            "asset": asset,
-            "path": target.to_string_lossy(),
-        }));
-    }
-    std::fs::create_dir_all(bin_dir)
-        .map_err(|e| ToolError::Failed(format!("cannot create {}: {e}", bin_dir.display())))?;
-    // Staged next to the target so the final rename never crosses a filesystem.
-    let staged = bin_dir.join(".spiderhead-update-new");
-    let _ = std::fs::remove_file(&staged);
-    let downloaded = download_update(
-        tag,
-        &asset,
-        &staged.to_string_lossy(),
-        DEFAULT_MAX_DOWNLOAD_BYTES as i64,
-        client,
-    )?;
-    if downloaded["state"] != "downloaded" {
-        return Ok(downloaded);
-    }
-    let replace = || -> Result<(), String> {
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            std::fs::set_permissions(&staged, std::fs::Permissions::from_mode(0o755))
-                .map_err(|e| e.to_string())?;
-        }
-        let probe = std::process::Command::new(&staged)
-            .arg("--version")
-            .output()
-            .map_err(|e| format!("the downloaded binary does not run: {e}"))?;
-        if !probe.status.success() || !String::from_utf8_lossy(&probe.stdout).contains(version) {
-            return Err(format!("the downloaded binary does not report {version}"));
-        }
-        std::fs::rename(&staged, &target).map_err(|e| e.to_string())
-    };
-    if let Err(reason) = replace() {
-        let _ = std::fs::remove_file(&staged);
-        return Ok(refusal("install_failed", &reason));
-    }
-    Ok(json!({
-        "ok": true,
-        "state": "installed",
-        "from": TOOLKIT_VERSION,
-        "to": version,
-        "path": target.to_string_lossy(),
-        "sha256": downloaded["sha256"],
-    }))
+        .into_iter()
+        .flatten()
+        .map(|item| Release {
+            tag: text(item, "tag"),
+            version: text(item, "version"),
+            url: text(item, "url"),
+            published_at: item["published_at"].as_str().map(str::to_owned),
+            changelog: text(item, "changelog"),
+            assets: item["assets"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(|a| Asset {
+                    name: text(a, "name"),
+                    url: text(a, "url"),
+                    size: a["size"].as_u64(),
+                    sha256: a["sha256"].as_str().map(str::to_owned),
+                })
+                .collect(),
+        })
+        .collect()
 }
 
 /// The release's SHA-256 for `asset`: its declared digest, else the `SHA256SUMS.txt` entry.
@@ -819,30 +866,35 @@ mod tests {
         assert!(checksum(&client, &Value::Null, &assets[0], &assets, &[]).is_err());
     }
 
-    /// A release fixture whose binary is a script printing its version.
+    /// A GitHub release fixture whose binary is a script printing its version; `listed` is the
+    /// digest SHA256SUMS records for it.
     #[cfg(unix)]
-    fn release_fixture(version: &str, binary: &[u8], digest: &str) -> (FakeClient, String) {
-        let triple = target_triple().expect("supported test platform");
+    fn release_fixture(version: &str, binary: &[u8], listed: &str) -> FakeClient {
+        let triple = install::target_triple().expect("supported test platform");
         let name = format!("spiderhead-{version}-{triple}");
-        let url = format!("{BASE}/download/v{version}/{name}");
+        let base = format!("{BASE}/download/v{version}");
         let feed = json!([{
             "tag_name": format!("v{version}"),
             "html_url": format!("{BASE}/tag/v{version}"),
             "body": "notes",
-            "assets": [{
-                "name": name,
-                "size": binary.len(),
-                "digest": format!("sha256:{digest}"),
-                "browser_download_url": url,
-            }],
+            "assets": [
+                {"name": name, "size": binary.len(), "browser_download_url": format!("{base}/{name}")},
+                {"name": "SHA256SUMS", "browser_download_url": format!("{base}/SHA256SUMS")},
+            ],
         }]);
         let mut client = FakeClient::default();
         client.responses.insert(
             format!("https://api.github.com/repos/{REPOSITORY}/releases"),
             response(200, feed.to_string().as_bytes()),
         );
-        client.responses.insert(url, response(200, binary));
-        (client, name)
+        client
+            .responses
+            .insert(format!("{base}/{name}"), response(200, binary));
+        client.responses.insert(
+            format!("{base}/SHA256SUMS"),
+            response(200, format!("{listed}  {name}\n").as_bytes()),
+        );
+        client
     }
 
     #[cfg(unix)]
@@ -855,49 +907,71 @@ mod tests {
         std::env::set_var("SEOHEAD_UPDATE_STATE_PATH", root.join("state.json"));
         let target = bin.join("spiderhead");
         std::fs::write(&target, b"old").expect("old binary");
+        let kind = || InstallKind::Standalone {
+            exe: target.clone(),
+        };
+        let go = |client: &FakeClient, dry: bool| {
+            install_with(client, &FeedSource::GitHub, kind(), "0.9.1", dry, false).expect("answer")
+        };
 
         let script = b"#!/bin/sh\necho spiderhead 9.9.9\n";
         let digest = format!("{:x}", Sha256::digest(script));
 
         // A dry run reports the plan and changes nothing.
-        let (client, name) = release_fixture("9.9.9", script, &digest);
-        let plan = install_update(&client, &bin, true).expect("plan");
+        let plan = go(&release_fixture("9.9.9", script, &digest), true);
         assert_eq!(plan["state"], "available");
-        assert_eq!(plan["asset"], name.as_str());
         assert_eq!(std::fs::read(&target).expect("read"), b"old");
 
         // A wrong checksum is refused and the old binary and the staging area stay clean.
-        let (client, _) = release_fixture("9.9.9", script, &"0".repeat(64));
-        let bad = install_update(&client, &bin, false).expect("answer");
+        let bad = go(&release_fixture("9.9.9", script, &"0".repeat(64)), false);
         assert_eq!(bad["state"], "checksum_mismatch");
         assert_eq!(std::fs::read(&target).expect("read"), b"old");
-        assert!(!bin.join(".spiderhead-update-new").exists());
+        assert!(!bin
+            .join(".spiderhead-update")
+            .join("spiderhead.new")
+            .exists());
 
         // A binary that does not report the release version is refused.
         let liar = b"#!/bin/sh\necho spiderhead 1.0.0\n";
-        let (client, _) = release_fixture("9.9.9", liar, &format!("{:x}", Sha256::digest(liar)));
-        let refused = install_update(&client, &bin, false).expect("answer");
+        let refused = go(
+            &release_fixture("9.9.9", liar, &format!("{:x}", Sha256::digest(liar))),
+            false,
+        );
         assert_eq!(refused["state"], "install_failed");
         assert_eq!(std::fs::read(&target).expect("read"), b"old");
-        assert!(!bin.join(".spiderhead-update-new").exists());
+        assert!(!bin
+            .join(".spiderhead-update")
+            .join("spiderhead.new")
+            .exists());
 
-        // The verified release replaces the binary, which stays executable.
-        let (client, _) = release_fixture("9.9.9", script, &digest);
-        let done = install_update(&client, &bin, false).expect("install");
+        // The verified release replaces the binary, which stays executable; the old one is kept.
+        let done = go(&release_fixture("9.9.9", script, &digest), false);
         assert_eq!(done["state"], "installed");
         assert_eq!(done["to"], "9.9.9");
+        assert_eq!(done["signature"], "unsigned");
         assert_eq!(std::fs::read(&target).expect("read"), script);
         let run = std::process::Command::new(&target)
             .arg("--version")
             .output()
             .expect("run");
         assert!(String::from_utf8_lossy(&run.stdout).contains("9.9.9"));
+        let restored = install_with(
+            &FakeClient::default(),
+            &FeedSource::GitHub,
+            kind(),
+            "0.9.1",
+            false,
+            true,
+        )
+        .expect("rollback");
+        assert_eq!(restored["state"], "restored");
+        assert_eq!(std::fs::read(&target).expect("read"), b"old");
 
         // A release that is not newer changes nothing.
-        let (client, _) = release_fixture("0.0.1", b"x", &format!("{:x}", Sha256::digest(b"x")));
-        let same = install_update(&client, &bin, false).expect("answer");
+        let x = format!("{:x}", Sha256::digest(b"x"));
+        let same = go(&release_fixture("0.0.1", b"x", &x), false);
         assert_eq!(same["state"], "current");
-        assert_eq!(std::fs::read(&target).expect("read"), script);
+        assert_eq!(std::fs::read(&target).expect("read"), b"old");
         let _ = std::fs::remove_dir_all(&root);
     }
 }

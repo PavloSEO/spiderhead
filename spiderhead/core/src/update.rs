@@ -1,15 +1,26 @@
-//! Release feed normalisation for the update check.
+//! Release feed normalisation for the update check, and the engine that installs a release.
 //!
-//! Constants of the release feed live here.
-//!
-//! Network reads with consent, downloads, checksum hashing and state-file I/O belong to the fetch and
-//! filesystem layers.
+//! Constants of the release feed live here. The submodules hold the trust chain (`trust`),
+//! resumable downloads (`download`), feed sources (`feed`) and installation (`install`); the
+//! network itself is reached only through [`download::Fetch`], so everything is testable offline.
+//! [`run`] ties them together without any JSON or CLI concerns.
 //!
 //! The version grammar accepts ASCII digits only, and a version component that does not fit in
 //! `u64` is treated as a non-version.
 
+use std::path::{Path, PathBuf};
+
 use serde_json::Value;
 use thiserror::Error;
+
+pub mod download;
+pub mod feed;
+pub mod install;
+pub mod trust;
+
+use download::{download_verified, fetch_small, Download, DownloadError, Fetch};
+use install::{InstallError, InstallKind};
+use trust::{parse_sums, verify_sums, SignaturePolicy, SignatureState, TrustError};
 
 /// Version of this toolkit build, compared against the newest release.
 pub const TOOLKIT_VERSION: &str = crate::user_agents::PRODUCT_VERSION;
@@ -72,6 +83,9 @@ pub enum UpdateError {
     /// The feed was not a JSON array.
     #[error("release feed must be a JSON array")]
     NotAnArray,
+    /// The local feed directory has no `download` folder.
+    #[error("local feed has no download directory")]
+    NoLocalFeed,
 }
 
 /// The `(major, minor, patch)` of a release tag, or `None` when the tag is not a version.
@@ -290,6 +304,232 @@ pub fn state_shape_is_valid(value: &Value) -> bool {
     }
 }
 
+/// Transfer attempts per asset after transport failures.
+const DOWNLOAD_ATTEMPTS: u32 = 3;
+
+/// What one update run needs besides the releases and the network.
+pub struct Options<'a> {
+    /// Report the plan only.
+    pub dry_run: bool,
+    /// Largest acceptable asset.
+    pub max_bytes: u64,
+    /// Signature policy (normally [`SignaturePolicy::embedded`]).
+    pub policy: SignaturePolicy,
+    /// Per-user update directory (lock and download cache).
+    pub updates_dir: &'a Path,
+    /// How the running binary is installed.
+    pub kind: InstallKind,
+}
+
+/// The result of one update run.
+#[derive(Debug)]
+pub enum Outcome {
+    /// Nothing newer than the current version.
+    Current {
+        /// Newest release version.
+        latest: String,
+    },
+    /// Dry run: what would be installed.
+    Planned {
+        /// Release version.
+        version: String,
+        /// Asset name.
+        asset: String,
+        /// File that would be replaced.
+        target: PathBuf,
+    },
+    /// The new version is in place.
+    Installed {
+        /// Previous version.
+        from: String,
+        /// New version.
+        to: String,
+        /// Replaced file.
+        target: PathBuf,
+        /// SHA-256 of the installed file.
+        sha256: String,
+        /// Whether the release signature was checked.
+        signature: SignatureState,
+        /// The kept previous generation.
+        backup: PathBuf,
+        /// Processes that keep running the old file until restarted.
+        restart: Vec<&'static str>,
+    },
+    /// Nothing was changed; `state` is the stable machine-readable reason.
+    Refused {
+        /// Reason code.
+        state: &'static str,
+        /// Human explanation.
+        reason: String,
+    },
+}
+
+fn refused(state: &'static str, reason: impl Into<String>) -> Outcome {
+    Outcome::Refused {
+        state,
+        reason: reason.into(),
+    }
+}
+
+/// Check the newest of `releases` against `current` and, unless a dry run, download it through
+/// `fetch`, verify it (signature if a key is embedded, then SHA-256) and install it.
+/// `releases` must be ordered newest first.
+pub fn run(releases: &[Release], current: &str, fetch: &dyn Fetch, opts: &Options) -> Outcome {
+    let Some(latest) = releases.first() else {
+        return refused("unavailable", "the feed has no usable stable release");
+    };
+    if !feed::is_newer(&latest.version, current) {
+        return Outcome::Current {
+            latest: latest.version.clone(),
+        };
+    }
+    let target = match &opts.kind {
+        InstallKind::Standalone { exe } => exe.clone(),
+        InstallKind::DevBuild => {
+            return refused(
+                "dev_build",
+                "this is a development build; use --bin-dir to install into a directory",
+            )
+        }
+        InstallKind::Unsupported(what) => {
+            return refused(
+                "unsupported_install",
+                format!("updating an {what} installation is not supported yet"),
+            )
+        }
+    };
+    let Some(name) = install::asset_for(&opts.kind, &latest.version) else {
+        return refused(
+            "unsupported_platform",
+            "there is no release build for this platform",
+        );
+    };
+    let find = |wanted: &str| latest.assets.iter().find(|a| a.name == wanted);
+    let Some(asset) = find(&name) else {
+        return refused(
+            "unavailable",
+            format!("release {} has no {name} asset", latest.tag),
+        );
+    };
+    if opts.dry_run {
+        return Outcome::Planned {
+            version: latest.version.clone(),
+            asset: name,
+            target,
+        };
+    }
+    match install_release(latest, asset, &target, fetch, opts) {
+        Ok((sha256, signature, backup)) => Outcome::Installed {
+            from: current.to_owned(),
+            to: latest.version.clone(),
+            target,
+            sha256,
+            signature,
+            backup,
+            restart: vec!["spiderhead mcp"],
+        },
+        Err((state, reason)) => Outcome::Refused { state, reason },
+    }
+}
+
+/// A refusal: reason code and explanation.
+type Refusal = (&'static str, String);
+
+fn no(state: &'static str, reason: impl Into<String>) -> Refusal {
+    (state, reason.into())
+}
+
+fn install_release(
+    release: &Release,
+    asset: &Asset,
+    target: &Path,
+    fetch: &dyn Fetch,
+    opts: &Options,
+) -> Result<(String, SignatureState, PathBuf), Refusal> {
+    let find = |wanted: &str| release.assets.iter().find(|a| a.name == wanted);
+    match install::prepare_stage(target) {
+        Err(InstallError::NotWritable(dir)) => {
+            return Err(no(
+                "not_writable",
+                format!("{} is not writable", dir.display()),
+            ))
+        }
+        Err(other) => return Err(no("install_failed", other.to_string())),
+        Ok(_) => {}
+    }
+    let _lock = install::lock(opts.updates_dir).map_err(|e| match e {
+        InstallError::Busy => no("busy", e.to_string()),
+        other => no("error", other.to_string()),
+    })?;
+    // The checksum table is the authority; its signature (if a key is embedded) is checked first.
+    let sums_asset = find("SHA256SUMS")
+        .ok_or_else(|| no("checksum_unavailable", "the release has no SHA256SUMS"))?;
+    let unreachable = |what: &str, e: download::FetchFailure| {
+        no("error", format!("{what} could not be read: {e}"))
+    };
+    let sums_bytes = fetch_small(fetch, &sums_asset.url, MAX_CHECKSUM_BYTES)
+        .map_err(|e| unreachable("SHA256SUMS", e))?;
+    let sig = match (&opts.policy, find("SHA256SUMS.sig")) {
+        (SignaturePolicy::Required(_), Some(sig)) => {
+            Some(fetch_small(fetch, &sig.url, 4096).map_err(|e| unreachable("SHA256SUMS.sig", e))?)
+        }
+        _ => None,
+    };
+    let signature =
+        verify_sums(&opts.policy, &sums_bytes, sig.as_deref()).map_err(|e| match e {
+            TrustError::SignatureMissing => no("signature_missing", e.to_string()),
+            other => no("signature_invalid", other.to_string()),
+        })?;
+    let sums = parse_sums(&sums_bytes).map_err(|e| no("checksum_unavailable", e.to_string()))?;
+    let sha256 = sums
+        .get(&asset.name)
+        .ok_or_else(|| {
+            no(
+                "checksum_unavailable",
+                TrustError::NoEntry(asset.name.clone()).to_string(),
+            )
+        })?
+        .to_owned();
+    if asset
+        .sha256
+        .as_deref()
+        .is_some_and(|declared| declared != sha256)
+    {
+        return Err(no(
+            "checksum_mismatch",
+            "the feed digest disagrees with SHA256SUMS",
+        ));
+    }
+    let cache = opts.updates_dir.join(&release.tag);
+    let file = download_verified(
+        fetch,
+        &Download {
+            url: &asset.url,
+            name: &asset.name,
+            sha256: &sha256,
+            max_bytes: opts.max_bytes,
+            dir: &cache,
+        },
+        DOWNLOAD_ATTEMPTS,
+    )
+    .map_err(|e| match e {
+        DownloadError::ChecksumMismatch => no("checksum_mismatch", e.to_string()),
+        DownloadError::SizeLimit => no("size_limit", e.to_string()),
+        other => no("error", other.to_string()),
+    })?;
+    let version = release.version.clone();
+    let replaced = install::replace_file(&file, &sha256, target, &|exe| {
+        install::probe_version(exe, &version)
+    })
+    .map_err(|e| match e {
+        InstallError::RolledBack(_) => no("rolled_back", e.to_string()),
+        InstallError::NotWritable(_) => no("not_writable", e.to_string()),
+        other => no("install_failed", other.to_string()),
+    })?;
+    let _ = std::fs::remove_dir_all(&cache);
+    Ok((sha256, signature, replaced.backup))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -433,5 +673,71 @@ mod tests {
         let bad_releases =
             json!({"format": UPDATE_FORMAT, "checked_at": "x", "result": {"releases": "many"}});
         assert!(!state_shape_is_valid(&bad_releases));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_signed_feed_is_required_once_a_key_exists() {
+        use ring::rand::SystemRandom;
+        use ring::signature::{Ed25519KeyPair, KeyPair};
+        use sha2::{Digest, Sha256};
+
+        let pkcs8 = Ed25519KeyPair::generate_pkcs8(&SystemRandom::new()).expect("key");
+        let pair = Ed25519KeyPair::from_pkcs8(pkcs8.as_ref()).expect("pair");
+        let policy = SignaturePolicy::Required(pair.public_key().as_ref().try_into().expect("key"));
+
+        let tmp = tempfile::tempdir().expect("tmp");
+        let dir = tmp.path().join("feed/download/v0.10.1");
+        std::fs::create_dir_all(&dir).expect("feed");
+        let binary = b"#!/bin/sh\necho spiderhead 0.10.1\n";
+        let name = format!(
+            "spiderhead-0.10.1-{}",
+            install::target_triple().expect("triple")
+        );
+        std::fs::write(dir.join(&name), binary).expect("asset");
+        let sums = format!("{:x}  {name}\n", Sha256::digest(binary));
+        std::fs::write(dir.join("SHA256SUMS"), &sums).expect("sums");
+
+        let target = tmp.path().join("bin");
+        std::fs::create_dir_all(&target).expect("bin");
+        let target = target.join("spiderhead");
+        std::fs::write(&target, b"old").expect("old");
+        let go = || {
+            let releases = feed::list_local(&tmp.path().join("feed"), 5).expect("list");
+            let opts = Options {
+                dry_run: false,
+                max_bytes: 1 << 20,
+                policy,
+                updates_dir: &tmp.path().join("updates"),
+                kind: InstallKind::Standalone {
+                    exe: target.clone(),
+                },
+            };
+            run(&releases, "0.10.0", &download::FileFetch, &opts)
+        };
+        let state = |outcome: Outcome| match outcome {
+            Outcome::Refused { state, .. } => state.to_owned(),
+            Outcome::Installed { signature, .. } => signature.as_str().to_owned(),
+            other => panic!("unexpected {other:?}"),
+        };
+
+        // No signature: refused, nothing changed.
+        assert_eq!(state(go()), "signature_missing");
+        // A signature over other bytes: refused.
+        std::fs::write(
+            dir.join("SHA256SUMS.sig"),
+            pair.sign(b"something else").as_ref(),
+        )
+        .expect("sig");
+        assert_eq!(state(go()), "signature_invalid");
+        assert_eq!(std::fs::read(&target).expect("read"), b"old");
+        // The right signature installs and reports it.
+        std::fs::write(
+            dir.join("SHA256SUMS.sig"),
+            pair.sign(sums.as_bytes()).as_ref(),
+        )
+        .expect("sig");
+        assert_eq!(state(go()), "verified");
+        assert_eq!(std::fs::read(&target).expect("read"), binary);
     }
 }

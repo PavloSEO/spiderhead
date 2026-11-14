@@ -5341,6 +5341,7 @@ dependencies = [
  "spiderhead-projects",
  "spiderhead-semantics",
  "spiderhead-store",
+ "tempfile",
  "thiserror 2.0.21",
 ]
 
@@ -5357,15 +5358,18 @@ dependencies = [
 name = "spiderhead-core"
 version = "0.9.1"
 dependencies = [
+ "base64 0.22.1",
  "fancy-regex 0.20.0",
  "icu_normalizer",
  "libc",
+ "ring",
  "rusqlite",
  "scraper",
  "serde",
  "serde_json",
  "sha2",
  "spiderhead-oracle-diff",
+ "tempfile",
  "thiserror 2.0.21",
  "url",
  "windows-sys 0.59.0",

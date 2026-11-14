@@ -17,6 +17,7 @@ PREFIX="${HOME:-}/.local"
 
 # Release signing public key (Ed25519, PEM). Empty until the first signed release; then the
 # installer refuses an unsigned or wrongly signed SHA256SUMS where OpenSSL can check it.
+# Copy of packaging/release-key.pem (a unit test keeps the two identical).
 PUBKEY=''
 
 while [ $# -gt 0 ]; do
