@@ -1,4 +1,4 @@
-//! Ported report-evidence tests from the reference suite (all 33).
+//! Report-evidence tests from the reference suite (all 33).
 //!
 //! `mcp.handlers.report_build` is a thin wrapper over `build_report`, so its
 //! tests exercise `build_report` directly here; `python-docx` paragraph/table

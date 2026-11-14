@@ -1,9 +1,9 @@
-//! Ported AMP-pairing tests (`oracle-baseline` the reference suite).
+//! AMP-pairing tests (`golden-baseline`).
 //!
 //! The reference originals write an `internal_all.csv` and run `run_rules`; the
 //! same rows are built in memory — a `page()` record field per CSV column —
 //! and the check runs directly. The two `extract_amphtml` parser tests are
-//! covered by the parse crate's own ported suite.
+//! covered by the parse crate's own suite.
 
 use serde_json::{json, Value};
 use spiderhead_checks::audit::rules::technical;

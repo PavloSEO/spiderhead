@@ -1,4 +1,4 @@
-//! Ported offline tests for saved-finding-view report reuse
+//! Offline tests for saved-finding-view report reuse
 //! (reference the reference suite).
 //!
 //! reference routes these through `build_report(..., project=..., view=...)`,

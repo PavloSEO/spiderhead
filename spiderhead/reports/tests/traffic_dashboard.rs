@@ -1,4 +1,4 @@
-//! Metrika-traffic dashboard: oracle parity and ported renderer tests.
+//! Metrika-traffic dashboard: golden and covered renderer tests.
 
 use std::path::PathBuf;
 
@@ -25,7 +25,7 @@ fn render(document: &Value, brand: Option<&Value>, lang: Option<&str>) -> String
 
 // from gen: traffic_cases() rendered dashboard HTML
 #[test]
-fn traffic_dashboard_parity() {
+fn golden_traffic_dashboard() {
     let cases = traffic();
     for (name, case) in cases.as_object().unwrap() {
         let document = &case["document"];

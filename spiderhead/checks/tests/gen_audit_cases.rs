@@ -1,5 +1,5 @@
-//! Synthetic-case parity: replay `fixtures/gen/*.json` (produced by
-//! the reference suite running the reference baseline) through the ported
+//! Synthetic-case golden: replay `fixtures/gen/*.json` (produced by
+//! the reference suite running the reference baseline) through the
 //! Rust checks and diff every emitted issue, skip, group and page metric.
 
 use std::path::{Path, PathBuf};
@@ -14,7 +14,7 @@ fn fixture_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures/gen")
 }
 
-/// Dispatch from the fixture's reference check name to the ported Rust function.
+/// Dispatch from the fixture's reference check name to the Rust function.
 fn run_check(name: &str, ctx: &mut AuditContext) -> Result<(), String> {
     let bare = name.rsplit('.').next().unwrap_or(name);
     match bare {
@@ -268,7 +268,7 @@ fn page_of(spec: &Map<String, Value>, measured: &std::collections::BTreeSet<Stri
             // The `row` overlay is the stored pages-table projection: a column
             // that shares an analyzer field name carries the table's NOT NULL
             // default (0/"") when the cell was unmeasured — letting it land
-            // would fabricate a measurement the oracle's sparse rec lacks.
+            // would fabricate a measurement the golden sparse rec lacks.
             // Only stored-only columns (url_id, *_json, …) may fill the rec.
             if measured.contains(k.as_str()) {
                 continue;
@@ -604,7 +604,7 @@ fn run_case(case: &Map<String, Value>) -> Vec<spiderhead_oracle_diff::Divergence
         }
     }
     // The frame's effective column set, exactly as `_has_column` resolved it
-    // for the oracle — the Rust side's `has_column` reads the same set.
+    // for the golden — the Rust side's `has_column` reads the same set.
     if let Some(fields) = case.get("fields").and_then(Value::as_array) {
         ctx.fields = fields
             .iter()
@@ -616,7 +616,7 @@ fn run_case(case: &Map<String, Value>) -> Vec<spiderhead_oracle_diff::Divergence
     // resolved table rows), mirrored exactly as `load_pages`/the rules see it.
     let _db = build_db(case).map(|(dir, con)| {
         ctx.scan = Some(con);
-        // `case.graph` asks the oracle for an AnalysisGraph backend; the Rust
+        // `case.graph` asks the golden for an AnalysisGraph backend; the Rust
         // checks read the same request as `ctx.graph_access` over `ctx.scan`.
         ctx.graph_access = case.get("graph").and_then(Value::as_bool).unwrap_or(false);
         // `hydrate()`: the artifact's run metadata and effective configuration,
@@ -662,7 +662,7 @@ fn run_case(case: &Map<String, Value>) -> Vec<spiderhead_oracle_diff::Divergence
     let mut actual = actual_json(&ctx);
     // The reference page record leaves unmeasured metrics as nulls; the Rust
     // `Page::fill_metrics` derives the same values eagerly. Assert only the
-    // keys the oracle actually materialized — the issue details themselves
+    // keys the golden actually materialized — the issue details themselves
     // carry every computed value the checks compare.
     if let (Some(Value::Object(exp)), Some(Value::Object(act))) = (
         expected.get_mut("page_metrics"),
@@ -695,7 +695,7 @@ fn run_case(case: &Map<String, Value>) -> Vec<spiderhead_oracle_diff::Divergence
 }
 
 #[test]
-fn gen_audit_cases_match_oracle() {
+fn golden_gen_audit_cases_match() {
     let dir = fixture_dir();
     let mut files: Vec<PathBuf> = std::fs::read_dir(&dir)
         .expect("fixtures/gen directory")
@@ -729,5 +729,5 @@ fn gen_audit_cases_match_oracle() {
             }
         }
     }
-    assert_eq!(failures, 0, "gen audit cases diverged from the oracle");
+    assert_eq!(failures, 0, "gen audit cases diverged from the golden");
 }

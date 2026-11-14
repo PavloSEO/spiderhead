@@ -45,7 +45,7 @@ fn write_tmp(dir: &Path, name: &str, data: &Value) -> PathBuf {
 
 // byte-identically through `load_provider_input`.
 #[test]
-fn provider_input_parity() {
+fn golden_provider_input() {
     let sources = pack().get("sources").cloned().unwrap_or(json!({}));
     let dir = tempfile_dir();
     for (name, row) in sources.as_object().unwrap() {
@@ -65,7 +65,7 @@ fn provider_input_parity() {
 
 // — result dict, manifest, and emitted CSV partitions match.
 #[test]
-fn build_worksheets_parity() {
+fn golden_build_worksheets() {
     let cases = pack();
     let sources = cases.get("sources").cloned().unwrap_or(json!({}));
     let order = cases
@@ -122,7 +122,7 @@ fn build_worksheets_parity() {
 
 // Boundary errors from the reference suite.
 #[test]
-fn boundary_errors_parity() {
+fn golden_boundary_errors() {
     let cases = pack();
     let errors = cases.get("errors").cloned().unwrap_or(json!({}));
     let sources = cases.get("sources").cloned().unwrap_or(json!({}));

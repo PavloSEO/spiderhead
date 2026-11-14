@@ -1,4 +1,4 @@
-//! Ported tests for `reports/facts.rs`: the `fact` state machine and the
+//! Tests for `reports/facts.rs`: the `fact` state machine and the
 //! multi-site `facts.v1` export (reference the reference suite).
 //!
 //! The three `mcp.handlers.facts_export` tests are deferred — the handler

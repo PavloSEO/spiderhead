@@ -1,8 +1,8 @@
-//! Ported tests for `reports/pdf_validation.rs` (reference
+//! Tests for `reports/pdf_validation.rs` (reference
 //! the reference suite): structural, size, text, and
 //! model-conservation checks for temporary audit PDFs.
 //!
-//! `test_missing_pypdf_is_skipped_with_an_install_command` is not ported:
+//! `test_missing_pypdf_is_skipped_with_an_install_command` is not covered:
 //! `lopdf` is bundled in this port, so there is no optional-extra path to skip.
 //! The boolean limit-rejection params are reference type checks; the Rust
 //! signature takes `i64`, so only the non-positive cases apply.

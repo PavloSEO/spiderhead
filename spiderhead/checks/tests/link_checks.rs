@@ -1,4 +1,4 @@
-//! Ported link-check tests (`oracle-baseline`).
+//! Link-check tests (`golden-baseline`).
 //!
 //! The reference originals build the context through a fake native crawl; the
 //! record objects (`invalid_link_targets`, `link_placement`, outlink counts)

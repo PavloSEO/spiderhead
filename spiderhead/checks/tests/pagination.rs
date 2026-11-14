@@ -1,4 +1,4 @@
-//! Ported pagination-check tests (`oracle-baseline`).
+//! Pagination-check tests (`golden-baseline`).
 //!
 //! The reference originals drive `run_audit` over CSV exports; the same rows are
 //! built in memory as pages with `rel_next`/`inlinks`/`crawl_depth` record

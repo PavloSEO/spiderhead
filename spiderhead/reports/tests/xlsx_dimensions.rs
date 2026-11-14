@@ -1,7 +1,7 @@
-//! Ported tests for `reports/xlsx.rs` (reference the reference suite):
+//! Tests for `reports/xlsx.rs` (reference the reference suite):
 //! workbook dimensions must stay usable by read-only consumers.
 //!
-//! Binary outputs are compared by extracted cell values, not bytes (the oracle
+//! Binary outputs are compared by extracted cell values, not bytes (the golden
 //! freezes its office clock; the Rust writer, like unfrozen reference, stamps real
 //! metadata). The monkeypatch-seam tests (split row cap, injected publication
 //! failures, disk budget, one-shot/interrupted iterators) are deferred.

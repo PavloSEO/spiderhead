@@ -1,4 +1,4 @@
-//! Ported test for byte-identical Office reports from a legacy directory and
+//! Test for byte-identical Office reports from a legacy directory and
 //! its scan artifact (reference the reference suite).
 //!
 //! The `legacy_run` directory is the shared `{audit.json, pages.jsonl,

@@ -1,4 +1,4 @@
-//! Ported document-structure tests (`oracle-baseline`).
+//! Document-structure tests (`golden-baseline`).
 //!
 //! The reference originals either drive `AuditContext` over an export-shaped
 //! frame directly (the reference suite), or reach the check

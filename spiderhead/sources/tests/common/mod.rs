@@ -1,7 +1,7 @@
-//! Shared harness for oracle-fixture tests: a stub transport that replays the recorded
+//! Shared harness for golden-fixture tests: a stub transport that replays the recorded
 //! responses and captures the requests a client would send, then diffs both sides.
 //!
-//! Every oracle test compiles this module; individual helpers stay unused in some files.
+//! Every golden test compiles this module; individual helpers stay unused in some files.
 
 #![allow(dead_code)]
 
@@ -142,7 +142,7 @@ pub fn absent_config_root() -> PathBuf {
 }
 
 /// Build the host environment for a scenario: `env` vars set, `clear_env` absent. The
-/// config root is always the absent one — file-backed credentials never exist in oracle
+/// config root is always the absent one — file-backed credentials never exist in golden
 /// scenarios (values come from `env`, and missing-credential cases must not see real files).
 pub fn scenario_host(scenario: &Value) -> (spiderhead_core::host::FakeHost, PathBuf) {
     let mut env = std::collections::BTreeMap::new();
@@ -166,7 +166,7 @@ pub fn scenario_host(scenario: &Value) -> (spiderhead_core::host::FakeHost, Path
     (host, absent_config_root())
 }
 
-/// Compare the recorded requests + outcome of one scenario with the oracle row; panics with
+/// Compare the recorded requests + outcome of one scenario with the golden row; panics with
 /// a readable diff on any mismatch. `actual` is `Ok(value)` or `Err((error_class, message))`.
 pub fn assert_scenario(
     scenario: &Value,

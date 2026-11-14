@@ -1,4 +1,4 @@
-//! Ported tests for `reports/build_report.rs` PDF routing (reference
+//! Tests for `reports/build_report.rs` PDF routing (reference
 //! the reference suite).
 //!
 //! Only `test_report_build_rejects_unknown_pdf_language_before_writing` is

@@ -1,4 +1,4 @@
-//! Ported offline tests for the lossless semantic technical-audit PDF model
+//! Offline tests for the lossless semantic technical-audit PDF model
 //! (reference the reference suite).
 //!
 //! The checklist test exercises the attached `summary.project_coverage`

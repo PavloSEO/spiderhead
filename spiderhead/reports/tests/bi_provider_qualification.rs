@@ -1,4 +1,4 @@
-//! Ported tests for BI provider qualification (reference
+//! Tests for BI provider qualification (reference
 //! the reference suite): unknown provider facts stay out
 //! of measured quadrants.
 

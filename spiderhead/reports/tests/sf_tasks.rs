@@ -1,4 +1,4 @@
-//! Ported task-backlog tests from the reference suite.
+//! Task-backlog tests from the reference suite.
 //!
 //! The four tests bound to the `result` fixture (groups_by_check_with_priority,
 //! severity_filter, per_issue_grouping, markdown_renders) need the SF analyzer

@@ -261,7 +261,7 @@ fn ci(quick: bool) -> bool {
 const PRE_BLESS: &[(&str, &[&str])] = &[
     (
         "raw captures",
-        &["test", "-p", "spiderhead-crawl", "--test", "parity"],
+        &["test", "-p", "spiderhead-crawl", "--test", "golden"],
     ),
     (
         "scan status",
@@ -290,7 +290,7 @@ const PRE_BLESS: &[(&str, &[&str])] = &[
             "-p",
             "spiderhead-store",
             "--test",
-            "ledger_oracle",
+            "golden_ledger",
             "prepared_source",
         ],
     ),

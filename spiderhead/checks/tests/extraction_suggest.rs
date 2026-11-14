@@ -1,4 +1,4 @@
-//! Oracle tests for text-driven selector suggestions.
+//! Golden tests for text-driven selector suggestions.
 //!
 //! Every candidate's match count is measured with the same closed selector
 //! engine extraction rules run under, so the emitted rule evaluates
