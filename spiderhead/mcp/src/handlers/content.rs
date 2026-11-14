@@ -3,7 +3,6 @@
 
 use serde_json::{json, Map, Value};
 
-use spiderhead_parse::boilerplate_report::{boilerplate_consistency_report, BoilerplatePage};
 use spiderhead_parse::markdown_extract::extract_markdown;
 use spiderhead_parse::parser::{fetch_html, FetchOutcome, HtmlFetcher};
 use spiderhead_parse::schema_org::{check_schema, SchemaSource};
@@ -99,31 +98,6 @@ pub fn markdown_extract(args: &Value) -> Result<Value, ToolError> {
             Ok(document)
         }
     }
-}
-
-/// `boilerplate_report`: group pages by header/nav/footer hash.
-pub fn boilerplate_report(args: &Value) -> Result<Value, ToolError> {
-    let args = kwargs(args);
-    if opt(&args, "pages").is_some() && opt(&args, "scan").is_some() {
-        return Err(ToolError::Failed(
-            "pages[] and scan are mutually exclusive".to_owned(),
-        ));
-    }
-    if opt(&args, "scan").is_some() {
-        return Err(ToolError::NotYetPorted("boilerplate_report".to_owned()));
-    }
-    let pages: Vec<BoilerplatePage> = match opt(&args, "pages").and_then(Value::as_array) {
-        Some(list) if !list.is_empty() => list
-            .iter()
-            .map(|page| serde_json::from_value(page.clone()).map_err(failed))
-            .collect::<Result<_, _>>()?,
-        _ => {
-            return Err(ToolError::Failed(
-                "pages[] required (list of {url, html} or {url, hash})".to_owned(),
-            ))
-        }
-    };
-    serde_json::to_value(boilerplate_consistency_report(&pages).map_err(failed)?).map_err(failed)
 }
 
 /// `schema_check`: vocabulary, entity graph and rich-result readiness of one page.

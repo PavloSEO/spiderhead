@@ -5608,13 +5608,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "spiderhead-remote"
-version = "0.9.1"
-dependencies = [
- "spiderhead-core",
-]
-
-[[package]]
 name = "spiderhead-render"
 version = "0.9.1"
 dependencies = [

@@ -33,7 +33,6 @@ const LAYERS: &[(&str, u8)] = &[
     ("spiderhead-recon", 5),
     ("spiderhead-mcp", 6),
     ("spiderhead-tui", 6),
-    ("spiderhead-remote", 6),
     ("spiderhead-cli", 7),
     ("spiderhead-oracle-diff", 7),
     ("spiderhead-oracle-testkit", 7),
