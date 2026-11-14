@@ -148,20 +148,23 @@ jobs:
           cat SHA256SUMS
       - name: Sign the checksums
         # Ed25519 over SHA256SUMS. The private key (PEM) lives only in the repository secret
-        # RELEASE_SIGNING_KEY; its public half is baked into packaging/get.sh and the app.
-        # Without the secret the release is written unsigned, with a warning.
+        # RELEASE_SIGNING_KEY; its public half is packaging/release-key.pem (embedded in the
+        # binary, copied into packaging/get.sh). While that file is empty releases are unsigned.
         env:
           SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
         run: |
           if [ -z "$SIGNING_KEY" ]; then
+            if [ -s packaging/release-key.pem ]; then
+              echo "::error::packaging/release-key.pem is set but RELEASE_SIGNING_KEY is missing: installed binaries would reject this release"; exit 1
+            fi
             echo "::warning::RELEASE_SIGNING_KEY is not set: this release is UNSIGNED"; exit 0
           fi
           key="$RUNNER_TEMP/release.pem"
           (umask 077; printf '%s\n' "$SIGNING_KEY" > "$key")
           openssl pkey -in "$key" -pubout -out "$RUNNER_TEMP/release.pub"
-          # The signing key must be the one the installer trusts.
-          grep -qF "$(sed -n 2p "$RUNNER_TEMP/release.pub")" packaging/get.sh \
-            || { echo "::error::RELEASE_SIGNING_KEY does not match the public key in packaging/get.sh"; exit 1; }
+          # The signing key must be the one the installer and the binary trust.
+          openssl pkey -pubin -in packaging/release-key.pem -pubout 2>/dev/null | cmp -s - "$RUNNER_TEMP/release.pub" \
+            || { echo "::error::RELEASE_SIGNING_KEY does not match packaging/release-key.pem"; exit 1; }
           openssl pkeyutl -sign -rawin -inkey "$key" -in out/SHA256SUMS -out out/SHA256SUMS.sig
           openssl pkeyutl -verify -pubin -inkey "$RUNNER_TEMP/release.pub" -rawin \
             -in out/SHA256SUMS -sigfile out/SHA256SUMS.sig

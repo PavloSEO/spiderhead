@@ -32,3 +32,4 @@ spiderhead-oracle-diff.workspace = true
 spiderhead-oracle-testkit.workspace = true
 spiderhead-store.workspace = true
 sha2.workspace = true
+tempfile.workspace = true

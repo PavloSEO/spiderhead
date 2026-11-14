@@ -130,18 +130,23 @@ fn init(args: &[String], out: &mut Output) -> ExitCode {
     }
 }
 
-const UPDATE_USAGE: &str = "usage: spiderhead update [--dry-run] [--bin-dir DIR]\n\n\
-Fetch the newest stable release, verify its SHA-256 and replace DIR/spiderhead atomically\n\
-(DIR defaults to $CARGO_HOME/bin, else ~/.cargo/bin). Typing this command is the consent to\n\
-read the network; --dry-run only reports what would be installed.";
+const UPDATE_USAGE: &str =
+    "usage: spiderhead update [--dry-run] [--rollback] [--feed DIR] [--bin-dir DIR]\n\n\
+Fetch the newest stable release, verify its SHA-256 (and signature, once releases are signed) and\n\
+replace the running binary atomically, keeping the previous one. --bin-dir DIR replaces\n\
+DIR/spiderhead instead; --feed DIR (or SPIDERHEAD_UPDATE_FEED) reads releases from a local\n\
+directory laid out as download/<tag>/<assets>; --rollback restores the previous version.\n\
+Typing this command is the consent to read the network; --dry-run only reports the plan.";
 
 fn update(args: &[String], out: &mut Output) -> ExitCode {
-    let (mut dry_run, mut bin_dir) = (false, None);
+    let (mut dry_run, mut rollback, mut bin_dir, mut feed) = (false, false, None, None);
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         match arg.as_str() {
             "--dry-run" => dry_run = true,
+            "--rollback" => rollback = true,
             "--bin-dir" => bin_dir = it.next().map(std::path::PathBuf::from),
+            "--feed" => feed = it.next().map(std::path::PathBuf::from),
             "-h" | "--help" => {
                 out.println(UPDATE_USAGE);
                 return ExitCode::SUCCESS;
@@ -153,7 +158,12 @@ fn update(args: &[String], out: &mut Output) -> ExitCode {
             }
         }
     }
-    match spiderhead_mcp::handlers::update::update_install(bin_dir.as_deref(), dry_run) {
+    match spiderhead_mcp::handlers::update::update_install(
+        bin_dir.as_deref(),
+        feed.as_deref(),
+        dry_run,
+        rollback,
+    ) {
         Ok(result) => {
             out.emit(&result);
             if result["ok"] == true {

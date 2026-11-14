@@ -211,6 +211,23 @@ pub trait ReconClient {
         self.get(url, headers, params)
     }
 
+    /// GET `url` like [`ReconClient::get`], but a success body is streamed into `sink` and the
+    /// returned `content` is empty. The default buffers through `get`.
+    fn get_into(
+        &self,
+        url: &str,
+        headers: &[(String, String)],
+        sink: &mut dyn std::io::Write,
+    ) -> Result<Response, FetchError> {
+        let mut response = self.get(url, headers, &[])?;
+        if (200..300).contains(&response.status_code) {
+            sink.write_all(&response.content)
+                .map_err(|e| FetchError::Transport(e.to_string()))?;
+            response.content.clear();
+        }
+        Ok(response)
+    }
+
     /// One request with no redirect following — a 3xx response comes back as
     /// is, the way hop-by-hop checkers need it. The default reuses
     /// [`ReconClient::request`], whose canned implementations are already
@@ -396,7 +413,7 @@ impl ReconClient for ReqwestReconClient {
         headers: &[(String, String)],
         params: &[(String, String)],
     ) -> Result<Response, FetchError> {
-        self.send_following("GET", url, headers, params)
+        self.send_following("GET", url, headers, params, None)
     }
 
     fn request(
@@ -406,7 +423,7 @@ impl ReconClient for ReqwestReconClient {
         headers: &[(String, String)],
         params: &[(String, String)],
     ) -> Result<Response, FetchError> {
-        self.send_following(method, url, headers, params)
+        self.send_following(method, url, headers, params, None)
     }
 
     fn request_single(
@@ -415,7 +432,16 @@ impl ReconClient for ReqwestReconClient {
         url: &str,
         headers: &[(String, String)],
     ) -> Result<Response, FetchError> {
-        self.send_once(method, url, headers, &[])
+        self.send_once(method, url, headers, &[], None)
+    }
+
+    fn get_into(
+        &self,
+        url: &str,
+        headers: &[(String, String)],
+        sink: &mut dyn std::io::Write,
+    ) -> Result<Response, FetchError> {
+        self.send_following("GET", url, headers, &[], Some(sink))
     }
 }
 
@@ -426,6 +452,7 @@ impl ReqwestReconClient {
         url: &str,
         headers: &[(String, String)],
         params: &[(String, String)],
+        sink: Option<&mut dyn std::io::Write>,
     ) -> Result<Response, FetchError> {
         let env = SystemHost;
         let (key, host, addrs) = pin(url, &env).map_err(FetchError::Invalid)?;
@@ -460,8 +487,16 @@ impl ReqwestReconClient {
         let cookies = parse_cookies(&resp_headers);
         let mut content = Vec::new();
         let mut body = response;
-        body.read_to_end(&mut content)
-            .map_err(|e| FetchError::Transport(e.to_string()))?;
+        match sink {
+            // Success bodies stream to the sink; redirects and errors stay small and buffered.
+            Some(sink) if (200..300).contains(&status) => {
+                std::io::copy(&mut body, sink).map_err(|e| FetchError::Transport(e.to_string()))?;
+            }
+            _ => {
+                body.read_to_end(&mut content)
+                    .map_err(|e| FetchError::Transport(e.to_string()))?;
+            }
+        }
         Ok(Response {
             status_code: status,
             url: final_url,
@@ -479,11 +514,18 @@ impl ReqwestReconClient {
         url: &str,
         headers: &[(String, String)],
         params: &[(String, String)],
+        mut sink: Option<&mut dyn std::io::Write>,
     ) -> Result<Response, FetchError> {
         let mut current = url.to_string();
         let mut previous_status: Option<u16> = None;
         for _ in 0..=MAX_REDIRECTS {
-            let resp = match self.send_once(method, &current, headers, params) {
+            let resp = match self.send_once(
+                method,
+                &current,
+                headers,
+                params,
+                sink.as_mut().map(|s| &mut **s as &mut dyn std::io::Write),
+            ) {
                 Ok(resp) => resp,
                 // A refusal past the first hop is about the redirect target,
                 // not the original request: keep the referring status.
@@ -529,6 +571,51 @@ pub fn http_client(timeout: f64) -> Result<(ReqwestReconClient, bool), FetchErro
         },
         true,
     ))
+}
+
+/// Adapts any [`ReconClient`] to the update engine's byte source: ranges are requested with a
+/// `Range` header and the body is streamed through [`ReconClient::get_into`].
+pub struct ReconFetch<'a>(pub &'a dyn ReconClient);
+
+impl spiderhead_core::update::download::Fetch for ReconFetch<'_> {
+    fn fetch_into(
+        &self,
+        url: &str,
+        offset: u64,
+        sink: &mut dyn std::io::Write,
+    ) -> Result<
+        spiderhead_core::update::download::FetchHead,
+        spiderhead_core::update::download::FetchFailure,
+    > {
+        use spiderhead_core::update::download::{FetchFailure, FetchHead};
+        let mut headers = vec![("User-Agent".to_owned(), "SpiderHead".to_owned())];
+        if offset > 0 {
+            headers.push(("Range".to_owned(), format!("bytes={offset}-")));
+        }
+        let response = self
+            .0
+            .get_into(url, &headers, sink)
+            .map_err(|e| FetchFailure::Transport(e.to_string()))?;
+        if !matches!(response.status_code, 200 | 206) {
+            return Err(FetchFailure::Http(response.status_code));
+        }
+        // `Content-Range: bytes <start>-<end>/<total>`
+        let range = response
+            .header("content-range")
+            .and_then(|v| v.strip_prefix("bytes "));
+        Ok(FetchHead {
+            status: response.status_code,
+            range_start: range.and_then(|r| r.split('-').next()?.parse().ok()),
+            total: range
+                .and_then(|r| r.rsplit('/').next()?.parse().ok())
+                .or_else(|| {
+                    response
+                        .header("content-length")
+                        .and_then(|v| v.parse().ok())
+                }),
+            etag: response.header("etag").map(str::to_owned),
+        })
+    }
 }
 
 // ── DoH / RDAP / WHOIS ─────────────────────────────────────────────────────
