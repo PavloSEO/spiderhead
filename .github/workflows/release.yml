@@ -136,6 +136,7 @@ jobs:
       TAG: ${{ needs.plan.outputs.tag }}
       GH_TOKEN: ${{ github.token }}
     steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           path: out
@@ -145,6 +146,26 @@ jobs:
           cd out
           sha256sum -- spiderhead-* > SHA256SUMS
           cat SHA256SUMS
+      - name: Sign the checksums
+        # Ed25519 over SHA256SUMS. The private key (PEM) lives only in the repository secret
+        # RELEASE_SIGNING_KEY; its public half is baked into packaging/get.sh and the app.
+        # Without the secret the release is written unsigned, with a warning.
+        env:
+          SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+        run: |
+          if [ -z "$SIGNING_KEY" ]; then
+            echo "::warning::RELEASE_SIGNING_KEY is not set: this release is UNSIGNED"; exit 0
+          fi
+          key="$RUNNER_TEMP/release.pem"
+          (umask 077; printf '%s\n' "$SIGNING_KEY" > "$key")
+          openssl pkey -in "$key" -pubout -out "$RUNNER_TEMP/release.pub"
+          # The signing key must be the one the installer trusts.
+          grep -qF "$(sed -n 2p "$RUNNER_TEMP/release.pub")" packaging/get.sh \
+            || { echo "::error::RELEASE_SIGNING_KEY does not match the public key in packaging/get.sh"; exit 1; }
+          openssl pkeyutl -sign -rawin -inkey "$key" -in out/SHA256SUMS -out out/SHA256SUMS.sig
+          openssl pkeyutl -verify -pubin -inkey "$RUNNER_TEMP/release.pub" -rawin \
+            -in out/SHA256SUMS -sigfile out/SHA256SUMS.sig
+          rm -f "$key"
       - name: Write the draft
         run: |
           if draft=$(gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft 2>/dev/null); then

@@ -1,0 +1,11 @@
+# Release notes: GitHub groups the merged pull requests of a release by label.
+changelog:
+  exclude:
+    authors: [dependabot]
+  categories:
+    - title: Features
+      labels: [enhancement]
+    - title: Fixes
+      labels: [bug, "type:bug"]
+    - title: Everything else
+      labels: ["*"]
