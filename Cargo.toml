@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["xtask", "spiderhead/core", "spiderhead/formats", "spiderhead/store", "spiderhead/parse", "spiderhead/checks", "spiderhead/log-analyzer", "spiderhead/render", "spiderhead/fetch", "spiderhead/crawl", "spiderhead/sf-import", "spiderhead/catalog", "spiderhead/reports", "spiderhead/projects", "spiderhead/sources", "spiderhead/semantics", "spiderhead/recon", "spiderhead/mcp", "spiderhead/tui", "spiderhead/remote", "spiderhead/control", "spiderhead/cli", "spiderhead/desktop", "oracle/diff", "oracle/testkit"]
+members = ["xtask", "spiderhead/core", "spiderhead/formats", "spiderhead/store", "spiderhead/parse", "spiderhead/checks", "spiderhead/log-analyzer", "spiderhead/render", "spiderhead/fetch", "spiderhead/crawl", "spiderhead/sf-import", "spiderhead/catalog", "spiderhead/reports", "spiderhead/projects", "spiderhead/sources", "spiderhead/semantics", "spiderhead/recon", "spiderhead/mcp", "spiderhead/tui", "spiderhead/control", "spiderhead/cli", "spiderhead/desktop", "oracle/diff", "oracle/testkit"]
 
 [workspace.package]
 version = "0.9.1"
@@ -70,7 +70,6 @@ spiderhead-recon = { path = "spiderhead/recon" }
 spiderhead-mcp = { path = "spiderhead/mcp" }
 spiderhead-log-analyzer = { path = "spiderhead/log-analyzer" }
 spiderhead-tui = { path = "spiderhead/tui" }
-spiderhead-remote = { path = "spiderhead/remote" }
 spiderhead-oracle-diff = { path = "oracle/diff" }
 spiderhead-oracle-testkit = { path = "oracle/testkit" }
 tempfile = "3.27"

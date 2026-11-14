@@ -181,7 +181,6 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
         ("redirects_generate", content::redirects_generate),
         ("markdown_extract", content::markdown_extract),
         ("markdown_export", content::markdown_export),
-        ("boilerplate_report", content::boilerplate_report),
         ("schema_check", content::schema_check),
         ("schema_build", content::schema_build),
         ("semantic_inputs", content::semantic_inputs),
