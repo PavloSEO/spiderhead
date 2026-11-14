@@ -1,4 +1,4 @@
-//! Shared scratch/live-project helpers for the ported reference behaviour tests.
+//! Shared scratch/live-project helpers for the covered reference behaviour tests.
 //!
 //! Included per test binary via `#[path = "common/testkit.rs"] mod testkit;` —
 //! separate from the fixture-replay `common/mod.rs` so binaries that need only

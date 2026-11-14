@@ -6,10 +6,10 @@ mod common;
 use common::{fixture, Client};
 use serde_json::json;
 
-// Envelope captured in tests/fixtures/rpc.bad_json.json: the oracle logs the
+// Envelope captured in tests/fixtures/rpc.bad_json.json: the golden logs the
 // failure as a notification (no id to answer) and continues on the next line.
 #[test]
-fn unparseable_line_gets_the_oracle_notification_and_the_server_survives() {
+fn unparseable_line_gets_golden_notification_and_the_server_survives() {
     let mut client = Client::spawn("router");
     client.initialize();
     let notification = client.send_raw_and_receive("this is not json");
@@ -34,7 +34,7 @@ fn cancellation_notification_is_absorbed_silently() {
     client.initialize();
     client.request("tools/call", json!({"name": "seo_doctor", "arguments": {}}));
     // A client cancelling a request it considers stale (unknown id included):
-    // the oracle absorbs the notification without any wire output.
+    // the golden absorbs the notification without any wire output.
     client.notify("notifications/cancelled", json!({"requestId": 999}));
     let reply = client.request("ping", json!({}));
     assert_eq!(reply["result"], json!({}));
@@ -52,7 +52,7 @@ fn unknown_method_fails_like_the_reference_sdk() {
 
 // Envelopes captured in tests/fixtures/rpc.prompts_list.json / rpc.resources_list.json.
 #[test]
-fn advertised_empty_registries_answer_like_the_oracle() {
+fn golden_advertised_empty_registries_answer_like() {
     let mut client = Client::spawn("router");
     client.initialize();
     assert_eq!(

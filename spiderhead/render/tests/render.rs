@@ -1,4 +1,4 @@
-//! Live render over CDP against the oracle fixture server (basic/js.html).
+//! Live render over CDP against the golden fixture server (basic/js.html).
 //! Ignored when no Chrome is installed; the loopback fixture server is the
 //! only network this test touches.
 

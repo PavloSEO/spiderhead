@@ -1,4 +1,4 @@
-//! Ported tests for the Sheets transport (reference the reference suite)
+//! Tests for the Sheets transport (reference the reference suite)
 //! using an API-shaped, stateful offline `SheetsDouble` — no network, no
 //! authentication. Retry-After tests exercise the public `google_backoff` seam
 //! with an explicit clock.

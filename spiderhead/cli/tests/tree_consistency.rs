@@ -101,9 +101,9 @@ fn every_table_command_declares_its_domain() {
     assert!(bare.is_empty(), "{bare:?}");
 }
 
-// (handler presence is the oracle's recorded fact: the Rust handler registry does not exist yet)
+// (handler presence is the golden recorded fact: the Rust handler registry does not exist yet)
 #[test]
-fn every_table_command_names_a_handler_the_oracle_has() {
+fn every_table_command_names_a_known_handler() {
     let t = tree_json();
     let missing: Vec<&str> = flat_commands(&t)
         .into_iter()

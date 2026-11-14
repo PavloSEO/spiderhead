@@ -1,9 +1,9 @@
-//! Ported tests for the DOCX writer (reference the reference suite,
+//! Tests for the DOCX writer (reference the reference suite,
 //! issue #363): the client DOCX must not assert current ranking loss — the
 //! `seohead.site-audit/1` contract carries no ranking measurement.
 //!
 //! Fixture: `tests/fixtures/site_audit_full.json` is a byte copy of the
-//! oracle's `docs/examples/reports/full.json`.
+//! golden `docs/examples/reports/full.json`.
 
 use std::path::PathBuf;
 

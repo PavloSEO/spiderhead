@@ -1,4 +1,4 @@
-//! Ported tests for `reports/bi_index.rs` group companions
+//! Tests for `reports/bi_index.rs` group companions
 //! (reference the reference suite).
 //!
 //! `_population_scan` is realized on top of the retained raw-scan fixture plus

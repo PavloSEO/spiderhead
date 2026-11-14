@@ -3,7 +3,7 @@
 //! Routes match on the original provider host (`X-Fake-Host`), method, path and
 //! an optional body substring. Each route owns a response sequence: answers are
 //! consumed in order and the last one repeats. Every request is recorded so the
-//! parity tests can hold the Rust side to the same wire traffic as the oracle.
+//! golden tests can hold the Rust side to the same wire traffic as the golden.
 
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};

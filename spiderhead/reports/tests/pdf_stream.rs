@@ -1,4 +1,4 @@
-//! Ported tests for `reports/pdf_stream.rs` (reference the reference suite):
+//! Tests for `reports/pdf_stream.rs` (reference the reference suite):
 //! explicit overview policy and companion/output refusal ordering.
 //!
 //! Tests that monkeypatch the renderer or module budgets

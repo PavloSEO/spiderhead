@@ -1,4 +1,4 @@
-//! chromium_pdf ported tests: discovery order, command flags, print lifecycle
+//! chromium_pdf tests: discovery order, command flags, print lifecycle
 //! against real temp-file fake browsers instead of the reference injected seams.
 
 use std::path::{Path, PathBuf};
@@ -173,5 +173,5 @@ fn print_stops_a_browser_that_keeps_running_after_the_pdf() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
-// the reference suite — not ported: it needs a
+// the reference suite — not covered: it needs a
 // real installed Chromium, which CI hosts do not guarantee.

@@ -1,4 +1,4 @@
-//! Ported tests for project-checklist coverage in human reports
+//! Tests for project-checklist coverage in human reports
 //! (reference the reference suite).
 //!
 //! `build_report(project=...)` binds through an injected `ProjectsHost`;

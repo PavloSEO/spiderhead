@@ -1,4 +1,4 @@
-//! Unit tests ported from the reference suite: the parts of the parser tests that need no crawl,
+//! Unit tests: the parts of the parser tests that need no crawl,
 //! audit or store (those belong to later crates). Each test names its reference origin.
 
 use spiderhead_parse::dom::parse_document;

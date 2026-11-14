@@ -1,12 +1,12 @@
-//! Ported stored-scan check tests (`oracle-baseline`).
+//! Stored-scan check tests (`golden-baseline`).
 //!
 //! the reference suite builds a minimal three-table scan in
 //! memory and calls `security_headers.evaluate`; `check_security_headers` runs
 //! the same query, so the store helper mirrors `_store` verbatim.
 //! the reference suite authors a full scan_v1 corpus; the
-//! `corpus` helper is ported one-to-one (schema-driven column defaults).
+//! `corpus` helper is covered one-to-one (schema-driven column defaults).
 //!
-//! Not ported: `test_evaluate_rejects_a_non_sqlite_connection` (the Rust type
+//! Not covered: `test_evaluate_rejects_a_non_sqlite_connection` (the Rust type
 //! system makes the argument impossible), the projection's temp-table cleanup
 //! assertion (the port never materializes one), the URL_INTERNAL_SEARCH,
 //! crawl/reanalyze-pipeline and CLI-surface tests (other slices), and the

@@ -1,4 +1,4 @@
-//! Ported tests for `reports/audit_pdf.rs` (reference the reference suite):
+//! Tests for `reports/audit_pdf.rs` (reference the reference suite):
 //! HTML rendering of the technical-audit PDF model — localization, coverage
 //! states, escaping, backlog wrapper, and rejection of bad input.
 

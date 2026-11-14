@@ -1,4 +1,4 @@
-//! Ported tests for `reports/bi` bounded delivery (reference
+//! Tests for `reports/bi` bounded delivery (reference
 //! the reference suite): selected export, index recovery and
 //! large-projection boundaries.
 //!
@@ -7,7 +7,7 @@
 //! `test_xlsx_index_publication_failure_rolls_back_new_workbook` (patches
 //! `os.replace`) — no equivalent Rust seam; Rust checks the real filesystem
 //! and publishes through `fs::rename`. `test_quadrants_stream...` and
-//! `test_inlink_share...` are ported via the public `quadrant_candidates` /
+//! `test_inlink_share...` are covered via the public `quadrant_candidates` /
 //! `InlinkIndex` APIs.
 
 use std::fs;

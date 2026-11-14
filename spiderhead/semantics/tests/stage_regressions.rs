@@ -1,4 +1,4 @@
-//! Stage regressions ported from the reference suite (`tests/test_semantics_*the reference suite)
+//! Stage regressions (`tests/test_semantics_*the reference suite)
 //! — provider-receipt safety, paid-task recovery and cached-SERP reuse.
 //! Each test cites the original `// from tests/<file>the reference suite::<test>`.
 

@@ -288,7 +288,7 @@ fn sitemap_only_crawls_only_declared_members() {
 }
 
 // sitemap input raises ValueError("sitemap_only requires an explicit sitemap")
-// before any crawl starts; no dedicated oracle test pins it.
+// before any crawl starts; no dedicated golden test pins it.
 #[test]
 fn sitemap_only_requires_an_explicit_sitemap() {
     let work = scratch("no-sitemap");

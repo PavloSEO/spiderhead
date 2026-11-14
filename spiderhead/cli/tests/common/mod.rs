@@ -1,4 +1,4 @@
-//! Shared helpers for the parity tests: fixture loading, running the CLI, unified diffs.
+//! Shared helpers for the golden tests: fixture loading, running the CLI, unified diffs.
 
 #![allow(dead_code)]
 

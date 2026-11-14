@@ -1,4 +1,4 @@
-//! Oracle-fixture replay harness shared by `*_parity.rs` tests.
+//! Golden-fixture replay harness shared by `*_golden.rs` tests.
 //!
 //! A fixture (`tests/fixtures/<stage>_oracle.json`) holds scenarios recorded by
 //! `gen/gen_<stage>the reference suite: setup ops, provider answers, stage args, and the
@@ -6,7 +6,7 @@
 //! object, provider call log, and emitted files.
 //!
 //! Helpers for provider seams not exercised by an early stage light up as the
-//! later parity tests land, so unused-code warnings stay off here.
+//! later golden tests land, so unused-code warnings stay off here.
 #![allow(dead_code)]
 
 use serde_json::{json, Map, Value};
@@ -44,7 +44,7 @@ pub fn fixture(stage: &str) -> Value {
 
 /// Isolated project dir for one scenario (files land here via `cfg["_dir"]`).
 pub fn project_dir(stage: &str, name: &str) -> PathBuf {
-    let d = std::env::temp_dir().join(format!("sem-parity-{stage}-{name}-{}", std::process::id()));
+    let d = std::env::temp_dir().join(format!("sem-golden-{stage}-{name}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&d);
     std::fs::create_dir_all(&d).unwrap();
     d
@@ -449,11 +449,11 @@ pub fn check_tables(store: &Store, scenario: &Value, diffs: &mut Vec<String>) {
         if g != w {
             let gn = g.as_array().map(|a| a.len()).unwrap_or(0);
             let wn = w.as_array().map(|a| a.len()).unwrap_or(0);
-            diffs.push(format!("table {name}: {gn} rows vs oracle {wn}"));
+            diffs.push(format!("table {name}: {gn} rows vs golden {wn}"));
             if let (Some(gr), Some(wr)) = (g.as_array(), w.as_array()) {
                 for (i, (a, b)) in gr.iter().zip(wr.iter()).enumerate() {
                     if a != b {
-                        diffs.push(format!("  row {i}: rust={a} oracle={b}"));
+                        diffs.push(format!("  row {i}: rust={a} golden={b}"));
                         if i > 4 {
                             break;
                         }
@@ -468,7 +468,7 @@ pub fn check_tables(store: &Store, scenario: &Value, diffs: &mut Vec<String>) {
 pub fn check_result(scenario: &Value, result: &Value, diffs: &mut Vec<String>) {
     let want = &scenario["expect"]["result"];
     if result != want {
-        diffs.push(format!("result: rust={result} oracle={want}"));
+        diffs.push(format!("result: rust={result} golden={want}"));
     }
 }
 
@@ -524,7 +524,7 @@ pub fn check_xlsx(scenario: &Value, path: &Path, diffs: &mut Vec<String>) {
         let want_rows = want_rows.as_array().cloned().unwrap_or_default();
         if got_rows.len() != want_rows.len() {
             diffs.push(format!(
-                "xlsx {sheet}: {} rows vs oracle {}",
+                "xlsx {sheet}: {} rows vs golden {}",
                 got_rows.len(),
                 want_rows.len()
             ));
@@ -544,7 +544,7 @@ pub fn check_xlsx(scenario: &Value, path: &Path, diffs: &mut Vec<String>) {
             for (j, (a, b)) in g.iter().zip(w.iter()).enumerate() {
                 if norm(a) != norm(b) {
                     diffs.push(format!(
-                        "xlsx {sheet} r{}c{}: rust={a} oracle={b}",
+                        "xlsx {sheet} r{}c{}: rust={a} golden={b}",
                         i + 1,
                         j + 1
                     ));

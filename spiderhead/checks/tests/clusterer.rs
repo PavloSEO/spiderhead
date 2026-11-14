@@ -1,4 +1,4 @@
-//! Keyword clustering: the oracle's cluster-count guarantees, its `__main__`
+//! Keyword clustering: the golden cluster-count guarantees, its `__main__`
 //! smoke assertions, and the estimator paths the Python test suite covers only
 //! through scikit-learn fixtures (dbscan, agglomerative) as deterministic
 //! regression coverage.
@@ -138,7 +138,7 @@ fn empty_keyword_list_is_a_false_document() {
     );
 }
 
-// Oracle contract: `_cluster` returning None becomes the unknown-algorithm
+// Golden contract: `_cluster` returning None becomes the unknown-algorithm
 // error document.
 #[test]
 fn unknown_algorithm_is_a_false_document() {
@@ -153,7 +153,7 @@ fn unknown_algorithm_is_a_false_document() {
     );
 }
 
-// Oracle contract: a stop-word-only keyword set has an empty vectorizer
+// Golden contract: a stop-word-only keyword set has an empty vectorizer
 // vocabulary, reported through the "Vectorization failed" wrapper.
 #[test]
 fn stop_word_only_input_fails_vectorization() {

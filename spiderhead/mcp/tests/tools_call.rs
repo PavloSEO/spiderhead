@@ -7,7 +7,7 @@ use serde_json::json;
 
 // Envelope captured in tests/fixtures/tools_call.unknown_tool.json.
 #[test]
-fn unknown_tool_matches_the_oracle_result_byte_for_byte() {
+fn unknown_tool_matches_golden_result_byte_for_byte() {
     let mut client = Client::spawn("full");
     client.initialize();
     let reply = client.call_tool("no_such_tool", json!({}));
@@ -28,9 +28,9 @@ fn a_tool_outside_the_profile_is_unknown() {
 
 // Envelopes captured in tests/fixtures/tools_call.invalid_args.*.json: the
 // pydantic diagnostics — enum, union, type and missing-field wording — are
-// byte-identical to the oracle's.
+// byte-identical to the golden's.
 #[test]
-fn schema_validation_failures_match_the_oracle_verbatim() {
+fn schema_validation_failures_match_golden_verbatim() {
     let mut client = Client::spawn("full");
     client.initialize();
     for (name, arguments, fixture_name) in [
@@ -73,7 +73,7 @@ fn schema_validation_failures_match_the_oracle_verbatim() {
 
 // A boolean word pydantic coerces ("yes" → true) must reach the handler — the
 // call then fails inside `pin_scan` on the absent file, exactly like the
-// oracle's envelope in tools_call.scan_pin.pinned_word.json.
+// golden envelope in tools_call.scan_pin.pinned_word.json.
 #[test]
 fn coerced_arguments_reach_the_handler() {
     let mut client = Client::spawn("full");
@@ -89,7 +89,7 @@ fn coerced_arguments_reach_the_handler() {
 // Envelope captured in tests/fixtures/tools_call.scan_evidence.missing_scan.json:
 // the scan reader's SQLite wording, without this crate's error-variant prefixes.
 #[test]
-fn a_missing_scan_database_reports_the_oracle_cause() {
+fn a_missing_scan_database_reports_golden_cause() {
     let mut client = Client::spawn("full");
     client.initialize();
     let reply = client.call_tool(
@@ -162,7 +162,7 @@ fn valid_arguments_answer_not_yet_ported() {
     );
 }
 
-// (a registered clean handler answers like the oracle's clean results)
+// (a registered clean handler answers like the golden clean results)
 #[test]
 fn a_clean_registered_result_does_not_set_iserror() {
     // The spawned binary only ships NotYetPorted; clean-result wiring is covered

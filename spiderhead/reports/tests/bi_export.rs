@@ -1,4 +1,4 @@
-//! Ported BI-export tests from the reference suite — the cases whose
+//! BI-export tests from the reference suite — the cases whose
 //! only dependencies are the reports crate.
 
 use std::collections::BTreeMap;

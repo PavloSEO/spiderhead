@@ -67,7 +67,7 @@ impl Client {
             "params": {
                 "protocolVersion": "2025-11-25",
                 "capabilities": {},
-                "clientInfo": {"name": "parity-test", "version": "0"}
+                "clientInfo": {"name": "golden-test", "version": "0"}
             }
         }));
         self.next_id += 1;
@@ -156,7 +156,7 @@ pub fn substitute_version(value: &Value) -> Value {
     }
 }
 
-/// Structural diff against an oracle fixture; panics with a report if not empty.
+/// Structural diff against an golden fixture; panics with a report if not empty.
 pub fn assert_matches_fixture(expected: &Value, actual: &Value, context: &str) {
     let divergences = diff(expected, actual, &Options::default());
     assert!(
