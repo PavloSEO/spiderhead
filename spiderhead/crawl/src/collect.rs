@@ -336,6 +336,7 @@ fn finish(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn raw_with_retries(
     client: &reqwest::Client,
     throttle: &Mutex<Throttle>,

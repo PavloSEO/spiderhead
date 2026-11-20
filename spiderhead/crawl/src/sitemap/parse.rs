@@ -182,8 +182,41 @@ pub(super) fn extension_records(url_el: &Element, base_url: &str) -> Map<String,
     out
 }
 
+/// The urlset entry of one `<url>` element, in the answer's shape (`None` when
+/// the element has no usable loc). Shared by the document parse and the
+/// streaming walk, so both surfaces produce identical entries.
+pub(super) fn urlset_entry(child: &Element, base_url: &str) -> Option<Value> {
+    let loc = child.child_text("loc").filter(|loc| !loc.is_empty())?;
+    let joined = py_url::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
+    let mut entry = json!({
+        "loc": joined,
+        "lastmod": child.child_text("lastmod"),
+        "changefreq": child.child_text("changefreq"),
+        "priority": parse_priority(child.child_text("priority")),
+    });
+    let extensions = extension_records(child, base_url);
+    if let Some(object) = entry.as_object_mut() {
+        for (key, value) in extensions {
+            object.insert(key, value);
+        }
+    }
+    Some(entry)
+}
+
 /// Text sitemap: one URL per line, `#` lines are comments, BOM and UTF-16 input accepted.
 pub fn parse_text_sitemap(text_bytes: &[u8], base_url: &str) -> Value {
+    let mut urls: Vec<Value> = Vec::new();
+    stream_text_sitemap(text_bytes, base_url, &mut |entry| urls.push(entry));
+    json!({"ok": true, "type": "text", "sitemaps": [], "urls": urls})
+}
+
+/// The same text-sitemap lines, delivered one entry at a time so a large list
+/// never buffers (the streaming walk).
+pub(super) fn stream_text_sitemap(
+    text_bytes: &[u8],
+    base_url: &str,
+    on_entry: &mut dyn FnMut(Value),
+) {
     let text = if text_bytes.starts_with(&[0xFF, 0xFE]) {
         decode_utf16(text_bytes, false)
     } else if text_bytes.starts_with(&[0xFE, 0xFF]) {
@@ -194,7 +227,6 @@ pub fn parse_text_sitemap(text_bytes: &[u8], base_url: &str) -> Value {
             .unwrap_or(text_bytes);
         String::from_utf8_lossy(body).into_owned()
     };
-    let mut urls: Vec<Value> = Vec::new();
     for raw in text.split('\n') {
         let line = raw.trim_end_matches('\r').trim();
         if line.is_empty() || line.starts_with('#') {
@@ -206,14 +238,13 @@ pub fn parse_text_sitemap(text_bytes: &[u8], base_url: &str) -> Value {
         if !absolute.starts_with("http://") && !absolute.starts_with("https://") {
             continue;
         }
-        urls.push(json!({
+        on_entry(json!({
             "loc": absolute,
             "lastmod": Value::Null,
             "changefreq": Value::Null,
             "priority": Value::Null,
         }));
     }
-    json!({"ok": true, "type": "text", "sitemaps": [], "urls": urls})
 }
 
 /// Classifies and extracts one document. Failures are reported in the returned value, not raised.
@@ -279,23 +310,9 @@ pub fn parse_sitemap(xml_bytes: &[u8], base_url: &str) -> Value {
                 if child.name != "url" {
                     continue;
                 }
-                let Some(loc) = child.child_text("loc").filter(|loc| !loc.is_empty()) else {
-                    continue;
-                };
-                let joined = py_url::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
-                let mut entry = json!({
-                    "loc": joined,
-                    "lastmod": child.child_text("lastmod"),
-                    "changefreq": child.child_text("changefreq"),
-                    "priority": parse_priority(child.child_text("priority")),
-                });
-                let extensions = extension_records(child, base_url);
-                if let Some(object) = entry.as_object_mut() {
-                    for (key, value) in extensions {
-                        object.insert(key, value);
-                    }
+                if let Some(entry) = urlset_entry(child, base_url) {
+                    urls.push(entry);
                 }
-                urls.push(entry);
             }
             json!({"ok": true, "type": "urlset", "sitemaps": [], "urls": urls})
         }
