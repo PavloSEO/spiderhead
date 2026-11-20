@@ -46,6 +46,7 @@ async fn golden_gsc() {
                         start_date: arg(&args, "start_date").and_then(Value::as_str),
                         end_date: arg(&args, "end_date").and_then(Value::as_str),
                         dimensions: arg(&args, "dimensions").cloned(),
+                        dimension_filter_groups: arg(&args, "dimension_filter_groups").cloned(),
                         row_limit: arg(&args, "row_limit")
                             .cloned()
                             .unwrap_or_else(|| serde_json::json!(1000)),
@@ -141,4 +142,57 @@ async fn golden_gsc() {
         .map_err(|e| (e.error_class().to_owned(), e.to_string()));
         assert_scenario(&scenario, &transport, &[], actual);
     }
+}
+
+// `search_analytics` forwards `dimension_filter_groups` into the request payload
+// verbatim and omits the member entirely when no groups are supplied (issue #54:
+// one page filter narrows a property-week from 4 aggregated rows to the 139
+// filtered ones, so the payload must reach Google unchanged).
+#[tokio::test(flavor = "current_thread")]
+async fn search_analytics_passes_dimension_filter_groups_through() {
+    let groups = serde_json::json!([
+        {
+            "filters": [
+                {
+                    "dimension": "page",
+                    "operator": "equals",
+                    "expression": "https://example.com/page/",
+                }
+            ]
+        }
+    ]);
+    let token = serde_json::json!("fixture-token");
+    let build_args = |filter: Option<Value>| gsc::Analytics {
+        start_date: Some("2026-01-01"),
+        end_date: Some("2026-01-28"),
+        dimensions: Some(serde_json::json!(["query", "page"])),
+        dimension_filter_groups: filter,
+        row_limit: serde_json::json!(1000),
+        token: Some(&token),
+        now: None,
+        service_account: None,
+    };
+    async fn run(args: &gsc::Analytics<'_>) -> (Value, Vec<Value>) {
+        let transport = StubTransport::new(&[serde_json::json!({
+            "status": 200,
+            "body": {"rows": []},
+        })]);
+        let (host, root) = scenario_host(&serde_json::json!({}));
+        let outcome = gsc::search_analytics(&host, &root, "https://example.com/", args, &transport)
+            .await
+            .unwrap();
+        let recorded = transport.recorded();
+        (outcome, recorded)
+    }
+
+    let (outcome, recorded) = run(&build_args(Some(groups.clone()))).await;
+    assert_eq!(outcome["ok"], serde_json::json!(true));
+    assert_eq!(recorded.len(), 1);
+    let body: Value = serde_json::from_str(recorded[0]["body"].as_str().unwrap()).unwrap();
+    assert_eq!(body["dimensionFilterGroups"], groups);
+
+    let (outcome, recorded) = run(&build_args(None)).await;
+    assert_eq!(outcome["ok"], serde_json::json!(true));
+    let body: Value = serde_json::from_str(recorded[0]["body"].as_str().unwrap()).unwrap();
+    assert!(body.get("dimensionFilterGroups").is_none());
 }

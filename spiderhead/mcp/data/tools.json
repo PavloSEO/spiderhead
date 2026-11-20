@@ -9430,6 +9430,21 @@
               "default": null,
               "title": "Dimensions"
             },
+            "dimension_filter_groups": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Dimension Filter Groups"
+            },
             "row_limit": {
               "default": 1000,
               "title": "Row Limit",

@@ -108,6 +108,118 @@
    }
   },
   {
+   "name": "gsc-analytics-filter-groups",
+   "cli": {
+    "argv": [
+     "gsc-query",
+     "--site-url",
+     "sc-domain:example.test",
+     "--start-date",
+     "2026-01-01",
+     "--end-date",
+     "2026-01-28",
+     "--dimensions",
+     "query,page",
+     "--filter-groups",
+     "[{\"filters\":[{\"dimension\":\"page\",\"operator\":\"equals\",\"expression\":\"https://example.com/page/\"}]}]"
+    ]
+   },
+   "mcp": {
+    "tool": "seo_gsc_query",
+    "arguments": {
+     "site_url": "sc-domain:example.test",
+     "start_date": "2026-01-01",
+     "end_date": "2026-01-28",
+     "dimensions": [
+      "query",
+      "page"
+     ],
+     "dimension_filter_groups": [
+      {
+       "filters": [
+        {
+         "dimension": "page",
+         "operator": "equals",
+         "expression": "https://example.com/page/"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "seed": [
+    {
+     "path": ".config/gsc/access_token",
+     "text": "test-gsc-token"
+    }
+   ],
+   "routes": [
+    {
+     "host": "www.googleapis.com",
+     "method": "POST",
+     "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+     "responses": [
+      {
+       "status": 200,
+       "headers": {
+        "content-type": "application/json"
+       },
+       "body": {
+        "rows": [
+         {
+          "keys": [
+           "seo audit"
+          ],
+          "clicks": 12,
+          "impressions": 340,
+          "ctr": 0.0353,
+          "position": 4.2
+         }
+        ]
+       }
+      }
+     ]
+    }
+   ],
+   "expect": {
+    "cli": {
+     "exit": 0,
+     "stdout": "{\n  \"ok\": true,\n  \"site_url\": \"sc-domain:example.test\",\n  \"period\": \"2026-01-01..2026-01-28\",\n  \"count\": 1,\n  \"rows\": [\n    {\n      \"keys\": [\n        \"seo audit\"\n      ],\n      \"clicks\": 12,\n      \"impressions\": 340,\n      \"ctr\": 0.0353,\n      \"position\": 4.2\n    }\n  ]\n}\n",
+     "stderr": "spiderhead: gsc-query\n",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-28\", \"dimensions\": [\"query\", \"page\"], \"rowLimit\": 1000, \"dimensionFilterGroups\": [{\"filters\": [{\"dimension\": \"page\", \"operator\": \"equals\", \"expression\": \"https://example.com/page/\"}]}]}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    },
+    "mcp": {
+     "is_error": false,
+     "text": "{\n  \"ok\": true,\n  \"site_url\": \"sc-domain:example.test\",\n  \"period\": \"2026-01-01..2026-01-28\",\n  \"count\": 1,\n  \"rows\": [\n    {\n      \"keys\": [\n        \"seo audit\"\n      ],\n      \"clicks\": 12,\n      \"impressions\": 340,\n      \"ctr\": 0.0353,\n      \"position\": 4.2\n    }\n  ]\n}",
+     "requests": [
+      {
+       "host": "www.googleapis.com",
+       "method": "POST",
+       "path": "/webmasters/v3/sites/sc-domain%3Aexample.test/searchAnalytics/query",
+       "query": "",
+       "body": "{\"startDate\": \"2026-01-01\", \"endDate\": \"2026-01-28\", \"dimensions\": [\"query\", \"page\"], \"rowLimit\": 1000, \"dimensionFilterGroups\": [{\"filters\": [{\"dimension\": \"page\", \"operator\": \"equals\", \"expression\": \"https://example.com/page/\"}]}]}",
+       "headers": {
+        "authorization": "Bearer test-gsc-token",
+        "content-type": "application/json"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
    "name": "gsc-analytics-api-error",
    "cli": {
     "argv": [
@@ -345,7 +457,7 @@
     "cli": {
      "exit": 2,
      "stdout": "",
-     "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}]\n                            [--start-date START_DATE] [--end-date END_DATE]\n                            [--dimensions DIMENSIONS] [--row-limit ROW_LIMIT]\n                            [--inspection-url INSPECTION_URL]\nspiderhead gsc-query: error: argument --mode: invalid choice: 'nope' (choose from 'search_analytics', 'inspect_url')\n",
+     "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}]\n                            [--start-date START_DATE] [--end-date END_DATE]\n                            [--dimensions DIMENSIONS] [--row-limit ROW_LIMIT]\n                            [--inspection-url INSPECTION_URL]\n                            [--filter-groups FILTER_GROUPS]\nspiderhead gsc-query: error: argument --mode: invalid choice: 'nope' (choose from 'search_analytics', 'inspect_url')\n",
      "requests": []
     }
    }

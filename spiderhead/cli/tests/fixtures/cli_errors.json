@@ -1959,7 +1959,7 @@
    "--i"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}] [--start-date START_DATE]\n                            [--end-date END_DATE] [--dimensions DIMENSIONS]\n                            [--row-limit ROW_LIMIT] [--inspection-url INSPECTION_URL]\nspiderhead gsc-query: error: ambiguous option: --i could match --input, --inspection-url\n",
+  "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}] [--start-date START_DATE]\n                            [--end-date END_DATE] [--dimensions DIMENSIONS]\n                            [--row-limit ROW_LIMIT] [--inspection-url INSPECTION_URL]\n                            [--filter-groups FILTER_GROUPS]\nspiderhead gsc-query: error: ambiguous option: --i could match --input, --inspection-url\n",
   "stdout": ""
  },
  "gsc-query::bad_choice": {
@@ -1969,7 +1969,7 @@
    "zz-bad-choice"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}] [--start-date START_DATE]\n                            [--end-date END_DATE] [--dimensions DIMENSIONS]\n                            [--row-limit ROW_LIMIT] [--inspection-url INSPECTION_URL]\nspiderhead gsc-query: error: argument --mode: invalid choice: 'zz-bad-choice' (choose from 'search_analytics', 'inspect_url')\n",
+  "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}] [--start-date START_DATE]\n                            [--end-date END_DATE] [--dimensions DIMENSIONS]\n                            [--row-limit ROW_LIMIT] [--inspection-url INSPECTION_URL]\n                            [--filter-groups FILTER_GROUPS]\nspiderhead gsc-query: error: argument --mode: invalid choice: 'zz-bad-choice' (choose from 'search_analytics', 'inspect_url')\n",
   "stdout": ""
  },
  "gsc-query::bad_type": {
@@ -1979,7 +1979,7 @@
    "not-a-number"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}] [--start-date START_DATE]\n                            [--end-date END_DATE] [--dimensions DIMENSIONS]\n                            [--row-limit ROW_LIMIT] [--inspection-url INSPECTION_URL]\nspiderhead gsc-query: error: argument --row-limit: invalid int value: 'not-a-number'\n",
+  "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}] [--start-date START_DATE]\n                            [--end-date END_DATE] [--dimensions DIMENSIONS]\n                            [--row-limit ROW_LIMIT] [--inspection-url INSPECTION_URL]\n                            [--filter-groups FILTER_GROUPS]\nspiderhead gsc-query: error: argument --row-limit: invalid int value: 'not-a-number'\n",
   "stdout": ""
  },
  "gsc-query::missing_value": {
@@ -1988,7 +1988,7 @@
    "--input"
   ],
   "code": 2,
-  "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}] [--start-date START_DATE]\n                            [--end-date END_DATE] [--dimensions DIMENSIONS]\n                            [--row-limit ROW_LIMIT] [--inspection-url INSPECTION_URL]\nspiderhead gsc-query: error: argument --input: expected one argument\n",
+  "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}] [--start-date START_DATE]\n                            [--end-date END_DATE] [--dimensions DIMENSIONS]\n                            [--row-limit ROW_LIMIT] [--inspection-url INSPECTION_URL]\n                            [--filter-groups FILTER_GROUPS]\nspiderhead gsc-query: error: argument --input: expected one argument\n",
   "stdout": ""
  },
  "gsc-query::unknown_flag": {

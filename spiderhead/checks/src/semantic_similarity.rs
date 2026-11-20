@@ -8,6 +8,7 @@
 
 use std::collections::HashMap;
 use std::path::Path;
+use std::time::{Duration, Instant};
 
 use indexmap::IndexMap;
 use serde_json::{json, Map, Value};
@@ -23,6 +24,11 @@ pub const MAX_CANDIDATE_COMPARISONS: i64 = 250_000;
 pub const MAX_VECTOR_DIMENSIONS: usize = 8_192;
 /// The cache identity version; changing it invalidates every stored vector.
 pub const CACHE_SCHEMA_VERSION: &str = "semantic_cache.v1";
+/// The retry budget for opening one cache while concurrent local creators race
+/// on the schema initialization; it mirrors the writer busy timeout.
+const INIT_RETRY_BUDGET: Duration = spiderhead_core::sqlite::DEFAULT_TIMEOUT;
+/// The pause between schema-initialization retries.
+const INIT_RETRY_PAUSE: Duration = Duration::from_millis(25);
 
 /// The adapter boundary failures: a validation error or a permission refusal.
 #[derive(Debug, thiserror::Error)]
@@ -396,22 +402,22 @@ impl EmbeddingCache {
                 "max_entries must be positive".to_owned(),
             ));
         }
-        // The writer's busy timeout (5 s) covers the concurrent-create window
-        // that the oracle answers with a retry loop.
-        let connection = connect(&path.as_ref().to_string_lossy())
-            .map_err(|error| SemanticError::Value(error.to_string()))?;
-        connection
-            .execute_batch(
-                "PRAGMA journal_mode=WAL;
-                 CREATE TABLE IF NOT EXISTS semantic_embeddings (
-                     cache_key TEXT PRIMARY KEY, source_sha256 TEXT NOT NULL, identity_json TEXT NOT NULL,
-                     vector_json TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
-            )
-            .map_err(|error| SemanticError::Value(error.to_string()))?;
-        Ok(Self {
-            path: path.as_ref().to_string_lossy().into_owned(),
-            max_entries,
-        })
+        // Concurrent local creators of one fresh cache race on the schema
+        // initialization, and `PRAGMA journal_mode=WAL` can report busy without
+        // running the busy handler. Initialization therefore answers contention
+        // with the same bounded retry loop the writers get from the busy timeout.
+        let path = path.as_ref().to_string_lossy().into_owned();
+        let deadline = Instant::now() + INIT_RETRY_BUDGET;
+        loop {
+            match open_initialized(&path) {
+                Ok(_) => break,
+                Err(error) if is_contention(&error) && Instant::now() < deadline => {
+                    std::thread::sleep(INIT_RETRY_PAUSE);
+                }
+                Err(error) => return Err(SemanticError::Value(error.to_string())),
+            }
+        }
+        Ok(Self { path, max_entries })
     }
 
     fn connect(&self) -> Result<rusqlite::Connection, SemanticError> {
@@ -490,6 +496,27 @@ fn connect(path: &str) -> rusqlite::Result<rusqlite::Connection> {
         Path::new(path),
         spiderhead_core::sqlite::DEFAULT_TIMEOUT,
         &["PRAGMA busy_timeout=5000"],
+    )
+}
+
+/// Open one connection and create the schema when missing.
+fn open_initialized(path: &str) -> rusqlite::Result<rusqlite::Connection> {
+    let connection = connect(path)?;
+    connection.execute_batch(
+        "PRAGMA journal_mode=WAL;
+         CREATE TABLE IF NOT EXISTS semantic_embeddings (
+             cache_key TEXT PRIMARY KEY, source_sha256 TEXT NOT NULL, identity_json TEXT NOT NULL,
+             vector_json TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+    )?;
+    Ok(connection)
+}
+
+/// Busy and locked are the transient contention codes a concurrent creator
+/// answers with a retry; every other error fails immediately.
+fn is_contention(error: &rusqlite::Error) -> bool {
+    matches!(
+        error.sqlite_error_code(),
+        Some(rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked)
     )
 }
 
@@ -1277,10 +1304,15 @@ mod tests {
     fn cache_handles_concurrent_local_writers() {
         let dir = tempfile::tempdir().unwrap();
         let cache_path = dir.path().join("shared.sqlite");
+        // The gate starts every writer against the fresh file at once, so the
+        // concurrent-create race is forced on every run instead of merely hoped for.
+        let gate = std::sync::Barrier::new(8);
         std::thread::scope(|scope| {
             for index in 1..=8i64 {
                 let path = cache_path.clone();
+                let gate = &gate;
                 scope.spawn(move || {
+                    gate.wait();
                     let cache = EmbeddingCache::new(&path).unwrap();
                     cache
                         .put(
