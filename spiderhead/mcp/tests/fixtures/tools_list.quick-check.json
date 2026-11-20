@@ -389,7 +389,7 @@
     "openWorldHint": true,
     "readOnlyHint": true
    },
-   "description": "Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or a page of retained scan URLs. Per-pair network errors remain attached to their input URL.",
+   "description": "Run up to 50 URL/check pairs from the supported single-URL checks over a URL list or a page of retained scan URLs. Per-pair network errors remain attached to their input URL. Supported checks: parse, robots-check, headers-check, redirects-check, schema-check, links-check, hreflang-check, security-check, ai-bots-check, llms-txt-check, citability-check, social-meta-check, soft404-check.",
    "inputSchema": {
     "properties": {
      "checks": {
@@ -405,6 +405,7 @@
        }
       ],
       "default": null,
+      "description": "Unique check names, 1..5 of: parse, robots-check, headers-check, redirects-check, schema-check, links-check, hreflang-check, security-check, ai-bots-check, llms-txt-check, citability-check, social-meta-check, soft404-check",
       "title": "Checks"
      },
      "max_urls": {

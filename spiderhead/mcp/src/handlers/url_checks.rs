@@ -77,8 +77,9 @@ pub fn inspect_url(args: &Value) -> Result<Value, ToolError> {
     }))
 }
 
-/// The batch's supported single-URL check names, in catalog order.
-const SUPPORTED_CHECKS: [&str; 13] = [
+/// The batch's supported single-URL check names, in catalog order. Published
+/// in the tool schema's `checks` description and the CLI's `--checks` help.
+pub const SUPPORTED_CHECKS: [&str; 13] = [
     "parse",
     "robots-check",
     "headers-check",

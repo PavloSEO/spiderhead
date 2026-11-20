@@ -3275,7 +3275,7 @@
   ],
   "code": 0,
   "stderr": "",
-  "stdout": "usage: spiderhead url-check-batch [-h] [--input INPUT] [--urls URLS] [--checks CHECKS]\n                                  [--scan SCAN] [--offset OFFSET] [--max-urls MAX_URLS]\n\noptions:\n  -h, --help           show this help message and exit\n  --input INPUT        JSON object mapped onto the handler arguments\n  --urls URLS          comma-separated URL list; maximum 50 URL/check pairs\n  --checks CHECKS      comma-separated supported single-URL check names\n  --scan SCAN          retained scan; checks only the requested page starting at --offset\n  --offset OFFSET      zero-based retained scan page offset\n  --max-urls MAX_URLS  retained scan URL page size (1..50)\n"
+  "stdout": "usage: spiderhead url-check-batch [-h] [--input INPUT] [--urls URLS] [--checks CHECKS]\n                                  [--scan SCAN] [--offset OFFSET] [--max-urls MAX_URLS]\n\noptions:\n  -h, --help           show this help message and exit\n  --input INPUT        JSON object mapped onto the handler arguments\n  --urls URLS          comma-separated URL list; maximum 50 URL/check pairs\n  --checks CHECKS      comma-separated check names: parse, robots-check, headers-check, redirects-\n                       check, schema-check, links-check, hreflang-check, security-check, ai-bots-\n                       check, llms-txt-check, citability-check, social-meta-check, soft404-check\n  --scan SCAN          retained scan; checks only the requested page starting at --offset\n  --offset OFFSET      zero-based retained scan page offset\n  --max-urls MAX_URLS  retained scan URL page size (1..50)\n"
  },
  "verify-fixes": {
   "argv": [
