@@ -291,27 +291,47 @@ const COLLECTOR_KEYS: &[&str] = &[
 
 fn validate(document: &Value, project_uuid: &str) -> ProjectsResult<()> {
     let invalid = |m: &str| crate::error::value(m.to_owned());
+    let expected_top_keys = ["format", "revision", "project_uuid", "runs"];
     let object = document.as_object().filter(|o| {
         o.keys()
             .map(String::as_str)
             .collect::<std::collections::BTreeSet<_>>()
-            == ["format", "revision", "project_uuid", "runs"]
-                .into_iter()
-                .collect()
+            == expected_top_keys.iter().copied().collect()
     });
     let Some(object) = object else {
-        return Err(invalid("run observation document has an unsupported shape"));
+        let mut found: Vec<String> = document
+            .as_object()
+            .map(|o| o.keys().cloned().collect())
+            .unwrap_or_else(|| vec!["a non-object document".to_owned()]);
+        found.sort();
+        return Err(invalid(&format!(
+            "run observation document has an unsupported shape \
+             (expected top-level keys {}, found: {})",
+            expected_top_keys.join("/"),
+            found.join(", ")
+        )));
     };
     let runs = object["runs"].as_array().filter(|r| r.len() <= MAX_RUNS);
     let Some(runs) = runs else {
-        return Err(invalid("run observation document has an unsupported shape"));
+        return Err(invalid(&format!(
+            "run observation runs must be an array of at most {MAX_RUNS} run records"
+        )));
     };
-    if object["format"].as_str() != Some(FORMAT)
-        || object["project_uuid"].as_str() != Some(project_uuid)
-        || object["revision"].as_i64().is_none_or(|r| r < 0)
-        || object["revision"].is_boolean()
-    {
-        return Err(invalid("run observation document has an unsupported shape"));
+    if object["format"].as_str() != Some(FORMAT) {
+        return Err(invalid(&format!(
+            "run observation document has an unsupported format: expected {FORMAT}, found {}",
+            object["format"]
+        )));
+    }
+    if object["project_uuid"].as_str() != Some(project_uuid) {
+        return Err(invalid(
+            "run observation document belongs to another project",
+        ));
+    }
+    if object["revision"].as_i64().is_none_or(|r| r < 0) || object["revision"].is_boolean() {
+        return Err(invalid(
+            "run observation revision must be a nonnegative integer",
+        ));
     }
     let mut ids = std::collections::BTreeSet::new();
     for run in runs {
