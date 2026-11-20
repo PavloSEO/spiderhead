@@ -62,6 +62,7 @@ fn truthy_keys(command: &str) -> &'static [&'static str] {
             "inspection_url",
             "dimensions",
             "row_limit",
+            "filter_groups",
         ],
         "metrika-setup" => &["counter"],
         "metrika-report" => &[
@@ -182,6 +183,23 @@ pub fn apply(
                 };
                 kwargs.insert("region".to_owned(), Value::String(text));
             }
+        }
+        "gsc-query" => {
+            // `--filter-groups` carries one JSON list; the handler keyword is
+            // `dimension_filter_groups` (the GSC `dimensionFilterGroups` payload member).
+            let supplied = flags.get("filter_groups").filter(|value| truthy(value));
+            if let Some(Value::String(text)) = supplied {
+                let parsed: Value = serde_json::from_str(text).map_err(|error| {
+                    format!("--filter-groups must be a JSON list of GSC filter groups ({error})")
+                })?;
+                if !parsed.is_array() {
+                    return Err(
+                        "--filter-groups must be a JSON list of GSC filter groups".to_owned()
+                    );
+                }
+                kwargs.insert("dimension_filter_groups".to_owned(), parsed);
+            }
+            kwargs.remove("filter_groups");
         }
         "metrika-setup" | "metrika-report" | "metrika-traffic-pdf" => {
             if let Some(counter) = kwargs.remove("counter") {

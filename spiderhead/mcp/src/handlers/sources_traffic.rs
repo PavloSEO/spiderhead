@@ -44,6 +44,7 @@ pub fn gsc_query(args: &Value) -> Result<Value, ToolError> {
         start_date: Some(opt_str(&args, "start_date").unwrap_or("28daysAgo")),
         end_date: Some(opt_str(&args, "end_date").unwrap_or("today")),
         dimensions: opt(&args, "dimensions").cloned(),
+        dimension_filter_groups: opt(&args, "dimension_filter_groups").cloned(),
         row_limit: opt(&args, "row_limit").cloned().unwrap_or(json!(1000)),
         token: None,
         now: None,

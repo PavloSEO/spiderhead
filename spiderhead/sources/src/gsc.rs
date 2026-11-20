@@ -236,6 +236,16 @@ pub async fn search_analytics<T: Transport>(
         },
         "rowLimit": args.row_limit,
     });
+    let payload = match &args.dimension_filter_groups {
+        Some(groups) => {
+            let mut payload = payload;
+            if let Some(member) = payload.as_object_mut() {
+                member.insert("dimensionFilterGroups".to_owned(), groups.clone());
+            }
+            payload
+        }
+        None => payload,
+    };
     let raw = match send(
         transport,
         "POST",
@@ -307,6 +317,8 @@ pub struct Analytics<'a> {
     pub end_date: Option<&'a str>,
     /// `dimensions` — any falsy value defaults to `["query"]`.
     pub dimensions: Option<Value>,
+    /// `dimension_filter_groups` — GSC `dimensionFilterGroups`, sent through as-is.
+    pub dimension_filter_groups: Option<Value>,
     /// `row_limit` — sent through as-is; this function performs no range check.
     pub row_limit: Value,
     /// `token` — an explicit bearer that skips credential lookup.

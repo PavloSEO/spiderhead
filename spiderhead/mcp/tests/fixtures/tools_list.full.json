@@ -8301,6 +8301,21 @@
    "description": "Google Search Console: search performance for a verified property\n(mode=search_analytics: clicks, impressions, position, CTR) or Google's own indexing\nverdict for one URL (mode=inspect_url).\n\nRequires an OAuth2 bearer token for an own, verified property \u2014 see seo_sources_doctor\nand docs/SETUP.md for how to obtain one. A missing token returns an explicit failure\nnaming what to configure; it never fabricates a result.",
    "inputSchema": {
     "properties": {
+     "dimension_filter_groups": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "object"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "default": null,
+      "title": "Dimension Filter Groups"
+     },
      "dimensions": {
       "anyOf": [
        {
