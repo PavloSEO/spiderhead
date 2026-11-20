@@ -281,6 +281,7 @@ fn inbox_kwargs(command: &str, kwargs: &mut Map<String, Value>) {
 fn list_flags(command: &str, kwargs: &mut Map<String, Value>) {
     let keys: &[&str] = match command {
         "crawl-control" => &["urls"],
+        "parse" => &["urls"],
         "project-checklist-page" => &["states"],
         "verify-fixes" => &["finding_ids", "urls"],
         _ => return,
