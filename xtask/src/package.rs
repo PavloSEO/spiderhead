@@ -128,7 +128,7 @@ fn macos(o: &Opts) -> Result<(), String> {
             "-",
             &app.parent().unwrap_or(&app).to_string_lossy(),
         ],
-    ); // ad-hoc only; real signing needs an Apple ID (TODO)
+    ); // ad-hoc only; real signing needs an Apple ID (TODO #102)
 
     // CLI payload + postinstall symlinks into /usr/local/bin
     let lib = "usr/local/lib/spiderhead/bin";

@@ -17,7 +17,7 @@ in [SECURITY.md](SECURITY.md).
 spiderhead/            product crates (crate = spiderhead-<dir>)
   core formats store parse checks render fetch crawl log-analyzer
   reports sf-import catalog projects sources semantics recon
-  control mcp cli tui remote desktop
+  control mcp cli tui desktop
 oracle/                frozen reference outputs, synthetic sites, structural differ
 xtask/                 repo automation
 packaging/ docs/       installers, documentation
@@ -29,13 +29,17 @@ Crates are layered; a crate may depend only on crates of the same or a lower lay
 
 | Command | What it checks |
 |---|---|
-| `cargo xtask ci` | `fmt --all --check`, `clippy --workspace --all-targets -- -D warnings`, tests (cargo-nextest when installed, otherwise `cargo test`), doctests; ends with `==> ci OK` |
+| `cargo xtask ci [--quick]` | version check, `fmt --all --check`, `clippy --workspace --all-targets -- -D warnings`, tests (cargo-nextest when installed, otherwise `cargo test`), doctests, then the windows check; `--quick` keeps the unit tests only (no integration tests, doctests or windows check); ends with `==> ci OK` |
+| `cargo xtask windows-check` | `cargo check --workspace --all-targets` for `x86_64-pc-windows-msvc`; installs the rustup target first and stages a stub C compiler on non-Windows hosts |
 | `cargo xtask layers` | dependency layering |
+| `cargo xtask slices` | slice counts by status from `slices.toml` |
+| `cargo xtask rebaseline` | regenerates the frozen fixtures and baselines (`SPIDERHEAD_BLESS=1`), compresses large JSON fixtures, refreshes the raw-scan checksums |
+| `cargo xtask version <show\|set X.Y.Z\|check [--tag T]>` | every spelling of the product version (workspace `Cargo.toml`, README badge, `CITATION.cff`, user-agent presets); `check` fails on a mismatch and runs first in `ci` |
 | `cargo xtask oracle --slice <id> [--site S]` | structural diff of output against the frozen baselines (`--self-test` checks the differ) |
 | `cargo xtask dist [--profile P] [--target T]` | release builds into `target/dist/<version>/<profile>/` with `MANIFEST.json` and `SHA256SUMS` |
-| `cargo xtask package macos\|linux\|windows` | installers from the dist folders |
+| `cargo xtask package macos\|linux\|windows` | installers from the dist folders (`windows` only on a Windows host) |
 
-Builds use `sccache` (`.cargo/config.toml`), so worktrees share the compile cache. Run `ci` and `layers` before every commit.
+`.cargo/config.toml` defines the `xtask` alias and turns incremental builds off (they roughly double `target/`). Run `ci` and `layers` before every commit.
 
 ## Fixtures and baselines
 
