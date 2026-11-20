@@ -165,8 +165,13 @@ pub(super) async fn fetch_robots(
     };
     let robots_url = format!("{origin}/robots.txt");
     throttle.wait().await;
-    let response =
-        spiderhead_fetch::client::get(&options.client, &robots_url, &options.user_agent).await;
+    let response = spiderhead_fetch::client::get(
+        &options.client,
+        &robots_url,
+        &options.user_agent,
+        options.timeout_seconds,
+    )
+    .await;
     // Any 4xx means no robots.txt: unrestricted, with a synthesized allow-all group.
     if let Some(status) = response.status {
         if (400..500).contains(&status) {

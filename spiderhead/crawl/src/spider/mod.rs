@@ -831,6 +831,7 @@ async fn crawl_loop(
                 shared_ref,
                 &lease.url,
                 &opts.user_agent,
+                opts.timeout_seconds,
                 opts.retry_on_timeout,
                 opts.retry_server_errors,
                 opts.max_response_bytes,

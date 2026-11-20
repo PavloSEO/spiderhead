@@ -141,6 +141,7 @@ pub async fn fetch_one(
     throttle: &Mutex<Throttle>,
     url: &str,
     user_agent: &str,
+    timeout_seconds: f64,
     retry_on_timeout: u32,
     retry_server_errors: u32,
     max_response_bytes: i64,
@@ -155,6 +156,7 @@ pub async fn fetch_one(
         throttle,
         url,
         user_agent,
+        timeout_seconds,
         retry_on_timeout,
         retry_server_errors,
         &mut attempts,
@@ -339,16 +341,17 @@ async fn raw_with_retries(
     throttle: &Mutex<Throttle>,
     url: &str,
     user_agent: &str,
+    timeout_seconds: f64,
     retry_on_timeout: u32,
     retry_server_errors: u32,
     attempts: &mut u32,
 ) -> RawResponse {
-    let mut response = dispatch(client, throttle, url, user_agent).await;
+    let mut response = dispatch(client, throttle, url, user_agent, timeout_seconds).await;
     *attempts += 1;
     // Timeout retries: only timeout-classified failures, each a paced request.
     while response.error_kind == Some(FetchErrorKind::Timeout) && *attempts <= retry_on_timeout {
         shared(throttle).record(Outcome::Timeout, 0.0, None);
-        response = dispatch(client, throttle, url, user_agent).await;
+        response = dispatch(client, throttle, url, user_agent, timeout_seconds).await;
         *attempts += 1;
     }
     // 5xx retries are real requests at the widened delay; only the last response is the page.
@@ -359,7 +362,7 @@ async fn raw_with_retries(
     {
         let retry_after = retry_after_of(&response);
         shared(throttle).record(Outcome::ServerError, response.response_time, retry_after);
-        response = dispatch(client, throttle, url, user_agent).await;
+        response = dispatch(client, throttle, url, user_agent, timeout_seconds).await;
         *attempts += 1;
     }
     let outcome = match (response.status, response.error_kind) {
@@ -397,13 +400,14 @@ async fn dispatch(
     throttle: &Mutex<Throttle>,
     url: &str,
     user_agent: &str,
+    timeout_seconds: f64,
 ) -> RawResponse {
     let slot = shared(throttle).reserve();
     let now = spiderhead_fetch::clock::now();
     if slot > now {
         spiderhead_fetch::clock::sleep(slot - now).await;
     }
-    client::get(client, url, user_agent).await
+    client::get(client, url, user_agent, timeout_seconds).await
 }
 
 pub(crate) fn base_record(url: &str) -> Map<String, Value> {
