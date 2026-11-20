@@ -50,8 +50,12 @@ Cloudflare Logpush / Instant Logs importers, and a Windows build of every compon
 
 ## Install
 
-There are no signed releases or prebuilt binaries yet. Build from source with the Rust toolchain
-pinned in `rust-toolchain.toml`:
+Releases are cut by CI: a push to the `release` branch builds the CLI for four targets (macOS
+arm64 and x86_64, Linux x86_64 and aarch64), packs `.dmg`, `.pkg`, `.deb`, `.AppImage` and
+`.tar.gz` installers, and leaves the result as a draft GitHub Release that is published by hand.
+Every asset is checksummed in `SHA256SUMS`; the file is Ed25519-signed only when the signing key
+is configured — until then releases are unsigned. To build from source instead, use the Rust
+toolchain pinned in `rust-toolchain.toml`:
 
 ```sh
 git clone https://github.com/PavloSEO/spiderhead.git

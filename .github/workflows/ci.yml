@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # .cargo/config.toml points at sccache for local worktrees; runners use rust-cache instead.
+  # No compiler wrapper on the runners (rust-cache does the caching); .cargo/config.toml sets only the xtask alias and incremental = false.
   RUSTC_WRAPPER: ""
   CARGO_TERM_COLOR: always
 

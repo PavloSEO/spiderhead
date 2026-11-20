@@ -7,6 +7,9 @@
 - Sources: Microsoft Clarity is available as a provider; `google-keywords` refreshes the price snapshot when a spend ceiling needs it.
 - Semantics: `cluster-google` tools drop Google tracking (goto) tokens from SERP overlap.
 - CLI: `version` command.
+- CLI: `update` is now a resumable, rollback-capable self-update engine — atomic replace of the running binary with a backup and a probe, automatic rollback and crash recovery; `--feed` accepts a local release feed and `--rollback` returns to the previous binary.
+- Update: prefix installs (`<prefix>/lib/spiderhead/bin`) and AppImage installs update in place — the archive listing is checked before extraction, the inner `SHA256SUMS` is verified and a kept `.prev` generation enables recovery; read-only installs (`.deb`, `.pkg`) are downloaded, verified and reported as manual with the command to run.
+- Release workflow: `SHA256SUMS` covers every release asset, not only the `spiderhead-*` binaries.
 - CI: fixtures are host-independent; the Linux CI leg gates the build.
 
 ## 0.9.1
