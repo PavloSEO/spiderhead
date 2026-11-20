@@ -35510,7 +35510,7 @@
       "type": null,
       "choices": null,
       "required": false,
-      "help": "comma-separated supported single-URL check names",
+      "help": "comma-separated check names: parse, robots-check, headers-check, redirects-check, schema-check, links-check, hreflang-check, security-check, ai-bots-check, llms-txt-check, citability-check, social-meta-check, soft404-check",
       "metavar": null
      },
      {

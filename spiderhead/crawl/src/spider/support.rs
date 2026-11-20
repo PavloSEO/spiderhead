@@ -294,10 +294,19 @@ pub(super) fn is_redirect(_page_url: &str, _href: &str) -> bool {
     false // link edges are never redirects; only the Location header path calls
 }
 
-pub(super) fn count_frontier(scan: &NativeScan) -> Result<i64, String> {
+/// The URL budget's baseline: pages already materialized in this artifact
+/// (frontier rows in their terminal `done` state). Queued, in-flight and
+/// excluded rows are not materialized pages — counting them would charge the
+/// budget before any request (a URL-list run seeds its whole population up
+/// front, so a 35-URL list under a 40-page cap stopped after 5 pages).
+pub(super) fn count_materialized(scan: &NativeScan) -> Result<i64, String> {
     let count: i64 = scan
         .con()
-        .query_row("SELECT COUNT(*) FROM frontier", [], |row| row.get(0))
+        .query_row(
+            "SELECT COUNT(*) FROM frontier WHERE state='done'",
+            [],
+            |row| row.get(0),
+        )
         .map_err(|e| e.to_string())?;
     Ok(count)
 }

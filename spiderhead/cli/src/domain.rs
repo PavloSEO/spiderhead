@@ -167,6 +167,15 @@ fn command_kwargs(cmd: &ParsedCommand) -> Result<Map<String, Value>, String> {
             kwargs.insert("fmt".into(), format);
         }
     }
+    if cmd.path == ["scan-body-read"] {
+        // The flag's dest is `input_path`, but the option is spelled `--scan`
+        // (and the help describes `scan`/`url`): an `--input` object with the
+        // documented `scan` key feeds the same argument. An explicit flag
+        // keeps winning over the JSON base.
+        if let Some(scan) = kwargs.remove("scan") {
+            kwargs.entry("input_path".to_owned()).or_insert(scan);
+        }
+    }
     if cmd.path == ["domain-profile"] {
         // `--no-tls` is a CLI-level spelling: the handler sees `with_tls`
         if kwargs.remove("no_tls") == Some(Value::Bool(true)) {
@@ -281,6 +290,7 @@ fn inbox_kwargs(command: &str, kwargs: &mut Map<String, Value>) {
 fn list_flags(command: &str, kwargs: &mut Map<String, Value>) {
     let keys: &[&str] = match command {
         "crawl-control" => &["urls"],
+        "parse" => &["urls"],
         "project-checklist-page" => &["states"],
         "verify-fixes" => &["finding_ids", "urls"],
         _ => return,

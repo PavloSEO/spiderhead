@@ -665,7 +665,7 @@ async fn crawl_loop(
         .con()
         .query_row("SELECT COUNT(*) FROM documents", [], |row| row.get(0))
         .unwrap_or(0);
-    let mut materialized: i64 = count_frontier(scan)?;
+    let mut materialized: i64 = count_materialized(scan)?;
     if let Some(delay) = robots::politeness_delay(&enforcement_group) {
         throttle.apply_robots_floor(delay);
         crawl_delay_applied = Some(delay);
