@@ -3,14 +3,14 @@
 //! traversal is deterministic.
 //!
 //! Evaluation order comes from a seeded shuffle of the node and community
-//! lists (`mt19937::randomize`, seed 42). Renumbering and modularity sums iterate
-//! hash sets in a fixed order through `set_order::OrderSet<i64>`.
+//! lists (`mt19937::randomize`, seed 42). Community sets are iterated in
+//! ascending id order, and renumbering assigns ids `0..n` by rank, so every
+//! derived order is explicit.
 
 use indexmap::IndexMap;
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use crate::mt19937::{randomize, RandomState};
-use crate::set_order::int_set;
 
 const MIN_IMPROVEMENT: f64 = 0.0000001;
 
@@ -149,13 +149,13 @@ fn neighcom(node: &str, graph: &PyGraph, status: &Status) -> IndexMap<i64, f64> 
     weights
 }
 
-/// Modularity; communities are summed in hash-set order
+/// Modularity; communities are summed in ascending id order
 /// (the order affects the f64 result).
 fn modularity(status: &Status, resolution: f64) -> f64 {
     let links = status.total_weight;
-    let communities = int_set(status.node2com.values().copied());
+    let communities: BTreeSet<i64> = status.node2com.values().copied().collect();
     let mut result = 0.0;
-    for com in communities.iter() {
+    for com in communities {
         let in_degree = status.internals.get(&com).copied().unwrap_or(0.0);
         let degree = status.degrees.get(&com).copied().unwrap_or(0.0);
         if links > 0.0 {
@@ -214,28 +214,19 @@ fn one_level(graph: &PyGraph, status: &mut Status, resolution: f64, rs: &mut Ran
     }
 }
 
-/// Compact community ids to `0..n`, using the set-order walk.
+/// Compact community ids to `0..n` in ascending id order: the smallest id
+/// becomes `0`, the next `1`, and so on. Ids already forming `0..n` keep
+/// their meaning.
 fn renumber(dictionary: &IndexMap<String, i64>) -> IndexMap<String, i64> {
-    let values = int_set(dictionary.values().copied());
-    let target = int_set(0..values.len() as i64);
-    let same = values.len() == target.len() && values.iter().all(|v| target.contains(&v));
-    if same {
-        return dictionary.clone();
-    }
-    let mut renumbering: HashMap<i64, i64> = HashMap::new();
-    for v in target.intersection(&values).iter() {
-        renumbering.insert(v, v);
-    }
-    for (a, b) in values
-        .difference(&target)
+    let ids: BTreeSet<i64> = dictionary.values().copied().collect();
+    let rank: HashMap<i64, i64> = ids
         .iter()
-        .zip(target.difference(&values).iter())
-    {
-        renumbering.insert(a, b);
-    }
+        .enumerate()
+        .map(|(position, id)| (*id, position as i64))
+        .collect();
     dictionary
         .iter()
-        .map(|(k, v)| (k.clone(), renumbering[v]))
+        .map(|(k, v)| (k.clone(), rank[v]))
         .collect()
 }
 
@@ -394,17 +385,9 @@ mod tests {
             .collect();
         let g = graph(&node_refs, &edge_refs);
         let part = best_partition(&g, 1.2, 42);
-        let expected_com = |i: usize| -> i64 {
-            match i / 10 {
-                0 => 2,
-                1 => 3,
-                2 => 5,
-                3 => 0,
-                4 => 1,
-                5 => 4,
-                _ => unreachable!(),
-            }
-        };
+        // Canonical renumbering: communities in ascending id order, so clique
+        // i lands in community i.
+        let expected_com = |i: usize| -> i64 { (i / 10) as i64 };
         for (i, n) in nodes.iter().enumerate() {
             assert_eq!(part[n], expected_com(i), "node {n}");
         }
