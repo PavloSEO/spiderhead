@@ -280,7 +280,7 @@ const PRE_BLESS: &[(&str, &[&str])] = &[
             "-p",
             "spiderhead-store",
             "--lib",
-            "reader_matches_oracle_baselines_for_every_site",
+            "reader_matches_golden_baselines_for_every_site",
         ],
     ),
     (
