@@ -1,4 +1,4 @@
-//! Rust port of the reference package checks/ (the 298 SEO checks).
+//! The 298 SEO checks of the reference `checks/` package.
 
 pub mod ai_column;
 /// CSS/JS weight and delivery analysis for one page.

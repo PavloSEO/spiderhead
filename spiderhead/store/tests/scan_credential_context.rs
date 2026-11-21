@@ -1,4 +1,4 @@
-//! Ports of the reference suite: a credential resume context never records
+//! Reference suite tests: a credential resume context never records
 //! secrets, profile paths, or environment names. Environment-touching tests share a lock because
 //! the process environment is global; each test names its reference source.
 

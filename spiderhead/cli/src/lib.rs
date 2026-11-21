@@ -2,9 +2,10 @@
 //! output formats and the handler registry.
 //!
 //! The command tree is data (`data/cli_tree.json`, captured from the reference argparse tree); help
-//! screens and parse errors are produced by ports of argparse's formatter and parser so the text
+//! screens and parse errors are produced by faithful implementations of argparse's formatter and
+//! parser so the text
 //! is identical to the reference CLI. Command handlers are plugged in through [`Registry`]; until a
-//! domain crate registers one, a command is [`NotYetPorted`].
+//! domain crate registers one, a command is [`NotYetAvailable`].
 
 mod argparse;
 mod control;
@@ -31,7 +32,7 @@ pub use domain::registry;
 pub use errors::CliError;
 pub use exit::{emit_result, handler_failed, result_exit_code};
 pub use output::{render_csv, render_json, render_table, Format, Output};
-pub use registry::{CommandHandler, NotYetPorted, Registry};
+pub use registry::{CommandHandler, NotYetAvailable, Registry};
 pub use tree::{tree, Node, Tree};
 
 /// Toolkit release the surface mirrors; substituted for `{VERSION}` in `--version` output.

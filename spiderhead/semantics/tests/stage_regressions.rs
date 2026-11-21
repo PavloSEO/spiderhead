@@ -2,7 +2,7 @@
 //! — provider-receipt safety, paid-task recovery and cached-SERP reuse.
 //! Each test cites the original `// from tests/<file>the reference suite::<test>`.
 
-mod oracle;
+mod golden;
 
 use serde_json::json;
 use spiderhead_semantics::config::Cfg;
@@ -384,7 +384,7 @@ fn paid_malformed_payload_is_retained_and_not_resubmitted() {
     assert_eq!(store.spend().unwrap()["arsenkin"], json!(3));
 }
 
-// (the Rust port cannot inject a parser fault; the received-state recovery it
+// (this suite cannot inject a parser fault; the received-state recovery it
 // protects is exercised here — raw persisted, no second wait)
 #[test]
 fn received_task_recovers_without_second_wait() {

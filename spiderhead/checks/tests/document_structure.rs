@@ -4,7 +4,7 @@
 //! frame directly (the reference suite), or reach the check
 //! through a fake native crawl (the reference suite,
 //! the reference suite) — the check reads only the authored record
-//! fields, which is what the ports build here. Parser-side tests
+//! fields, which is what the golden fixtures build here. Parser-side tests
 //! (`invalid_head_elements`, `mobile_alternate_broken_count`, `parse_html`
 //! position facts) and retained-body markup tests belong to the parse and
 //! crawl/store slices.

@@ -60,7 +60,7 @@ pub fn inspect_url(args: &Value) -> Result<Value, ToolError> {
                 results.insert(name.to_owned(), value);
             }
             Err(error) => {
-                // Python catches (ValueError, OSError); this build's unported
+                // The reference suite catches (ValueError, OSError); this build's unwired
                 // render surface reports itself the same way.
                 results.insert(
                     name.to_owned(),

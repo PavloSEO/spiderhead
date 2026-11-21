@@ -21,11 +21,11 @@ pub(crate) fn bad(message: impl Into<String>) -> StoreError {
 }
 
 pub mod deps;
+#[cfg(test)]
+pub(crate) mod golden_tests;
 mod inspect;
 mod lifecycle;
 mod native_config;
-#[cfg(test)]
-pub(crate) mod oracle_tests;
 mod rows;
 #[cfg(test)]
 mod tests;

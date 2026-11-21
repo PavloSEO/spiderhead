@@ -285,14 +285,14 @@ mod tests {
 
     // Pinned counts; regenerate with the generator script and update together.
     #[test]
-    fn embedded_catalogue_has_the_oracle_counts() {
+    fn embedded_catalogue_has_the_golden_counts() {
         let registry = builtin_ok();
         assert_eq!(registry.len(), 298);
         assert_eq!(registry.requires().len(), 13);
     }
 
     #[test]
-    fn spot_check_entries_match_the_oracle() {
+    fn spot_check_entries_match_the_golden_fixture() {
         let registry = builtin_ok();
         let broken = registry.get("BROKEN_PAGE_4XX").expect("declared");
         assert_eq!(broken.severity, Severity::Critical);
@@ -321,7 +321,7 @@ mod tests {
     }
 
     #[test]
-    fn unknown_check_gets_the_oracle_fallback() {
+    fn unknown_check_gets_the_golden_fallback() {
         let registry = builtin_ok();
         let meta = registry.meta_or_fallback("NOT_A_CHECK");
         assert_eq!(meta.severity, Severity::Notice);

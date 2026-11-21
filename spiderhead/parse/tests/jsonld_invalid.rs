@@ -1,4 +1,4 @@
-//! Ports of the reference suite: a page whose JSON-LD does not compile is not a page
+//! Reference suite tests: a page whose JSON-LD does not compile is not a page
 //! without JSON-LD. Each test names its reference origin.
 
 use spiderhead_parse::parse_html;

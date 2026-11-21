@@ -1,4 +1,4 @@
-//! reference text forms of JSON values used across the ported sf modules.
+//! reference text forms of JSON values used across the sf modules.
 //!
 //! Mirrors `spiderhead_parse::py_json` (a private module there): `repr(float)`, `str(value)`
 //! for scalars, and `json.dumps(sort_keys=True, ensure_ascii=False)` for containers.

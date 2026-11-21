@@ -134,7 +134,7 @@ fn unfinished_audit_and_partial_search_exit_two() {
 }
 
 #[test]
-fn unported_commands_say_so_on_stderr_and_exit_one() {
+fn unwired_commands_say_so_on_stderr_and_exit_one() {
     for (argv, shown) in [
         (vec!["crawl-site", "--url", "https://e.com"], "crawl-site"),
         (vec!["scan", "list"], "scan list"),

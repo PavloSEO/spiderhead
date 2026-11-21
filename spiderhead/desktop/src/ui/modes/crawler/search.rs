@@ -1,6 +1,6 @@
 //! HTML content search (canvas «Поиск в HTML»): query field, scope chips and
 //! options on top; a hit list with the selected document's occurrences on the
-//! right. Unported/empty coverage renders the canvas unavailable state.
+//! right. Unwired/empty coverage renders the canvas unavailable state.
 
 use crate::ui::kit::icons as ph;
 use eframe::egui::{self, vec2, Align2, CornerRadius, FontId, Rect, RichText, Sense};

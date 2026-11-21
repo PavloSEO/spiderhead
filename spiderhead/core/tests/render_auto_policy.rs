@@ -1,4 +1,4 @@
-//! Ports of the reference suite that the core crate can express.
+//! Reference suite tests that the core crate can express.
 //!
 //! The two `little_text` tests are deferred: `render_tool.little_text` lives in the checks
 //! crate, which has no Rust module yet (see the slice report).

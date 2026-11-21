@@ -238,7 +238,7 @@ mod tests {
         let s = session();
         let page = urls_for_check(&s, "HTTP_URL", 0, 100).unwrap();
         assert_eq!(page["state"], "available");
-        // Oracle: HTTP_URL fires on 9 pages (see app.rs dashboard numbers).
+        // Golden: HTTP_URL fires on 9 pages (see app.rs dashboard numbers).
         assert_eq!(page["total"], 9, "{page}");
         assert_eq!(page["rows"].as_array().unwrap().len(), 9);
         assert_eq!(

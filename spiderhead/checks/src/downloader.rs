@@ -737,7 +737,7 @@ mod tests {
 
     // from checks/downloader.py::__main__ (offline self-check asserts)
     #[test]
-    fn safe_segment_rules_match_the_oracle_self_check() {
+    fn safe_segment_rules_match_the_golden_self_check() {
         assert_eq!(safe_segment("a b/c"), "a-b_c");
         assert_eq!(safe_segment(""), "file");
         assert_eq!(safe_segment("  "), "-"); // whitespace run collapses to a single dash
@@ -745,7 +745,7 @@ mod tests {
 
     // from checks/downloader.py::__main__ (offline self-check asserts)
     #[test]
-    fn pick_extension_rules_match_the_oracle_self_check() {
+    fn pick_extension_rules_match_the_golden_self_check() {
         assert_eq!(pick_extension_from_content_type(Some("image/jpeg")), ".jpg");
         assert_eq!(
             pick_extension_from_content_type(Some("image/svg+xml")),

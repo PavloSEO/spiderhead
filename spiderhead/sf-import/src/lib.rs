@@ -1,4 +1,4 @@
-//! Rust port of the reference package sf/ import side (the external crawler exports).
+//! The `sf/` import side of the reference package (the external crawler exports).
 
 /// reference the reference suite re-exports `spiderhead.__version__`.
 pub const VERSION: &str = spiderhead_core::user_agents::PRODUCT_VERSION;

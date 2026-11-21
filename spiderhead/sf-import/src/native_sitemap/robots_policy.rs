@@ -1,6 +1,6 @@
 //! Google-style robots.txt policy matching against the retained policy.
 //!
-//! Local port of the reference suite (`_rules_for`,
+//! The reference suite rule set (`_rules_for`,
 //! `_pattern_to_regex`, `match_path`, `is_allowed`) plus this module's
 //! `_blocked` predicate, until the checks crate lands a shared version.
 

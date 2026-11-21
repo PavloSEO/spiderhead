@@ -1,4 +1,4 @@
-//! Анализ логов mode. The log-analysis core is not ported yet
+//! Анализ логов mode. The log-analysis core is not implemented yet
 //! (`spiderhead-log-analyzer`); every section shows the canvas empty state until it is.
 
 use crate::ui::kit::icons as ph;

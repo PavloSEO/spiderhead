@@ -405,7 +405,7 @@ mod tests {
     }
 
     #[test]
-    fn rule_json_round_trips_in_python_key_set() {
+    fn rule_json_round_trips_in_the_reference_key_set() {
         let rules = validate_rules(&policy(), None).expect("valid policy");
         let value = rules[1].to_value();
         assert_eq!(

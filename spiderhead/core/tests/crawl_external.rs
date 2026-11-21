@@ -1,4 +1,4 @@
-//! Ports of the settings-wiring tests in the reference suite (the opt-in external
+//! Reference suite settings-wiring tests (the opt-in external
 //! destination check: defaults, refusals and results-affecting classification). The crawl,
 //! fetch and handler tests in that file are deferred; see the slice report.
 

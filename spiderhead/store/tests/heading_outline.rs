@@ -1,4 +1,4 @@
-//! Ports of the storage tests in the reference suite (issue #632): the heading outline
+//! Reference suite storage tests (issue #632): the heading outline
 //! survives `import_run` unchanged, and a malformed outline is refused. Runs over a writable copy
 //! of the legacy run fixture in `testdata/legacy-run`.
 

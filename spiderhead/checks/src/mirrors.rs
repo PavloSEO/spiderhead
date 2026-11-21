@@ -1,6 +1,6 @@
 //! Consolidation of one site's address variants into a single canonical URL.
 //!
-//! Port of the pure part of `spiderhead.recon.mirrors`: redirect-chain collection through a
+//! The pure part of `spiderhead.recon.mirrors`: redirect-chain collection through a
 //! [`HopClient`], the analysis of the collected chains, and the findings text. The variant list
 //! comes from `spiderhead_core::url_variants::build_variants`. Network access (the HTTP client
 //! and the DNS-over-HTTPS lookup of `www`) is supplied by the caller, so the analysis runs

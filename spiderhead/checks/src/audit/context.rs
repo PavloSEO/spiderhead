@@ -87,7 +87,7 @@ pub const NATIVE_FIELDS: &[&str] = &[
     "unique_inlinks",
 ];
 
-/// Default thresholds of `sf.config.load_config` that the ported rules read.
+/// Default thresholds of `sf.config.load_config` that the rules read.
 #[derive(Debug, Clone)]
 pub struct Thresholds {
     /// `title_max_chars`.

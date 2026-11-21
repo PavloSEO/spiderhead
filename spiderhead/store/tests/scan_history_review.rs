@@ -33,7 +33,7 @@ impl Drop for Scratch {
     }
 }
 
-fn oracle_basic() -> PathBuf {
+fn golden_basic() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../oracle/raw-scans/basic")
         .canonicalize()
@@ -42,7 +42,7 @@ fn oracle_basic() -> PathBuf {
 
 /// Copy the golden scan (and its audit sidecar) to `dest` and set `finished_at` `age_days` ago.
 fn finished_copy(dest: &Path, age_days: i64) {
-    let src = oracle_basic();
+    let src = golden_basic();
     fs::copy(src.join("scan.sqlite"), dest).expect("copy scan");
     fs::copy(
         src.join("scan.sqlite.audit-v2.sqlite"),

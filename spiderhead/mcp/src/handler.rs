@@ -8,7 +8,7 @@ use serde_json::Value;
 use crate::error::ToolError;
 use crate::protocol;
 
-/// Implemented later by domain crates; this crate ships only [`NotYetPorted`].
+/// Implemented later by domain crates; this crate ships only [`NotYetAvailable`].
 ///
 /// The call is synchronous on purpose: the server loop is line-sequential, and a
 /// handler streams progress through [`CallContext`] rather than blocking the wire.
@@ -61,7 +61,7 @@ pub struct Registry {
 }
 
 impl Registry {
-    /// An empty registry; the server then answers [`NotYetPorted`] for everything.
+    /// An empty registry; the server then answers [`NotYetAvailable`] for everything.
     pub fn new() -> Self {
         Self::default()
     }
@@ -78,11 +78,11 @@ impl Registry {
 }
 
 /// The placeholder handler: every tool answers "not yet available in this build".
-pub struct NotYetPorted;
+pub struct NotYetAvailable;
 
-impl ToolHandler for NotYetPorted {
+impl ToolHandler for NotYetAvailable {
     fn call(&self, name: &str, _args: Value, _ctx: &CallContext) -> Result<Value, ToolError> {
-        Err(ToolError::NotYetPorted(name.to_string()))
+        Err(ToolError::NotYetAvailable(name.to_string()))
     }
 }
 
@@ -92,10 +92,10 @@ mod tests {
     use std::sync::mpsc;
 
     #[test]
-    fn not_yet_ported_names_the_tool() {
+    fn not_yet_available_names_the_tool() {
         let (tx, _rx) = mpsc::channel();
         let ctx = CallContext::new(None, tx);
-        let error = NotYetPorted
+        let error = NotYetAvailable
             .call("seo_doctor", Value::Null, &ctx)
             .unwrap_err();
         assert_eq!(
@@ -118,7 +118,7 @@ mod tests {
             }
         }
         let mut registry = Registry::new();
-        registry.register("seo_x", Box::new(NotYetPorted));
+        registry.register("seo_x", Box::new(NotYetAvailable));
         registry.register("seo_x", Box::new(Stub));
         assert!(registry.get("seo_x").is_some());
         assert!(registry.get("seo_y").is_none());

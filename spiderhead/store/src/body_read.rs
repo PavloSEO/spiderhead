@@ -44,7 +44,7 @@ pub fn detail_url(value: &str) -> String {
     urlunsplit_parts(&scheme, &netloc, &path, &redacted_query, fragment)
 }
 
-// The helpers below are local, minimal ports of the `urllib.parse` pieces
+// The helpers below are local, minimal reimplementations of the `urllib.parse` pieces
 // `detail_url` needs; keeping them here avoids a store → parse dependency edge
 // between two layer-2 crates.
 

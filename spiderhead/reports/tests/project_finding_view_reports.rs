@@ -3,7 +3,7 @@
 //!
 //! reference routes these through `build_report(..., project=..., view=...)`,
 //! which the reports crate cannot bind (projects depends on reports, not the
-//! reverse). The port applies the saved view through
+//! reverse). This suite applies the saved view through
 //! `projects::finding_views::apply_view_details`, injects
 //! `summary.finding_view` exactly as the reference `_build_report` does, and then
 //! calls `build_report` without `project` — the rendered document is
@@ -434,7 +434,7 @@ fn pdf_build_uses_only_saved_view_selection() {
         let filtered = filtered_document(&root, "triage", &document, 0);
 
         // reference monkeypatches `pdf_output.write_pdf_report` to capture the
-        // model; the port drives the shared model+render internals directly.
+        // model; this test drives the shared model+render internals directly.
         let model = build_pdf_model(&filtered, &[], None, None).expect("pdf model");
         assert_eq!(
             model["summary"]["counts"]["findings"]["projected_count"],

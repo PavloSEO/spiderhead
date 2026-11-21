@@ -10,7 +10,7 @@ use serde_json::{json, Value};
 use spiderhead_cli::{run, Output};
 use spiderhead_oracle_testkit::FixtureServer;
 
-/// The golden normalisation (the reference suite.s`) as a Rust port:
+/// The golden normalisation of the reference suite, in Rust:
 /// volatile base/work/port/UUID/timestamp shapes become stable tokens.
 struct Norm {
     base: String,

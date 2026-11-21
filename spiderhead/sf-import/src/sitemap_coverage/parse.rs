@@ -1,9 +1,9 @@
 //! Sitemap byte parsing: strict defused-XML semantics, sitemap-index recursion
 //! with the oracle's guards (depth cap, URL cap, seen set, SSRF allow-list),
-//! plus `normalize_url`/`normalized_index` ported from the reference suite.
+//! plus `normalize_url`/`normalized_index` from the reference suite.
 //!
 //! Fetching itself is injected: tests supply document bytes per URL, the real
-//! network `_fetch` lands with the recon crate (not ported yet).
+//! network `_fetch` lands with the recon crate (not implemented yet).
 
 use indexmap::IndexMap;
 use quick_xml::events::Event;

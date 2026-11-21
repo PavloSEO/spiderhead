@@ -2058,7 +2058,7 @@ mod tests {
         let page = out.answer.unwrap();
         assert_eq!(page["rows"][0]["status_code"], 404);
         // Text filter on url (contains → urls join path). The 4xx preset from
-        // above survives unless explicitly reset — match the oracle: send null.
+        // above survives unless explicitly reset — match the reference suite: send null.
         let out = app.dispatch(
             "table.filter",
             &json!({"filters": [{"column": "url", "op": "contains", "value": "dup"}],
@@ -2081,7 +2081,7 @@ mod tests {
         assert_eq!(dash["issues_total"], 155);
         assert_eq!(dash["by_severity"]["critical"], 2);
         assert_eq!(dash["by_severity"]["warning"], 43);
-        // Facet → issue filter: HTTP_URL fires on 9 pages (oracle audit.v2).
+        // Facet → issue filter: HTTP_URL fires on 9 pages (golden audit.v2).
         let out = app.dispatch("dashboard.filter", &json!({"issue_check": "HTTP_URL"}));
         let page = out.answer.unwrap();
         assert_eq!(page["filtered_total"], 9, "{page}");
@@ -2155,7 +2155,7 @@ mod tests {
     }
 
     #[test]
-    fn details_counts_and_copy_match_oracle() {
+    fn details_counts_and_copy_match_the_golden_fixture() {
         let mut app = app_with_basic();
         // url 1 (home): 10 outbound links, 8 inbound, 4 request + 4 response
         // headers, empty redirect chain, one structured-evidence item.

@@ -1,4 +1,4 @@
-//! Ports of the parse-side cases of the reference suite: directive parsing,
+//! Reference suite parse-side cases: directive parsing,
 //! `<meta>` robots collection and the document title. Cases that go through the crawl record,
 //! the indexability verdict or the checks rules are deferred (see the slice report).
 

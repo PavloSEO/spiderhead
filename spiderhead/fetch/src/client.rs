@@ -240,7 +240,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn host_header_matches_the_oracle_shape() {
+    fn host_header_matches_the_golden_shape() {
         assert_eq!(host_of("http://127.0.0.1:18701/"), "127.0.0.1:18701");
         assert_eq!(host_of("http://example.com/a"), "example.com");
     }

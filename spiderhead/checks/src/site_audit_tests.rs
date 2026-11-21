@@ -420,7 +420,7 @@ fn page_row_reads_schema_types_from_current_entity_shape() {
 
 #[test]
 fn bad_input_is_rejected_before_any_network_call() {
-    // limit="many" is unrepresentable in the typed API and is not ported.
+    // limit="many" is unrepresentable in the typed API and is not covered.
     let tools = FakeTools { tools: Vec::new() };
     let empty = run_audit("", &[], &tools);
     assert_eq!(empty["ok"], json!(false));

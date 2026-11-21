@@ -21,7 +21,7 @@ const SITES: [&str; 6] = [
     "schema",
 ];
 
-fn oracle_dir() -> PathBuf {
+fn golden_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
 }
 
@@ -228,14 +228,14 @@ fn read_audit_db(db: &Path) -> Value {
 #[test]
 fn audit_v2_matches_reference_baselines() {
     let known = spiderhead_oracle_diff::KnownDivergences::from_toml(
-        &std::fs::read_to_string(oracle_dir().join("known-divergences.toml"))
+        &std::fs::read_to_string(golden_dir().join("known-divergences.toml"))
             .expect("known-divergences.toml"),
     )
     .expect("parse known-divergences");
     let mut used = Vec::new();
     let mut failures = String::new();
     for site in SITES {
-        let dir = oracle_dir().join("raw-scans").join(site);
+        let dir = golden_dir().join("raw-scans").join(site);
         let tmp =
             std::env::temp_dir().join(format!("audit-v2-golden-{site}-{}", std::process::id()));
         let _ = std::fs::create_dir_all(&tmp);
@@ -275,7 +275,7 @@ fn audit_v2_matches_reference_baselines() {
 
         let expected: Value = serde_json::from_str(
             &std::fs::read_to_string(
-                oracle_dir()
+                golden_dir()
                     .join("baselines")
                     .join(site)
                     .join("audit.v2.json"),

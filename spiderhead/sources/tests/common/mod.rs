@@ -211,7 +211,7 @@ pub fn assert_scenario(
 }
 
 /// Compare recorded request lists field-wise. `body` compares as parsed JSON because the
-/// Rust port stores objects in a `BTreeMap`-ordered `Map` while reference `json.dumps` emits
+/// The toolkit stores objects in a `BTreeMap`-ordered `Map` while reference `json.dumps` emits
 /// insertion order — the wire bytes differ only in member order, which is not meaningful
 /// to the receiving API.
 fn b64_decode(text: &str) -> Vec<u8> {
@@ -241,7 +241,7 @@ fn b64_decode(text: &str) -> Vec<u8> {
 }
 
 /// Compare recorded request lists field-wise. `body` compares as parsed JSON because the
-/// Rust port stores objects in a `BTreeMap`-ordered `Map` while reference `json.dumps` emits
+/// The toolkit stores objects in a `BTreeMap`-ordered `Map` while reference `json.dumps` emits
 /// insertion order — the wire bytes differ only in member order, which is not meaningful
 /// to the receiving API.
 fn assert_requests_eq(name: &str, want: &Value, got: &Value) {

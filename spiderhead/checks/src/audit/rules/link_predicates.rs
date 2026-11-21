@@ -928,7 +928,7 @@ pub fn run_link_predicates(ctx: &mut AuditContext) -> Map<String, Value> {
 
 #[cfg(test)]
 mod tests {
-    //! Ported pure-predicate tests.
+    //! Pure-predicate tests.
     //!
     //! the reference suite builds `LinkEdge`/`FormEdge` rows and calls
     //! the `link_findings` functions directly; the reference suite

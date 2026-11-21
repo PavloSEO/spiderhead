@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use serde_json::Value;
 use spiderhead_core::host::SystemHost;
 use spiderhead_crawl::dump::scan_tables;
-use spiderhead_crawl::oracle;
+use spiderhead_crawl::provenance;
 use spiderhead_crawl::spider::{self, CrawlOptions};
 use spiderhead_oracle_diff::{diff, Options};
 use spiderhead_oracle_testkit::FixtureServer;
@@ -15,7 +15,7 @@ use spiderhead_store::native_scan::NativeScan;
 use spiderhead_store::scan_lease::NativeScanLease;
 use spiderhead_store::scan_schema::NativeScanSchemaMixin;
 
-fn oracle_root() -> PathBuf {
+fn golden_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
 }
 
@@ -58,16 +58,16 @@ fn crawl_and_dump_with_seeds(
     let min_delay = 0.02;
     let config_map = spider::capture_config(&host, 200, 50.0).expect("capture config");
     let scan_path = work.join("scan.sqlite");
-    let runtime_versions = oracle::runtime_versions();
+    let runtime_versions = provenance::runtime_versions();
     let mut scan = NativeScanSchemaMixin::create(
         &scan_path,
         &format!("{base}/"),
         &config_map,
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
         &runtime_versions,
-        &oracle::limitations(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",
@@ -119,7 +119,7 @@ fn crawl_and_dump_with_seeds(
 }
 
 fn baseline_path(site: &str) -> std::path::PathBuf {
-    oracle_root()
+    golden_root()
         .join("baselines")
         .join(site)
         .join("scan.tables.json")
@@ -133,7 +133,7 @@ fn baseline(site: &str) -> Value {
 /// the same capture the `scan.tables.json` baseline describes, or the read-path
 /// tests and the live golden replay diverge.
 fn refresh_raw_capture(site: &str, scan_path: &std::path::Path) {
-    let dir = oracle_root().join("raw-scans").join(site);
+    let dir = golden_root().join("raw-scans").join(site);
     let target = dir.join("scan.sqlite");
     // Publish atomically: other test binaries bless downstream fixtures from the
     // same file in the same suite pass and must never observe a partial copy.
@@ -151,7 +151,7 @@ fn refresh_raw_capture(site: &str, scan_path: &std::path::Path) {
 /// equivalent capture would only churn volatile fields (timings, scan uuid) and
 /// invalidate the byte fixtures the other tests bless in the same pass.
 fn capture_is_fresh(site: &str, port: u16, actual: &Value) -> bool {
-    let target = oracle_root()
+    let target = golden_root()
         .join("raw-scans")
         .join(site)
         .join("scan.sqlite");
@@ -284,16 +284,16 @@ fn interrupted_crawl_resumes_to_the_same_scan() {
 
     // Uninterrupted reference run.
     let reference_path = work.0.join("reference.sqlite");
-    let runtime_versions = oracle::runtime_versions();
+    let runtime_versions = provenance::runtime_versions();
     let mut reference = NativeScanSchemaMixin::create(
         &reference_path,
         &format!("{base}/"),
         &capture_config_map(),
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
         &runtime_versions,
-        &oracle::limitations(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",
@@ -314,10 +314,10 @@ fn interrupted_crawl_resumes_to_the_same_scan() {
         &format!("{base}/"),
         &capture_config_map(),
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
         &runtime_versions,
-        &oracle::limitations(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",

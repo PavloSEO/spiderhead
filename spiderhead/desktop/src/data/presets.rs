@@ -1,5 +1,5 @@
 //! Preset views and facet groups of the URL table, plus the measured-evidence
-//! checks the facets need. Port of the reference suite.
+//! checks the facets need. Reference suite behaviour.
 
 use rusqlite::Connection;
 use serde_json::{json, Value};

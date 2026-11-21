@@ -1,6 +1,6 @@
 //! Differential harness for `sf-pack-01-sf-import`: replays every case of the
 //! golden fixture `tests/fixtures/sf_pack01.json` produced by
-//! the reference suite against the Rust port. Covers:
+//! the reference suite against the Rust implementation. Covers:
 //!
 //! // from the reference suite (config_* cases)
 //! // from the reference suite (config_default/example)
@@ -121,7 +121,7 @@ impl se::TextMeasure for FakeFont {
 }
 
 /// The `_truetype(name)` patched loader: a factor per name, `fail` raises
-/// `OSError("cannot open resource")` which the port turns into a ValueError.
+/// `OSError("cannot open resource")` which the toolkit turns into a ValueError.
 fn loader_for(name: &str) -> impl Fn(&str, i64) -> Result<Rc<dyn se::TextMeasure>, String> + '_ {
     move |path, size| {
         let _ = (path, size);

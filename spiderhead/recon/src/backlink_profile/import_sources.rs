@@ -105,7 +105,7 @@ pub fn fetch_backlink_source(source: &str, _domain: &str, _request: &Json) -> Re
     if !matches!(source, "yandex_webmaster" | "bing_webmaster") {
         return Err("free backlink source must be yandex_webmaster or bing_webmaster".into());
     }
-    Err("backlink provider adapters are not ported to Rust yet".to_string())
+    Err("backlink provider adapters are not yet available in this build".to_string())
 }
 
 /// Extract URL-pair rows from a supplied result object.

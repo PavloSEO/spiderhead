@@ -1,4 +1,4 @@
-//! Ports of the reference unit tests for the extraction slice (duplicate, boilerplate_report,
+//! Reference suite unit tests for the extraction slice (duplicate, boilerplate_report,
 //! markdown_extract, custom_extract, custom_search, schema_org). Each test names its source.
 //! Tests that monkeypatch reference internals, drive the CLI/MCP, or measure wall time against
 //! `SIGALRM` are listed in the slice report instead.

@@ -5,7 +5,7 @@ pub mod collect;
 pub mod diagnostics;
 pub mod dump;
 pub mod external_import;
-pub mod oracle;
+pub mod provenance;
 pub mod reanalysis;
 pub mod record;
 pub mod scope;

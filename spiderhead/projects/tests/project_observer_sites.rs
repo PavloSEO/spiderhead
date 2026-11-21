@@ -3,7 +3,7 @@
 //! still-running scan. The mcp, `_EVIDENCE_CACHE` and `_FINDINGS_CACHE`
 //! invalidation cases stay deferred.
 //!
-//! `prepare_project` is unported; competitor workspaces are declared through
+//! `prepare_project` competitor wiring is deferred; competitor workspaces are declared through
 //! `runtime::add_competitors`, the same write path prepare uses.
 
 #[path = "common/testkit.rs"]

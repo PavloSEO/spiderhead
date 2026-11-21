@@ -175,15 +175,15 @@ fn has_column(ctx: &AuditContext, field: &str) -> bool {
 }
 
 /// `ctx.skip` for each `(check, reason)` pair — the stub for a rule family that
-/// cannot produce evidence on this scan yet (ported in the `gen/` pass).
+/// cannot produce evidence on this scan yet (covered by the `gen/` pass).
 fn stub(ctx: &mut AuditContext, checks: &[(&str, &str)]) {
     for (check, reason) in checks {
         ctx.skip(check, reason);
     }
 }
 
-/// `run_rules` (the reference suite): `ALL_CHECKS` in catalogue order. Ported
-/// checks run their real implementation; unported families emit the same skips
+/// `run_rules` (the reference suite): `ALL_CHECKS` in catalogue order. Wired
+/// checks run their real implementation; unwired families emit the same skips
 /// the reference baseline emits on a stored native scan.
 pub fn run_rules(ctx: &mut AuditContext) {
     // 0. check_lighthouse_reports — supplied per-URL Lighthouse JSON, when any.
@@ -192,22 +192,22 @@ pub fn run_rules(ctx: &mut AuditContext) {
     rules::asset_checks::check_render_assets(ctx);
     rules::asset_checks::check_resource_assets(ctx);
     rules::asset_checks::check_network_payload(ctx);
-    // 4. check_document_markup (ported).
+    // 4. check_document_markup.
     rules::markup::check_document_markup(ctx);
     // 5. check_body_mime.
     rules::native::check_body_mime(ctx);
-    // 6. check_native_structured_and_mixed (ported).
+    // 6. check_native_structured_and_mixed.
     rules::content::check_structured_data_missing(ctx);
     rules::content::check_mixed_content(ctx);
-    // 7. check_response_codes (ported).
+    // 7. check_response_codes.
     rules::indexation::check_response_codes(ctx);
     // 8. check_render_blocking.
     rules::render_blocking::check_render_blocking(ctx);
-    // 9. check_indexability (ported).
+    // 9. check_indexability.
     rules::indexation::check_indexability(ctx);
-    // 10. check_redirect_type (ported).
+    // 10. check_redirect_type.
     rules::indexation::check_redirect_type(ctx);
-    // 11-13. titles/descriptions/headings (ported).
+    // 11-13. titles/descriptions/headings.
     rules::content_meta::check_titles(ctx);
     stub(
         ctx,
@@ -246,23 +246,23 @@ pub fn run_rules(ctx: &mut AuditContext) {
         )],
     );
     rules::content_meta::check_heading_outline(ctx);
-    // 15-16. invalid link targets + link placement (both ported).
+    // 15-16. invalid link targets + link placement.
     rules::links::check_invalid_link_targets(ctx);
     rules::links::check_link_placement(ctx);
-    // 17. check_canonical_directives (ported).
+    // 17. check_canonical_directives.
     rules::indexation::check_canonical_directives(ctx);
-    // 18. check_canonical_policy (ported).
+    // 18. check_canonical_policy.
     rules::indexation::check_canonical_policy(ctx);
-    // 19-20. content + url/perf (both ported).
+    // 19-20. content + url/perf.
     rules::content::check_content(ctx);
     rules::content::check_url_and_perf(ctx);
-    // 21. check_schema (ported).
+    // 21. check_schema.
     rules::content_meta::check_schema(ctx);
-    // 22. check_duplicates (ported).
+    // 22. check_duplicates.
     rules::content::check_duplicates(ctx);
-    // 23. check_url_extra (ported).
+    // 23. check_url_extra.
     rules::content::check_url_extra(ctx);
-    // 24. check_content_quality (ported).
+    // 24. check_content_quality.
     rules::content::check_content_quality(ctx);
     stub(
         ctx,
@@ -277,31 +277,31 @@ pub fn run_rules(ctx: &mut AuditContext) {
             ),
         ],
     );
-    // 25. check_directives_extra (ported).
+    // 25. check_directives_extra.
     rules::indexation::check_directives_extra(ctx);
-    // 26. check_canonical_extra (ported).
+    // 26. check_canonical_extra.
     rules::indexation::check_canonical_extra(ctx);
-    // 27. check_canonical_annotations (ported).
+    // 27. check_canonical_annotations.
     rules::indexation::check_canonical_annotations(ctx);
-    // 28. check_canonical_chain (ported).
+    // 28. check_canonical_chain.
     rules::indexation::check_canonical_chain(ctx);
-    // 29-32. canonical target checks (ported).
+    // 29-32. canonical target checks.
     rules::indexation::check_canonical_to_redirect(ctx);
     rules::indexation::check_canonical_target_error(ctx);
     rules::indexation::check_canonical_homepage_group(ctx);
     rules::indexation::check_unlinked_canonical(ctx);
-    // 33-35. pagination (ported); the head/anchor comparison lands later, in
+    // 33-35. pagination; the head/anchor comparison lands later, in
     // `run_inlinks` (`check_pagination_declarations`).
     rules::pagination::check_pagination(ctx);
     rules::pagination::check_pagination_series(ctx);
     rules::pagination::check_pagination_sequence(ctx);
-    // 36. check_links_extra (ported).
+    // 36. check_links_extra.
     rules::links::check_links_extra(ctx);
-    // 37. check_tech_extra (ported).
+    // 37. check_tech_extra.
     rules::technical::check_tech_extra(ctx);
-    // 38. check_amp_pairing (ported).
+    // 38. check_amp_pairing.
     rules::technical::check_amp_pairing(ctx);
-    // 39-41. native page/image evidence (ported).
+    // 39-41. native page/image evidence.
     rules::native::check_native_page_evidence(ctx);
     rules::native::check_native_image_resources(ctx);
     rules::native::check_native_image_size(ctx);
@@ -311,12 +311,12 @@ pub fn run_rules(ctx: &mut AuditContext) {
     rules::mobile_checks::check_mobile_render_layout(ctx);
     // 44. rendered-element checks.
     rules::render_checks::check_rendered_elements(ctx);
-    // 45. native export aggregates (ported).
+    // 45. native export aggregates.
     rules::native::check_native_export_aggregates(ctx);
-    // 46. check_ajax_crawling_scheme (ported).
+    // 46. check_ajax_crawling_scheme.
     rules::indexation::check_ajax_crawling_scheme(ctx);
     // 47-54. charset/doctype/viewport/mobile-alternate/compression/
-    // element-position/document-skeleton/html-structure (all ported).
+    // element-position/document-skeleton/html-structure.
     rules::technical::check_charset(ctx);
     rules::technical::check_doctype(ctx);
     rules::technical::check_viewport(ctx);
@@ -325,11 +325,11 @@ pub fn run_rules(ctx: &mut AuditContext) {
     rules::technical::check_element_position(ctx);
     rules::technical::check_document_skeleton(ctx);
     rules::technical::check_html_structure(ctx);
-    // 55. check_url_hygiene (ported).
+    // 55. check_url_hygiene.
     rules::content::check_url_hygiene(ctx);
     // 56. check_placeholder_markers.
     rules::content::check_placeholder_markers(ctx);
-    // 57. check_og (ported): no OG columns on a native scan → the same named
+    // 57. check_og: no OG columns on a native scan → the same named
     // skip the export-fallback used to stamp.
     rules::content_meta::check_og(ctx);
     // 58. TITLE_MULTIPLE is emitted by the SF issue-map and native export
@@ -338,7 +338,7 @@ pub fn run_rules(ctx: &mut AuditContext) {
         ctx,
         &[("TITLE_MULTIPLE", "not measured by this native crawl")],
     );
-    // 58b. check_redirect_chains (ported export path; a stored scan returns early).
+    // 58b. check_redirect_chains (export path; a stored scan returns early).
     rules::indexation::check_redirect_chains(ctx);
 }
 
@@ -373,7 +373,7 @@ pub fn run_inlinks(ctx: &mut AuditContext) {
         );
     }
     rules::hreflang::check_hreflang_noindex(ctx);
-    // check_hreflang_quality + reciprocity (ported).
+    // check_hreflang_quality + reciprocity.
     rules::hreflang::check_hreflang(ctx);
     // check_hreflang_confirmation_consistency.
     rules::hreflang::check_hreflang_consistency(ctx);
@@ -382,7 +382,7 @@ pub fn run_inlinks(ctx: &mut AuditContext) {
     rules::inlinks_graph::check_discovery_path(ctx);
     // check_insecure_subresources.
     rules::inlinks_graph::check_insecure_subresources(ctx);
-    // check_pagination_declarations (ported; the stored branch always defers
+    // check_pagination_declarations (the stored branch always defers
     // PAGINATION_URL_NOT_IN_ANCHOR — the head/anchor comparison is unmeasured).
     rules::pagination::check_pagination_declarations(ctx);
     // check_internal_link_graph is last: it opens its own path session.
@@ -466,7 +466,7 @@ pub fn run_late(ctx: &mut AuditContext, scan_path: &Path) -> Map<String, Value> 
             }
         }
     }
-    // Security headers from the retained per-URL responses (ported).
+    // Security headers from the retained per-URL responses.
     rules::stored::check_security_headers(ctx);
     // The opt-in redirect-hop HSTS probe: a stored audit re-judges the retained
     // probe payload instead of probing the site again.

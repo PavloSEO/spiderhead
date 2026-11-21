@@ -14,7 +14,7 @@ fn fixtures_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/scan_store")
 }
 
-fn oracle_root() -> PathBuf {
+fn golden_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
 }
 
@@ -118,7 +118,7 @@ fn make_work(site: &str, tag: &str) -> (PathBuf, Vec<(&'static str, String)>) {
     ));
     let _ = std::fs::remove_dir_all(&work);
     std::fs::create_dir_all(&work).expect("work dir");
-    let raw = oracle_root().join("raw-scans").join(site);
+    let raw = golden_root().join("raw-scans").join(site);
     for name in ["scan.sqlite", "scan.sqlite.audit-v2.sqlite"] {
         if raw.join(name).exists() {
             std::fs::copy(raw.join(name), work.join(name)).expect("copy scan");

@@ -8,7 +8,7 @@
 //!
 //! Not covered: `test_evaluate_rejects_a_non_sqlite_connection` (the Rust type
 //! system makes the argument impossible), the projection's temp-table cleanup
-//! assertion (the port never materializes one), the URL_INTERNAL_SEARCH,
+//! assertion (this suite never materializes one), the URL_INTERNAL_SEARCH,
 //! crawl/reanalyze-pipeline and CLI-surface tests (other slices), and the
 //! export-run unmeasured skips (the export `run_rules` path is not part of the
 //! stored-scan orchestration).
@@ -668,7 +668,7 @@ fn broken_targets_group_sources_anchors_and_preserve_status() {
     assert!(skipped(&ctx, "BROKEN_INTERNAL_LINK").is_none());
 }
 
-// (the reference test passes max_locations=20; the port asserts the built-in
+// (the reference test passes max_locations=20; this test asserts the built-in
 // 200-location cap with the same exact-counts contract)
 #[test]
 fn locations_are_bounded_with_exact_contributing_counts() {

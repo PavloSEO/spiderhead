@@ -68,8 +68,8 @@ impl CommandHandler for Shared {
                 out.eprintln(&format!("error: {message}"));
                 Ok(ExitCode::FAILURE)
             }
-            // The registry only ever maps wired names; NotYetPorted cannot surface.
-            Err(ToolError::NotYetPorted(name)) => {
+            // The registry only ever maps wired names; NotYetAvailable cannot surface.
+            Err(ToolError::NotYetAvailable(name)) => {
                 out.eprintln(&format!("error: {name} is not yet available in this build"));
                 Ok(ExitCode::FAILURE)
             }
@@ -423,7 +423,7 @@ impl CommandHandler for Archive {
             Err(ToolError::Failed(message)) => {
                 serde_json::json!({"ok": false, "error": message})
             }
-            Err(ToolError::NotYetPorted(name)) => {
+            Err(ToolError::NotYetAvailable(name)) => {
                 serde_json::json!({"ok": false, "error": format!("{name} is not yet available in this build")})
             }
         };
@@ -701,7 +701,7 @@ impl CommandHandler for SiteAudit {
                             out.eprintln(&format!("error: {message}"));
                             return Ok(ExitCode::FAILURE);
                         }
-                        Err(ToolError::NotYetPorted(name)) => {
+                        Err(ToolError::NotYetAvailable(name)) => {
                             out.eprintln(&format!(
                                 "error: {name} is not yet available in this build"
                             ));
@@ -715,8 +715,8 @@ impl CommandHandler for SiteAudit {
                 out.eprintln(&format!("error: {message}"));
                 Ok(ExitCode::FAILURE)
             }
-            // The registry only ever maps wired names; NotYetPorted cannot surface.
-            Err(ToolError::NotYetPorted(name)) => {
+            // The registry only ever maps wired names; NotYetAvailable cannot surface.
+            Err(ToolError::NotYetAvailable(name)) => {
                 out.eprintln(&format!("error: {name} is not yet available in this build"));
                 Ok(ExitCode::FAILURE)
             }
@@ -725,7 +725,7 @@ impl CommandHandler for SiteAudit {
 }
 
 /// The registry of every command whose domain is already on Rust; the rest fall
-/// back to [`crate::NotYetPorted`].
+/// back to [`crate::NotYetAvailable`].
 pub fn registry() -> Registry {
     let mut registry = Registry::new();
     for (name, _) in spiderhead_mcp::handlers::registry() {

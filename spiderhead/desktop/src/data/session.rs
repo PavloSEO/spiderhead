@@ -202,7 +202,7 @@ impl ScanSession {
     /// Stream saved findings into `temp.issue_urls`/`temp.issue_url_counts` —
     /// the tables `issue_count` and the `issue` filter read. A no-arg call
     /// materializes every finding; check/severity narrow the selection.
-    /// Port of `issue_selection.materialize` over the streaming reader.
+    /// `issue_selection.materialize` over the streaming reader.
     pub fn materialize_issues(
         &mut self,
         checks: &[String],

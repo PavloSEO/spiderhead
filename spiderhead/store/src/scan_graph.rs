@@ -1359,9 +1359,9 @@ mod tests {
 }
 
 #[cfg(test)]
-mod oracle_tests {
+mod golden_tests {
     use super::*;
-    use crate::status::oracle_support::*;
+    use crate::status::golden_support::*;
 
     fn tokens(meta: Option<&str>, x: Option<&str>) -> Vec<String> {
         [meta, x]

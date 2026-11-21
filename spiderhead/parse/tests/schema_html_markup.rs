@@ -1,4 +1,4 @@
-//! Ports of the reference suite: offline Microdata/RDFa extraction and validation.
+//! Reference suite tests: offline Microdata/RDFa extraction and validation.
 //! Each test names its reference source. Cases that read reference-only internals (`_extract_microdata`,
 //! `_extract_rdfa`, `_rdfa_term`) are listed in the slice report instead of being covered.
 //! the reference `check_schema(url=..., html=...)` has no Rust equivalent on the HTML path, so those

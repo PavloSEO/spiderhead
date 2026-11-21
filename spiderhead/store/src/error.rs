@@ -44,8 +44,8 @@ pub enum StoreError {
     #[error(transparent)]
     RequestBudgetExhausted(#[from] crate::crawl_records::throttle::RequestBudgetExhausted),
     /// Feature not implemented yet.
-    #[error("not ported yet: {0}")]
-    NotPorted(&'static str),
+    #[error("not wired yet: {0}")]
+    NotWired(&'static str),
     #[error(transparent)]
     LedgerError(#[from] crate::ledger::schema::LedgerError),
 }

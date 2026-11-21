@@ -1,5 +1,5 @@
 //! The paged, filtered and sorted read of `pages` the URL table and the
-//! `table.*` commands share. Port of `_query` in the reference suite
+//! `table.*` commands share. Mirrors `_query` in the reference suite
 //! reduced to scan.v1 vocabulary: same JSON shape, same limits, same sort
 //! strategy (index walk above the row cap, materialized sort below it).
 

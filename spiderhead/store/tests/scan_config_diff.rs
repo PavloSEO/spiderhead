@@ -1,6 +1,6 @@
-//! Ports of the reference suite (#1529): field-by-field diff of saved crawl
+//! Reference suite tests (#1529): field-by-field diff of saved crawl
 //! configurations. The reference saved-scan tests write two real scans through `NativeScan.create`;
-//! the Rust port has no equivalent header writer, so each saved scan is a temp copy of the
+//! the toolkit has no equivalent header writer, so each saved scan is a temp copy of the
 //! `commit-pre.sqlite` fixture whose recorded `scan.config_json` header is edited in place. The
 //! reader under test (`read_effective_config`) only consumes that header plus the fixture's
 //! extension items, which do not overlap the edited paths. The CLI test (subprocess of the reference

@@ -112,7 +112,7 @@ fn run_check(name: &str, ctx: &mut AuditContext) -> Result<(), String> {
         "check_redirect_hop_hsts" => rules::stored::check_redirect_hop_hsts(ctx),
         "provider_findings" => run_provider_findings(ctx),
         "check_lighthouse_reports" => run_lighthouse_reports(ctx),
-        other => return Err(format!("unported check function {other}")),
+        other => return Err(format!("unwired check function {other}")),
     }
     Ok(())
 }

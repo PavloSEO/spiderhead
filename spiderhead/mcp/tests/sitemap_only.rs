@@ -11,7 +11,7 @@ use std::sync::{Arc, Mutex};
 use serde_json::{json, Map, Value};
 use spiderhead_core::crawl_settings::{self, LoadInput};
 use spiderhead_core::host::SystemHost;
-use spiderhead_crawl::oracle;
+use spiderhead_crawl::provenance;
 use spiderhead_crawl::spider::{self, CrawlOptions};
 use spiderhead_mcp::handlers;
 use spiderhead_store::scan_schema::NativeScanSchemaMixin;
@@ -457,10 +457,10 @@ fn interrupted_scan_with(
         start_url,
         &settings,
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
-        &oracle::runtime_versions(),
-        &oracle::limitations(),
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
+        &provenance::runtime_versions(),
+        &provenance::limitations(),
         None,
         &roots,
         "scan.v1",
@@ -848,10 +848,10 @@ fn filtered_decision_survives_native_resume_with_the_same_filters() {
         &start,
         &settings,
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
-        &oracle::runtime_versions(),
-        &oracle::limitations(),
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
+        &provenance::runtime_versions(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",

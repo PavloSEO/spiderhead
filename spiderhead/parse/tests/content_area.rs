@@ -1,4 +1,4 @@
-//! Ports of the reference suite: the configurable content area (issue #19), automatic
+//! Reference suite tests: the configurable content area (issue #19), automatic
 //! detection (issue #96), and inline SVG/MathML text exclusion (issue #140). The subprocess
 //! test that imports the reference module directly is deferred (reference-only mechanics).
 

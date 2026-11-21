@@ -39,7 +39,7 @@ fn invalid(message: impl Into<String>) -> StoreError {
 /// Implementation identity of each corpus kind: the file
 /// names and the SHA-256 of their bytes, pinned like the scan header's
 /// `writer_revision` (same policy as `content_evidence::implementation`).
-const ORACLE_IDENTITY: [(&str, &str, &str); 3] = [
+const PINNED_IDENTITY: [(&str, &str, &str); 3] = [
     (
         "duplicate",
         "62daf0a5baa4c4f0bf84a27a50ab81365423fcff5937b079e7149a039c32bf1e",
@@ -60,7 +60,7 @@ const ORACLE_IDENTITY: [(&str, &str, &str); 3] = [
 /// Name the current byte-to-input implementation, separately from the capture
 /// writer: its provenance is pinned to recorded hashes.
 pub fn implementation_identity(kind: &str) -> Result<Map<String, Value>, StoreError> {
-    let pinned = ORACLE_IDENTITY
+    let pinned = PINNED_IDENTITY
         .iter()
         .find(|(name, _, _)| *name == kind)
         .ok_or_else(|| invalid("unsupported scan corpus kind"))?;

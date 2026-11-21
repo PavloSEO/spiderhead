@@ -275,7 +275,7 @@ fn every_urls_file_container_seeds_the_same_list() {
 fn a_resume_completes_a_list_scan_without_discovery() {
     use spiderhead_core::crawl_settings::{self, LoadInput};
     use spiderhead_core::host::SystemHost;
-    use spiderhead_crawl::oracle;
+    use spiderhead_crawl::provenance;
     use spiderhead_store::scan_lease::NativeScanLease;
     use spiderhead_store::scan_schema::NativeScanSchemaMixin;
 
@@ -305,10 +305,10 @@ fn a_resume_completes_a_list_scan_without_discovery() {
         &urls[0],
         &settings,
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
-        &oracle::runtime_versions(),
-        &oracle::limitations(),
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
+        &provenance::runtime_versions(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",

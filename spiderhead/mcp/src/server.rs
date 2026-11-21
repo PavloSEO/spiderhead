@@ -5,14 +5,14 @@ use std::sync::mpsc;
 use serde_json::{json, Value};
 
 use crate::catalog::Catalog;
-use crate::handler::{CallContext, NotYetPorted, Registry, ToolHandler};
+use crate::handler::{CallContext, NotYetAvailable, Registry, ToolHandler};
 use crate::profile::Profile;
 use crate::protocol;
 use crate::validation;
 
 /// The tool adapter: every catalog tool routes through the shared handler layer
 /// under its reference handler name (`seo_scan_status` → `scan_status`); a tool
-/// whose handler is not ported yet keeps [`NotYetPorted`]'s tool-name wording.
+/// whose handler is not wired yet keeps [`NotYetAvailable`]'s tool-name wording.
 struct DomainTool {
     /// Catalog tool name (`seo_scan_status`).
     name: String,
@@ -41,8 +41,8 @@ impl ToolHandler for DomainTool {
         crate::tool_layer::refuse_owner_action(&self.name, &args)?;
         let consumer = crate::tool_layer::take_notice_consumer(&self.name, &mut args);
         let result = crate::handlers::dispatch(&handler, &args).map_err(|error| match error {
-            crate::error::ToolError::NotYetPorted(_) => {
-                crate::error::ToolError::NotYetPorted(self.name.clone())
+            crate::error::ToolError::NotYetAvailable(_) => {
+                crate::error::ToolError::NotYetAvailable(self.name.clone())
             }
             other => other,
         })?;
@@ -88,7 +88,7 @@ pub struct Server {
 
 impl Server {
     /// A server over the embedded catalog; wired tools run the shared handler
-    /// layer, the rest answer [`NotYetPorted`].
+    /// layer, the rest answer [`NotYetAvailable`].
     pub fn new(profile: Profile) -> Self {
         spiderhead_projects::action_log::set_interface("mcp");
         let mut registry = Registry::new();
@@ -121,7 +121,7 @@ impl Server {
     pub fn handle_line(&self, line: &str, out: &mut Vec<Value>) {
         match serde_json::from_str::<Value>(line) {
             Ok(message) => self.handle_message(&message, out),
-            // The oracle answers unparseable input with a logging notification
+            // The reference suite answers unparseable input with a logging notification
             // and keeps serving; there is no id to attach an error response to.
             Err(_) => out.push(protocol::unparsable_line_notification()),
         }
@@ -129,7 +129,7 @@ impl Server {
 
     fn handle_message(&self, message: &Value, out: &mut Vec<Value>) {
         let Some(method) = message.get("method").and_then(Value::as_str) else {
-            // Not a JSON-RPC message (no `method`); the oracle logs and continues.
+            // Not a JSON-RPC message (no `method`); the reference suite logs and continues.
             // A malformed *request* (has id, no method) gets the same treatment:
             // the SDK cannot build a validated request object from it.
             if message.get("id").is_some() {
@@ -151,7 +151,7 @@ impl Server {
     fn handle_notification(&self, method: &str) {
         // Lifecycle and cancellation notices need no reaction: calls here are
         // synchronous, so by the time `notifications/cancelled` arrives the
-        // request has already finished (the oracle ignores unknown ids too).
+        // request has already finished (the reference suite ignores unknown ids too).
         let _ = method;
     }
 
@@ -255,7 +255,7 @@ impl Server {
         let ctx = CallContext::new(token, progress_tx);
         let result = match self.registry.get(name) {
             Some(handler) => handler.call(name, arguments, &ctx),
-            None => NotYetPorted.call(name, arguments, &ctx),
+            None => NotYetAvailable.call(name, arguments, &ctx),
         };
         // Progress queued during the call goes out first, wire order preserved.
         while let Ok(notification) = progress_rx.try_recv() {
@@ -266,8 +266,8 @@ impl Server {
             match result {
                 Ok(value) => protocol::tool_success_result(&value),
                 // The SDK names the tool in every handler exception; a tool that
-                // is not ported yet keeps its own wording (the catalog-wide stub).
-                Err(crate::error::ToolError::NotYetPorted(_)) => {
+                // is not wired yet keeps its own wording (the catalog-wide stub).
+                Err(crate::error::ToolError::NotYetAvailable(_)) => {
                     let text = result.err().map(|e| e.to_string()).unwrap_or_default();
                     protocol::tool_error_result(&text)
                 }
@@ -322,7 +322,7 @@ mod tests {
     // Envelope captured in tests/fixtures/initialize.json, with the fixture's
     // {VERSION} normalisation substituted back (gen/NORMALISATION.md).
     #[test]
-    fn initialize_matches_the_oracle_fixture() {
+    fn initialize_matches_the_golden_fixture() {
         let mut expected: Value = serde_json::from_str(
             &std::fs::read_to_string(concat!(
                 env!("CARGO_MANIFEST_DIR"),
@@ -352,7 +352,7 @@ mod tests {
     }
 
     #[test]
-    fn initialize_negotiates_like_the_oracle() {
+    fn initialize_negotiates_like_the_reference_suite() {
         for (requested, expected) in [
             ("2024-11-05", "2024-11-05"),
             ("2025-03-26", "2025-03-26"),
@@ -388,7 +388,7 @@ mod tests {
 
     // Envelope captured in tests/fixtures/rpc.ping.json and rpc.prompts_list.json.
     #[test]
-    fn ping_and_empty_registries_answer_like_the_oracle() {
+    fn ping_and_empty_registries_answer_like_the_reference_suite() {
         let server = Server::new(Profile::Router);
         let out = responses(
             &server,
@@ -429,7 +429,7 @@ mod tests {
 
     // Envelope captured in tests/fixtures/tools_call.unknown_tool.json.
     #[test]
-    fn unknown_tool_matches_the_oracle_text() {
+    fn unknown_tool_matches_the_golden_text() {
         let server = Server::new(Profile::Full);
         let out = responses(
             &server,
@@ -492,8 +492,8 @@ mod tests {
                 json!({"jsonrpc": "2.0", "id": 5, "method": "tools/call", "params": {"name": "seo_url_check_batch"}}),
             ],
         );
-        // The oracle executed seo_url_check_batch with defaults and raised on the
-        // empty urls/scan pair; the port reaches the same validation error.
+        // The reference suite executed seo_url_check_batch with defaults and raised on the
+        // empty urls/scan pair; this handler reaches the same validation error.
         assert_eq!(
             out[0]["result"]["content"][0]["text"],
             "Error executing tool seo_url_check_batch: provide exactly one of urls[] or scan",
@@ -629,7 +629,7 @@ mod tests {
     }
 
     #[test]
-    fn bad_json_line_asks_for_the_oracle_notification_and_survives() {
+    fn bad_json_line_asks_for_the_golden_notification_and_survives() {
         let server = Server::new(Profile::Router);
         let mut out = Vec::new();
         server.handle_line("this is not json", &mut out);
@@ -658,7 +658,7 @@ mod tests {
         assert_eq!(out[0]["result"], json!({}));
     }
 
-    // The oracle validates the initialize envelope itself (pydantic).
+    // The reference suite validates the initialize envelope itself (pydantic).
     #[test]
     fn malformed_initialize_is_invalid_params() {
         let server = Server::new(Profile::Full);

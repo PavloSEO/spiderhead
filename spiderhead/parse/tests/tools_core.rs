@@ -1,5 +1,5 @@
 //! fetch or checks crate. The other cases in that file (redirects, robots, sitemap, hreflang
-//! validation, optimizer, downloader, clusterer) are deferred; see the port report.
+//! validation, optimizer, downloader, clusterer) are deferred; see the slice report.
 
 use std::collections::BTreeMap;
 

@@ -1,4 +1,4 @@
-//! Ports of the pure parser tests in the reference suite.
+//! Reference suite pure parser tests.
 //!
 //! The three crawl-driven cases (fired check, skipped check, clean page through a native crawl)
 //! need the crawl, sf-import and checks crates; they are listed in the slice report instead.

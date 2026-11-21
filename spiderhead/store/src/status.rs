@@ -344,7 +344,7 @@ mod tests {
 
 /// Shared helpers for comparing read-path output with recorded baselines.
 #[cfg(test)]
-pub(crate) mod oracle_support {
+pub(crate) mod golden_support {
     use regex::Regex;
     use serde_json::Value;
     use std::path::{Path, PathBuf};
@@ -437,8 +437,8 @@ pub(crate) mod oracle_support {
 }
 
 #[cfg(test)]
-mod oracle_tests {
-    use super::oracle_support::*;
+mod golden_tests {
+    use super::golden_support::*;
     use super::*;
 
     // Light validation: frontier and HTTP outcome counts are disjoint and need no network.

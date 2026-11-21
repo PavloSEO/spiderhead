@@ -1,4 +1,4 @@
-//! Ports of the parser-level cases in the reference suite (#1016): a
+//! Reference suite parser-level cases (#1016): a
 //! media-qualified rel=alternate that names no URL. The crawl -> evidence -> rules pipeline
 //! cases need the crawl and checks crates and are deferred.
 

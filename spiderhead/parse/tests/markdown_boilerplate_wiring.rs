@@ -1,4 +1,4 @@
-//! Ports of the parse-level assertions in the reference suite: the
+//! Reference suite parse-level assertions: the
 //! fetch helper, markdown extraction, and boilerplate hashing and grouping. Handler, CLI,
 //! MCP and citability assertions are not here: those layers are not covered yet.
 

@@ -1,20 +1,20 @@
 //! `exact` stage golden check against the reference baseline fixture
 //! (the reference suite → `tests/fixtures/exact_oracle.json`).
 
-mod oracle;
+mod golden;
 
 use serde_json::json;
 use spiderhead_semantics::stages;
 
 #[test]
 fn golden_exact() {
-    let fx = oracle::fixture("exact");
+    let fx = golden::fixture("exact");
     for scenario in fx["scenarios"].as_array().unwrap() {
         let name = scenario["name"].as_str().unwrap();
-        let (store, dir) = oracle::setup(scenario);
-        let cfg = oracle::cfg_of(scenario, &dir);
+        let (store, dir) = golden::setup(scenario);
+        let cfg = golden::cfg_of(scenario, &dir);
         let args = &scenario["args"];
-        let mut arsenkin = oracle::arsenkin_of(scenario);
+        let mut arsenkin = golden::arsenkin_of(scenario);
         let result = stages::exact::run(
             &store,
             &cfg,
@@ -24,9 +24,9 @@ fn golden_exact() {
         )
         .unwrap();
         let mut diffs = Vec::new();
-        oracle::check_result(scenario, &result, &mut diffs);
-        oracle::check_tables(&store, scenario, &mut diffs);
-        let submits = oracle::arsenkin_submits(&arsenkin);
+        golden::check_result(scenario, &result, &mut diffs);
+        golden::check_tables(&store, scenario, &mut diffs);
+        let submits = golden::arsenkin_submits(&arsenkin);
         let want_submits = &scenario["expect"]["calls"]["arsenkin"];
         if !want_submits.is_null() && &submits != want_submits {
             diffs.push(format!(

@@ -598,7 +598,7 @@ fn saved_notes_carry_reference_receipts() {
             "{name}"
         );
         assert!(!rest.is_empty());
-        let listed = spiderhead_projects::inbox::list_entries(&project, "oracle", 0, 50, true)
+        let listed = spiderhead_projects::inbox::list_entries(&project, "golden", 0, 50, true)
             .expect("list");
         let entries = pyjson::list_of(&listed, "entries");
         let last = entries.last().expect("entry");

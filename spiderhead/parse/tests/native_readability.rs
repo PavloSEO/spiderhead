@@ -1,4 +1,4 @@
-//! native-crawl case needs the crawl and checks crates and is deferred; see the port report.
+//! native-crawl case needs the crawl and checks crates and is deferred; see the slice report.
 
 use spiderhead_parse::parse_html;
 use spiderhead_parse::readability::{reading_ease, READABILITY_VERSION};

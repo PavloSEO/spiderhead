@@ -2,7 +2,7 @@
 //! competitor crawl results out of owner items.
 //!
 //! `_project_start_url`, `_evidence_root` and `_record_scoped_failure` are
-//! mcp-handler helpers; the port asserts the same contract at the projects
+//! mcp-handler helpers; these tests assert the same contract at the projects
 //! layer — the `entered_url` fact the handler reads, and per-workspace
 //! evidence isolation.
 

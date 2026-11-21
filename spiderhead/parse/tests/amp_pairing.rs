@@ -1,4 +1,4 @@
-//! Ports of the parser-level tests in the reference suite: the declared amphtml target
+//! Reference suite parser-level tests: the declared amphtml target
 //! is resolved, while empty or inert declarations are not targets. The AMP_* rule tests run the
 //! audit rule engine and are listed in the slice report instead.
 

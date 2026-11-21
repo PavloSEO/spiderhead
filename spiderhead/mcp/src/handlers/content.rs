@@ -1045,7 +1045,7 @@ mod tests {
     }
 
     // from tests/test_semantic_content_interfaces.py::test_semantic_similarity_consumes_supplied_vectors_without_model_call_and_reuses_scan
-    // (fixture shape: the retained raw scan plays the oracle's built scan; every
+    // (fixture shape: the retained raw scan plays the reference built scan; every
     // fixture URL carries a supplied vector, so the declared adapter is never asked)
     #[test]
     fn semantic_similarity_consumes_supplied_vectors_and_reuses_scan() {

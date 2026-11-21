@@ -9,7 +9,7 @@ use serde_json::{json, Map, Value};
 use spiderhead_cli::{registry, run, Output};
 use spiderhead_core::crawl_settings::{self, LoadInput};
 use spiderhead_core::host::SystemHost;
-use spiderhead_crawl::oracle;
+use spiderhead_crawl::provenance;
 use spiderhead_store::scan_lease::NativeScanLease;
 use spiderhead_store::scan_schema::NativeScanSchemaMixin;
 
@@ -32,10 +32,10 @@ fn paused_scan(path: &Path) {
         START,
         &settings,
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
-        &oracle::runtime_versions(),
-        &oracle::limitations(),
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
+        &provenance::runtime_versions(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",
@@ -238,10 +238,10 @@ fn paused_steering_refuses_a_finished_artifact() {
         START,
         &settings,
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
-        &oracle::runtime_versions(),
-        &oracle::limitations(),
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
+        &provenance::runtime_versions(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",
@@ -416,10 +416,10 @@ fn a_paused_narrowing_holds_across_the_resume() {
             &start,
             &settings,
             None,
-            oracle::WRITER_VERSION,
-            oracle::WRITER_REVISION,
-            &oracle::runtime_versions(),
-            &oracle::limitations(),
+            provenance::WRITER_VERSION,
+            provenance::WRITER_REVISION,
+            &provenance::runtime_versions(),
+            &provenance::limitations(),
             None,
             &[],
             "scan.v1",

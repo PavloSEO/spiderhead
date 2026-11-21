@@ -129,7 +129,7 @@ const COVERED_CHECKS: &[&str] = &[
     "HREFLANG_ERROR",
 ];
 
-fn oracle(rel: &str) -> PathBuf {
+fn golden(rel: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../oracle")
         .join(rel)
@@ -214,8 +214,8 @@ fn checks_match_the_reference_baselines() {
     let mut uncovered: BTreeMap<String, usize> = BTreeMap::new();
     for site in SITES {
         let ctx =
-            audit_scan(&oracle(&format!("raw-scans/{site}/scan.sqlite"))).expect("scan loads");
-        let text = std::fs::read_to_string(oracle(&format!("baselines/{site}/audit.v2.json")))
+            audit_scan(&golden(&format!("raw-scans/{site}/scan.sqlite"))).expect("scan loads");
+        let text = std::fs::read_to_string(golden(&format!("baselines/{site}/audit.v2.json")))
             .expect("baseline");
         let baseline: Value = serde_json::from_str(&text).expect("baseline json");
         let python: Vec<&Value> = baseline["items"]["/issues"]

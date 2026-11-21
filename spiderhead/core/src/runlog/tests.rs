@@ -641,7 +641,7 @@ fn read_entries_scans_the_tail_backwards() {
 
 // Fixed digests. The journal is shared across toolkit versions, so these must never change.
 #[test]
-fn fingerprint_matches_the_reference_oracle() {
+fn fingerprint_matches_the_reference_digests() {
     assert_eq!(
         fingerprint("parse", &args(json!({"url": "https://e.com/", "depth": 2}))),
         "ae585ba29cd147ef"

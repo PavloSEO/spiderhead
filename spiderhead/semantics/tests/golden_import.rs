@@ -1,6 +1,6 @@
 //! `import` stage vs the reference baseline (`tests/fixtures/import_oracle.json`).
 
-mod oracle;
+mod golden;
 
 use serde_json::Value;
 use spiderhead_semantics::stages;
@@ -58,12 +58,12 @@ fn error_matches(got: &str, want: &str) -> bool {
 
 #[test]
 fn golden_import() {
-    let fixture = oracle::fixture("import");
+    let fixture = golden::fixture("import");
     let mut diffs = Vec::new();
     for scenario in fixture["scenarios"].as_array().unwrap() {
         let name = scenario["name"].as_str().unwrap();
-        let (store, dir) = oracle::setup(scenario);
-        let cfg = oracle::cfg_of(scenario, &dir);
+        let (store, dir) = golden::setup(scenario);
+        let cfg = golden::cfg_of(scenario, &dir);
         write_inputs(scenario, &dir);
         let args = &scenario["args"];
         let file = dir.join(args["file"].as_str().unwrap_or_default());
@@ -86,12 +86,12 @@ fn golden_import() {
             }
         } else {
             match result {
-                Ok(v) => oracle::check_result(scenario, &v, &mut diffs),
+                Ok(v) => golden::check_result(scenario, &v, &mut diffs),
                 Err(e) => diffs.push(format!("{name}: unexpected error {e}")),
             }
         }
         let mut scoped = Vec::new();
-        oracle::check_tables(&store, scenario, &mut scoped);
+        golden::check_tables(&store, scenario, &mut scoped);
         diffs.extend(scoped.into_iter().map(|d| format!("{name}: {d}")));
     }
     assert!(diffs.is_empty(), "{}", diffs.join("\n"));

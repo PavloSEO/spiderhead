@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use serde_json::{json, Value};
 use spiderhead_core::crawl_settings;
 use spiderhead_core::host::SystemHost;
-use spiderhead_crawl::oracle;
+use spiderhead_crawl::provenance;
 use spiderhead_crawl::spider::{self, CrawlOptions};
 use spiderhead_parse::ParseOptions;
 use spiderhead_store::native_scan::NativeScan;
@@ -101,10 +101,10 @@ fn run() -> Result<Value, String> {
             &args.url,
             &config_map,
             None,
-            oracle::WRITER_VERSION,
-            oracle::WRITER_REVISION,
+            provenance::WRITER_VERSION,
+            provenance::WRITER_REVISION,
             &runtime_versions,
-            &oracle::limitations(),
+            &provenance::limitations(),
             None,
             &[],
             "scan.v1",

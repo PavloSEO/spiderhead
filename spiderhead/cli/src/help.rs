@@ -1,7 +1,7 @@
 //! `usage:` lines and `--help` screens, laid out exactly like reference 3.14's `argparse.HelpFormatter`.
 //!
-//! This is a port of the formatter, not an approximation: same wrapping of the usage line, same
-//! help-column rule (`max_help_position`), same section order, same blank-line collapsing. Colour
+//! This reproduces the formatter rather than approximating it: same wrapping of the usage
+//! line, same help-column rule (`max_help_position`), same section order, same blank-line collapsing. Colour
 //! is never emitted (the reference capture runs with `NO_COLOR`).
 
 use crate::textwrap;

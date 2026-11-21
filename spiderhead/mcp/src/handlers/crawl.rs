@@ -10,7 +10,7 @@ use serde_json::{json, Map, Value};
 
 use spiderhead_core::crawl_settings::{self, LoadInput};
 use spiderhead_core::host::SystemHost;
-use spiderhead_crawl::oracle;
+use spiderhead_crawl::provenance;
 use spiderhead_crawl::spider::{self, BatchControl, CrawlOptions};
 use spiderhead_parse::ParseOptions;
 use spiderhead_projects::origin_pacing::{paced_rate, ProjectOriginPacer};
@@ -55,14 +55,14 @@ const ACCEPTED: [&str; 22] = [
 /// silently differ, so the handler refuses instead of approximating.
 /// `observer_run_id` is consumed by the project route only, so it refuses
 /// separately on the plain route.
-const UNPORTED: [&str; 2] = ["profile", "out_dir"];
+const UNCARRIED: [&str; 2] = ["profile", "out_dir"];
 
 /// `crawl_site`: crawl a start URL into a native scan artifact, then audit it.
 ///
 /// The plain scan route carries sitemap seeding, the sitemap-only mode, the
 /// URL-list modes (`urls` / `urls_file`, no discovery) and resume of a retained
 /// artifact; project admission and render escalation still refuse (see
-/// [`UNPORTED`]).
+/// [`UNCARRIED`]).
 pub fn crawl_site(args: &Value) -> Result<Value, ToolError> {
     let mut args = kwargs(args);
     // Both surfaces normalize the default `sitemap_only=False` to absent so a
@@ -70,7 +70,7 @@ pub fn crawl_site(args: &Value) -> Result<Value, ToolError> {
     if args.get("sitemap_only") == Some(&Value::Bool(false)) {
         args.remove("sitemap_only");
     }
-    for name in UNPORTED {
+    for name in UNCARRIED {
         // An unset store_true flag arrives as `false` (the parser leaves it
         // absent) — only a real request refuses.
         let requested = opt(&args, name)
@@ -368,7 +368,7 @@ fn producer_revision(producer_build: Option<&str>) -> Result<String, ToolError> 
                 ))
             }
         }
-        None => Ok(oracle::WRITER_REVISION.to_owned()),
+        None => Ok(provenance::WRITER_REVISION.to_owned()),
     }
 }
 
@@ -823,10 +823,10 @@ fn crawl_scan(
         url,
         settings,
         fingerprint.as_deref(),
-        oracle::WRITER_VERSION,
+        provenance::WRITER_VERSION,
         writer_revision,
         &spiderhead_store::scan_schema::native_runtime_versions(),
-        &oracle::limitations(),
+        &provenance::limitations(),
         None,
         &declared,
         &format_version,

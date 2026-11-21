@@ -38,7 +38,7 @@ mod tests {
 
     /// Expected outputs for each input, checked case by case. The empty string stands for a missing header.
     #[test]
-    fn parse_cache_control_matches_reference_oracle_table() {
+    fn parse_cache_control_matches_the_reference_table() {
         type Case<'a> = (&'a str, &'a [(&'a str, Option<&'a str>)]);
         let cases: &[Case] = &[
             ("", &[]),

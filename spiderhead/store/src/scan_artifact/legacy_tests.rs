@@ -7,7 +7,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::scan_schema::oracle_tests::{diff, Options};
+use crate::scan_schema::golden_tests::{diff, Options};
 use regex::Regex;
 use rusqlite::Connection;
 use serde_json::{json, Value};

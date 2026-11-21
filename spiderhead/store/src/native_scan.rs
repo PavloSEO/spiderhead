@@ -1186,7 +1186,7 @@ mod tests {
         "schema",
     ];
 
-    fn oracle_root() -> PathBuf {
+    fn golden_root() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
     }
 
@@ -1206,7 +1206,7 @@ mod tests {
         fn scan_of(&self, site: &str) -> PathBuf {
             let target = self.0.join(format!("{site}.sqlite"));
             std::fs::copy(
-                oracle_root()
+                golden_root()
                     .join("raw-scans")
                     .join(site)
                     .join("scan.sqlite"),
@@ -1231,7 +1231,7 @@ mod tests {
 
     fn baseline_source(site: &str) -> Map<String, Value> {
         let text = std::fs::read_to_string(
-            oracle_root()
+            golden_root()
                 .join("baselines")
                 .join(site)
                 .join("scan-status.json"),
@@ -1246,8 +1246,8 @@ mod tests {
 
     // Check: open each recorded raw scan and match its `scan-status` source summary.
     #[test]
-    fn oracle_open_matches_status_baseline_for_every_site() {
-        let scratch = Scratch::new("oracle");
+    fn golden_open_matches_status_baseline_for_every_site() {
+        let scratch = Scratch::new("golden");
         for site in SITES {
             let scan = open(&scratch.scan_of(site));
             let header = scan_row(scan.con()).unwrap();

@@ -1,7 +1,6 @@
-//! Handlers of the workflow group (the reference suite) whose domain is
-//! ported: project monitoring, and the remediation ledgers in
-//! `spiderhead-store::ledger`, including the guarded recheck that composes the
-//! ported `verify_fixes` compare domain.
+//! Handlers of the workflow group (the reference suite): project monitoring, and
+//! the remediation ledgers in `spiderhead-store::ledger`, including the guarded
+//! recheck that composes the `verify_fixes` compare domain.
 
 use std::path::Path;
 
@@ -148,7 +147,7 @@ pub fn remediation_create(args: &Value) -> Result<Value, ToolError> {
         Path::new(path),
         project_uuid,
         target,
-        spiderhead_crawl::oracle::WRITER_VERSION,
+        spiderhead_crawl::provenance::WRITER_VERSION,
         producer_build,
     )
     .map_err(|error| ToolError::Failed(super::plain(&error)))?;

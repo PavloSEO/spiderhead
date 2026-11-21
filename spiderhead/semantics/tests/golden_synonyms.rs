@@ -1,27 +1,27 @@
 //! `synonyms` stage golden check (the reference suite → `synonyms_oracle.json`).
 
-mod oracle;
+mod golden;
 
 use spiderhead_semantics::stages;
 
 #[test]
 fn golden_synonyms() {
-    let fx = oracle::fixture("synonyms");
+    let fx = golden::fixture("synonyms");
     for scenario in fx["scenarios"].as_array().unwrap() {
         let name = scenario["name"].as_str().unwrap();
-        let (store, dir) = oracle::setup(scenario);
-        let cfg = oracle::cfg_of(scenario, &dir);
-        let mut demand = oracle::demand_of(scenario);
+        let (store, dir) = golden::setup(scenario);
+        let cfg = golden::cfg_of(scenario, &dir);
+        let mut demand = golden::demand_of(scenario);
         let result = stages::synonyms::run(&store, &cfg, &mut demand).unwrap();
         let mut diffs = Vec::new();
-        oracle::check_result(scenario, &result, &mut diffs);
-        let calls = oracle::demand_calls(&demand);
+        golden::check_result(scenario, &result, &mut diffs);
+        let calls = golden::demand_calls(&demand);
         let want_calls = &scenario["expect"]["calls"]["demand"];
         if &calls != want_calls {
             diffs.push(format!("demand calls: rust={calls} golden={want_calls}"));
         }
-        oracle::check_tables(&store, scenario, &mut diffs);
-        oracle::check_files(scenario, &dir, &mut diffs);
+        golden::check_tables(&store, scenario, &mut diffs);
+        golden::check_files(scenario, &dir, &mut diffs);
         assert!(diffs.is_empty(), "scenario {name}:\n{}", diffs.join("\n"));
     }
 }

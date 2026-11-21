@@ -1,4 +1,4 @@
-//! `tools/call` wire behaviour: unknown tools, schema validation, NotYetPorted.
+//! `tools/call` wire behaviour: unknown tools, schema validation, NotYetAvailable.
 
 mod common;
 
@@ -144,9 +144,9 @@ fn non_object_arguments_fail_request_validation() {
     );
 }
 
-// A valid call reaches the handler, which is NotYetPorted everywhere in this build.
+// A valid call reaches the handler, which is NotYetAvailable everywhere in this build.
 #[test]
-fn valid_arguments_answer_not_yet_ported() {
+fn valid_arguments_answer_not_yet_available() {
     let mut client = Client::spawn("full");
     client.initialize();
     let reply = client.call_tool("seo_render_check", json!({"url": "http://127.0.0.1:9/"}));
@@ -165,7 +165,7 @@ fn valid_arguments_answer_not_yet_ported() {
 // (a registered clean handler answers like the golden clean results)
 #[test]
 fn a_clean_registered_result_does_not_set_iserror() {
-    // The spawned binary only ships NotYetPorted; clean-result wiring is covered
+    // The spawned binary only ships NotYetAvailable; clean-result wiring is covered
     // by src/server.rs::valid_arguments_reach_the_registered_handler in-process.
     let mut client = Client::spawn("router");
     client.initialize();

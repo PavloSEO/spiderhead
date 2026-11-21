@@ -13,7 +13,7 @@ use serde_json::{json, Map, Value};
 use spiderhead_cli::{registry, run, Output};
 use spiderhead_core::crawl_settings::{self, LoadInput};
 use spiderhead_core::host::SystemHost;
-use spiderhead_crawl::oracle;
+use spiderhead_crawl::provenance;
 use spiderhead_store::scan_lease::NativeScanLease;
 use spiderhead_store::scan_schema::NativeScanSchemaMixin;
 
@@ -155,10 +155,10 @@ fn interrupted_scan(scan_path: &Path, start_url: &str) {
         start_url,
         &settings,
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
-        &oracle::runtime_versions(),
-        &oracle::limitations(),
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
+        &provenance::runtime_versions(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",

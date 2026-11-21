@@ -512,7 +512,7 @@ static ANSI_NAMES: &[&str] = &[
     "yellow4",
 ];
 
-/// Port of `rich.text.Text` (the subset the shell uses).
+/// The `rich.text.Text` subset the shell uses.
 #[derive(Debug, Clone, Default)]
 pub struct Text {
     /// The literal characters (`plain` property).

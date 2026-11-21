@@ -564,7 +564,7 @@ pub fn render_grid(grid: &Grid, options: &Options, out: &mut Vec<Segment>) {
 
 /// `Lines.justify` for one grid column's lines (rich renders cells through
 /// `render_lines` with `justify` in options — Text handles it internally;
-/// this helper exists for completeness of the port).
+/// this helper exists for completeness).
 #[allow(dead_code)]
 fn justify_cell(lines: &mut [Text], width: usize, justify: Justify) {
     justify_lines(lines, width, justify, Overflow::Fold);

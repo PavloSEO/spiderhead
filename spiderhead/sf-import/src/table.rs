@@ -2,7 +2,7 @@
 //!
 //! The reference loader materializes `pandas.DataFrame` objects; the analysis
 //! code only ever iterates rows as `(column -> cell)` mappings, so a plain
-//! `columns + rows` container carries everything the ported modules need.
+//! `columns + rows` container carries everything the sf modules need.
 
 use serde_json::Value;
 

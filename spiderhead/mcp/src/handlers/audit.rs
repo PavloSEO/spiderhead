@@ -3,7 +3,7 @@
 //! `site_audit` delegates to `audit_site` with the same handler
 //! registry that serves `tools/call`; every tool call therefore goes through
 //! the same dispatch the surface already exposes, and a tool this build has
-//! not ported simply does not run.
+//! not wired simply does not run.
 
 use serde_json::{json, Map, Value};
 
@@ -13,7 +13,7 @@ use super::{dispatch, kwargs, opt, opt_bool, opt_str, ToolError};
 
 /// The registry names the audit composes; a missing name means the tool does
 /// not run (a missing handler skips the call the same way).
-const PORTED_TOOLS: [&str; 12] = [
+const WIRED_TOOLS: [&str; 12] = [
     "domain_profile",
     "robots_check",
     "sitemap_crawl",
@@ -33,7 +33,7 @@ struct LiveSiteTools;
 
 impl SiteTools for LiveSiteTools {
     fn has(&self, tool: &str) -> bool {
-        PORTED_TOOLS.contains(&tool)
+        WIRED_TOOLS.contains(&tool)
     }
 
     fn call(&self, tool: &str, call: &ToolCall) -> Result<Value, String> {
