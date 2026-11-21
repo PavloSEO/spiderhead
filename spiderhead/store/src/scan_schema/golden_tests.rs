@@ -149,12 +149,12 @@ const SITES: [&str; 6] = [
     "schema",
 ];
 
-fn oracle_root() -> PathBuf {
+fn golden_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
 }
 
 fn raw_scan(site: &str) -> PathBuf {
-    oracle_root()
+    golden_root()
         .join("raw-scans")
         .join(site)
         .join("scan.sqlite")
@@ -162,7 +162,7 @@ fn raw_scan(site: &str) -> PathBuf {
 
 fn baseline(site: &str) -> Value {
     let text = std::fs::read_to_string(
-        oracle_root()
+        golden_root()
             .join("baselines")
             .join(site)
             .join("scan-status.json"),

@@ -94,7 +94,7 @@ fn prerequisites_cover_every_source_family() {
 
 // Expected values fixed by the audit format.
 #[test]
-fn stable_evidence_id_matches_the_oracle() {
+fn stable_evidence_id_matches_the_golden_fixture() {
     assert_eq!(
         stable_evidence_id(UUID, "audit", "issue:ISSUE-000001").unwrap(),
         format!("evidence:v1:{UUID}:audit:e87ab075e302991707d210fe")

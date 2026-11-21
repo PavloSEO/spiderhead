@@ -1,7 +1,7 @@
 //! Tests of the schema layer: create/open/inspect, the config header and light open.
 //!
 //! Scans are built with `create_file` (the part of `create` that precedes the reopen for
-//! writing), with [`PassThrough`](super::oracle_tests::PassThrough) standing in for the
+//! writing), with [`PassThrough`](super::golden_tests::PassThrough) standing in for the
 //! owners that are not implemented yet.
 
 use std::fs;
@@ -12,7 +12,7 @@ use rusqlite::Connection;
 use serde_json::{json, Map, Value};
 use spiderhead_core::settings_data;
 
-use super::oracle_tests::passthrough;
+use super::golden_tests::passthrough;
 use super::*;
 use crate::scan_artifact::{open_scan, open_scan_mode};
 
