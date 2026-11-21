@@ -4,8 +4,8 @@ use serde_json::{json, Map, Value};
 
 use super::document::definition;
 use super::schema::{identifier, FORMAT_V4};
+use crate::datetime;
 use crate::error::ProjectsResult;
-use crate::pytime;
 
 /// `_set`: upsert one definition and append it to the item's version history.
 pub fn set(items: &mut Map<String, Value>, def: Value) {
@@ -24,7 +24,7 @@ pub fn set(items: &mut Map<String, Value>, def: Value) {
     let differs = item["definition"] != def;
     let definitions = item["definitions"].as_array_mut().unwrap();
     if definitions.is_empty() || differs {
-        definitions.push(json!({"observed_at": pytime::zulu(), "definition": def.clone()}));
+        definitions.push(json!({"observed_at": datetime::zulu(), "definition": def.clone()}));
         item["definition"] = def;
     }
 }

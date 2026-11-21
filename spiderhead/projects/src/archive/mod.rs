@@ -437,13 +437,13 @@ fn exclude_html_bodies(path: &Path, older_than_days: Option<i64>) -> ProjectsRes
         .query_row("SELECT COUNT(*) FROM bodies", [], |row| row.get(0))
         .map_err(|e| value(e.to_string()))?;
     let (condition, cutoff): (String, Option<String>) = if let Some(days) = older_than_days {
-        let cutoff = crate::pytime::time_seconds() - (days as f64) * 86400.0;
+        let cutoff = crate::datetime::time_seconds() - (days as f64) * 86400.0;
         (
             "body_sha256 IS NOT NULL AND captured_at<? AND (fidelity='serialized_dom' \
              OR EXISTS (SELECT 1 FROM responses r WHERE \
              r.response_id=documents.source_response_id AND lower(r.content_type) LIKE '%html%'))"
                 .into(),
-            Some(crate::pytime::epoch_z(cutoff)),
+            Some(crate::datetime::epoch_z(cutoff)),
         )
     } else {
         (

@@ -15,7 +15,7 @@ use uuid::Uuid;
 
 use crate::error::{io, ProjectsError, ProjectsResult};
 use crate::urls::{urlsplit, urlunsplit};
-use crate::{locks, pytime};
+use crate::{datetime, locks};
 use spiderhead_core::artifacts::PROJECT_V1;
 use spiderhead_core::formats::matches;
 use spiderhead_core::net::{normalize_domain, normalize_url};
@@ -219,7 +219,7 @@ pub fn facts(value: Option<&Value>) -> ProjectsResult<Vec<Value>> {
             let at = observed_at.as_str().ok_or_else(|| {
                 crate::error::value("fact observed_at must be RFC3339 UTC or null when unknown")
             })?;
-            let parsed = pytime::fromisoformat(&at.replace('Z', "+00:00")).map_err(|_| {
+            let parsed = datetime::fromisoformat(&at.replace('Z', "+00:00")).map_err(|_| {
                 crate::error::value("fact observed_at must be RFC3339 UTC or null when unknown")
             })?;
             if !parsed.is_utc() {
@@ -256,7 +256,7 @@ fn document(
         "version": PROJECT_VERSION,
         "schema_version": spiderhead_core::project_format::SCHEMA_VERSION,
         "project_uuid": Uuid::new_v4().to_string(),
-        "created_at": pytime::zulu(),
+        "created_at": datetime::zulu(),
         "site": site(target, label)?,
         "facts": facts,
         "template_references": templates,
@@ -280,7 +280,7 @@ fn write_new(path: &Path, content: &str) -> ProjectsResult<()> {
 /// Publish the manifest via stage and hard-link; never replaces an existing manifest.
 fn publish_manifest(project: &Path, document: &Value) -> ProjectsResult<()> {
     let staged = project.join(".project.json.stage");
-    write_new(&staged, &(crate::pyjson::dumps_indent2(document) + "\n"))?;
+    write_new(&staged, &(crate::json_docs::dumps_indent2(document) + "\n"))?;
     let linked = fs::hard_link(&staged, project.join("project.json"));
     let cleanup = fs::remove_file(&staged);
     let _ = cleanup;
@@ -415,7 +415,7 @@ pub fn load(directory: &Path) -> ProjectsResult<(PathBuf, Value)> {
             "project UUID or creation time is invalid",
         ));
     }
-    let created_at = pytime::fromisoformat(
+    let created_at = datetime::fromisoformat(
         &object["created_at"]
             .as_str()
             .unwrap_or_default()

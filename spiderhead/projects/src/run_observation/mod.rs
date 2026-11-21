@@ -9,9 +9,9 @@ use std::path::{Path, PathBuf};
 use serde_json::{json, Map, Value};
 use uuid::Uuid;
 
+use crate::datetime;
 use crate::error::{ProjectsError, ProjectsResult};
 use crate::io::{load_document, save_revision};
-use crate::pytime;
 
 mod finish_sitemap;
 mod load;
@@ -496,7 +496,7 @@ fn validate(document: &Value, project_uuid: &str) -> ProjectsResult<()> {
             let stamp = telemetry["sampled_at"]
                 .as_str()
                 .ok_or_else(|| invalid("run sample timestamp must be text"))?;
-            let parsed = pytime::fromisoformat(&stamp.replace('Z', "+00:00"))
+            let parsed = datetime::fromisoformat(&stamp.replace('Z', "+00:00"))
                 .map_err(|_| invalid("run sample timestamp must include a timezone"))?;
             if !parsed.is_aware() {
                 return Err(invalid("run sample timestamp must include a timezone"));

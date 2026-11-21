@@ -12,7 +12,7 @@ use serde_json::{json, Value};
 
 use crate::error::{io, ProjectsError, ProjectsResult};
 use crate::workspace::load as workspace_load;
-use crate::{locks, pyjson, pytime};
+use crate::{datetime, json_docs, locks};
 use spiderhead_core::filesystem::atomic_write_bytes;
 
 /// Action file name under the project root.
@@ -119,7 +119,7 @@ fn validate(row: &Value) -> ProjectsResult<Value> {
             bounded_text(object[field].as_str().unwrap_or_default(), field, 64, false)?;
         }
     }
-    let stamp = pytime::fromisoformat(
+    let stamp = datetime::fromisoformat(
         &object["occurred_at"]
             .as_str()
             .unwrap_or_default()
@@ -341,7 +341,7 @@ pub fn record_root(
         }
         let row = json!({
             "sequence": rows.len() + 1,
-            "occurred_at": pytime::zulu(),
+            "occurred_at": datetime::zulu(),
             "client": client,
             "action": action,
             "outcome": outcome,
@@ -349,7 +349,7 @@ pub fn record_root(
             "proposal_id": proposal_id,
             "operation_id": operation_id,
         });
-        let line = pyjson::dumps_compact(&row) + "\n";
+        let line = json_docs::dumps_compact(&row) + "\n";
         let size = stream.metadata().map_err(ProjectsError::Io)?.len();
         if size + line.len() as u64 > MAX_BYTES {
             return Err(crate::error::value("project action log is full"));
@@ -446,7 +446,7 @@ pub fn resolve_pending_root(
         rows[index] = row.clone();
         let content: String = rows
             .iter()
-            .map(|item| pyjson::dumps_compact(item) + "\n")
+            .map(|item| json_docs::dumps_compact(item) + "\n")
             .collect();
         if content.len() as u64 > MAX_BYTES {
             return Err(crate::error::value(

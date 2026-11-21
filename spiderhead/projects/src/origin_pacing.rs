@@ -178,7 +178,7 @@ impl ProjectOriginPacer {
         con.execute_batch("BEGIN IMMEDIATE")
             .map_err(|e| value(e.to_string()))?;
         let result = (|| -> ProjectsResult<f64> {
-            let now = crate::pytime::time_seconds();
+            let now = crate::datetime::time_seconds();
             let prior: f64 = match con.query_row(
                 "SELECT next_at FROM origin_turns WHERE origin=?1",
                 rusqlite::params![self.origin],

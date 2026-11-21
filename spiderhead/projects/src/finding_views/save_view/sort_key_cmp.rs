@@ -208,7 +208,7 @@ pub fn apply_view_details(
     if source_identity.is_none() {
         let mut digest = Sha256::new();
         for source_row in &rows {
-            digest.update(crate::pyjson::dumps_compact(source_row).as_bytes());
+            digest.update(crate::json_docs::dumps_compact(source_row).as_bytes());
             digest.update(b"\0");
         }
         source_identity = Some(format!("{:x}", digest.finalize()));
@@ -253,7 +253,7 @@ pub fn apply_view_details(
             }
             values.insert(column_name.to_string(), entry);
         }
-        let identity_payload = crate::pyjson::dumps_compact(row);
+        let identity_payload = crate::json_docs::dumps_compact(row);
         let finding_id = format!(
             "{:x}",
             Sha256::digest(format!("{source_identity}\0{ordinal}\0{identity_payload}").as_bytes())

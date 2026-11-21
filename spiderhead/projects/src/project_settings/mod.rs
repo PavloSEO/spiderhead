@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 use serde_json::{json, Value};
 use uuid::Uuid;
 
+use crate::datetime;
 use crate::error::{ProjectsError, ProjectsResult};
-use crate::pytime;
 use crate::runtime::{
     project_policy, project_write_lock, read_document, validate_policy, write_document,
 };
@@ -53,7 +53,7 @@ fn hex32(value: &str) -> bool {
 }
 
 fn utc() -> String {
-    pytime::zulu()
+    datetime::zulu()
 }
 
 fn settings(directory: &Path) -> ProjectsResult<(PathBuf, Value, Option<Value>)> {
@@ -253,7 +253,7 @@ fn proposal_timestamp(stamp: &Value) -> ProjectsResult<()> {
             "settings proposal timestamps must be RFC3339 UTC",
         ));
     };
-    let parsed = pytime::fromisoformat(&text.replace('Z', "+00:00"))
+    let parsed = datetime::fromisoformat(&text.replace('Z', "+00:00"))
         .map_err(|_| crate::error::value("settings proposal timestamps must be RFC3339 UTC"))?;
     if !parsed.is_utc() {
         return Err(crate::error::value(

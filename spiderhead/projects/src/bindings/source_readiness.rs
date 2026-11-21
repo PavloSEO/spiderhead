@@ -227,7 +227,7 @@ pub fn cloudflare_history_state(row: &Value, as_of: Date) -> Value {
                 .map(|t| t.to_zoned(jiff::tz::TimeZone::UTC).date())
                 .or_else(|| {
                     text.parse::<jiff::civil::DateTime>().ok().and_then(|dt| {
-                        dt.to_zoned(crate::pytime::system_zone())
+                        dt.to_zoned(crate::datetime::system_zone())
                             .ok()
                             .map(|z| z.date())
                     })
@@ -483,7 +483,7 @@ pub fn link(
         "resource": resource,
         "label": label,
         "origin": "manual",
-        "linked_at": crate::pytime::now_iso_micros(),
+        "linked_at": crate::datetime::now_iso_micros(),
     });
     bindings.push(binding.clone());
     write_bindings(&root, &bindings)?;

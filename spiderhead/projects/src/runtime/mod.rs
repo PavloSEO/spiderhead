@@ -20,7 +20,7 @@ use uuid::Uuid;
 
 use crate::error::{io, ProjectsError, ProjectsResult};
 use crate::workspace::{load as workspace_load, target as workspace_target};
-use crate::{locks, pyjson, pytime};
+use crate::{datetime, json_docs, locks};
 use spiderhead_core::filesystem::atomic_write_bytes;
 
 mod admission;
@@ -123,17 +123,17 @@ pub fn project_write_lock(root: &Path, timeout_seconds: f64) -> ProjectsResult<P
     }
     locks::require_locking().map_err(ProjectsError::Io)?;
     let file = io(locks::open_lock(&root.join(".project-write.lock"), true))?;
-    let deadline = pytime::monotonic() + timeout_seconds;
+    let deadline = datetime::monotonic() + timeout_seconds;
     loop {
         match locks::lock_exclusive(&file) {
             Ok(()) => break,
             Err(e) => {
-                if pytime::monotonic() >= deadline {
+                if datetime::monotonic() >= deadline {
                     return Err(crate::error::value(
                         "project workspace is busy; another writer owns it",
                     ));
                 }
-                let rest = (deadline - pytime::monotonic()).clamp(0.0, 0.01);
+                let rest = (deadline - datetime::monotonic()).clamp(0.0, 0.01);
                 std::thread::sleep(std::time::Duration::from_secs_f64(rest));
                 let _ = e;
             }
@@ -166,7 +166,7 @@ pub fn write_document_locked(
     data: &Value,
     expected_revision: Option<i64>,
 ) -> ProjectsResult<()> {
-    let content = pyjson::dumps_indent2(data) + "\n";
+    let content = json_docs::dumps_indent2(data) + "\n";
     if content.len() as u64 > MAX_DOC_BYTES {
         return Err(crate::error::value(
             "project document exceeds its byte budget",

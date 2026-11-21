@@ -19,7 +19,7 @@ pub(super) fn event(
     if !PHASES.contains(&phase) {
         return Err(crate::error::value("run observation phase is invalid"));
     }
-    let mut entry = json!({"at": pytime::zulu(), "phase": phase, "code": text(&json!(code), "event code", 64)?});
+    let mut entry = json!({"at": datetime::zulu(), "phase": phase, "code": text(&json!(code), "event code", 64)?});
     if let Some(message) = message {
         entry["message"] = json!(text(&json!(message), "event message", MAX_EVENT_MESSAGE)?);
     }
@@ -177,7 +177,7 @@ pub fn start(
         ));
     }
     let run_id = new_run_id(run_id)?;
-    let started_at = pytime::zulu();
+    let started_at = datetime::zulu();
     let controller_pid = std::process::id() as i64;
     let controller_identity = process_identity(controller_pid);
     let counters = counters.cloned().unwrap_or_default();
@@ -312,7 +312,7 @@ pub fn collector_started(directory: &Path, run_id: &str, pid: i64) -> ProjectsRe
         ));
     }
     let identity = process_identity(pid);
-    let started_at = pytime::zulu();
+    let started_at = datetime::zulu();
     optimistic_write(directory, |pending| {
         let run = find(&mut pending.document, run_id)?;
         if run["state"].as_str() != Some("running") {
@@ -366,7 +366,7 @@ pub fn progress(
         });
         run["counters"] = values.clone();
         run["telemetry"] = json!({
-            "sampled_at": pytime::zulu(),
+            "sampled_at": datetime::zulu(),
             "rate_window_seconds": rate_window_seconds,
             "queue_semantics": queue_semantics,
             "source": source,
@@ -436,7 +436,7 @@ pub fn finish(
         })
         .transpose()?;
     let finish_reason = text(&json!(reason), "finish reason", 500)?;
-    let finished_at = pytime::zulu();
+    let finished_at = datetime::zulu();
     optimistic_write(directory, |pending| {
         let root = pending.root.clone();
         let document = &mut pending.document;

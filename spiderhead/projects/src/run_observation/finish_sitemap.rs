@@ -36,7 +36,7 @@ pub fn finish_sitemap(directory: &Path, run_id: &str, result: &Value) -> Project
         if run["state"].as_str() != Some("running") {
             return Ok(None);
         }
-        let stamp = pytime::zulu();
+        let stamp = datetime::zulu();
         run["source_metadata"] = metadata.clone();
         run["counters"] = json!({
             "fetched": metadata["parsed_documents"],
@@ -148,7 +148,7 @@ pub fn status_page(directory: &Path, limit: i64, offset: i64) -> ProjectsResult<
         }
         let mut row = run.clone();
         row["source_kind"] = run["kind"].clone();
-        let observed_at = pytime::zulu();
+        let observed_at = datetime::zulu();
         let running = run["state"].as_str() == Some("running");
         let mut lookup = |pid: Option<i64>, identity: Option<&str>| -> &'static str {
             let key = (pid, identity.map(str::to_owned), running);
@@ -180,10 +180,10 @@ pub fn status_page(directory: &Path, limit: i64, offset: i64) -> ProjectsResult<
         });
         let sampled = row["telemetry"]["sampled_at"].as_str().map(str::to_owned);
         let age = sampled.and_then(|sampled| {
-            pytime::fromisoformat(&sampled.replace('Z', "+00:00"))
+            datetime::fromisoformat(&sampled.replace('Z', "+00:00"))
                 .ok()
                 .and_then(|parsed| parsed.timestamp().ok())
-                .map(|then| (pytime::time_seconds() - then).max(0.0))
+                .map(|then| (datetime::time_seconds() - then).max(0.0))
         });
         let freshness = match age {
             None => "unavailable",
@@ -339,7 +339,7 @@ impl NativeRunReporter {
         self.queued = queued;
         self.inflight = inflight;
         self.excluded = excluded;
-        let now = pytime::monotonic();
+        let now = datetime::monotonic();
         if !force && self.last_write.is_some_and(|last| now - last < 0.5) {
             return;
         }

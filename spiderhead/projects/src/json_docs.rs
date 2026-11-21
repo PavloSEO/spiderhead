@@ -123,7 +123,7 @@ fn write_json(value: &Value, mode: Mode, ascii: bool, sort: bool, depth: usize, 
             out.push(']');
         }
         Value::Number(number) if number.is_f64() => {
-            out.push_str(&python_float_repr(number.as_f64().unwrap_or_default()));
+            out.push_str(&float_repr(number.as_f64().unwrap_or_default()));
         }
         Value::String(text) => escape_string(text, ascii, out),
         other => out.push_str(&serde_json::to_string(other).unwrap_or_default()),
@@ -161,7 +161,7 @@ fn escape_string(text: &str, ascii: bool, out: &mut String) {
 /// `1e-07` / `1e+16` beyond. `serde_json` spells `1e-7` / `1e16`, which would change bytes.
 /// (Non-finite values are rejected before this point, but the spelling is kept
 /// for completeness.)
-pub fn python_float_repr(value: f64) -> String {
+pub fn float_repr(value: f64) -> String {
     if !value.is_finite() {
         return if value.is_nan() {
             "NaN"

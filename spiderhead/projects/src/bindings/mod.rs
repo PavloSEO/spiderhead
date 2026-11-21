@@ -53,7 +53,7 @@ pub(crate) fn py_str(value: &Value) -> String {
         Value::Bool(b) => if *b { "True" } else { "False" }.to_owned(),
         Value::Null => "None".to_owned(),
         Value::Number(n) => n.to_string(),
-        other => crate::pyjson::dumps_compact(other),
+        other => crate::json_docs::dumps_compact(other),
     }
 }
 
@@ -152,7 +152,7 @@ fn write_bindings(root: &Path, bindings: &[Value]) -> ProjectsResult<()> {
     if target.is_symlink() {
         return Err(value("sources.json must not be a symlink"));
     }
-    let text = crate::pyjson::dumps_indent2(&json!({
+    let text = crate::json_docs::dumps_indent2(&json!({
         "format": SOURCES_FORMAT,
         "version": SOURCES_VERSION,
         "bindings": bindings,
@@ -266,7 +266,7 @@ fn available_end(source: &str, as_of: Option<Date>) -> ProjectsResult<Date> {
         None => {
             if spec.date_timezone == "America/Los_Angeles" {
                 Zoned::now()
-                    .with_time_zone(crate::pytime::zone("America/Los_Angeles")?)
+                    .with_time_zone(crate::datetime::zone("America/Los_Angeles")?)
                     .datetime()
                     .date()
             } else {

@@ -19,7 +19,7 @@ pub const MAX_CONCURRENCY: i64 = 32;
 pub const MAX_STEER_URLS: usize = 16;
 
 fn stamp() -> String {
-    crate::pytime::zulu_seconds()
+    crate::datetime::zulu_seconds()
 }
 
 /// A requested crawl boundary that the scan writer checkpoints.

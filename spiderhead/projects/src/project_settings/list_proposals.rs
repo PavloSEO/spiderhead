@@ -293,7 +293,7 @@ pub fn delete_project(directory: &Path, client: &str) -> ProjectsResult<Value> {
             let name = format!(
                 "{}-{}-{}",
                 root.file_name().unwrap_or_default().to_string_lossy(),
-                pytime::zulu_seconds().replace([':', '-'], ""),
+                datetime::zulu_seconds().replace([':', '-'], ""),
                 &Uuid::new_v4().simple().to_string()[..8]
             );
             let target = trash.join(name);

@@ -7,10 +7,10 @@ use serde_json::{json, Map, Value};
 use uuid::Uuid;
 
 use crate::coverage::coverage_status;
+use crate::datetime;
 use crate::error::{value, ProjectsError, ProjectsResult};
 use crate::evidence::{artifact_path, digest};
 use crate::io::{check_owner, load_document, save_checked};
-use crate::pytime;
 use crate::schedule::falsy;
 
 mod resume;
@@ -151,7 +151,7 @@ fn task_ids(item: &Value, rows: &BTreeMap<String, Value>) -> ProjectsResult<Vec<
         ));
     };
     let unique: std::collections::HashSet<String> =
-        list.iter().map(crate::pyjson::dumps_compact).collect();
+        list.iter().map(crate::json_docs::dumps_compact).collect();
     if list.is_empty()
         || list.len() > 20
         || unique.len() != list.len()
@@ -336,7 +336,7 @@ fn verification_receipt(
         artifacts.push(Value::Object(artifact));
     }
     Ok(json!({
-        "verified_at": pytime::iso_now(),
+        "verified_at": datetime::iso_now(),
         "artifacts": artifacts,
     }))
 }
@@ -359,7 +359,7 @@ fn verify_receipt_metadata(root: &Path, step: &Value) -> ProjectsResult<()> {
         return Err(value("unverified: no retained byte-verification receipt"));
     }
     let stamp_text = receipt["verified_at"].as_str().unwrap_or_default();
-    let stamp = pytime::fromisoformat(&stamp_text.replace('Z', "+00:00"))
+    let stamp = datetime::fromisoformat(&stamp_text.replace('Z', "+00:00"))
         .map_err(|_| value("unverified: verification receipt timestamp is invalid"))?;
     if !stamp.is_aware() {
         return Err(value(
@@ -448,7 +448,7 @@ pub fn evidence(
     let max_bytes = max_bytes
         .or_else(|| limits.map(|(_, b)| b))
         .unwrap_or(EVIDENCE_HASH_BYTES);
-    let deadline = deadline.unwrap_or_else(|| pytime::monotonic() + max_seconds);
+    let deadline = deadline.unwrap_or_else(|| datetime::monotonic() + max_seconds);
     let mut result = Vec::new();
     for record in list {
         let keys: BTreeSet<&str> = record

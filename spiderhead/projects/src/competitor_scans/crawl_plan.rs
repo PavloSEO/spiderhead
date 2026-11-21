@@ -188,7 +188,7 @@ pub(super) fn request(target: &Value, plan: &Value, scan_out: &Path, approve: bo
 pub(super) fn plan_digest(plan: &Value) -> String {
     format!(
         "{:x}",
-        Sha256::digest(pyjson::dumps_compact(plan).as_bytes())
+        Sha256::digest(json_docs::dumps_compact(plan).as_bytes())
     )
 }
 
@@ -203,7 +203,7 @@ pub(super) fn compatibility_plan(plan: &Value) -> Value {
 
 /// `_manifest_fingerprint`: the run identity over task id and compatibility plans.
 pub(super) fn manifest_fingerprint(task_id: &str, plans: &[Value]) -> String {
-    let payload = pyjson::dumps_compact(&json!({
+    let payload = json_docs::dumps_compact(&json!({
         "task_id": task_id,
         "plans": plans.iter().map(compatibility_plan).collect::<Vec<_>>(),
     }));
@@ -216,7 +216,7 @@ pub(super) fn legacy_manifest_fingerprint(
     coverage_revision: &Value,
     plans: &[Value],
 ) -> String {
-    let payload = pyjson::dumps_compact(&json!({
+    let payload = json_docs::dumps_compact(&json!({
         "task_id": task_id,
         "revision": coverage_revision,
         "plans": plans,
@@ -358,7 +358,7 @@ pub(super) fn set_run_lock_owner(
     run_id: &str,
     runner_token: &str,
 ) -> ProjectsResult<()> {
-    let record = pyjson::dumps_compact(&json!({
+    let record = json_docs::dumps_compact(&json!({
         "run_id": run_id,
         "runner_token": runner_token,
     }));

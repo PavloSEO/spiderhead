@@ -26,7 +26,7 @@ fn hash_re() -> &'static Regex {
 
 /// `_definition_hash`: sha256 of the canonical JSON spelling of a definition.
 pub fn definition_hash(definition: &Value) -> String {
-    let payload = crate::pyjson::dumps_compact(definition);
+    let payload = crate::json_docs::dumps_compact(definition);
     format!("{:x}", Sha256::digest(payload.as_bytes()))
 }
 

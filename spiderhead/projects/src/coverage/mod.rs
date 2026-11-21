@@ -33,7 +33,7 @@ pub use status::*;
 
 /// `core.common.utc_iso_z` — the UTC stamp written into documents.
 pub fn now() -> String {
-    crate::pytime::zulu()
+    crate::datetime::zulu()
 }
 
 /// `_transaction`: one locked read-modify-validate-publish pass over `coverage.json`.
@@ -91,7 +91,7 @@ pub fn transaction<T>(
         }
         document["revision"] = json!(document["revision"].as_i64().unwrap_or(0) + 1);
         document::validate_in_place(&mut document, &project)?;
-        let content = crate::pyjson::dumps_indent2(&document) + "\n";
+        let content = crate::json_docs::dumps_indent2(&document) + "\n";
         if content.len() > MAX_BYTES {
             return Err(crate::error::value("coverage exceeds its byte limit"));
         }

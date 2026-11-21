@@ -141,7 +141,7 @@ pub fn record_scan(root: &Path, scan: &Path) -> ProjectsResult<Value> {
     for key in ["checks_skipped", "checks_disabled"] {
         if let Some(rows) = run.get(key).and_then(Value::as_array) {
             for row in rows {
-                let id = crate::pyjson::dumps_compact(row.get("id").unwrap_or(&Value::Null));
+                let id = crate::json_docs::dumps_compact(row.get("id").unwrap_or(&Value::Null));
                 let reason = row
                     .get("reason")
                     .cloned()
@@ -164,7 +164,7 @@ pub fn record_scan(root: &Path, scan: &Path) -> ProjectsResult<Value> {
         .and_then(Value::as_array)
     {
         for raw in ids {
-            let id = crate::pyjson::dumps_compact(raw);
+            let id = crate::json_docs::dumps_compact(raw);
             if !unavailable.iter().any(|(k, _)| k == &id) {
                 unavailable.push((id, "check disabled for the crawl".to_string()));
             }
@@ -192,7 +192,7 @@ pub fn record_scan(root: &Path, scan: &Path) -> ProjectsResult<Value> {
             })
         } else if let Some((_, reason)) = unavailable
             .iter()
-            .find(|(k, _)| k == &crate::pyjson::dumps_compact(&Value::String(check_id.into())))
+            .find(|(k, _)| k == &crate::json_docs::dumps_compact(&Value::String(check_id.into())))
         {
             serde_json::json!({
                 "status": "unavailable",

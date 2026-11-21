@@ -44,14 +44,14 @@ pub fn monotonic() -> f64 {
 
 /// One parsed `datetime` value: the naive fields plus an optional UTC offset.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PyDateTime {
+pub struct ParsedDateTime {
     /// Civil fields exactly as written.
     pub civil: DateTime,
     /// UTC offset in seconds; `None` for a naive value.
     pub offset_seconds: Option<f64>,
 }
 
-impl PyDateTime {
+impl ParsedDateTime {
     /// Whether the value carries a UTC offset.
     pub fn is_aware(&self) -> bool {
         self.offset_seconds.is_some()
@@ -156,7 +156,7 @@ fn frac_field(body: &[u8]) -> Option<(i64, i64)> {
 /// Accepts `YYYY-MM-DD` or `YYYYMMDD`, an optional `HH:MM[:SS[.fraction]]` time after `T` or a
 /// space, and an optional `Z`/`±HH[:MM[:SS[.fraction]]]` offset. Returns `Err` for invalid input.
 /// Week and ordinal dates are not supported.
-pub fn fromisoformat(text: &str) -> Result<PyDateTime, ProjectsError> {
+pub fn fromisoformat(text: &str) -> Result<ParsedDateTime, ProjectsError> {
     let bytes = text.as_bytes();
     let date_part = if bytes.len() >= 10 && bytes[4] == b'-' && bytes[7] == b'-' {
         &bytes[..10]
@@ -276,7 +276,7 @@ pub fn fromisoformat(text: &str) -> Result<PyDateTime, ProjectsError> {
             offset_seconds = Some(parse_offset(&tb[off_at..], text)?);
         }
     }
-    Ok(PyDateTime {
+    Ok(ParsedDateTime {
         civil,
         offset_seconds,
     })

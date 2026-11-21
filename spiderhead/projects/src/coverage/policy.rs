@@ -7,8 +7,8 @@ use serde_json::Value;
 use std::sync::LazyLock;
 
 use super::schema::{duplicated, hash, identifier, text};
+use crate::datetime;
 use crate::error::ProjectsResult;
-use crate::pytime;
 use spiderhead_core::formats::matches;
 
 fn fact_name_re() -> &'static Regex {
@@ -37,8 +37,11 @@ pub fn priority_origin(value: &Value, label: &str) -> ProjectsResult<()> {
 /// `_application_time`: bounded RFC3339 UTC text.
 pub fn application_time(value: &Value) -> ProjectsResult<()> {
     text(value, "priority policy application time", 128)?;
-    let parsed = pytime::fromisoformat(&value.as_str().unwrap_or_default().replace('Z', "+00:00"))
-        .map_err(|_| crate::error::value("priority policy application time must be RFC3339 UTC"))?;
+    let parsed =
+        datetime::fromisoformat(&value.as_str().unwrap_or_default().replace('Z', "+00:00"))
+            .map_err(|_| {
+                crate::error::value("priority policy application time must be RFC3339 UTC")
+            })?;
     if !parsed.is_utc() {
         return Err(crate::error::value(
             "priority policy application time must be RFC3339 UTC",
