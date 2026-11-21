@@ -2,6 +2,12 @@
 //!
 //! Missing keys, wrong types and falsy values fall back to defaults instead of erroring,
 //! so call sites read as plain field lookups.
+//!
+//! The layer stays generic on purpose: it reads documents that arrive as JSON from
+//! outside the crate (audit files, evidence packages, provider payloads), so their
+//! shape cannot become a Rust type here without freezing those external contracts.
+//! Report writers pass the read values into their own typed table and document
+//! models; the wire spelling of report cells is fixed by [`str_value`].
 
 use serde_json::Value;
 
@@ -20,8 +26,9 @@ pub fn get_or<'a>(value: &'a Value, key: &str, default: &'a Value) -> &'a Value 
     get(value, key).unwrap_or(default)
 }
 
-/// Text for a report cell: `None` and `""` stay empty, booleans render as `True`/`False`,
-/// numbers keep their JSON spelling.
+/// Text for a report cell: `null` and `""` stay empty, booleans render as `True`/`False`,
+/// numbers keep their JSON spelling. The `True`/`False` cell spelling is the frozen
+/// report wire contract.
 pub fn str_value(value: &Value) -> String {
     match value {
         Value::Null => String::new(),
@@ -109,12 +116,12 @@ pub fn is_sequence(value: &Value) -> bool {
     value.is_array()
 }
 
-/// Error-text rendering of a value: quoted strings, `None`, `True`/`False`, numbers,
-/// and nested lists and objects.
+/// Error-text rendering of a value: `null`, `true`/`false`, JSON numbers,
+/// double-quoted strings, and nested lists and objects.
 pub fn repr(value: &Value) -> String {
     match value {
-        Value::Null => "None".to_owned(),
-        Value::Bool(flag) => if *flag { "True" } else { "False" }.to_owned(),
+        Value::Null => "null".to_owned(),
+        Value::Bool(flag) => if *flag { "true" } else { "false" }.to_owned(),
         Value::Number(_) => str_value(value),
         Value::String(text) => repr_str(text),
         Value::Array(items) => {
@@ -131,30 +138,22 @@ pub fn repr(value: &Value) -> String {
     }
 }
 
-/// Quote a string for error text, with quote selection and escaping.
+/// Quote a string for error text with double quotes, escaping the backslash,
+/// the quote character and the whitespace escapes.
 pub fn repr_str(text: &str) -> String {
-    let has_single = text.contains('\'');
-    let quote = if has_single && !text.contains('"') {
-        '"'
-    } else {
-        '\''
-    };
     let mut out = String::with_capacity(text.len() + 2);
-    out.push(quote);
+    out.push('"');
     for ch in text.chars() {
         match ch {
             '\\' => out.push_str("\\\\"),
+            '"' => out.push_str("\\\""),
             '\n' => out.push_str("\\n"),
             '\r' => out.push_str("\\r"),
             '\t' => out.push_str("\\t"),
-            c if c == quote => {
-                out.push('\\');
-                out.push(c);
-            }
             c => out.push(c),
         }
     }
-    out.push(quote);
+    out.push('"');
     out
 }
 
