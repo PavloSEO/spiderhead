@@ -18,7 +18,7 @@ spiderhead/            product crates (crate = spiderhead-<dir>)
   core formats store parse checks render fetch crawl log-analyzer
   reports sf-import catalog projects sources semantics recon
   control mcp cli tui desktop
-oracle/                frozen reference outputs, synthetic sites, structural differ
+testdata/golden/       frozen baselines, synthetic sites, structural differ
 xtask/                 repo automation
 packaging/ docs/       installers, documentation
 ```
@@ -35,7 +35,7 @@ Crates are layered; a crate may depend only on crates of the same or a lower lay
 | `cargo xtask slices` | slice counts by status from `slices.toml` |
 | `cargo xtask rebaseline` | regenerates the frozen fixtures and baselines (`SPIDERHEAD_BLESS=1`), compresses large JSON fixtures, refreshes the raw-scan checksums |
 | `cargo xtask version <show\|set X.Y.Z\|check [--tag T]>` | every spelling of the product version (workspace `Cargo.toml`, README badge, `CITATION.cff`, user-agent presets); `check` fails on a mismatch and runs first in `ci` |
-| `cargo xtask oracle --slice <id> [--site S]` | structural diff of output against the frozen baselines (`--self-test` checks the differ) |
+| `cargo xtask golden --slice <id> [--site S]` | structural diff of output against the frozen baselines (`--self-test` checks the differ) |
 | `cargo xtask dist [--profile P] [--target T]` | release builds into `target/dist/<version>/<profile>/` with `MANIFEST.json` and `SHA256SUMS` |
 | `cargo xtask package macos\|linux\|windows` | installers from the dist folders (`windows` only on a Windows host) |
 
@@ -43,10 +43,10 @@ Crates are layered; a crate may depend only on crates of the same or a lower lay
 
 ## Fixtures and baselines
 
-- **Synthetic sites** under `oracle/sites/` (only `example.com` and `*.test` hosts) are served by a fixture server (`oracle/testkit`).
-- **Baselines** in `oracle/baselines/<site>/` are normalised expected outputs with a sha256 manifest. They change only through a reviewed commit, never by hand.
-- **Structural diff** — `oracle/diff` compares JSON after the normalisation described in `oracle/NORMALISATION.md`.
-- **Known divergences** — `oracle/known-divergences.toml` lists approved differences. Anything else is a bug.
+- **Synthetic sites** under `testdata/golden/sites/` (only `example.com` and `*.test` hosts) are served by a fixture server (`spiderhead-testkit`, at `testdata/golden/testkit`).
+- **Baselines** in `testdata/golden/baselines/<site>/` are normalised expected outputs with a sha256 manifest. They change only through a reviewed commit, never by hand.
+- **Structural diff** — `spiderhead-golden` (at `testdata/golden/diff`) compares JSON after the normalisation described in `testdata/golden/NORMALISATION.md`.
+- **Known divergences** — `testdata/golden/known-divergences.toml` lists approved differences. Anything else is a bug.
 
 After merging parallel branches, `cargo build` rejects duplicated dependency lines in `Cargo.toml`; merge those lists by hand (union, alphabetical).
 

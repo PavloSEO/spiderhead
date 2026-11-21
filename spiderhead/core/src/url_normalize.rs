@@ -412,7 +412,7 @@ mod tests {
     #[test]
     fn norm_url_matches_golden_differential_table() {
         let rows: serde_json::Value =
-            serde_json::from_str(include_str!("../tests/fixtures/norm_url_oracle.json"))
+            serde_json::from_str(include_str!("../tests/fixtures/norm_url_golden.json"))
                 .expect("fixture parses");
         let rows = rows.as_array().expect("array");
         assert!(rows.len() >= 200);

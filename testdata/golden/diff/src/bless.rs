@@ -269,7 +269,7 @@ fn float_repr(value: f64) -> String {
     format!("{sign}{body}")
 }
 
-/// The baseline normalisation (`oracle/NORMALISATION.md`) as one reusable type:
+/// The baseline normalisation (`testdata/golden/NORMALISATION.md`) as one reusable type:
 /// volatile base/work/port/UUID/timestamp/duration shapes become stable tokens,
 /// so two runs of the same command produce the same artifact. `s()` normalises
 /// raw text (command stdout/stderr); `walk()` normalises a JSON value (record

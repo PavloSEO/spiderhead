@@ -28,8 +28,8 @@ spiderhead-semantics.workspace = true
 
 [dev-dependencies]
 spiderhead-crawl.workspace = true
-spiderhead-oracle-diff.workspace = true
-spiderhead-oracle-testkit.workspace = true
+spiderhead-golden.workspace = true
+spiderhead-testkit.workspace = true
 spiderhead-store.workspace = true
 sha2.workspace = true
 tempfile.workspace = true

@@ -2,7 +2,7 @@
 //! Ignored when no Chrome is installed; the loopback fixture server is the
 //! only network this test touches.
 
-use spiderhead_oracle_testkit::FixtureServer;
+use spiderhead_testkit::FixtureServer;
 
 // ignored when no Chrome is installed, per the slice rules)
 #[tokio::test]

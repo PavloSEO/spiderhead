@@ -10,8 +10,8 @@ use serde_json::{json, Value};
 use spiderhead_reports::reporting_pack::{build_worksheets, load_provider_input};
 
 fn fixtures() -> Value {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/reports_oracle.json");
-    spiderhead_oracle_testkit::fixture_json(&path)
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/reports_golden.json");
+    spiderhead_testkit::fixture_json(&path)
 }
 
 fn pack() -> Value {

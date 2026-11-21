@@ -1,4 +1,4 @@
-//! Golden replay for `gen/gen_metrika.py`'s fixture — `metrika.rs` client calls
+//! Golden replay for the recorded metrika fixture — `metrika.rs` client calls
 //! driven with a scripted `open_no_redirect` queue plus `metrika_traffic.rs`
 //! document builds against a scripted `client.report` seam. Every op replays the
 //! recorded calls/sleeps/spends/zone probes and diffs the outcome field-wise.
@@ -457,8 +457,8 @@ async fn run_traffic_op(op: &Value) -> Value {
 
 #[tokio::test]
 async fn golden_metrika() {
-    let path = fixtures_dir().join("metrika_oracle.json");
-    let text = spiderhead_oracle_testkit::fixture_text(&path);
+    let path = fixtures_dir().join("metrika_golden.json");
+    let text = spiderhead_testkit::fixture_text(&path);
     let fixture: Value = serde_json::from_str(&text).expect("fixture parses");
     let ops = fixture
         .get("ops")

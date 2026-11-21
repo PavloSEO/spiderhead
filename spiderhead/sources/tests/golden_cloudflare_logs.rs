@@ -505,7 +505,7 @@ async fn run_op(op: &Value, base: &str) -> (Value, Map<String, Value>) {
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_cloudflare_logs() {
-    let scenarios = load_fixture("cloudflare_logs_oracle.json");
+    let scenarios = load_fixture("cloudflare_logs_golden.json");
     let mut failures = Vec::new();
     let mut ops = 0usize;
     for scenario in &scenarios {

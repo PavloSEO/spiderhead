@@ -24,7 +24,7 @@ const AFTER_TS: &str = "2026-10-02T00:00:00Z";
 /// The raw scan fixture of the golden suite; its audit.v2 companion
 /// sits next to it.
 fn golden_scan() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite")
 }
 
 /// An empty remediation ledger whose site binding matches the golden fixture.

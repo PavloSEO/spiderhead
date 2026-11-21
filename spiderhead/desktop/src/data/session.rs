@@ -479,8 +479,8 @@ mod tests {
     // `?`, `#` or `%` in the scan's directory name was parsed as URI syntax.
     #[test]
     fn scan_in_a_uri_special_directory_still_opens() {
-        let src =
-            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite");
+        let src = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../testdata/golden/raw-scans/basic/scan.sqlite");
         let dir = std::env::temp_dir().join(format!("desk-uri ?#%{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();

@@ -1,5 +1,5 @@
 //!
-//! Runs against a copy of the golden fixture `oracle/raw-scans/basic/scan.sqlite`, never the
+//! Runs against a copy of the golden fixture `testdata/golden/raw-scans/basic/scan.sqlite`, never the
 //! fixture itself. The "missing bodies" case is deferred: it needs a scan written with
 //! `body_mode=off`, and the Rust scan writer (`NativeScan::create`) is not exposed yet.
 
@@ -20,8 +20,8 @@ fn scratch(tag: &str) -> PathBuf {
 
 /// A private copy of the basic golden scan, so tests can rewrite its capability row.
 fn basic_copy(dir: &Path) -> PathBuf {
-    let source =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite");
+    let source = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../testdata/golden/raw-scans/basic/scan.sqlite");
     let target = dir.join("scan.sqlite");
     fs::copy(&source, &target).unwrap();
     target

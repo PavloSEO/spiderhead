@@ -13,10 +13,7 @@ const PROFILES: [&str; 5] = ["audit", "full", "infra", "quick-check", "router"];
 fn initialize_matches_golden_for_a_live_session() {
     let mut client = Client::spawn("full");
     let actual = client.initialize();
-    if spiderhead_oracle_diff::bless_json(
-        &fixture_path("initialize.json"),
-        &tokenize_version(&actual),
-    ) {
+    if spiderhead_golden::bless_json(&fixture_path("initialize.json"), &tokenize_version(&actual)) {
         return;
     }
     let expected = substitute_version(&fixture("initialize.json"));
@@ -29,7 +26,7 @@ fn tools_list_matches_golden_in_every_profile() {
         let mut client = Client::spawn(profile);
         client.initialize();
         let reply = client.request("tools/list", serde_json::json!({}));
-        if spiderhead_oracle_diff::bless_json(
+        if spiderhead_golden::bless_json(
             &fixture_path(&format!("tools_list.{profile}.json")),
             &reply["result"],
         ) {

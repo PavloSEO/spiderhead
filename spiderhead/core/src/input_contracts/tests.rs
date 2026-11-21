@@ -89,7 +89,7 @@ fn generated_reference_matches_golden_and_names_scan_adapters() {
     let rendered = render_markdown();
     let golden_path =
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/INPUTS.md");
-    if spiderhead_oracle_diff::bless_bytes(&golden_path, rendered.as_bytes()) {
+    if spiderhead_golden::bless_bytes(&golden_path, rendered.as_bytes()) {
         return;
     }
     assert_eq!(rendered, GOLDEN);

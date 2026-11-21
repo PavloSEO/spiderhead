@@ -1,4 +1,4 @@
-//! Replay `provider_artifacts_oracle.json` — reference `read_pagespeed_artifact` driven by
+//! Replay `provider_artifacts_golden.json` — reference `read_pagespeed_artifact` driven by
 //! scripted ops against a sandbox artifact directory. `_setup` materializes files with
 //! the same modes the gen writes; `artifact_ref` stores a payload and returns its
 //! `local-artifact:` reference. Sandbox paths normalize to `$BASE`.
@@ -149,7 +149,7 @@ fn run_op(op: &Value, base: &Path) -> Value {
 
 #[test]
 fn golden_provider_artifacts() {
-    let scenarios = load_fixture("provider_artifacts_oracle.json");
+    let scenarios = load_fixture("provider_artifacts_golden.json");
     let mut failures = Vec::new();
     for scenario in &scenarios {
         let name = scenario

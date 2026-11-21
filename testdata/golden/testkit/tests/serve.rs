@@ -1,7 +1,7 @@
 //! Raw-socket checks on the fixture server: status lines, the fixed header
 //! block, route overrides and file resolution, byte for byte.
 
-use spiderhead_oracle_testkit::FixtureServer;
+use spiderhead_testkit::FixtureServer;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 

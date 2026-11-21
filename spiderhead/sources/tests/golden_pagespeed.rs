@@ -1,4 +1,4 @@
-//! Golden-diff test for the PageSpeed client against `pagespeed_oracle.json`.
+//! Golden-diff test for the PageSpeed client against `pagespeed_golden.json`.
 
 mod common;
 
@@ -58,7 +58,7 @@ fn b64_dec(text: &str) -> Vec<u8> {
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_pagespeed() {
-    for scenario in load_fixture("pagespeed_oracle.json") {
+    for scenario in load_fixture("pagespeed_golden.json") {
         let responses = scenario
             .get("responses")
             .and_then(Value::as_array)

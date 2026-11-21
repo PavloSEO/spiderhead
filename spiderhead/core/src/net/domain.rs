@@ -203,7 +203,7 @@ mod golden_tests {
     #[test]
     fn domain_functions_match_golden_differential_table() {
         let rows: serde_json::Value =
-            serde_json::from_str(include_str!("../../tests/fixtures/domain_oracle.json"))
+            serde_json::from_str(include_str!("../../tests/fixtures/domain_golden.json"))
                 .expect("fixture parses");
         let rows = rows.as_array().expect("array");
         assert!(rows.len() >= 300);

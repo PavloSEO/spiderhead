@@ -32,7 +32,7 @@ impl spiderhead_core::host::Host for FakeHost {
 
 fn ops() -> Vec<Value> {
     let path =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/providers_oracle.json");
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/providers_golden.json");
     serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
 }
 

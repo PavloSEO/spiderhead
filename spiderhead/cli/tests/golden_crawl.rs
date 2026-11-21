@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use regex::Regex;
 use serde_json::{json, Value};
 use spiderhead_cli::{run, Output};
-use spiderhead_oracle_testkit::FixtureServer;
+use spiderhead_testkit::FixtureServer;
 
 /// The golden normalisation of the reference suite, in Rust:
 /// volatile base/work/port/UUID/timestamp shapes become stable tokens.
@@ -155,20 +155,20 @@ fn check_cli_site(name: &str, _index: usize) {
         "-q".to_string(),
     ];
     let fixture_path = fixtures_root().join(name).join("crawl-site.json");
-    let fixture = spiderhead_oracle_testkit::fixture_json(&fixture_path);
+    let fixture = spiderhead_testkit::fixture_json(&fixture_path);
     let mut out = Output::default();
     let code = run(&argv, &registry, &mut out).expect("handler run");
     let mut norm = Norm::new(&server.base, &work);
     let actual_stdout = norm.s(&out.stdout);
     let actual_stderr = norm.s(&out.stderr);
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         let mut blessed = fixture;
         if let Some(obj) = blessed.as_object_mut() {
             obj.insert("exit".to_owned(), json!(i64::from(code.0)));
             obj.insert("stdout".to_owned(), Value::from(actual_stdout));
             obj.insert("stderr".to_owned(), Value::from(actual_stderr));
         }
-        spiderhead_oracle_diff::bless_json(&fixture_path, &blessed);
+        spiderhead_golden::bless_json(&fixture_path, &blessed);
         let _ = std::fs::remove_dir_all(&work);
         return;
     }
@@ -243,16 +243,16 @@ fn check_mcp_site(name: &str, _index: usize) {
         .join(name)
         .join("mcp")
         .join("seo_crawl_site.json");
-    let fixture = spiderhead_oracle_testkit::fixture_json(&path);
+    let fixture = spiderhead_testkit::fixture_json(&path);
     let mut norm = Norm::new(&server.base, &work);
     let normalized = norm.s(&actual_text);
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         let mut blessed = fixture;
         if let Some(obj) = blessed.as_object_mut() {
             obj.insert("is_error".to_owned(), json!(actual_is_error));
             obj.insert("text".to_owned(), Value::from(normalized));
         }
-        spiderhead_oracle_diff::bless_json(&path, &blessed);
+        spiderhead_golden::bless_json(&path, &blessed);
         let _ = std::fs::remove_dir_all(&work);
         return;
     }
@@ -308,9 +308,9 @@ fn check_cli_project() {
     let _ = std::fs::remove_dir_all(&work);
     std::fs::create_dir_all(&work).expect("work dir");
     let fixture_path = fixtures_root().join("project.json");
-    let fixture = spiderhead_oracle_testkit::fixture_json(&fixture_path);
+    let fixture = spiderhead_testkit::fixture_json(&fixture_path);
     let mut blessed = fixture.clone();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let registry = spiderhead_cli::registry();
     let mut norm = Norm::new(&server.base, &work);
     let mut problems = String::new();
@@ -357,7 +357,7 @@ fn check_cli_project() {
         }
     }
     let _ = std::fs::remove_dir_all(&work);
-    spiderhead_oracle_diff::bless_json(&fixture_path, &blessed);
+    spiderhead_golden::bless_json(&fixture_path, &blessed);
     assert!(
         problems.is_empty(),
         "project route (cli) diverges from the reference fixture:\n{problems}"
@@ -374,9 +374,9 @@ fn check_mcp_project() {
     let _ = std::fs::remove_dir_all(&work);
     std::fs::create_dir_all(&work).expect("work dir");
     let fixture_path = fixtures_root().join("project.json");
-    let fixture = spiderhead_oracle_testkit::fixture_json(&fixture_path);
+    let fixture = spiderhead_testkit::fixture_json(&fixture_path);
     let mut blessed = fixture.clone();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mcp = Server::new(Profile::Full);
     let mut out: Vec<Value> = Vec::new();
     mcp.handle_line(
@@ -442,7 +442,7 @@ fn check_mcp_project() {
         }
     }
     let _ = std::fs::remove_dir_all(&work);
-    spiderhead_oracle_diff::bless_json(&fixture_path, &blessed);
+    spiderhead_golden::bless_json(&fixture_path, &blessed);
     assert!(
         problems.is_empty(),
         "project route (mcp) diverges from the reference fixture:\n{problems}"

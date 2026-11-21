@@ -1,6 +1,6 @@
 //! Differential tests: duplicate, boilerplate_report, markdown_extract, extraction_rules,
 //! custom_search, custom_extract and schema_org against the reference outputs recorded in
-//! `fixtures/extract_oracle.json` (generator the reference suite). Each module test
+//! `fixtures/extract_golden.json` (recorded by the reference suite). Each module test
 //! asserts zero mismatches; `EXTRACT_SHOW` sets how many divergences are printed.
 
 use std::sync::OnceLock;
@@ -27,9 +27,9 @@ fn fixture() -> &'static Value {
     FIXTURE.get_or_init(|| {
         let text = match std::env::var("EXTRACT_FIXTURE") {
             Ok(path) => std::fs::read_to_string(path).unwrap_or_default(),
-            Err(_) => spiderhead_oracle_testkit::fixture_text(
+            Err(_) => spiderhead_testkit::fixture_text(
                 &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                    .join("tests/fixtures/extract_oracle.json"),
+                    .join("tests/fixtures/extract_golden.json"),
             ),
         };
         serde_json::from_str(&text).unwrap_or(Value::Null)

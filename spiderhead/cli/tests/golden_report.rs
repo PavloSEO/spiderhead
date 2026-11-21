@@ -75,11 +75,11 @@ fn fixture_path() -> PathBuf {
 }
 
 fn fixture() -> Value {
-    spiderhead_oracle_testkit::fixture_json(&fixture_path())
+    spiderhead_testkit::fixture_json(&fixture_path())
 }
 
 fn golden_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
 }
 
 fn unified_diff(field: &str, expected: &str, actual: &str) -> String {
@@ -162,7 +162,7 @@ fn prepare_work(work: &Path) {
 fn report_group_matches_the_reference_cli_and_mcp() {
     let fixture = fixture();
     let mut blessed = fixture.clone();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let work = std::env::temp_dir().join(format!("sh-report-golden-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&work);
     prepare_work(&work);
@@ -300,7 +300,7 @@ fn report_group_matches_the_reference_cli_and_mcp() {
         assert!(problems.is_empty(), "{name} diverges:\n{problems}");
     }
     let _ = std::fs::remove_dir_all(&work);
-    spiderhead_oracle_diff::bless_json(&fixture_path(), &blessed);
+    spiderhead_golden::bless_json(&fixture_path(), &blessed);
 }
 
 /// `{WORK}` placeholders in recorded arguments resolve to the live work dir.

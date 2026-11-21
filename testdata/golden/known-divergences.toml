@@ -1,0 +1,19 @@
+# Registry of approved baseline-vs-Rust divergences (spec ch.06 §6.3 item 6, ch.04 §4.2).
+# Empty by default: every divergence is a bug until a reviewed commit adds it here.
+#
+# Each entry is a [[divergence]] table:
+#   id             = "D-0001"                      # unique, never reused
+#   site           = "basic"                       # golden-set site, or "*"
+#   file           = "scan-export.json"            # baseline file (path relative to baselines/<site>/)
+#   path           = "records.pages[3].title"      # JSON path of the field (or check id for audit.v2: "check:TITLE_TOO_LONG")
+#   example        = "<input URL / snippet that triggers it>"
+#   baseline_value = "<what the reference produced>"
+#   rust_value     = "<what Rust produces>"
+#   reason         = "why the difference is accepted (bug in reference spec, floating point contract, ...)"
+#   approved_by    = "name of the reviewer"
+#   approved_on    = "YYYY-MM-DD"
+#
+# `check` is accepted as an alias of `file`; `site` defaults to "*". id, file, path, reason, approved_by
+# and approved_on are required. The file is valid TOML with zero entries.
+# New entries only through a reviewed commit. The diff tool matches on (site, file, path);
+# an entry that no longer matches any difference is reported as stale.

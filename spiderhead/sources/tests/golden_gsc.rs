@@ -1,4 +1,4 @@
-//! Golden-diff test for the GSC client against `gsc_oracle.json`.
+//! Golden-diff test for the GSC client against `gsc_golden.json`.
 //!
 //! Every scenario replays the reference client's recorded stub-server exchange:
 //! `stub_server.run_scenario` patched `gsc.open_no_redirect` and `gsc.datetime`, so the
@@ -19,7 +19,7 @@ fn arg<'a>(args: &'a Value, name: &str) -> Option<&'a Value> {
 // the reference suite — recorded stub-server scenarios.
 #[tokio::test(flavor = "current_thread")]
 async fn golden_gsc() {
-    for scenario in load_fixture("gsc_oracle.json") {
+    for scenario in load_fixture("gsc_golden.json") {
         let name = scenario.get("name").and_then(Value::as_str).unwrap_or("?");
         let responses = scenario
             .get("responses")

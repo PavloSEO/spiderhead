@@ -1,4 +1,4 @@
-//! Golden-diff test for the OAuth grant lifecycle against `oauth_oracle.json`.
+//! Golden-diff test for the OAuth grant lifecycle against `oauth_golden.json`.
 //!
 //! Each scenario runs `manage_grant` over a seeded config root with frozen `datetime.now`
 //! and deterministic `secrets.token_urlsafe` output; the generator also snapshots the config
@@ -150,7 +150,7 @@ fn snapshot(root: &Path) -> Value {
 async fn golden_oauth() {
     // The generator's token stub is a class-level counter shared by all scenarios.
     let mut tokens = FixedTokens(0);
-    for scenario in load_fixture("oauth_oracle.json") {
+    for scenario in load_fixture("oauth_golden.json") {
         let name = scenario.get("name").and_then(Value::as_str).unwrap_or("?");
         let (root, external) = seed(&scenario);
         let args = resolve_ext(

@@ -1,6 +1,6 @@
 //! Differential test: `parse_html` against the reference parser, field by field.
 //!
-//! Fixture `fixtures/parse_oracle.json` (generator the reference suite) holds the full
+//! Fixture `fixtures/parse_golden.json` (recorded by the reference suite) holds the full
 //! `ParsedPage` dict the golden produced for every document under several option sets; a case
 //! that raised in reference must be an error here. `PARSE_FIXTURE` overrides the fixture path and
 //! `PARSE_SHOW` the number of reported divergences.
@@ -61,9 +61,9 @@ fn short(value: &Value) -> String {
 fn parse_html_matches_the_reference_parser() {
     let text = match std::env::var("PARSE_FIXTURE") {
         Ok(path) => std::fs::read_to_string(path).unwrap_or_default(),
-        Err(_) => spiderhead_oracle_testkit::fixture_text(
+        Err(_) => spiderhead_testkit::fixture_text(
             &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("tests/fixtures/parse_oracle.json"),
+                .join("tests/fixtures/parse_golden.json"),
         ),
     };
     let rows: Vec<Value> = serde_json::from_str(&text).unwrap_or_default();

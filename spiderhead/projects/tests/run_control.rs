@@ -5,7 +5,7 @@
 //! `run-observation.json` runs, doctoring the persisted document where the
 //! reference tests inject a status row. The two post-insert recheck cases need
 //! interposition *between* `request`'s two `status` reads — a reference-only
-//! monkeypatch seam, deferred in `oracle/deferred-tests.toml`.
+//! monkeypatch seam, deferred to the reference suite.
 
 #[path = "common/testkit.rs"]
 mod testkit;

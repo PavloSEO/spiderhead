@@ -1,5 +1,5 @@
 //! Differential test of the scan export (`storage-scan_export`): files written by the reference
-//! golden over `oracle/raw-scans/basic` and a trimmed audit document must be reproduced exactly.
+//! golden over `testdata/golden/raw-scans/basic` and a trimmed audit document must be reproduced exactly.
 //! Cases that reach a stub of another slice (audit.v2 reader, capability contract) are reported
 //! as blocked, not passed.
 
@@ -75,16 +75,16 @@ fn same_grid(a: &Value, b: &Value) -> bool {
 // replayed against the golden files on the raw basic scan and a trimmed audit document.
 #[test]
 fn golden_exports_match() {
-    let cases: Value = serde_json::from_str(&spiderhead_oracle_testkit::fixture_text(
+    let cases: Value = serde_json::from_str(&spiderhead_testkit::fixture_text(
         &fixtures().join("scan-export-basic.json"),
     ))
     .unwrap();
     let scan = root()
-        .join("oracle/raw-scans/basic/scan.sqlite")
+        .join("testdata/golden/raw-scans/basic/scan.sqlite")
         .canonicalize()
         .unwrap();
     let doc = fixtures().join("audit-basic.json").canonicalize().unwrap();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mut blessed: Vec<Value> = Vec::new();
     let mut blocked_cases = Vec::new();
     let mut failures = Vec::new();
@@ -224,10 +224,7 @@ fn golden_exports_match() {
     }
     if bless {
         let path = fixtures().join("scan-export-basic.json");
-        assert!(spiderhead_oracle_diff::bless_json(
-            &path,
-            &Value::Array(blessed)
-        ));
+        assert!(spiderhead_golden::bless_json(&path, &Value::Array(blessed)));
         // The per-site baseline export is the same full JSON document over each
         // raw scan, normalised the way the recorded baselines are.
         let null = Value::Null;
@@ -243,7 +240,7 @@ fn golden_exports_match() {
                 std::env::temp_dir().join(format!("sh-sexport-{site}-{}", std::process::id()));
             std::fs::create_dir_all(&dir).unwrap();
             let input = root()
-                .join("oracle/raw-scans")
+                .join("testdata/golden/raw-scans")
                 .join(site)
                 .join("scan.sqlite")
                 .canonicalize()
@@ -258,13 +255,13 @@ fn golden_exports_match() {
             );
             let text = std::fs::read_to_string(&target).expect("export doc");
             let doc: Value = serde_json::from_str(&text).expect("export json");
-            let mut norm = spiderhead_oracle_diff::Norm::new(&format!("http://127.0.0.1:{port}"));
+            let mut norm = spiderhead_golden::Norm::new(&format!("http://127.0.0.1:{port}"));
             let doc = norm.walk(&doc, None);
             let file = root()
-                .join("oracle/baselines")
+                .join("testdata/golden/baselines")
                 .join(site)
                 .join("scan-export.json");
-            assert!(spiderhead_oracle_diff::bless_json(&file, &doc));
+            assert!(spiderhead_golden::bless_json(&file, &doc));
             std::fs::remove_dir_all(&dir).ok();
         }
         return;

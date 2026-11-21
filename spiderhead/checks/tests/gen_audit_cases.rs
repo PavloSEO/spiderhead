@@ -8,7 +8,7 @@ use rusqlite::{params_from_iter, types::Value as SqlValue, Connection};
 use serde_json::{Map, Value};
 use spiderhead_checks::audit::rules;
 use spiderhead_checks::audit::{AuditContext, Page};
-use spiderhead_oracle_diff::{diff, Options};
+use spiderhead_golden::{diff, Options};
 
 fn fixture_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("fixtures/gen")
@@ -483,7 +483,7 @@ fn actual_json(ctx: &AuditContext) -> Value {
     Value::Object(out)
 }
 
-fn run_case(case: &Map<String, Value>) -> Vec<spiderhead_oracle_diff::Divergence> {
+fn run_case(case: &Map<String, Value>) -> Vec<spiderhead_golden::Divergence> {
     let name = case.get("name").and_then(Value::as_str).unwrap_or("?");
     let measured: std::collections::BTreeSet<String> = case
         .get("fields")
@@ -724,7 +724,7 @@ fn golden_gen_audit_cases_match() {
                 eprintln!(
                     "case {name} ({}):\n{}",
                     file.display(),
-                    spiderhead_oracle_diff::report(&divs, 20)
+                    spiderhead_golden::report(&divs, 20)
                 );
             }
         }

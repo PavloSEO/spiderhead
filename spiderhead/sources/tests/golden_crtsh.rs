@@ -1,4 +1,4 @@
-//! Golden-diff test for the crt.sh client against `crtsh_oracle.json`.
+//! Golden-diff test for the crt.sh client against `crtsh_golden.json`.
 
 mod common;
 
@@ -8,7 +8,7 @@ use spiderhead_sources::crtsh;
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_crtsh() {
-    for scenario in load_fixture("crtsh_oracle.json") {
+    for scenario in load_fixture("crtsh_golden.json") {
         let responses = scenario
             .get("responses")
             .and_then(Value::as_array)

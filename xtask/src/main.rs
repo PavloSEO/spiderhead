@@ -1,6 +1,6 @@
-//! Repo automation: `cargo xtask <ci|layers|slices|oracle|dist|package|version>`.
+//! Repo automation: `cargo xtask <ci|layers|slices|golden|dist|package|version>`.
 mod dist;
-mod oracle;
+mod golden;
 mod package;
 mod version;
 
@@ -34,8 +34,8 @@ const LAYERS: &[(&str, u8)] = &[
     ("spiderhead-mcp", 6),
     ("spiderhead-tui", 6),
     ("spiderhead-cli", 7),
-    ("spiderhead-oracle-diff", 7),
-    ("spiderhead-oracle-testkit", 7),
+    ("spiderhead-golden", 7),
+    ("spiderhead-testkit", 7),
     ("spiderhead-desktop", 8),
 ];
 
@@ -47,13 +47,13 @@ fn main() {
         "layers" => layers(),
         "slices" => slices(),
         "rebaseline" => rebaseline(),
-        "oracle" => oracle::run(&std::env::args().skip(2).collect::<Vec<_>>()),
+        "golden" => golden::run(&std::env::args().skip(2).collect::<Vec<_>>()),
         "dist" => report(dist::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         "package" => report(package::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         "version" => report(version::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         _ => {
             eprintln!(
-                "usage: cargo xtask <ci [--quick]|windows-check|layers|slices|rebaseline|oracle|dist|package|version>"
+                "usage: cargo xtask <ci [--quick]|windows-check|layers|slices|rebaseline|golden|dist|package|version>"
             );
             false
         }
@@ -331,9 +331,9 @@ fn rebaseline() -> bool {
     true
 }
 
-/// Rewrite `oracle/raw-scans/SHA256SUMS.txt` after captures were republished.
+/// Rewrite `testdata/golden/raw-scans/SHA256SUMS.txt` after captures were republished.
 fn refresh_raw_sums() {
-    let dir = Path::new("oracle/raw-scans");
+    let dir = Path::new("testdata/golden/raw-scans");
     let mut files = Vec::new();
     collect_paths(dir, &mut files, &|p| {
         p.extension().is_some_and(|e| e == "sqlite")
@@ -378,11 +378,11 @@ fn collect_paths<F: Fn(&Path) -> bool>(dir: &Path, out: &mut Vec<PathBuf>, accep
 }
 
 /// Walk the fixture trees and return `(compressed_count)`. Fixture scope is
-/// `oracle/**` and every `tests/` subtree; shipped data (`*/data/`) stays
+/// `testdata/golden/**` and every `tests/` subtree; shipped data (`*/data/`) stays
 /// plain. A stale `.zst` sibling of a small `.json` is removed.
 fn compress_big_fixtures() -> usize {
     let mut files = Vec::new();
-    collect_json(Path::new("oracle"), &mut files);
+    collect_json(Path::new("testdata/golden"), &mut files);
     collect_json(Path::new("spiderhead"), &mut files);
     let mut compressed = 0usize;
     for path in files {
@@ -421,7 +421,7 @@ fn zst_sibling(path: &Path) -> PathBuf {
 }
 
 fn is_fixture_path(path: &Path) -> bool {
-    path.starts_with("oracle") || path.components().any(|c| c.as_os_str() == "tests")
+    path.starts_with("testdata/golden") || path.components().any(|c| c.as_os_str() == "tests")
 }
 
 fn collect_json(dir: &Path, out: &mut Vec<PathBuf>) {
@@ -462,7 +462,7 @@ fn layers() -> bool {
         };
         for d in p["dependencies"].as_array().unwrap() {
             let dn = d["name"].as_str().unwrap();
-            // Test-only dependencies (e.g. the oracle differ) may point anywhere.
+            // Test-only dependencies (e.g. the golden differ) may point anywhere.
             if d["kind"].as_str() == Some("dev") {
                 continue;
             }

@@ -145,7 +145,7 @@ fn seed_files(case: &Value, work: &Path, tokens: &[(&str, String)]) {
         .filter_map(Value::as_str)
     {
         let source = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../oracle/raw-scans")
+            .join("../../testdata/golden/raw-scans")
             .join(site);
         for entry in std::fs::read_dir(&source).expect("scan seed dir").flatten() {
             let path = entry.path();
@@ -400,7 +400,7 @@ fn first_difference(expected: &Value, actual: &Value) -> String {
 /// case's fixture is rewritten from the freshly computed outcome instead.
 #[test]
 fn golden_rest_commands_match() {
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let raw = std::fs::read_to_string(fixtures_root().join("cases.json")).expect("cases");
     let cases: Vec<Value> = serde_json::from_str(&raw).expect("cases json");
     let mut failures = Vec::new();
@@ -473,7 +473,7 @@ fn golden_rest_commands_match() {
             }
         }
         if bless {
-            spiderhead_oracle_diff::bless_json(&path, &Value::Object(blessed));
+            spiderhead_golden::bless_json(&path, &Value::Object(blessed));
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
