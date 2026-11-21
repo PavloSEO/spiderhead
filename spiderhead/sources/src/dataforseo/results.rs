@@ -208,13 +208,13 @@ pub fn tasks_all_failed(body: &Value) -> Result<bool, DfsError> {
     Ok(true)
 }
 
-/// `str(exc)` for the caught transport classes: `TimeoutError("timed out")` for the stub's
-/// timeout, `URLError(kind)` (`<urlopen error kind>`) otherwise.
+/// Text for the caught transport classes: `timed out` for the stub's timeout, the
+/// reason as is otherwise.
 pub(super) fn transport_text(kind: &str) -> String {
     if kind == "timeout" {
         "timed out".to_owned()
     } else {
-        format!("<urlopen error {kind}>")
+        kind.to_owned()
     }
 }
 

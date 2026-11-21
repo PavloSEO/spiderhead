@@ -936,7 +936,7 @@
               "result": {
                 "ok": false,
                 "state": "failed",
-                "error": "HTTP Error 403: Forbidden"
+                "error": "HTTP 403 Forbidden"
               }
             },
             "calls": [
@@ -999,7 +999,7 @@
               "result": {
                 "ok": false,
                 "state": "failed",
-                "error": "<urlopen error connection refused>"
+                "error": "connection refused"
               }
             },
             "calls": [
@@ -3174,7 +3174,7 @@
               "result": {
                 "ok": false,
                 "state": "failed",
-                "error": "HTTP Error 500: Internal Server Error"
+                "error": "HTTP 500 Internal Server Error"
               }
             },
             "calls": [

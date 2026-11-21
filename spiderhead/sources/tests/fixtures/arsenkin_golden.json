@@ -990,7 +990,7 @@
    ],
    "error": {
     "class": "ArsenkinError",
-    "message": "NETWORK: <urlopen error reset>"
+    "message": "NETWORK: reset"
    },
    "spends": []
   }
@@ -1111,7 +1111,7 @@
    "pauses": [],
    "error": {
     "class": "ArsenkinError",
-    "message": "NETWORK: set: response lost; task may already be billed: <urlopen error reset>"
+    "message": "NETWORK: set: response lost; task may already be billed: reset"
    },
    "spends": [
     {
@@ -1121,7 +1121,7 @@
      "unit": "limits",
      "extra": {
       "attempt_failed": "network_error",
-      "detail": "<urlopen error reset>"
+      "detail": "reset"
      }
     }
    ]

@@ -1,11 +1,11 @@
 //! Error message text for the failure shapes providers embed into result envelopes.
 //!
-//! Providers put HTTP and connection errors into user-facing `error` strings. This module renders
-//! those messages exactly as the standard library does, using the same status phrases.
+//! Providers put HTTP and connection errors into user-facing `error` strings. This module
+//! renders those messages in a neutral form using the standard status phrases.
 
-/// Text of an HTTP error: `HTTP Error {code}: {reason}`, with the standard reason phrase.
+/// Text of an HTTP error: `HTTP {code} {reason}`, with the standard reason phrase.
 pub fn http_error(status: u16) -> String {
-    format!("HTTP Error {status}: {}", reason_phrase(status))
+    format!("HTTP {status} {}", reason_phrase(status))
 }
 
 /// Standard reason phrase for a status code; `???` for unknown codes.
@@ -76,12 +76,12 @@ pub fn reason_phrase(status: u16) -> &'static str {
     }
 }
 
-/// Message for a transport failure: `"timeout"` gives `timed out`; any other kind gives
-/// `<urlopen error kind>`.
+/// Message for a transport failure: `"timeout"` gives `timed out`; any other kind is
+/// rendered as is.
 pub fn url_error(kind: &str) -> String {
     if kind == "timeout" {
         "timed out".to_owned()
     } else {
-        format!("<urlopen error {kind}>")
+        kind.to_owned()
     }
 }

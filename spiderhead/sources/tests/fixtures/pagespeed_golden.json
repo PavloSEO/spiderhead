@@ -1254,7 +1254,7 @@
       "url": "https://example.com/",
       "strategy": "mobile",
       "state": "failed",
-      "error": "HTTP Error 403: Forbidden"
+      "error": "HTTP 403 Forbidden"
      }
     ],
     "mobile_first": true,
@@ -1305,7 +1305,7 @@
       "url": "https://example.com/",
       "strategy": "mobile",
       "state": "failed",
-      "error": "HTTP Error 429: Too Many Requests"
+      "error": "HTTP 429 Too Many Requests"
      }
     ],
     "mobile_first": true,
@@ -1403,7 +1403,7 @@
       "url": "https://example.com/",
       "strategy": "mobile",
       "state": "failed",
-      "error": "<urlopen error reset>"
+      "error": "reset"
      }
     ],
     "mobile_first": true,
@@ -1897,7 +1897,7 @@
       "url": "https://b.com/",
       "strategy": "mobile",
       "state": "failed",
-      "error": "HTTP Error 500: Internal Server Error"
+      "error": "HTTP 500 Internal Server Error"
      }
     ],
     "mobile_first": true,

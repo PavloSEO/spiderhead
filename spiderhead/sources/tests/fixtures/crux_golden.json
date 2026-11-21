@@ -1720,7 +1720,7 @@
     "retrieved_at": "2026-10-27T12:00:00+00:00",
     "ok": false,
     "state": "failed",
-    "error": "CrUX request failed: <urlopen error reset>",
+    "error": "CrUX request failed: reset",
     "assessment": {
      "schema": "spiderhead.field-cwv/1",
      "provider": "crux",

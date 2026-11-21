@@ -1209,7 +1209,7 @@
    "expect": {
     "cli": {
      "exit": 1,
-     "stdout": "{\n  \"ok\": false,\n  \"source\": \"gsc\",\n  \"resource\": \"sc-domain:example.test\",\n  \"error\": \"HTTP Error 400: Bad Request\",\n  \"failed_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"synced_days\": 0,\n  \"attempted_days\": 1,\n  \"rows_stored\": 0,\n  \"requested_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"available_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"lagged_days\": [],\n  \"db\": \"<WORK>/s.sqlite\"\n}\n",
+     "stdout": "{\n  \"ok\": false,\n  \"source\": \"gsc\",\n  \"resource\": \"sc-domain:example.test\",\n  \"error\": \"HTTP 400 Bad Request\",\n  \"failed_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"synced_days\": 0,\n  \"attempted_days\": 1,\n  \"rows_stored\": 0,\n  \"requested_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"available_period\": [\n    \"2026-01-01\",\n    \"2026-01-01\"\n  ],\n  \"lagged_days\": [],\n  \"db\": \"<WORK>/s.sqlite\"\n}\n",
      "stderr": "spiderhead: sources-sync\n",
      "requests": [
       {

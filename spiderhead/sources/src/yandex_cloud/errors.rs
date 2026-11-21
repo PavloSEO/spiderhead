@@ -56,7 +56,7 @@ impl CloudError {
 impl std::fmt::Display for CloudError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CloudError::Url(reason) => write!(f, "<urlopen error {reason}>"),
+            CloudError::Url(reason) => f.write_str(reason),
             CloudError::MissingCredential(message)
             | CloudError::NetworkAmbiguous(message)
             | CloudError::Ssl(message)

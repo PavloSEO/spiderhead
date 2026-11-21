@@ -620,7 +620,7 @@
    "pauses": [],
    "result": {
     "ok": false,
-    "error": "IndexNow submission failed: <urlopen error reset>"
+    "error": "IndexNow submission failed: reset"
    }
   }
  },

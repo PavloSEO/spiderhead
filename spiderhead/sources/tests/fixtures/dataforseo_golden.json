@@ -3880,7 +3880,7 @@
    "pauses": [],
    "error": {
     "class": "DataForSEOError",
-    "message": "DataForSEO 0: network error, response lost; task may already be billed: <urlopen error reset>"
+    "message": "DataForSEO 0: network error, response lost; task may already be billed: reset"
    },
    "spends": [
     {
@@ -3890,7 +3890,7 @@
      "unit": "usd",
      "extra": {
       "attempt_failed": "network_error",
-      "detail": "<urlopen error reset>",
+      "detail": "reset",
       "charge_status": "unknown",
       "cost_unknown": true
      }
@@ -4489,7 +4489,7 @@
    "pauses": [],
    "error": {
     "class": "DataForSEOError",
-    "message": "DataForSEO 0: network error, response lost; task may already be billed: <urlopen error reset>"
+    "message": "DataForSEO 0: network error, response lost; task may already be billed: reset"
    },
    "spends": [
     {
@@ -4499,7 +4499,7 @@
      "unit": "usd",
      "extra": {
       "attempt_failed": "network_error",
-      "detail": "<urlopen error reset>",
+      "detail": "reset",
       "charge_status": "unknown",
       "cost_unknown": true
      }

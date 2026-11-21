@@ -451,7 +451,7 @@
    ],
    "result": {
     "domain": "example.com",
-    "error": "crt.sh request failed: HTTP Error 503: Service Unavailable",
+    "error": "crt.sh request failed: HTTP 503 Service Unavailable",
     "ok": false
    }
   },
@@ -525,7 +525,7 @@
    ],
    "result": {
     "domain": "example.com",
-    "error": "crt.sh request failed: <urlopen error reset>",
+    "error": "crt.sh request failed: reset",
     "ok": false
    }
   },
