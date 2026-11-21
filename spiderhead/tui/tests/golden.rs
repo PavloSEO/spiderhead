@@ -12,7 +12,7 @@ use std::sync::{Mutex, MutexGuard};
 use serde_json::{json, Value};
 use spiderhead_tui::panels::{self, MIN_HEIGHT, MIN_WIDTH};
 use spiderhead_tui::render::{render_lines, Options};
-use spiderhead_tui::{app, labels, localization, pyjson, scan_now, theme, watch_views, ShellState};
+use spiderhead_tui::{app, labels, localization, scan_now, theme, values, watch_views, ShellState};
 
 /// The UI language is process-global; serialise the tests that touch it.
 static LANGUAGE: Mutex<()> = Mutex::new(());
@@ -484,8 +484,8 @@ fn value_helpers_match_reference() {
 
     for case in values["select"].as_array().expect("select") {
         let picked = scan_now::select(&case["in"], case["scan"].as_str()).expect("select");
-        let kept = pyjson::list_of(&picked["scans"], "items").len()
-            + pyjson::list_of(&picked["runs"], "items").len();
+        let kept = values::list_of(&picked["scans"], "items").len()
+            + values::list_of(&picked["runs"], "items").len();
         assert_eq!(kept, 1, "select keeps the matching entry only");
         assert_eq!(picked["selected_scan"], case["scan"], "select");
     }
@@ -600,7 +600,7 @@ fn saved_notes_carry_reference_receipts() {
         assert!(!rest.is_empty());
         let listed = spiderhead_projects::inbox::list_entries(&project, "golden", 0, 50, true)
             .expect("list");
-        let entries = pyjson::list_of(&listed, "entries");
+        let entries = values::list_of(&listed, "entries");
         let last = entries.last().expect("entry");
         assert_eq!(last["references"], case["references"], "{name}: references");
         assert_eq!(last["kind"], case["kind"], "{name}: kind");

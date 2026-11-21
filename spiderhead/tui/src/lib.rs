@@ -11,13 +11,13 @@ pub mod keys;
 pub mod labels;
 pub mod localization;
 pub mod panels;
-pub mod pyjson;
 pub mod render;
 pub mod rlayout;
 pub mod scan_now;
 pub mod state;
 pub mod text;
 pub mod theme;
+pub mod values;
 pub mod watch_views;
 
 pub use error::{TuiError, TuiResult};

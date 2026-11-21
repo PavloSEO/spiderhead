@@ -35,7 +35,7 @@ pub fn str_of<'a>(value: &'a Value, key: &str) -> &'a str {
 /// `str(item)` for the TUI's one-level display values` of
 /// str/int/float/bool/None; containers fall back to `""` — they never reach
 /// the places that use this helper).
-pub fn py_str(value: &Value) -> String {
+pub fn scalar_text(value: &Value) -> String {
     match value {
         Value::Null => "None".into(),
         Value::Bool(b) => (if *b { "True" } else { "False" }).into(),
@@ -82,7 +82,7 @@ pub fn comma_number(value: i64) -> String {
 /// `repr(text)` — `!r`-style for the strings that appear inside log/status
 /// fragments: single quotes preferred, double quotes when the text already
 /// contains a single quote, the usual backslash escapes.
-pub fn py_repr(text: &str) -> String {
+pub fn repr(text: &str) -> String {
     let quote = if text.contains('\'') && !text.contains('"') {
         '"'
     } else {
@@ -140,7 +140,7 @@ pub fn str_set(items: &[Value]) -> Vec<String> {
         .iter()
         .map(|v| match v {
             Value::String(s) => s.clone(),
-            _ => py_str(v),
+            _ => scalar_text(v),
         })
         .collect();
     out.sort();
@@ -150,13 +150,13 @@ pub fn str_set(items: &[Value]) -> Vec<String> {
 
 /// The `a or b` rule over optional JSON lookups: a present-but-falsy value
 /// (`null`, `""`, `0`, empty container) yields to the alternative.
-pub trait OrPy<'a> {
+pub trait OrTruthy<'a> {
     /// Keep `self` when truthy, else the alternative (or `self` when that is absent).
-    fn or_py(self, alternative: impl FnOnce() -> Option<&'a Value>) -> Option<&'a Value>;
+    fn or_truthy(self, alternative: impl FnOnce() -> Option<&'a Value>) -> Option<&'a Value>;
 }
 
-impl<'a> OrPy<'a> for Option<&'a Value> {
-    fn or_py(self, alternative: impl FnOnce() -> Option<&'a Value>) -> Option<&'a Value> {
+impl<'a> OrTruthy<'a> for Option<&'a Value> {
+    fn or_truthy(self, alternative: impl FnOnce() -> Option<&'a Value>) -> Option<&'a Value> {
         match self {
             Some(v) if truthy(v) => Some(v),
             other => alternative().or(other),

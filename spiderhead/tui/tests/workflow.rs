@@ -10,7 +10,7 @@ use serde_json::{json, Value};
 use spiderhead_tui::keys::{read_key, RawMode};
 use spiderhead_tui::panels::{self, MIN_HEIGHT, MIN_WIDTH};
 use spiderhead_tui::render::{render_lines, Options};
-use spiderhead_tui::{app, localization, pyjson, scan_now, theme, watch_views, ShellState};
+use spiderhead_tui::{app, localization, scan_now, theme, values, watch_views, ShellState};
 
 static LANGUAGE: Mutex<()> = Mutex::new(());
 
@@ -224,7 +224,7 @@ fn saved_note_is_linked_to_selected_finding() {
     app::save_note(root.to_str().expect("utf8"), &mut s);
     let listed =
         spiderhead_projects::inbox::list_entries(&root, "proof", 0, 50, true).expect("list");
-    let entry = &pyjson::list_of(&listed, "entries")[0];
+    let entry = &values::list_of(&listed, "entries")[0];
     assert_eq!(
         entry["references"],
         json!(["section:findings", "scan:scan-001", "finding:scan-001/7"])
@@ -244,7 +244,7 @@ fn note_from_task_context_saves_the_selected_task_reference() {
     assert!(message.contains("saved") && s.note_error.is_empty());
     let listed =
         spiderhead_projects::inbox::list_entries(&root, "test", 0, 50, true).expect("list");
-    let refs = &pyjson::list_of(&listed, "entries")[0]["references"];
+    let refs = &values::list_of(&listed, "entries")[0]["references"];
     assert!(refs
         .as_array()
         .expect("refs")
