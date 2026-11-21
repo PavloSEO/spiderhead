@@ -1,4 +1,4 @@
-//! Ports of the the reference suite tests that need only the duplicate detector.
+//! Reference suite tests that need only the duplicate detector.
 //! The structured-data, mixed-content, template-grouping and repeated-link tests read the
 //! audit context of the checks and sf-import crates, which are not covered yet, and are deferred.
 

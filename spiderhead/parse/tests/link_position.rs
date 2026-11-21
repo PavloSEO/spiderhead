@@ -1,4 +1,4 @@
-//! Ports of the reference suite: link position classification (nav, header, content,
+//! Reference suite tests: link position classification (nav, header, content,
 //! sidebar, footer), first-match-wins rule order, malformed selectors and the `classify_links`
 //! parse option.
 

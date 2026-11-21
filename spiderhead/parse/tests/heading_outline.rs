@@ -1,4 +1,4 @@
-//! Ports of the pure parser tests in the reference suite (issue #632): the heading
+//! Reference suite pure parser tests (issue #632): the heading
 //! outline as a document-order sequence with a page region per heading. The registry-check and
 //! storage halves of that reference file need the checks and store crates and are listed in the
 //! slice report instead.

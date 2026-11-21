@@ -1,4 +1,4 @@
-//! Ports of the parser-level tests in the reference suite: frame inventory of the
+//! Reference suite parser-level tests: frame inventory of the
 //! parsed page. The audit-level tests of that file (CONTENT_IN_IFRAME / THIN_CONTENT) need the
 //! checks crate and are listed in the slice report instead.
 

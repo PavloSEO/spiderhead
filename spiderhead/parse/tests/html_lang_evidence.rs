@@ -1,4 +1,4 @@
-//! Ports of the reference suite (epic #1002): the declared `<html lang>` is kept
+//! Reference suite tests (epic #1002): the declared `<html lang>` is kept
 //! as written, and an absent or empty attribute is distinguishable from a declared one.
 
 use std::collections::BTreeMap;

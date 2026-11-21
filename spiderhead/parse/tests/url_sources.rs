@@ -1,4 +1,4 @@
-//! Ports of the reference suite: URL-bearing attributes beyond `<a href>`, inert
+//! Reference suite tests: URL-bearing attributes beyond `<a href>`, inert
 //! `<template>` content, and CSS-referenced resources. Each test names its reference source.
 
 use std::collections::BTreeMap;
