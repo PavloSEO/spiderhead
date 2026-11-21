@@ -2,7 +2,7 @@
 //! — provider-receipt safety, paid-task recovery and cached-SERP reuse.
 //! Each test cites the original `// from tests/<file>the reference suite::<test>`.
 
-mod oracle;
+mod golden;
 
 use serde_json::json;
 use spiderhead_semantics::config::Cfg;

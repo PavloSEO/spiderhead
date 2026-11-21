@@ -76,7 +76,7 @@ impl Norm {
     }
 }
 
-fn oracle_root() -> PathBuf {
+fn golden_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
 }
 
@@ -206,7 +206,7 @@ fn check_site(name: &str, _index: usize) {
     let _ = std::fs::remove_dir_all(&work);
     std::fs::create_dir_all(&work).expect("work dir");
     std::fs::copy(
-        oracle_root()
+        golden_root()
             .join("raw-scans")
             .join(name)
             .join("scan.sqlite"),
@@ -390,7 +390,7 @@ fn check_mcp_site(name: &str, _index: usize) {
     std::fs::create_dir_all(&work).expect("work dir");
     let scan = work.join("scan.sqlite");
     std::fs::copy(
-        oracle_root()
+        golden_root()
             .join("raw-scans")
             .join(name)
             .join("scan.sqlite"),

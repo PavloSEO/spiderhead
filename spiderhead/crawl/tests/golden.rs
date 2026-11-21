@@ -15,7 +15,7 @@ use spiderhead_store::native_scan::NativeScan;
 use spiderhead_store::scan_lease::NativeScanLease;
 use spiderhead_store::scan_schema::NativeScanSchemaMixin;
 
-fn oracle_root() -> PathBuf {
+fn golden_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
 }
 
@@ -119,7 +119,7 @@ fn crawl_and_dump_with_seeds(
 }
 
 fn baseline_path(site: &str) -> std::path::PathBuf {
-    oracle_root()
+    golden_root()
         .join("baselines")
         .join(site)
         .join("scan.tables.json")
@@ -133,7 +133,7 @@ fn baseline(site: &str) -> Value {
 /// the same capture the `scan.tables.json` baseline describes, or the read-path
 /// tests and the live golden replay diverge.
 fn refresh_raw_capture(site: &str, scan_path: &std::path::Path) {
-    let dir = oracle_root().join("raw-scans").join(site);
+    let dir = golden_root().join("raw-scans").join(site);
     let target = dir.join("scan.sqlite");
     // Publish atomically: other test binaries bless downstream fixtures from the
     // same file in the same suite pass and must never observe a partial copy.
@@ -151,7 +151,7 @@ fn refresh_raw_capture(site: &str, scan_path: &std::path::Path) {
 /// equivalent capture would only churn volatile fields (timings, scan uuid) and
 /// invalidate the byte fixtures the other tests bless in the same pass.
 fn capture_is_fresh(site: &str, port: u16, actual: &Value) -> bool {
-    let target = oracle_root()
+    let target = golden_root()
         .join("raw-scans")
         .join(site)
         .join("scan.sqlite");

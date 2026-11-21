@@ -23,7 +23,7 @@ const AFTER_TS: &str = "2026-10-02T00:00:00Z";
 
 /// The raw scan fixture of the golden suite; its audit.v2 companion
 /// sits next to it.
-fn oracle_scan() -> PathBuf {
+fn golden_scan() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite")
 }
 
@@ -305,7 +305,7 @@ fn verification_artifact_does_not_change_the_remediation_ledger() {
     let work = scratch("ledger-unchanged");
     let ledger = work.join("ledger.sqlite");
     std::fs::copy(ledger_fixture(), &ledger).expect("ledger copy");
-    ingest_scan(Path::new(&ledger).into(), &oracle_scan()).expect("ingest");
+    ingest_scan(Path::new(&ledger).into(), &golden_scan()).expect("ingest");
     let bytes_before = std::fs::read(&ledger).expect("ledger bytes");
     let summary_before = ledger_summary(Path::new(&ledger).into()).expect("summary");
 
@@ -380,7 +380,7 @@ fn policy_mismatch_stops_before_network_and_records_not_verifiable() {
 fn pending_case(dir: &Path, tag: &str) -> (PathBuf, String, i64) {
     let ledger = dir.join(format!("ledger-{tag}.sqlite"));
     std::fs::copy(ledger_fixture(), &ledger).expect("ledger copy");
-    ingest_scan(Path::new(&ledger).into(), &oracle_scan()).expect("ingest");
+    ingest_scan(Path::new(&ledger).into(), &golden_scan()).expect("ingest");
     let cases = read_cases(
         Path::new(&ledger).into(),
         &CaseFilter {
@@ -423,7 +423,7 @@ fn pending_case(dir: &Path, tag: &str) -> (PathBuf, String, i64) {
 /// The after document of the e2e recheck: the same scan refrozen later, with
 /// the verified check silent and the issue gone.
 fn after_document(dir: &Path) -> PathBuf {
-    let reader = AuditV2Reader::new(&oracle_scan(), true, false, None).expect("audit.v2 reader");
+    let reader = AuditV2Reader::new(&golden_scan(), true, false, None).expect("audit.v2 reader");
     let raw = reader.document_chunks(None).expect("document").concat();
     let mut after: Value = serde_json::from_str(&raw).expect("document parses");
     after["issues"] = json!([]);
@@ -448,7 +448,7 @@ fn ledger_selected_synthetic_recheck_records_measured_artifact_and_task_coverage
         "remediation_recheck",
         &json!({
             "ledger": ledger.to_string_lossy(),
-            "baseline": oracle_scan().to_string_lossy(),
+            "baseline": golden_scan().to_string_lossy(),
             "occurrence_keys": [key],
             "actor": "loopback-recheck",
             "expected_revision": revision,
@@ -541,7 +541,7 @@ fn remediation_recheck_validates_selection_revision_and_state() {
         "remediation_recheck",
         &json!({
             "ledger": ledger.to_string_lossy(),
-            "baseline": oracle_scan().to_string_lossy(),
+            "baseline": golden_scan().to_string_lossy(),
             "occurrence_keys": [key],
             "actor": "loopback-recheck",
             "expected_revision": revision + 100,
@@ -557,7 +557,7 @@ fn remediation_recheck_validates_selection_revision_and_state() {
     // A fresh ledger copy whose case is still `detected` cannot be rechecked.
     let ledger = work.join("ledger-detected.sqlite");
     std::fs::copy(ledger_fixture(), &ledger).expect("ledger copy");
-    ingest_scan(Path::new(&ledger).into(), &oracle_scan()).expect("ingest");
+    ingest_scan(Path::new(&ledger).into(), &golden_scan()).expect("ingest");
     let cases = read_cases(
         Path::new(&ledger).into(),
         &CaseFilter {
@@ -580,7 +580,7 @@ fn remediation_recheck_validates_selection_revision_and_state() {
         "remediation_recheck",
         &json!({
             "ledger": ledger.to_string_lossy(),
-            "baseline": oracle_scan().to_string_lossy(),
+            "baseline": golden_scan().to_string_lossy(),
             "occurrence_keys": [detected],
             "actor": "loopback-recheck",
             "expected_revision": revision,

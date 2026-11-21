@@ -78,7 +78,7 @@ fn fixture() -> Value {
     spiderhead_oracle_testkit::fixture_json(&fixture_path())
 }
 
-fn oracle_root() -> PathBuf {
+fn golden_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
 }
 
@@ -115,7 +115,7 @@ fn materialize(scan: &Path) -> Value {
 fn prepare_work(work: &Path) {
     std::fs::create_dir_all(work).expect("work dir");
     for site in ["basic", "errors"] {
-        let raw = oracle_root()
+        let raw = golden_root()
             .join("raw-scans")
             .join(site)
             .join("scan.sqlite");
