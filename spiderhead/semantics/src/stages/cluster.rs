@@ -8,10 +8,10 @@ use serde_json::{json, Value};
 use std::collections::HashSet;
 
 use crate::config::Cfg;
+use crate::fmt::{dumps, round_half_even, scalar_text};
 use crate::louvain::{best_partition, PyGraph};
 use crate::providers::SerpProvider;
-use crate::pyfmt::{dumps, py_round, py_str};
-use crate::pyset::{py_str_hash, PyStrSet};
+use crate::set_order::{str_hash, StrSet};
 use crate::store::{zulu_seconds, Row, Store};
 
 /// Hub domains (portals, wikis, socials, marketplaces, gov/edu, stock media)
@@ -269,7 +269,7 @@ pub fn run(
     }
     let overlap = crate::config::cfg_i64(cfg, "serp_overlap", 3);
     let region = match cfg.get("regions") {
-        Some(Value::Array(items)) if !items.is_empty() => py_str(&items[0]),
+        Some(Value::Array(items)) if !items.is_empty() => scalar_text(&items[0]),
         _ => "225".to_string(),
     };
     // Every kept phrase: clean already applied the base cut; exact frequency is not required.
@@ -309,7 +309,7 @@ pub fn run(
         store.exec("ALTER TABLE serp_fetches ADD COLUMN fetched_at TEXT", &[])?;
     }
     let mut n_req = 0i64;
-    let mut doms: IndexMap<String, PyStrSet> = IndexMap::new();
+    let mut doms: IndexMap<String, StrSet> = IndexMap::new();
     let mut todo: Vec<String> = Vec::new();
     let receipts: IndexMap<String, Row> = store
         .q(
@@ -367,14 +367,14 @@ pub fn run(
                     Some(u.to_string())
                 })
                 .collect();
-            let mut set = PyStrSet::new(|s: &String| py_str_hash(s));
+            let mut set = StrSet::new(|s: &String| str_hash(s));
             for k in keys {
                 set.add(url_key(&k)?);
             }
             doms.insert(norm, set);
         } else if !cached.is_empty() && !has_receipt.contains(&norm) {
             // Legacy SERP has no region receipt; retain it until an explicit new fetch is recorded.
-            let mut set = PyStrSet::new(|s: &String| py_str_hash(s));
+            let mut set = StrSet::new(|s: &String| str_hash(s));
             for d in take_py(&cached, top).iter() {
                 if let Some(u) = d["url"].as_str().filter(|s| !s.is_empty()) {
                     set.add(url_key(u)?);
@@ -443,7 +443,7 @@ pub fn run(
                 .and_then(|v| v.as_object())
                 .unwrap_or(&empty);
             let error = match res_obj.get("error") {
-                Some(v) if truthy(v) => Some(py_str(v)),
+                Some(v) if truthy(v) => Some(scalar_text(v)),
                 _ => None,
             };
             store.exec(
@@ -472,7 +472,7 @@ pub fn run(
             // row would mask the real error as 'unresolved paid SERP operation'
             // on every rerun).
             if let Some(docs) = paid_docs {
-                let mut set = PyStrSet::new(|s: &String| py_str_hash(s));
+                let mut set = StrSet::new(|s: &String| str_hash(s));
                 for d in &docs {
                     if let Some(u) = d["url"].as_str().filter(|s| !s.is_empty()) {
                         set.add(url_key(u)?);
@@ -619,7 +619,7 @@ pub fn run(
                     sum += inter as f64 / union.max(1) as f64;
                 }
             }
-            py_round(sum / (members.len() * (members.len() - 1) / 2) as f64, 3)
+            round_half_even(sum / (members.len() * (members.len() - 1) / 2) as f64, 3)
         } else {
             1.0
         };

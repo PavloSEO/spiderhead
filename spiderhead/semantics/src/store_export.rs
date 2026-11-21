@@ -3,7 +3,7 @@
 use serde_json::{json, Value};
 use std::path::Path;
 
-use crate::pyfmt::dump_pretty;
+use crate::fmt::dump_pretty;
 use crate::store::Store;
 
 impl Store {
@@ -111,7 +111,7 @@ fn cell_text(v: Value) -> String {
         Value::Number(n) => {
             if let Some(f) = n.as_f64() {
                 if n.is_f64() {
-                    crate::pyfmt::py_float_repr(f)
+                    crate::fmt::float_repr(f)
                 } else {
                     n.to_string()
                 }

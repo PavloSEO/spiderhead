@@ -3,8 +3,8 @@
 
 use crate::config::Cfg;
 use crate::demand::has_observed_demand;
+use crate::fmt::{parse_int, scalar_text};
 use crate::norm::normalize;
-use crate::pyfmt::{py_int, py_str};
 use crate::store::{zulu_seconds, Store};
 use calamine::Reader;
 use indexmap::IndexMap;
@@ -102,7 +102,7 @@ fn collect_rows(
             if value.is_null() {
                 continue;
             }
-            let size = py_str(value).len();
+            let size = scalar_text(value).len();
             if size > MAX_IMPORT_CELL_BYTES {
                 return Err(err(format!(
                     "cell exceeds the {MAX_IMPORT_CELL_BYTES}-byte limit on {source} row {line}"
@@ -187,7 +187,7 @@ fn read_table(
                 if v.is_null() {
                     String::new()
                 } else {
-                    py_str(&v).trim().to_string()
+                    scalar_text(&v).trim().to_string()
                 }
             })
             .collect();
@@ -313,7 +313,7 @@ fn mapping_for(
 }
 
 /// Integer value of a cell: bools and non-integral floats are rejected by
-/// the caller; strings go through `py_int`.
+/// the caller; strings go through `parse_int`.
 /// A cell as a finite number (JSON number or numeric text such as `"12.5"`).
 fn numeric(value: &Value) -> Option<f64> {
     match value {
@@ -340,7 +340,7 @@ fn cell_int(value: &Value) -> Result<i64, ()> {
                 Err(())
             }
         }
-        Value::String(s) => py_int(s).or_else(|_| match numeric(value) {
+        Value::String(s) => parse_int(s).or_else(|_| match numeric(value) {
             Some(f) if f.fract() == 0.0 => Ok(f as i64),
             _ => Err(()),
         }),
@@ -379,7 +379,7 @@ fn parse_file(
         let phrase = if raw.is_null() {
             String::new()
         } else {
-            normalize(&py_str(&raw))
+            normalize(&scalar_text(&raw))
         };
         if phrase.is_empty() {
             continue;
@@ -400,7 +400,7 @@ fn parse_file(
                 .unwrap_or(Value::Null);
             let emptyish = value.is_null()
                 || ["", "null", "--", "-", "none", "nan", "n/a"]
-                    .contains(&py_str(&value).trim().to_lowercase().as_str());
+                    .contains(&scalar_text(&value).trim().to_lowercase().as_str());
             if emptyish {
                 continue;
             }
@@ -433,7 +433,7 @@ fn parse_file(
             .and_then(|c| row.get(c))
             .map(|v| {
                 if py_truthy(v) {
-                    py_str(v).trim().to_string()
+                    scalar_text(v).trim().to_string()
                 } else {
                     String::new()
                 }
@@ -444,7 +444,7 @@ fn parse_file(
             .and_then(|c| row.get(c))
             .map(|v| {
                 if py_truthy(v) {
-                    py_str(v).trim().to_string()
+                    scalar_text(v).trim().to_string()
                 } else {
                     String::new()
                 }
@@ -480,7 +480,7 @@ fn parse_file(
                     .and_then(|col| applied.get(col))
                     .and_then(|c| row.get(c))
                     .filter(|v| !v.is_null())
-                    .map(py_str),
+                    .map(scalar_text),
             };
             if let Some(v) = value {
                 let v = v.trim().to_string();

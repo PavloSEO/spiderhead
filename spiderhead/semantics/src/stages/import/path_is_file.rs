@@ -121,7 +121,7 @@ pub fn run(
         .filter(|a| !a.is_empty())
         .cloned()
         .unwrap_or_else(|| vec![json!(225)]);
-    let region = py_str(&regions[0]);
+    let region = scalar_text(&regions[0]);
     for item in &rows {
         let phrase = item["query"].as_str().unwrap_or_default();
         let values = item["values"].as_object().cloned().unwrap_or_default();
@@ -178,7 +178,7 @@ pub fn run(
         }
     }
     let before_json = if merge == "replace" {
-        json!(crate::pyfmt::dumps(
+        json!(crate::fmt::dumps(
             &json!({"merge": "replace", "rows": preview["replacement_rows"]})
         ))
     } else {
@@ -192,10 +192,10 @@ pub fn run(
             json!("import"),
             json!("phrases"),
             before_json,
-            json!(crate::pyfmt::dumps(
+            json!(crate::fmt::dumps(
                 &json!({"merge": merge, "rows": added + updated})
             )),
-            json!(crate::pyfmt::dumps(
+            json!(crate::fmt::dumps(
                 &json!({"file_type": preview["file_type"], "sheet": sheet})
             )),
         ],

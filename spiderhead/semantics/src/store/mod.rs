@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use std::cell::Cell;
 use std::path::{Path, PathBuf};
 
-use crate::pyfmt::dumps;
+use crate::fmt::dumps;
 
 mod store_assign_cluster;
 pub use store_assign_cluster::*;

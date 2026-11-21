@@ -10,9 +10,9 @@ use std::path::Path;
 use std::sync::LazyLock;
 
 use crate::config::{cfg_required, cfg_required_str, Cfg};
+use crate::fmt::scalar_text;
 use crate::norm::{normalize, py_len, Filters};
 use crate::providers::PageParser;
-use crate::pyfmt::py_str;
 use crate::store::Store;
 
 /// `BRAND_TAIL` — the tail after a separator is a brand (`:` allowed here).
@@ -121,7 +121,7 @@ pub fn run(
         }
     }
 
-    let project = cfg_required(cfg, "_project").map(py_str)?;
+    let project = cfg_required(cfg, "_project").map(scalar_text)?;
     let mut md = vec![
         format!("# Competitor mining (title and headings) — {project}"),
         String::new(),
