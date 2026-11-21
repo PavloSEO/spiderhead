@@ -203,9 +203,9 @@ pub struct KnownEntry {
     /// Input or snippet that triggers the difference.
     #[serde(default)]
     pub example: String,
-    /// What the oracle produced.
+    /// What the reference produced.
     #[serde(default)]
-    pub python_value: String,
+    pub baseline_value: String,
     /// What Rust produces.
     #[serde(default)]
     pub rust_value: String,
