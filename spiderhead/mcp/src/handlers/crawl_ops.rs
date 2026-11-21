@@ -110,7 +110,7 @@ fn project_crawl(
     match super::crawl::crawl_site(&Value::Object(call)) {
         Ok(result) => Ok(result),
         Err(ToolError::Failed(message)) => Err(message),
-        Err(ToolError::NotYetPorted(name)) => Err(format!("{name} is not yet available")),
+        Err(ToolError::NotYetAvailable(name)) => Err(format!("{name} is not yet available")),
     }
 }
 
@@ -208,7 +208,7 @@ pub fn project_competitors_scan(args: &Value) -> Result<Value, ToolError> {
         match super::crawl::crawl_site(&Value::Object(kwargs.clone())) {
             Ok(result) => Ok(result),
             Err(ToolError::Failed(message)) => Err(CrawlFault::Failed(message)),
-            Err(ToolError::NotYetPorted(name)) => {
+            Err(ToolError::NotYetAvailable(name)) => {
                 Err(CrawlFault::Failed(format!("{name} is not yet available")))
             }
         }

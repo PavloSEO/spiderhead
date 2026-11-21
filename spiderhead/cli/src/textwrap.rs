@@ -1,4 +1,4 @@
-//! Port of the reference `textwrap.wrap` / `textwrap.fill` with the defaults argparse relies on.
+//! The reference `textwrap.wrap` / `textwrap.fill` with the defaults argparse relies on.
 //!
 //! argparse wraps help text with `break_long_words=True`, `break_on_hyphens=True`,
 //! `drop_whitespace=True`; lengths are counted in code points, exactly as the reference `len`.

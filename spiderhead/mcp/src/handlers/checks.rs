@@ -1,5 +1,5 @@
 //! Handlers of the live single-URL checks (the reference suite) whose
-//! recon domain is ported: CDN, tech, security, regions and AI-bots access.
+//! recon domain is wired: CDN, tech, security, regions and AI-bots access.
 //! Each domain call performs its own bounded fetches through the recon client
 //! (127.0.0.1 fixture servers in tests); failures are result data, not raises.
 

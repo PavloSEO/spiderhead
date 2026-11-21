@@ -9,7 +9,7 @@ pub enum ToolError {
     /// The tool exists in the catalog but its domain crate is not linked into
     /// this build. All handlers answer this until their slice lands.
     #[error("{0} is not yet available in this build")]
-    NotYetPorted(String),
+    NotYetAvailable(String),
 
     /// A handler-reported failure; the message reaches the client verbatim,
     /// mirroring the reference `_checked`/`ToolError` passthrough.

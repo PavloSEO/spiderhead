@@ -1,7 +1,6 @@
-//! Handlers of the workflow group (the reference suite) whose domain is
-//! ported: project monitoring, and the remediation ledgers in
-//! `spiderhead-store::ledger`, including the guarded recheck that composes the
-//! ported `verify_fixes` compare domain.
+//! Handlers of the workflow group (the reference suite): project monitoring, and
+//! the remediation ledgers in `spiderhead-store::ledger`, including the guarded
+//! recheck that composes the `verify_fixes` compare domain.
 
 use std::path::Path;
 

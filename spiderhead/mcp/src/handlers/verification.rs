@@ -1,7 +1,7 @@
 //! The targeted verification handler (`verify_fixes`) and the core the
 //! remediation recheck composes. Offline classification over saved audits is
-//! fully ported; the live-recrawl branch runs every policy check, then stops
-//! at this build's port boundary: instead of fetching, the collection records
+//! fully implemented; the live-recrawl branch runs every policy check, then stops
+//! at this build's recrawl boundary: instead of fetching, the collection records
 //! `not_run` with a named reason — the same shape the failure path
 //! produces when a recrawl fails before the first request.
 

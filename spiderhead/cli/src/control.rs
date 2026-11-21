@@ -51,7 +51,7 @@ fn collect(cmd: &ParsedCommand, renames: &[(&str, &str)]) -> Value {
 fn handler_error(error: ToolError, out: &mut Output) -> ExitCode {
     let message = match error {
         ToolError::Failed(message) => message,
-        ToolError::NotYetPorted(name) => format!("{name} is not yet available in this build"),
+        ToolError::NotYetAvailable(name) => format!("{name} is not yet available in this build"),
     };
     out.eprintln(&format!("error: {message}"));
     ExitCode::FAILURE

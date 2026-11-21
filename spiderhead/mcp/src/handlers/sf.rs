@@ -4,7 +4,7 @@
 //! retained scans — only `sf_audit_run` drives a live crawl, and it is a
 //! validation shell in this build: it refuses malformed requests with the
 //! same texts the runner would, then reports the crawl itself as not yet
-//! ported.
+//! available.
 
 use std::path::Path;
 use std::rc::Rc;
@@ -118,7 +118,7 @@ fn font_stub(_font_path: &str, _font_size: i64) -> Result<Rc<dyn TextMeasure>, S
 }
 
 /// `sf_audit_run`: validate the request exactly as the runner would, then
-/// report the live crawl as not yet ported. No crawl is started.
+/// report the live crawl as not yet available. No crawl is started.
 pub fn sf_audit_run(args: &Value) -> Result<Value, ToolError> {
     let args = super::kwargs(args);
     let mode = opt(&args, "mode").cloned().unwrap_or(Value::Null);
@@ -160,7 +160,7 @@ pub fn sf_audit_run(args: &Value) -> Result<Value, ToolError> {
             ));
         }
     }
-    Err(ToolError::NotYetPorted("sf_audit_run".to_owned()))
+    Err(ToolError::NotYetAvailable("sf_audit_run".to_owned()))
 }
 
 /// `sf_audit_summary`: the compact health card — project, score, severity

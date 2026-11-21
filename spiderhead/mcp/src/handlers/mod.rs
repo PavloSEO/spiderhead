@@ -386,12 +386,12 @@ pub fn registry() -> Vec<(&'static str, HandlerFn)> {
     ]
 }
 
-/// Run one handler by reference handler name; unknown names are [`ToolError::NotYetPorted`].
+/// Run one handler by reference handler name; unknown names are [`ToolError::NotYetAvailable`].
 pub fn dispatch(name: &str, args: &Value) -> Result<Value, ToolError> {
     let empty = Value::Object(Map::new());
     let args = if args.is_null() { &empty } else { args };
     let Some(handler) = registry().into_iter().find(|(key, _)| *key == name) else {
-        return Err(ToolError::NotYetPorted(name.to_string()));
+        return Err(ToolError::NotYetAvailable(name.to_string()));
     };
     handler.1(args)
 }
@@ -501,7 +501,7 @@ mod tests {
     }
 
     #[test]
-    fn unknown_handler_is_not_yet_ported() {
+    fn unknown_handler_is_not_yet_available() {
         let error = dispatch("no_such_handler", &json!({})).unwrap_err();
         assert_eq!(
             error.to_string(),

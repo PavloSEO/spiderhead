@@ -1,6 +1,6 @@
 //! Handlers of the sources group (the reference suite) that run fully
 //! offline: the provider spend journal report. The networked provider commands
-//! stay unwired (`NotYetPorted` by absence from the registry).
+//! stay unwired (`NotYetAvailable` by absence from the registry).
 
 use std::path::Path;
 

@@ -128,16 +128,16 @@ mod tests {
 
     // Envelope pinned by tests/fixtures/tools_call.unknown_tool.json.
     #[test]
-    fn tool_error_result_matches_the_oracle_shape() {
+    fn tool_error_result_matches_the_golden_shape() {
         assert_eq!(
             tool_error_result("Unknown tool: no_such_tool"),
             json!({"content": [{"type": "text", "text": "Unknown tool: no_such_tool"}], "isError": true})
         );
     }
 
-    // The oracle's logging notification, captured in tests/fixtures/rpc.bad_json.json.
+    // The golden logging notification, captured in tests/fixtures/rpc.bad_json.json.
     #[test]
-    fn unparsable_line_matches_the_oracle_emission() {
+    fn unparsable_line_matches_the_golden_emission() {
         let expected: Value = serde_json::from_str(
             &std::fs::read_to_string(concat!(
                 env!("CARGO_MANIFEST_DIR"),
