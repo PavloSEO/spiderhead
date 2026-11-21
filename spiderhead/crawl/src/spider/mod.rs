@@ -919,7 +919,7 @@ async fn crawl_loop(
                         // href has no host for the scope test, no absolute
                         // frontier URL to fetch, and no scheme the candidate
                         // keys can be derived from.
-                        let resolved = spiderhead_parse::py_url::urljoin(&lease.url, &link.href)
+                        let resolved = spiderhead_parse::url_parse::urljoin(&lease.url, &link.href)
                             .unwrap_or_else(|_| link.href.clone());
                         let target = strip_fragment(&resolved);
                         let rejected = if link.nofollow {

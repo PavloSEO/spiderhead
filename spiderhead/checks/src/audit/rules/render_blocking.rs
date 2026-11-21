@@ -7,8 +7,8 @@ use rusqlite::Connection;
 use serde_json::{Map, Value};
 use spiderhead_parse::asset_evidence::{find_render_blocking_resources, RenderBlockingResource};
 use spiderhead_parse::dom;
+use spiderhead_parse::json_text::float_repr;
 use spiderhead_parse::parser::tokenize::{document_base_url, DocumentSource};
-use spiderhead_parse::py_json::float_repr;
 use spiderhead_store::bodies::read_document;
 
 use super::asset_checks::ascii_dump_len;

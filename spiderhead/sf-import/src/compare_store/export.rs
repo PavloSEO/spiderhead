@@ -14,7 +14,7 @@ use spiderhead_store::evidence_contract::Obj;
 
 use crate::compare::base::{os_error_text, CompareError};
 
-use super::shared::{check_cancel, file_sha256_with_size, hex, py_json};
+use super::shared::{check_cancel, file_sha256_with_size, hex, json_text};
 
 /// Rows between progress notifications and checkpoint commits.
 pub(crate) const INDEX_BATCH: i64 = 10_000;
@@ -51,7 +51,7 @@ pub(crate) fn export_one(
         for row in rows {
             let row = row?;
             check_cancel(cancel_event)?;
-            let data = format!("{}\n", py_json(&row)).into_bytes();
+            let data = format!("{}\n", json_text(&row)).into_bytes();
             stream
                 .write_all(&data)
                 .map_err(|e| CompareError(e.to_string()))?;
@@ -75,7 +75,7 @@ pub(crate) fn export_one(
         for row in rows {
             let row = row?;
             check_cancel(cancel_event)?;
-            let data = format!("{}\n", py_json(&row)).into_bytes();
+            let data = format!("{}\n", json_text(&row)).into_bytes();
             digest.update(&data);
             raw.write_all(&data)
                 .map_err(|e| CompareError(e.to_string()))?;
@@ -435,7 +435,7 @@ mod tests {
             "sha256".into(),
             Value::String(hex(&sha2::Sha256::digest(truncated.as_bytes()))),
         );
-        std::fs::write(&manifest, py_json(&document)).expect("rewrite manifest");
+        std::fs::write(&manifest, json_text(&document)).expect("rewrite manifest");
         let mut iterator = iter_compare_rows(&manifest, "entered");
         assert!(iterator.next().expect("first row").is_ok());
         let second = iterator.next().expect("second poll");

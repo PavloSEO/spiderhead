@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url;
+use spiderhead_parse::url_parse;
 use spiderhead_parse::urlutil::hostname;
 
 use super::details;
@@ -81,7 +81,7 @@ fn rel_tokens(edge: &Edge) -> BTreeSet<String> {
 
 /// `link_findings._origin`: normalized (scheme, hostname, effective port).
 fn origin(url: &str) -> (String, String, Option<i64>) {
-    let parts = py_url::urlsplit(url).unwrap_or_default();
+    let parts = url_parse::urlsplit(url).unwrap_or_default();
     let scheme = parts.scheme.to_lowercase();
     let host = hostname(url).ok().flatten().unwrap_or_default();
     let hostport = parts.netloc.rsplit('@').next().unwrap_or("");
@@ -111,7 +111,7 @@ fn host_of(url: &str) -> String {
 
 /// Scheme of `url`, lower-cased (reference `urlsplit(url).scheme.lower()`).
 fn scheme_of(url: &str) -> String {
-    py_url::urlsplit(url)
+    url_parse::urlsplit(url)
         .map(|p| p.scheme.to_lowercase())
         .unwrap_or_default()
 }

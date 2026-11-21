@@ -9,7 +9,7 @@ use spiderhead_core::filesystem::link_identity;
 use rusqlite::Connection;
 use serde_json::Value;
 
-use super::shared::{py_json, LockFile};
+use super::shared::{json_text, LockFile};
 use crate::compare::base::CompareError;
 
 /// Read one checkpoint value, or `default` when the key is absent.
@@ -44,7 +44,7 @@ pub(crate) fn state_value_or(
 pub(crate) fn set_state(con: &Connection, key: &str, value: &Value) -> Result<(), CompareError> {
     con.execute(
         "INSERT INTO job_state(key,value) VALUES (?1,?2) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-        rusqlite::params![key, py_json(value)],
+        rusqlite::params![key, json_text(value)],
     )
     .map_err(|e| CompareError(e.to_string()))?;
     Ok(())

@@ -7,7 +7,7 @@ use std::path::Path;
 
 use serde_json::{json, Value};
 use spiderhead_core::host::Host;
-use spiderhead_parse::py_url;
+use spiderhead_parse::url_parse;
 use thiserror::Error;
 
 use crate::credentials;
@@ -163,7 +163,7 @@ fn bad_url(url: &str, host: &str) -> bool {
     {
         return true;
     }
-    let parsed = match py_url::urlsplit(url) {
+    let parsed = match url_parse::urlsplit(url) {
         Ok(p) => p,
         Err(_) => return true,
     };

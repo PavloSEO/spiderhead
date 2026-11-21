@@ -5,7 +5,7 @@
 
 use super::*;
 use crate::pyvalue::str_or_dumps;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::url_parse::urlsplit;
 
 /// The issue signature reference compares for persisting/changed verdicts.
 fn issue_signature(issue: &Object) -> String {

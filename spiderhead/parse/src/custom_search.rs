@@ -8,9 +8,9 @@ use crate::bs4_out::outer_html;
 use crate::content_area::TEXT_EXCLUDED_TAGS;
 use crate::dom::{find, parse_document, visible_strings, Selector};
 use crate::duplicate::round4;
+use crate::json_text::float_repr;
 use crate::parser::shared::collapse_whitespace;
-use crate::py_json::float_repr;
-use crate::py_str::py_repr;
+use crate::strings::repr;
 use crate::types::{CorpusDocument, Json, ParseError, Result};
 use crate::xpath;
 
@@ -98,7 +98,7 @@ fn invalid<T>(message: String) -> Result<T> {
 
 /// Scope names rendered as a tuple literal, the form the error messages quote.
 fn tuple_repr(items: &[&str]) -> String {
-    let inner: Vec<String> = items.iter().map(|i| py_repr(i)).collect();
+    let inner: Vec<String> = items.iter().map(|i| repr(i)).collect();
     if inner.len() == 1 {
         format!("({},)", inner[0])
     } else {
@@ -134,7 +134,7 @@ pub fn html_target_text(html: &str, scope: &str, selector: &str) -> Result<Strin
         other => {
             return Err(ParseError::Invalid(format!(
                 "unknown scope {}",
-                py_repr(other)
+                repr(other)
             )))
         }
     })
@@ -144,13 +144,13 @@ pub fn html_target_text(html: &str, scope: &str, selector: &str) -> Result<Strin
 fn validate_selector_syntax(scope: &str, selector: &str) -> Result<()> {
     if scope == "element" {
         css(selector).map_err(|e| {
-            ParseError::Invalid(format!("invalid CSS selector {}: {e}", py_repr(selector)))
+            ParseError::Invalid(format!("invalid CSS selector {}: {e}", repr(selector)))
         })?;
     } else if scope == "xpath" {
         xpath::XPath::compile(selector).map_err(|e| {
             ParseError::Invalid(format!(
                 "invalid XPath expression {}: {}",
-                py_repr(selector),
+                repr(selector),
                 e.message()
             ))
         })?;
@@ -275,26 +275,26 @@ pub fn run_filter(documents: &[CorpusDocument], spec: &FilterSpec) -> Result<Fil
     if !MODES.contains(&mode) {
         return invalid(format!(
             "unknown mode {}; expected one of {}",
-            py_repr(mode),
+            repr(mode),
             tuple_repr(&MODES)
         ));
     }
     if !KINDS.contains(&kind) {
         return invalid(format!(
             "unknown kind {}; expected one of {}",
-            py_repr(kind),
+            repr(kind),
             tuple_repr(&KINDS)
         ));
     }
     if !SCOPES.contains(&scope) {
         return invalid(format!(
             "unknown scope {}; expected one of {}",
-            py_repr(scope),
+            repr(scope),
             tuple_repr(&SCOPES)
         ));
     }
     if matches!(scope, "element" | "xpath" | "selector_markup") && selector.is_empty() {
-        return invalid(format!("scope {} requires a selector", py_repr(scope)));
+        return invalid(format!("scope {} requires a selector", repr(scope)));
     }
     if matches!(scope, "element" | "selector_markup") {
         validate_selector_syntax("element", selector)?;
@@ -302,8 +302,8 @@ pub fn run_filter(documents: &[CorpusDocument], spec: &FilterSpec) -> Result<Fil
         validate_selector_syntax(scope, selector)?;
     }
     let regex = if kind == "regex" {
-        let compiled = crate::py_regex::build(query, !spec.case_sensitive, None)
-            .map_err(|e| ParseError::Invalid(format!("invalid regex {}: {e}", py_repr(query))))?;
+        let compiled = crate::regex_compile::build(query, !spec.case_sensitive, None)
+            .map_err(|e| ParseError::Invalid(format!("invalid regex {}: {e}", repr(query))))?;
         Some(compiled)
     } else {
         None

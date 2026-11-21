@@ -22,7 +22,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use regex::Regex;
 use serde_json::{json, Map, Value};
 
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::url_parse::urlsplit;
 
 /// The browser identity used when the caller does not name one.
 pub const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";

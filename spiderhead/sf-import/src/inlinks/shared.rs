@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use indexmap::IndexMap;
 use serde_json::{Map, Value};
 use spiderhead_core::graph::GraphAccess;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::url_parse::urlsplit;
 
 use crate::context::{AddOpts, AuditContext, ContextError, PageHandle};
 use crate::normalize::{is_true, norm_url, records_from_df, Object, INLINKS_FIELD_MAP};

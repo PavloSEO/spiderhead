@@ -73,8 +73,7 @@ fn split_sentences(text: &str) -> Vec<&str> {
             j += 1;
         }
         let mut k = j;
-        while k < chars.len() && (crate::py_str::is_py_space(chars[k].1) || chars[k].1 == '\u{a0}')
-        {
+        while k < chars.len() && (crate::strings::is_space(chars[k].1) || chars[k].1 == '\u{a0}') {
             k += 1;
         }
         let end_byte = |idx: usize| chars.get(idx).map_or(text.len(), |c| c.0);
@@ -104,7 +103,7 @@ fn py_round(value: f64, ndigits: usize) -> f64 {
 /// Sentence/word/syllable counts, Flesch score and band; `None` when no word has a letter.
 pub fn reading_ease(text: &str) -> Option<Readability> {
     let words: Vec<&str> = text
-        .split(crate::py_str::is_py_space)
+        .split(crate::strings::is_space)
         .filter(|t| has_letter(t))
         .collect();
     if words.is_empty() {

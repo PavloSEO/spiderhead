@@ -85,7 +85,7 @@ fn public_url(value: &Value) -> Value {
     let Some(text) = value.as_str() else {
         return Value::Null;
     };
-    let Ok(parts) = spiderhead_parse::py_url::urlsplit(text) else {
+    let Ok(parts) = spiderhead_parse::url_parse::urlsplit(text) else {
         return Value::Null;
     };
     if parts.scheme != "http" && parts.scheme != "https" {

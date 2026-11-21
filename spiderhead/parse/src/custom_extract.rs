@@ -9,9 +9,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::bs4_out::{contents_str, outer_html};
 use crate::dom::{parse_document, Selector};
+use crate::json_text::float_repr;
 use crate::parser::shared::collapse_whitespace;
-use crate::py_json::float_repr;
-use crate::py_str::{py_repr, py_strip};
+use crate::strings::{repr, strip};
 use crate::types::{CorpusDocument, Json, ParseError, Result};
 use crate::xpath;
 
@@ -141,7 +141,7 @@ fn invalid<T>(message: String) -> Result<T> {
 }
 
 fn tuple_repr(items: &[&str]) -> String {
-    let inner: Vec<String> = items.iter().map(|i| py_repr(i)).collect();
+    let inner: Vec<String> = items.iter().map(|i| repr(i)).collect();
     format!("({})", inner.join(", "))
 }
 
@@ -237,7 +237,7 @@ fn extract_regex(
     case_sensitive: bool,
     deadline: Option<Instant>,
 ) -> Result<Option<Vec<String>>> {
-    let compiled = crate::py_regex::build(pattern, !case_sensitive, Some(BACKTRACK_LIMIT))
+    let compiled = crate::regex_compile::build(pattern, !case_sensitive, Some(BACKTRACK_LIMIT))
         .map_err(|e| ParseError::Selector(format!("{pattern}: {e}")))?;
     let groups = compiled.captures_len() as i64 - 1;
     if output == "group" && group > groups {
@@ -298,7 +298,7 @@ pub fn run_extractor(
     let Some(outputs) = outputs_for_mode(mode) else {
         return invalid(format!(
             "unknown mode {}; expected one of {}",
-            py_repr(mode),
+            repr(mode),
             tuple_repr(&MODES)
         ));
     };
@@ -306,8 +306,8 @@ pub fn run_extractor(
     if !outputs.contains(&output) {
         return invalid(format!(
             "output {} is not valid for mode {}; expected one of {}",
-            py_repr(output),
-            py_repr(mode),
+            repr(output),
+            repr(mode),
             tuple_repr(outputs)
         ));
     }
@@ -414,7 +414,7 @@ pub fn check_sample(
         rendered: false,
     };
     let report = run_extraction(std::slice::from_ref(&document), extractors, timeout_seconds)?;
-    let has_markup = !py_strip(html).is_empty();
+    let has_markup = !strip(html).is_empty();
     let mut results = Vec::new();
     for extractor in report.extractors {
         let row = &extractor.rows[0];

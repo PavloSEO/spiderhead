@@ -5,7 +5,7 @@
 use rusqlite::Connection;
 use serde_json::{json, Value};
 use spiderhead_core::job_control::JobProgressUpdate;
-use spiderhead_parse::py_str::py_repr;
+use spiderhead_parse::strings::repr;
 
 use crate::compare::base::{iter_rows, key_of, mapped_url, AuditSource, CompareError};
 use crate::pyvalue::py_json_loads;
@@ -14,7 +14,7 @@ use crate::segments::Segment;
 use super::checkpoint::{commit_txn, set_state, state_value_or};
 use super::export::INDEX_BATCH;
 use super::job::Recorder;
-use super::shared::{check_cancel, py_json};
+use super::shared::{check_cancel, json_text};
 use super::source::{collection_count, pair, primary_segment as segment_of};
 
 fn label_of(side: i64) -> &'static str {
@@ -131,7 +131,7 @@ pub(crate) fn index_collection(
                     "comparison page must contain a nonempty URL".into(),
                 ));
             };
-            let document = py_json(&row);
+            let document = json_text(&row);
             let segment = segment_of(record, ordered_segments);
             let insert = con.execute(
                 "INSERT INTO pages VALUES (?,?,?,?,?,?)",
@@ -148,7 +148,7 @@ pub(crate) fn index_collection(
                 if integrity_error(&error) {
                     return Err(CompareError(format!(
                         "comparison has duplicate page URL {}",
-                        py_repr(url)
+                        repr(url)
                     )));
                 }
                 return Err(CompareError(error.to_string()));
@@ -173,7 +173,7 @@ pub(crate) fn index_collection(
                 ));
             }
             let (check, url) = key_of(record);
-            let document = py_json(&row);
+            let document = json_text(&row);
             let insert = con.execute(
                 "INSERT INTO issues VALUES (?,?,?,?,?,?)",
                 rusqlite::params![
@@ -215,7 +215,7 @@ pub(crate) fn index_collection(
                                 let merged = serde_json::Value::Object(hit.clone());
                                 if let Err(error) = con.execute(
                                     "UPDATE issues SET document=?4 WHERE side=?1 AND check_key=?2 AND url=?3",
-                                    rusqlite::params![side, check, url, py_json(&merged)],
+                                    rusqlite::params![side, check, url, json_text(&merged)],
                                 ) {
                                     return Err(CompareError(error.to_string()));
                                 }
@@ -305,7 +305,7 @@ pub(crate) fn bind(
         } else {
             "after_not_crawled"
         };
-        let document = py_json(&Value::Object(pair(
+        let document = json_text(&Value::Object(pair(
             &before_url,
             &after_url,
             kind.unwrap_or("explicit_pair"),
@@ -338,7 +338,7 @@ pub(crate) fn bind(
             )
             .is_ok();
         if !present {
-            let document = py_json(&Value::Object(super::source::pair(
+            let document = json_text(&Value::Object(super::source::pair(
                 before_url,
                 after_url,
                 "explicit_pair",
@@ -363,7 +363,7 @@ pub(crate) fn bind(
     if let Some(target) = collision {
         return Err(CompareError(format!(
             "url correspondence has a page collision at {}",
-            py_repr(&target)
+            repr(&target)
         )));
     }
     con.execute(

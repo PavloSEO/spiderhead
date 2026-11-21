@@ -168,7 +168,7 @@ pub async fn manage_grant_with<T: Transport>(
         "start" => {
             let client_id = env(host, "GSC_OAUTH_CLIENT_ID");
             let redirect_uri = env(host, "GSC_OAUTH_REDIRECT_URI");
-            let parsed = spiderhead_parse::py_url::urlsplit(&redirect_uri)
+            let parsed = spiderhead_parse::url_parse::urlsplit(&redirect_uri)
                 .map_err(|e| OAuthError::Invalid(e.to_string()))?;
             let (username, password, hostname) = netloc_parts(&parsed.netloc);
             if client_id.is_empty()

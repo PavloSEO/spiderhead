@@ -15,9 +15,9 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 use spiderhead_parse::content_area::{extract_area_text, resolve_content_area};
 use spiderhead_parse::dom::{self, has_attr};
-use spiderhead_parse::py_str::py_strip;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::strings::strip;
 use spiderhead_parse::types::ContentAreaConfig;
+use spiderhead_parse::url_parse::urlsplit;
 use spiderhead_parse::{parse_html, ParseOptions};
 use spiderhead_store::bodies::read_page_document_content;
 use spiderhead_store::error::StoreError;
@@ -254,7 +254,7 @@ pub fn parse_snippet_csv(text: &str) -> Result<Value, SnippetError> {
     };
     let header: Vec<String> = header_row
         .iter()
-        .map(|cell| py_strip(cell).to_lowercase())
+        .map(|cell| strip(cell).to_lowercase())
         .collect();
     if !header.iter().any(|h| h == "url") || !EDITABLE.iter().any(|f| header.iter().any(|h| h == f))
     {
@@ -267,17 +267,13 @@ pub fn parse_snippet_csv(text: &str) -> Result<Value, SnippetError> {
     let mut errors: Vec<Value> = Vec::new();
     let mut seen: HashSet<String> = HashSet::new();
     while let Some((row, line)) = reader.next_record(delimiter)? {
-        if !row.iter().any(|cell| !py_strip(cell).is_empty()) {
+        if !row.iter().any(|cell| !strip(cell).is_empty()) {
             continue;
         }
         let cells: Vec<String> = header
             .iter()
             .enumerate()
-            .map(|(i, _)| {
-                row.get(i)
-                    .map(|c| py_strip(c).to_owned())
-                    .unwrap_or_default()
-            })
+            .map(|(i, _)| row.get(i).map(|c| strip(c).to_owned()).unwrap_or_default())
             .collect();
         let cell_of = |name: &str| -> &str {
             header
@@ -554,7 +550,7 @@ pub fn measure_snippet_edits(
     let mut loaded: Vec<Loaded> = Vec::new();
     let mut provenance = Map::new();
     for (profile, spec) in &metrics {
-        if spec.as_object().is_none() || py_strip(profile).is_empty() {
+        if spec.as_object().is_none() || strip(profile).is_empty() {
             return Err(err("each metric profile needs a name and font settings"));
         }
         let spec = spec.as_object().cloned().unwrap_or_default();
@@ -848,7 +844,7 @@ pub fn inspect_retained_document(
             return Err(err("search query must be text"));
         }
         let q = q.as_str().unwrap_or_default();
-        if py_strip(q).is_empty() {
+        if strip(q).is_empty() {
             excerpt.insert("state".into(), json!("unavailable"));
             excerpt.insert("reason".into(), json!("search query was not supplied"));
         } else if q.chars().count() > 512 {

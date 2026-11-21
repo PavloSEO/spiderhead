@@ -44,7 +44,7 @@ pub const NO_EVIDENCE_REASON: &str = "no Search Console evidence";
 
 /// `_public_url`: scheme, host and path only — query values and userinfo stay out of findings.
 pub fn public_url(value: &str) -> String {
-    let Ok(parts) = spiderhead_parse::py_url::urlsplit(value) else {
+    let Ok(parts) = spiderhead_parse::url_parse::urlsplit(value) else {
         return value.to_owned();
     };
     let (host, raw_port) = hostinfo(&parts.netloc);
@@ -59,7 +59,7 @@ pub fn public_url(value: &str) -> String {
         Some(p) => format!("{host}:{p}"),
         None => host,
     };
-    spiderhead_parse::py_url::urlunsplit(&parts.scheme, &netloc, &parts.path, "", "")
+    spiderhead_parse::url_parse::urlunsplit(&parts.scheme, &netloc, &parts.path, "", "")
 }
 
 /// Host and raw port string, split from the authority part.
@@ -124,7 +124,7 @@ fn impressions(rows: &[&Value]) -> Result<f64, CfError> {
 
 /// `_origin`: scheme plus netloc of a join key.
 fn origin_of(key: &str) -> String {
-    spiderhead_parse::py_url::urlsplit(key)
+    spiderhead_parse::url_parse::urlsplit(key)
         .map(|p| format!("{}://{}", p.scheme, p.netloc))
         .unwrap_or_else(|_| format!("://{key}"))
 }

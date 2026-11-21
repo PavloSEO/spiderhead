@@ -9,7 +9,7 @@ use indexmap::IndexMap;
 use quick_xml::events::Event;
 use quick_xml::Reader;
 use serde_json::{Map, Value};
-use spiderhead_parse::py_url;
+use spiderhead_parse::url_parse;
 use std::collections::HashSet;
 use thiserror::Error;
 
@@ -48,7 +48,7 @@ pub enum SitemapParseError {
 
 /// `_host(url)`: `urlparse(url).netloc.lower()`, `""` on error.
 pub fn host(url: &str) -> String {
-    match py_url::urlsplit(url) {
+    match url_parse::urlsplit(url) {
         Ok(parts) => parts.netloc.to_lowercase(),
         Err(_) => String::new(),
     }
@@ -56,7 +56,7 @@ pub fn host(url: &str) -> String {
 
 /// `_origin(url)`: `scheme://netloc` of an absolute URL, else `None`.
 pub fn origin(url: &str) -> Option<String> {
-    let parts = py_url::urlsplit(url).ok()?;
+    let parts = url_parse::urlsplit(url).ok()?;
     if !parts.scheme.is_empty() && !parts.netloc.is_empty() {
         Some(format!("{}://{}", parts.scheme, parts.netloc))
     } else {
@@ -68,7 +68,7 @@ pub fn origin(url: &str) -> Option<String> {
 /// URL is explicit and absolute.
 pub fn resolve_sitemap_loc(loc: &str, source: &str) -> String {
     if origin(source).is_some() {
-        py_url::urljoin(source, loc).unwrap_or_else(|_| loc.to_owned())
+        url_parse::urljoin(source, loc).unwrap_or_else(|_| loc.to_owned())
     } else {
         loc.to_owned()
     }
@@ -162,7 +162,7 @@ fn parse_port(text: &str, url_str: &str) -> Result<i64, NormalizeUrlError> {
 /// ports, remove the fragment, strip trailing slashes from non-root paths.
 /// Err for non-absolute input (the oracle's `ValueError`).
 pub fn normalize_url(url_str: &str) -> Result<String, NormalizeUrlError> {
-    let parts = py_url::urlsplit(url_str.trim())
+    let parts = url_parse::urlsplit(url_str.trim())
         .map_err(|_| NormalizeUrlError(format!("Invalid URL: '{url_str}'")))?;
     if parts.scheme.is_empty() || parts.netloc.is_empty() {
         return Err(NormalizeUrlError(format!("Invalid URL: '{url_str}'")));
@@ -193,8 +193,8 @@ pub fn normalize_url(url_str: &str) -> Result<String, NormalizeUrlError> {
     if let Some(i) = parts.netloc.rfind('@') {
         let userinfo = &parts.netloc[..i];
         let ui = match userinfo.split_once(':') {
-            Some((u, p)) => format!("{}:{}", py_url::unquote(u), py_url::unquote(p)),
-            None => py_url::unquote(userinfo),
+            Some((u, p)) => format!("{}:{}", url_parse::unquote(u), url_parse::unquote(p)),
+            None => url_parse::unquote(userinfo),
         };
         netloc = format!("{ui}@{netloc}");
     }
@@ -204,7 +204,7 @@ pub fn normalize_url(url_str: &str) -> Result<String, NormalizeUrlError> {
             path.pop();
         }
     }
-    Ok(py_url::urlunsplit(
+    Ok(url_parse::urlunsplit(
         &scheme,
         &netloc,
         &path,

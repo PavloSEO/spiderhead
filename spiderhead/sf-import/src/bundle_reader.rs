@@ -464,7 +464,7 @@ pub fn find_db_dir(root: &Path) -> Result<PathBuf, BundleError> {
             "[{}]",
             entries
                 .iter()
-                .map(|name| spiderhead_parse::py_str::py_repr(name))
+                .map(|name| spiderhead_parse::strings::repr(name))
                 .collect::<Vec<_>>()
                 .join(", ")
         )

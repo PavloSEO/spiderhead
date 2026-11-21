@@ -5,7 +5,7 @@ use super::stream::{stream_elements, validate_document, StreamEvent, StreamScan}
 use super::urls::*;
 use super::xml::decode_bytes;
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url;
+use spiderhead_parse::url_parse;
 
 /// One fetched and decompressed document, or the transport or HTTP reason it could not be read.
 pub struct Document {
@@ -49,7 +49,7 @@ pub async fn fetch_document(
                 .and_then(|value| value.to_str().ok())
                 .unwrap_or_default()
                 .to_owned();
-            target = py_url::urljoin(&target, &location).unwrap_or(target);
+            target = url_parse::urljoin(&target, &location).unwrap_or(target);
             continue;
         }
         let status = response.status().as_u16();
@@ -218,7 +218,7 @@ fn stream_document(
                         };
                         declared += 1;
                         let joined =
-                            py_url::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
+                            url_parse::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
                         if let Ok(norm) = normalize_url(&joined) {
                             walk.enqueue(norm, base_url);
                         }
@@ -400,7 +400,7 @@ pub(super) async fn discover_roots(
     client: &reqwest::Client,
     user_agent: &str,
     root: &str,
-    root_parts: &py_url::SplitUrl,
+    root_parts: &url_parse::SplitUrl,
     walk: &mut Walk,
     discovery_errors: &mut Vec<Value>,
 ) {
@@ -411,7 +411,7 @@ pub(super) async fn discover_roots(
             let text = String::from_utf8_lossy(&document.body);
             let (_groups, sitemaps) = spiderhead_fetch::robots::parse_robots(&text);
             for declared in sitemaps {
-                match py_url::urljoin(root, declared.trim())
+                match url_parse::urljoin(root, declared.trim())
                     .ok()
                     .and_then(|joined| normalize_url(&joined).ok())
                 {
@@ -466,7 +466,7 @@ pub async fn crawl(
             });
         }
     };
-    let root_parts = py_url::urlsplit(&root).unwrap_or_default();
+    let root_parts = url_parse::urlsplit(&root).unwrap_or_default();
     let discover_from_root =
         matches!(root_parts.path.as_str(), "" | "/") && root_parts.query.is_empty();
 

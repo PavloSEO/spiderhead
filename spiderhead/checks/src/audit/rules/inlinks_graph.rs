@@ -36,7 +36,7 @@ type DupBucket = (Vec<Map<String, Value>>, i64, Vec<String>);
 fn site_host(ctx: &AuditContext) -> String {
     let mut counts: std::collections::HashMap<String, i64> = Default::default();
     for page in &ctx.pages {
-        if let Ok(s) = spiderhead_parse::py_url::urlsplit(&page.url) {
+        if let Ok(s) = spiderhead_parse::url_parse::urlsplit(&page.url) {
             *counts.entry(s.netloc.to_lowercase()).or_default() += 1;
         }
     }

@@ -13,7 +13,7 @@ use std::collections::BTreeSet;
 
 use serde_json::{json, Map, Value};
 use spiderhead_parse::parser::meta::robots_directives;
-use spiderhead_parse::py_url::{urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{urlsplit, urlunsplit};
 
 use crate::normalize::norm_url;
 use crate::pyvalue::{py_repr_value, str_or_dumps, truthy};
@@ -129,7 +129,7 @@ fn declared_alternate(page: &Value, target: &str, segment_for: SegmentFor) -> Op
             .map(str_or_dumps)
             .next()
             .unwrap_or_default();
-        let url = spiderhead_parse::py_str::py_strip(&url).to_owned();
+        let url = spiderhead_parse::strings::strip(&url).to_owned();
         if !url.is_empty() && segment_for(&url) == target {
             return Some(url);
         }

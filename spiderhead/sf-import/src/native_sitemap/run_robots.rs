@@ -2,7 +2,7 @@
 //! dependencies, over the selected-links CTE.
 
 use serde_json::Value;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::url_parse::urlsplit;
 
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::Object;

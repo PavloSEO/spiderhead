@@ -9,7 +9,7 @@
 use serde::Serialize;
 use spiderhead_core::net::normalize_url;
 use spiderhead_core::url_variants::{build_variants, UrlVariant};
-use spiderhead_parse::py_url::{urljoin, urlsplit, urlunsplit, UrlError};
+use spiderhead_parse::url_parse::{urljoin, urlsplit, urlunsplit, UrlError};
 
 /// Redirect hops followed before a chain is reported as a suspected loop.
 pub const MAX_HOPS: usize = 6;

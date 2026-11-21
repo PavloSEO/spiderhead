@@ -136,7 +136,7 @@ pub(crate) fn split(input: &str) -> Result<Parts, NormUrlError> {
 }
 
 /// The validation `urlsplit` runs on an authority: balanced brackets, a valid bracketed
-/// host, and no delimiters appearing under NFKC normalization (shared with `parse::py_url`).
+/// host, and no delimiters appearing under NFKC normalization (shared with `parse::url_parse`).
 ///
 /// # Errors
 ///

@@ -12,7 +12,7 @@ use std::collections::HashSet;
 
 use indexmap::IndexMap;
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url::{urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{urlsplit, urlunsplit};
 
 use crate::context::{AddOpts, AuditContext, ContextError, PageHandle};
 use crate::normalize::norm_url;

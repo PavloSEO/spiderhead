@@ -2,11 +2,11 @@
 //! One small tolerant tokenizer; RCDATA and rawtext content is opaque.
 
 use super::meta;
-use super::pyscan::{scan, Event};
 use super::shared::is_inert_template_content;
+use super::tag_scan::{scan, Event};
 use crate::dom::{find, find_all, ElementRef, Soup};
 use crate::models::DocumentPosition;
-use crate::py_str::py_strip;
+use crate::strings::strip;
 use crate::urlutil::urljoin;
 
 /// Tags allowed inside `<head>`.
@@ -30,7 +30,7 @@ pub fn document_base_url(document: DocumentSource<'_>, final_url: &str) -> Strin
         DocumentSource::Raw(html) => live_base_href(html).unwrap_or_default(),
         DocumentSource::Tree(soup) => find_all(soup, "base")
             .filter(|tag| !is_inert_template_content(tag))
-            .map(|tag| py_strip(tag.value().attr("href").unwrap_or("")).to_owned())
+            .map(|tag| strip(tag.value().attr("href").unwrap_or("")).to_owned())
             .find(|candidate| !candidate.is_empty())
             .unwrap_or_default(),
     };
@@ -52,8 +52,8 @@ fn live_base_href(html: &str) -> Option<String> {
                 } else if found.is_none() && template_depth == 0 && tag == "base" {
                     found = attrs.into_iter().find_map(|(name, value)| {
                         let value = value?;
-                        (name == "href" && !py_strip(&value).is_empty())
-                            .then(|| py_strip(&value).to_owned())
+                        (name == "href" && !strip(&value).is_empty())
+                            .then(|| strip(&value).to_owned())
                     });
                 }
             }

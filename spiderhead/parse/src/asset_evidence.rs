@@ -10,7 +10,7 @@ use unicode_general_category::{get_general_category, GeneralCategory as G};
 
 use crate::dom::{ElementRef, Soup};
 use crate::parser::shared::{is_inert_template_content, rel_has};
-use crate::py_str::{is_py_space, py_strip};
+use crate::strings::{is_space, strip};
 use crate::types::Result;
 use crate::urlutil::urljoin;
 
@@ -120,13 +120,13 @@ pub fn whitespace_ratio(text: &str) -> f64 {
     if total == 0 {
         return 0.0;
     }
-    let spaces = text.chars().filter(|&c| is_py_space(c)).count();
+    let spaces = text.chars().filter(|&c| is_space(c)).count();
     spaces as f64 / total as f64
 }
 
 /// Heuristic: minified CSS/JS reads as long lines with little whitespace.
 pub fn looks_minified(text: &str) -> bool {
-    let stripped = py_strip(text);
+    let stripped = strip(text);
     let lines = py_splitlines(stripped);
     // An empty text still counts as one line.
     let line_count = lines.len().max(1);
@@ -153,14 +153,14 @@ pub fn is_render_blocking(tag_name: &str, attrs: &[(String, String)]) -> bool {
             if get("async").is_some() || get("defer").is_some() {
                 return false;
             }
-            let kind = py_strip(get("type").unwrap_or("")).to_lowercase();
+            let kind = strip(get("type").unwrap_or("")).to_lowercase();
             matches!(
                 kind.as_str(),
                 "" | "text/javascript" | "application/javascript"
             )
         }
         "link" => {
-            let media = py_strip(get("media").unwrap_or("")).to_lowercase();
+            let media = strip(get("media").unwrap_or("")).to_lowercase();
             matches!(media.as_str(), "" | "all" | "screen")
         }
         _ => false,
@@ -226,7 +226,7 @@ pub fn find_missing_font_display(css_text: &str) -> Vec<MissingFontDisplay> {
         .filter_map(|captures| captures.get(1).map(|block| block.as_str().to_owned()))
         .filter(|block| !display_ok.is_match(block.as_str()).unwrap_or(false))
         .map(|block| MissingFontDisplay {
-            excerpt: py_strip(&block).chars().take(200).collect(),
+            excerpt: strip(&block).chars().take(200).collect(),
         })
         .collect()
 }

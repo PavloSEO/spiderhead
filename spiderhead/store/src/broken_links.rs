@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 
 use rusqlite::{Connection, OptionalExtension};
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url::urlparse;
+use spiderhead_parse::url_parse::urlparse;
 
 use crate::error::StoreError;
 use crate::scan_artifact::open_scan;

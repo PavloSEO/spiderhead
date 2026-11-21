@@ -10,7 +10,7 @@ use spiderhead_core::canonical_policy::validate_canonical_policy;
 use spiderhead_core::finding_exclusions::validate_rules;
 use spiderhead_core::user_agents::RECON_USER_AGENT;
 use spiderhead_formats::check_registry::builtin as check_registry;
-use spiderhead_parse::py_str::py_repr;
+use spiderhead_parse::strings::repr;
 use thiserror::Error;
 
 use crate::export_manifest::default_profile_exports;
@@ -451,7 +451,7 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
                         severity: &Value| {
         errors.push(format!(
             "{where_}[{}] severity is {}; must be one of ('critical', 'warning', 'notice', 'opportunity')",
-            py_repr(check_id),
+            repr(check_id),
             py_repr_value(severity),
         ));
     };
@@ -465,7 +465,7 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
         if registry.get(check_id).is_none() {
             errors.push(format!(
                 "severity_overrides names unknown check {}",
-                py_repr(check_id)
+                repr(check_id)
             ));
         } else if !severity
             .as_str()
@@ -481,7 +481,7 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
     };
     for (check_id, check_cfg) in checks {
         if registry.get(check_id).is_none() {
-            errors.push(format!("checks names unknown check {}", py_repr(check_id)));
+            errors.push(format!("checks names unknown check {}", repr(check_id)));
             continue;
         }
         // `"severity" in check_cfg` then `check_cfg["severity"]`: non-dict
@@ -506,7 +506,7 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
             if !enabled.is_boolean() {
                 errors.push(format!(
                     "checks[{}].enabled is {}; must be true or false",
-                    py_repr(check_id),
+                    repr(check_id),
                     py_repr_value(&enabled)
                 ));
             }
@@ -536,7 +536,7 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
         if weight.is_boolean() || numeric.is_none() {
             errors.push(format!(
                 "scoring.weights[{}] is {}; must be a number",
-                py_repr(severity),
+                repr(severity),
                 py_repr_value(weight)
             ));
         } else if numeric.is_some_and(|w| !w.is_finite() || w < 0.0) {
@@ -547,7 +547,7 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
             };
             errors.push(format!(
                 "scoring.weights[{shown_key}] is {shown}; must be finite and >= 0",
-                shown_key = py_repr(severity)
+                shown_key = repr(severity)
             ));
         }
     }

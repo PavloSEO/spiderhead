@@ -9,7 +9,7 @@ use spiderhead_core::url_normalize::norm_url;
 use spiderhead_parse::dom::{attr, find_all, Soup};
 use spiderhead_parse::hreflang_code::code_error;
 use spiderhead_parse::parser::tokenize::{document_base_url, DocumentSource};
-use spiderhead_parse::py_url::urljoin;
+use spiderhead_parse::url_parse::urljoin;
 
 use crate::net_client::{http_client, py_repr, ReconClient};
 

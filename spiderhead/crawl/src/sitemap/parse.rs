@@ -3,7 +3,7 @@
 use super::urls::*;
 use super::xml::*;
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url;
+use spiderhead_parse::url_parse;
 
 /// Parses a priority value like `float()`; `None` when it is not a number.
 pub(super) fn parse_priority(value: Option<String>) -> Value {
@@ -125,7 +125,7 @@ pub(super) fn extension_records(url_el: &Element, base_url: &str) -> Map<String,
             "image" => {
                 let mut record = text_fields(child, &IMAGE_FIELDS);
                 if let Some(loc) = record.get("loc").and_then(Value::as_str).map(str::to_owned) {
-                    let joined = py_url::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
+                    let joined = url_parse::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
                     record.insert("loc".into(), json!(joined));
                     images.push(Value::Object(record));
                 }
@@ -159,7 +159,8 @@ pub(super) fn extension_records(url_el: &Element, base_url: &str) -> Map<String,
                 let hreflang = child.attr("hreflang").unwrap_or("").trim().to_owned();
                 let href = child.attr("href").unwrap_or("").trim().to_owned();
                 if rel == "alternate" && !hreflang.is_empty() && !href.is_empty() {
-                    let joined = py_url::urljoin(base_url, &href).unwrap_or_else(|_| href.clone());
+                    let joined =
+                        url_parse::urljoin(base_url, &href).unwrap_or_else(|_| href.clone());
                     alternates.push(json!({"hreflang": hreflang, "href": joined}));
                 }
             }
@@ -187,7 +188,7 @@ pub(super) fn extension_records(url_el: &Element, base_url: &str) -> Map<String,
 /// streaming walk, so both surfaces produce identical entries.
 pub(super) fn urlset_entry(child: &Element, base_url: &str) -> Option<Value> {
     let loc = child.child_text("loc").filter(|loc| !loc.is_empty())?;
-    let joined = py_url::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
+    let joined = url_parse::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
     let mut entry = json!({
         "loc": joined,
         "lastmod": child.child_text("lastmod"),
@@ -232,7 +233,7 @@ pub(super) fn stream_text_sitemap(
         if line.is_empty() || line.starts_with('#') {
             continue;
         }
-        let Ok(absolute) = py_url::urljoin(base_url, line) else {
+        let Ok(absolute) = url_parse::urljoin(base_url, line) else {
             continue;
         };
         if !absolute.starts_with("http://") && !absolute.starts_with("https://") {
@@ -296,7 +297,7 @@ pub fn parse_sitemap(xml_bytes: &[u8], base_url: &str) -> Value {
                 let Some(loc) = child.child_text("loc").filter(|loc| !loc.is_empty()) else {
                     continue;
                 };
-                let joined = py_url::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
+                let joined = url_parse::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
                 sitemaps.push(json!({
                     "loc": joined,
                     "lastmod": child.child_text("lastmod"),
@@ -325,7 +326,7 @@ pub fn parse_sitemap(xml_bytes: &[u8], base_url: &str) -> Value {
 pub fn maybe_gunzip(url: &str, body: &[u8]) -> Vec<u8> {
     const GZIP_MAGIC: [u8; 2] = [0x1f, 0x8b];
     const CHUNK: usize = 64 * 1024;
-    let path = py_url::urlsplit(url)
+    let path = url_parse::urlsplit(url)
         .map(|parts| parts.path.to_lowercase())
         .unwrap_or_default();
     let looks_gzip = body.starts_with(&GZIP_MAGIC);

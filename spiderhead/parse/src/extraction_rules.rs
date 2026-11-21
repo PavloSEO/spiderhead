@@ -9,8 +9,8 @@ use serde_json::Value;
 
 use crate::bs4_out::attribute_python_str;
 use crate::dom::{parse_document, visible_strings, Selector};
+use crate::json_text::str_or_dumps;
 use crate::parser::shared::collapse_whitespace;
-use crate::py_json::str_or_dumps;
 use crate::types::{Json, ParseError, Result};
 
 /// Schema tag of results.

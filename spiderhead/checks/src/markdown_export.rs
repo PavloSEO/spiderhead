@@ -92,7 +92,7 @@ fn description_from(html: &str) -> Option<&str> {
 
 /// The output file path for a page URL: sanitized path segments, `.md` suffix.
 pub fn relpath(page_url: &str) -> PathBuf {
-    let path = spiderhead_parse::py_url::urlsplit(page_url)
+    let path = spiderhead_parse::url_parse::urlsplit(page_url)
         .map(|parts| parts.path)
         .unwrap_or_default();
     let path = path.trim_matches('/').trim_end_matches('/');

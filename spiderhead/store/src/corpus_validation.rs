@@ -8,7 +8,7 @@ use rusqlite::Connection;
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 use spiderhead_core::cache_control::parse_cache_control;
-use spiderhead_parse::py_url::urljoin;
+use spiderhead_parse::url_parse::urljoin;
 
 use crate::bodies::{decode_entity, renderer as validate_renderer};
 use crate::discovery_ledger::query_maps;

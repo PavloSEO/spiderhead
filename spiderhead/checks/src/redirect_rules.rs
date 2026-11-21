@@ -5,7 +5,7 @@
 
 use indexmap::IndexMap;
 use serde_json::{json, Value};
-use spiderhead_parse::py_url::{urljoin, urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{urljoin, urlsplit, urlunsplit};
 
 /// Strip scheme and host, leaving the path with its query and fragment.
 ///

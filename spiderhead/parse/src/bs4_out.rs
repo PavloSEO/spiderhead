@@ -4,7 +4,7 @@
 use scraper::{ElementRef, Node};
 
 use crate::dom::container_kind;
-use crate::py_str::{is_py_space, py_strip};
+use crate::strings::{is_space, strip};
 
 /// Void elements, written as `<tag/>` when they have no children.
 const EMPTY_ELEMENT_TAGS: [&str; 24] = [
@@ -35,7 +35,7 @@ fn is_list_attribute(name: &str, attr: &str) -> bool {
 /// Whitespace-separated tokens joined by one space: how list attributes are written out.
 fn join_list_value(value: &str) -> String {
     value
-        .split(is_py_space)
+        .split(is_space)
         .filter(|p| !p.is_empty())
         .collect::<Vec<_>>()
         .join(" ")
@@ -71,7 +71,7 @@ fn rewrite_content_charset(content: &str) -> String {
             .flatten()
         {
             let mut j = start;
-            while j < chars.len() && is_py_space(chars[j]) {
+            while j < chars.len() && is_space(chars[j]) {
                 j += 1;
             }
             if chars[j..].iter().take(8).collect::<String>() == "charset=" {
@@ -273,7 +273,7 @@ pub fn get_text_stripped(el: &ElementRef<'_>, separator: &str) -> String {
             .filter_map(ElementRef::wrap)
             .find_map(|a| container_kind(a.value().name()));
         if kind == own {
-            let stripped = py_strip(text);
+            let stripped = strip(text);
             if !stripped.is_empty() {
                 parts.push(stripped);
             }
@@ -289,9 +289,9 @@ pub fn attribute_python_str(el: &ElementRef<'_>, attr: &str, raw: &str) -> Strin
         return raw.to_owned();
     }
     let items: Vec<String> = raw
-        .split(is_py_space)
+        .split(is_space)
         .filter(|p| !p.is_empty())
-        .map(crate::py_str::py_repr)
+        .map(crate::strings::repr)
         .collect();
     format!("[{}]", items.join(", "))
 }

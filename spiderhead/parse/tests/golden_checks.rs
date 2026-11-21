@@ -18,7 +18,7 @@ use spiderhead_parse::link_context::extract_occurrences;
 use spiderhead_parse::navigation::{
     expand_navigation, retain_navigation, validate_navigation, CaptureSignal, NavigationCapture,
 };
-use spiderhead_parse::py_str::is_py_space;
+use spiderhead_parse::strings::is_space;
 use spiderhead_parse::text_normalize::{
     declared_language, manifest_entry, normalization_policy, normalize_document, normalize_text,
     prepare_items, py_is_word, py_isalpha, script_evidence,
@@ -267,7 +267,7 @@ fn text_normalize_matches_the_reference_checks() {
         (
             "space (str.isspace)",
             predicates["space"].clone(),
-            json!(ranges(is_py_space)),
+            json!(ranges(is_space)),
         ),
     ];
     for (name, expected, actual) in sweeps {
@@ -297,7 +297,7 @@ fn text_normalize_matches_the_reference_checks() {
                 | unicode_general_category::GeneralCategory::Format
                 | unicode_general_category::GeneralCategory::Surrogate
         );
-        let default = if is_py_space(c) || removed {
+        let default = if is_space(c) || removed {
             String::new()
         } else {
             c.to_string()

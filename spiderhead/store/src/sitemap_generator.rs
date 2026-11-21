@@ -18,7 +18,7 @@ use spiderhead_parse::dom::{parse_document, ElementRef, Selector};
 use spiderhead_parse::parser::extract::{extract_url_sources, image_url_sources};
 use spiderhead_parse::parser::meta::robots_directives;
 use spiderhead_parse::parser::tokenize::{document_base_url, DocumentSource};
-use spiderhead_parse::py_url::{urljoin, urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{urljoin, urlsplit, urlunsplit};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs::OpenOptions;
 use std::io::Write;

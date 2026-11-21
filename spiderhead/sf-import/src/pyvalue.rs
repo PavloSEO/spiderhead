@@ -1,11 +1,11 @@
 //! reference text forms of JSON values used across the sf modules.
 //!
-//! Mirrors `spiderhead_parse::py_json` (a private module there): `repr(float)`, `str(value)`
+//! Mirrors `spiderhead_parse::json_text` (a private module there): `repr(float)`, `str(value)`
 //! for scalars, and `json.dumps(sort_keys=True, ensure_ascii=False)` for containers.
 
 use serde_json::{Map, Value};
-pub(crate) use spiderhead_parse::py_str::py_repr;
-use spiderhead_parse::py_str::py_strip;
+pub(crate) use spiderhead_parse::strings::repr;
+use spiderhead_parse::strings::strip;
 
 /// reference `repr(float)`: shortest round-trip digits, fixed notation for exponents in
 /// `[-4, 16)`, otherwise `d.ddde+XX`.
@@ -65,7 +65,7 @@ pub fn py_repr_value(value: &Value) -> String {
         Value::Null => "None".to_owned(),
         Value::Bool(b) => if *b { "True" } else { "False" }.to_owned(),
         Value::Number(n) => number_repr(n),
-        Value::String(s) => py_repr(s),
+        Value::String(s) => repr(s),
         Value::Array(items) => format!(
             "[{}]",
             items
@@ -77,7 +77,7 @@ pub fn py_repr_value(value: &Value) -> String {
         Value::Object(map) => format!(
             "{{{}}}",
             map.iter()
-                .map(|(k, v)| format!("{}: {}", py_repr(k), py_repr_value(v)))
+                .map(|(k, v)| format!("{}: {}", repr(k), py_repr_value(v)))
                 .collect::<Vec<_>>()
                 .join(", ")
         ),
@@ -101,7 +101,7 @@ pub fn str_or_dumps(value: &Value) -> String {
 /// digits are not supported (Creference accepts them; JSON-sourced cells never carry
 /// them). Returns `None` where Creference raises `ValueError`.
 pub fn py_float(text: &str) -> Option<f64> {
-    let s = py_strip(text);
+    let s = strip(text);
     let bytes = s.as_bytes();
     let mut i = 0usize;
     if matches!(bytes.get(i), Some(b'+') | Some(b'-')) {

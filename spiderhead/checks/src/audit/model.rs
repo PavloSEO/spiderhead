@@ -362,8 +362,8 @@ pub fn norm_url(url: &str) -> String {
     if url.is_empty() {
         return String::new();
     }
-    match spiderhead_parse::py_url::urlsplit(url) {
-        Ok(s) => spiderhead_parse::py_url::urlunsplit(
+    match spiderhead_parse::url_parse::urlsplit(url) {
+        Ok(s) => spiderhead_parse::url_parse::urlunsplit(
             &s.scheme.to_lowercase(),
             &s.netloc.to_lowercase(),
             s.path.trim_end_matches('/'),

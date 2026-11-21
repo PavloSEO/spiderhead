@@ -13,7 +13,7 @@ use crate::net_client::{http_client, ReconClient, Response};
 /// double-check one page's anchors and could crowd a later, genuinely distinct
 /// link out of the bounded `limit`.
 fn request_target(href: &str) -> String {
-    let parts = spiderhead_parse::py_url::urlsplit(href).unwrap_or_default();
+    let parts = spiderhead_parse::url_parse::urlsplit(href).unwrap_or_default();
     let mut out = String::new();
     if !parts.scheme.is_empty() || !parts.netloc.is_empty() {
         out.push_str(&parts.scheme);

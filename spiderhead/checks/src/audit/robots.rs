@@ -7,7 +7,7 @@ use spiderhead_core::user_agents::token_aliases;
 
 /// The query-bearing path robots patterns are matched against.
 pub fn match_path(url: &str) -> String {
-    match spiderhead_parse::py_url::urlsplit(url) {
+    match spiderhead_parse::url_parse::urlsplit(url) {
         Ok(p) => {
             let path = if p.path.is_empty() {
                 "/".to_owned()

@@ -120,14 +120,10 @@ pub(crate) fn sorted_join(items: &HashSet<String>) -> String {
 /// `sorted(map(str, items))` rendered as a reference list literal inside an f-string.
 pub(crate) fn sorted_list_repr(items: &[Value]) -> String {
     use crate::pyvalue::str_or_dumps;
-    use spiderhead_parse::py_str::py_repr;
+    use spiderhead_parse::strings::repr;
     let mut strs: Vec<String> = items.iter().map(str_or_dumps).collect();
     strs.sort();
-    let inner = strs
-        .iter()
-        .map(|s| py_repr(s))
-        .collect::<Vec<_>>()
-        .join(", ");
+    let inner = strs.iter().map(|s| repr(s)).collect::<Vec<_>>().join(", ");
     format!("[{inner}]")
 }
 

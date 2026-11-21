@@ -11,7 +11,7 @@ use crate::error::StoreError;
 use crate::frontier::{urlsplit, urlunsplit};
 use rusqlite::Connection;
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url::urljoin as py_urljoin;
+use spiderhead_parse::url_parse::urljoin as py_urljoin;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub const EVALUATION_VERSION: &str = "fragment_links.v1";

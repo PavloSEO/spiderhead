@@ -117,7 +117,7 @@ pub fn find_duplicates(
     for it in &kept {
         if it.id.is_empty() {
             excluded_no_id += 1;
-        } else if it.text.trim_matches(crate::py_str::is_py_space).is_empty() {
+        } else if it.text.trim_matches(crate::strings::is_space).is_empty() {
             excluded_no_text += 1;
         } else {
             if !seen.insert(it.id.as_str()) {

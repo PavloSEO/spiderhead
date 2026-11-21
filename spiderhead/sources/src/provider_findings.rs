@@ -83,7 +83,7 @@ fn url_of(value: Option<&Value>, origin: Option<&str>) -> Result<Option<String>,
     if text.is_empty() {
         return Ok(None);
     }
-    let parts = spiderhead_parse::py_url::urlsplit(text)
+    let parts = spiderhead_parse::url_parse::urlsplit(text)
         .map_err(|e| CfError::Classed("ValueError", format!("{e}")))?;
     if (parts.scheme == "http" || parts.scheme == "https") && !parts.netloc.is_empty() {
         return Ok(Some(text.to_owned()));

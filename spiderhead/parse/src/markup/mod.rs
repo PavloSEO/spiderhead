@@ -9,9 +9,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Map};
 
 use crate::dom::{all_elements, find, ElementRef, Soup};
-use crate::parser::pyscan::{scan, Event};
 use crate::parser::shared::{char_prefix, collapse_whitespace};
-use crate::py_str::py_strip;
+use crate::parser::tag_scan::{scan, Event};
+use crate::strings::strip;
 use crate::types::{Json, Result};
 
 mod aria_named;
@@ -213,7 +213,7 @@ impl DocumentMarkup {
     }
 
     fn data(&mut self, data: &str) {
-        if py_strip(data).is_empty() {
+        if strip(data).is_empty() {
             return;
         }
         self.content_started = true;
@@ -419,7 +419,7 @@ pub(crate) fn excluded(tag: &ElementRef<'_>) -> bool {
 /// Label/reference text of a control without mistaking its value for a label.
 /// Also used by `parser::content`.
 pub(crate) fn name_text(tag: &ElementRef<'_>) -> String {
-    let label = py_strip(attr(tag, "aria-label"));
+    let label = strip(attr(tag, "aria-label"));
     if !label.is_empty() {
         return label.to_owned();
     }

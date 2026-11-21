@@ -12,7 +12,7 @@ use spiderhead_store::evidence_contract::Obj;
 use crate::compare::base::CompareError;
 
 use super::export::{iter_compare_rows, INDEX_BATCH};
-use super::shared::{py_json, BUCKETS, SQLITE_MAX_INTEGER};
+use super::shared::{json_text, BUCKETS, SQLITE_MAX_INTEGER};
 
 /// One buffered index row: the sort keys plus the serialized document.
 type IndexRow = (String, String, String, String, String, String, i64, String);
@@ -62,7 +62,7 @@ impl ReadIndex {
                 scalar_text(row.get("change")),
                 url_fold,
                 ordinal as i64,
-                py_json(&Value::Object(row.clone())),
+                json_text(&Value::Object(row.clone())),
             ));
             if batch.len() as i64 >= INDEX_BATCH {
                 flush_batch(&con, &mut insert, &mut batch)?;
@@ -154,7 +154,7 @@ impl ReadIndex {
             let document: String = row.get(0).map_err(|e| CompareError(e.to_string()))?;
             let decoded: Value =
                 serde_json::from_str(&document).map_err(|e| CompareError(e.to_string()))?;
-            let encoded = py_json(&decoded).len() as i64 + 1;
+            let encoded = json_text(&decoded).len() as i64 + 1;
             if size + encoded > max_bytes {
                 if rows.is_empty() {
                     return Err(CompareError("one comparison row exceeds max_bytes".into()));
@@ -265,7 +265,7 @@ fn scalar_text(value: Option<&Value>) -> String {
     match value {
         None => String::new(),
         Some(Value::String(text)) => text.clone(),
-        Some(other) => py_json(other),
+        Some(other) => json_text(other),
     }
 }
 
@@ -397,13 +397,13 @@ pub fn read_compare_page(
     let raw_manifest = std::fs::read(&manifest_path).map_err(|_| {
         CompareError(format!(
             "could not read comparison manifest for {}",
-            crate::pyvalue::py_repr(name)
+            crate::pyvalue::repr(name)
         ))
     })?;
     let manifest: Value = serde_json::from_slice(&raw_manifest).map_err(|_| {
         CompareError(format!(
             "could not read comparison manifest for {}",
-            crate::pyvalue::py_repr(name)
+            crate::pyvalue::repr(name)
         ))
     })?;
     let entry = manifest
@@ -415,7 +415,7 @@ pub fn read_compare_page(
         .ok_or_else(|| {
             CompareError(format!(
                 "comparison manifest does not contain file {}",
-                crate::pyvalue::py_repr(name)
+                crate::pyvalue::repr(name)
             ))
         })?;
     let entry = entry
@@ -440,13 +440,13 @@ pub fn read_compare_page(
     let file_info = std::fs::symlink_metadata(&data_path).map_err(|_| {
         CompareError(format!(
             "comparison data file is unavailable for {}",
-            crate::pyvalue::py_repr(name)
+            crate::pyvalue::repr(name)
         ))
     })?;
     let manifest_info = std::fs::metadata(&manifest_path).map_err(|_| {
         CompareError(format!(
             "comparison data file is unavailable for {}",
-            crate::pyvalue::py_repr(name)
+            crate::pyvalue::repr(name)
         ))
     })?;
     if file_info.is_symlink() {
@@ -457,14 +457,14 @@ pub fn read_compare_page(
     let file_identity = spiderhead_core::filesystem::link_identity(&data_path).map_err(|_| {
         CompareError(format!(
             "comparison data file is unavailable for {}",
-            crate::pyvalue::py_repr(name)
+            crate::pyvalue::repr(name)
         ))
     })?;
     let manifest_identity =
         spiderhead_core::filesystem::path_identity(&manifest_path).map_err(|_| {
             CompareError(format!(
                 "comparison data file is unavailable for {}",
-                crate::pyvalue::py_repr(name)
+                crate::pyvalue::repr(name)
             ))
         })?;
     let manifest_sha = hex_sha256(&raw_manifest);

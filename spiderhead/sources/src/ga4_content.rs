@@ -7,7 +7,7 @@ use std::io::Read;
 use std::path::PathBuf;
 
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url;
+use spiderhead_parse::url_parse;
 
 use crate::ga4::{self, BoxBody, Ga4Env, Ga4Error, Ga4Fault, Ga4Transport, PageCall};
 use crate::http::{Sleeper, Transport};
@@ -268,12 +268,12 @@ pub async fn page_views<T: Transport>(
     };
     let (origin, origin_port, origin_text) = match site_origin {
         Value::String(text) => {
-            let split = py_url::urlsplit(text).map_err(|_| first_error())?;
+            let split = url_parse::urlsplit(text).map_err(|_| first_error())?;
             let port = port(&split.netloc).map_err(|_| first_error())?;
             (split, port, text.as_str())
         }
         Value::Null => {
-            let split = py_url::urlsplit("").map_err(|_| first_error())?;
+            let split = url_parse::urlsplit("").map_err(|_| first_error())?;
             (split, None, "")
         }
         Value::Array(_) | Value::Object(_) => return Err(first_error()),
@@ -465,7 +465,7 @@ fn bind_rows(
     result_rows: Value,
     start_days: i64,
     end_days: i64,
-    origin: &py_url::SplitUrl,
+    origin: &url_parse::SplitUrl,
     origin_host: &str,
 ) -> Result<Vec<Value>, ()> {
     // Iterating a non-list rows value is a type error.
@@ -502,7 +502,7 @@ fn bind_rows(
         let eligible = host_ok
             && match path.as_str() {
                 Some(p) if p.starts_with('/') && !p.starts_with("//") => {
-                    py_url::urlsplit(p).map_err(|_| ())?.fragment.is_empty()
+                    url_parse::urlsplit(p).map_err(|_| ())?.fragment.is_empty()
                 }
                 _ => false,
             };

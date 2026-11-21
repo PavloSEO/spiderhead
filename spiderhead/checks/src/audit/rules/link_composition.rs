@@ -5,7 +5,7 @@
 
 use rusqlite::{Connection, OptionalExtension};
 use serde_json::{Map, Value};
-use spiderhead_parse::py_url::{urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{urlsplit, urlunsplit};
 use spiderhead_store::analysis_graph::selected_links_cte;
 
 use super::link_predicates::stored_list;

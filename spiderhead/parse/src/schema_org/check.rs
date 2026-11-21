@@ -7,8 +7,8 @@ use serde_json::{json, Value};
 use super::dates;
 use super::nodes::{strip_json, truthy, type_chain, types_of, Node};
 use super::Json;
-use crate::py_json::str_or_dumps;
-use crate::py_str::py_strip;
+use crate::json_text::str_or_dumps;
+use crate::strings::strip;
 
 fn strings(value: &Json) -> Vec<String> {
     value
@@ -70,7 +70,7 @@ fn decimal_digit(c: char, scan: &mut NdScan) -> Option<u32> {
 
 fn py_float_str(text: &str) -> Option<f64> {
     let mut scan = NdScan::default();
-    let ascii: String = py_strip(text)
+    let ascii: String = strip(text)
         .chars()
         .map(|c| {
             decimal_digit(c, &mut scan)

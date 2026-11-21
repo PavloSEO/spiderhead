@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, HashMap};
 use serde_json::{json, Value};
 use spiderhead_parse::dom::{self, ElementRef};
 use spiderhead_parse::parser::shared::collapse_whitespace;
-use spiderhead_parse::py_url::{urljoin, urlparse};
+use spiderhead_parse::url_parse::{urljoin, urlparse};
 use spiderhead_store::bodies::{read_page_document, MAX_DOCUMENT_BYTES};
 
 use super::details;

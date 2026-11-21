@@ -5,7 +5,7 @@
 //! in the registers, which is what rejects `en-UK`.
 
 use crate::hreflang_tables::{ISO_15924, ISO_3166_1, ISO_639_1};
-use crate::py_str::{py_capitalize, py_repr, py_strip};
+use crate::strings::{capitalize, repr, strip};
 
 /// Why a value fails.
 const SHAPE_ERROR: &str = "more subtags than language-script-region";
@@ -29,7 +29,7 @@ fn registered(register: &[&str], code: &str) -> bool {
 /// an optional region must be ISO 3166-1 or a UN M.49 number. A region that is a UN M.49 number
 /// ends the check as valid, so later subtags are not inspected.
 pub fn code_error(value: &str) -> Option<String> {
-    let tag = py_strip(value);
+    let tag = strip(value);
     if tag.is_empty() {
         return Some("empty value".to_owned());
     }
@@ -44,17 +44,14 @@ pub fn code_error(value: &str) -> Option<String> {
     if !registered(ISO_639_1, &language) {
         return Some(format!(
             "{} is not an ISO 639-1 language code",
-            py_repr(parts[0])
+            repr(parts[0])
         ));
     }
     let mut rest = &parts[1..];
     if let Some(&first) = rest.first() {
         if first.chars().count() == 4 {
-            if !registered(ISO_15924, &py_capitalize(first)) {
-                return Some(format!(
-                    "{} is not an ISO 15924 script code",
-                    py_repr(first)
-                ));
+            if !registered(ISO_15924, &capitalize(first)) {
+                return Some(format!("{} is not an ISO 15924 script code", repr(first)));
             }
             rest = &rest[1..];
         }
@@ -66,13 +63,13 @@ pub fn code_error(value: &str) -> Option<String> {
         if !registered(ISO_3166_1, &region.to_uppercase()) {
             return Some(format!(
                 "{} is not an ISO 3166-1 alpha-2 or UN M.49 region code",
-                py_repr(region)
+                repr(region)
             ));
         }
         rest = &rest[1..];
     }
     rest.first()
-        .map(|extra| format!("unexpected subtag {}", py_repr(extra)))
+        .map(|extra| format!("unexpected subtag {}", repr(extra)))
 }
 
 #[cfg(test)]

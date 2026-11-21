@@ -18,7 +18,7 @@ use rusqlite::{params_from_iter, Connection};
 use serde_json::{json, Map, Value};
 use spiderhead_core::url_normalize::norm_url;
 use spiderhead_parse::parser::meta::robots_directives;
-use spiderhead_parse::py_url::{urljoin, urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{urljoin, urlsplit, urlunsplit};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::path::Path;
 use std::time::{Duration, Instant};

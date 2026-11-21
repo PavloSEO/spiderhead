@@ -21,7 +21,7 @@ use rusqlite::types::Value as SqlValue;
 use rusqlite::{params, Connection};
 use serde_json::{json, Value};
 use spiderhead_core::url_normalize::norm_url as core_norm_url;
-use spiderhead_parse::py_str::py_strip;
+use spiderhead_parse::strings::strip;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::path::PathBuf;
 
@@ -238,7 +238,7 @@ impl CorpusIndex {
                     "INSERT OR IGNORE INTO edges VALUES(?1,?2,?3)",
                     params![representation, from, to],
                 )?;
-                let code = py_strip(&text_or_empty(item.get("lang"))).to_lowercase();
+                let code = strip(&text_or_empty(item.get("lang"))).to_lowercase();
                 if from == to && !code.is_empty() && code != "x-default" {
                     con.execute(
                         "INSERT OR IGNORE INTO self_codes VALUES(?1,?2)",
@@ -595,10 +595,7 @@ pub fn language_derivations(
             item.insert("ordinal".into(), ordinal.clone());
             item.insert("source_declaration_id".into(), "".into());
             item.insert("lang".into(), lang.clone().into());
-            item.insert(
-                "lang_normalized".into(),
-                py_strip(&lang).to_lowercase().into(),
-            );
+            item.insert("lang_normalized".into(), strip(&lang).to_lowercase().into());
             item.insert(
                 "raw_href".into(),
                 text_or_empty(declaration.get("raw_href")).into(),

@@ -13,7 +13,7 @@ use crate::content_area::{
     TEXT_EXCLUDED_TAGS,
 };
 use crate::dom::Soup;
-use crate::py_str::is_py_space;
+use crate::strings::is_space;
 use crate::types::{ContentAreaConfig, Json, Result};
 
 /// Normaliser version tag.
@@ -85,7 +85,7 @@ pub fn normalize_text(text: &str) -> String {
     let kept: String = nfc
         .chars()
         .filter(|&c| {
-            is_py_space(c)
+            is_space(c)
                 || !matches!(
                     get_general_category(c),
                     G::Control | G::Format | G::Surrogate
@@ -94,7 +94,7 @@ pub fn normalize_text(text: &str) -> String {
         .collect();
     let folded = caseless::default_case_fold_str(&kept);
     folded
-        .split(is_py_space)
+        .split(is_space)
         .filter(|part| !part.is_empty())
         .collect::<Vec<_>>()
         .join(" ")
@@ -212,13 +212,13 @@ pub fn script_evidence(text: &str) -> ScriptEvidence {
 pub fn declared_language(soup: &Soup) -> DeclaredLanguage {
     let raw = crate::dom::find(soup, "html")
         .and_then(|html| html.value().attr("lang"))
-        .map_or("", crate::py_str::py_strip)
+        .map_or("", crate::strings::strip)
         .to_owned();
     let primary = if raw.is_empty() {
         String::new()
     } else {
         let first = raw.split('-').next().unwrap_or("");
-        caseless::default_case_fold_str(crate::py_str::py_strip(first))
+        caseless::default_case_fold_str(crate::strings::strip(first))
     };
     DeclaredLanguage {
         declared: raw,
@@ -366,7 +366,7 @@ pub fn prepare_items(
         };
         let url = py_str_of(&or_else_truthy(item, &["url", "id"]));
         let html = match item.get("html") {
-            Some(Json::String(text)) if !crate::py_str::py_strip(text).is_empty() => text,
+            Some(Json::String(text)) if !crate::strings::strip(text).is_empty() => text,
             _ => {
                 prepared.push(serde_json::json!({
                     "url": url,

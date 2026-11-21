@@ -42,8 +42,8 @@ const SKIP_TAGS: [&str; 4] = ["script", "style", "template", "noscript"];
 const STRATEGY_RANK: [(&str, u8); 4] = [("id", 0), ("semantic", 1), ("path", 2), ("nth", 3)];
 
 /// Python `str.strip()` (Unicode whitespace both ends).
-fn py_strip(text: &str) -> String {
-    text.trim_matches(crate::py_str::is_py_space).to_owned()
+fn strip(text: &str) -> String {
+    text.trim_matches(crate::strings::is_space).to_owned()
 }
 
 /// Normalize an element's text exactly like extraction rules do.
@@ -86,8 +86,8 @@ fn step(tag: &ElementRef<'_>) -> String {
         .value()
         .attr("class")
         .map(|raw| {
-            raw.split(crate::py_str::is_py_space)
-                .map(py_strip)
+            raw.split(crate::strings::is_space)
+                .map(strip)
                 .collect::<Vec<_>>()
         })
         .unwrap_or_default();
@@ -404,10 +404,10 @@ pub fn suggest(
     emit_rule: bool,
     rule_id: Option<&str>,
 ) -> Result<Value, String> {
-    if html.trim_matches(crate::py_str::is_py_space).is_empty() {
+    if html.trim_matches(crate::strings::is_space).is_empty() {
         return Err("html must be a non-empty document string".to_owned());
     }
-    if text.trim_matches(crate::py_str::is_py_space).is_empty() {
+    if text.trim_matches(crate::strings::is_space).is_empty() {
         return Err("text must be the non-empty visible text of the element".to_owned());
     }
     let wanted = collapse_whitespace(text);

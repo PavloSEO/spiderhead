@@ -15,7 +15,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 use serde_json::{json, Value};
 
-use spiderhead_parse::py_url::urlparse;
+use spiderhead_parse::url_parse::urlparse;
 
 use crate::page_facts::extract;
 

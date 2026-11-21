@@ -14,7 +14,7 @@ use serde_json::{json, Map, Value};
 
 use spiderhead_core::tabular::neutralize_formula;
 use spiderhead_parse::dom;
-use spiderhead_parse::py_url::{unquote, urljoin, urlsplit};
+use spiderhead_parse::url_parse::{unquote, urljoin, urlsplit};
 
 /// Upper bound on supplied documents.
 pub const MAX_DOCUMENTS: usize = 500;

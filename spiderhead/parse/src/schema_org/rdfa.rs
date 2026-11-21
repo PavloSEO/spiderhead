@@ -16,7 +16,7 @@ use super::rdfa_reader::{
 use super::{MAX_MARKUP_NODES, MAX_RDFA_TOKENS, MAX_RDFA_TRIPLES};
 use crate::dom::{ElementRef, Soup};
 use crate::parser::shared::is_inert_template_content;
-use crate::py_str::py_strip;
+use crate::strings::strip;
 use crate::types::Result;
 use crate::urlutil::urljoin;
 /// Build bounded Schema.org entities from RDFa subjects and relationships:
@@ -116,7 +116,7 @@ pub(super) fn extract_rdfa(soup: &Soup, base: &str) -> Result<(Vec<Node>, usize,
         }
 
         let doc_base = r.safe_join(&doc_base, attr(&node, "xml:base").unwrap_or(""));
-        if !py_strip(attr(&node, "profile").unwrap_or("")).is_empty() {
+        if !strip(attr(&node, "profile").unwrap_or("")).is_empty() {
             r.reasons.insert(
                 "RDFa remote profile processing is disabled for offline validation".to_owned(),
             );
