@@ -1,5 +1,5 @@
-//! observer evidence reads a scan lightly. The `scan_status`/`open_scan_mode`/
-//! `import_run` cases and the `_validate_*` counters are storage/mcp slices
+//! observer evidence reads a scan lightly. The `scan_status`/`open_scan_mode`
+//! cases and the `_validate_*` counters are storage/mcp slices
 //! with reference-only monkeypatch seams, deferred to the reference suite.
 
 #[path = "common/testkit.rs"]

@@ -13,9 +13,7 @@ use std::path::{Path, PathBuf};
 use calamine::{Data, Reader};
 use serde_json::json;
 use spiderhead_reports::build_report::build_report;
-use spiderhead_store::scan_artifact::{import_run, read_audit};
-
-const BUILD: &str = "25fd2ed032a31d63c5811722619e35c14b631476";
+use spiderhead_store::scan_artifact::read_audit;
 
 fn tmp(tag: &str) -> PathBuf {
     let dir = std::env::temp_dir().join(format!("office-{tag}-{}", std::process::id()));
@@ -80,7 +78,12 @@ fn same_run_office_reports_are_byte_identical() {
         );
 
         let artifact = dir.join("scan.sqlite");
-        import_run(&run, &artifact, BUILD, None).expect("import_run");
+        std::fs::copy(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../store/testdata/legacy-run/scan.sqlite"),
+            &artifact,
+        )
+        .expect("copy fixture");
         let document = read_audit(&artifact).expect("read_audit");
         let actual_dir = dir.join("sqlite");
         std::fs::create_dir_all(&actual_dir).unwrap();

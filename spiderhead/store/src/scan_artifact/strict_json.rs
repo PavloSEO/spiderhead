@@ -191,22 +191,6 @@ pub fn sha(text: &str) -> String {
     format!("{:x}", Sha256::digest(text.as_bytes()))
 }
 
-/// Read a file as UTF-8 text under the 64 MiB JSON limit.
-pub fn text(path: &Path) -> Result<String, StoreError> {
-    let mut raw = Vec::new();
-    File::open(path)?
-        .take(MAX_JSON_BYTES as u64 + 1)
-        .read_to_end(&mut raw)?;
-    if raw.len() as i64 > MAX_JSON_BYTES {
-        let name = path
-            .file_name()
-            .map(|n| n.to_string_lossy().into_owned())
-            .unwrap_or_default();
-        return Err(bad(format!("{name}: exceeds the 64 MiB JSON limit")));
-    }
-    String::from_utf8(raw).map_err(|e| StoreError::Invalid(format!("utf-8: {e}")))
-}
-
 /// Parse and validate an audit document (strict JSON, then the audit schema).
 pub fn audit(text: &str) -> Result<Value, StoreError> {
     let document = loads(text, "audit")?;

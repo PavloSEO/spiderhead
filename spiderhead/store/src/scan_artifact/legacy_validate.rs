@@ -56,7 +56,7 @@ pub fn validate_scalar_storage(con: &Connection) -> Result<(), StoreError> {
                     return Err(bad(format!(
                         "{table}.\"{name}\" row {rowid} holds a {found} value: the scan was \
                          written by another schema version (seohead 3.x or an older \
-                         SpiderHead); re-crawl or re-import it with this build"
+                         SpiderHead); re-crawl it with this build"
                     )));
                 }
             }
@@ -376,6 +376,81 @@ pub fn validate_import_metadata(
         if state != Some(wanted) {
             return Err(bad("imported page/link capability completeness disagrees"));
         }
+    }
+    Ok(())
+}
+
+/// A `context_items` row.
+fn context_item_fields(
+    item: &Map<String, Value>,
+) -> Result<(String, String, String, String, String), StoreError> {
+    Ok((
+        field_str(item, "payload_json")?.to_owned(),
+        field_str(item, "item_key")?.to_owned(),
+        field_str(item, "payload_version")?.to_owned(),
+        field_str(item, "completeness")?.to_owned(),
+        field_str(item, "reason")?.to_owned(),
+    ))
+}
+
+/// Check one legacy render-blocking context row against its page and its availability.
+fn validate_legacy_render_blocking_context(
+    con: &Connection,
+    item: &Map<String, Value>,
+) -> Result<(), StoreError> {
+    let (payload_json, key, payload_version, completeness, reason) = context_item_fields(item)?;
+    let payload = loads(&payload_json, "legacy render-blocking measurement")?;
+    let key_ok = key.strip_prefix("page:").is_some_and(|digits| {
+        let b = digits.as_bytes();
+        !b.is_empty()
+            && b.len() <= 19
+            && (b[0] as char).is_ascii_digit()
+            && b[0] != b'0'
+            && b.iter().all(u8::is_ascii_digit)
+    });
+    let payload_obj = payload.as_object();
+    let shape_ok = payload_obj.is_some_and(|o| {
+        o.len() == 2
+            && o.get("schema_version").and_then(Value::as_str) == Some("legacy_render_blocking.v1")
+            && o.get("resources").is_some_and(|r| {
+                r.is_null()
+                    || r.as_array().is_some_and(|items| {
+                        items
+                            .iter()
+                            .all(|u| u.as_str().is_some_and(|s| !s.is_empty()))
+                    })
+            })
+    });
+    if payload_version != "scan_context.v1" || !key_ok || !shape_ok {
+        return Err(bad("legacy render-blocking measurement context is invalid"));
+    }
+    let resources_null =
+        payload_obj.is_some_and(|o| o.get("resources").is_some_and(Value::is_null));
+    let expected_state = if resources_null {
+        "unavailable"
+    } else {
+        "complete"
+    };
+    let expected_reason = if resources_null {
+        "legacy field records no render-blocking measurement"
+    } else {
+        ""
+    };
+    if completeness != expected_state || reason != expected_reason {
+        return Err(bad(
+            "legacy render-blocking measurement availability disagrees",
+        ));
+    }
+    let page_id: i64 = key[5..]
+        .parse()
+        .map_err(|_| bad("legacy render-blocking measurement references an unknown page"))?;
+    let known = con
+        .prepare("SELECT 1 FROM pages WHERE url_id=?")?
+        .exists([page_id])?;
+    if !known {
+        return Err(bad(
+            "legacy render-blocking measurement references an unknown page",
+        ));
     }
     Ok(())
 }
