@@ -138,7 +138,7 @@ pub fn load_fixture(name: &str) -> Vec<Value> {
 
 /// A credential/config root that never exists (scenario `isolate_config`).
 pub fn absent_config_root() -> PathBuf {
-    PathBuf::from("/nonexistent-golden-config-root")
+    PathBuf::from("/nonexistent-oracle-config-root")
 }
 
 /// Build the host environment for a scenario: `env` vars set, `clear_env` absent. The
