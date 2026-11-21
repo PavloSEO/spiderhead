@@ -8,6 +8,7 @@
 //! domain crate registers one, a command is [`NotYetAvailable`].
 
 mod argparse;
+mod argparse_compat;
 mod control;
 mod convert;
 mod discovery;
@@ -15,10 +16,9 @@ mod domain;
 mod errors;
 mod exit;
 mod help;
+mod json_errors;
 mod legacy;
 mod output;
-mod pycompat;
-mod pyjson;
 mod registry;
 mod semantics;
 mod sources_kwargs;

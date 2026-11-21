@@ -39,13 +39,13 @@ fn digits_with_underscores(s: &str) -> bool {
 }
 
 /// Whether the reference `int(text)` accepts `text` (base 10, any size).
-pub fn is_py_int(text: &str) -> bool {
+pub fn int_accepts(text: &str) -> bool {
     let t = text.trim();
     digits_with_underscores(t.strip_prefix(['+', '-']).unwrap_or(t))
 }
 
 /// Whether the reference `float(text)` accepts `text`.
-pub fn is_py_float(text: &str) -> bool {
+pub fn float_accepts(text: &str) -> bool {
     let t = text.trim();
     let t = t.strip_prefix(['+', '-']).unwrap_or(t);
     let lower = t.to_ascii_lowercase();
@@ -147,16 +147,16 @@ mod tests {
     #[test]
     fn int_and_float_acceptance() {
         for ok in ["1", " -5 ", "+7", "1_000"] {
-            assert!(is_py_int(ok), "{ok}");
+            assert!(int_accepts(ok), "{ok}");
         }
         for bad in ["", "1.5", "1__0", "_1", "abc", "0x10", "- 1"] {
-            assert!(!is_py_int(bad), "{bad}");
+            assert!(!int_accepts(bad), "{bad}");
         }
         for ok in ["1.5", ".5", "5.", "1e5", "-inf", "NaN", "1_0.5", " 2 "] {
-            assert!(is_py_float(ok), "{ok}");
+            assert!(float_accepts(ok), "{ok}");
         }
         for bad in ["", ".", "e5", "1e", "1.5.2", "abc"] {
-            assert!(!is_py_float(bad), "{bad}");
+            assert!(!float_accepts(bad), "{bad}");
         }
     }
 
