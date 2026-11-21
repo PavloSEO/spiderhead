@@ -16,7 +16,7 @@ use thiserror::Error;
 
 use crate::credentials::is_private_mode;
 use crate::gsc::py_truthy;
-use crate::{pyjson, pystr, pytime};
+use crate::{datetime, json_wire, text_rules};
 
 mod storage;
 use storage::*;
@@ -86,7 +86,7 @@ impl HistoryError {
 
 /// UTC timestamp in whole seconds with a `Z` suffix, used for `reserve` stamps.
 fn utc_stamp(micros: i64) -> String {
-    let text = pytime::isoformat_seconds(micros);
+    let text = datetime::isoformat_seconds(micros);
     text.strip_suffix("+00:00")
         .map(|s| format!("{s}Z"))
         .unwrap_or(text)
@@ -94,7 +94,7 @@ fn utc_stamp(micros: i64) -> String {
 
 /// UTC timestamp with microseconds and a `Z` suffix, used for `settle`'s `inspected_at`.
 fn utc_stamp_full(micros: i64) -> String {
-    let text = pytime::isoformat(micros);
+    let text = datetime::isoformat(micros);
     text.strip_suffix("+00:00")
         .map(|s| format!("{s}Z"))
         .unwrap_or(text)
@@ -138,10 +138,10 @@ pub fn reserve(
         .filter_map(Value::as_str)
         .filter(|u| seen.insert(*u))
         .collect();
-    if pyjson::dumps_opts(&json!(unique), false, false).len() > MAX_RESERVATION_BYTES {
+    if json_wire::dumps_opts(&json!(unique), false, false).len() > MAX_RESERVATION_BYTES {
         return invalid("inspection URL population exceeds the 1 MiB reservation limit");
     }
-    let current = now.unwrap_or_else(pytime::now_micros);
+    let current = now.unwrap_or_else(datetime::now_micros);
     let path = quota_path(root)?;
     let reservation_id = reservation_id.map(str::to_owned).unwrap_or_else(uuid4);
     let con = connect_quota(&path)?;
@@ -173,7 +173,7 @@ pub fn reserve(
                     site_url,
                     utc_stamp(current),
                     selected.len() as i64,
-                    pyjson::dumps_opts_compact(&json!(selected), false, false),
+                    json_wire::dumps_opts_compact(&json!(selected), false, false),
                 ],
             )?;
         }
@@ -208,14 +208,14 @@ pub fn settle(
     requests_made: Option<&Value>,
     now: Option<i64>,
 ) -> Result<Value, HistoryError> {
-    let requests_made = match requests_made.and_then(|v| pystr::as_strict_i64(Some(v))) {
+    let requests_made = match requests_made.and_then(|v| text_rules::as_strict_i64(Some(v))) {
         Some(n) if n >= 0 => n,
         _ => return invalid("invalid inspection settlement"),
     };
     let Some(outcomes) = outcomes else {
         return invalid("invalid inspection settlement");
     };
-    let timestamp = utc_stamp_full(now.unwrap_or_else(pytime::now_micros));
+    let timestamp = utc_stamp_full(now.unwrap_or_else(datetime::now_micros));
     let quota = connect_quota(&quota_path(root)?)?;
     let result = (|| -> Result<Value, HistoryError> {
         let row: Option<(String, i64, String, String)> = quota
@@ -293,7 +293,7 @@ pub fn settle(
                 if !section.is_object() {
                     return invalid("inspection result sections must be objects");
                 }
-                let encoded = pyjson::dumps_opts_compact(&section, true, false);
+                let encoded = json_wire::dumps_opts_compact(&section, true, false);
                 if encoded.len() > MAX_RECORD_BYTES {
                     return invalid("inspection result section exceeds its byte limit");
                 }
@@ -359,14 +359,14 @@ pub fn latest(
 ) -> Result<Value, HistoryError> {
     let limit = match limit {
         None => 100,
-        Some(v) => match pystr::as_strict_i64(Some(v)) {
+        Some(v) => match text_rules::as_strict_i64(Some(v)) {
             Some(n) if (1..=MAX_PAGE_ROWS).contains(&n) => n,
             _ => return invalid(format!("limit must be 1..{MAX_PAGE_ROWS}")),
         },
     };
     let offset = match offset {
         None => 0,
-        Some(v) => match pystr::as_strict_i64(Some(v)) {
+        Some(v) => match text_rules::as_strict_i64(Some(v)) {
             Some(n) if n >= 0 => n,
             _ => return invalid("offset must be a nonnegative integer"),
         },
@@ -383,10 +383,10 @@ pub fn latest(
         if let Some(since) = since {
             // Parse the `since` timestamp; the error message quotes the normalized string.
             let normalized = since.replace('Z', "+00:00");
-            if pytime::fromisoformat(&normalized).is_none() {
+            if datetime::fromisoformat(&normalized).is_none() {
                 return invalid(format!(
                     "Invalid isoformat string: {}",
-                    pystr::repr_str(&normalized)
+                    text_rules::repr_str(&normalized)
                 ));
             }
             where_sql.push_str(" AND inspected_at>=?");
@@ -437,7 +437,7 @@ pub fn latest(
                 "amp_result": loads(amp)?,
                 "rich_results_result": loads(rich)?,
             });
-            let size = pyjson::dumps_opts_compact(&record, false, false).len();
+            let size = json_wire::dumps_opts_compact(&record, false, false).len();
             if page_bytes + size > MAX_PAGE_BYTES - 4096 {
                 has_more = true;
                 break;

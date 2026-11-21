@@ -12,7 +12,7 @@ use serde_json::{json, Map, Value};
 use thiserror::Error;
 
 use crate::credentials::is_private_mode;
-use crate::pystr;
+use crate::text_rules;
 
 /// `MAX_ARTIFACT_BYTES` — one retained artifact's UTF-8 budget (16 MiB).
 pub const MAX_ARTIFACT_BYTES: u64 = 16 * 1024 * 1024;
@@ -151,7 +151,7 @@ fn is_number_or_none(value: &Value) -> bool {
 /// SHA-256 of the stored envelope serialized with sorted keys.
 fn digest_of(stored: &Value) -> String {
     use sha2::{Digest, Sha256};
-    let text = crate::pyjson::dumps_opts(stored, true, true);
+    let text = crate::json_wire::dumps_opts(stored, true, true);
     let mut hasher = Sha256::new();
     hasher.update(text.as_bytes());
     format!("{:x}", hasher.finalize())
@@ -200,12 +200,12 @@ pub fn read_pagespeed_artifact(
     let limit = limit.unwrap_or(&default_limit);
     // A falsy reference is treated as empty; a non-string reference is a type error.
     let reference = match artifact_ref {
-        v if !pystr::truthy(Some(v)) => "",
+        v if !text_rules::truthy(Some(v)) => "",
         Value::String(s) => s.as_str(),
         other => {
             return Err(PaError::TypeErr(format!(
                 "expected string or bytes-like object, got '{}'",
-                pystr::type_name(other)
+                text_rules::type_name(other)
             )))
         }
     };
@@ -217,9 +217,9 @@ pub fn read_pagespeed_artifact(
     let Some(digest) = digest else {
         return invalid("artifact_ref must be a local provider artifact reference");
     };
-    if !pystr::is_py_int(offset)
+    if !text_rules::is_int(offset)
         || offset.as_i64().unwrap_or(-1) < 0
-        || !pystr::is_py_int(limit)
+        || !text_rules::is_int(limit)
         || !(1..=MAX_SAMPLES).contains(&limit.as_i64().unwrap_or(0))
     {
         return invalid("offset must be nonnegative and limit must be 1..25");
@@ -232,7 +232,7 @@ pub fn read_pagespeed_artifact(
             return Err(PaError::TypeErr(format!(
                 "argument should be a str or an os.PathLike object where __fspath__ \
                  returns a str, not '{}'",
-                pystr::type_name(other)
+                text_rules::type_name(other)
             )))
         }
     };

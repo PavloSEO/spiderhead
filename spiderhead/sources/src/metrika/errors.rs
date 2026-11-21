@@ -55,7 +55,7 @@ impl MetrikaFail {
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'get'",
-                pystr::type_name(value)
+                text_rules::type_name(value)
             ),
         )
     }

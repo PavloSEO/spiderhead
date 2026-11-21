@@ -11,7 +11,7 @@ use super::{
     ARCHIVE_DIMENSIONS, MAX_ANALYTICS_ROWS, MAX_START_ROW, SEARCH_TYPES,
 };
 use crate::http::Transport;
-use crate::{pyerr, pystr, pytime};
+use crate::{datetime, error_text, text_rules};
 
 /// `search_analytics_pages` — paginate bounded Search Analytics rows with explicit
 /// truncation and quota limits.
@@ -33,7 +33,7 @@ pub async fn search_analytics_pages<T: Transport>(
     let (start_date, end_date) = resolve_date_range(
         args.start_date,
         args.end_date,
-        args.now.unwrap_or_else(pytime::now_micros),
+        args.now.unwrap_or_else(datetime::now_micros),
     );
     if let Some(error) = validate_date_range(start_date.as_deref(), end_date.as_deref()) {
         return Ok(json!({"ok": false, "error": error}));
@@ -71,7 +71,7 @@ pub async fn search_analytics_pages<T: Transport>(
                 return Ok(json!({
                     "ok": false,
                     "state": "failed",
-                    "error": pyerr::http_error(response.status),
+                    "error": error_text::http_error(response.status),
                     "returned": rows.len(),
                 }))
             }
@@ -176,7 +176,9 @@ pub async fn search_analytics_page<T: Transport>(
     let row_limit = match args.row_limit {
         None => MAX_ANALYTICS_ROWS,
         Some(v) => {
-            match pystr::as_strict_i64(Some(v)).filter(|n| (1..=MAX_ANALYTICS_ROWS).contains(n)) {
+            match text_rules::as_strict_i64(Some(v))
+                .filter(|n| (1..=MAX_ANALYTICS_ROWS).contains(n))
+            {
                 Some(n) => n,
                 None => {
                     return Ok(failure(
@@ -191,7 +193,7 @@ pub async fn search_analytics_page<T: Transport>(
     let start_row = match args.start_row {
         None => 0,
         Some(v) => {
-            match pystr::as_strict_i64(Some(v)).filter(|n| (0..=MAX_START_ROW).contains(n)) {
+            match text_rules::as_strict_i64(Some(v)).filter(|n| (0..=MAX_START_ROW).contains(n)) {
                 Some(n) => n,
                 None => {
                     return Ok(failure(
@@ -385,7 +387,7 @@ fn failure(reason: &str, error: &str, status: Option<i64>) -> Value {
 }
 
 fn site_url_is_usable(site_url: &str) -> bool {
-    !pystr::strip(site_url).is_empty()
+    !text_rules::strip(site_url).is_empty()
 }
 
 fn dimensions_valid(dimensions: &[Value]) -> bool {
@@ -493,7 +495,7 @@ pub(crate) fn api_failure(
     let mut reason = "api_error";
     if let Some(error) = body.and_then(|b| b.get("error")).and_then(Value::as_object) {
         if status.is_none() {
-            status = pystr::as_strict_i64(error.get("code")).or(status);
+            status = text_rules::as_strict_i64(error.get("code")).or(status);
         }
         if let Some(details) = error.get("errors").and_then(Value::as_array) {
             for detail in details {

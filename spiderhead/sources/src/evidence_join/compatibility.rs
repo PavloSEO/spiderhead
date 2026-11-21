@@ -324,7 +324,7 @@ pub fn evidence_compatibility(
             .filter(|name| {
                 collection
                     .get(**name)
-                    .map(|v| pystr::truthy(Some(v)))
+                    .map(|v| text_rules::truthy(Some(v)))
                     .unwrap_or(false)
             })
             .copied()

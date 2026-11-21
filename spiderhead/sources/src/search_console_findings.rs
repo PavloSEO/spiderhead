@@ -12,7 +12,7 @@ use serde_json::{json, Map, Value};
 use crate::cloudflare::CfError;
 use crate::evidence_join::join_evidence;
 use crate::external_join::{normalize_join_key, orphan_urls};
-use crate::pystr;
+use crate::text_rules;
 
 /// `GSC_ORPHAN` — GSC rows naming a same-origin URL the crawl never reached.
 pub const GSC_ORPHAN: &str = "GSC_ORPHAN";
@@ -112,7 +112,7 @@ fn impressions(rows: &[&Value]) -> Result<f64, CfError> {
                         "TypeError",
                         format!(
                             "unsupported operand type(s) for +=: 'float' and '{}'",
-                            pystr::type_name(other)
+                            text_rules::type_name(other)
                         ),
                     )
                 })?,
@@ -173,7 +173,7 @@ pub fn evaluate(
         .unwrap_or(&empty);
     let mut degraded: Vec<String> = ["sampled", "thresholded", "truncated"]
         .iter()
-        .filter(|flag| pystr::truthy(collection.get(flag)))
+        .filter(|flag| text_rules::truthy(collection.get(flag)))
         .map(|flag| (*flag).to_owned())
         .collect();
     match collection.get("state") {
@@ -185,7 +185,7 @@ pub fn evaluate(
                 format!(
                     "sequence item {}: expected str instance, {} found",
                     degraded.len(),
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 ),
             ))
         }

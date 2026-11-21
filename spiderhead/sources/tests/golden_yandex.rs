@@ -13,8 +13,8 @@ use serde_json::{json, Map, Value};
 use spiderhead_core::host::FakeHost;
 use spiderhead_sources::credentials::CredentialError;
 use spiderhead_sources::http::{Request, Response, Sleeper, Transport, TransportError};
+use spiderhead_sources::json_wire;
 use spiderhead_sources::metrika::SpendSink;
-use spiderhead_sources::pyjson;
 use spiderhead_sources::spend::Record;
 use spiderhead_sources::yandex_cloud::{
     self, Cloud, CloudAnswer, CloudArgs, CloudEnv, CloudError, CloudTransport,
@@ -137,7 +137,7 @@ fn wm_transport(
             });
         };
         if let Some(body) = entry.get("body") {
-            return Ok(pyjson::dumps(body));
+            return Ok(json_wire::dumps(body));
         }
         if let Some(text) = entry.get("text").and_then(Value::as_str) {
             return Ok(text.to_owned());
@@ -288,7 +288,7 @@ fn cloud_transport(
             "url": url,
             "auth": format!("Api-Key {key}"),
             "content_type": body.map(|_| "application/json"),
-            "body": body.map(pyjson::dumps),
+            "body": body.map(json_wire::dumps),
             "timeout": 45,
         }));
         let Some(entry) = queue.lock().unwrap().pop_front() else {
@@ -307,7 +307,7 @@ fn cloud_transport(
         if let Some(body) = entry.get("body") {
             return strict(
                 entry.get("status").and_then(Value::as_i64).unwrap_or(200),
-                pyjson::dumps(body).into_bytes(),
+                json_wire::dumps(body).into_bytes(),
             );
         }
         if let Some(text) = entry.get("text").and_then(Value::as_str) {

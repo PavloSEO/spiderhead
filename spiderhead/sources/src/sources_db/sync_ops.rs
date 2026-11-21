@@ -18,7 +18,7 @@ use crate::gsc;
 use crate::http::{linear_pause, retry_slots, Transport};
 use crate::metrika;
 use crate::yandex_webmaster::{self, CollectArgs};
-use crate::{pystr, pytime};
+use crate::{datetime, text_rules};
 
 /// `Fetcher` — `(resource, start, end) -> {"ok","rows","complete",…}` or a fault.
 pub type Fetcher<'a> = dyn FnMut(&str, &str, &str) -> Result<Value, FetcherFault> + 'a;
@@ -37,7 +37,7 @@ pub struct SyncArgs<'a> {
 }
 
 fn stamp(now: Option<i64>) -> String {
-    pytime::isoformat_seconds(now.unwrap_or_else(pytime::now_micros))
+    datetime::isoformat_seconds(now.unwrap_or_else(datetime::now_micros))
 }
 
 /// `_fetch_gsc` — one bounded daily `["date","query","page"]` grain through the GSC client.
@@ -387,14 +387,16 @@ pub async fn sync<T: Transport>(
                     "error": "provider adapter returned an invalid result",
                 });
             }
-            if pystr::truthy(result.get("ok")) || result.get("retry") == Some(&Value::Bool(false)) {
+            if text_rules::truthy(result.get("ok"))
+                || result.get("retry") == Some(&Value::Bool(false))
+            {
                 break;
             }
             if slot.has_next {
                 sleep(linear_pause(slot.index, RETRY_PAUSE));
             }
         }
-        if !pystr::truthy(result.get("ok")) {
+        if !text_rules::truthy(result.get("ok")) {
             mark_failed(
                 &connection,
                 source,
@@ -406,7 +408,7 @@ pub async fn sync<T: Transport>(
             let mut out = base_result(
                 source,
                 resource,
-                &if pystr::truthy(result.get("error")) {
+                &if text_rules::truthy(result.get("error")) {
                     result.get("error").cloned().unwrap_or_default()
                 } else {
                     json!("provider request failed")

@@ -5,9 +5,9 @@ use indexmap::IndexMap;
 use serde_json::{json, Map, Value};
 
 use crate::cloudflare::CfError;
+use crate::datetime;
 use crate::external_join::normalize_join_key;
-use crate::pystr;
-use crate::pytime;
+use crate::text_rules;
 
 mod policy;
 use policy::*;
@@ -66,13 +66,13 @@ pub(crate) fn row_join_key(
     key_fn: &dyn Fn(Option<&Value>) -> Option<String>,
 ) -> Result<Option<String>, CfError> {
     let url = get(row, "url")?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .unwrap_or(json!({}));
     if get(&url, "state")? == Some(json!("unkeyable")) {
         return Ok(None);
     }
     let candidate = get(&url, "resolved")?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .or(get(&url, "raw")?);
     Ok(key_fn(candidate.as_ref()))
 }
@@ -83,16 +83,16 @@ pub(crate) fn evidence_header_pub(document: &Value) -> Result<Value, CfError> {
 
 fn evidence_header(document: &Value) -> Result<Value, CfError> {
     let mapping = get(document, "mapping")?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .unwrap_or(json!({}));
     let source = get(&mapping, "source")?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .unwrap_or(json!({}));
     let provenance = get(document, "provenance")?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .unwrap_or(json!({}));
     let fields = get(&provenance, "fields")?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .unwrap_or(json!({}));
     let mut field_origins = Map::new();
     if let Value::Object(entries) = &fields {
@@ -111,9 +111,9 @@ fn evidence_header(document: &Value) -> Result<Value, CfError> {
         "site_origin": get(&source, "site_origin")?,
         "period": get(&mapping, "period")?,
         "timezone": get(&source, "timezone")?,
-        "dimensions": get(&mapping, "dimensions")?.filter(|v| pystr::truthy(Some(v))).unwrap_or(json!([])),
-        "metrics": get(&mapping, "metrics")?.filter(|v| pystr::truthy(Some(v))).unwrap_or(json!([])),
-        "collection": get(&mapping, "collection")?.filter(|v| pystr::truthy(Some(v))).unwrap_or(json!({})),
+        "dimensions": get(&mapping, "dimensions")?.filter(|v| text_rules::truthy(Some(v))).unwrap_or(json!([])),
+        "metrics": get(&mapping, "metrics")?.filter(|v| text_rules::truthy(Some(v))).unwrap_or(json!([])),
+        "collection": get(&mapping, "collection")?.filter(|v| text_rules::truthy(Some(v))).unwrap_or(json!({})),
         "file": get(&provenance, "file")?,
         "artifact_reference": get(&provenance, "artifact_reference")?,
         "field_origins": field_origins,
@@ -137,7 +137,7 @@ pub fn join_evidence(
             .iter()
             .map(|k| (k.to_string(), json!(false))),
     );
-    if let Some(spec) = url_policy.filter(|v| pystr::truthy(Some(v))) {
+    if let Some(spec) = url_policy.filter(|v| text_rules::truthy(Some(v))) {
         let entries = spec
             .as_object()
             .ok_or_else(|| CfError::Classed("TypeError", "object is not iterable".to_owned()))?;
@@ -151,7 +151,7 @@ pub fn join_evidence(
                 unknown.sort();
                 return Err(import_error(format!(
                     "url_policy has unsupported keys: {}",
-                    pystr::repr(&json!(unknown))
+                    text_rules::repr(&json!(unknown))
                 )));
             }
             if !value.is_boolean() {
@@ -163,7 +163,7 @@ pub fn join_evidence(
     let key_fn = key_fn(&policy);
     let rows = document
         .get("rows")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
@@ -203,10 +203,10 @@ pub fn join_evidence(
             Some(key) => {
                 row_by_key.entry(key.clone()).or_default().push(row.clone());
                 let url = get(row, "url")?
-                    .filter(|v| pystr::truthy(Some(v)))
+                    .filter(|v| text_rules::truthy(Some(v)))
                     .unwrap_or(json!({}));
                 let candidate = get(&url, "resolved")?
-                    .filter(|v| pystr::truthy(Some(v)))
+                    .filter(|v| text_rules::truthy(Some(v)))
                     .or(get(&url, "raw")?);
                 let raws = row_raw_by_key.entry(key).or_default();
                 if let Some(text) = candidate.and_then(|v| v.as_str().map(str::to_owned)) {
@@ -305,16 +305,16 @@ pub fn join_evidence(
         "row_key_collisions": collisions["rows"].as_array().map(Vec::len).unwrap_or_default(),
         "multi_match_keys": collisions["multiplicity"].as_array().map(Vec::len).unwrap_or_default(),
         "ambiguous_rows": rows.iter().filter(|row| {
-            row.get("ambiguous").map(|v| pystr::truthy(Some(v))).unwrap_or(false)
+            row.get("ambiguous").map(|v| text_rules::truthy(Some(v))).unwrap_or(false)
         }).count(),
     });
-    let crawl_doc = match crawl.filter(|v| pystr::truthy(Some(v))) {
+    let crawl_doc = match crawl.filter(|v| text_rules::truthy(Some(v))) {
         None => json!({}),
         Some(value) if value.is_object() => value.clone(),
         Some(other) => {
             return Err(CfError::Classed(
                 "TypeError",
-                format!("'{}' object is not iterable", pystr::type_name(other)),
+                format!("'{}' object is not iterable", text_rules::type_name(other)),
             ))
         }
     };

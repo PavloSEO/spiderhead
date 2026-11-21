@@ -9,7 +9,7 @@ pub(super) fn deadline_seconds(value: &Value) -> Result<f64, CloudError> {
             "TypeError",
             format!(
                 "unsupported operand type(s) for +: 'float' and '{}'",
-                pystr::type_name(value)
+                text_rules::type_name(value)
             ),
         )
     })
@@ -22,7 +22,7 @@ pub(super) fn sleep_seconds(value: &Value) -> Result<f64, CloudError> {
             "TypeError",
             format!(
                 "'{}' object cannot be interpreted as an integer or float",
-                pystr::type_name(value)
+                text_rules::type_name(value)
             ),
         )
     })
@@ -35,7 +35,7 @@ pub(super) fn raw_data(done: &Value) -> Result<Value, CloudError> {
         Value::Object(map) => map.get("response").cloned().unwrap_or(Value::Null),
         _ => Value::Null,
     };
-    if !pystr::truthy(Some(&response)) {
+    if !text_rules::truthy(Some(&response)) {
         return Ok(Value::Null);
     }
     match &response {
@@ -44,7 +44,7 @@ pub(super) fn raw_data(done: &Value) -> Result<Value, CloudError> {
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'get'",
-                pystr::type_name(other)
+                text_rules::type_name(other)
             ),
         )),
     }
@@ -52,7 +52,7 @@ pub(super) fn raw_data(done: &Value) -> Result<Value, CloudError> {
 
 /// `base64.b64decode(raw).decode("utf-8", "replace") if raw else ""`.
 pub(super) fn serp_xml(raw: &Value) -> Result<String, CloudError> {
-    if !pystr::truthy(Some(raw)) {
+    if !text_rules::truthy(Some(raw)) {
         return Ok(String::new());
     }
     let text = match raw {
@@ -62,7 +62,7 @@ pub(super) fn serp_xml(raw: &Value) -> Result<String, CloudError> {
                 "TypeError",
                 format!(
                     "argument should be a bytes-like object or ASCII string, not '{}'",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 ),
             ))
         }
@@ -73,7 +73,7 @@ pub(super) fn serp_xml(raw: &Value) -> Result<String, CloudError> {
 
 /// `len(x)` on a hashable container after `(x or [])` left a truthy value.
 pub(super) fn py_len(value: &Value) -> Result<i64, CloudError> {
-    if !pystr::truthy(Some(value)) {
+    if !text_rules::truthy(Some(value)) {
         return Ok(0);
     }
     match value {
@@ -82,7 +82,10 @@ pub(super) fn py_len(value: &Value) -> Result<i64, CloudError> {
         Value::Object(map) => Ok(map.len() as i64),
         other => Err(CloudError::classed(
             "TypeError",
-            format!("object of type '{}' has no len()", pystr::type_name(other)),
+            format!(
+                "object of type '{}' has no len()",
+                text_rules::type_name(other)
+            ),
         )),
     }
 }
@@ -151,13 +154,21 @@ pub fn parse_serp(xml: &str) -> Vec<Value> {
         rest = &after[end + 6..];
         position += 1;
         let url = tag_text(block, "url")
-            .map(|inner| strip_tags(&inner).trim_matches(pystr::isspace).to_owned())
+            .map(|inner| {
+                strip_tags(&inner)
+                    .trim_matches(text_rules::isspace)
+                    .to_owned()
+            })
             .unwrap_or_default();
         let domain = tag_text(block, "domain")
-            .map(|inner| pystr::strip(&inner).to_owned())
+            .map(|inner| text_rules::strip(&inner).to_owned())
             .unwrap_or_else(|| host_of(&url));
         let title = tag_text(block, "title")
-            .map(|inner| strip_tags(&inner).trim_matches(pystr::isspace).to_owned())
+            .map(|inner| {
+                strip_tags(&inner)
+                    .trim_matches(text_rules::isspace)
+                    .to_owned()
+            })
             .unwrap_or_default();
         docs.push(json!({
             "pos": position,

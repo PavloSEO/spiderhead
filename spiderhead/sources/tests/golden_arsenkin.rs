@@ -147,7 +147,7 @@ async fn run_op(
                         .unwrap_or_default(),
                     pick(&kwarg, "body"),
                     kwarg.get("retries").and_then(Value::as_u64).unwrap_or(5) as usize,
-                    spiderhead_sources::pystr::truthy(kwarg.get("billed")),
+                    spiderhead_sources::text_rules::truthy(kwarg.get("billed")),
                 )
                 .await
         }

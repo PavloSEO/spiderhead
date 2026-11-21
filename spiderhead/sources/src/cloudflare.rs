@@ -17,7 +17,7 @@ use spiderhead_core::host::Host;
 
 use crate::credentials::is_private_mode;
 use crate::http::{self, Request, Sleeper, Transport};
-use crate::{pyjson, pystr};
+use crate::{json_wire, text_rules};
 
 mod errors;
 pub use errors::*;
@@ -239,7 +239,7 @@ pub async fn verify_token<T: Transport>(
     send: Option<&CfTransport<'_>>,
 ) -> Value {
     let secret = match token
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .and_then(|v| v.as_str().map(str::to_owned))
     {
         Some(t) => t,
@@ -273,7 +273,7 @@ pub async fn verify_token<T: Transport>(
             })
         }
     };
-    if !pystr::truthy(payload.get("success"))
+    if !text_rules::truthy(payload.get("success"))
         || !payload.get("result").is_some_and(Value::is_object)
     {
         return json!({
@@ -311,7 +311,7 @@ impl<'a, T: Transport> LiveSend<'a, T> {
         body: Option<&Value>,
         token: &str,
     ) -> Result<Value, CfError> {
-        let data = body.map(|b| pyjson::dumps(b).into_bytes());
+        let data = body.map(|b| json_wire::dumps(b).into_bytes());
         for slot in http::retry_slots(RETRIES + 1) {
             let mut request = Request::new(method, url)
                 .timeout(TIMEOUT)
@@ -392,7 +392,7 @@ pub async fn configuration<T: Transport>(
     send: Option<&CfTransport<'_>>,
 ) -> Result<Value, CfError> {
     let secret = match token
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .and_then(|v| v.as_str().map(str::to_owned))
     {
         Some(t) => t,

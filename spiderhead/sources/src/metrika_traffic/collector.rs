@@ -164,7 +164,7 @@ impl<'x, 'c> Collector<'x, 'c> {
         let mut rows = Vec::new();
         for item in &items {
             let dimensions = match or_get(item, "dimensions").map_err(CollectErr::Fail)? {
-                Some(v) if pystr::truthy(Some(v)) => v.clone(),
+                Some(v) if text_rules::truthy(Some(v)) => v.clone(),
                 _ => json!([{}]),
             };
             let first = py_subscript(&dimensions, 0).map_err(CollectErr::Fail)?;
@@ -175,7 +175,7 @@ impl<'x, 'c> Collector<'x, 'c> {
             let name = first.get("name").cloned().unwrap_or(Value::Null);
             let row_id = first.get("id").cloned().unwrap_or(Value::Null);
             let metrics = match or_get(item, "metrics").map_err(CollectErr::Fail)? {
-                Some(v) if pystr::truthy(Some(v)) => v.clone(),
+                Some(v) if text_rules::truthy(Some(v)) => v.clone(),
                 _ => json!([null]),
             };
             let cell = py_subscript(&metrics, 0).map_err(CollectErr::Fail)?;

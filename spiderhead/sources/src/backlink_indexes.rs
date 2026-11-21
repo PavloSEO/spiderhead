@@ -15,7 +15,7 @@ use crate::credentials::{self, CredentialError};
 use crate::http::{urlencode, Request, Transport};
 use crate::metrika::SpendSink;
 use crate::spend::{self, Record};
-use crate::{pyjson, pystr};
+use crate::{json_wire, text_rules};
 
 mod errors;
 pub use errors::*;
@@ -87,7 +87,7 @@ impl<'a, T: Transport> BlEnv<'a, T> {
             Some(sink) => sink(rec),
             None => spend::record(self.host, rec),
         }
-        .map_err(|err| pyerr("OSError", err.to_string()))
+        .map_err(|err| error_text("OSError", err.to_string()))
     }
 
     fn cred(&self, path: &str, env_var: &str) -> Result<String, CredentialError> {
@@ -132,7 +132,7 @@ fn or_cred<T: Transport>(
     path: &str,
     env_var: &str,
 ) -> Result<Value, CredentialError> {
-    match explicit.filter(|v| pystr::truthy(Some(v))) {
+    match explicit.filter(|v| text_rules::truthy(Some(v))) {
         Some(v) => Ok(v.clone()),
         None => env.cred(path, env_var).map(Value::String),
     }
@@ -154,7 +154,7 @@ pub fn estimate(
         Some(v) => v.clone(),
     };
     if !matches!(provider.as_str(), Some("ahrefs" | "majestic" | "moz"))
-        || !pystr::is_py_int(&limit)
+        || !text_rules::is_int(&limit)
     {
         return value_err("provider must be ahrefs/majestic/moz and limit must be an integer");
     }

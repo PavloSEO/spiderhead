@@ -63,8 +63,8 @@ pub(super) fn daily_statistics(statistics: &[Value]) -> Result<Vec<Value>, WmErr
         if matches!(field_raw, Value::Array(_) | Value::Object(_)) {
             return Err(WmError::type_error(format!(
                 "cannot use '{}' as a set element (unhashable type: '{}')",
-                pystr::type_name(&field_raw),
-                pystr::type_name(&field_raw)
+                text_rules::type_name(&field_raw),
+                text_rules::type_name(&field_raw)
             )));
         }
         let field = field_raw.as_str();

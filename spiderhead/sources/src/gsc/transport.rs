@@ -30,14 +30,14 @@ pub(crate) async fn send<T: Transport>(
         .header("Content-Type", "application/json")
         .timeout(TIMEOUT);
     if let Some(payload) = payload {
-        request = request.body(pyjson::dumps(payload).into_bytes());
+        request = request.body(json_wire::dumps(payload).into_bytes());
     }
     match transport.send(&request).await {
         Ok(response) => {
             if response.body.len() > MAX_RESPONSE_BYTES {
                 return Fetch::TooLarge;
             }
-            match pystr::decode_utf8_strict(&response.body) {
+            match text_rules::decode_utf8_strict(&response.body) {
                 Ok(text) => Fetch::Body(text),
                 Err(message) => Fetch::Decode(message),
             }
@@ -50,7 +50,7 @@ pub(crate) async fn send<T: Transport>(
 
 /// Message text for transport failures that providers put in `error` fields.
 pub(crate) fn transport_text(kind: &str) -> String {
-    pyerr::url_error(kind)
+    error_text::url_error(kind)
 }
 
 /// Provider error text: `error.message`, or the HTTP reason phrase, with the bearer redacted.
@@ -62,7 +62,7 @@ pub(super) fn api_error(
     let text = String::from_utf8_lossy(&response.body);
     let parsed: Value = match serde_json::from_str(&text) {
         Ok(v) => v,
-        Err(_) => return Ok(pyerr::reason_phrase(response.status).to_owned()),
+        Err(_) => return Ok(error_text::reason_phrase(response.status).to_owned()),
     };
     // A non-object body or `error` member is a failure, not an empty error.
     let type_name = |v: &Value| match v {
@@ -90,8 +90,8 @@ pub(super) fn api_error(
         Value::Object(error) => {
             let candidate = error.get("message").filter(|v| py_truthy(v));
             candidate
-                .map(pystr::repr_value)
-                .unwrap_or_else(|| pyerr::reason_phrase(response.status).to_owned())
+                .map(text_rules::repr_value)
+                .unwrap_or_else(|| error_text::reason_phrase(response.status).to_owned())
         }
         other => {
             return Err(GscError::Wrapped(

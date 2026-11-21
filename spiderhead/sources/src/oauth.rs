@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 
 use crate::credentials::is_private_mode;
 use crate::http::{urlencode, Request, Transport, TransportError};
-use crate::{oauth_flow, pyjson, pystr, pytime};
+use crate::{datetime, json_wire, oauth_flow, text_rules};
 
 mod grant;
 pub use grant::*;
@@ -316,8 +316,8 @@ pub async fn manage_grant_with<T: Transport>(
                 .and_then(Value::as_str)
                 .filter(|s| !s.is_empty());
             let expires_in = match token_response.get("expires_in") {
-                Some(value) if pystr::is_py_int(value) => {
-                    pystr::as_strict_i64(Some(value)).filter(|v| (1..=86400).contains(v))
+                Some(value) if text_rules::is_int(value) => {
+                    text_rules::as_strict_i64(Some(value)).filter(|v| (1..=86400).contains(v))
                 }
                 _ => None,
             };

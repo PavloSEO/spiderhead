@@ -217,7 +217,8 @@ pub(super) fn with_live_env<T>(f: impl FnOnce(&ProviderEnv) -> T) -> T {
         || super::sources::gsc_service_account_status(&host, &root) == "configured_unverified";
     let service_account_status = || super::sources::gsc_service_account_status(&host, &root);
     let grant_available = |provider: &str| oauth::grant_available(&root, provider);
-    let now = || spiderhead_sources::pytime::isoformat(spiderhead_sources::pytime::now_micros());
+    let now =
+        || spiderhead_sources::datetime::isoformat(spiderhead_sources::datetime::now_micros());
     let started = std::time::Instant::now();
     let monotonic = move || started.elapsed().as_secs_f64();
     let open_scan = |_path: &str| {

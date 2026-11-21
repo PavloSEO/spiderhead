@@ -13,7 +13,7 @@ pub(super) fn decimal_lt_one(text: &str) -> Result<bool, Ga4Error> {
             ),
         });
     }
-    Ok(text.chars().all(|c| pystr::nd_digit(c) == Some(0)))
+    Ok(text.chars().all(|c| text_rules::nd_digit(c) == Some(0)))
 }
 
 /// Path normalization, enough for the time-zone key check.
@@ -160,7 +160,7 @@ pub(super) fn port(netloc: &str) -> Result<Option<i64>, String> {
     if !text.bytes().all(|b| b.is_ascii_digit()) {
         return Err(format!(
             "Port could not be cast to integer value as {}",
-            pystr::repr_str(&text)
+            text_rules::repr_str(&text)
         ));
     }
     // Integers are unbounded: an oversized digit string gives the range error.

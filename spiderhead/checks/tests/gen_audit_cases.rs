@@ -166,8 +166,8 @@ fn run_provider_findings(ctx: &mut AuditContext) {
     });
     let today = spec["as_of"]
         .as_str()
-        .and_then(spiderhead_sources::pytime::date_fromisoformat)
-        .or_else(|| spiderhead_sources::pytime::date_fromisoformat("2026-01-15"))
+        .and_then(spiderhead_sources::datetime::date_fromisoformat)
+        .or_else(|| spiderhead_sources::datetime::date_fromisoformat("2026-01-15"))
         .unwrap_or(0);
     let included: Vec<Value> = ctx
         .pages

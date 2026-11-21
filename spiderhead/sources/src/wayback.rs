@@ -4,7 +4,7 @@
 //! A URL with no snapshot is `ok` with an empty list.
 
 use crate::http::{Request, Transport, TransportError};
-use crate::{pyerr, pystr};
+use crate::{error_text, text_rules};
 use serde_json::{json, Map, Value};
 use spiderhead_core::user_agents::RECON_USER_AGENT;
 
@@ -65,8 +65,8 @@ pub async fn history<T: Transport>(
         ("url".to_owned(), url.to_owned()),
         ("output".to_owned(), "json".to_owned()),
     ];
-    if let Some(limit) = limit.filter(|v| pystr::truthy(Some(v))) {
-        let n = pystr::to_python_int(limit)
+    if let Some(limit) = limit.filter(|v| text_rules::truthy(Some(v))) {
+        let n = text_rules::to_int(limit)
             .map_err(|(class, message)| WaybackError { class, message })?;
         params.push(("limit".to_owned(), n.to_string()));
     }
@@ -103,25 +103,25 @@ pub async fn history<T: Transport>(
             return Ok(json!({
                 "ok": false,
                 "url": url,
-                "error": format!("Wayback CDX request failed: {}", pyerr::http_error(r.status)),
+                "error": format!("Wayback CDX request failed: {}", error_text::http_error(r.status)),
             }));
         }
         Err(TransportError::Connect(kind)) => {
             return Ok(json!({
                 "ok": false,
                 "url": url,
-                "error": format!("Wayback CDX request failed: {}", pyerr::url_error(&kind)),
+                "error": format!("Wayback CDX request failed: {}", error_text::url_error(&kind)),
             }));
         }
         Err(TransportError::InvalidRequest(_)) => {
             return Ok(json!({
                 "ok": false,
                 "url": url,
-                "error": format!("Wayback CDX request failed: {}", pyerr::url_error("invalid request")),
+                "error": format!("Wayback CDX request failed: {}", error_text::url_error("invalid request")),
             }));
         }
     };
-    if pystr::strip(&raw).is_empty() {
+    if text_rules::strip(&raw).is_empty() {
         // The CDX server returns a fully empty body when nothing matches.
         return Ok(json!({"ok": true, "url": url, "count": 0, "snapshots": []}));
     }
@@ -188,11 +188,11 @@ pub async fn history<T: Transport>(
         }
         let original = record
             .get("original")
-            .map(pystr::repr_value)
+            .map(text_rules::repr_value)
             .unwrap_or_else(|| url.to_owned());
         let timestamp = record
             .get("timestamp")
-            .map(pystr::repr_value)
+            .map(text_rules::repr_value)
             .unwrap_or_default();
         record.insert(
             "archived_url".to_owned(),

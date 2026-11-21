@@ -43,7 +43,7 @@ pub async fn history<T: Transport>(
     if let Some(ff) = args.form_factor.filter(|f| !f.is_empty()) {
         payload.insert("formFactor".to_owned(), json!(ff));
     }
-    if let Some(metrics) = args.metrics.filter(|m| pystr::truthy(Some(m))) {
+    if let Some(metrics) = args.metrics.filter(|m| text_rules::truthy(Some(m))) {
         payload.insert("metrics".to_owned(), metrics.clone());
     }
     let raw = match post(transport, HISTORY_HOST, &Value::Object(payload), &key).await {
@@ -71,7 +71,7 @@ pub async fn history<T: Transport>(
         Err(FetchFail::Connect(kind)) => {
             return Ok(json!({
                 "ok": false, "state": "failed",
-                "error": format!("CrUX request failed: {}", pyerr::url_error(&kind)),
+                "error": format!("CrUX request failed: {}", error_text::url_error(&kind)),
             }));
         }
     };

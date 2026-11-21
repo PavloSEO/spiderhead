@@ -7,12 +7,12 @@ pub fn errors(payload: &Value) -> String {
     items
         .map(|list| {
             list.iter()
-                .filter(|e| pystr::truthy(Some(e)))
+                .filter(|e| text_rules::truthy(Some(e)))
                 .map(|e| {
                     let text = e
                         .get("message")
-                        .map(pystr::repr_value)
-                        .unwrap_or_else(|| pystr::repr_value(e));
+                        .map(text_rules::repr_value)
+                        .unwrap_or_else(|| text_rules::repr_value(e));
                     text.chars().take(200).collect::<String>()
                 })
                 .collect::<Vec<_>>()
@@ -27,7 +27,7 @@ pub(crate) fn attr_get_error(value: &Value) -> CfError {
         "AttributeError",
         format!(
             "'{}' object has no attribute 'get'",
-            pystr::type_name(value)
+            text_rules::type_name(value)
         ),
     )
 }
@@ -45,7 +45,7 @@ pub(crate) fn py_subscript<'a>(value: &'a Value, key: &str) -> Result<&'a Value,
     match value {
         Value::Object(map) => map
             .get(key)
-            .ok_or_else(|| CfError::Classed("KeyError", pystr::repr_str(key))),
+            .ok_or_else(|| CfError::Classed("KeyError", text_rules::repr_str(key))),
         Value::String(_) => Err(CfError::Classed(
             "TypeError",
             "string indices must be integers, not 'str'".to_owned(),
@@ -56,7 +56,10 @@ pub(crate) fn py_subscript<'a>(value: &'a Value, key: &str) -> Result<&'a Value,
         )),
         other => Err(CfError::Classed(
             "TypeError",
-            format!("'{}' object is not subscriptable", pystr::type_name(other)),
+            format!(
+                "'{}' object is not subscriptable",
+                text_rules::type_name(other)
+            ),
         )),
     }
 }
@@ -71,7 +74,10 @@ pub(crate) fn py_index0(value: &Value) -> Result<Value, CfError> {
         Value::Object(_) => Err(CfError::Classed("KeyError", "0".to_owned())),
         other => Err(CfError::Classed(
             "TypeError",
-            format!("'{}' object is not subscriptable", pystr::type_name(other)),
+            format!(
+                "'{}' object is not subscriptable",
+                text_rules::type_name(other)
+            ),
         )),
     }
 }
@@ -80,19 +86,19 @@ pub(crate) fn py_index0(value: &Value) -> Result<Value, CfError> {
 /// iterable, and every truthy item must be an object.
 pub fn errors_or_attr(payload: &Value) -> Result<String, CfError> {
     let raw = match obj_get(payload, "errors")? {
-        Some(v) if pystr::truthy(Some(v)) => v.clone(),
+        Some(v) if text_rules::truthy(Some(v)) => v.clone(),
         _ => Value::Array(Vec::new()),
     };
-    let items = pystr::iterate(&raw).map_err(|(class, msg)| CfError::Classed(class, msg))?;
+    let items = text_rules::iterate(&raw).map_err(|(class, msg)| CfError::Classed(class, msg))?;
     let mut parts = Vec::new();
-    for e in items.iter().filter(|e| pystr::truthy(Some(e))) {
+    for e in items.iter().filter(|e| text_rules::truthy(Some(e))) {
         let Value::Object(map) = e else {
             return Err(attr_get_error(e));
         };
         let text = map
             .get("message")
-            .map(pystr::repr_value)
-            .unwrap_or_else(|| pystr::repr_value(e));
+            .map(text_rules::repr_value)
+            .unwrap_or_else(|| text_rules::repr_value(e));
         parts.push(text.chars().take(200).collect::<String>());
     }
     Ok(parts.join("; "))

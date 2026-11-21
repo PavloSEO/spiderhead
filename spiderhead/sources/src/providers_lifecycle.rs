@@ -6,12 +6,12 @@ use serde_json::{json, Value};
 use crate::cloudflare::CfError;
 use crate::credentials;
 use crate::external_join;
+use crate::json_wire;
 use crate::providers::{
     self, credential_details, evidence, operation_contract, permission_failure_state,
     readiness_state, save_local_artifact, DispatchError, ProviderEnv, EVIDENCE_FORMAT,
 };
-use crate::pyjson;
-use crate::pystr;
+use crate::text_rules;
 
 mod collect;
 pub use collect::*;
@@ -251,9 +251,12 @@ pub fn provider_verify(
                 "pagespeed" => &["urls"],
                 _ => &[],
             };
-            let missing = required.iter().any(|key| !pystr::truthy(request.get(key)))
+            let missing = required
+                .iter()
+                .any(|key| !text_rules::truthy(request.get(key)))
                 || (name == "crux"
-                    && pystr::truthy(request.get("url")) == pystr::truthy(request.get("origin")));
+                    && text_rules::truthy(request.get("url"))
+                        == text_rules::truthy(request.get("origin")));
             if missing {
                 return Ok(json!({
                     "ok": false,
@@ -292,14 +295,14 @@ pub fn provider_verify(
             }))
         }
     };
-    let authenticated = pystr::truthy(result.get("ok"));
+    let authenticated = text_rules::truthy(result.get("ok"));
     let target = request
         .get("site_url")
         .or_else(|| request.get("host_id"))
         .cloned()
         .unwrap_or(Value::Null);
     let mut target_access = "not_requested";
-    if pystr::truthy(Some(&target)) {
+    if text_rules::truthy(Some(&target)) {
         let candidates: Vec<Value> = match name {
             "gsc" => result
                 .get("properties")
@@ -365,7 +368,7 @@ pub fn provider_verify(
         "credential_sources": sources,
         "operations": providers::operation_catalog(name),
         "selected_reference": Value::Null,
-        "granted_scopes": result.get("scopes").cloned().filter(|s| pystr::truthy(Some(s))).unwrap_or(json!("unknown")),
+        "granted_scopes": result.get("scopes").cloned().filter(|s| text_rules::truthy(Some(s))).unwrap_or(json!("unknown")),
         "quota_mode": providers::registry_entry(name).map(|e| e.3).unwrap_or("unknown"),
         "quota_state": result.get("quota_state").cloned().unwrap_or(json!("unknown")),
         "response_time_ms": (((env.monotonic)() - started) * 1000.0 * 10.0).round() / 10.0,

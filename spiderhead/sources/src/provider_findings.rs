@@ -10,11 +10,11 @@ use sha2::{Digest, Sha256};
 
 use crate::analytics_findings::{analytics_findings, FindingOptions};
 use crate::cloudflare::CfError;
+use crate::datetime;
 use crate::evidence_import::{normalize_inline, MAPPING_FORMAT};
 use crate::external_join::{default_key_fn, join_external_data};
-use crate::pystr;
-use crate::pytime;
 use crate::search_console_findings::{evaluate, evaluate_inspections, public_url};
+use crate::text_rules;
 
 /// Page cap feeding the provider joins.
 pub const MAX_PROVIDER_ROWS: i64 = 100_000;
@@ -119,7 +119,7 @@ fn int_of(value: &Value) -> Result<i64, CfError> {
             "ValueError",
             format!(
                 "invalid literal for int() with base 10: {}",
-                pystr::repr(value)
+                text_rules::repr(value)
             ),
         )
     };
@@ -298,7 +298,7 @@ fn gsc_findings(
     resource: &str,
     crawl_partial: bool,
 ) -> Result<Value, CfError> {
-    let coverage_complete = pystr::truthy(history.get("coverage_complete"));
+    let coverage_complete = text_rules::truthy(history.get("coverage_complete"));
     let manifest = json!({
         "format": MAPPING_FORMAT,
         "source": {
@@ -327,7 +327,7 @@ fn gsc_findings(
             "state": if coverage_complete { "complete" } else { "partial" },
             "sampled": false,
             "thresholded": false,
-            "truncated": pystr::truthy(history.get("truncated")),
+            "truncated": text_rules::truthy(history.get("truncated")),
             "reason": if coverage_complete { Value::Null } else {
                 json!("retained GSC coverage has gaps or is truncated")
             },
@@ -461,12 +461,12 @@ fn gsc_inspections(
             if !reserved_urls.is_empty() {
                 let result = (ops.inspect)(site_url, &reserved_urls);
                 requests_made = match result.get("requests_made") {
-                    Some(v) if pystr::truthy(Some(v)) => int_of(v)?,
+                    Some(v) if text_rules::truthy(Some(v)) => int_of(v)?,
                     _ => 0,
                 };
                 let mut settlement: Option<Value> = None;
                 let mut settlement_failed = false;
-                if pystr::truthy(reservation.get("reservation_id")) {
+                if text_rules::truthy(reservation.get("reservation_id")) {
                     let result_urls: Vec<Value> =
                         result["urls"].as_array().cloned().unwrap_or_default();
                     match (ops.settle)(&reservation["reservation_id"], &result_urls, requests_made)
@@ -494,7 +494,7 @@ fn gsc_inspections(
                     }
                 } else {
                     match result.get("state") {
-                        Some(v) if pystr::truthy(Some(v)) => v.clone(),
+                        Some(v) if text_rules::truthy(Some(v)) => v.clone(),
                         _ => json!("failed"),
                     }
                 };
@@ -593,7 +593,7 @@ fn cloudflare_history(snapshots: &Value, as_of: i64) -> Value {
     let mut age_days = Value::Null;
     match observed.as_str() {
         None => reasons.push("snapshot timestamp is missing or invalid".into()),
-        Some(text) => match pytime::fromisoformat_offset(&text.replace('Z', "+00:00")) {
+        Some(text) => match datetime::fromisoformat_offset(&text.replace('Z', "+00:00")) {
             Some((stamp, _)) if stamp.aware => {
                 let observed_date = stamp.micros.div_euclid(86_400_000_000);
                 let days = as_of - observed_date;
@@ -615,8 +615,8 @@ fn cloudflare_history(snapshots: &Value, as_of: i64) -> Value {
         period.get("to").and_then(Value::as_str),
     ) {
         (Some(from), Some(to)) => match (
-            pytime::date_fromisoformat(from),
-            pytime::date_fromisoformat(to),
+            datetime::date_fromisoformat(from),
+            datetime::date_fromisoformat(to),
         ) {
             (Some(start), Some(end)) => {
                 let span = end - start + 1;
@@ -639,7 +639,7 @@ fn cloudflare_history(snapshots: &Value, as_of: i64) -> Value {
         _ => reasons.push("snapshot has no valid native reporting interval".into()),
     }
     let int_nonneg = |v: Option<&Value>| -> i64 {
-        v.filter(|v| pystr::is_py_int(v))
+        v.filter(|v| text_rules::is_int(v))
             .and_then(Value::as_i64)
             .filter(|n| *n >= 0)
             .unwrap_or(0)
@@ -649,11 +649,13 @@ fn cloudflare_history(snapshots: &Value, as_of: i64) -> Value {
     let omitted =
         source_omitted + page_omitted + (facts.len() as i64 - MAX_FINDING_URLS as i64).max(0);
     let source_truncated =
-        pystr::truthy(snapshot.get("url_facts_source_truncated")) || source_omitted > 0;
+        text_rules::truthy(snapshot.get("url_facts_source_truncated")) || source_omitted > 0;
     if source_truncated || page_omitted > 0 || omitted > 0 {
         reasons.push("retained URL facts are truncated or paged".into());
     }
-    if pystr::truthy(snapshot.get("sampled")) || pystr::truthy(snapshot.get("truncated_days")) {
+    if text_rules::truthy(snapshot.get("sampled"))
+        || text_rules::truthy(snapshot.get("truncated_days"))
+    {
         reasons.push("retained Cloudflare collection was sampled or truncated".into());
     }
     if snapshot.get("state") != Some(&json!("complete")) && reasons.is_empty() {
@@ -674,7 +676,7 @@ fn cloudflare_history(snapshots: &Value, as_of: i64) -> Value {
         "period_days": native_period_days,
         "coverage": "one retained aggregate snapshot for this native interval; not a 28-day history",
         "sampled": snapshot.get("sampled").cloned().unwrap_or(Value::Null),
-        "truncated_days": if pystr::truthy(snapshot.get("truncated_days")) {
+        "truncated_days": if text_rules::truthy(snapshot.get("truncated_days")) {
             snapshot.get("truncated_days").cloned().unwrap_or(json!([]))
         } else {
             json!([])
@@ -752,7 +754,7 @@ pub fn project_provider_findings(pages: &[Value], ops: &ProviderOps) -> Result<V
                 ops.inspection_latest,
                 ops.inspect_ops.as_ref(),
             )?;
-            result["state"] = json!(if pystr::truthy(history.get("coverage_complete")) {
+            result["state"] = json!(if text_rules::truthy(history.get("coverage_complete")) {
                 "complete"
             } else {
                 "partial"
@@ -763,7 +765,7 @@ pub fn project_provider_findings(pages: &[Value], ops: &ProviderOps) -> Result<V
         let (rows, visits_column, bounce_column, unusable_rows) =
             analytics_rows(provider, &history, ops.origin)?;
         let joined = join_external_data(pages, &rows, "url", "url", &default_key_fn)?;
-        let coverage_complete = pystr::truthy(history.get("coverage_complete"));
+        let coverage_complete = text_rules::truthy(history.get("coverage_complete"));
         let evidence_complete = coverage_complete && unusable_rows == 0;
         let evidence_reason = (!evidence_complete).then(|| {
             "retained analytics coverage has gaps, truncation, or unusable URL/metric rows"

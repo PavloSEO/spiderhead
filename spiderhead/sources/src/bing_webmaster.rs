@@ -6,7 +6,7 @@
 
 use crate::credentials::{self, CredentialError};
 use crate::http::{Request, Transport, TransportError};
-use crate::pystr;
+use crate::text_rules;
 use serde_json::{json, Map, Value};
 use spiderhead_core::host::Host;
 use std::path::Path;
@@ -97,7 +97,7 @@ pub async fn collect<T: Transport>(
         ));
     }
     let page_value = page.cloned().unwrap_or_else(|| json!(0));
-    let page_i = pystr::as_strict_i64(Some(&page_value));
+    let page_i = text_rules::as_strict_i64(Some(&page_value));
     if page_i.map(|p| p >= 0) != Some(true) {
         return Err(BingWebmasterError::Invalid(
             "page must be a non-negative integer".to_owned(),
@@ -134,7 +134,7 @@ pub async fn collect<T: Transport>(
     if operation == "url_links" {
         params.push((
             "link".to_owned(),
-            crate::pyjson::dumps(&Value::String(link.unwrap_or_default().to_owned())),
+            crate::json_wire::dumps(&Value::String(link.unwrap_or_default().to_owned())),
         ));
     }
     let url = format!("{HOST}/{method}?{}", crate::http::urlencode(&params));
@@ -184,7 +184,7 @@ pub async fn collect<T: Transport>(
             .as_ref()
             .and_then(Value::as_object)
             .and_then(|m| m.get("TotalPages"))
-            .and_then(|v| pystr::as_strict_i64(Some(v)));
+            .and_then(|v| text_rules::as_strict_i64(Some(v)));
         let malformed = match total_pages {
             Some(total) => {
                 total < 0

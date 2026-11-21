@@ -13,7 +13,7 @@ use thiserror::Error;
 
 use crate::credentials;
 use crate::http::{Request, Transport, TransportError};
-use crate::{pyerr, pyjson, pystr};
+use crate::{error_text, json_wire, text_rules};
 
 /// PSI v5 endpoint.
 pub const HOST: &str = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed";
@@ -48,11 +48,11 @@ fn raise<T>(class: &'static str, message: String) -> Result<T, PagespeedError> {
 pub fn accessibility_sample(sample: &Value) -> Value {
     let category = sample
         .get("categories")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .and_then(|v| v.get("accessibility"));
     let audits = sample
         .get("audits")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .cloned()
         .unwrap_or_else(|| json!({}));
     if !category.is_some_and(Value::is_object) || !audits.is_object() {
@@ -126,7 +126,7 @@ fn cache_path(cache_dir: &Path, url: &str, strategy: &str) -> PathBuf {
 
 fn write_cache(path: &Path, value: &Value) {
     let _ = path.parent().map(std::fs::create_dir_all);
-    let _ = std::fs::write(path, pyjson::dumps_opts(value, true, true).as_bytes());
+    let _ = std::fs::write(path, json_wire::dumps_opts(value, true, true).as_bytes());
 }
 
 fn parse(body: &Value, url: &str, strategy: &str) -> Option<Value> {
@@ -239,7 +239,10 @@ pub async fn sample<T: Transport>(
                     Some(other) => {
                         return raise(
                             "TypeError",
-                            format!("'{}' object is not a mapping", pystr::type_name(&other)),
+                            format!(
+                                "'{}' object is not a mapping",
+                                text_rules::type_name(&other)
+                            ),
                         );
                     }
                     None => {}
@@ -257,15 +260,15 @@ pub async fn sample<T: Transport>(
                 request = request.header("X-goog-api-key", &key);
             }
             let outcome: Result<Value, String> = match transport.send(&request).await {
-                Ok(response) => match pystr::decode_utf8_strict(&response.body) {
-                    Ok(text) => match pyjson::decode_error(&text) {
+                Ok(response) => match text_rules::decode_utf8_strict(&response.body) {
+                    Ok(text) => match json_wire::decode_error(&text) {
                         Some(decode_message) => Err(decode_message),
                         None => serde_json::from_str(&text).map_err(|e| e.to_string()),
                     },
                     Err(message) => Err(message),
                 },
-                Err(TransportError::Http(response)) => Err(pyerr::http_error(response.status)),
-                Err(TransportError::Connect(kind)) => Err(pyerr::url_error(&kind)),
+                Err(TransportError::Http(response)) => Err(error_text::http_error(response.status)),
+                Err(TransportError::Connect(kind)) => Err(error_text::url_error(&kind)),
                 Err(TransportError::InvalidRequest(message)) => Err(message),
             };
             let parsed = match outcome {

@@ -11,7 +11,7 @@ use sha2::Digest;
 
 use crate::cloudflare::CfError;
 use crate::external_join::normalize_join_key;
-use crate::pystr;
+use crate::text_rules;
 
 mod load_file;
 pub use load_file::*;
@@ -88,11 +88,11 @@ fn get<'a>(value: &'a Value, name: &str) -> Option<&'a Value> {
 }
 
 fn truthy(value: Option<&Value>) -> bool {
-    pystr::truthy(value)
+    text_rules::truthy(value)
 }
 
 fn sorted_repr(values: BTreeSet<String>) -> String {
-    pystr::repr(&Value::Array(
+    text_rules::repr(&Value::Array(
         values.into_iter().map(Value::String).collect(),
     ))
 }
@@ -107,7 +107,7 @@ fn unknown_keys(map: &Map<String, Value>, allowed: &[&str]) -> BTreeSet<String> 
 fn is_iso_date(value: &Value) -> bool {
     value
         .as_str()
-        .map(|text| crate::pytime::date_fromisoformat(text).is_some())
+        .map(|text| crate::datetime::date_fromisoformat(text).is_some())
         .unwrap_or(false)
 }
 

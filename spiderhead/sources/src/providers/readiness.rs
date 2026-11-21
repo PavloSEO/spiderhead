@@ -102,7 +102,10 @@ pub(super) fn py_len(value: &Value) -> Result<i64, CfError> {
         Value::String(t) => Ok(t.chars().count() as i64),
         other => Err(CfError::Classed(
             "TypeError",
-            format!("object of type '{}' has no len()", pystr::type_name(other)),
+            format!(
+                "object of type '{}' has no len()",
+                text_rules::type_name(other)
+            ),
         )),
     }
 }
@@ -147,11 +150,11 @@ pub fn save_local_artifact(directory: &str, value: &Value) -> Result<String, CfE
             "provider artifact directory must be a private directory".to_owned(),
         ));
     }
-    let digest_text = pyjson::dumps_opts(value, true, true);
+    let digest_text = json_wire::dumps_opts(value, true, true);
     use sha2::Digest;
     let digest = format!("{:x}", sha2::Sha256::digest(digest_text.as_bytes()));
     let destination = root.join(format!("provider-{}.json", &digest[..16]));
-    let body = pyjson::dumps_opts(value, true, false);
+    let body = json_wire::dumps_opts(value, true, false);
     let tmp = destination.with_extension("json.tmp");
     std::fs::write(&tmp, body.as_bytes())
         .map_err(|e| CfError::Classed("OSError", format!("[Errno 13] {e}")))?;
@@ -165,7 +168,7 @@ pub fn save_local_artifact(directory: &str, value: &Value) -> Result<String, CfE
 pub(super) fn first_nonempty<'a>(result: &'a Value, keys: &[&str]) -> Option<&'a Value> {
     keys.iter()
         .filter_map(|k| result.get(k))
-        .find(|v| pystr::truthy(Some(v)))
+        .find(|v| text_rules::truthy(Some(v)))
 }
 
 /// Build the evidence envelope for one provider call.
@@ -188,7 +191,7 @@ pub fn evidence(
             s.to_owned()
         }
         _ => {
-            if pystr::truthy(result.get("ok")) {
+            if text_rules::truthy(result.get("ok")) {
                 "complete".to_owned()
             } else {
                 "failed".to_owned()
@@ -205,7 +208,7 @@ pub fn evidence(
         .unwrap_or_else(|| json!(row_count));
     let quota = result
         .get("quota_mode")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .cloned()
         .unwrap_or_else(|| json!(registry_entry(provider).map(|e| e.3).unwrap_or("unknown")));
     Ok(json!({
@@ -213,11 +216,11 @@ pub fn evidence(
         "provider": provider,
         "operation": operation,
         "retrieved_at": (env.now)(),
-        "period": request.get("period").filter(|v| pystr::truthy(Some(v))).or_else(|| result.get("period").filter(|v| pystr::truthy(Some(v)))).or_else(|| result.get("collection_period")).cloned().unwrap_or(Value::Null),
-        "dimensions": request.get("dimensions").or_else(|| result.get("dimensions")).filter(|v| pystr::truthy(Some(v))).cloned().unwrap_or(json!([])),
+        "period": request.get("period").filter(|v| text_rules::truthy(Some(v))).or_else(|| result.get("period").filter(|v| text_rules::truthy(Some(v)))).or_else(|| result.get("collection_period")).cloned().unwrap_or(Value::Null),
+        "dimensions": request.get("dimensions").or_else(|| result.get("dimensions")).filter(|v| text_rules::truthy(Some(v))).cloned().unwrap_or(json!([])),
         "filters": redacted_filters(request.get("filters")),
         "target_reference": Value::Null,
-        "pagination": {"returned": returned, "truncated": pystr::truthy(result.get("truncated"))},
+        "pagination": {"returned": returned, "truncated": text_rules::truthy(result.get("truncated"))},
         "row_counts": {"returned": returned},
         "sampling": result.get("sampled").cloned().unwrap_or_else(|| result.get("sampling_or_thresholding").cloned().unwrap_or_else(|| result.get("sampling").cloned().unwrap_or(json!("unknown")))),
         "privacy_thresholds": result.get("thresholded").cloned().unwrap_or_else(|| result.get("privacy_thresholds").cloned().unwrap_or(json!("unknown"))),
@@ -237,7 +240,7 @@ pub fn evidence(
 pub fn permission_failure_state(result: &Value) -> &'static str {
     let error = result
         .get("error")
-        .map(|v| pyjson::str_value(v).unwrap_or_default())
+        .map(|v| json_wire::str_value(v).unwrap_or_default())
         .unwrap_or_default()
         .to_lowercase()
         .replace('_', " ");

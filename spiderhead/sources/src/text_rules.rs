@@ -39,7 +39,7 @@ pub fn truthy(value: Option<&Value>) -> bool {
 }
 
 /// True for a JSON integer (either sign); floats and booleans are rejected.
-pub fn is_py_int(value: &Value) -> bool {
+pub fn is_int(value: &Value) -> bool {
     match value {
         Value::Number(n) => n.is_i64() || n.is_u64(),
         _ => false,
@@ -61,7 +61,7 @@ pub fn repr(value: &Value) -> String {
     match value {
         Value::Null => "None".to_owned(),
         Value::Bool(b) => if *b { "True" } else { "False" }.to_owned(),
-        Value::Number(n) => crate::pyjson::float_repr_or_int(n),
+        Value::Number(n) => crate::json_wire::float_repr_or_int(n),
         Value::String(s) => repr_str(s),
         Value::Array(items) => {
             let inner: Vec<String> = items.iter().map(repr).collect();
@@ -80,7 +80,7 @@ pub fn repr(value: &Value) -> String {
 /// Sign-prefix helper used by numeric coercion checks.
 pub fn as_strict_i64(value: Option<&Value>) -> Option<i64> {
     value.and_then(|v| {
-        if is_py_int(v) {
+        if is_int(v) {
             v.as_i64()
                 .or_else(|| v.as_u64().and_then(|u| i64::try_from(u).ok()))
         } else {
@@ -201,7 +201,7 @@ pub fn repr_str(text: &str) -> String {
 /// Integer coercion with the error class and message providers report.
 /// Strings give `invalid literal for int() with base 10: {repr}`; unsupported types give the type error text;
 /// NaN and infinity give a value error or an overflow error.
-pub fn to_python_int(value: &Value) -> Result<i64, (&'static str, String)> {
+pub fn to_int(value: &Value) -> Result<i64, (&'static str, String)> {
     match value {
         Value::Bool(b) => Ok(if *b { 1 } else { 0 }),
         Value::Number(n) => {

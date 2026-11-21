@@ -156,8 +156,8 @@ pub fn credential_slot(
     else {
         return Err(CfError::Value(format!(
             "{} is not a stored credential component of {}",
-            pystr::repr_str(component),
-            pystr::repr_str(provider),
+            text_rules::repr_str(component),
+            text_rules::repr_str(provider),
         )));
     };
     let env_shadowed = env
@@ -197,7 +197,7 @@ pub(super) fn mtime_iso(path: &Path) -> Option<String> {
         .ok()?
         .duration_since(std::time::UNIX_EPOCH)
         .ok()?;
-    Some(crate::pytime::isoformat(
+    Some(crate::datetime::isoformat(
         (secs.as_secs_f64() * 1_000_000.0) as i64,
     ))
 }

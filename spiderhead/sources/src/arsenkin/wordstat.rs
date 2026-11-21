@@ -16,19 +16,19 @@ pub(super) fn getitem(value: &Value, key: &str) -> Result<Value, ArsError> {
         Value::Object(m) => m
             .get(key)
             .cloned()
-            .ok_or_else(|| pyerr("KeyError", pystr::repr_str(key))),
+            .ok_or_else(|| error_text("KeyError", text_rules::repr_str(key))),
         Value::Array(_) => Err(type_err("list indices must be integers or slices, not str")),
         Value::String(_) => Err(type_err("string indices must be integers, not 'str'")),
         other => Err(type_err(format!(
             "'{}' object is not subscriptable",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
 
 /// Falsy input becomes integer 0, so the float conversion yields 0.0.
 pub(super) fn or_zero(value: &Value) -> Value {
-    if pystr::truthy(Some(value)) {
+    if text_rules::truthy(Some(value)) {
         value.clone()
     } else {
         json!(0)
@@ -40,15 +40,15 @@ pub(super) fn py_float(value: &Value) -> Result<f64, ArsError> {
     match value {
         Value::Bool(b) => Ok(if *b { 1.0 } else { 0.0 }),
         Value::Number(n) => Ok(n.as_f64().unwrap_or(f64::NAN)),
-        Value::String(s) => pyjson::float_parse(s).ok_or_else(|| {
+        Value::String(s) => json_wire::float_parse(s).ok_or_else(|| {
             value_err(format!(
                 "could not convert string to float: {}",
-                pystr::repr_str(s)
+                text_rules::repr_str(s)
             ))
         }),
         other => Err(type_err(format!(
             "float() argument must be a string or a real number, not '{}'",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
@@ -67,7 +67,7 @@ pub(super) fn py_f64(value: &Value) -> Option<f64> {
 pub fn valid_task_id(value: &Value) -> Option<i64> {
     match value {
         Value::Bool(_) => None,
-        Value::Number(n) if pystr::is_py_int(value) => {
+        Value::Number(n) if text_rules::is_int(value) => {
             let v = n
                 .as_i64()
                 .or_else(|| n.as_u64().and_then(|u| i64::try_from(u).ok()))
@@ -75,7 +75,7 @@ pub fn valid_task_id(value: &Value) -> Option<i64> {
             (v > 0).then_some(v)
         }
         Value::String(s) => {
-            let text = pystr::strip(s);
+            let text = text_rules::strip(s);
             if text.is_empty() || !text.is_ascii() || !text.bytes().all(|b| b.is_ascii_digit()) {
                 return None;
             }
@@ -96,7 +96,10 @@ pub fn valid_task_id(value: &Value) -> Option<i64> {
 pub fn sanitize_for_journal(value: &Value) -> Value {
     match value {
         Value::Null | Value::Bool(_) | Value::Number(_) | Value::String(_) => value.clone(),
-        other => json!(pystr::repr(other).chars().take(200).collect::<String>()),
+        other => json!(text_rules::repr(other)
+            .chars()
+            .take(200)
+            .collect::<String>()),
     }
 }
 
@@ -106,9 +109,9 @@ pub fn count_items(data: &Value) -> Result<i64, ArsError> {
         match attr_get(data, key)? {
             Value::Array(items) => return Ok(items.len() as i64),
             Value::String(text) => {
-                return Ok(pystr::splitlines(&text)
+                return Ok(text_rules::splitlines(&text)
                     .iter()
-                    .filter(|line| !pystr::strip(line).is_empty())
+                    .filter(|line| !text_rules::strip(line).is_empty())
                     .count() as i64);
             }
             _ => continue,
@@ -121,14 +124,14 @@ pub fn count_items(data: &Value) -> Result<i64, ArsError> {
 /// letters, digits, spaces, and hyphens are known to pass) so one bad phrase cannot fail
 /// a whole batch.
 pub fn sanitize_wordstat_query(phrase: &Value) -> String {
-    let text = pystr::repr_value(phrase);
+    let text = text_rules::repr_value(phrase);
     // `[^0-9A-Za-zЀ-ӿ\s-]+` → " ".
     let mut step = String::new();
     let mut in_bad = false;
     for c in text.chars() {
         let ok = c.is_ascii_alphanumeric()
             || ('\u{0400}'..='\u{04ff}').contains(&c)
-            || pystr::isspace(c)
+            || text_rules::isspace(c)
             || c == '-';
         if ok {
             step.push(c);
@@ -142,7 +145,7 @@ pub fn sanitize_wordstat_query(phrase: &Value) -> String {
     let mut collapsed = String::new();
     let mut in_space = false;
     for c in step.chars() {
-        if pystr::isspace(c) {
+        if text_rules::isspace(c) {
             if !in_space {
                 collapsed.push(' ');
             }
@@ -152,14 +155,14 @@ pub fn sanitize_wordstat_query(phrase: &Value) -> String {
             in_space = false;
         }
     }
-    pystr::strip(&collapsed).to_owned()
+    text_rules::strip(&collapsed).to_owned()
 }
 
 /// `wordstat_payload(queries, region)` — the `/set` payload for exact `!W` frequency in a
 /// single region: `queries` (not `keywords`), `regions` as a list (a multi-region request
 /// SUMS frequency), `ws` requesting `overal`.
 pub fn wordstat_payload(queries: &Value, region: &Value) -> Result<Value, ArsError> {
-    let list = pystr::iterate(queries).map_err(|(c, m)| pyerr(c, m))?;
+    let list = text_rules::iterate(queries).map_err(|(c, m)| error_text(c, m))?;
     let kept: Vec<String> = list
         .iter()
         .map(sanitize_wordstat_query)
@@ -168,7 +171,7 @@ pub fn wordstat_payload(queries: &Value, region: &Value) -> Result<Value, ArsErr
     if kept.is_empty() {
         return Err(value_err("no usable queries after sanitizing"));
     }
-    let region = pystr::to_python_int(region).map_err(|(c, m)| pyerr(c, m))?;
+    let region = text_rules::to_int(region).map_err(|(c, m)| error_text(c, m))?;
     Ok(json!({
         "type": WORDSTAT_TYPE_FREQUENCY,
         "regions": [region],
@@ -201,14 +204,14 @@ pub fn parse_wordstat(result: &Value, region: &Value) -> Result<Value, ArsError>
         warnings.push(json!("wordstat result has no data.result mapping to parse"));
         return Ok(json!({"frequencies": frequencies, "warnings": warnings}));
     };
-    let wanted = pystr::to_python_int(region)
-        .map_err(|(c, m)| pyerr(c, m))?
+    let wanted = text_rules::to_int(region)
+        .map_err(|(c, m)| error_text(c, m))?
         .to_string();
     for (phrase, by_region) in map {
         let Some(by_region_map) = by_region.as_object() else {
             warnings.push(json!(format!(
                 "{}: skipped a non-dict row",
-                pystr::repr_str(phrase)
+                text_rules::repr_str(phrase)
             )));
             continue;
         };
@@ -218,7 +221,7 @@ pub fn parse_wordstat(result: &Value, region: &Value) -> Result<Value, ArsError>
             available.sort();
             warnings.push(json!(format!(
                 "{}: no data for requested region {} (provider returned regions: {})",
-                pystr::repr_str(phrase),
+                text_rules::repr_str(phrase),
                 wanted,
                 if available.is_empty() {
                     "none".to_owned()
@@ -231,7 +234,7 @@ pub fn parse_wordstat(result: &Value, region: &Value) -> Result<Value, ArsError>
         let Some(values_map) = values.as_object() else {
             warnings.push(json!(format!(
                 "{}: region {} data is not a mapping",
-                pystr::repr_str(phrase),
+                text_rules::repr_str(phrase),
                 wanted
             )));
             continue;
@@ -307,7 +310,7 @@ impl<'c, 'e, T: Transport> BatchRunner<'c, 'e, T> {
     /// Runs jobs (`tools_name`, `data`, `label`) in input order. All job arguments are
     /// resolved before any task starts.
     pub async fn run(&self, jobs: &Value) -> Result<Value, ArsError> {
-        let list = pystr::iterate(jobs).map_err(|(c, m)| pyerr(c, m))?;
+        let list = text_rules::iterate(jobs).map_err(|(c, m)| error_text(c, m))?;
         let mut planned = Vec::with_capacity(list.len());
         for (index, job) in list.iter().enumerate() {
             let tools_name = getitem(job, "tools_name")?;

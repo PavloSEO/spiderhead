@@ -7,7 +7,7 @@
 use serde_json::{json, Map, Value};
 
 use super::{day_list, number};
-use crate::pystr;
+use crate::text_rules;
 
 /// A provider-adapter failure carrying an error class name and message.
 /// `sync` renders it as `provider adapter raised <class>`; direct callers see the raw message.
@@ -26,7 +26,7 @@ impl FetcherFault {
             class: "AttributeError".to_owned(),
             message: format!(
                 "'{}' object has no attribute 'get'",
-                pystr::type_name(value)
+                text_rules::type_name(value)
             ),
         }
     }
@@ -35,7 +35,7 @@ impl FetcherFault {
     fn key(name: &str) -> Self {
         FetcherFault {
             class: "KeyError".to_owned(),
-            message: pystr::repr_str(name),
+            message: text_rules::repr_str(name),
         }
     }
 
@@ -54,7 +54,7 @@ pub(crate) fn failure(result: &Value) -> Value {
     let status = result.get("status");
     let is_int = match status {
         Some(Value::Bool(_)) => true,
-        Some(value) => pystr::is_py_int(value),
+        Some(value) => text_rules::is_int(value),
         _ => false,
     };
     let over_500 = match status {
@@ -76,7 +76,7 @@ pub(crate) fn failure(result: &Value) -> Value {
 /// Read the `ok` member; a value that is not an object is an error.
 fn ok_of(result: &Value) -> Result<bool, FetcherFault> {
     match result {
-        Value::Object(_) => Ok(pystr::truthy(result.get("ok"))),
+        Value::Object(_) => Ok(text_rules::truthy(result.get("ok"))),
         other => Err(FetcherFault::attribute_get(other)),
     }
 }
@@ -90,7 +90,7 @@ fn iterate_rows(member: &Value) -> Result<Vec<Value>, FetcherFault> {
         Value::String(text) => Ok(text.chars().map(|c| Value::String(c.to_string())).collect()),
         other => Err(FetcherFault::type_error(format!(
             "'{}' object is not iterable",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
@@ -142,7 +142,7 @@ pub fn fetch_gsc_result(result: &Value) -> Result<Value, FetcherFault> {
     Ok(json!({
         "ok": true,
         "rows": rows,
-        "complete": state_complete && !pystr::truthy(result.get("truncated")),
+        "complete": state_complete && !text_rules::truthy(result.get("truncated")),
     }))
 }
 
@@ -172,7 +172,7 @@ pub fn fetch_ga4_result(result: &Value) -> Result<Value, FetcherFault> {
             other => {
                 return Err(FetcherFault::type_error(format!(
                     "'{}' object is not subscriptable",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 )))
             }
         };
@@ -187,14 +187,14 @@ pub fn fetch_ga4_result(result: &Value) -> Result<Value, FetcherFault> {
                 // Slicing a list `date` yields list text in the reformatted value.
                 let repr = |a: usize, b: usize| -> String {
                     let sub: Vec<Value> = list.iter().skip(a).take(b - a).cloned().collect();
-                    pystr::repr_value(&Value::Array(sub))
+                    text_rules::repr_value(&Value::Array(sub))
                 };
                 json!(format!("{}-{}-{}", repr(0, 4), repr(4, 6), repr(6, 8)))
             }
             other => {
                 return Err(FetcherFault::type_error(format!(
                     "'{}' object is not subscriptable",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 )))
             }
         };
@@ -288,7 +288,8 @@ pub fn fetch_metrika_result(result: Result<Value, MetrikaFail>) -> Value {
             return json!({"ok": false, "error": "malformed Metrika report row", "retry": false});
         }
     }
-    let complete = !pystr::truthy(body.get("capped")) && !pystr::truthy(body.get("sampled"));
+    let complete =
+        !text_rules::truthy(body.get("capped")) && !text_rules::truthy(body.get("sampled"));
     json!({"ok": true, "rows": rows, "complete": complete})
 }
 
@@ -336,7 +337,7 @@ pub(crate) fn webmaster_day(result: &Value, day: &str) -> Result<WebmasterDay, F
     let queries = data.get("queries");
     let count = data.get("count");
     let shape_ok = queries.map(Value::is_array).unwrap_or(false)
-        && count.map(pystr::is_py_int).unwrap_or(false)
+        && count.map(text_rules::is_int).unwrap_or(false)
         && count
             .and_then(|count| {
                 count
@@ -364,7 +365,7 @@ pub(crate) fn webmaster_day(result: &Value, day: &str) -> Result<WebmasterDay, F
         c.as_i64()
             .or_else(|| c.as_u64().and_then(|u| i64::try_from(u).ok()))
     });
-    let complete = !pystr::truthy(result.get("truncated"))
+    let complete = !text_rules::truthy(result.get("truncated"))
         && count_i.unwrap_or_default() == queries.len() as i64;
     let mut rows = Vec::new();
     for item in &queries {
@@ -372,7 +373,7 @@ pub(crate) fn webmaster_day(result: &Value, day: &str) -> Result<WebmasterDay, F
         // A falsy `indicators` member counts as an empty object.
         let values = object
             .get("indicators")
-            .filter(|v| pystr::truthy(Some(v)))
+            .filter(|v| text_rules::truthy(Some(v)))
             .cloned()
             .unwrap_or_else(|| json!({}));
         if !values.is_object() || object.get("query_text").is_none_or(Value::is_null) {
@@ -484,7 +485,7 @@ pub(crate) fn webmaster_history_op(
                     "ok": false, "error": "malformed Webmaster point", "retry": false
                 })));
             }
-            let day: String = pystr::repr_value(&object["date"])
+            let day: String = text_rules::repr_value(&object["date"])
                 .chars()
                 .take(10)
                 .collect();

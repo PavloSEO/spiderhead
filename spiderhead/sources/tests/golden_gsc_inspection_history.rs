@@ -10,8 +10,8 @@ use std::path::{Path, PathBuf};
 
 use rusqlite::Connection;
 use serde_json::{json, Value};
+use spiderhead_sources::datetime;
 use spiderhead_sources::gsc_inspection_history as gih;
-use spiderhead_sources::pytime;
 
 /// `uuid.UUID(int=n)` rendered like `str(...)`.
 fn uuid_of(index: u64) -> String {
@@ -223,7 +223,7 @@ fn seed_history(project: &Path, spec: &Value) {
 
 fn parse_now(args: &Value) -> Option<i64> {
     args.get("now").and_then(Value::as_str).map(|s| {
-        pytime::fromisoformat(&s.replace('Z', "+00:00"))
+        datetime::fromisoformat(&s.replace('Z', "+00:00"))
             .unwrap()
             .micros
     })

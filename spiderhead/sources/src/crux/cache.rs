@@ -42,7 +42,7 @@ pub(super) fn dedup(urls: &[Value]) -> Vec<Value> {
 
 /// `isinstance(v, int) and not bool` then `1 <= v <= 25`, against the JSON input.
 pub(super) fn valid_max_samples(value: &Value) -> Option<i64> {
-    let number = pystr::as_strict_i64(Some(value))?;
+    let number = text_rules::as_strict_i64(Some(value))?;
     (1..=MAX_SAMPLES).contains(&number).then_some(number)
 }
 
@@ -133,7 +133,7 @@ pub(super) fn read_cache_fresh(
     if raw.len() > MAX_CACHE_BYTES {
         return invalid("cache_too_large");
     }
-    let text = match pystr::decode_utf8_strict(&raw) {
+    let text = match text_rules::decode_utf8_strict(&raw) {
         Ok(text) => text,
         Err(_) => return invalid("cache_invalid"),
     };

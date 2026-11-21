@@ -108,12 +108,12 @@ impl Transport for QueueTransport {
         }
         if let Some(msg) = entry.get("url_error").and_then(Value::as_str) {
             // `URLError(msg)` → `str` is `<urlopen error msg>` — `Connect` carries
-            // the reason and `pyerr::url_error` adds the urllib wrapper.
+            // the reason and `error_text::url_error` adds the urllib wrapper.
             return Err(TransportError::Connect(msg.to_owned()));
         }
         if entry.get("timeout").is_some() {
             // `TimeoutError(msg)` → `str` is `msg`; the fixture only scripts
-            // `"timed out"`, which `pyerr::url_error("timeout")` reproduces.
+            // `"timed out"`, which `error_text::url_error("timeout")` reproduces.
             return Err(TransportError::Connect("timeout".to_owned()));
         }
         panic!("unknown transport entry {entry}");
@@ -272,7 +272,9 @@ async fn run_client_op(op: &Value) -> Value {
                                 client
                                     .report(
                                         &params,
-                                        spiderhead_sources::pystr::truthy(args.get("paginate")),
+                                        spiderhead_sources::text_rules::truthy(
+                                            args.get("paginate"),
+                                        ),
                                         int_arg("limit", 100),
                                         int_arg("offset", 1),
                                     )

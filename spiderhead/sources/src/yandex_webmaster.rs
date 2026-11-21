@@ -14,7 +14,7 @@ use crate::credentials::{yandex_webmaster_token, CredentialError};
 use crate::http::{
     exponential_pause, quote, retry_slots, Request, Sleeper, Transport, TransportError,
 };
-use crate::{pyerr, pyjson, pystr, pytime};
+use crate::{datetime, error_text, json_wire, text_rules};
 
 mod errors;
 pub use errors::*;
@@ -146,19 +146,21 @@ impl<T: Transport> WmCall for LiveWmCall<'_, T> {
                 .header("Content-Type", "application/json")
                 .timeout(TIMEOUT);
             if let Some(payload) = payload {
-                request = request.body(pyjson::dumps(payload).into_bytes());
+                request = request.body(json_wire::dumps(payload).into_bytes());
             }
             match self.0.send(&request).await {
-                Ok(response) => match pystr::decode_utf8_strict(&response.body) {
+                Ok(response) => match text_rules::decode_utf8_strict(&response.body) {
                     Ok(text) => Ok(text),
                     Err(message) => Err(WmError::Value(message)),
                 },
                 Err(TransportError::Http(response)) => Err(WmError::Http {
                     code: i64::from(response.status),
-                    reason: pyerr::reason_phrase(response.status).to_owned(),
+                    reason: error_text::reason_phrase(response.status).to_owned(),
                     body: String::from_utf8_lossy(&response.body).into_owned(),
                 }),
-                Err(TransportError::Connect(kind)) => Err(WmError::Url(pyerr::url_error(&kind))),
+                Err(TransportError::Connect(kind)) => {
+                    Err(WmError::Url(error_text::url_error(&kind)))
+                }
                 Err(TransportError::InvalidRequest(kind)) => Err(WmError::Value(kind)),
             }
         })
@@ -202,7 +204,7 @@ impl<'a, T: Transport> WmEnv<'a, T> {
         match self.today {
             Some(today) => today(),
             None => {
-                let (year, month, day) = pytime::pacific_date(pytime::now_micros());
+                let (year, month, day) = datetime::pacific_date(datetime::now_micros());
                 format!("{year:04}-{month:02}-{day:02}")
             }
         }
@@ -234,8 +236,8 @@ async fn url_queries_inner<T: Transport>(
     call: &mut dyn WmCall,
 ) -> Result<Value, WmError> {
     let max_urls = strict_bounded(args.max_urls, 100);
-    if !pystr::truthy(Some(host_id))
-        || (pystr::truthy(args.url) && pystr::truthy(args.url_contains))
+    if !text_rules::truthy(Some(host_id))
+        || (text_rules::truthy(args.url) && text_rules::truthy(args.url_contains))
         || max_urls.is_none()
     {
         return Err(WmError::value_error(
@@ -252,11 +254,11 @@ async fn url_queries_inner<T: Transport>(
             ))
         }
     };
-    if pystr::truthy(args.start_date) != pystr::truthy(args.end_date) {
+    if text_rules::truthy(args.start_date) != text_rules::truthy(args.end_date) {
         return Err(WmError::value_error("pass both start_date and end_date"));
     }
     let mut requested_days: Option<Vec<String>> = None;
-    if pystr::truthy(args.start_date) && pystr::truthy(args.end_date) {
+    if text_rules::truthy(args.start_date) && text_rules::truthy(args.end_date) {
         let (start_raw, end_raw) = (args.start_date, args.end_date);
         let start_text = match start_raw {
             Some(Value::String(text)) => text.as_str(),
@@ -266,7 +268,7 @@ async fn url_queries_inner<T: Transport>(
             Some(Value::String(text)) => text.as_str(),
             _ => return Err(WmError::type_error("fromisoformat: argument must be str")),
         };
-        let start = match pytime::date_fromisoformat_err(start_text) {
+        let start = match datetime::date_fromisoformat_err(start_text) {
             Ok(days) => days,
             Err(_) => {
                 return Err(WmError::value_error(
@@ -274,7 +276,7 @@ async fn url_queries_inner<T: Transport>(
                 ))
             }
         };
-        let end = match pytime::date_fromisoformat_err(end_text) {
+        let end = match datetime::date_fromisoformat_err(end_text) {
             Ok(days) => days,
             Err(_) => {
                 return Err(WmError::value_error(
@@ -287,7 +289,7 @@ async fn url_queries_inner<T: Transport>(
                 "start_date must not be after end_date",
             ));
         }
-        let today_days = pytime::date_fromisoformat(&env.today()).unwrap_or_default();
+        let today_days = datetime::date_fromisoformat(&env.today()).unwrap_or_default();
         if end < today_days - 14 {
             return Ok(json!({
                 "ok": false,
@@ -297,7 +299,7 @@ async fn url_queries_inner<T: Transport>(
         }
         let mut days = Vec::new();
         for offset in 0..=(end - start) {
-            let (year, month, day) = pytime::civil_from_days(start + offset);
+            let (year, month, day) = datetime::civil_from_days(start + offset);
             days.push(format!("{year:04}-{month:02}-{day:02}"));
         }
         requested_days = Some(days);
@@ -315,7 +317,7 @@ async fn url_queries_inner<T: Transport>(
     };
 
     let outcome: Result<Value, WmError> = async {
-        let user = if pystr::truthy(args.user_id) {
+        let user = if text_rules::truthy(args.user_id) {
             args.user_id.cloned().unwrap_or(Value::Null)
         } else {
             Value::String(resolve_user_id(call, &bearer).await?)
@@ -326,7 +328,7 @@ async fn url_queries_inner<T: Transport>(
             ..CollectArgs::default()
         };
         let host_listing = collect_inner("hosts", &user_args, env, call).await?;
-        if !pystr::truthy(host_listing.get("ok")) {
+        if !text_rules::truthy(host_listing.get("ok")) {
             return Ok(json!({
                 "ok": false,
                 "state": "verification_failed",
@@ -358,8 +360,8 @@ async fn url_queries_inner<T: Transport>(
                 if matches!(bad, Value::Array(_) | Value::Object(_)) {
                     return Err(WmError::type_error(format!(
                         "cannot use '{}' as a set element (unhashable type: '{}')",
-                        pystr::type_name(bad),
-                        pystr::type_name(bad)
+                        text_rules::type_name(bad),
+                        text_rules::type_name(bad)
                     )));
                 }
             }
@@ -368,8 +370,8 @@ async fn url_queries_inner<T: Transport>(
         if matches!(host_id, Value::Array(_) | Value::Object(_)) {
             return Err(WmError::type_error(format!(
                 "cannot use '{}' as a set element (unhashable type: '{}')",
-                pystr::type_name(host_id),
-                pystr::type_name(host_id)
+                text_rules::type_name(host_id),
+                text_rules::type_name(host_id)
             )));
         }
         let granted = hosts.iter().any(|item| {
@@ -390,7 +392,7 @@ async fn url_queries_inner<T: Transport>(
             other => {
                 return Err(WmError::type_error(format!(
                     "replace() argument 2 must be str, not {}",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 )))
             }
         };
@@ -400,7 +402,7 @@ async fn url_queries_inner<T: Transport>(
             QUERY_ANALYTICS_PATH.replace("{host}", &host_str)
         );
         let url_contains = args.url_contains.cloned().unwrap_or(Value::Null);
-        let url_value = if pystr::truthy(args.url) {
+        let url_value = if text_rules::truthy(args.url) {
             args.url.cloned().unwrap_or(Value::Null)
         } else {
             url_contains.clone()

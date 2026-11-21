@@ -30,12 +30,12 @@ pub struct CollectArgs<'a> {
 pub(super) fn target_text(target: &Value) -> Result<String, BlError> {
     match target {
         Value::String(s) => Ok(s.clone()),
-        v if !pystr::truthy(Some(v)) => Ok(String::new()),
-        other => Err(pyerr(
+        v if !text_rules::truthy(Some(v)) => Ok(String::new()),
+        other => Err(error_text(
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'strip'",
-                pystr::type_name(other)
+                text_rules::type_name(other)
             ),
         )),
     }
@@ -43,7 +43,7 @@ pub(super) fn target_text(target: &Value) -> Result<String, BlError> {
 
 /// Text form of a URL-encoded field; an omitted value renders as the empty string.
 pub(super) fn str_or_omitted(value: Option<&Value>) -> String {
-    value.map(pystr::repr_value).unwrap_or_default()
+    value.map(text_rules::repr_value).unwrap_or_default()
 }
 
 /// Build the `Bearer` authorization value; a non-text key is an error.
@@ -52,7 +52,7 @@ pub(super) fn concat_str(prefix: &str, value: &Value) -> Result<String, BlError>
         Some(s) => Ok(format!("{prefix}{s}")),
         None => type_err(format!(
             "can only concatenate str (not \"{}\") to str",
-            pystr::type_name(value)
+            text_rules::type_name(value)
         )),
     }
 }
@@ -92,7 +92,7 @@ pub(super) async fn live_transport<T: Transport>(
             if response.body.len() > MAX_RESPONSE_BYTES {
                 return Err(TransportFail::Caught);
             }
-            match pystr::decode_utf8_strict(&response.body) {
+            match text_rules::decode_utf8_strict(&response.body) {
                 Ok(body) => Ok(TransportReply {
                     body,
                     headers: response.headers,
@@ -109,7 +109,7 @@ pub(super) fn float_or_none(value: Option<&Value>) -> Option<f64> {
     match value {
         Some(Value::Bool(b)) => Some(if *b { 1.0 } else { 0.0 }),
         Some(Value::Number(n)) => n.as_f64(),
-        Some(Value::String(s)) => pyjson::float_parse(s),
+        Some(Value::String(s)) => json_wire::float_parse(s),
         _ => None,
     }
 }
@@ -151,7 +151,7 @@ pub async fn collect<T: Transport>(
     let offset_zero = json!(0);
     let offset = args.offset.unwrap_or(&offset_zero);
     let offset_i = offset.as_i64().unwrap_or(i64::MIN);
-    if normalize_domain(&target_text).is_empty() || !pystr::is_py_int(offset) || offset_i < 0 {
+    if normalize_domain(&target_text).is_empty() || !text_rules::is_int(offset) || offset_i < 0 {
         return value_err("a valid target and nonnegative offset are required");
     }
     if provider != &json!("majestic") && offset_i != 0 {
@@ -168,7 +168,7 @@ pub async fn collect<T: Transport>(
         let Some(ceiling) = float_or_none(Some(max_units)) else {
             return type_err(format!(
                 "must be real number, not {}",
-                pystr::type_name(max_units)
+                text_rules::type_name(max_units)
             ));
         };
         if !ceiling.is_finite() || ceiling < 0.0 {
@@ -182,8 +182,8 @@ pub async fn collect<T: Transport>(
                     let Some(v) = value.as_f64() else {
                         return type_err(format!(
                             "'>' not supported between instances of '{}' and '{}'",
-                            pystr::type_name(value),
-                            pystr::type_name(max_units)
+                            text_rules::type_name(value),
+                            text_rules::type_name(max_units)
                         ));
                     };
                     if v > ceiling {
@@ -214,7 +214,8 @@ pub async fn collect<T: Transport>(
     };
     let mut request_id = String::new();
     let cred_outcome: Result<(), BlError> = (|| {
-        let cred_err = |e: CredentialError| -> BlError { pyerr(e.error_class(), e.to_string()) };
+        let cred_err =
+            |e: CredentialError| -> BlError { error_text(e.error_class(), e.to_string()) };
         match provider_str {
             "ahrefs" => {
                 let key = or_cred(env, args.api_key, "ahrefs/api_key", "AHREFS_API_KEY")
@@ -236,11 +237,11 @@ pub async fn collect<T: Transport>(
                     .map_err(cred_err)?;
                 payload = Some(
                     urlencode(&[
-                        ("app_api_key".to_owned(), pystr::repr_value(&key)),
+                        ("app_api_key".to_owned(), text_rules::repr_value(&key)),
                         ("cmd".to_owned(), "GetBackLinkData".to_owned()),
                         ("item".to_owned(), target_text.clone()),
                         ("Count".to_owned(), str_or_omitted(args.limit)),
-                        ("From".to_owned(), pystr::repr_value(offset)),
+                        ("From".to_owned(), text_rules::repr_value(offset)),
                         ("datasource".to_owned(), "fresh".to_owned()),
                         ("Mode".to_owned(), "0".to_owned()),
                     ])
@@ -256,7 +257,7 @@ pub async fn collect<T: Transport>(
                     .map_err(cred_err)?;
                 request_id = env.uuid4();
                 payload = Some(
-                    pyjson::dumps(&json!({
+                    json_wire::dumps(&json!({
                         "jsonrpc": "2.0",
                         "id": request_id,
                         "method": "data.site.link.list",
@@ -268,7 +269,7 @@ pub async fn collect<T: Transport>(
                     }))
                     .into_bytes(),
                 );
-                headers.push(("x-moz-token".to_owned(), pystr::repr_value(&token)));
+                headers.push(("x-moz-token".to_owned(), text_rules::repr_value(&token)));
                 headers.push(("Content-Type".to_owned(), "application/json".to_owned()));
             }
             _ => {
@@ -279,13 +280,13 @@ pub async fn collect<T: Transport>(
                 let encoded = base64_encode(
                     format!(
                         "{}:{}",
-                        pystr::repr_value(&identifier),
-                        pystr::repr_value(&secret)
+                        text_rules::repr_value(&identifier),
+                        text_rules::repr_value(&secret)
                     )
                     .as_bytes(),
                 );
                 headers.push(("Authorization".to_owned(), format!("Basic {encoded}")));
-                payload = Some(pyjson::dumps(&json!({"targets": [target_text]})).into_bytes());
+                payload = Some(json_wire::dumps(&json!({"targets": [target_text]})).into_bytes());
                 headers.push(("Content-Type".to_owned(), "application/json".to_owned()));
             }
         }
@@ -319,11 +320,13 @@ pub async fn collect<T: Transport>(
     };
     let reply = match reply {
         Ok(reply) => reply,
-        Err(TransportFail::Raised(class, message)) => return Err(pyerr(&class, message)),
+        Err(TransportFail::Raised(class, message)) => return Err(error_text(&class, message)),
         Err(TransportFail::Caught) => {
             env.record(&Record {
                 source: provider_str.to_owned(),
-                operation: pystr::repr_value(preflight.get("operation").unwrap_or(&Value::Null)),
+                operation: text_rules::repr_value(
+                    preflight.get("operation").unwrap_or(&Value::Null),
+                ),
                 cost: None,
                 unit: "unknown".to_owned(),
                 task_id: None,
@@ -357,7 +360,7 @@ pub async fn collect<T: Transport>(
     // Write before parsing: even unusable/malformed paid responses have a receipt.
     let receipt = env.record(&Record {
         source: provider_str.to_owned(),
-        operation: pystr::repr_value(preflight.get("operation").unwrap_or(&Value::Null)),
+        operation: text_rules::repr_value(preflight.get("operation").unwrap_or(&Value::Null)),
         cost: charge,
         unit: if provider_str == "ahrefs" {
             "api_units".to_owned()
@@ -405,7 +408,9 @@ pub async fn collect<T: Transport>(
             _ if moz_links => {
                 if body.get("jsonrpc") != Some(&json!("2.0"))
                     || body.get("id") != Some(&json!(request_id))
-                    || body.get("error").is_some_and(|v| pystr::truthy(Some(v)))
+                    || body
+                        .get("error")
+                        .is_some_and(|v| text_rules::truthy(Some(v)))
                 {
                     return Err(());
                 }

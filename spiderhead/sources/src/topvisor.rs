@@ -5,7 +5,7 @@
 
 use crate::credentials::{self, CredentialError};
 use crate::http::{Request, Response, Transport, TransportError};
-use crate::pystr;
+use crate::text_rules;
 use serde_json::{Map, Value};
 
 /// Provider label written to the spend log.
@@ -80,7 +80,7 @@ pub async fn fetch<T: Transport>(
         .or_insert_with(|| json_int(0));
     for (key, low, high) in [("limit", 1i64, 1000i64), ("offset", 0i64, 1_000_000i64)] {
         let value = body.get(key);
-        let ok = pystr::as_strict_i64(value)
+        let ok = text_rules::as_strict_i64(value)
             .map(|v| (low..=high).contains(&v))
             .unwrap_or(false);
         if !ok {
@@ -89,17 +89,17 @@ pub async fn fetch<T: Transport>(
             )));
         }
     }
-    if operation != "projects" && !pystr::truthy(body.get("project_id")) {
+    if operation != "projects" && !text_rules::truthy(body.get("project_id")) {
         return Err(TopvisorError::Invalid("project_id is required".to_owned()));
     }
     let token = credentials::topvisor_token(host, root)?;
     let user_id = credentials::topvisor_user_id(host, root)?;
-    if !pystr::is_ascii_decimal(&user_id) {
+    if !text_rules::is_ascii_decimal(&user_id) {
         return Err(TopvisorError::Invalid(
             "Topvisor user_id must contain only ASCII digits".to_owned(),
         ));
     }
-    if token.chars().any(pystr::isspace) {
+    if token.chars().any(text_rules::isspace) {
         return Err(TopvisorError::Invalid(
             "Topvisor token contains whitespace".to_owned(),
         ));
@@ -111,7 +111,7 @@ pub async fn fetch<T: Transport>(
     .header("Content-Type", "application/json")
     .header("User-Id", user_id.clone())
     .header("Authorization", format!("bearer {token}"))
-    .body(crate::pyjson::dumps(&Value::Object(body.clone())).into_bytes())
+    .body(crate::json_wire::dumps(&Value::Object(body.clone())).into_bytes())
     .timeout(30.0);
     let data: Value = match send_and_parse(transport, &request).await {
         Ok(data) => data,
@@ -122,7 +122,7 @@ pub async fn fetch<T: Transport>(
             "Topvisor returned an unexpected envelope".to_owned(),
         ));
     };
-    if pystr::truthy(map.get("errors")) {
+    if text_rules::truthy(map.get("errors")) {
         let errors = map.get("errors").cloned().unwrap_or(Value::Null);
         // Keep diagnostics useful without exposing echoed credentials.
         let list: Vec<Value> = match errors {
@@ -135,7 +135,7 @@ pub async fn fetch<T: Transport>(
                 let parts: Vec<String> = ["code", "message", "string"]
                     .iter()
                     .filter_map(|k| e.get(*k))
-                    .map(pystr::repr_value)
+                    .map(text_rules::repr_value)
                     .collect();
                 let detail = parts
                     .join(": ")

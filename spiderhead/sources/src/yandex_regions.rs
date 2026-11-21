@@ -9,7 +9,7 @@ use serde_json::{json, Map, Value};
 
 use crate::http::Transport;
 use crate::yandex_cloud::{Cloud, CloudArgs, CloudEnv, HOST};
-use crate::{pyjson, pystr};
+use crate::{json_wire, text_rules};
 
 /// Region ID for the whole of Russia.
 pub const RUSSIA: &str = "225";
@@ -127,14 +127,14 @@ pub async fn fetch_tree<T: Transport>(
     }
     // An empty `save_to` skips the write. A non-string value is a type error, checked after the request.
     let save_to = match save_to {
-        Some(value) if pystr::truthy(Some(value)) => match value {
+        Some(value) if text_rules::truthy(Some(value)) => match value {
             Value::String(text) => Some(text.clone()),
             other => {
                 return Err(crate::yandex_cloud::CloudError::classed(
                     "TypeError",
                     format!(
                         "argument should be a str or an os.PathLike object where __fspath__ returns a str, not '{}'",
-                        pystr::type_name(other)
+                        text_rules::type_name(other)
                     ),
                 ))
             }
@@ -170,14 +170,17 @@ fn walk(node: &Value, flat: &mut Map<String, Value>) {
         Value::Object(map) => {
             let region_id = map
                 .get("id")
-                .filter(|v| pystr::truthy(Some(v)))
-                .or_else(|| map.get("value").filter(|v| pystr::truthy(Some(v))));
+                .filter(|v| text_rules::truthy(Some(v)))
+                .or_else(|| map.get("value").filter(|v| text_rules::truthy(Some(v))));
             let name = map
                 .get("name")
-                .filter(|v| pystr::truthy(Some(v)))
-                .or_else(|| map.get("label").filter(|v| pystr::truthy(Some(v))));
+                .filter(|v| text_rules::truthy(Some(v)))
+                .or_else(|| map.get("label").filter(|v| text_rules::truthy(Some(v))));
             if let (Some(id), Some(name)) = (region_id, name) {
-                flat.insert(pystr::repr_value(name), json!(pystr::repr_value(id)));
+                flat.insert(
+                    text_rules::repr_value(name),
+                    json!(text_rules::repr_value(id)),
+                );
             }
             for value in map.values() {
                 if matches!(value, Value::Object(_) | Value::Array(_)) {
@@ -207,9 +210,9 @@ fn dumps_indent2(flat: &Map<String, Value>) -> String {
         }
         first = false;
         out.push_str("\n  ");
-        out.push_str(&pyjson::dumps_opts(&json!(key), false, false));
+        out.push_str(&json_wire::dumps_opts(&json!(key), false, false));
         out.push_str(": ");
-        out.push_str(&pyjson::dumps_opts(value, false, false));
+        out.push_str(&json_wire::dumps_opts(value, false, false));
     }
     out.push('\n');
     out.push('}');

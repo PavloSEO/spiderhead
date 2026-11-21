@@ -12,7 +12,7 @@ pub(super) fn request_error(message: impl Into<String>) -> MetrikaFail {
 
 /// A key probe on an unhashable value; reported as a type error.
 pub(super) fn unhashable_error(value: &Value) -> MetrikaFail {
-    let name = pystr::type_name(value);
+    let name = text_rules::type_name(value);
     MetrikaFail::classed(
         "TypeError",
         format!("cannot use '{name}' as a dict key (unhashable type: '{name}')"),
@@ -49,7 +49,7 @@ pub(super) fn safe<T>(
 /// `^\d{1,12}$`; `\d` matches any Unicode decimal digit.
 pub(super) fn counter_re(text: &str) -> bool {
     let n = text.chars().count();
-    (1..=12).contains(&n) && pystr::is_decimal(text)
+    (1..=12).contains(&n) && text_rules::is_decimal(text)
 }
 
 /// `^\d{4}-\d{2}-\d{2}$`; `\d` matches any Unicode decimal digit.
@@ -61,7 +61,7 @@ pub(super) fn iso_re(text: &str) -> bool {
         && chars
             .iter()
             .enumerate()
-            .all(|(i, c)| i == 4 || i == 7 || pystr::is_decimal(&c.to_string()))
+            .all(|(i, c)| i == 4 || i == 7 || text_rules::is_decimal(&c.to_string()))
 }
 
 /// `parse_counter_ids` — int, `"1,2"` text, or a list → deduped digit strings.
@@ -95,7 +95,7 @@ pub(super) fn parse_counter_ids(counter_id: &Value) -> Result<Vec<String>, Metri
     if !bad.is_empty() {
         return Err(request_error(format!(
             "counter_id must contain only digits, got {}",
-            pystr::repr(&json!(bad))
+            text_rules::repr(&json!(bad))
         )));
     }
     // Order-preserving deduplication.
@@ -113,14 +113,14 @@ pub(super) fn parse_date(value: &Value, name: &str) -> Result<i64, MetrikaFail> 
         _ => {
             return Err(request_error(format!(
                 "{name} must be a YYYY-MM-DD date, got {}",
-                pystr::repr(value)
+                text_rules::repr(value)
             )));
         }
     };
-    pytime::date_fromisoformat(text).ok_or_else(|| {
+    datetime::date_fromisoformat(text).ok_or_else(|| {
         request_error(format!(
             "{name} is not a calendar date: {}",
-            pystr::repr(value)
+            text_rules::repr(value)
         ))
     })
 }
@@ -234,16 +234,16 @@ pub(super) fn monthrange(year: i64, month: i64) -> i64 {
     } else {
         (year, month + 1)
     };
-    pytime::days_from_civil(y, m, 1) - pytime::days_from_civil(year, month, 1)
+    datetime::days_from_civil(y, m, 1) - datetime::days_from_civil(year, month, 1)
 }
 
 /// `add_months` — shift by whole months, clamping to the last day.
 pub(super) fn add_months(day: i64, months: i64) -> i64 {
-    let (year, month, dom) = pytime::civil_from_days(day);
+    let (year, month, dom) = datetime::civil_from_days(day);
     let month_index = year * 12 + (month - 1) + months;
     let year = month_index.div_euclid(12);
     let month = month_index.rem_euclid(12) + 1;
-    pytime::days_from_civil(year, month, dom.min(monthrange(year, month)))
+    datetime::days_from_civil(year, month, dom.min(monthrange(year, month)))
 }
 
 /// `comparison_periods` — current, previous, and year-ago spans.
@@ -268,7 +268,7 @@ pub(super) fn window_periods(end: i64, months: i64) -> [(i64, i64); 2] {
 
 /// `YYYY-MM-DD` text for a day number.
 pub(super) fn date_iso(days: i64) -> String {
-    let (y, m, d) = pytime::civil_from_days(days);
+    let (y, m, d) = datetime::civil_from_days(days);
     format!("{y:04}-{m:02}-{d:02}")
 }
 

@@ -287,7 +287,7 @@ pub fn retry_after_pause(headers: &[(String, String)], attempt: usize) -> f64 {
         .find(|(k, _)| k.eq_ignore_ascii_case("retry-after"))
         .map(|(_, v)| v.as_str())
         .filter(|v| !v.is_empty());
-    let wait = raw.and_then(crate::pyjson::float_parse).unwrap_or(0.0);
+    let wait = raw.and_then(crate::json_wire::float_parse).unwrap_or(0.0);
     wait.max(2f64.powi(attempt as i32)).min(30.0)
 }
 

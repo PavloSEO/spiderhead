@@ -55,7 +55,7 @@ fn seed_cache(dir: &Path, scenario: &Value) {
                     .and_then(Value::as_str)
                     .map(b64_dec)
                     .unwrap_or_default(),
-                Some(v) => spiderhead_sources::pyjson::dumps_opts(v, true, true).into_bytes(),
+                Some(v) => spiderhead_sources::json_wire::dumps_opts(v, true, true).into_bytes(),
                 None => Vec::new(),
             };
             let body = if let Some(n) = seed.get("zeros").and_then(Value::as_u64) {

@@ -20,7 +20,7 @@ pub struct EstimateArgs<'a> {
 
 /// A count argument: a non-negative integer, not a boolean.
 pub(super) fn nonneg_int(name: &str, value: &Value) -> Result<i64, DfsError> {
-    match pystr::as_strict_i64(Some(value)) {
+    match text_rules::as_strict_i64(Some(value)) {
         Some(v) if v >= 0 => Ok(v),
         _ => Err(value_err(&format!("{name} must be a non-negative integer"))),
     }

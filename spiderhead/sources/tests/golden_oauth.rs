@@ -67,7 +67,7 @@ fn seed(scenario: &Value) -> (PathBuf, PathBuf) {
             } else {
                 let text = match content {
                     Value::String(s) => s.clone(),
-                    other => spiderhead_sources::pyjson::dumps(other),
+                    other => spiderhead_sources::json_wire::dumps(other),
                 };
                 write_private(&target, &text);
             }

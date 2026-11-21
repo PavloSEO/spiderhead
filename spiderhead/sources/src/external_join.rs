@@ -6,7 +6,7 @@ use serde_json::{json, Map, Value};
 use spiderhead_core::url_normalize::norm_url;
 
 use crate::cloudflare::CfError;
-use crate::pystr;
+use crate::text_rules;
 
 /// Schema version of external join results.
 pub const SCHEMA_VERSION: &str = "external_join.v1";
@@ -53,7 +53,7 @@ fn url_text(url: Option<&Value>) -> Result<Option<String>, CfError> {
     let Some(value) = url else {
         return Ok(None);
     };
-    if !pystr::truthy(Some(value)) {
+    if !text_rules::truthy(Some(value)) {
         return Ok(None);
     }
     match value.as_str() {
@@ -63,7 +63,7 @@ fn url_text(url: Option<&Value>) -> Result<Option<String>, CfError> {
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'strip'",
-                pystr::type_name(value)
+                text_rules::type_name(value)
             ),
         )),
     }
@@ -239,7 +239,7 @@ pub fn orphan_urls(
                 }
             }
         }
-        Some(other) if pystr::truthy(Some(other)) => {
+        Some(other) if text_rules::truthy(Some(other)) => {
             return Err(crate::cloudflare::attr_get_error(other));
         }
         _ => {
@@ -292,9 +292,9 @@ pub fn load_csv_rows(path: &str, url_column: &str) -> Result<Vec<Value>, CfError
             "ExternalJoinError",
             format!(
                 "column {} not found in '{}'; available columns: {}",
-                pystr::repr_str(url_column),
+                text_rules::repr_str(url_column),
                 path,
-                pystr::repr(&json!(headers)),
+                text_rules::repr(&json!(headers)),
             ),
         ));
     }

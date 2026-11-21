@@ -14,7 +14,7 @@ pub(super) fn credential_fail(err: CredentialError) -> MetrikaFail {
 pub(super) fn backoff(attempt: i64, retry_after: Option<&str>) -> f64 {
     if let Some(raw) = retry_after {
         if !raw.is_empty() {
-            if let Some(seconds) = pyjson::float_parse(raw) {
+            if let Some(seconds) = json_wire::float_parse(raw) {
                 if seconds > 0.0 {
                     return seconds.min(60.0);
                 }
@@ -31,17 +31,17 @@ pub(super) fn api_message(text: &str) -> String {
         Err(_) => return char_slice(text, 300).unwrap_or_else(|| "empty response".to_owned()),
     };
     if let Value::Object(map) = &body {
-        if pystr::truthy(map.get("message")) {
+        if text_rules::truthy(map.get("message")) {
             return py_str(&map["message"]);
         }
         if let Some(errors) = map.get("errors").and_then(Value::as_array) {
             if let Some(first) = errors.first() {
                 if let Value::Object(first) = first {
                     let message = first.get("message").cloned().unwrap_or(Value::Null);
-                    if pystr::truthy(Some(&message)) {
+                    if text_rules::truthy(Some(&message)) {
                         return py_str(&message);
                     }
-                    return pystr::repr_value(&Value::Object(first.clone()));
+                    return text_rules::repr_value(&Value::Object(first.clone()));
                 }
                 return py_str(first);
             }
@@ -87,10 +87,10 @@ pub(crate) fn needs_today(value: Option<&Value>) -> bool {
 pub(super) fn days_ago(text: &str) -> Option<i64> {
     let stem = text.strip_suffix('\n').unwrap_or(text);
     let digits = stem.strip_suffix("daysAgo")?;
-    if digits.is_empty() || !pystr::is_decimal(digits) {
+    if digits.is_empty() || !text_rules::is_decimal(digits) {
         return None;
     }
-    pystr::nd_int(digits)
+    text_rules::nd_int(digits)
 }
 
 /// `^([+-])(\d{2}):(\d{2})$`: the match only; bounds are not checked.
@@ -108,12 +108,12 @@ pub(super) fn tz_offset_re(text: &str) -> Option<(i64, i64, i64)> {
     };
     if ![1, 2, 4, 5]
         .iter()
-        .all(|&i| pystr::is_decimal(&chars[i].to_string()))
+        .all(|&i| text_rules::is_decimal(&chars[i].to_string()))
     {
         return None;
     }
-    let hours = pystr::nd_int(&chars[1..3].iter().collect::<String>())?;
-    let minutes = pystr::nd_int(&chars[4..6].iter().collect::<String>())?;
+    let hours = text_rules::nd_int(&chars[1..3].iter().collect::<String>())?;
+    let minutes = text_rules::nd_int(&chars[4..6].iter().collect::<String>())?;
     Some((sign, hours, minutes))
 }
 
@@ -128,7 +128,7 @@ pub(crate) fn py_get<'v>(value: &'v Value, key: &str) -> Result<Option<&'v Value
 /// Member lookup where a falsy receiver counts as an empty object; a truthy non-object is an error.
 pub(crate) fn or_get<'v>(value: &'v Value, key: &str) -> Result<Option<&'v Value>, MetrikaFail> {
     match value {
-        v if !pystr::truthy(Some(v)) => Ok(None),
+        v if !text_rules::truthy(Some(v)) => Ok(None),
         v => py_get(v, key),
     }
 }
@@ -141,7 +141,7 @@ pub(crate) fn py_iter(value: &Value) -> Result<Vec<Value>, MetrikaFail> {
         Value::Object(map) => Ok(map.keys().map(|k| json!(k)).collect()),
         other => Err(MetrikaFail::type_error(format!(
             "'{}' object is not iterable",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
@@ -159,7 +159,7 @@ pub(crate) fn py_subscript(value: &Value, index: usize) -> Result<Value, Metrika
         Value::Object(_) => Err(MetrikaFail::classed("KeyError", index.to_string())),
         other => Err(MetrikaFail::type_error(format!(
             "'{}' object is not subscriptable",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
@@ -172,7 +172,7 @@ pub(crate) fn py_len(value: &Value) -> Result<i64, MetrikaFail> {
         Value::Object(map) => Ok(map.len() as i64),
         other => Err(MetrikaFail::type_error(format!(
             "object of type '{}' has no len()",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
@@ -180,7 +180,7 @@ pub(crate) fn py_len(value: &Value) -> Result<i64, MetrikaFail> {
 /// Object conversion: an object copies, a falsy value becomes `{}`, pair sequences convert,
 /// and anything else is a conversion error.
 pub(crate) fn py_dict_from(value: Value) -> Result<Map<String, Value>, MetrikaFail> {
-    if !pystr::truthy(Some(&value)) {
+    if !text_rules::truthy(Some(&value)) {
         return Ok(Map::new());
     }
     py_dict_from_pairs(value)
@@ -194,7 +194,7 @@ pub(crate) fn py_dict_from_pairs(value: Value) -> Result<Map<String, Value>, Met
         Value::String(text) => pairs_to_map(text.chars().map(|c| json!(c.to_string())).collect()),
         other => Err(MetrikaFail::type_error(format!(
             "'{}' object is not iterable",
-            pystr::type_name(&other)
+            text_rules::type_name(&other)
         ))),
     }
 }
@@ -224,7 +224,7 @@ pub(super) fn pairs_to_map(items: Vec<Value>) -> Result<Map<String, Value>, Metr
         let key = match &pair[0] {
             Value::String(text) => text.clone(),
             Value::Array(_) | Value::Object(_) => {
-                let name = pystr::type_name(&pair[0]);
+                let name = text_rules::type_name(&pair[0]);
                 return Err(MetrikaFail::type_error(format!(
                     "cannot use '{name}' as a dict key (unhashable type: '{name}')"
                 )));
@@ -252,7 +252,7 @@ pub(super) fn py_ge_i64(left: i64, right: &Value) -> Result<bool, MetrikaFail> {
         }
         other => Err(MetrikaFail::type_error(format!(
             "'>=' not supported between instances of 'int' and '{}'",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
@@ -279,14 +279,14 @@ pub(crate) fn py_eq(left: &Value, right: &Value) -> bool {
 pub(crate) fn py_str(value: &Value) -> String {
     match value {
         Value::String(text) => text.clone(),
-        other => pystr::repr_value(other),
+        other => text_rules::repr_value(other),
     }
 }
 
 /// Text form of a value, where a falsy value becomes an empty string.
 pub(super) fn str_or_empty(value: Option<&Value>) -> String {
     match value {
-        Some(v) if pystr::truthy(Some(v)) => py_str(v),
+        Some(v) if text_rules::truthy(Some(v)) => py_str(v),
         _ => String::new(),
     }
 }

@@ -256,9 +256,9 @@ pub(super) fn row_url(
 pub(super) fn natural_component(value: &Value) -> String {
     match value {
         Value::String(_) | Value::Number(_) | Value::Bool(_) | Value::Null => {
-            crate::pyjson::dumps_opts(value, false, false)
+            crate::json_wire::dumps_opts(value, false, false)
         }
-        other => pystr::repr_value(other),
+        other => text_rules::repr_value(other),
     }
 }
 

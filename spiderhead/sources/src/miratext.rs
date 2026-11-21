@@ -12,8 +12,8 @@ use thiserror::Error;
 
 use crate::credentials::{self, CredentialError};
 use crate::http::{Request, Transport, TransportError};
-use crate::pystr;
 use crate::spend::{self, Record};
+use crate::text_rules;
 
 /// Miratext analysis endpoint.
 pub const ENDPOINT: &str = "https://miratext.com/api2/call/article/seoAnalizText";
@@ -92,7 +92,7 @@ fn table(value: &Value) -> Vec<&Map<String, Value>> {
         Value::Array(rows) => Some(rows),
         Value::Object(m) => ["items", "rows", "data"]
             .iter()
-            .find_map(|k| m.get(*k).filter(|v| pystr::truthy(Some(v))))
+            .find_map(|k| m.get(*k).filter(|v| text_rules::truthy(Some(v))))
             .and_then(Value::as_array),
         _ => None,
     };
@@ -125,7 +125,7 @@ fn author_tables(data: &Value, top: usize) -> Value {
     let words_src = tz.get("keywordsAll").cloned().unwrap_or(Value::Null);
     let dev_src = tz
         .get("densityDeviation")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .or_else(|| tz.get("density_deviation"))
         .cloned()
         .unwrap_or(Value::Null);
@@ -138,7 +138,7 @@ fn author_tables(data: &Value, top: usize) -> Value {
             .and_then(Value::as_str)
             .and_then(|w| {
                 let w = w.to_owned();
-                if pystr::strip(&w).is_empty() {
+                if text_rules::strip(&w).is_empty() {
                     None
                 } else {
                     Some(w)
@@ -176,13 +176,13 @@ fn author_tables(data: &Value, top: usize) -> Value {
         .collect();
     let stopwords = tz
         .get("stopwords")
-        .filter(|v| pystr::truthy(Some(v)))
-        .or_else(|| tz.get("stop_words").filter(|v| pystr::truthy(Some(v))))
+        .filter(|v| text_rules::truthy(Some(v)))
+        .or_else(|| tz.get("stop_words").filter(|v| text_rules::truthy(Some(v))))
         .cloned()
         .unwrap_or_else(|| json!("provider_not_reported"));
     let filters = tz
         .get("filters")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .cloned()
         .unwrap_or_else(|| json!("provider_not_reported"));
     json!({
@@ -203,12 +203,12 @@ async fn run<T: Transport>(
 ) -> Result<Value, MiratextError> {
     let timeout = match call.timeout {
         None => 120,
-        Some(v) if pystr::is_py_int(v) => v.as_i64().unwrap_or(0),
+        Some(v) if text_rules::is_int(v) => v.as_i64().unwrap_or(0),
         Some(_) => -1,
     };
     let top = match call.top {
         None => 100,
-        Some(v) if pystr::is_py_int(v) => v.as_i64().unwrap_or(0),
+        Some(v) if text_rules::is_int(v) => v.as_i64().unwrap_or(0),
         Some(_) => -1,
     };
     if !(1..=600).contains(&timeout) || !(1..=500).contains(&top) {
@@ -331,7 +331,7 @@ async fn run<T: Transport>(
                 if body.len() > MAX_RESPONSE_BYTES {
                     return raise("ResponseTooLarge", "Miratext response exceeds 20 MiB");
                 }
-                match pystr::decode_utf8_strict(body) {
+                match text_rules::decode_utf8_strict(body) {
                     Ok(text) => match serde_json::from_str::<Value>(&text) {
                         Ok(v)
                             if v.as_object().is_some_and(|m| {

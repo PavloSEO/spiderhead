@@ -4,13 +4,15 @@ use super::*;
 
 /// String form of a value: strings as-is; other values in their repr form.
 pub(super) fn str_value(value: &Value) -> String {
-    pystr::repr_value(value)
+    text_rules::repr_value(value)
 }
 
 /// Parses JSON. Error messages keep the standard JSON wording.
 pub(super) fn loads(text: &str) -> Result<Value, WmError> {
     serde_json::from_str(text).map_err(|_| {
-        WmError::Value(pyjson::decode_error(text).unwrap_or_else(|| "JSON decode error".to_owned()))
+        WmError::Value(
+            json_wire::decode_error(text).unwrap_or_else(|| "JSON decode error".to_owned()),
+        )
     })
 }
 
@@ -26,7 +28,7 @@ pub(super) async fn resolve_user_id(
     match &body {
         Value::Object(map) => match map.get("user_id") {
             Some(value) => Ok(str_value(value)),
-            None => Err(WmError::Key(pystr::repr_str("user_id"))),
+            None => Err(WmError::Key(text_rules::repr_str("user_id"))),
         },
         other => Err(WmError::subscript(other)),
     }
@@ -51,7 +53,7 @@ impl PyNum {
     pub(super) fn text(&self) -> String {
         match self {
             PyNum::Int(v) => v.to_string(),
-            PyNum::Float(v) => pyjson::float_repr(*v),
+            PyNum::Float(v) => json_wire::float_repr(*v),
         }
     }
 
@@ -106,7 +108,7 @@ pub(super) fn rows_operand(value: Option<&Value>, default: i64) -> Result<PyNum,
         }
         Some(other) => Err(WmError::type_error(format!(
             "unsupported operand type(s) for -: '{}' and 'int'",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
@@ -117,7 +119,7 @@ pub(super) fn rows_below_one(value: Option<&Value>, default: i64) -> Result<bool
         Some(other) if !matches!(other, Value::Bool(_) | Value::Number(_)) => {
             Err(WmError::type_error(format!(
                 "'<' not supported between instances of '{}' and 'int'",
-                pystr::type_name(other)
+                text_rules::type_name(other)
             )))
         }
         _ => Ok(rows_operand(value, default)?.lt(1)),
@@ -126,7 +128,7 @@ pub(super) fn rows_below_one(value: Option<&Value>, default: i64) -> Result<bool
 
 /// Integer parse for a `count`-style string, saturating at the `i64` bounds. The value only feeds comparisons, where a saturated value gives the same result.
 pub(super) fn int_str_saturate(text: &str) -> Option<i64> {
-    pystr::int_str_saturating(text)
+    text_rules::int_str_saturating(text)
 }
 
 /// Validates one documented paged response and returns its rows and total.

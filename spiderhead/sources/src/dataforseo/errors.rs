@@ -67,14 +67,14 @@ pub(crate) fn attr_err(value: &Value, attr: &str) -> DfsError {
         class: "AttributeError".to_owned(),
         message: format!(
             "'{}' object has no attribute '{}'",
-            pystr::type_name(value),
+            text_rules::type_name(value),
             attr
         ),
     }
 }
 
 /// A failure with an explicit error kind name.
-pub(crate) fn pyerr(class: &str, message: impl Into<String>) -> DfsError {
+pub(crate) fn error_text(class: &str, message: impl Into<String>) -> DfsError {
     DfsError::Classed {
         class: class.to_owned(),
         message: message.into(),
@@ -85,6 +85,6 @@ pub(crate) fn pyerr(class: &str, message: impl Into<String>) -> DfsError {
 pub(super) fn cred_err(err: CredentialError) -> DfsError {
     match err {
         CredentialError::Missing(message) => DfsError::MissingCredential(message),
-        other => pyerr(other.error_class(), other.to_string()),
+        other => error_text(other.error_class(), other.to_string()),
     }
 }

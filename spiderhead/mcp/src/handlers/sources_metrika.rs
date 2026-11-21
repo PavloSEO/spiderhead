@@ -9,7 +9,7 @@ use serde_json::{json, Map, Value};
 use spiderhead_reports::{chromium_pdf, traffic_dashboard};
 use spiderhead_sources::metrika::{rows_to_records, MetrikaClient, MetrikaEnv, MetrikaFail};
 use spiderhead_sources::metrika_traffic::{self, ReportFuture, TrafficInput, LANGUAGES};
-use spiderhead_sources::{gsc, pyjson, pystr};
+use spiderhead_sources::{gsc, json_wire, text_rules};
 
 use crate::error::ToolError;
 
@@ -60,7 +60,7 @@ pub fn metrika_counters(_args: &Value) -> Result<Value, ToolError> {
 /// `metrika_setup`: goals, filters and operations of one counter.
 pub fn metrika_setup(args: &Value) -> Result<Value, ToolError> {
     let args = kwargs(args);
-    let Some(counter_id) = opt(&args, "counter_id").filter(|v| pystr::truthy(Some(v))) else {
+    let Some(counter_id) = opt(&args, "counter_id").filter(|v| text_rules::truthy(Some(v))) else {
         return Err(fail("counter_id required"));
     };
     let (host, root) = environment();
@@ -79,7 +79,7 @@ pub fn metrika_setup(args: &Value) -> Result<Value, ToolError> {
     };
     let goal_rows = goals.as_array().cloned().unwrap_or_default();
     let listed = |body: &Value, key: &str| {
-        if pystr::truthy(Some(body)) {
+        if text_rules::truthy(Some(body)) {
             body.get(key).cloned().unwrap_or(json!([]))
         } else {
             json!([])
@@ -105,7 +105,7 @@ pub fn metrika_setup(args: &Value) -> Result<Value, ToolError> {
 /// `metrika_report`: one Reporting API query as flat JSON records.
 pub fn metrika_report(args: &Value) -> Result<Value, ToolError> {
     let args = kwargs(args);
-    let counter_id = opt(&args, "counter_id").filter(|v| pystr::truthy(Some(v)));
+    let counter_id = opt(&args, "counter_id").filter(|v| text_rules::truthy(Some(v)));
     let metrics = present(&args, "metrics");
     let (Some(counter_id), Some(metrics)) = (counter_id, metrics) else {
         return Err(fail("counter_id and metrics required"));
@@ -136,10 +136,14 @@ pub fn metrika_report(args: &Value) -> Result<Value, ToolError> {
         Err(error) => return report_failure(error),
     };
     let rows = rows_to_records(&body).map_err(fail)?;
-    let truthy = |key: &str| body.get(key).filter(|v| pystr::truthy(Some(v))).cloned();
+    let truthy = |key: &str| {
+        body.get(key)
+            .filter(|v| text_rules::truthy(Some(v)))
+            .cloned()
+    };
     let accuracy = truthy("accuracy_used").or_else(|| {
         body.get("query")
-            .filter(|v| pystr::truthy(Some(v)))
+            .filter(|v| text_rules::truthy(Some(v)))
             .and_then(|q| q.get("accuracy").cloned())
     });
     Ok(json!({
@@ -170,7 +174,7 @@ fn path_arg(value: &Value) -> Result<std::path::PathBuf, ToolError> {
         other => Err(fail(format!(
             "argument should be a str or an os.PathLike object where __fspath__ returns a str, \
              not '{}'",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }
@@ -209,7 +213,7 @@ fn document_json(path: &str) -> Result<Value, ToolError> {
     serde_json::from_str(&text).map_err(|error| {
         fail(format!(
             "document is not valid JSON: {}",
-            pyjson::decode_error(&text).unwrap_or_else(|| error.to_string())
+            json_wire::decode_error(&text).unwrap_or_else(|| error.to_string())
         ))
     })
 }
@@ -227,7 +231,7 @@ pub fn metrika_traffic_pdf(args: &Value) -> Result<Value, ToolError> {
     // Raw map — an explicit `null` reaches Python as `None`, which differs from
     // "absent" for every argument whose default is not `None`.
     let raw = args.as_object().cloned().unwrap_or_default();
-    let out_dir = opt(&raw, "out_dir").filter(|v| pystr::truthy(Some(v)));
+    let out_dir = opt(&raw, "out_dir").filter(|v| text_rules::truthy(Some(v)));
     let Some(out_dir) = out_dir else {
         return Err(fail(
             "out_dir required: the directory that receives the report files",
@@ -242,7 +246,7 @@ pub fn metrika_traffic_pdf(args: &Value) -> Result<Value, ToolError> {
     }
     let gsc_rows = opt(&raw, "gsc_rows");
     let gsc_site_url = opt(&raw, "gsc_site_url");
-    if gsc_rows.is_some() && gsc_site_url.is_some_and(|v| pystr::truthy(Some(v))) {
+    if gsc_rows.is_some() && gsc_site_url.is_some_and(|v| text_rules::truthy(Some(v))) {
         return Err(fail("pass either gsc_rows or gsc_site_url, not both"));
     }
     let lang = opt(&raw, "lang");
@@ -297,9 +301,13 @@ pub fn metrika_traffic_pdf(args: &Value) -> Result<Value, ToolError> {
 
     // `Path(out_dir)` happens only now in Python — after every check above.
     let directory = path_arg(out_dir)?;
-    let render = raw.get("render").is_none_or(|v| pystr::truthy(Some(v)));
-    let pdf = raw.get("pdf").is_none_or(|v| pystr::truthy(Some(v)));
-    let overwrite = raw.get("overwrite").is_some_and(|v| pystr::truthy(Some(v)));
+    let render = raw
+        .get("render")
+        .is_none_or(|v| text_rules::truthy(Some(v)));
+    let pdf = raw.get("pdf").is_none_or(|v| text_rules::truthy(Some(v)));
+    let overwrite = raw
+        .get("overwrite")
+        .is_some_and(|v| text_rules::truthy(Some(v)));
     let doc_path = directory.join(format!("{TRAFFIC_BASENAME}.json"));
     let html_path = directory.join(format!("{TRAFFIC_BASENAME}.html"));
     let pdf_path = directory.join(format!("{TRAFFIC_BASENAME}.pdf"));
@@ -345,41 +353,44 @@ pub fn metrika_traffic_pdf(args: &Value) -> Result<Value, ToolError> {
                         .await
                 })
             };
-        let gsc_fetch = gsc_site_url.filter(|v| pystr::truthy(Some(v))).map(|site| {
-            let site = site.clone();
-            let root = root.clone();
-            move |start: &str, end: &str| -> Result<Value, String> {
-                // `search_analytics_pages` is async while this seam is sync;
-                // a worker thread gets its own runtime.
-                let host = spiderhead_core::host::SystemHost;
-                let root = root.clone();
+        let gsc_fetch = gsc_site_url
+            .filter(|v| text_rules::truthy(Some(v)))
+            .map(|site| {
                 let site = site.clone();
-                let (start, end) = (start.to_owned(), end.to_owned());
-                std::thread::spawn(move || {
-                    let transport = super::sources_net::transport().map_err(|e| e.to_string())?;
-                    let site = match site.as_str() {
-                        Some(site) => site.to_owned(),
-                        None => return Err("quote_from_bytes() expected bytes".to_owned()),
-                    };
-                    let page_args = gsc::PagesArgs {
-                        start_date: Some(&start),
-                        end_date: Some(&end),
-                        dimensions: Some(json!(["query"])),
-                        row_limit: 1000,
-                        max_rows: gsc::MAX_ANALYTICS_ROWS,
-                        token: None,
-                        now: None,
-                        service_account: None,
-                    };
-                    block_on(gsc::search_analytics_pages(
-                        &host, &root, &site, &page_args, &transport,
-                    ))
-                    .and_then(|result| result.map_err(|e| e.to_string()))
-                })
-                .join()
-                .unwrap_or_else(|_| Err("Search Console fetch failed".to_owned()))
-            }
-        });
+                let root = root.clone();
+                move |start: &str, end: &str| -> Result<Value, String> {
+                    // `search_analytics_pages` is async while this seam is sync;
+                    // a worker thread gets its own runtime.
+                    let host = spiderhead_core::host::SystemHost;
+                    let root = root.clone();
+                    let site = site.clone();
+                    let (start, end) = (start.to_owned(), end.to_owned());
+                    std::thread::spawn(move || {
+                        let transport =
+                            super::sources_net::transport().map_err(|e| e.to_string())?;
+                        let site = match site.as_str() {
+                            Some(site) => site.to_owned(),
+                            None => return Err("quote_from_bytes() expected bytes".to_owned()),
+                        };
+                        let page_args = gsc::PagesArgs {
+                            start_date: Some(&start),
+                            end_date: Some(&end),
+                            dimensions: Some(json!(["query"])),
+                            row_limit: 1000,
+                            max_rows: gsc::MAX_ANALYTICS_ROWS,
+                            token: None,
+                            now: None,
+                            service_account: None,
+                        };
+                        block_on(gsc::search_analytics_pages(
+                            &host, &root, &site, &page_args, &transport,
+                        ))
+                        .and_then(|result| result.map_err(|e| e.to_string()))
+                    })
+                    .join()
+                    .unwrap_or_else(|_| Err("Search Console fetch failed".to_owned()))
+                }
+            });
         type GscFetch<'a> = dyn Fn(&str, &str) -> Result<Value, String> + 'a;
         let gsc_fetch: Option<Box<GscFetch<'_>>> = gsc_fetch.map(|f| Box::new(f) as _);
         let input = TrafficInput {
@@ -406,15 +417,15 @@ pub fn metrika_traffic_pdf(args: &Value) -> Result<Value, ToolError> {
             Ok(document) => document,
             Err(error) => return report_failure(error),
         };
-        if !pystr::truthy(document.get("ok")) {
+        if !text_rules::truthy(document.get("ok")) {
             let error = document
                 .get("error")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or(json!("traffic summary unavailable"));
             let requests = document
                 .get("requests")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .or_else(|| {
                     document
@@ -425,7 +436,7 @@ pub fn metrika_traffic_pdf(args: &Value) -> Result<Value, ToolError> {
                 .unwrap_or(Value::Null);
             return Ok(json!({"ok": false, "error": error, "requests": requests}));
         }
-    } else if let Some(label) = opt(&raw, "site_label").filter(|v| pystr::truthy(Some(v))) {
+    } else if let Some(label) = opt(&raw, "site_label").filter(|v| text_rules::truthy(Some(v))) {
         if let Some(object) = document.as_object_mut() {
             object.insert("site_label".to_owned(), label.clone());
         }
@@ -508,7 +519,7 @@ pub fn metrika_traffic_pdf(args: &Value) -> Result<Value, ToolError> {
         "blocks": block_status.map(Value::Object).unwrap_or_else(|| json!({})),
         "warnings": document
             .get("warnings")
-            .filter(|v| pystr::truthy(Some(v)))
+            .filter(|v| text_rules::truthy(Some(v)))
             .cloned()
             .unwrap_or_else(|| json!([])),
         "requests": if collected {

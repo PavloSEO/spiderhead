@@ -80,7 +80,7 @@ pub(super) fn field(item: &Value, key: &str) -> Value {
 /// Nested field of a task item; a truthy non-object value is an error.
 pub(super) fn nested_get(item: &Value, key: &str, inner: &str) -> Result<Value, DfsError> {
     let v = field(item, key);
-    if !pystr::truthy(Some(&v)) {
+    if !text_rules::truthy(Some(&v)) {
         return Ok(Value::Null);
     }
     match v.as_object() {
@@ -149,7 +149,7 @@ pub async fn keyword_ideas<T: Transport>(
         return Ok(blocked);
     }
     let limit = args.limit.unwrap_or(&default_limit);
-    let limit_int = pystr::to_python_int(limit).map_err(|(c, m)| pyerr(c, m))?;
+    let limit_int = text_rules::to_int(limit).map_err(|(c, m)| error_text(c, m))?;
     let called = call(
         env,
         "keyword_ideas",
@@ -247,7 +247,7 @@ pub async fn serp<T: Transport>(
     let default_lang = json!("en");
     let default_depth = json!(10);
     let depth = args.depth.unwrap_or(&default_depth);
-    let depth_int = match pystr::as_strict_i64(Some(depth)) {
+    let depth_int = match text_rules::as_strict_i64(Some(depth)) {
         Some(d) if (1..=200).contains(&d) => d,
         _ => return Err(value_err("depth must be between 1 and 200")),
     };

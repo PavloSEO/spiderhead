@@ -8,7 +8,7 @@ pub(super) fn account_metadata_result(body: &Value) -> Result<Value, DfsError> {
         status: 0,
         message: m.to_owned(),
     };
-    let valid_int = |v: Option<&Value>| pystr::is_py_int(v.unwrap_or(&Value::Null));
+    let valid_int = |v: Option<&Value>| text_rules::is_int(v.unwrap_or(&Value::Null));
     if !body.is_object()
         || !valid_int(body.get("status_code"))
         || body.get("status_code").and_then(Value::as_i64) != Some(20000)
@@ -69,8 +69,8 @@ pub(super) fn message(raw: &str) -> String {
         Ok(body) => {
             if let Some(map) = body.as_object() {
                 if let Some(v) = map.get("status_message") {
-                    if pystr::truthy(Some(v)) {
-                        return pystr::repr_value(v);
+                    if text_rules::truthy(Some(v)) {
+                        return text_rules::repr_value(v);
                     }
                 }
                 if let Some(task) = map
@@ -80,7 +80,7 @@ pub(super) fn message(raw: &str) -> String {
                     .and_then(Value::as_object)
                 {
                     return match task.get("status_message") {
-                        Some(v) if pystr::truthy(Some(v)) => pystr::repr_value(v),
+                        Some(v) if text_rules::truthy(Some(v)) => text_rules::repr_value(v),
                         _ => head,
                     };
                 }
@@ -92,7 +92,7 @@ pub(super) fn message(raw: &str) -> String {
 
 /// `for x in value` — array members, string chars, dict keys; `TypeError` elsewhere.
 pub(crate) fn py_iter(value: &Value) -> Result<Vec<Value>, DfsError> {
-    pystr::iterate(value).map_err(|(c, m)| pyerr(c, m))
+    text_rules::iterate(value).map_err(|(c, m)| error_text(c, m))
 }
 
 /// `task_items(body)` — flatten `tasks[].result[].items[]` into one list; `None` at any
@@ -104,13 +104,13 @@ pub fn task_items(body: &Value) -> Result<Vec<Value>, DfsError> {
         return Err(attr_err(body, "get"));
     }
     let mut items = Vec::new();
-    if pystr::truthy(Some(&tasks)) {
+    if text_rules::truthy(Some(&tasks)) {
         for task in py_iter(&tasks)? {
             let results = match task.as_object() {
                 Some(m) => m.get("result").cloned().unwrap_or(Value::Null),
                 None => return Err(attr_err(&task, "get")),
             };
-            if pystr::truthy(Some(&results)) {
+            if text_rules::truthy(Some(&results)) {
                 for result in py_iter(&results)? {
                     if let Some(map) = result.as_object() {
                         match map.get("items") {
@@ -133,7 +133,7 @@ pub(super) fn status_failed(status: &Value) -> bool {
     if status.is_null() {
         return false;
     }
-    match pystr::to_python_int(status) {
+    match text_rules::to_int(status) {
         Ok(code) => code != 20000,
         Err(_) => true,
     }
@@ -150,12 +150,12 @@ pub fn task_errors(body: &Value) -> Result<Vec<String>, DfsError> {
     if status_failed(&response_code) {
         errors.push(format!(
             "{}: {}",
-            pystr::repr_value(&response_code),
-            pystr::repr_value(&body.get("status_message").cloned().unwrap_or(Value::Null))
+            text_rules::repr_value(&response_code),
+            text_rules::repr_value(&body.get("status_message").cloned().unwrap_or(Value::Null))
         ));
     }
     let tasks = body.get("tasks").cloned().unwrap_or(Value::Null);
-    if pystr::truthy(Some(&tasks)) {
+    if text_rules::truthy(Some(&tasks)) {
         for task in py_iter(&tasks)? {
             if !task.is_object() {
                 return Err(attr_err(&task, "get"));
@@ -164,13 +164,15 @@ pub fn task_errors(body: &Value) -> Result<Vec<String>, DfsError> {
             if status_failed(&code) {
                 errors.push(format!(
                     "{}: {}",
-                    pystr::repr_value(&code),
-                    pystr::repr_value(&task.get("status_message").cloned().unwrap_or(Value::Null))
+                    text_rules::repr_value(&code),
+                    text_rules::repr_value(
+                        &task.get("status_message").cloned().unwrap_or(Value::Null)
+                    )
                 ));
             }
         }
     }
-    if !pystr::truthy(body.get("tasks")) && errors.is_empty() {
+    if !text_rules::truthy(body.get("tasks")) && errors.is_empty() {
         errors.push("provider response contains no task evidence".to_owned());
     }
     Ok(errors)
@@ -186,7 +188,7 @@ pub fn tasks_all_failed(body: &Value) -> Result<bool, DfsError> {
         return Ok(true);
     }
     let tasks = body.get("tasks").cloned().unwrap_or(Value::Null);
-    let list = if pystr::truthy(Some(&tasks)) {
+    let list = if text_rules::truthy(Some(&tasks)) {
         py_iter(&tasks)?
     } else {
         Vec::new()

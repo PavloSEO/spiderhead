@@ -50,7 +50,7 @@ pub fn save_grant(root: &Path, provider: &str, grant: &Value) -> Result<(), OAut
     if target.exists() {
         return invalid("OAuth grant already exists; revoke or disconnect it before reconnecting");
     }
-    let body = pyjson::dumps_opts(grant, true, true);
+    let body = json_wire::dumps_opts(grant, true, true);
     let staged = crate::credentials::stage_bytes(&parent, ".oauth-", body.as_bytes(), 0o600)
         .map_err(|e| OAuthError::Io(e.to_string()))?;
     // Publish without replacing a grant created by another writer.

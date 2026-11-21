@@ -5,13 +5,13 @@ use super::*;
 /// `_field(document, name)` — `provenance.fields[name].value`.
 pub(super) fn field(document: &Value, name: &str) -> Result<Value, CfError> {
     let provenance = get(document, "provenance")?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .unwrap_or(json!({}));
     let fields = get(&provenance, "fields")?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .unwrap_or(json!({}));
     let entry = get(&fields, name)?
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .unwrap_or(json!({}));
     Ok(get(&entry, "value")?.unwrap_or(Value::Null))
 }
@@ -22,15 +22,15 @@ pub(super) fn window(value: &Value) -> Result<Option<(i64, i64)>, CfError> {
         return Ok(None);
     }
     let parse = |key: &str| -> Result<Option<i64>, CfError> {
-        let raw = value.get(key).filter(|v| pystr::truthy(Some(v)));
+        let raw = value.get(key).filter(|v| text_rules::truthy(Some(v)));
         match raw {
-            None => Ok(pytime::date_fromisoformat("")),
-            Some(Value::String(text)) => Ok(pytime::date_fromisoformat(text)),
+            None => Ok(datetime::date_fromisoformat("")),
+            Some(Value::String(text)) => Ok(datetime::date_fromisoformat(text)),
             Some(other) => Err(CfError::Classed(
                 "TypeError",
                 format!(
                     "fromisoformat: argument must be str, not {}",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 ),
             )),
         }
@@ -51,13 +51,13 @@ pub(super) fn validate_policy(policy: Option<&Value>) -> Result<Map<String, Valu
     let entries = spec.as_object().ok_or_else(|| {
         import_error(format!(
             "comparison policy may name only {}",
-            pystr::repr(&json!(["boundary_policy", "cross_source", "quadrant"]))
+            text_rules::repr(&json!(["boundary_policy", "cross_source", "quadrant"]))
         ))
     })?;
     if entries.keys().any(|k| !POLICY_KEYS.contains(&k.as_str())) {
         return Err(import_error(format!(
             "comparison policy may name only {}",
-            pystr::repr(&json!(["boundary_policy", "cross_source", "quadrant"]))
+            text_rules::repr(&json!(["boundary_policy", "cross_source", "quadrant"]))
         )));
     }
     if let Some(boundary) = entries.get("boundary_policy") {
@@ -130,7 +130,7 @@ pub(super) fn keyed_urls(document: &Value) -> Vec<String> {
     let mut keys = Vec::new();
     for row in document
         .get("rows")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default()
@@ -151,7 +151,7 @@ pub(super) fn measured_keys(document: &Value, metric: &str) -> Vec<String> {
     let mut keys = Vec::new();
     for row in document
         .get("rows")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default()
@@ -180,7 +180,7 @@ pub(super) fn zero_measured_keys(document: &Value, metric: &str) -> Vec<String> 
     let mut keys = Vec::new();
     for row in document
         .get("rows")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default()

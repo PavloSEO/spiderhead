@@ -12,7 +12,7 @@ use thiserror::Error;
 
 use crate::credentials;
 use crate::http::{Request, Transport, TransportError};
-use crate::{pyerr, pyjson, pystr};
+use crate::{error_text, json_wire, text_rules};
 
 /// Public IndexNow endpoint.
 pub const HOST: &str = "https://api.indexnow.org/indexnow";
@@ -159,7 +159,7 @@ fn netloc_parts(netloc: &str) -> Netloc<'_> {
 fn bad_url(url: &str, host: &str) -> bool {
     if url
         .chars()
-        .any(|c| pystr::isspace(c) || (c as u32) < 32 || (127..160).contains(&(c as u32)))
+        .any(|c| text_rules::isspace(c) || (c as u32) < 32 || (127..160).contains(&(c as u32)))
     {
         return true;
     }
@@ -282,7 +282,7 @@ pub async fn submit<T: Transport>(
     if let Some(loc) = key_location {
         payload.push(("keyLocation".to_owned(), json!(loc)));
     }
-    let body = pyjson::dumps(&Value::Object(payload.into_iter().collect()));
+    let body = json_wire::dumps(&Value::Object(payload.into_iter().collect()));
     let request = Request::new("POST", HOST)
         .header("Content-Type", "application/json; charset=utf-8")
         .body(body.as_bytes().to_vec())
@@ -313,7 +313,7 @@ pub async fn submit<T: Transport>(
         Err(TransportError::Connect(kind)) => {
             return Ok(json!({
                 "ok": false,
-                "error": format!("IndexNow submission failed: {}", pyerr::url_error(&kind)),
+                "error": format!("IndexNow submission failed: {}", error_text::url_error(&kind)),
             }));
         }
         Err(TransportError::InvalidRequest(message)) => {

@@ -147,7 +147,7 @@ pub fn provider_collect(
         let rows = ["rows", "samples", "url_facts", "summary"]
             .iter()
             .filter_map(|k| result.get(k))
-            .find(|v| pystr::truthy(Some(v)))
+            .find(|v| text_rules::truthy(Some(v)))
             .cloned()
             .unwrap_or(json!([]));
         let row_count = match &rows {
@@ -165,7 +165,7 @@ pub fn provider_collect(
             json!({
                 "provider": provider,
                 "operation": operation,
-                "state": result.get("state").filter(|v| pystr::truthy(Some(v))).map(|v| pyjson::str_value(v).unwrap_or_default()).unwrap_or_else(|| "unknown".to_owned()),
+                "state": result.get("state").filter(|v| text_rules::truthy(Some(v))).map(|v| json_wire::str_value(v).unwrap_or_default()).unwrap_or_else(|| "unknown".to_owned()),
                 "rows": returned,
             }),
         );
@@ -197,7 +197,7 @@ pub(super) fn metrika_collect(
             ));
         }
     }
-    let limit = pystr::to_python_int(request.get("limit").unwrap_or(&json!(100)))
+    let limit = text_rules::to_int(request.get("limit").unwrap_or(&json!(100)))
         .map_err(|(class, msg)| DispatchError::plain(class, &msg))?;
     let mut report_body = json!({
         "ids": request["counter_id"],
@@ -205,7 +205,10 @@ pub(super) fn metrika_collect(
         "date1": request["date1"],
         "date2": request["date2"],
     });
-    if let Some(dimensions) = request.get("dimensions").filter(|v| pystr::truthy(Some(v))) {
+    if let Some(dimensions) = request
+        .get("dimensions")
+        .filter(|v| text_rules::truthy(Some(v)))
+    {
         report_body["dimensions"] = dimensions.clone();
     }
     let body = dispatch(
@@ -213,22 +216,22 @@ pub(super) fn metrika_collect(
         "metrika.report",
         Some(&json!({
             "body": report_body,
-            "paginate": pystr::truthy(request.get("paginate")),
+            "paginate": text_rules::truthy(request.get("paginate")),
             "limit": limit,
         })),
     )?;
     let rows = dispatch(env, "metrika.rows_to_records", Some(&json!({"body": body})))?;
     Ok(json!({
         "ok": true,
-        "state": if pystr::truthy(body.get("capped")) || pystr::truthy(body.get("incomplete")) { "partial" } else { "complete" },
+        "state": if text_rules::truthy(body.get("capped")) || text_rules::truthy(body.get("incomplete")) { "partial" } else { "complete" },
         "period": {"start_date": request["date1"], "end_date": request["date2"]},
         "rows": rows,
         "returned": body.get("data").and_then(Value::as_array).map(|d| d.len()).unwrap_or(0),
-        "truncated": pystr::truthy(body.get("capped")),
-        "incomplete": pystr::truthy(body.get("incomplete")),
+        "truncated": text_rules::truthy(body.get("capped")),
+        "incomplete": text_rules::truthy(body.get("incomplete")),
         "sampled": body.get("sampled").cloned().unwrap_or(Value::Null),
         "sample_share": body.get("sample_share").cloned().unwrap_or(Value::Null),
-        "accuracy": body.get("accuracy_used").filter(|v| pystr::truthy(Some(v))).cloned().or_else(|| body.get("query").and_then(|q| q.get("accuracy")).cloned()).unwrap_or(Value::Null),
+        "accuracy": body.get("accuracy_used").filter(|v| text_rules::truthy(Some(v))).cloned().or_else(|| body.get("query").and_then(|q| q.get("accuracy")).cloned()).unwrap_or(Value::Null),
         "split": body.get("split").cloned().unwrap_or(Value::Null),
     }))
 }

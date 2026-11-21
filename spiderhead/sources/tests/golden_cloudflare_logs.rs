@@ -111,7 +111,10 @@ fn raise_err(spec: &Value) -> CfError {
         "CloudflareError" => CfError::Cloudflare(message),
         "ValueError" => CfError::Value(message),
         "OSError" | "URLError" | "TimeoutError" => CfError::Os(message),
-        "KeyError" => CfError::Classed("KeyError", spiderhead_sources::pystr::repr_str(&message)),
+        "KeyError" => CfError::Classed(
+            "KeyError",
+            spiderhead_sources::text_rules::repr_str(&message),
+        ),
         "TypeError" => CfError::Classed("TypeError", message),
         "AttributeError" => CfError::Classed("AttributeError", message),
         _ => CfError::Classed("RuntimeError", format!("{class}: {message}")),

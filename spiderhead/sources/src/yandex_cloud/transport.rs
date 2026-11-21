@@ -68,7 +68,7 @@ impl<T: Transport> CloudCall for LiveCloudCall<'_, T> {
             if let Some(payload) = body {
                 request = request
                     .header("Content-Type", "application/json")
-                    .body(pyjson::dumps(payload).into_bytes());
+                    .body(json_wire::dumps(payload).into_bytes());
             }
             match self.0.send(&request).await {
                 Ok(response) => Ok(CloudAnswer {
@@ -81,7 +81,9 @@ impl<T: Transport> CloudCall for LiveCloudCall<'_, T> {
                     body: response.body,
                     strict: false,
                 }),
-                Err(TransportError::Connect(kind)) => Err(CloudError::Url(pyerr::url_error(&kind))),
+                Err(TransportError::Connect(kind)) => {
+                    Err(CloudError::Url(error_text::url_error(&kind)))
+                }
                 Err(TransportError::InvalidRequest(kind)) => {
                     Err(CloudError::classed("ValueError", kind))
                 }

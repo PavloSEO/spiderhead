@@ -96,7 +96,7 @@ pub(super) fn read_xlsx(
             calamine::Data::Empty => format!("column_{}", index + 1),
             other => match json_safe_cell(other.clone()) {
                 Value::String(s) => s,
-                v => pystr::repr_value(&v),
+                v => text_rules::repr_value(&v),
             },
         })
         .collect();
@@ -130,7 +130,7 @@ pub(super) fn read_xlsx(
 pub(super) fn read_json(raw: &[u8]) -> Result<(String, Vec<Value>, Value, Value), CfError> {
     let body: Value = serde_json::from_slice(raw).map_err(|e| {
         let text = String::from_utf8_lossy(raw);
-        let message = crate::pyjson::decode_error(&text).unwrap_or_else(|| e.to_string());
+        let message = crate::json_wire::decode_error(&text).unwrap_or_else(|| e.to_string());
         err(format!("JSON evidence is not parseable: {message}"))
     })?;
     if let Value::Object(map) = &body {

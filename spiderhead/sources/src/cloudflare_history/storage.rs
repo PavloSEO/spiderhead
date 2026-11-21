@@ -134,7 +134,7 @@ pub(super) fn connect(path: &Path, create: bool) -> Result<Connection, CfhError>
 
 /// Canonical JSON: sorted keys, no extra spaces, non-ASCII kept as-is.
 pub(super) fn compact_dumps(value: &Value) -> String {
-    crate::pyjson::dumps_opts_compact(value, true, false)
+    crate::json_wire::dumps_opts_compact(value, true, false)
 }
 
 pub(super) fn member<'a>(value: &'a Value, key: &str) -> Result<&'a Value, CfhError> {

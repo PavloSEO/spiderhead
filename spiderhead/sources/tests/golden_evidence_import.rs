@@ -65,7 +65,7 @@ fn golden_ops_match_golden() {
     for (name, content, mode) in &files {
         let path = std::path::Path::new(&base).join(name);
         let body = if *content == "PLACEHOLDER" {
-            spiderhead_sources::pyjson::dumps_opts(&prov_doc, false, true).into_bytes()
+            spiderhead_sources::json_wire::dumps_opts(&prov_doc, false, true).into_bytes()
         } else {
             content.as_bytes().to_vec()
         };

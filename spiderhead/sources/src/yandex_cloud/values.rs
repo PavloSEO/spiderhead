@@ -4,13 +4,13 @@ use super::*;
 
 /// String form of a value: strings as-is; other values in the repr form the output uses.
 pub(super) fn str_value(value: &Value) -> String {
-    pystr::repr_value(value)
+    text_rules::repr_value(value)
 }
 
 /// Canonical form of a search phrase: trimmed, lowercased, `ё` folded to `е`, and whitespace runs collapsed to one space.
 /// A truthy non-string is an error.
 pub fn normalize(phrase: &Value) -> Result<String, CloudError> {
-    let text = if pystr::truthy(Some(phrase)) {
+    let text = if text_rules::truthy(Some(phrase)) {
         match phrase {
             Value::String(text) => text.as_str(),
             other => {
@@ -18,7 +18,7 @@ pub fn normalize(phrase: &Value) -> Result<String, CloudError> {
                     "AttributeError",
                     format!(
                         "'{}' object has no attribute 'strip'",
-                        pystr::type_name(other)
+                        text_rules::type_name(other)
                     ),
                 ))
             }
@@ -26,12 +26,12 @@ pub fn normalize(phrase: &Value) -> Result<String, CloudError> {
     } else {
         ""
     };
-    let folded = pystr::strip(text).to_lowercase().replace('ё', "е");
+    let folded = text_rules::strip(text).to_lowercase().replace('ё', "е");
     // Every whitespace run becomes one space. The input is already trimmed, so no edge space can appear.
     let mut out = String::with_capacity(folded.len());
     let mut in_space = false;
     for ch in folded.chars() {
-        if pystr::isspace(ch) {
+        if text_rules::isspace(ch) {
             in_space = true;
         } else {
             if in_space && !out.is_empty() {
@@ -55,8 +55,8 @@ pub(super) fn safe_operation_message(body: &Value) -> String {
         Value::Object(map) => {
             let candidate = map
                 .get("message")
-                .filter(|v| pystr::truthy(Some(v)))
-                .or_else(|| map.get("error").filter(|v| pystr::truthy(Some(v))));
+                .filter(|v| text_rules::truthy(Some(v)))
+                .or_else(|| map.get("error").filter(|v| text_rules::truthy(Some(v))));
             match candidate {
                 Some(value) => str_value(value),
                 None => str_value(body),
@@ -76,7 +76,7 @@ pub(super) fn py_list(value: &Value) -> Result<Vec<Value>, CloudError> {
 pub(super) fn dict_key(query: &Value) -> String {
     match query {
         Value::String(text) => text.clone(),
-        other => pyjson::dumps(other),
+        other => json_wire::dumps(other),
     }
 }
 
@@ -146,7 +146,7 @@ pub(super) fn as_float(value: &Value) -> Result<f64, CloudError> {
             "TypeError",
             format!(
                 "float() argument must be a string or a real number, not '{}'",
-                pystr::type_name(other)
+                text_rules::type_name(other)
             ),
         )),
     }
@@ -159,7 +159,7 @@ pub(super) fn min_interval(rps: &Value) -> Result<f64, CloudError> {
             "TypeError",
             format!(
                 "unsupported operand type(s) for /: 'float' and '{}'",
-                pystr::type_name(rps)
+                text_rules::type_name(rps)
             ),
         )
     })?;
