@@ -526,7 +526,7 @@ fn sf_severity_and_nested_total_counts_are_typed_and_non_negative() {
             "by_check": {},
         },
     }));
-    assert!(err(&bad_representation).contains("pages_by_representation['static']"));
+    assert!(err(&bad_representation).contains("pages_by_representation[\"static\"]"));
 }
 
 #[test]
