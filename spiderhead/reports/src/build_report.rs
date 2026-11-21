@@ -26,7 +26,7 @@ use crate::project_coverage::{
     attach_snapshot, load_snapshot, protected_destination, ProjectsHost,
 };
 use crate::xlsx::XlsxReportError;
-use crate::{csvfile, docx, json_out, md, pdf_model, pdf_output, pdf_stream, py, xlsx};
+use crate::{csvfile, docx, json_out, md, pdf_model, pdf_output, pdf_stream, values, xlsx};
 
 /// The projects-crate boundary shared by the `project`/`view` arguments: the
 /// caller did not inject a [`ProjectsHost`], so binding cannot run.
@@ -63,7 +63,7 @@ fn py_type_name(value: &Value) -> &'static str {
 fn str_f(value: &Value) -> String {
     match value {
         Value::Null => "None".to_owned(),
-        other => py::str_value(other),
+        other => values::str_value(other),
     }
 }
 
@@ -135,7 +135,7 @@ fn build_audit_v2_report(
     if header.get("schema_version") != Some(&json!(SF_AUDIT_SCHEMA_VERSION)) {
         return err(format!(
             "unsupported or missing 'schema_version' marker {}; Export Analyzer audits require exactly '{}'",
-            py::repr(header.get("schema_version").unwrap_or(&Value::Null)),
+            values::repr(header.get("schema_version").unwrap_or(&Value::Null)),
             SF_AUDIT_SCHEMA_VERSION
         ));
     }
@@ -172,8 +172,8 @@ fn build_audit_v2_report(
     let name = view
         .document
         .get("domain")
-        .filter(|v| py::truthy(Some(*v)))
-        .map(py::str_value)
+        .filter(|v| values::truthy(Some(*v)))
+        .map(values::str_value)
         .unwrap_or_else(|| "site".to_owned());
     let name = if fmt == "pdf" {
         safe_segment(&json!(name))
@@ -290,7 +290,7 @@ fn build_report_inner(
     if !document::FORMATS.contains(&fmt.as_str()) {
         return err(format!(
             "report format {} is not supported; available formats: {}",
-            py::repr_str(&fmt),
+            values::repr_str(&fmt),
             document::FORMATS.join(", ")
         ));
     }
@@ -343,7 +343,7 @@ fn build_report_inner(
                     keys.sort();
                     format!(
                         "audit document schema not recognized: expected 'findings' (seohead.site-audit/1) or 'issues'+'pages' (Export Analyzer audit.json); got top-level keys {}",
-                        py::repr(&json!(keys))
+                        values::repr(&json!(keys))
                     )
                 }));
             };
@@ -522,8 +522,8 @@ fn build_report_inner(
                 "format": fmt,
                 "path": target.display().to_string(),
                 "bytes": file_size(&target),
-                "findings": py::get_list(&rendered, "findings").len(),
-                "pages": py::get_list(&rendered, "pages").len(),
+                "findings": values::get_list(&rendered, "findings").len(),
+                "pages": values::get_list(&rendered, "pages").len(),
             });
             if let Value::Object(map) = &mut result {
                 map.extend(workbook_result);

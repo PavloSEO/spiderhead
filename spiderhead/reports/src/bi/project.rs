@@ -17,7 +17,7 @@ use crate::bi::schema::{
     DEFAULT_ROWS_PER_PARTITION, MAX_BYTES_PER_PARTITION, MAX_OUTPUT_BYTES,
     MAX_PROVIDER_JOIN_TOTAL_BYTES, MAX_PROVIDER_SOURCES, MAX_ROWS_PER_PARTITION, MAX_SCAN_BYTES,
 };
-use crate::py;
+use crate::values;
 
 fn err(msg: impl Into<String>) -> BIExportError {
     BIExportError::new(msg)
@@ -146,16 +146,16 @@ pub fn page_row(run: &RunInput, page: &Value, ordinal: usize) -> Result<Value, B
                 "unknown",
                 Some("scan does not retain body availability for this row".into()),
             )
-        } else if py::truthy(body_marker) {
+        } else if values::truthy(body_marker) {
             (
                 "unavailable",
-                Some(py::str_value(body_marker.unwrap_or(&Value::Null))),
+                Some(values::str_value(body_marker.unwrap_or(&Value::Null))),
             )
         } else if run.source_kind == "scan" {
             use unicode_casefold::UnicodeCaseFold;
             let raw = page.get("content_type");
-            let text = if py::truthy(raw) {
-                py::str_value(raw.unwrap_or(&Value::Null))
+            let text = if values::truthy(raw) {
+                values::str_value(raw.unwrap_or(&Value::Null))
             } else {
                 String::new()
             };
@@ -267,15 +267,16 @@ pub fn page_row(run: &RunInput, page: &Value, ordinal: usize) -> Result<Value, B
             .get("external_outlinks")
             .cloned()
             .unwrap_or(Value::Null);
-        let internal_outlinks = if py::is_int(&outlinks_total) && py::is_int(&external_outlinks) {
-            json!(std::cmp::max(
-                py::to_i64(&outlinks_total).unwrap_or(0)
-                    - py::to_i64(&external_outlinks).unwrap_or(0),
-                0,
-            ))
-        } else {
-            Value::Null
-        };
+        let internal_outlinks =
+            if values::is_int(&outlinks_total) && values::is_int(&external_outlinks) {
+                json!(std::cmp::max(
+                    values::to_i64(&outlinks_total).unwrap_or(0)
+                        - values::to_i64(&external_outlinks).unwrap_or(0),
+                    0,
+                ))
+            } else {
+                Value::Null
+            };
         let _ = &mut values;
         values.insert("internal_outlinks".into(), internal_outlinks.clone());
         let link_cap = run
@@ -359,7 +360,7 @@ pub fn page_row(run: &RunInput, page: &Value, ordinal: usize) -> Result<Value, B
             .unwrap_or_else(|| json!(ordinal));
         source_fields = {
             let mut out = Map::new();
-            for (key, value) in py::map(page).cloned().unwrap_or_default() {
+            for (key, value) in values::map(page).cloned().unwrap_or_default() {
                 if ![
                     "url",
                     "url_id",
@@ -504,8 +505,8 @@ pub fn page_row(run: &RunInput, page: &Value, ordinal: usize) -> Result<Value, B
             .cloned()
             .unwrap_or((Value::Null, "unknown", None));
         if internal_state == "measured" && external_state == "measured" {
-            let sum =
-                py::to_i64(&internal_value).unwrap_or(0) + py::to_i64(&external_value).unwrap_or(0);
+            let sum = values::to_i64(&internal_value).unwrap_or(0)
+                + values::to_i64(&external_value).unwrap_or(0);
             outlinks_total_override = Some((
                 json!(sum),
                 "derived",
@@ -526,7 +527,7 @@ pub fn page_row(run: &RunInput, page: &Value, ordinal: usize) -> Result<Value, B
         source_fields = json_value(page);
     }
 
-    if !py::is_int(&source_ordinal) {
+    if !values::is_int(&source_ordinal) {
         return Err(err(format!(
             "page source row {ordinal} has a non-integer source ordinal"
         )));
@@ -536,10 +537,10 @@ pub fn page_row(run: &RunInput, page: &Value, ordinal: usize) -> Result<Value, B
             .get(name)
             .map(|(v, _, _)| v.clone())
             .unwrap_or(Value::Null);
-        if !(value.is_null() || py::is_int(value)) {
+        if !(value.is_null() || values::is_int(value)) {
             return Err(err(format!(
                 "page {} has a non-integer {label}",
-                py::repr_str(&url)
+                values::repr_str(&url)
             )));
         }
         Ok(())
@@ -720,16 +721,16 @@ pub fn finding_source(
                 Some("source finding has no check identifier"),
             ),
         };
-    if !status.is_null() && !py::is_int(&status) {
+    if !status.is_null() && !values::is_int(&status) {
         return Err(err(format!(
             "finding {} status_code must be an integer or null",
-            py::repr_str(&finding_id)
+            values::repr_str(&finding_id)
         )));
     }
-    if !occurrences.is_null() && !py::is_int(&occurrences) {
+    if !occurrences.is_null() && !values::is_int(&occurrences) {
         return Err(err(format!(
             "finding {} occurrences_count must be an integer or null",
-            py::repr_str(&finding_id)
+            values::repr_str(&finding_id)
         )));
     }
     let (url_state, url_reason) = if url.as_str().is_some_and(|u| !u.is_empty()) {
@@ -869,14 +870,15 @@ pub fn row_id(row: &Value) -> Result<(i64, String), BIExportError> {
             && d.bytes()
                 .all(|b| b.is_ascii_hexdigit() && !b.is_ascii_uppercase())
     });
-    let index_ok = index.is_some_and(py::is_int) && py::to_i64(index.unwrap()).unwrap_or(-1) >= 0;
+    let index_ok =
+        index.is_some_and(values::is_int) && values::to_i64(index.unwrap()).unwrap_or(-1) >= 0;
     if !index_ok || !valid_hash {
         return Err(err(
             "normalized provider row lacks a valid row_index/natural_key_sha256 identity",
         ));
     }
     Ok((
-        py::to_i64(index.unwrap()).unwrap_or(0),
+        values::to_i64(index.unwrap()).unwrap_or(0),
         digest.and_then(Value::as_str).unwrap_or("").to_owned(),
     ))
 }
@@ -937,7 +939,7 @@ pub fn provider_observations(
         }
         let page_url = item
             .get("url")
-            .filter(|u| py::truthy(Some(u)))
+            .filter(|u| values::truthy(Some(u)))
             .cloned()
             .or_else(|| item.get("page").and_then(|p| p.get("url")).cloned());
         for row in item
@@ -1049,7 +1051,7 @@ pub fn provider_observations(
     for (identity, row) in &row_map {
         let dimensions_row = row
             .get("dimensions")
-            .filter(|d| py::truthy(Some(d)))
+            .filter(|d| values::truthy(Some(d)))
             .cloned()
             .unwrap_or_else(|| json!({}));
         if !dimensions_row.is_object() {
@@ -1081,7 +1083,7 @@ pub fn provider_observations(
             if !entry.is_object() || !["measured", "unavailable"].contains(&state.unwrap_or("")) {
                 return Err(err(format!(
                     "provider metric {} has an invalid availability state",
-                    py::repr_str(name)
+                    values::repr_str(name)
                 )));
             }
             let value = entry.get("value").cloned().unwrap_or(Value::Null);
@@ -1094,18 +1096,18 @@ pub fn provider_observations(
                 if !finite {
                     return Err(err(format!(
                         "measured provider metric {} must be a finite number",
-                        py::repr_str(name)
+                        values::repr_str(name)
                     )));
                 }
             } else if !value.is_null() {
                 return Err(err(format!(
                     "unavailable provider metric {} must have a null value",
-                    py::repr_str(name)
+                    values::repr_str(name)
                 )));
             }
             let url = row
                 .get("url")
-                .filter(|u| py::truthy(Some(u)))
+                .filter(|u| values::truthy(Some(u)))
                 .cloned()
                 .unwrap_or_else(|| json!({}));
             if !url.is_object() {
@@ -1145,12 +1147,12 @@ pub fn provider_observations(
 pub fn provider_collection(header: &Value) -> Result<Value, BIExportError> {
     let collection = header
         .get("collection")
-        .filter(|c| py::truthy(Some(c)))
+        .filter(|c| values::truthy(Some(c)))
         .cloned()
         .unwrap_or_else(|| json!({}));
     let origins = header
         .get("field_origins")
-        .filter(|o| py::truthy(Some(o)))
+        .filter(|o| values::truthy(Some(o)))
         .cloned()
         .unwrap_or_else(|| json!({}));
     if !collection.is_object() || !origins.is_object() {
@@ -1246,10 +1248,10 @@ pub fn metric_rows<'a>(
             let header = info.get("evidence").cloned().unwrap_or(Value::Null);
             let period = header
                 .get("period")
-                .filter(|p| py::truthy(Some(p)))
+                .filter(|p| values::truthy(Some(p)))
                 .cloned()
                 .unwrap_or_else(|| json!({}));
-            if py::truthy(Some(&period)) && !period.is_object() {
+            if values::truthy(Some(&period)) && !period.is_object() {
                 rows.push(Err(err(format!(
                     "provider source {} has malformed period metadata",
                     provider.source_id
@@ -1278,7 +1280,7 @@ pub fn metric_rows<'a>(
             };
             let field_origins = header
                 .get("field_origins")
-                .filter(|o| py::truthy(Some(o)))
+                .filter(|o| values::truthy(Some(o)))
                 .cloned()
                 .unwrap_or_else(|| json!({}));
             if !field_origins.is_object() {
@@ -1333,14 +1335,14 @@ pub fn metric_rows<'a>(
                 let unit = obs
                     .metric
                     .get("unit")
-                    .filter(|u| py::truthy(Some(u)))
+                    .filter(|u| values::truthy(Some(u)))
                     .or_else(|| entry.get("unit"))
                     .cloned()
                     .unwrap_or(Value::Null);
-                let unit_known = py::truthy(
+                let unit_known = values::truthy(
                     obs.metric
                         .get("unit")
-                        .filter(|u| py::truthy(Some(u)))
+                        .filter(|u| values::truthy(Some(u)))
                         .or_else(|| entry.get("unit")),
                 );
                 let (tz_state, tz_reason) =
@@ -1523,7 +1525,7 @@ pub fn metric_rows<'a>(
                     put("natural_key_sha256", json!(natural_hash));
                     put(
                         "ambiguous_source_row",
-                        json!(py::truthy(row.get("ambiguous"))),
+                        json!(values::truthy(row.get("ambiguous"))),
                     );
                     put("population_state", json!(obs.population));
                     put("matched_page_count", json!(obs.matched_page_count));
@@ -1546,7 +1548,7 @@ pub fn metric_rows<'a>(
                             if value.is_null() {
                                 Value::Null
                             } else {
-                                json!(py::str_value(&value))
+                                json!(values::str_value(&value))
                             },
                         );
                     }
@@ -1582,7 +1584,7 @@ pub fn link_row(run: &RunInput, record: &Value) -> Result<Value, BIExportError> 
     }
     let link_id = record.get("link_id");
     let ordinal = record.get("ordinal");
-    if !link_id.is_some_and(py::is_int) || !ordinal.is_some_and(py::is_int) {
+    if !link_id.is_some_and(values::is_int) || !ordinal.is_some_and(values::is_int) {
         return Err(err("retained link occurrence lacks its numeric identity"));
     }
     let (source_key, source_key_state, source_key_reason) = page_key(Some(source));
@@ -1594,10 +1596,10 @@ pub fn link_row(run: &RunInput, record: &Value) -> Result<Value, BIExportError> 
     let Some(evidence_representation) = evidence_representation else {
         return Err(err("retained link occurrence has no representation"));
     };
-    let link_id_i = py::to_i64(link_id.unwrap()).unwrap_or(0);
-    let ordinal_i = py::to_i64(ordinal.unwrap()).unwrap_or(0);
+    let link_id_i = values::to_i64(link_id.unwrap()).unwrap_or(0);
+    let ordinal_i = values::to_i64(ordinal.unwrap()).unwrap_or(0);
     let occurrence_id = digest_parts(&[&run.run_id, &link_id_i.to_string()])[..32].to_owned();
-    let payload: Map<String, Value> = py::map(record)
+    let payload: Map<String, Value> = values::map(record)
         .cloned()
         .unwrap_or_default()
         .into_iter()
@@ -1631,7 +1633,7 @@ pub fn link_row(run: &RunInput, record: &Value) -> Result<Value, BIExportError> 
         "anchor": anchor,
         "anchor_state": if anchor.is_null() { "unknown" } else { "measured" },
         "anchor_reason": if anchor.is_null() { json!("anchor value was not retained") } else { Value::Null },
-        "nofollow": if nofollow.is_null() { Value::Null } else { json!(py::truthy(Some(&nofollow))) },
+        "nofollow": if nofollow.is_null() { Value::Null } else { json!(values::truthy(Some(&nofollow))) },
         "nofollow_state": if nofollow.is_null() { "unknown" } else { "measured" },
         "nofollow_reason": if nofollow.is_null() { json!("nofollow state was not retained") } else { Value::Null },
         "rel_json": rel,
@@ -1640,9 +1642,9 @@ pub fn link_row(run: &RunInput, record: &Value) -> Result<Value, BIExportError> 
         "target": target,
         "target_state": if target.is_null() { "unknown" } else { "measured" },
         "target_reason": if target.is_null() { json!("target attribute was not retained") } else { Value::Null },
-        "placement": if py::truthy(Some(&position)) { position.clone() } else { Value::Null },
-        "placement_state": if py::truthy(Some(&position)) { "measured" } else { "unknown" },
-        "placement_reason": if py::truthy(Some(&position)) { Value::Null } else { json!("link placement was not captured") },
+        "placement": if values::truthy(Some(&position)) { position.clone() } else { Value::Null },
+        "placement_state": if values::truthy(Some(&position)) { "measured" } else { "unknown" },
+        "placement_reason": if values::truthy(Some(&position)) { Value::Null } else { json!("link placement was not captured") },
         "dom_context_json": Value::Null,
         "dom_context_state": "not_captured",
         "dom_context_reason": "scan.v1 does not retain DOM ancestor context for link occurrences",

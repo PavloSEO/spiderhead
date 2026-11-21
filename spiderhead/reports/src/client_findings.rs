@@ -8,7 +8,7 @@ use regex::Regex;
 use serde_json::{json, Map, Value};
 
 use crate::check_meta;
-use crate::py;
+use crate::values;
 
 const MAX_EVIDENCE_ITEMS: usize = 10;
 
@@ -65,36 +65,36 @@ fn finding_view_label_map(column: &str) -> &str {
 /// Explain that a saved view is a displayed subset while audit totals remain
 /// source-wide.
 pub fn finding_view_notice(summary: &Value) -> Option<String> {
-    let view = py::get(summary, "finding_view").filter(|v| v.is_object())?;
-    let counts = py::get_map(view, "counts");
-    let page = py::get_map(view, "pagination");
+    let view = values::get(summary, "finding_view").filter(|v| v.is_object())?;
+    let counts = values::get_map(view, "counts");
+    let page = values::get_map(view, "pagination");
     let mut note = format!(
         "Saved finding view {} (view revision {}, config revision {}): showing {} \
          rows at offset {} of {} matches from {} source findings; {} did not match.",
-        py::str_value(view.get("name").unwrap_or(&Value::Null)),
-        py::str_value(view.get("revision").unwrap_or(&Value::Null)),
-        py::str_value(view.get("config_revision").unwrap_or(&Value::Null)),
+        values::str_value(view.get("name").unwrap_or(&Value::Null)),
+        values::str_value(view.get("revision").unwrap_or(&Value::Null)),
+        values::str_value(view.get("config_revision").unwrap_or(&Value::Null)),
         counts
             .get("returned")
-            .map(py::str_value)
+            .map(values::str_value)
             .unwrap_or_else(|| "0".into()),
         page.get("offset")
-            .map(py::str_value)
+            .map(values::str_value)
             .unwrap_or_else(|| "0".into()),
         counts
             .get("matched")
-            .map(py::str_value)
+            .map(values::str_value)
             .unwrap_or_else(|| "0".into()),
         counts
             .get("source")
-            .map(py::str_value)
+            .map(values::str_value)
             .unwrap_or_else(|| "0".into()),
         counts
             .get("filtered")
-            .map(py::str_value)
+            .map(values::str_value)
             .unwrap_or_else(|| "0".into()),
     );
-    if py::truthy(page.get("truncated")) {
+    if values::truthy(page.get("truncated")) {
         note.push_str(" More matching rows remain; use the next offset to continue.");
     }
     if view.get("state").and_then(Value::as_str) == Some("partial") {
@@ -103,7 +103,7 @@ pub fn finding_view_notice(summary: &Value) -> Option<String> {
             .and_then(Value::as_object)
             .map(|m| {
                 m.iter()
-                    .map(|(k, v)| (k.clone(), py::to_i64(v).unwrap_or(0)))
+                    .map(|(k, v)| (k.clone(), values::to_i64(v).unwrap_or(0)))
                     .collect()
             })
             .unwrap_or_default();
@@ -112,7 +112,7 @@ pub fn finding_view_notice(summary: &Value) -> Option<String> {
             .and_then(Value::as_object)
         {
             for (field, count) in fields {
-                let count = py::to_i64(count).unwrap_or(0);
+                let count = values::to_i64(count).unwrap_or(0);
                 let entry = missing.entry(field.clone()).or_insert(0);
                 *entry = (*entry).max(count);
             }
@@ -127,13 +127,13 @@ pub fn finding_view_notice(summary: &Value) -> Option<String> {
         ));
     }
     note.push_str(" Audit totals, evidence coverage, and scores describe the full source audit.");
-    if let Some(exclusions) = py::get(summary, "finding_exclusions").filter(|v| v.is_object()) {
-        let suppressed = py::get(exclusions, "suppressed_total");
-        if let Some(total) = suppressed.and_then(py::to_i64).filter(|t| *t > 0) {
+    if let Some(exclusions) = values::get(summary, "finding_exclusions").filter(|v| v.is_object()) {
+        let suppressed = values::get(exclusions, "suppressed_total");
+        if let Some(total) = suppressed.and_then(values::to_i64).filter(|t| *t > 0) {
             note.push_str(&format!(
                 " The source audit also records {total} excluded findings."
             ));
-            if let Some(by_rule) = py::get(exclusions, "by_rule").and_then(Value::as_object) {
+            if let Some(by_rule) = values::get(exclusions, "by_rule").and_then(Value::as_object) {
                 if !by_rule.is_empty() {
                     let mut rule_rows: Vec<(&String, &Value)> = by_rule.iter().collect();
                     rule_rows.sort_by(|a, b| a.0.cmp(b.0));
@@ -153,12 +153,13 @@ pub fn finding_view_notice(summary: &Value) -> Option<String> {
                                 })
                                 .take(64)
                                 .collect();
-                            let num =
-                                if py::is_int(count) && py::to_i64(count).is_some_and(|c| c >= 0) {
-                                    py::str_value(count)
-                                } else {
-                                    "unknown".to_owned()
-                                };
+                            let num = if values::is_int(count)
+                                && values::to_i64(count).is_some_and(|c| c >= 0)
+                            {
+                                values::str_value(count)
+                            } else {
+                                "unknown".to_owned()
+                            };
                             format!("{clean}={num}")
                         })
                         .collect();
@@ -181,9 +182,9 @@ pub fn finding_view_notice(summary: &Value) -> Option<String> {
 
 /// The view's declared column names, when a saved view is active.
 pub fn finding_view_columns(summary: &Value) -> Option<Vec<String>> {
-    let view = py::get(summary, "finding_view").filter(|v| v.is_object())?;
+    let view = values::get(summary, "finding_view").filter(|v| v.is_object())?;
     let columns = view.get("columns")?.as_array()?;
-    Some(columns.iter().map(py::str_value).collect())
+    Some(columns.iter().map(values::str_value).collect())
 }
 
 /// Display label for a saved-view column.
@@ -193,7 +194,7 @@ pub fn finding_view_label(column: &str) -> String {
 
 /// Reader-facing title without exposing a registry identifier.
 pub fn check_title(check: &Value) -> String {
-    let check_id = py::str_value(check);
+    let check_id = values::str_value(check);
     if check_meta::contains(&check_id) {
         return check_meta::message(&check_id)
             .unwrap_or("Audit finding")
@@ -219,10 +220,10 @@ pub fn finding_exclusion_report(
     suppressed_issues: Option<&[Value]>,
 ) -> Option<Value> {
     let empty = Map::new();
-    let exclusion = py::get(summary, "finding_exclusions")
+    let exclusion = values::get(summary, "finding_exclusions")
         .and_then(Value::as_object)
         .unwrap_or(&empty);
-    let policy: Vec<&Value> = py::get(summary, "finding_exclusion_policy")
+    let policy: Vec<&Value> = values::get(summary, "finding_exclusion_policy")
         .and_then(Value::as_array)
         .map(|items| items.iter().collect())
         .unwrap_or_default();
@@ -235,9 +236,9 @@ pub fn finding_exclusion_report(
     match exclusion.get("by_rule") {
         Some(Value::Array(rows)) => {
             for row in rows {
-                if let (Some(m), Some(id)) = (row.as_object(), py::get(row, "id")) {
+                if let (Some(m), Some(id)) = (row.as_object(), values::get(row, "id")) {
                     if !id.is_null() {
-                        counts_by_rule.insert(py::str_value(id), row.clone());
+                        counts_by_rule.insert(values::str_value(id), row.clone());
                         let _ = m;
                     }
                 }
@@ -258,15 +259,18 @@ pub fn finding_exclusion_report(
 
     let mut policy_by_id: Map<String, Value> = Map::new();
     for row in &policy {
-        if row.is_object() && py::get(row, "id").is_some_and(|id| !id.is_null()) {
-            policy_by_id.insert(py::str_value(py::get(row, "id").unwrap()), (*row).clone());
+        if row.is_object() && values::get(row, "id").is_some_and(|id| !id.is_null()) {
+            policy_by_id.insert(
+                values::str_value(values::get(row, "id").unwrap()),
+                (*row).clone(),
+            );
         }
     }
     for issue in suppressed {
-        let marker = py::get(issue, "suppression").and_then(Value::as_object);
+        let marker = values::get(issue, "suppression").and_then(Value::as_object);
         if let Some(marker) = marker {
             if let Some(rule_id) = marker.get("rule_id").filter(|v| !v.is_null()) {
-                let rule_id = py::str_value(rule_id);
+                let rule_id = values::str_value(rule_id);
                 policy_by_id.entry(rule_id.clone()).or_insert_with(|| {
                     json!({
                         "id": rule_id,
@@ -284,13 +288,13 @@ pub fn finding_exclusion_report(
         let counts = counts_by_rule.get(rule_id).cloned().unwrap_or(json!({}));
         rules.push(json!({
             "id": rule_id,
-            "pattern": py::get(rule, "pattern").cloned().unwrap_or(json!("")),
-            "checks": py::get(rule, "checks").cloned().unwrap_or(json!([])),
-            "reason": py::get(rule, "reason").filter(|v| py::truthy(Some(*v)))
+            "pattern": values::get(rule, "pattern").cloned().unwrap_or(json!("")),
+            "checks": values::get(rule, "checks").cloned().unwrap_or(json!([])),
+            "reason": values::get(rule, "reason").filter(|v| values::truthy(Some(*v)))
                 .cloned()
-                .unwrap_or_else(|| py::get(&counts, "reason").cloned().unwrap_or(json!(""))),
-            "suppressed_findings": py::get(&counts, "suppressed_findings").cloned().unwrap_or(json!(0)),
-            "suppressed_occurrences": py::get(&counts, "suppressed_occurrences").cloned().unwrap_or(json!(0)),
+                .unwrap_or_else(|| values::get(&counts, "reason").cloned().unwrap_or(json!(""))),
+            "suppressed_findings": values::get(&counts, "suppressed_findings").cloned().unwrap_or(json!(0)),
+            "suppressed_occurrences": values::get(&counts, "suppressed_occurrences").cloned().unwrap_or(json!(0)),
         }));
     }
     for (rule_id, counts) in &counts_by_rule {
@@ -299,38 +303,38 @@ pub fn finding_exclusion_report(
                 "id": rule_id,
                 "pattern": "",
                 "checks": [],
-                "reason": py::get(counts, "reason").cloned().unwrap_or(json!("")),
-                "suppressed_findings": py::get(counts, "suppressed_findings").cloned().unwrap_or(json!(0)),
-                "suppressed_occurrences": py::get(counts, "suppressed_occurrences").cloned().unwrap_or(json!(0)),
+                "reason": values::get(counts, "reason").cloned().unwrap_or(json!("")),
+                "suppressed_findings": values::get(counts, "suppressed_findings").cloned().unwrap_or(json!(0)),
+                "suppressed_occurrences": values::get(counts, "suppressed_occurrences").cloned().unwrap_or(json!(0)),
             }));
         }
     }
 
     let mut total = exclusion
         .get("suppressed_total")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or(-1);
     if total < 0 {
         total = suppressed.len() as i64;
     }
     let mut rules_configured = exclusion
         .get("rules_configured")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or(-1);
     if rules_configured < 0 {
         rules_configured = policy_by_id.len() as i64;
     }
-    let totals = py::get_map(summary, "totals");
+    let totals = values::get_map(summary, "totals");
     let mut occurrences = totals
         .get("suppressed_occurrences")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or(-1);
     if occurrences < 0 {
         occurrences = rules
             .iter()
             .map(|rule| {
-                py::get(rule, "suppressed_occurrences")
-                    .and_then(py::to_i64)
+                values::get(rule, "suppressed_occurrences")
+                    .and_then(values::to_i64)
                     .unwrap_or(0)
             })
             .filter(|v| *v >= 0)
@@ -360,7 +364,7 @@ fn detail_rows(details: &Value) -> Vec<String> {
         let bits: Vec<String> = entries
             .iter()
             .filter(|(_, item)| primitive_kept(item))
-            .map(|(name, item)| format!("{}: {}", capitalize(name), py::str_value(item)))
+            .map(|(name, item)| format!("{}: {}", capitalize(name), values::str_value(item)))
             .collect();
         if bits.is_empty() {
             "Structured record retained in the saved audit".to_owned()
@@ -375,12 +379,12 @@ fn detail_rows(details: &Value) -> Vec<String> {
     for (key, value) in entries {
         let label = capitalize(key);
         if primitive_kept(value) {
-            rows.push(format!("{label}: {}", py::str_value(value)));
+            rows.push(format!("{label}: {}", values::str_value(value)));
         } else if let Some(items) = value.as_array() {
             let values: Vec<String> = items
                 .iter()
                 .filter(|item| matches!(item, Value::String(_) | Value::Number(_) | Value::Bool(_)))
-                .map(py::str_value)
+                .map(values::str_value)
                 .collect();
             let records: Vec<String> = items
                 .iter()
@@ -447,7 +451,7 @@ fn capitalize(text: &str) -> String {
 }
 
 fn observation(value: &Value) -> String {
-    let text = py::str_value(value).trim().to_owned();
+    let text = values::str_value(value).trim().to_owned();
     if text.is_empty() {
         return String::new();
     }
@@ -551,7 +555,7 @@ fn location_rows(locations: &Value) -> Vec<String> {
 }
 
 fn evidence_reference(value: &Value) -> Value {
-    let mut contract = py::get(value, "contract").filter(|v| v.is_object());
+    let mut contract = values::get(value, "contract").filter(|v| v.is_object());
     if contract.is_none() {
         return json!({
             "state": "unavailable",
@@ -559,7 +563,7 @@ fn evidence_reference(value: &Value) -> Value {
         });
     }
     if let Some(observations) = contract
-        .and_then(|c| py::get(c, "observations"))
+        .and_then(|c| values::get(c, "observations"))
         .and_then(Value::as_array)
     {
         for observation in observations {
@@ -580,7 +584,7 @@ fn evidence_reference(value: &Value) -> Value {
     if !matches!(state, Some("measured") | Some("imported_projection")) {
         return json!({
             "state": "unavailable",
-            "reason": contract.get("reason").map(py::str_value).filter(|s| !s.is_empty())
+            "reason": contract.get("reason").map(values::str_value).filter(|s| !s.is_empty())
                 .unwrap_or_else(|| "saved evidence is unavailable".to_owned()),
         });
     }
@@ -601,28 +605,29 @@ fn evidence_reference(value: &Value) -> Value {
         "id": identifier,
         "source_table": source_table,
         "observation_id": observation_id,
-        "role": contract.get("role").map(py::str_value).filter(|s| !s.is_empty()).unwrap_or_else(|| "observation".to_owned()),
+        "role": contract.get("role").map(values::str_value).filter(|s| !s.is_empty()).unwrap_or_else(|| "observation".to_owned()),
     })
 }
 
 /// State only the primitive observation the saved audit can support.
 pub fn reproduction(finding: &Value, observation_arg: &str) -> String {
-    let url = py::get(finding, "url");
-    let status = py::get(finding, "status_code");
+    let url = values::get(finding, "url");
+    let status = values::get(finding, "status_code");
     let obs = if observation_arg.is_empty() {
-        observation(py::get(finding, "text").unwrap_or(&Value::Null))
+        observation(values::get(finding, "text").unwrap_or(&Value::Null))
     } else {
         observation_arg.to_owned()
     };
     if let Some(url_text) = url.and_then(Value::as_str).filter(|s| !s.is_empty()) {
-        let details: Vec<String> = detail_rows(py::get(finding, "details").unwrap_or(&Value::Null))
-            .into_iter()
-            .filter(|row| {
-                !row.contains("Structured record retained")
-                    && !row.contains("unsupported values omitted")
-            })
-            .collect();
-        if let Some(code) = status.and_then(py::to_i64) {
+        let details: Vec<String> =
+            detail_rows(values::get(finding, "details").unwrap_or(&Value::Null))
+                .into_iter()
+                .filter(|row| {
+                    !row.contains("Structured record retained")
+                        && !row.contains("unsupported values omitted")
+                })
+                .collect();
+        if let Some(code) = status.and_then(values::to_i64) {
             let result = format!("{url_text} returned HTTP {code}.");
             let observed = details.first().cloned().unwrap_or(obs);
             return if observed.is_empty() {
@@ -638,7 +643,7 @@ pub fn reproduction(finding: &Value, observation_arg: &str) -> String {
             return format!("At {url_text}: {obs}");
         }
     }
-    if let Some(locations) = py::get(finding, "locations").and_then(Value::as_array) {
+    if let Some(locations) = values::get(finding, "locations").and_then(Value::as_array) {
         for location in locations {
             if location.is_object() && location.get("source_url").is_some_and(|v| v.is_string()) {
                 let target = url
@@ -672,15 +677,15 @@ pub fn reproduction(finding: &Value, observation_arg: &str) -> String {
 /// Copy one finding with client-only display fields.
 pub fn project_finding(finding: &Value) -> Value {
     let mut projected = finding.clone();
-    let obs = observation(py::get(finding, "text").unwrap_or(&Value::Null));
-    let details = detail_rows(py::get(finding, "details").unwrap_or(&Value::Null));
-    let locations = location_rows(py::get(finding, "locations").unwrap_or(&Value::Null));
-    let evidence = evidence_reference(py::get(finding, "evidence").unwrap_or(&Value::Null));
+    let obs = observation(values::get(finding, "text").unwrap_or(&Value::Null));
+    let details = detail_rows(values::get(finding, "details").unwrap_or(&Value::Null));
+    let locations = location_rows(values::get(finding, "locations").unwrap_or(&Value::Null));
+    let evidence = evidence_reference(values::get(finding, "evidence").unwrap_or(&Value::Null));
     if let Some(m) = projected.as_object_mut() {
         m.insert(
             "client_title".into(),
             json!(check_title(
-                py::get(finding, "check").unwrap_or(&Value::Null)
+                values::get(finding, "check").unwrap_or(&Value::Null)
             )),
         );
         m.insert("client_observation".into(), json!(obs));
@@ -692,20 +697,20 @@ pub fn project_finding(finding: &Value) -> Value {
         m.insert("client_locations".into(), json!(locations));
         m.insert("client_evidence".into(), evidence.clone());
     }
-    if py::truthy(py::get(finding, "evidence")) {
+    if values::truthy(values::get(finding, "evidence")) {
         if let Some(m) = projected.as_object_mut() {
             let mut details = m
                 .get("client_details")
                 .and_then(Value::as_array)
                 .cloned()
                 .unwrap_or_default();
-            if let Some(id) = py::get(&evidence, "id").and_then(Value::as_str) {
+            if let Some(id) = values::get(&evidence, "id").and_then(Value::as_str) {
                 details.push(json!(format!("Saved observation: {id}")));
             } else {
                 details.push(json!(format!(
                     "Saved observation unavailable: {}",
-                    py::get(&evidence, "reason")
-                        .map(py::str_value)
+                    values::get(&evidence, "reason")
+                        .map(values::str_value)
                         .unwrap_or_else(|| "not captured".into())
                 )));
             }
@@ -718,10 +723,10 @@ pub fn project_finding(finding: &Value) -> Value {
 /// Return a document copy whose findings carry display fields.
 pub fn project_document(document: &Value) -> Value {
     let mut projected = document.clone();
-    let mut summary = py::get_map(document, "summary").clone();
+    let mut summary = values::get_map(document, "summary").clone();
     summary.insert(
         "checks_disabled".into(),
-        json!(py::get_list(
+        json!(values::get_list(
             document.get("summary").unwrap_or(&Value::Null),
             "checks_disabled"
         )
@@ -733,7 +738,7 @@ pub fn project_document(document: &Value) -> Value {
                 m.insert(
                     "reason".into(),
                     json!(client_reason(
-                        py::get(item, "reason").unwrap_or(&Value::Null)
+                        values::get(item, "reason").unwrap_or(&Value::Null)
                     )),
                 );
             }
@@ -743,7 +748,7 @@ pub fn project_document(document: &Value) -> Value {
     );
     summary.insert(
         "tools_failed".into(),
-        json!(py::get_list(
+        json!(values::get_list(
             document.get("summary").unwrap_or(&Value::Null),
             "tools_failed"
         )
@@ -755,7 +760,7 @@ pub fn project_document(document: &Value) -> Value {
                 m.insert(
                     "error".into(),
                     json!(client_reason(
-                        py::get(item, "error").unwrap_or(&Value::Null)
+                        values::get(item, "error").unwrap_or(&Value::Null)
                     )),
                 );
             }
@@ -763,7 +768,7 @@ pub fn project_document(document: &Value) -> Value {
         })
         .collect::<Vec<_>>()),
     );
-    let findings: Vec<Value> = py::get_list(document, "findings")
+    let findings: Vec<Value> = values::get_list(document, "findings")
         .iter()
         .filter(|f| f.is_object())
         .map(project_finding)
@@ -773,15 +778,15 @@ pub fn project_document(document: &Value) -> Value {
         findings
             .into_iter()
             .map(|mut finding| {
-                let field = |key: &str| py::get(&finding, key).cloned().unwrap_or(Value::Null);
-                let client_details = py::get_list(&finding, "client_details")
+                let field = |key: &str| values::get(&finding, key).cloned().unwrap_or(Value::Null);
+                let client_details = values::get_list(&finding, "client_details")
                     .iter()
-                    .map(py::str_value)
+                    .map(values::str_value)
                     .collect::<Vec<_>>()
                     .join("; ");
-                let client_locations = py::get_list(&finding, "client_locations")
+                let client_locations = values::get_list(&finding, "client_locations")
                     .iter()
-                    .map(py::str_value)
+                    .map(values::str_value)
                     .collect::<Vec<_>>()
                     .join("; ");
                 let view_fields = json!({

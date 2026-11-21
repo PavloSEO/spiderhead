@@ -10,7 +10,7 @@ use serde_json::{json, Map, Value};
 use thiserror::Error;
 
 use crate::join::normalize_join_key;
-use crate::py;
+use crate::values;
 
 /// Import or manifest failure.
 #[derive(Debug, Error)]
@@ -200,7 +200,7 @@ fn validated_origin(value: &Value) -> Result<Option<String>, EvidenceImportError
     if !["http", "https"].contains(&scheme.as_str()) || netloc.is_empty() || !path.is_empty() {
         return Err(err(format!(
             "site_origin must be an absolute http(s) origin without a path, got {}",
-            py::repr(value)
+            values::repr(value)
         )));
     }
     Ok(Some(format!("{scheme}://{netloc}").to_lowercase()))
@@ -426,7 +426,7 @@ fn flag(value: &Value) -> Value {
         Value::Bool(b) => json!(b),
         Value::String(text) if ["unknown", "", "none"].contains(&text.as_str()) => Value::Null,
         Value::Null => Value::Null,
-        other => json!(py::truthy(Some(other))),
+        other => json!(values::truthy(Some(other))),
     }
 }
 
@@ -580,7 +580,7 @@ pub fn resolve_mapping(
         fields.insert("period".into(), Value::Object(f));
     }
 
-    let privacy = if py::truthy(declared.get("privacy")) {
+    let privacy = if values::truthy(declared.get("privacy")) {
         declared_get("privacy")
     } else if kind == "provider_evidence" || !provider.is_null() {
         json!("restricted")
@@ -993,7 +993,7 @@ fn row_url(
     url.insert("normalized".into(), Value::Null);
     url.insert("state".into(), json!("unkeyable"));
     url.insert("reason".into(), Value::Null);
-    let raw = if py::truthy(url_spec.get("dimension")) {
+    let raw = if values::truthy(url_spec.get("dimension")) {
         dims.get(url_spec["dimension"].as_str().unwrap_or_default())
     } else {
         lookup(row, url_spec["field"].as_str().unwrap_or_default())
@@ -1136,7 +1136,7 @@ pub fn normalize_rows(
                 let unavailable = bucket.get_mut("unavailable").unwrap();
                 *unavailable = json!(unavailable.as_i64().unwrap_or(0) + 1);
                 let reason = metric.get("reason").cloned().unwrap_or(Value::Null);
-                let key = py::str_value(&reason);
+                let key = values::str_value(&reason);
                 let reasons = bucket
                     .get_mut("reasons")
                     .and_then(Value::as_object_mut)
@@ -1164,7 +1164,9 @@ pub fn normalize_rows(
             keyed += 1;
         } else {
             let reason = url.get("reason").cloned().unwrap_or(Value::Null);
-            *unkeyable_reasons.entry(py::str_value(&reason)).or_insert(0) += 1;
+            *unkeyable_reasons
+                .entry(values::str_value(&reason))
+                .or_insert(0) += 1;
         }
         let mut metrics_obj = Map::new();
         for ((name, metric), spec) in metric_entries.iter().zip(metrics.iter()) {

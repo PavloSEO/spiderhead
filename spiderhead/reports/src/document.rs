@@ -18,7 +18,7 @@ use spiderhead_store::inputs::{resolve_audit_source, AuditSource};
 
 use crate::client_findings::{client_reason, project_finding};
 use crate::facts::crawl_domain;
-use crate::py;
+use crate::values;
 
 /// Version marker of the `seohead.site-audit/1` contract.
 pub const SITE_AUDIT_SCHEMA: &str = "spiderhead.site-audit/1";
@@ -53,7 +53,7 @@ pub struct ReportInputError(pub String);
 /// actually executed; a source that cannot supply it says "not reported" rather
 /// than zero.
 pub fn checks_completed_display(summary: &Value) -> Value {
-    match py::get(summary, "tools_run") {
+    match values::get(summary, "tools_run") {
         Some(Value::Array(items)) => json!(items.len()),
         _ => json!("not reported"),
     }
@@ -69,7 +69,7 @@ pub fn load(data: &Value, diagnostics: &mut Vec<Value>) -> Result<AuditSource, R
     }
     let text = match data {
         Value::String(s) => s.clone(),
-        other => py::repr(other),
+        other => values::repr(other),
     };
     let path = Path::new(&text);
     if !path.exists() {
@@ -89,15 +89,15 @@ pub fn load(data: &Value, diagnostics: &mut Vec<Value>) -> Result<AuditSource, R
 pub fn detect_kind(document: &Value) -> (Option<&'static str>, Option<String>) {
     let present = |key: &str| document.as_object().is_some_and(|m| m.contains_key(key));
     if present("findings") || present("schema") {
-        let marker = py::get(document, "schema").and_then(Value::as_str);
+        let marker = values::get(document, "schema").and_then(Value::as_str);
         if !matches(marker, SITE_AUDIT_SCHEMA) {
             return (
                 None,
                 Some(format!(
                     "unsupported or missing 'schema' marker {}; \
                      site-audit reports require exactly '{}'",
-                    py::get(document, "schema")
-                        .map(py::repr)
+                    values::get(document, "schema")
+                        .map(values::repr)
                         .unwrap_or_else(|| "None".into()),
                     SITE_AUDIT_SCHEMA
                 )),
@@ -120,15 +120,15 @@ pub fn detect_kind(document: &Value) -> (Option<&'static str>, Option<String>) {
         return (Some("site-audit"), None);
     }
     if present("issues") || present("schema_version") {
-        let marker = py::get(document, "schema_version").and_then(Value::as_str);
+        let marker = values::get(document, "schema_version").and_then(Value::as_str);
         if !matches(marker, SF_AUDIT_SCHEMA_VERSION) {
             return (
                 None,
                 Some(format!(
                     "unsupported or missing 'schema_version' marker {}; \
                      Export Analyzer audits require exactly '{}'",
-                    py::get(document, "schema_version")
-                        .map(py::repr)
+                    values::get(document, "schema_version")
+                        .map(values::repr)
                         .unwrap_or_else(|| "None".into()),
                     SF_AUDIT_SCHEMA_VERSION
                 )),
@@ -160,7 +160,7 @@ pub fn detect_kind(document: &Value) -> (Option<&'static str>, Option<String>) {
 }
 
 fn container_is(document: &Value, name: &str, expected: &str) -> bool {
-    match py::get(document, name) {
+    match values::get(document, name) {
         Some(value) => match expected {
             "list" => value.is_array(),
             "dict" => value.is_object(),
@@ -175,15 +175,18 @@ pub fn normalize_sf_issue(issue: &Value) -> Value {
     // Falsy values (None, "", 0, [], {}) fall back to the default.
     let or = |value: Option<&Value>, default: Value| -> Value {
         match value {
-            Some(v) if py::truthy(Some(v)) => v.clone(),
+            Some(v) if values::truthy(Some(v)) => v.clone(),
             _ => default,
         }
     };
-    let get = |key: &str| py::get(issue, key).cloned();
+    let get = |key: &str| values::get(issue, key).cloned();
     let mut out = Map::new();
     out.insert("severity".into(), get("severity").unwrap_or(Value::Null));
     out.insert("source".into(), get("source").unwrap_or(json!("")));
-    out.insert("url".into(), or(py::get(issue, "target_url"), json!("")));
+    out.insert(
+        "url".into(),
+        or(values::get(issue, "target_url"), json!("")),
+    );
     out.insert("text".into(), get("message").unwrap_or(json!("")));
     out.insert("check".into(), get("check").unwrap_or(json!("")));
     out.insert(
@@ -194,22 +197,31 @@ pub fn normalize_sf_issue(issue: &Value) -> Value {
         "occurrences_count".into(),
         get("occurrences_count").unwrap_or(Value::Null),
     );
-    out.insert("fix_hint".into(), or(py::get(issue, "fix_hint"), json!("")));
+    out.insert(
+        "fix_hint".into(),
+        or(values::get(issue, "fix_hint"), json!("")),
+    );
     out.insert(
         "locations".into(),
-        or(py::get(issue, "locations"), json!([])),
+        or(values::get(issue, "locations"), json!([])),
     );
-    out.insert("details".into(), or(py::get(issue, "details"), json!({})));
-    out.insert("evidence".into(), or(py::get(issue, "evidence"), json!({})));
+    out.insert(
+        "details".into(),
+        or(values::get(issue, "details"), json!({})),
+    );
+    out.insert(
+        "evidence".into(),
+        or(values::get(issue, "evidence"), json!({})),
+    );
     Value::Object(out)
 }
 
 /// Reshape one external page into the flat page contract.
 pub fn normalize_sf_page(page: &Value) -> Value {
-    let metrics = py::get_map(page, "metrics");
+    let metrics = values::get_map(page, "metrics");
     let or = |value: Option<&Value>, default: Value| -> Value {
         match value {
-            Some(v) if py::truthy(Some(v)) => v.clone(),
+            Some(v) if values::truthy(Some(v)) => v.clone(),
             _ => default,
         }
     };
@@ -221,11 +233,13 @@ pub fn normalize_sf_page(page: &Value) -> Value {
     let mut out = Map::new();
     out.insert(
         "url".into(),
-        py::get(page, "url").cloned().unwrap_or(json!("")),
+        values::get(page, "url").cloned().unwrap_or(json!("")),
     );
     out.insert(
         "status".into(),
-        py::get(page, "status_code").cloned().unwrap_or(Value::Null),
+        values::get(page, "status_code")
+            .cloned()
+            .unwrap_or(Value::Null),
     );
     out.insert("title".into(), or(metrics.get("title"), json!("")));
     out.insert(
@@ -249,8 +263,8 @@ pub fn normalize_sf_page(page: &Value) -> Value {
 ///
 /// Every copied field is evidence already in `document`; none is computed or guessed.
 pub fn normalize_sf_audit(document: &Value) -> Value {
-    let run = py::get_map(document, "run");
-    let summary = py::get_map(document, "summary");
+    let run = values::get_map(document, "run");
+    let summary = values::get_map(document, "summary");
     let totals = summary
         .get("totals")
         .and_then(Value::as_object)
@@ -262,11 +276,11 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
         .cloned()
         .unwrap_or_default();
 
-    let findings: Vec<Value> = py::get_list(document, "issues")
+    let findings: Vec<Value> = values::get_list(document, "issues")
         .iter()
         .map(|issue| {
             let mut normalized = normalize_sf_issue(issue);
-            if let Some(segment) = py::get(issue, "__view_segment") {
+            if let Some(segment) = values::get(issue, "__view_segment") {
                 normalized
                     .as_object_mut()
                     .map(|m| m.insert("__view_segment".into(), segment.clone()));
@@ -274,7 +288,7 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
             normalized
         })
         .collect();
-    let pages: Vec<Value> = py::get_list(document, "pages")
+    let pages: Vec<Value> = values::get_list(document, "pages")
         .iter()
         .map(normalize_sf_page)
         .collect();
@@ -286,8 +300,8 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
                 items
                     .iter()
                     .map(|item| {
-                        json!({"tool": py::get(item, "id").cloned().unwrap_or(Value::Null),
-                           "error": py::get(item, "reason").cloned().unwrap_or(Value::Null)})
+                        json!({"tool": values::get(item, "id").cloned().unwrap_or(Value::Null),
+                           "error": values::get(item, "reason").cloned().unwrap_or(Value::Null)})
                     })
                     .collect()
             });
@@ -298,8 +312,8 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
                 items
                     .iter()
                     .map(|item| {
-                        json!({"id": py::get(item, "id").cloned().unwrap_or(Value::Null),
-                           "reason": py::get(item, "reason").cloned().unwrap_or(Value::Null)})
+                        json!({"id": values::get(item, "id").cloned().unwrap_or(Value::Null),
+                           "reason": values::get(item, "reason").cloned().unwrap_or(Value::Null)})
                     })
                     .collect()
             });
@@ -308,13 +322,13 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
     // checks that ran silently. Together they form `tools_run`.
     let check_coverage = summary
         .get("check_coverage")
-        .filter(|v| py::truthy(Some(*v)));
+        .filter(|v| values::truthy(Some(*v)));
     let tools_run = check_coverage.map(|coverage| {
-        let mut names: BTreeSet<String> = py::get_map(summary_value(document), "by_check")
+        let mut names: BTreeSet<String> = values::get_map(summary_value(document), "by_check")
             .keys()
             .cloned()
             .collect();
-        for item in py::get_list(coverage, "checks_silent_ids") {
+        for item in values::get_list(coverage, "checks_silent_ids") {
             if let Some(name) = item.as_str() {
                 names.insert(name.to_owned());
             }
@@ -322,7 +336,7 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
         json!(names.into_iter().collect::<Vec<_>>())
     });
 
-    let suppressed_issues = match py::get(document, "suppressed_issues") {
+    let suppressed_issues = match values::get(document, "suppressed_issues") {
         Some(Value::Array(items)) => items.clone(),
         _ => Vec::new(),
     };
@@ -330,11 +344,11 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
     let crawl_valid = match run.get("crawl_valid") {
         None | Some(Value::Null) => true,
         Some(Value::Bool(flag)) => *flag,
-        Some(other) => py::truthy(Some(other)),
+        Some(other) => values::truthy(Some(other)),
     };
 
     let domain = match run.get("project") {
-        Some(v) if py::truthy(Some(v)) => v.clone(),
+        Some(v) if values::truthy(Some(v)) => v.clone(),
         _ => json!(crawl_domain(&Value::Object(run.clone()))),
     };
 
@@ -346,7 +360,7 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
         .or_else(|| {
             pages
                 .first()
-                .and_then(|p| py::filled_str(p, "url"))
+                .and_then(|p| values::filled_str(p, "url"))
                 .map(String::from)
         })
         .unwrap_or_default();
@@ -398,7 +412,7 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
     );
     summary_out.insert(
         "crawl_partial".into(),
-        json!(py::truthy(run.get("crawl_partial"))),
+        json!(values::truthy(run.get("crawl_partial"))),
     );
     summary_out.insert(
         "crawl_finish_reason".into(),
@@ -442,7 +456,7 @@ pub fn normalize_sf_audit(document: &Value) -> Value {
         "generated_at".into(),
         json!(run
             .get("generated_at")
-            .map(py::str_value)
+            .map(values::str_value)
             .unwrap_or_default()),
     );
     out.insert("findings".into(), json!(findings));
@@ -539,7 +553,7 @@ impl<'a> AuditV2ReportView<'a> {
                 )
             });
         }
-        let source_summary = py::get_map(&metadata, "summary");
+        let source_summary = values::get_map(&metadata, "summary");
         let totals = source_summary
             .get("totals")
             .and_then(Value::as_object)
@@ -549,7 +563,7 @@ impl<'a> AuditV2ReportView<'a> {
         let issue_count = reader.count("/issues").unwrap_or(0);
         if totals
             .get("urls_crawled")
-            .is_some_and(|v| py::is_int(v) && py::to_i64(v) != Some(page_count))
+            .is_some_and(|v| values::is_int(v) && values::to_i64(v) != Some(page_count))
         {
             return Err(ReportInputError(
                 "audit.v2 page count disagrees with its saved summary".into(),
@@ -557,7 +571,7 @@ impl<'a> AuditV2ReportView<'a> {
         }
         if totals
             .get("issues_total")
-            .is_some_and(|v| py::is_int(v) && py::to_i64(v) != Some(issue_count))
+            .is_some_and(|v| values::is_int(v) && values::to_i64(v) != Some(issue_count))
         {
             return Err(ReportInputError(
                 "audit.v2 issue count disagrees with its saved summary".into(),
@@ -578,11 +592,11 @@ impl<'a> AuditV2ReportView<'a> {
                 }
                 if pointer == "/issues" {
                     *severity_counts
-                        .entry(py::str_value(
+                        .entry(values::str_value(
                             record.get("severity").unwrap_or(&Value::Null),
                         ))
                         .or_insert(0) += 1;
-                } else if ordinal == 0 && !py::truthy(document.get("url")) {
+                } else if ordinal == 0 && !values::truthy(document.get("url")) {
                     document.as_object_mut().map(|m| {
                         m.insert(
                             "url".into(),
@@ -601,7 +615,7 @@ impl<'a> AuditV2ReportView<'a> {
         for name in ["critical", "warning", "notice"] {
             let counted = severity_counts.get(name).copied().unwrap_or(0);
             if let Some(decl) = declared.get(name) {
-                if py::is_int(decl) && py::to_i64(decl) != Some(counted) {
+                if values::is_int(decl) && values::to_i64(decl) != Some(counted) {
                     return Err(ReportInputError(format!(
                         "audit.v2 {name} issue count disagrees with its saved summary"
                     )));
@@ -641,7 +655,7 @@ impl<'a> AuditV2ReportView<'a> {
                                 m.insert(
                                     "reason".into(),
                                     json!(client_reason(
-                                        py::get(item, "reason").unwrap_or(&Value::Null)
+                                        values::get(item, "reason").unwrap_or(&Value::Null)
                                     )),
                                 );
                             }
@@ -663,7 +677,7 @@ impl<'a> AuditV2ReportView<'a> {
                                 m.insert(
                                     "error".into(),
                                     json!(client_reason(
-                                        py::get(item, "error").unwrap_or(&Value::Null)
+                                        values::get(item, "error").unwrap_or(&Value::Null)
                                     )),
                                 );
                             }
@@ -709,7 +723,7 @@ impl<'a> AuditV2ReportView<'a> {
             .map(|issue| project_finding(&normalize_sf_issue(issue)))
             .filter(|finding| {
                 severity.is_none()
-                    || py::get(finding, "severity").and_then(Value::as_str) == severity
+                    || values::get(finding, "severity").and_then(Value::as_str) == severity
             })
             .collect()
     }
@@ -763,7 +777,7 @@ fn metadata_value(value: &Value, reader: &AuditV2Reader) -> Value {
 pub fn safe_segment(value: &Value) -> String {
     let text = match value {
         Value::Null => String::new(),
-        other => py::str_value(other),
+        other => values::str_value(other),
     };
     let mut out = String::with_capacity(text.len().min(160));
     let mut chars = text.chars().peekable();
@@ -842,21 +856,21 @@ impl ReportDoc for Value {
     }
 
     fn findings(&self, severity: Option<&str>) -> Vec<Value> {
-        py::get_list(self, "findings")
+        values::get_list(self, "findings")
             .iter()
             .filter(|f| {
-                severity.is_none() || py::get(f, "severity").and_then(Value::as_str) == severity
+                severity.is_none() || values::get(f, "severity").and_then(Value::as_str) == severity
             })
             .cloned()
             .collect()
     }
 
     fn pages(&self) -> Vec<Value> {
-        py::get_list(self, "pages").to_vec()
+        values::get_list(self, "pages").to_vec()
     }
 
     fn suppressed_issues(&self) -> Vec<Value> {
-        py::get_list(self, "suppressed_issues").to_vec()
+        values::get_list(self, "suppressed_issues").to_vec()
     }
 
     fn page_count(&self) -> Option<i64> {

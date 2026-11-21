@@ -40,7 +40,7 @@ impl SegmentRule {
             )));
         }
         if op == "regex" {
-            let pattern = crate::py::str_value(&value);
+            let pattern = crate::values::str_value(&value);
             if regex::Regex::new(&pattern).is_err() {
                 // Only compilability is checked; a bad pattern never reaches matching.
             }
@@ -69,7 +69,7 @@ impl Segment {
         let mut seen = Vec::new();
         for rule in &self.rules {
             if rule.op == "segment" {
-                let name = crate::py::str_value(&rule.value);
+                let name = crate::values::str_value(&rule.value);
                 if !seen.contains(&name) {
                     seen.push(name);
                 }
@@ -162,7 +162,7 @@ pub fn rule_matches(
             .get("url")
             .and_then(Value::as_str)
             .unwrap_or_default();
-        return Ok(resolved.contains(&crate::py::str_value(&rule.value), url));
+        return Ok(resolved.contains(&crate::values::str_value(&rule.value), url));
     }
     let value = field_value(record, &rule.field);
     if rule.op == "in" {
@@ -172,13 +172,16 @@ pub fn rule_matches(
         };
         return Ok(container.iter().any(|item| Some(item.clone()) == value));
     }
-    let text = value.as_ref().map(crate::py::str_value).unwrap_or_default();
+    let text = value
+        .as_ref()
+        .map(crate::values::str_value)
+        .unwrap_or_default();
     match rule.op.as_str() {
-        "prefix" => Ok(text.starts_with(&crate::py::str_value(&rule.value))),
-        "contains" => Ok(text.contains(&crate::py::str_value(&rule.value))),
+        "prefix" => Ok(text.starts_with(&crate::values::str_value(&rule.value))),
+        "contains" => Ok(text.contains(&crate::values::str_value(&rule.value))),
         "eq" => Ok(value == Some(rule.value.clone())),
         "regex" => {
-            let pattern = crate::py::str_value(&rule.value);
+            let pattern = crate::values::str_value(&rule.value);
             match regex::Regex::new(&pattern) {
                 Ok(re) => Ok(re.is_match(&text)),
                 Err(e) => Err(SegmentError(e.to_string())),

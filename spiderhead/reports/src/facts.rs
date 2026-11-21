@@ -11,7 +11,7 @@ use thiserror::Error;
 use spiderhead_core::net::{normalize_domain, registrable_domain};
 
 use crate::document::{detect_kind, load, SF_AUDIT_SCHEMA_VERSION, SITE_AUDIT_SCHEMA};
-use crate::py;
+use crate::values;
 
 /// Export contract version.
 pub const SCHEMA_VERSION: &str = "facts.v1";
@@ -138,8 +138,8 @@ fn stamped(key: &str, built: Value) -> Value {
 /// Tries `start_url`, then `source` (both must contain `://`), then `project`.
 pub fn crawl_domain(run: &Value) -> String {
     for key in ["start_url", "source"] {
-        if let Some(value) = py::get(run, key) {
-            let text = py::str_value(value);
+        if let Some(value) = values::get(run, key) {
+            let text = values::str_value(value);
             if !text.is_empty() && text.contains("://") {
                 if let Ok(parsed) = url::Url::parse(&text) {
                     let netloc = match parsed.port() {
@@ -151,8 +151,8 @@ pub fn crawl_domain(run: &Value) -> String {
             }
         }
     }
-    if let Some(project) = py::get(run, "project") {
-        let text = py::str_value(project);
+    if let Some(project) = values::get(run, "project") {
+        let text = values::str_value(project);
         if !text.is_empty() {
             return normalize_domain(&text);
         }
@@ -191,11 +191,11 @@ fn load_document(
         })));
     };
     let doc_domain = if kind == "site-audit" {
-        normalize_domain(&py::str_value(
-            py::get(&document, "domain").unwrap_or(&Value::Null),
+        normalize_domain(&values::str_value(
+            values::get(&document, "domain").unwrap_or(&Value::Null),
         ))
     } else {
-        crawl_domain(py::get(&document, "run").unwrap_or(&Value::Null))
+        crawl_domain(values::get(&document, "run").unwrap_or(&Value::Null))
     };
     let label_domain = normalize_domain(label);
     let file_name = match path_or_doc {
@@ -228,7 +228,7 @@ fn type_name(value: &Value) -> &'static str {
 }
 
 fn measured_or_absent(value: &Value, source: &str, method: &str, absent_reason: &str) -> Value {
-    let (state, reason) = if py::truthy(Some(value)) {
+    let (state, reason) = if values::truthy(Some(value)) {
         ("measured", None)
     } else {
         ("absent", Some(absent_reason))
@@ -247,8 +247,8 @@ fn measured_or_absent(value: &Value, source: &str, method: &str, absent_reason: 
 }
 
 fn crawl_facts(document: &Value) -> Map<String, Value> {
-    let run = py::get_map(document, "run");
-    let summary = py::get_map(document, "summary");
+    let run = values::get_map(document, "run");
+    let summary = values::get_map(document, "summary");
     let totals = summary
         .get("totals")
         .and_then(Value::as_object)
@@ -264,11 +264,11 @@ fn crawl_facts(document: &Value) -> Map<String, Value> {
     let mut facts = Map::new();
 
     if let Some(value) = totals.get("urls_crawled") {
-        if py::truthy(run.get("crawl_partial")) {
+        if values::truthy(run.get("crawl_partial")) {
             let reason = run
                 .get("crawl_finish_reason")
                 .or_else(|| run.get("crawl_stopped_reason"))
-                .map(py::str_value)
+                .map(values::str_value)
                 .filter(|s| !s.is_empty())
                 .unwrap_or_else(|| "crawl stopped before completion".to_owned());
             let built = fact(
@@ -279,7 +279,7 @@ fn crawl_facts(document: &Value) -> Map<String, Value> {
                 Some(&reason),
                 Some(&format!(
                     ">= {} (crawl did not finish)",
-                    py::str_value(value)
+                    values::str_value(value)
                 )),
                 false,
                 None,
@@ -432,7 +432,7 @@ fn crawl_facts(document: &Value) -> Map<String, Value> {
 }
 
 fn site_audit_facts(document: &Value) -> Map<String, Value> {
-    let summary = py::get_map(document, "summary");
+    let summary = values::get_map(document, "summary");
     let by_severity = summary
         .get("findings_by_severity")
         .and_then(Value::as_object)
@@ -683,7 +683,7 @@ pub fn build_facts_export(sites: &[Value]) -> Result<Value, FactError> {
     }
     let labels: Vec<String> = sites
         .iter()
-        .map(|site| py::str_value(py::get(site, "label").unwrap_or(&Value::Null)))
+        .map(|site| values::str_value(values::get(site, "label").unwrap_or(&Value::Null)))
         .collect();
     if labels.iter().any(|label| label.is_empty()) {
         return Err(FactError(
@@ -722,13 +722,13 @@ pub fn build_facts_export(sites: &[Value]) -> Result<Value, FactError> {
 
     let mut rows = Vec::new();
     for site in sites {
-        let label = py::str_value(py::get(site, "label").unwrap_or(&Value::Null));
+        let label = values::str_value(values::get(site, "label").unwrap_or(&Value::Null));
         let mut facts = Map::new();
         let mut note_parts: Vec<String> = Vec::new();
         let mut documents_read = 0;
 
-        let crawl_input = py::get(site, "crawl_audit");
-        let site_input = py::get(site, "site_audit");
+        let crawl_input = values::get(site, "crawl_audit");
+        let site_input = values::get(site, "site_audit");
 
         if let Some(input) = crawl_input.filter(|v| !v.is_null()) {
             let (document, kind, _domain) = load_document(input, &label, "crawl_audit")?;

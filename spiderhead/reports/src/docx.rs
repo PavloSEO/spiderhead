@@ -17,7 +17,7 @@ use crate::client_findings::{
 use crate::document::ReportDoc;
 use crate::evidence_summary;
 use crate::project_coverage::{priority_text, value_text};
-use crate::py;
+use crate::values;
 
 const MAX_PAGES_IN_TABLE: usize = 60;
 const MAX_FINDINGS_PER_LEVEL: usize = 40;
@@ -191,25 +191,25 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
     let mut doc = Doc::new();
     let summary = document.get("summary").unwrap_or(json!({}));
     let empty = serde_json::Map::new();
-    let by_sev = py::get(&summary, "findings_by_severity")
+    let by_sev = values::get(&summary, "findings_by_severity")
         .and_then(Value::as_object)
         .unwrap_or(&empty);
 
     doc.heading(
         &format!(
             "SEO Audit: {}",
-            py::str_value(&document.get("domain").unwrap_or(Value::Null))
+            values::str_value(&document.get("domain").unwrap_or(Value::Null))
         ),
         0,
     );
     doc.paragraph(
-        &py::str_value(&document.get("url").unwrap_or(Value::Null)),
+        &values::str_value(&document.get("url").unwrap_or(Value::Null)),
         None,
     );
     doc.paragraph_run(
         &format!(
             "Generated: {}",
-            py::str_value(&document.get("generated_at").unwrap_or(Value::Null))
+            values::str_value(&document.get("generated_at").unwrap_or(Value::Null))
         ),
         None,
         false,
@@ -220,9 +220,9 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
     // A failed or partial crawl must appear before the executive summary, so a reader
     // never mistakes it for a clean, site-wide audit.
     if summary.get("crawl_valid") == Some(&Value::Bool(false)) {
-        let reason = py::get(&summary, "crawl_invalid_reason")
-            .filter(|v| py::truthy(Some(*v)))
-            .map(py::str_value)
+        let reason = values::get(&summary, "crawl_invalid_reason")
+            .filter(|v| values::truthy(Some(*v)))
+            .map(values::str_value)
             .unwrap_or_else(|| "the crawl produced no usable data".into());
         doc.paragraph_run(
             &format!("Crawl failed — no health score. {reason}"),
@@ -232,19 +232,19 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
             None,
         );
     }
-    if py::truthy(summary.get("crawl_partial")) {
+    if values::truthy(summary.get("crawl_partial")) {
         let mut bits: Vec<String> = Vec::new();
         if let Some(finish) = summary
             .get("crawl_finish_reason")
-            .filter(|v| py::truthy(Some(*v)))
+            .filter(|v| values::truthy(Some(*v)))
         {
-            bits.push(format!("stopped: {}", py::str_value(finish)));
+            bits.push(format!("stopped: {}", values::str_value(finish)));
         }
         if let Some(scope) = summary
             .get("crawl_scope_note")
-            .filter(|v| py::truthy(Some(*v)))
+            .filter(|v| values::truthy(Some(*v)))
         {
-            bits.push(py::str_value(scope));
+            bits.push(values::str_value(scope));
         }
         let detail = if bits.is_empty() {
             String::new()
@@ -280,7 +280,7 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
         ("Notices", by_sev.get("notice").cloned().unwrap_or(json!(0))),
     ]
     .iter()
-    .map(|(name, value)| vec![name.to_string(), py::str_value(value)])
+    .map(|(name, value)| vec![name.to_string(), values::str_value(value)])
     .collect();
     doc.table("LightGridAccent1", &metrics, false);
 
@@ -301,12 +301,12 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
     let exclusions = finding_exclusion_report(&summary, Some(&suppressed));
     if let Some(exclusions) = &exclusions {
         doc.heading("Finding Exclusions", 1);
-        let total = py::get(exclusions, "suppressed_total")
-            .and_then(py::to_i64)
+        let total = values::get(exclusions, "suppressed_total")
+            .and_then(values::to_i64)
             .unwrap_or(0);
         let finding_label = if total == 1 { "finding" } else { "findings" };
-        let rule_count = py::get(exclusions, "rules_configured")
-            .and_then(py::to_i64)
+        let rule_count = values::get(exclusions, "rules_configured")
+            .and_then(values::to_i64)
             .unwrap_or(0);
         let rule_label = if rule_count == 1 { "rule" } else { "rules" };
         doc.paragraph(
@@ -314,7 +314,7 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
                 "The source audit records {total} excluded {finding_label} across {rule_count} \
                  configured URL {rule_label}, representing {} occurrences. They are absent from \
                  the active findings below.",
-                py::str_value(
+                values::str_value(
                     exclusions
                         .get("suppressed_occurrences")
                         .unwrap_or(&Value::Null)
@@ -330,28 +330,30 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
             "Occurrences".into(),
             "Reason".into(),
         ]];
-        for rule in py::get_list(exclusions, "rules") {
-            let checks = py::get_list(rule, "checks")
+        for rule in values::get_list(exclusions, "rules") {
+            let checks = values::get_list(rule, "checks")
                 .iter()
-                .map(py::str_value)
+                .map(values::str_value)
                 .collect::<Vec<_>>()
                 .join(", ");
             rows.push(vec![
-                py::str_value(py::get(rule, "id").unwrap_or(&Value::Null)),
-                py::str_value(py::get(rule, "pattern").unwrap_or(&Value::Null)),
+                values::str_value(values::get(rule, "id").unwrap_or(&Value::Null)),
+                values::str_value(values::get(rule, "pattern").unwrap_or(&Value::Null)),
                 if checks.is_empty() {
                     "all checks".into()
                 } else {
                     checks
                 },
-                py::str_value(py::get(rule, "suppressed_findings").unwrap_or(&Value::Null)),
-                py::str_value(py::get(rule, "suppressed_occurrences").unwrap_or(&Value::Null)),
-                py::str_value(py::get(rule, "reason").unwrap_or(&Value::Null)),
+                values::str_value(values::get(rule, "suppressed_findings").unwrap_or(&Value::Null)),
+                values::str_value(
+                    values::get(rule, "suppressed_occurrences").unwrap_or(&Value::Null),
+                ),
+                values::str_value(values::get(rule, "reason").unwrap_or(&Value::Null)),
             ]);
         }
         doc.table("LightGridAccent1", &rows, true);
 
-        let excluded = py::get_list(exclusions, "issues");
+        let excluded = values::get_list(exclusions, "issues");
         if !excluded.is_empty() {
             doc.heading("Suppressed Findings", 2);
             let mut rows = vec![vec![
@@ -362,13 +364,13 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
                 "Reason".into(),
             ]];
             for issue in excluded.iter().take(MAX_SUPPRESSED_FINDINGS) {
-                let marker = py::get_map(issue, "suppression");
+                let marker = values::get_map(issue, "suppression");
                 rows.push(vec![
-                    check_title(py::get(issue, "check").unwrap_or(&Value::Null)),
-                    py::str_value(py::get(issue, "severity").unwrap_or(&Value::Null)),
-                    py::str_value(py::get(issue, "target_url").unwrap_or(&Value::Null)),
-                    py::str_value(marker.get("rule_id").unwrap_or(&Value::Null)),
-                    py::str_value(marker.get("reason").unwrap_or(&Value::Null)),
+                    check_title(values::get(issue, "check").unwrap_or(&Value::Null)),
+                    values::str_value(values::get(issue, "severity").unwrap_or(&Value::Null)),
+                    values::str_value(values::get(issue, "target_url").unwrap_or(&Value::Null)),
+                    values::str_value(marker.get("rule_id").unwrap_or(&Value::Null)),
+                    values::str_value(marker.get("reason").unwrap_or(&Value::Null)),
                 ]);
             }
             doc.table("LightGridAccent1", &rows, true);
@@ -385,17 +387,17 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
         }
     }
 
-    if let Some(coverage) = py::get(&summary, "project_coverage").filter(|v| v.is_object()) {
-        let project = py::get_map(coverage, "project");
-        let checklist = py::get_map(coverage, "status");
+    if let Some(coverage) = values::get(&summary, "project_coverage").filter(|v| v.is_object()) {
+        let project = values::get_map(coverage, "project");
+        let checklist = values::get_map(coverage, "status");
         doc.heading("Project Checklist Coverage", 1);
         doc.paragraph(
             &format!(
                 "Project: {}\nProject UUID: {}\nChecklist state: {}\nRevision: {}",
-                py::str_value(project.get("site").unwrap_or(&Value::Null)),
-                py::str_value(project.get("uuid").unwrap_or(&Value::Null)),
-                py::str_value(checklist.get("state").unwrap_or(&Value::Null)),
-                py::str_value(checklist.get("revision").unwrap_or(&Value::Null))
+                values::str_value(project.get("site").unwrap_or(&Value::Null)),
+                values::str_value(project.get("uuid").unwrap_or(&Value::Null)),
+                values::str_value(checklist.get("state").unwrap_or(&Value::Null)),
+                values::str_value(checklist.get("revision").unwrap_or(&Value::Null))
             ),
             None,
         );
@@ -421,105 +423,124 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
                 };
                 vec![
                     label,
-                    py::str_value(counts.get(*name).unwrap_or(&json!(""))),
+                    values::str_value(counts.get(*name).unwrap_or(&json!(""))),
                 ]
             })
             .collect();
             doc.table("LightGridAccent1", &rows, false);
-        } else if checklist.get("reason").is_some_and(|v| py::truthy(Some(v))) {
+        } else if checklist
+            .get("reason")
+            .is_some_and(|v| values::truthy(Some(v)))
+        {
             doc.paragraph(
                 &format!(
                     "Reason: {}",
-                    py::str_value(checklist.get("reason").unwrap())
+                    values::str_value(checklist.get("reason").unwrap())
                 ),
                 None,
             );
         }
         let checklist_v = Value::Object(checklist.clone());
-        let task_kpis = py::get_map(&checklist_v, "task_kpis");
+        let task_kpis = values::get_map(&checklist_v, "task_kpis");
         if !task_kpis.is_empty() {
             let task_kpis_v = Value::Object(task_kpis.clone());
-            let affected = py::get_map(&task_kpis_v, "affected_urls");
+            let affected = values::get_map(&task_kpis_v, "affected_urls");
             let count = match affected.get("count") {
                 Some(Value::Null) | None => "unavailable".to_owned(),
-                Some(v) => py::str_value(v),
+                Some(v) => values::str_value(v),
             };
             doc.paragraph(
                 &format!(
                     "Custom tasks: {} complete / {} total; {} assigned; affected URLs: {} ({}; \
                      {} measured, {} unmeasured).",
-                    py::str_value(task_kpis.get("complete").unwrap_or(&json!(0))),
-                    py::str_value(task_kpis.get("total").unwrap_or(&json!(0))),
-                    py::str_value(task_kpis.get("assigned").unwrap_or(&json!(0))),
+                    values::str_value(task_kpis.get("complete").unwrap_or(&json!(0))),
+                    values::str_value(task_kpis.get("total").unwrap_or(&json!(0))),
+                    values::str_value(task_kpis.get("assigned").unwrap_or(&json!(0))),
                     count,
                     affected
                         .get("state")
-                        .map(py::str_value)
+                        .map(values::str_value)
                         .unwrap_or_else(|| "unavailable".into()),
-                    py::str_value(affected.get("measured_tasks").unwrap_or(&json!(0))),
-                    py::str_value(affected.get("unmeasured_tasks").unwrap_or(&json!(0)))
+                    values::str_value(affected.get("measured_tasks").unwrap_or(&json!(0))),
+                    values::str_value(affected.get("unmeasured_tasks").unwrap_or(&json!(0)))
                 ),
                 None,
             );
         }
-        for item in py::get_list(&checklist_v, "items") {
+        for item in values::get_list(&checklist_v, "items") {
             if !item.is_object() {
                 continue;
             }
-            let title = py::get(item, "title")
-                .filter(|v| py::truthy(Some(*v)))
+            let title = values::get(item, "title")
+                .filter(|v| values::truthy(Some(*v)))
                 .cloned()
-                .unwrap_or_else(|| py::get(item, "id").cloned().unwrap_or(json!("")));
-            doc.paragraph_run(&py::str_value(&title), Some("ListBullet"), true, None, None);
+                .unwrap_or_else(|| values::get(item, "id").cloned().unwrap_or(json!("")));
+            doc.paragraph_run(
+                &values::str_value(&title),
+                Some("ListBullet"),
+                true,
+                None,
+                None,
+            );
             doc.paragraph(
                 &[
                     format!(
                         "ID: {}",
-                        py::str_value(py::get(item, "id").unwrap_or(&Value::Null))
+                        values::str_value(values::get(item, "id").unwrap_or(&Value::Null))
                     ),
                     format!(
                         "Kind: {}",
-                        py::str_value(py::get(item, "kind").unwrap_or(&Value::Null))
+                        values::str_value(values::get(item, "kind").unwrap_or(&Value::Null))
                     ),
                     format!(
                         "Execution: {}",
-                        py::str_value(py::get(item, "execution_kind").unwrap_or(&Value::Null))
+                        values::str_value(
+                            values::get(item, "execution_kind").unwrap_or(&Value::Null)
+                        )
                     ),
                     format!("Priority: {}", priority_text(item)),
                     format!(
                         "State: {}",
-                        py::str_value(py::get(item, "state").unwrap_or(&Value::Null))
+                        values::str_value(values::get(item, "state").unwrap_or(&Value::Null))
                     ),
                     format!(
                         "Attempt: {}",
-                        py::str_value(py::get(item, "attempt_status").unwrap_or(&Value::Null))
+                        values::str_value(
+                            values::get(item, "attempt_status").unwrap_or(&Value::Null)
+                        )
                     ),
                     format!(
                         "Complete: {}",
-                        py::str_value(py::get(item, "complete").unwrap_or(&Value::Null))
+                        values::str_value(values::get(item, "complete").unwrap_or(&Value::Null))
                     ),
-                    format!("Blocked by: {}", value_text(py::get(item, "blocked_by"))),
+                    format!(
+                        "Blocked by: {}",
+                        value_text(values::get(item, "blocked_by"))
+                    ),
                     format!(
                         "Enabled: {}",
-                        py::str_value(py::get(item, "enabled").unwrap_or(&Value::Null))
+                        values::str_value(values::get(item, "enabled").unwrap_or(&Value::Null))
                     ),
                     format!(
                         "Stale: {}",
-                        py::str_value(py::get(item, "stale").unwrap_or(&Value::Null))
+                        values::str_value(values::get(item, "stale").unwrap_or(&Value::Null))
                     ),
-                    format!("Scope: {}", value_text(py::get(item, "scope"))),
-                    format!("Measurement: {}", value_text(py::get(item, "measurement"))),
-                    format!("Task: {}", value_text(py::get(item, "task"))),
+                    format!("Scope: {}", value_text(values::get(item, "scope"))),
+                    format!(
+                        "Measurement: {}",
+                        value_text(values::get(item, "measurement"))
+                    ),
+                    format!("Task: {}", value_text(values::get(item, "task"))),
                     format!(
                         "Affected URLs: {}",
-                        value_text(py::get(item, "affected_urls"))
+                        value_text(values::get(item, "affected_urls"))
                     ),
                     format!(
                         "Reason: {}",
-                        py::get(item, "reason")
-                            .filter(|v| py::truthy(Some(*v)))
-                            .map(py::str_value)
-                            .unwrap_or_else(|| py::str_value(
+                        values::get(item, "reason")
+                            .filter(|v| values::truthy(Some(*v)))
+                            .map(values::str_value)
+                            .unwrap_or_else(|| values::str_value(
                                 checklist.get("reason").unwrap_or(&Value::Null)
                             ))
                     ),
@@ -530,7 +551,7 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
         }
     }
 
-    let disabled = py::get_list(&summary, "checks_disabled");
+    let disabled = values::get_list(&summary, "checks_disabled");
     if !disabled.is_empty() {
         doc.heading("Disabled Checks", 1);
         doc.paragraph(
@@ -542,15 +563,15 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
             doc.paragraph(
                 &format!(
                     "{} — {}",
-                    check_title(py::get(item, "id").unwrap_or(&Value::Null)),
-                    py::str_value(py::get(item, "reason").unwrap_or(&Value::Null))
+                    check_title(values::get(item, "id").unwrap_or(&Value::Null)),
+                    values::str_value(values::get(item, "reason").unwrap_or(&Value::Null))
                 ),
                 Some("ListBullet"),
             );
         }
     }
 
-    let failed = py::get_list(&summary, "tools_failed");
+    let failed = values::get_list(&summary, "tools_failed");
     if !failed.is_empty() {
         doc.heading("Unavailable Checks", 1);
         doc.paragraph(
@@ -562,8 +583,8 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
             doc.paragraph(
                 &format!(
                     "{} — {}",
-                    check_title(py::get(item, "tool").unwrap_or(&Value::Null)),
-                    py::str_value(py::get(item, "error").unwrap_or(&Value::Null))
+                    check_title(values::get(item, "tool").unwrap_or(&Value::Null)),
+                    values::str_value(values::get(item, "error").unwrap_or(&Value::Null))
                 ),
                 Some("ListBullet"),
             );
@@ -578,11 +599,11 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
             .map(|c| finding_view_label(c))
             .collect::<Vec<_>>()];
         for finding in document.findings(None) {
-            let values = py::get_map(&finding, "view_fields");
+            let values = values::get_map(&finding, "view_fields");
             rows.push(
                 columns
                     .iter()
-                    .map(|column| py::str_value(values.get(column).unwrap_or(&Value::Null)))
+                    .map(|column| values::str_value(values.get(column).unwrap_or(&Value::Null)))
                     .collect(),
             );
         }
@@ -591,7 +612,7 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
         let streaming = document.is_streaming();
         for level in ["critical", "warning", "notice"] {
             let count = if streaming {
-                py::to_i64(by_sev.get(level).unwrap_or(&json!(0))).unwrap_or(0)
+                values::to_i64(by_sev.get(level).unwrap_or(&json!(0))).unwrap_or(0)
             } else {
                 document.findings(Some(level)).len() as i64
             };
@@ -615,37 +636,37 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
                 .iter()
                 .take(MAX_FINDINGS_PER_LEVEL)
             {
-                let title = py::get(finding, "client_title")
-                    .map(py::str_value)
+                let title = values::get(finding, "client_title")
+                    .map(values::str_value)
                     .filter(|s| !s.is_empty())
                     .unwrap_or_else(|| "Audit finding".into());
                 doc.paragraph_run(&title, Some("ListBullet"), true, None, None);
                 if let Some(observation) =
-                    py::get(finding, "client_observation").filter(|v| py::truthy(Some(*v)))
+                    values::get(finding, "client_observation").filter(|v| values::truthy(Some(*v)))
                 {
                     doc.paragraph(
-                        &format!("Observation: {}", py::str_value(observation)),
+                        &format!("Observation: {}", values::str_value(observation)),
                         Some("ListBullet2"),
                     );
                 }
                 doc.paragraph(
                     &format!(
                         "Reproduction: {}",
-                        py::str_value(
-                            py::get(finding, "client_reproduction").unwrap_or(&Value::Null)
+                        values::str_value(
+                            values::get(finding, "client_reproduction").unwrap_or(&Value::Null)
                         )
                     ),
                     Some("ListBullet2"),
                 );
-                for detail in py::get_list(finding, "client_details") {
+                for detail in values::get_list(finding, "client_details") {
                     doc.paragraph(
-                        &format!("Evidence: {}", py::str_value(detail)),
+                        &format!("Evidence: {}", values::str_value(detail)),
                         Some("ListBullet2"),
                     );
                 }
-                for location in py::get_list(finding, "client_locations") {
+                for location in values::get_list(finding, "client_locations") {
                     doc.paragraph(
-                        &format!("Location: {}", py::str_value(location)),
+                        &format!("Location: {}", values::str_value(location)),
                         Some("ListBullet2"),
                     );
                 }
@@ -676,7 +697,7 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
         ]];
         for page in document.pages().iter().take(MAX_PAGES_IN_TABLE) {
             let cell = |name: &str, limit: Option<usize>| {
-                let text = py::str_value(py::get(page, name).unwrap_or(&Value::Null));
+                let text = values::str_value(values::get(page, name).unwrap_or(&Value::Null));
                 match limit {
                     Some(limit) => text.chars().take(limit).collect(),
                     None => text,
@@ -701,10 +722,16 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<(), DocxError> {
 
     if let Some(note) = summary
         .get("severity_note")
-        .filter(|v| py::truthy(Some(*v)))
+        .filter(|v| values::truthy(Some(*v)))
     {
         doc.paragraph("", None);
-        doc.paragraph_run(&py::str_value(note), None, false, Some("808080"), Some(16));
+        doc.paragraph_run(
+            &values::str_value(note),
+            None,
+            false,
+            Some("808080"),
+            Some(16),
+        );
     }
 
     write_package(&doc, path)

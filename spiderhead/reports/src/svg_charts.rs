@@ -6,7 +6,7 @@
 /// Average glyph advance as a share of font size, for label collision checks.
 pub const CHAR_WIDTH: f64 = 0.58;
 
-use crate::py::html_escape as escape;
+use crate::values::html_escape as escape;
 
 /// One series of values plotted against shared labels.
 #[derive(Debug, Clone)]

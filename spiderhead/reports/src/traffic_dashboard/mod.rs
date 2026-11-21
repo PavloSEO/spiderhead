@@ -9,7 +9,7 @@ use regex::Regex;
 use serde_json::Value;
 
 use crate::join::IsoDate;
-use crate::py::{html_escape, repr, repr_str};
+use crate::values::{html_escape, repr, repr_str};
 
 mod css;
 mod labels;
@@ -634,7 +634,7 @@ impl<'a> Renderer<'a> {
                 ids.iter()
                     .map(|id| match id.as_str() {
                         Some(text) => text.to_owned(),
-                        None => crate::py::str_value(id),
+                        None => crate::values::str_value(id),
                     })
                     .collect::<Vec<_>>()
                     .join(", ")

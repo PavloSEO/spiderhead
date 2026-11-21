@@ -13,7 +13,7 @@ use serde_json::{json, Map, Value};
 use thiserror::Error;
 
 use crate::document::{safe_segment, AuditV2Rows};
-use crate::py;
+use crate::values;
 
 /// Error raised when project coverage cannot be attached.
 #[derive(Debug, Error)]
@@ -51,21 +51,21 @@ pub fn value_text(value: Option<&Value>) -> String {
     match value {
         Some(Value::Null) | None => String::new(),
         Some(v @ (Value::Object(_) | Value::Array(_))) => dumps(v),
-        Some(v) => py::str_value(v),
+        Some(v) => values::str_value(v),
     }
 }
 
 /// Priority display: recorded label, else level-mapped fallback.
 pub fn priority_text(item: &Value) -> String {
-    let label = value_text(py::get(item, "priority_label"));
+    let label = value_text(values::get(item, "priority_label"));
     if !label.is_empty() {
         return label;
     }
-    let level = py::get(item, "priority_level");
-    if !py::truthy(level) {
+    let level = values::get(item, "priority_level");
+    if !values::truthy(level) {
         return String::new();
     }
-    format!("P{}", py::str_value(level.unwrap_or(&Value::Null)))
+    format!("P{}", values::str_value(level.unwrap_or(&Value::Null)))
 }
 
 /// audit.v2 coverage: counts from the declared `/checklist` collection rows.
@@ -76,8 +76,8 @@ pub fn coverage_from_rows(checklist_rows: &AuditV2Rows<'_>) -> Value {
     let mut counts: Map<String, Value> = Map::new();
     let mut items: Vec<Value> = Vec::new();
     for item in checklist_rows.to_vec().unwrap_or_default() {
-        let state = py::get(&item, "state")
-            .map(py::str_value)
+        let state = values::get(&item, "state")
+            .map(values::str_value)
             .unwrap_or_else(|| "unknown".into());
         let counter = counts.entry(state.clone()).or_insert(json!(0));
         if let Some(n) = counter.as_i64() {
@@ -97,18 +97,18 @@ pub fn write_audit_v2<W: Write + std::io::Seek>(
     zip: &mut zip::ZipWriter<W>,
     document: &Value,
 ) -> Result<(), CoverageError> {
-    let coverage = py::get_map(
+    let coverage = values::get_map(
         document.get("summary").unwrap_or(&Value::Null),
         "project_coverage",
     );
     let payload = serde_json::to_vec(&json!({
         "schema": "project-coverage/1",
-        "domain": py::get(document, "domain").cloned().unwrap_or(json!("")),
+        "domain": values::get(document, "domain").cloned().unwrap_or(json!("")),
         "project": coverage.get("project").cloned().unwrap_or(json!({})),
         "status": coverage.get("status").cloned().unwrap_or(json!({})),
     }))
     .map_err(|e| CoverageError(e.to_string()))?;
-    let domain = py::str_value(py::get(document, "domain").unwrap_or(&Value::Null));
+    let domain = values::str_value(values::get(document, "domain").unwrap_or(&Value::Null));
     zip.start_file(
         format!(
             "project_coverage.{}.json",
@@ -247,10 +247,10 @@ fn audit_domain(document: &Value, kind: &str) -> String {
     // `str(document.get("domain") or "")` — falsy values collapse to "".
     let domain = document
         .get("domain")
-        .filter(|d| crate::py::truthy(Some(d)))
+        .filter(|d| crate::values::truthy(Some(d)))
         .cloned()
         .unwrap_or(Value::Null);
-    spiderhead_core::net::normalize_domain(&crate::py::str_value(&domain))
+    spiderhead_core::net::normalize_domain(&crate::values::str_value(&domain))
 }
 
 /// Bind a report to one project workspace.
@@ -275,7 +275,7 @@ pub fn load_snapshot(
     };
     let actual = audit_domain(document, kind);
     let expected_value = subscript("host")?;
-    let expected = crate::py::str_value(&expected_value);
+    let expected = crate::values::str_value(&expected_value);
     if actual.is_empty() {
         return Err(CoverageError(
             "audit has no discoverable site identity for the requested project".to_owned(),
@@ -284,8 +284,8 @@ pub fn load_snapshot(
     if actual != expected {
         return Err(CoverageError(format!(
             "project site {} does not match audit source identity {}",
-            crate::py::repr(&expected_value),
-            crate::py::repr(&json!(actual)),
+            crate::values::repr(&expected_value),
+            crate::values::repr(&json!(actual)),
         )));
     }
     let path = match opened.get("path").and_then(Value::as_str) {

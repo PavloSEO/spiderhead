@@ -25,7 +25,7 @@ use crate::bi::schema::{
     MIN_FREE_DISK_BYTES, PAGE_FIELDS,
 };
 use crate::bi_index::{projection_index, GroupIndex, InlinkIndex};
-use crate::py;
+use crate::values;
 
 fn err(msg: impl Into<String>) -> BIExportError {
     BIExportError::new(msg)
@@ -209,7 +209,7 @@ impl<'a> PartitionWriter<'a> {
             )));
         }
         let declared: BTreeSet<&str> = self.fields.iter().map(|f| f.name.as_ref()).collect();
-        if let Some(extra) = py::map(row)
+        if let Some(extra) = values::map(row)
             .map(|m| m.keys().find(|k| !declared.contains(k.as_str())).is_some())
             .filter(|has| *has)
         {
@@ -444,7 +444,7 @@ pub fn write_package(
         ),
         (
             "findings",
-            if py::truthy(
+            if values::truthy(
                 run.run_metadata
                     .get("audit_available")
                     .or(Some(&json!(true))),
@@ -453,7 +453,7 @@ pub fn write_package(
             } else {
                 "unavailable".into()
             },
-            if py::truthy(
+            if values::truthy(
                 run.run_metadata
                     .get("audit_available")
                     .or(Some(&json!(true))),

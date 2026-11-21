@@ -1404,7 +1404,7 @@ pub fn segment_definitions(document: &Value) -> Option<Vec<Value>> {
         .get("analysis.segments")
         .cloned()
         .unwrap_or(Value::Null);
-    if crate::py::truthy(Some(&analysis)) && !analysis.is_array() {
+    if crate::values::truthy(Some(&analysis)) && !analysis.is_array() {
         return None;
     }
     let analysis_list = analysis.as_array().cloned().unwrap_or_default();
