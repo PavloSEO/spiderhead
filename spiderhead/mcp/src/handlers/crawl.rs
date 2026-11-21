@@ -10,7 +10,7 @@ use serde_json::{json, Map, Value};
 
 use spiderhead_core::crawl_settings::{self, LoadInput};
 use spiderhead_core::host::SystemHost;
-use spiderhead_crawl::oracle;
+use spiderhead_crawl::provenance;
 use spiderhead_crawl::spider::{self, BatchControl, CrawlOptions};
 use spiderhead_parse::ParseOptions;
 use spiderhead_projects::origin_pacing::{paced_rate, ProjectOriginPacer};
@@ -368,7 +368,7 @@ fn producer_revision(producer_build: Option<&str>) -> Result<String, ToolError> 
                 ))
             }
         }
-        None => Ok(oracle::WRITER_REVISION.to_owned()),
+        None => Ok(provenance::WRITER_REVISION.to_owned()),
     }
 }
 
@@ -823,10 +823,10 @@ fn crawl_scan(
         url,
         settings,
         fingerprint.as_deref(),
-        oracle::WRITER_VERSION,
+        provenance::WRITER_VERSION,
         writer_revision,
         &spiderhead_store::scan_schema::native_runtime_versions(),
-        &oracle::limitations(),
+        &provenance::limitations(),
         None,
         &declared,
         &format_version,

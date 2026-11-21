@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use serde_json::Value;
 use spiderhead_core::host::SystemHost;
 use spiderhead_crawl::dump::scan_tables;
-use spiderhead_crawl::oracle;
+use spiderhead_crawl::provenance;
 use spiderhead_crawl::spider::{self, CrawlOptions};
 use spiderhead_oracle_diff::{diff, Options};
 use spiderhead_oracle_testkit::FixtureServer;
@@ -58,16 +58,16 @@ fn crawl_and_dump_with_seeds(
     let min_delay = 0.02;
     let config_map = spider::capture_config(&host, 200, 50.0).expect("capture config");
     let scan_path = work.join("scan.sqlite");
-    let runtime_versions = oracle::runtime_versions();
+    let runtime_versions = provenance::runtime_versions();
     let mut scan = NativeScanSchemaMixin::create(
         &scan_path,
         &format!("{base}/"),
         &config_map,
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
         &runtime_versions,
-        &oracle::limitations(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",
@@ -284,16 +284,16 @@ fn interrupted_crawl_resumes_to_the_same_scan() {
 
     // Uninterrupted reference run.
     let reference_path = work.0.join("reference.sqlite");
-    let runtime_versions = oracle::runtime_versions();
+    let runtime_versions = provenance::runtime_versions();
     let mut reference = NativeScanSchemaMixin::create(
         &reference_path,
         &format!("{base}/"),
         &capture_config_map(),
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
         &runtime_versions,
-        &oracle::limitations(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",
@@ -314,10 +314,10 @@ fn interrupted_crawl_resumes_to_the_same_scan() {
         &format!("{base}/"),
         &capture_config_map(),
         None,
-        oracle::WRITER_VERSION,
-        oracle::WRITER_REVISION,
+        provenance::WRITER_VERSION,
+        provenance::WRITER_REVISION,
         &runtime_versions,
-        &oracle::limitations(),
+        &provenance::limitations(),
         None,
         &[],
         "scan.v1",

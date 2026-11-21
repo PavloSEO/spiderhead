@@ -147,7 +147,7 @@ pub fn remediation_create(args: &Value) -> Result<Value, ToolError> {
         Path::new(path),
         project_uuid,
         target,
-        spiderhead_crawl::oracle::WRITER_VERSION,
+        spiderhead_crawl::provenance::WRITER_VERSION,
         producer_build,
     )
     .map_err(|error| ToolError::Failed(super::plain(&error)))?;

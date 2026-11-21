@@ -479,7 +479,7 @@ pub fn capture_placeholder(event: &CaptureEvent) -> String {
 }
 
 // Constants re-exported for the binary.
-pub use crate::oracle::{limitations, runtime_versions, WRITER_REVISION, WRITER_VERSION};
+pub use crate::provenance::{limitations, runtime_versions, WRITER_REVISION, WRITER_VERSION};
 
 /// Effective crawl config for the capture: defaults plus the CLI overrides
 /// `--max-urls-per-second 50 --max-urls 200` (min_delay 0.02 etc.).
