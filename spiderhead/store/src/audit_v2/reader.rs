@@ -1,6 +1,6 @@
 //! Validated, re-iterable access to an audit.v2 companion (`AuditV2Reader`).
 
-use super::pyjson::dumps;
+use super::json::dumps;
 use super::{
     audit_v2_path, bind_to_scan, canonical, collection_markers, contains_group_marker, digest_item,
     digest_start, fail, get_pointer, AuditReadTimeout, APPLICATION_ID, COLLECTION_MARKER,

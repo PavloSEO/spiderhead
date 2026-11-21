@@ -1,18 +1,18 @@
 //! Versioned, ordered SQLite storage for audits too large for the scan.v1 JSON slot.
 //!
 //! The writer lives here; the validating reader is in `audit_v2/reader.rs`.
-//! Both render JSON byte for byte as the stored format requires (`audit_v2/pyjson.rs`).
+//! Both render JSON byte for byte as the stored format requires (`audit_v2/json.rs`).
 
-mod pyjson;
+mod json;
 mod reader;
 
-pub(crate) use pyjson::float_repr;
+pub(crate) use json::float_repr;
 pub use reader::{AuditGroupMembers, AuditV2Reader};
 
 use crate::error::StoreError;
 use crate::scan_artifact::open_scan_mode;
 use indexmap::IndexMap;
-use pyjson::dumps;
+use json::dumps;
 use rusqlite::{params, Connection};
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
