@@ -659,7 +659,7 @@ fn open_bundle_names_the_fix_when_no_jar_exists() {
 }
 
 #[test]
-fn open_bundle_names_the_extra_when_jpype_is_missing() {
+fn open_bundle_names_the_bridge_when_it_is_missing() {
     let tmp = tempdir();
     let jar = tmp.path().join("derby-10.17.1.0.jar");
     write(&jar);
@@ -674,11 +674,11 @@ fn open_bundle_names_the_extra_when_jpype_is_missing() {
     )
     .err()
     .expect("must fail");
-    assert!(err.0.contains("spiderhead[derby]"), "message: {}", err.0);
+    assert!(err.0.contains("JVM bridge"), "message: {}", err.0);
 }
 
 #[test]
-fn load_jpype_error_message_is_actionable() {
+fn bridge_error_message_is_actionable() {
     let tmp = tempdir();
     let jar = tmp.path().join("derby-10.17.1.0.jar");
     write(&jar);
@@ -693,5 +693,5 @@ fn load_jpype_error_message_is_actionable() {
     )
     .err()
     .expect("must fail");
-    assert!(err.0.contains("pip install"), "message: {}", err.0);
+    assert!(err.0.contains("JDK 17+"), "message: {}", err.0);
 }

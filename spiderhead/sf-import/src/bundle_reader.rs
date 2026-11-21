@@ -54,9 +54,9 @@ pub const JVM_INSTRUCTIONS: &str = "no Java virtual machine found to run derby.j
      SPIDERHEAD_JVM, JAVA_HOME, the bundled Screaming Frog JRE, and the \
      standard JDK locations. Install a JDK 17+ or set SPIDERHEAD_JVM to the \
      JVM library (libjvm.dylib / libjvm.so / jvm.dll).";
-/// `_JPYPE_INSTRUCTIONS`: names the optional extra that carries the bridge.
+/// `_JPYPE_INSTRUCTIONS`: the actionable message when no bridge can host the jar.
 pub const JPYPE_INSTRUCTIONS: &str =
-    "reading a saved crawl needs the JVM bridge: pip install \"spiderhead[derby]\"";
+    "reading a saved crawl needs the JVM bridge: install a JDK 17+ so derby.jar can be loaded";
 
 /// `BundleError`: a user-facing reason why a saved-crawl bundle could not be
 /// read.
