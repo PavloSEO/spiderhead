@@ -104,7 +104,7 @@ pub(crate) fn primary_segment(page: &Obj, ordered_segments: &[Segment]) -> Strin
     }
     let Some(url) = page.get("url").and_then(Value::as_str) else {
         // Rows without a URL cannot be placed; pages are validated earlier, so
-        // this only guards a porting bug.
+        // this only guards an implementation bug.
         return UNSEGMENTED.to_owned();
     };
     let parts = urlsplit(url);

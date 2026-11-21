@@ -1,8 +1,8 @@
 //! Mobile layout findings from explicitly captured native render evidence
 //! (#1016).
 //!
-//! local port of the reference suite::
-//! validate_mobile_layout_evidence` until the checks crate lands a shared
+//! Mirrors the reference suite's
+//! `validate_mobile_layout_evidence` until the checks crate lands a shared
 //! version — the predicate must stay byte-for-byte aligned with the oracle.
 
 use rusqlite::params;

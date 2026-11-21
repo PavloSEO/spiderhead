@@ -1,4 +1,4 @@
-//! Ports of the URL and address guard tests in the reference suite.
+//! Reference suite URL and address guard tests.
 //!
 //! reference monkeypatches `socket.getaddrinfo` and `os.environ`; here the same DNS answers and
 //! environment come through an injected [`FakeHost`], so the inputs and expected values match

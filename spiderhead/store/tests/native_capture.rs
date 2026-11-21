@@ -1,4 +1,4 @@
-//! Ports of the reference suite that the Rust `NativeScan` writer can express.
+//! Reference suite tests that the Rust `NativeScan` writer can express.
 //!
 //! Not covered here (see the slice report): the disk-full rollback needs a failpoint that
 //! returns an error (the Rust hook only observes); the preflight and free-space tests patch

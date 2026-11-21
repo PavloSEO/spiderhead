@@ -2,7 +2,7 @@
 //!
 //! The filesystem side (jar/JVM discovery, bundle materialization, safe copy)
 //! is direct Rust. The JDBC side goes through a [`JvmBridge`] seam: reference
-//! reaches Derby through `jpype` and `java.sql.DriverManager`; the Rust port
+//! reaches Derby through `jpype` and `java.sql.DriverManager`; the Rust implementation
 //! keeps identical call order, timeouts and error texts while the caller
 //! supplies whatever actually hosts the JVM (tests inject fakes, exactly like
 //! the reference fake-JDBC layer). The user's bundle is never written to: the

@@ -252,7 +252,7 @@ fn actual_collector_child_is_distinct_from_its_live_controller() {
 
 #[test]
 fn two_processes_keep_both_terminal_run_updates_after_revision_contention() {
-    // Two spawn-context children in the golden; the port keeps the concurrent
+    // Two spawn-context children in the golden; this test keeps the concurrent
     // terminal-write pressure with threads on two doctored run records.
     let dir = testkit::scratch("runobs", "two-terminal");
     let root = project(&dir);

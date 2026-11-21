@@ -1,1 +1,1 @@
-//! Rust port of the reference package sf/ catalog side.
+//! The `sf/` catalog side of the reference package.

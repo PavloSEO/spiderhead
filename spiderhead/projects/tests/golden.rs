@@ -1,4 +1,4 @@
-//! Golden check: replay generated scenario fixtures through the Rust port.
+//! Golden check: replay generated scenario fixtures through the toolkit.
 mod common;
 
 use common::run_fixture;

@@ -1,5 +1,5 @@
 //! Golden replay for the reference suite + the reference suite —
-//! drives the reference suite fixtures through the Rust port, comparing
+//! drives the reference suite fixtures through the toolkit, comparing
 //! recorded dispatch calls and verbatim outcomes.
 
 use serde_json::{json, Value};

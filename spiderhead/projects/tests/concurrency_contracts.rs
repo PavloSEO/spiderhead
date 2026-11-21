@@ -3,7 +3,7 @@
 //! `mcp_control` state-file cases belong to the mcp slice.
 //!
 //! reference monkeypatches `project_write_lock` to shorten the losing writer's
-//! patience; the port instead holds the winning lock longer than the fixed
+//! patience; this suite instead holds the winning lock longer than the fixed
 //! 5 s timeout — same contention, no seam needed.
 
 #[path = "common/testkit.rs"]

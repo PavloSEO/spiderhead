@@ -1,5 +1,5 @@
 //! Column allow-list of the URL table: name → SQL expression, value kind and
-//! index flag. Port of the `COLUMNS` map in the reference suite
+//! index flag. Mirrors the `COLUMNS` map in the reference suite
 //! limited to what a `scan.v1` page table can answer — transport phases, resource
 //! graph counters and click depth belong to `scan.v2`/graph slices and are absent.
 //!

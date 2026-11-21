@@ -1446,7 +1446,7 @@ pub fn validate_store_join(join: &Value) -> Result<(), BIExportError> {
 /// Select the saved join, or join normalized evidence.
 ///
 /// Joining normalized evidence needs the evidence-join routine from the data sources crate,
-/// which is not ported: a normalized input without a saved join returns the export error
+/// which is not implemented yet: a normalized input without a saved join returns the export error
 /// until that dependency is available.
 pub fn join_from_provider(
     provider: &ProviderInput,

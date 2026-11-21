@@ -110,7 +110,7 @@ pub(crate) fn page_facts(page: &Obj) -> Obj {
 }
 
 /// Matched pairs always resolve on both sides by construction; the shared empty
-/// page only keeps a porting bug from panicking.
+/// page only keeps an implementation bug from panicking.
 fn empty_page() -> &'static Obj {
     static EMPTY: OnceLock<Obj> = OnceLock::new();
     EMPTY.get_or_init(Obj::new)

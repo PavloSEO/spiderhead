@@ -284,7 +284,7 @@ pub fn redirects(session: &ScanSession, url_id: i64) -> Result<Value, QueryError
 /// Cross-scan history of the selected URL (`tab = "history"`).
 /// Reads the retained `scan.v1` files beside the open one directly — the
 /// store's `url_history` is intentionally not used because its
-/// external-links field still waits on an unported store slice. A one-file
+/// external-links field still waits on a store slice that has not landed yet. A one-file
 /// directory reports exactly one entry; fields the sibling scan lacks stay
 /// `null`, never fabricated zeroes.
 pub fn history(session: &ScanSession, url_id: i64) -> Result<Value, QueryError> {

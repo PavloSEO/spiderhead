@@ -3,9 +3,9 @@
 //! `_SharedDispatchGate` lives in the crawl slice; those stay deferred.
 //!
 //! The three-simultaneous-runs case patches `run_observation._owner_busy` in
-//! the golden so several live records can coexist in one process. The port
+//! the golden so several live records can coexist in one process. This suite
 //! instead doctors each run's controller PID to a dead process between starts
-//! (the same mechanism the run-control ports use), then performs the progress
+//! (the same mechanism the run-control tests use), then performs the progress
 //! writes concurrently.
 
 #[path = "common/testkit.rs"]

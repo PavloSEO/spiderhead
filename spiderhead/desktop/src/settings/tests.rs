@@ -1,5 +1,5 @@
 //! Settings-store and sources-catalogue tests. Each test cites the reference
-//! desktop test it ports (`desktop/tests/test_settings_*the reference suite,
+//! desktop test it mirrors (`desktop/tests/test_settings_*the reference suite,
 //! the reference suite, the reference suite). Qt-bound tests (widget
 //! states, signal plumbing, dialog geometry) have no Rust counterpart — they
 //! are listed in the slice report instead.

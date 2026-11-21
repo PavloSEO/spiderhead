@@ -1396,7 +1396,7 @@ pub fn apply_with_client(
     }
 }
 
-/// The segment definitions helper: copied here because the projects crate is not ported.
+/// The segment definitions helper: copied here because the projects crate does not expose it.
 pub fn segment_definitions(document: &Value) -> Option<Vec<Value>> {
     const MAX_FILTER_VALUES: usize = 10_000;
     let config = document.get("run")?.get("crawl_config")?.as_object()?;

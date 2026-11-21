@@ -133,7 +133,7 @@ pub fn urlsplit(url: &str) -> SplitUrl {
 mod tests {
     use super::*;
 
-    // from urllib.parse behaviour checks made while porting the compare domain
+    // from urllib.parse behaviour checks in the compare domain
     #[test]
     fn splits_the_shapes_the_compare_domain_uses() {
         let split = urlsplit("https://Example.com:8443/a/b?x=1#frag");

@@ -1,7 +1,7 @@
 //! active, live native scans in the selected project.
 //!
 //! The reference suite fakes `storage.open_scan` and `run_observation.status`;
-//! the port instead retains a real running-scan SQLite fixture and real
+//! this suite instead retains a real running-scan SQLite fixture and real
 //! `run-observation.json` runs, doctoring the persisted document where the
 //! reference tests inject a status row. The two post-insert recheck cases need
 //! interposition *between* `request`'s two `status` reads — a reference-only
@@ -122,7 +122,7 @@ fn control_rejects_an_existing_pending_request() {
     );
 }
 
-// The reference test monkeypatches `consume`; the port leaves a real persisted
+// The reference test monkeypatches `consume`; this test leaves a real persisted
 // pending request for `consume` to find.
 #[test]
 fn controlled_reporter_turns_progress_boundary_into_checkpoint_interrupt() {

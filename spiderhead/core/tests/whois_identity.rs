@@ -1,4 +1,4 @@
-//! Ports of the pure WHOIS parsing tests in the reference suite. Each test names its
+//! Reference suite pure WHOIS parsing tests. Each test names its
 //! source. The identity check (`whois_record_is_about`), the `profile_domain` tests, the
 //! system-whois runner tests and the Punycode profile test need the recon layer or a process
 //! runner that is not covered yet, so they are listed in the slice report instead.

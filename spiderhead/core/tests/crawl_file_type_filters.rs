@@ -1,4 +1,4 @@
-//! Ports of the configuration-side tests of the reference suite: the dotted
+//! Reference suite configuration-side tests: the dotted
 //! file-type filter overrides and their validation. The crawl-time tests (URL suffix scope,
 //! response media scope, fetch, cache and resume) need the crawl crate and are deferred.
 

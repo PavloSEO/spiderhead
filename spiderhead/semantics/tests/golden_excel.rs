@@ -4,7 +4,7 @@
 //! The fixture records either `expect.result`+`expect.xlsx` (openpyxl cell
 //! dump) or `expect.error` — the reference stage itself raises `sqlite3
 //! OperationalError` for `scope != "all"` because the `WHERE` fragments are
-//! concatenated without a space; the Rust port must hit the same error.
+//! concatenated without a space; the Rust implementation must hit the same error.
 
 mod golden;
 

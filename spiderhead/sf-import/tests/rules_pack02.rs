@@ -42,7 +42,7 @@ fn the_walk_visits_each_page_once_across_the_whole_pass() {
     // The reference original pins the property with a counting dict — one map
     // lookup per node. The same property holds here by construction (each
     // walk's path is marked walked before the next start is considered), so
-    // the port asserts the observable half: a terminating 2000-page chain
+    // these tests assert the observable half: a terminating 2000-page chain
     // reports no loops and completes without a hop cap.
     let n = 2_000;
     let chain: IndexMap<String, String> = (0..n)

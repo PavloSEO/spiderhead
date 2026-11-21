@@ -3,7 +3,7 @@
 //!
 //! The path form always lands in `guess_file_type`: `urlparse(path).scheme` is
 //! never longer than one character for a split-produced path, so the URL branch
-//! (`data:` handling included) is unreachable and is not ported. The strict
+//! (`data:` handling included) is unreachable and is not implemented. The strict
 //! `types_map` snapshot lives in [`crate::mime_map`] and is regenerated from
 //! the oracle environment.
 

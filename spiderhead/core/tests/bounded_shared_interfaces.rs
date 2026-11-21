@@ -1,4 +1,4 @@
-//! Ports of the pure-contract part of the reference suite. Each test names
+//! Pure-contract tests of the reference suite. Each test names
 //! its source. The CLI/MCP golden tests, the remote backend admission test (its HTTP and
 //! SQLite half), the report, remediation and monitor tests need handler layers that are not
 //! covered yet, so they are listed in the slice report instead.

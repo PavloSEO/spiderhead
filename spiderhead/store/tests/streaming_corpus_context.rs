@@ -1,4 +1,4 @@
-//! Ports of the reference suite: retained corpus reads and duplicate
+//! Reference suite tests: retained corpus reads and duplicate
 //! exclusions preserve every row. The reference streaming cursor has no Rust counterpart (the
 //! retained rows are always materialized), so the streaming variant is checked for identical
 //! output instead of for a lazy container type.

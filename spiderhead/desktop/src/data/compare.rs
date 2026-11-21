@@ -1,7 +1,7 @@
 //! Scan comparison for the "Сравнение" screen: sibling scan files of the open
 //! one, a two-scan page-field diff, and one URL observed in both.
 //!
-//! `compare.v2` (core findings diff + offline verification) is not ported yet;
+//! `compare.v2` (core findings diff + offline verification) is not implemented yet;
 //! this module reads the retained `scan.v1` files directly — page fields,
 //! link counts and outlink sets — so every number is real evidence, and the
 //! screen degrades to the canvas empty/unavailable states when data is thin.

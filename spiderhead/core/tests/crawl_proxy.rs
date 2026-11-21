@@ -1,4 +1,4 @@
-//! Ports of the offline proxy-policy tests in the reference suite.
+//! Reference suite offline proxy-policy tests.
 //!
 //! Only the pure parts are covered: settings resolution, proxy route validation, DNS guards and
 //! run-log redaction. Everything that opens a socket, drives httpx, the CLI, MCP or NativeScan is

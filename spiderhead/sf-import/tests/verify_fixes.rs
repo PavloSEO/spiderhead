@@ -1,4 +1,4 @@
-//! Ports of the reference suite cases that exercise only
+//! Reference suite cases that exercise only
 //! `spiderhead.core.verification`. Handler, CLI and live-recrawl tests stay
 //! deferred: they need the `mcp` handler, the `cli` surface, the `crawl`
 //! collector, or `projects`/`store` remediation ledger.
