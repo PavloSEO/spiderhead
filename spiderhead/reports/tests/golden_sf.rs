@@ -523,7 +523,7 @@ fn golden_tasks_from_audit_v2() {
     let dir = scratch("streamed");
     let scan = dir.join("scan.sqlite");
     let raw =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite");
     std::fs::copy(&raw, &scan).expect("copy raw scan");
     let companion = PathBuf::from(format!("{}.audit-v2.sqlite", scan.display()));
     let bless = spiderhead_oracle_diff::bless_enabled();

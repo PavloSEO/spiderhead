@@ -145,7 +145,7 @@ fn seed_files(case: &Value, work: &Path, tokens: &[(&str, String)]) {
         .filter_map(Value::as_str)
     {
         let source = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../oracle/raw-scans")
+            .join("../../testdata/golden/raw-scans")
             .join(site);
         for entry in std::fs::read_dir(&source).expect("scan seed dir").flatten() {
             let path = entry.path();

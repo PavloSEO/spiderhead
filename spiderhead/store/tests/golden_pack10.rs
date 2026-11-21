@@ -1,5 +1,5 @@
 //! Differential test of the URL query slice (`storage-pack-10`): the reference baseline's answers over
-//! `oracle/raw-scans/basic`, captured by the reference suite, must be reproduced exactly.
+//! `testdata/golden/raw-scans/basic`, captured by the reference suite, must be reproduced exactly.
 
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
@@ -15,7 +15,7 @@ fn root() -> PathBuf {
 
 fn scan() -> String {
     root()
-        .join("oracle/raw-scans/basic/scan.sqlite")
+        .join("testdata/golden/raw-scans/basic/scan.sqlite")
         .to_string_lossy()
         .into_owned()
 }

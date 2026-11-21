@@ -85,7 +85,7 @@ impl RawScan {
         let copy = dir.join("scan.sqlite");
         std::fs::copy(
             root()
-                .join("oracle/raw-scans")
+                .join("testdata/golden/raw-scans")
                 .join(site)
                 .join("scan.sqlite"),
             &copy,

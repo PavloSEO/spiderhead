@@ -131,7 +131,7 @@ const COVERED_CHECKS: &[&str] = &[
 
 fn golden(rel: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../oracle")
+        .join("../../testdata/golden")
         .join(rel)
 }
 

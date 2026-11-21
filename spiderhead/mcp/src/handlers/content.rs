@@ -788,7 +788,7 @@ mod tests {
 
     fn raw(site: &str) -> std::path::PathBuf {
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../oracle/raw-scans")
+            .join("../../testdata/golden/raw-scans")
             .join(site)
             .join("scan.sqlite")
     }

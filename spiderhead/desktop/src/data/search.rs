@@ -170,7 +170,7 @@ mod tests {
     use super::*;
 
     fn scan() -> std::path::PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite")
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite")
     }
 
     #[test]

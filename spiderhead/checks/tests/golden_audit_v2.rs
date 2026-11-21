@@ -1,7 +1,7 @@
 //! Whole-document audit.v2 golden: the Rust audit document written through
 //! `store::audit_v2::write_audit_v2` is read back and structurally diffed
 //! against the reference baselines, after the same normalisation the reference suite
-//! applies (`oracle/NORMALISATION.md`).
+//! applies (`testdata/golden/NORMALISATION.md`).
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -22,7 +22,7 @@ const SITES: [&str; 6] = [
 ];
 
 fn golden_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
 }
 
 /// the reference suite on the Rust side: same rules, same order.

@@ -331,9 +331,9 @@ fn rebaseline() -> bool {
     true
 }
 
-/// Rewrite `oracle/raw-scans/SHA256SUMS.txt` after captures were republished.
+/// Rewrite `testdata/golden/raw-scans/SHA256SUMS.txt` after captures were republished.
 fn refresh_raw_sums() {
-    let dir = Path::new("oracle/raw-scans");
+    let dir = Path::new("testdata/golden/raw-scans");
     let mut files = Vec::new();
     collect_paths(dir, &mut files, &|p| {
         p.extension().is_some_and(|e| e == "sqlite")
@@ -378,11 +378,11 @@ fn collect_paths<F: Fn(&Path) -> bool>(dir: &Path, out: &mut Vec<PathBuf>, accep
 }
 
 /// Walk the fixture trees and return `(compressed_count)`. Fixture scope is
-/// `oracle/**` and every `tests/` subtree; shipped data (`*/data/`) stays
+/// `testdata/golden/**` and every `tests/` subtree; shipped data (`*/data/`) stays
 /// plain. A stale `.zst` sibling of a small `.json` is removed.
 fn compress_big_fixtures() -> usize {
     let mut files = Vec::new();
-    collect_json(Path::new("oracle"), &mut files);
+    collect_json(Path::new("testdata/golden"), &mut files);
     collect_json(Path::new("spiderhead"), &mut files);
     let mut compressed = 0usize;
     for path in files {
@@ -421,7 +421,7 @@ fn zst_sibling(path: &Path) -> PathBuf {
 }
 
 fn is_fixture_path(path: &Path) -> bool {
-    path.starts_with("oracle") || path.components().any(|c| c.as_os_str() == "tests")
+    path.starts_with("testdata/golden") || path.components().any(|c| c.as_os_str() == "tests")
 }
 
 fn collect_json(dir: &Path, out: &mut Vec<PathBuf>) {

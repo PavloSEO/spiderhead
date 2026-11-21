@@ -79,7 +79,7 @@ fn fixture() -> Value {
 }
 
 fn golden_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
 }
 
 fn unified_diff(field: &str, expected: &str, actual: &str) -> String {

@@ -84,7 +84,7 @@ fn golden_searches_match() {
         options.case_sensitive = call.get("case_sensitive") == Some(&json!(true));
         options.include_snippets = call.get("include_snippets") == Some(&json!(true));
         let scan = root()
-            .join("oracle/raw-scans")
+            .join("testdata/golden/raw-scans")
             .join(case["site"].as_str().unwrap())
             .join("scan.sqlite");
         let mut records: Vec<Value> = Vec::new();

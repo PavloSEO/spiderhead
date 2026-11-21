@@ -1,5 +1,5 @@
 //! Differential test of the scan export (`storage-scan_export`): files written by the reference
-//! golden over `oracle/raw-scans/basic` and a trimmed audit document must be reproduced exactly.
+//! golden over `testdata/golden/raw-scans/basic` and a trimmed audit document must be reproduced exactly.
 //! Cases that reach a stub of another slice (audit.v2 reader, capability contract) are reported
 //! as blocked, not passed.
 
@@ -80,7 +80,7 @@ fn golden_exports_match() {
     ))
     .unwrap();
     let scan = root()
-        .join("oracle/raw-scans/basic/scan.sqlite")
+        .join("testdata/golden/raw-scans/basic/scan.sqlite")
         .canonicalize()
         .unwrap();
     let doc = fixtures().join("audit-basic.json").canonicalize().unwrap();
@@ -243,7 +243,7 @@ fn golden_exports_match() {
                 std::env::temp_dir().join(format!("sh-sexport-{site}-{}", std::process::id()));
             std::fs::create_dir_all(&dir).unwrap();
             let input = root()
-                .join("oracle/raw-scans")
+                .join("testdata/golden/raw-scans")
                 .join(site)
                 .join("scan.sqlite")
                 .canonicalize()
@@ -261,7 +261,7 @@ fn golden_exports_match() {
             let mut norm = spiderhead_oracle_diff::Norm::new(&format!("http://127.0.0.1:{port}"));
             let doc = norm.walk(&doc, None);
             let file = root()
-                .join("oracle/baselines")
+                .join("testdata/golden/baselines")
                 .join(site)
                 .join("scan-export.json");
             assert!(spiderhead_oracle_diff::bless_json(&file, &doc));

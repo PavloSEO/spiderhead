@@ -45,8 +45,8 @@ Crates are layered; a crate may depend only on crates of the same or a lower lay
 
 - **Synthetic sites** under `oracle/sites/` (only `example.com` and `*.test` hosts) are served by a fixture server (`oracle/testkit`).
 - **Baselines** in `oracle/baselines/<site>/` are normalised expected outputs with a sha256 manifest. They change only through a reviewed commit, never by hand.
-- **Structural diff** — `oracle/diff` compares JSON after the normalisation described in `oracle/NORMALISATION.md`.
-- **Known divergences** — `oracle/known-divergences.toml` lists approved differences. Anything else is a bug.
+- **Structural diff** — `oracle/diff` compares JSON after the normalisation described in `testdata/golden/NORMALISATION.md`.
+- **Known divergences** — `testdata/golden/known-divergences.toml` lists approved differences. Anything else is a bug.
 
 After merging parallel branches, `cargo build` rejects duplicated dependency lines in `Cargo.toml`; merge those lists by hand (union, alphabetical).
 

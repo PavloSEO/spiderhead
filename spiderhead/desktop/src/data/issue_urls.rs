@@ -229,7 +229,7 @@ mod tests {
 
     fn session() -> ScanSession {
         let path =
-            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite");
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite");
         ScanSession::open(&path).expect("basic scan opens")
     }
 

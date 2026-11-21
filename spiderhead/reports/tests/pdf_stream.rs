@@ -24,7 +24,7 @@ fn tmp(tag: &str) -> PathBuf {
 
 fn raw_scan() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../oracle/raw-scans/basic/scan.sqlite")
+        .join("../../testdata/golden/raw-scans/basic/scan.sqlite")
         .canonicalize()
         .expect("raw scan fixture")
 }

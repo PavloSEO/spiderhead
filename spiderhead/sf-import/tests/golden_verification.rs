@@ -115,7 +115,7 @@ fn build_readers(files: &Map<String, Value>) -> (Scratch, HashMap<String, AuditV
     let mut readers = HashMap::new();
     for (name, file) in files {
         let scan = dir.0.join(format!("{name}.sqlite"));
-        fs::copy(repo("oracle/raw-scans/basic/scan.sqlite"), &scan).unwrap();
+        fs::copy(repo("testdata/golden/raw-scans/basic/scan.sqlite"), &scan).unwrap();
         let binding = {
             let con =
                 Connection::open_with_flags(&scan, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)

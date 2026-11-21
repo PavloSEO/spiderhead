@@ -7,7 +7,7 @@ use spiderhead_store::scan_artifact::open_scan;
 
 fn scan_copy(dir: &Path) -> PathBuf {
     let source =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/errors/scan.sqlite");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/errors/scan.sqlite");
     let target = dir.join("scan.sqlite");
     std::fs::copy(source, &target).unwrap();
     target

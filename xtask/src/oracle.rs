@@ -1,7 +1,7 @@
 //! `cargo xtask oracle --slice <id> [--site <name>] [--baseline-dir D] [--actual-dir D]
 //!  [--known F] [--float-tol X]` and `cargo xtask oracle --self-test`.
 //!
-//! Convention: `oracle/actual/<slice>/**/*.json` mirrors `oracle/baselines/<site>/**`.
+//! Convention: `testdata/golden/actual/<slice>/**/*.json` mirrors `testdata/golden/baselines/<site>/**`.
 //! Missing baseline dir: SKIP (exit 0, reason printed). Missing actual file: FAIL.
 use serde_json::Value;
 use spiderhead_oracle_diff::{diff, report, KnownDivergences, Options};
@@ -55,11 +55,11 @@ pub fn run(args: &[String]) -> bool {
             return false;
         }
     };
-    let base = PathBuf::from(a.baseline_dir.as_deref().unwrap_or("oracle/baselines"));
+    let base = PathBuf::from(a.baseline_dir.as_deref().unwrap_or("testdata/golden/baselines"));
     let known_path = a
         .known
         .as_deref()
-        .unwrap_or("oracle/known-divergences.toml");
+        .unwrap_or("testdata/golden/known-divergences.toml");
     let known = match load_known(Path::new(known_path)) {
         Ok(k) => k,
         Err(e) => {
@@ -77,7 +77,7 @@ pub fn run(args: &[String]) -> bool {
     } else {
         let slice = a.slice.as_deref().unwrap();
         let site = a.site.clone().unwrap_or_else(|| site_for(slice));
-        let actual = PathBuf::from(a.actual_dir.as_deref().unwrap_or("oracle/actual")).join(slice);
+        let actual = PathBuf::from(a.actual_dir.as_deref().unwrap_or("testdata/golden/actual")).join(slice);
         compare_slice(slice, &base.join(&site), &actual, &opts, &known, &mut used)
     };
     if !a.self_test {

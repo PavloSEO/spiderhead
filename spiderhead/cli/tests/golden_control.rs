@@ -226,7 +226,7 @@ fn fresh_work(tag: &str) -> PathBuf {
 /// destination previews read (the env var names it for this surface's run).
 fn prepare_work(work: &Path) {
     let crate_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let raw = crate_dir.join("../../oracle/raw-scans/basic");
+    let raw = crate_dir.join("../../testdata/golden/raw-scans/basic");
     std::fs::copy(raw.join("scan.sqlite"), work.join("scan-basic.sqlite")).expect("scan copy");
     std::fs::copy(
         raw.join("scan.sqlite.audit-v2.sqlite"),

@@ -360,7 +360,7 @@ pub(crate) mod golden_support {
     ];
 
     fn root() -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
     }
 
     /// The raw (un-normalised) scan of one site.

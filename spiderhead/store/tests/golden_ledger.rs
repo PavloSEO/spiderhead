@@ -1,6 +1,6 @@
 //! Differential test of the remediation ledger (`storage-ledger-pack-01`, `storage-ledger-ingest`).
 //!
-//! the reference suite ingests `oracle/raw-scans/basic` with the reference writer, walks a scripted
+//! the reference suite ingests `testdata/golden/raw-scans/basic` with the reference writer, walks a scripted
 //! lifecycle and records every table plus every API answer. The Rust ledger must reproduce the
 //! same rows and answers once timestamps and UUIDs are normalised. The projected source is fed
 //! through `ingest_prepared`, and the real `ingest_scan` path (audit.v2 reader + evidence
@@ -54,7 +54,7 @@ fn normalise(value: &Value) -> Value {
 }
 
 fn raw_scan() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle/raw-scans/basic/scan.sqlite")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite")
 }
 
 // The projection of the raw scan's audit.v2 companion equals the one the reference `ingest_scan` feeds

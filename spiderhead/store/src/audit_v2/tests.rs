@@ -47,7 +47,7 @@ impl Drop for Scratch {
 /// A copy of the `basic` fixture scan (no companion) and its binding.
 fn fixture_scan(dir: &Path) -> (PathBuf, Map<String, Value>) {
     let scan = dir.join("scan.sqlite");
-    fs::copy(repo("oracle/raw-scans/basic/scan.sqlite"), &scan).unwrap();
+    fs::copy(repo("testdata/golden/raw-scans/basic/scan.sqlite"), &scan).unwrap();
     let con =
         Connection::open_with_flags(&scan, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
     let (uuid, rev, ver, wrev): (String, i64, String, String) = con
@@ -285,10 +285,10 @@ fn reader_matches_golden_baselines_for_every_site() {
     for (site, port) in SITES {
         let dir = Scratch::new(site);
         let scan = dir.0.join("scan.sqlite");
-        fs::copy(repo(&format!("oracle/raw-scans/{site}/scan.sqlite")), &scan).unwrap();
+        fs::copy(repo(&format!("testdata/golden/raw-scans/{site}/scan.sqlite")), &scan).unwrap();
         fs::copy(
             repo(&format!(
-                "oracle/raw-scans/{site}/scan.sqlite.audit-v2.sqlite"
+                "testdata/golden/raw-scans/{site}/scan.sqlite.audit-v2.sqlite"
             )),
             audit_v2_path(&scan),
         )
@@ -296,7 +296,7 @@ fn reader_matches_golden_baselines_for_every_site() {
         let base = format!("http://127.0.0.1:{port}");
         let mut norm = Norm::new(base.clone(), body_hash_map(&scan, &base));
         let got = norm.walk(&actual_document(&scan), None);
-        let file = repo(&format!("oracle/baselines/{site}/audit.v2.json"));
+        let file = repo(&format!("testdata/golden/baselines/{site}/audit.v2.json"));
         if spiderhead_oracle_diff::bless_json(&file, &got) {
             continue;
         }
@@ -315,10 +315,10 @@ fn writer_reproduces_golden_companions_byte_for_byte() {
     for (site, _) in SITES {
         let dir = Scratch::new(site);
         let scan = dir.0.join("scan.sqlite");
-        fs::copy(repo(&format!("oracle/raw-scans/{site}/scan.sqlite")), &scan).unwrap();
+        fs::copy(repo(&format!("testdata/golden/raw-scans/{site}/scan.sqlite")), &scan).unwrap();
         fs::copy(
             repo(&format!(
-                "oracle/raw-scans/{site}/scan.sqlite.audit-v2.sqlite"
+                "testdata/golden/raw-scans/{site}/scan.sqlite.audit-v2.sqlite"
             )),
             audit_v2_path(&scan),
         )

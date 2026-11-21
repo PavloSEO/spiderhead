@@ -16,7 +16,7 @@ use spiderhead_store::scan_lease::NativeScanLease;
 use spiderhead_store::scan_schema::NativeScanSchemaMixin;
 
 fn golden_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
 }
 
 struct Scratch(std::path::PathBuf);

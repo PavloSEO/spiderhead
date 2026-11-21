@@ -15,7 +15,7 @@ fn fixtures_root() -> PathBuf {
 }
 
 fn golden_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
 }
 
 /// The golden text normalisation: volatile shapes become stable tokens.

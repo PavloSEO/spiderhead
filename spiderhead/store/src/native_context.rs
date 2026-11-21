@@ -1230,7 +1230,7 @@ mod tests {
     // sorted-key JSON re-emitted from the parsed payload.
     #[test]
     fn raw_scans_validate_and_match_baselines() {
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle");
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden");
         let own = [
             "analysis_asset_thresholds",
             "native_config_extension",

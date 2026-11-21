@@ -1,5 +1,5 @@
 //! Differential test of the corpus-side readers (`storage-pack-03`): the reference baseline's answers
-//! over `oracle/raw-scans/basic`, captured by the reference suite.
+//! over `testdata/golden/raw-scans/basic`, captured by the reference suite.
 
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
@@ -20,7 +20,7 @@ fn fixture() -> Value {
 
 #[test]
 fn golden_scan_directory_tree() {
-    let scan = root().join("oracle/raw-scans/basic/scan.sqlite");
+    let scan = root().join("testdata/golden/raw-scans/basic/scan.sqlite");
     let bless = spiderhead_oracle_diff::bless_enabled();
     let mut fixture = fixture();
     let cases = fixture["scan_tree"].as_array().unwrap().clone();
@@ -143,7 +143,7 @@ fn golden_validate_corpus() {
             continue; // the mutation itself was refused by a schema CHECK
         }
         let source = root()
-            .join("oracle/raw-scans")
+            .join("testdata/golden/raw-scans")
             .join(case["site"].as_str().unwrap())
             .join("scan.sqlite");
         let path = dir.join(format!("scan{i}.sqlite"));
@@ -219,7 +219,7 @@ fn golden_corpus_summaries_match() {
     use spiderhead_store::corpus::{corpus_summary, html_body_retention, rendered_body_retention};
     for (site, expected) in fixture()["summaries"].as_object().unwrap() {
         let path = root()
-            .join("oracle/raw-scans")
+            .join("testdata/golden/raw-scans")
             .join(site)
             .join("scan.sqlite");
         let con = Connection::open_with_flags(&path, OpenFlags::SQLITE_OPEN_READ_ONLY).unwrap();
