@@ -649,16 +649,16 @@ mod tests {
             &"x".repeat(MAX_CHANGELOG_CHARS + 10),
             json!([
                 {
-                    "name": "seohead_seotools-9.9.9-py3-none-any.whl",
+                    "name": "spiderhead-9.9.9.tar.gz",
                     "size": 10,
                     "digest": format!("sha256:{digest}"),
-                    "browser_download_url": "https://github.com/PavloSEO/spiderhead/releases/download/v9.9.9/seohead_seotools-9.9.9-py3-none-any.whl",
+                    "browser_download_url": "https://github.com/PavloSEO/spiderhead/releases/download/v9.9.9/spiderhead-9.9.9.tar.gz",
                 },
                 {
-                    "name": "malicious.whl",
+                    "name": "malicious.tar.gz",
                     "size": 10,
                     "digest": format!("sha256:{digest}"),
-                    "browser_download_url": "https://attacker.example/malicious.whl",
+                    "browser_download_url": "https://attacker.example/malicious.tar.gz",
                 },
             ]),
         )]);
@@ -667,7 +667,7 @@ mod tests {
         assert_eq!(result[0].version, "9.9.9");
         assert_eq!(result[0].changelog.chars().count(), MAX_CHANGELOG_CHARS);
         let names: Vec<&str> = result[0].assets.iter().map(|a| a.name.as_str()).collect();
-        assert_eq!(names, vec!["seohead_seotools-9.9.9-py3-none-any.whl"]);
+        assert_eq!(names, vec!["spiderhead-9.9.9.tar.gz"]);
         assert_eq!(result[0].assets[0].sha256.as_deref(), Some(digest.as_str()));
         assert_eq!(result[0].assets[0].size, Some(10));
     }

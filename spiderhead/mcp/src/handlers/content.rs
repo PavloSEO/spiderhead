@@ -3,6 +3,8 @@
 
 use serde_json::{json, Map, Value};
 
+// The sitemap fetch identity: the recon identity, not the crawler's user agent.
+use spiderhead_core::user_agents::RECON_USER_AGENT as MARKDOWN_EXPORT_SITEMAP_USER_AGENT;
 use spiderhead_parse::markdown_extract::extract_markdown;
 use spiderhead_parse::parser::{fetch_html, FetchOutcome, HtmlFetcher};
 use spiderhead_parse::schema_org::{check_schema, SchemaSource};
@@ -676,9 +678,6 @@ pub fn keywords_cluster(args: &Value) -> Result<Value, ToolError> {
     let args = kwargs(args);
     Ok(spiderhead_checks::clusterer::run(&Value::Object(args)))
 }
-
-/// The sitemap fetch identity: plain httpx, not the crawler's user agent.
-const MARKDOWN_EXPORT_SITEMAP_USER_AGENT: &str = "python-httpx/0.28.1";
 
 /// `markdown_export`: pages of one source (url / urls_file / sitemap) written
 /// as frontmatter'd Markdown files (`mcp/handlers/checks.py::markdown_export`).

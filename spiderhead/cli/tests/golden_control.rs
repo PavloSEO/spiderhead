@@ -304,8 +304,8 @@ fn prepare_work(work: &Path) {
                 "tag": "v9.9.9", "version": "9.9.9", "url": format!("{base}/tag/v9.9.9"),
                 "published_at": null, "changelog": "",
                 "assets": [
-                    {"name": "spiderhead-9.9.9-py3-none-any.whl",
-                     "url": format!("{base}/download/v9.9.9/spiderhead-9.9.9-py3-none-any.whl"),
+                    {"name": "spiderhead-9.9.9.tar.gz",
+                     "url": format!("{base}/download/v9.9.9/spiderhead-9.9.9.tar.gz"),
                      "size": 10, "sha256": "ab".repeat(32)},
                     {"name": "notes.txt", "url": format!("{base}/download/v9.9.9/notes.txt"),
                      "size": 3, "sha256": "cd".repeat(32)},
