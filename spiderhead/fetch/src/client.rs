@@ -69,11 +69,40 @@ const CONNECTION_ATTEMPTS: u32 = 3;
 /// connection the server closed under the request (keep-alive recycling,
 /// HTTP/2 GOAWAY) is not a page failure: the request is repeated on a fresh
 /// connection and only a persistent drop is reported.
-pub async fn get(client: &reqwest::Client, url: &str, user_agent: &str) -> RawResponse {
+pub async fn get(
+    client: &reqwest::Client,
+    url: &str,
+    user_agent: &str,
+    timeout_seconds: f64,
+) -> RawResponse {
     let started = Instant::now();
     let mut attempt = 1;
+    // The retry must not check the request out of the same connection pool:
+    // a server that recycles keep-alive connections can leave several pooled
+    // connections stale at once, and consecutive attempts would each land on
+    // another stale one and all fail (issue #101). Every retry runs on a
+    // one-shot client, so a fresh TCP connection that cannot be stale.
+    let mut retry_client: Option<reqwest::Client> = None;
     loop {
-        match get_once(client, url, user_agent).await {
+        let once_client = if attempt == 1 {
+            client
+        } else {
+            retry_client.get_or_insert_with(|| {
+                match reqwest::Client::builder()
+                    .redirect(reqwest::redirect::Policy::none())
+                    .timeout(Duration::from_secs_f64(timeout_seconds))
+                    .connect_timeout(Duration::from_secs_f64(timeout_seconds))
+                    .pool_max_idle_per_host(0)
+                    .build()
+                {
+                    Ok(fresh) => fresh,
+                    // Builder failure is unreachable in practice; degrade to the
+                    // pooled client (the pooled-retry behaviour) rather than panic.
+                    Err(_) => client.clone(),
+                }
+            })
+        };
+        match get_once(once_client, url, user_agent).await {
             Ok(mut response) => {
                 response.response_time = round3(started.elapsed().as_secs_f64());
                 return response;

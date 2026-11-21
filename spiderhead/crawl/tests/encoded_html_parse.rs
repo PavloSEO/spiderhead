@@ -51,6 +51,7 @@ async fn crawl_one(url: &str) -> spiderhead_crawl::collect::Fetched {
         &throttle,
         url,
         "test-agent",
+        10.0,
         0,
         0,
         5_242_880,

@@ -1,7 +1,9 @@
 //! Networked crawl: fetch, redirect handling, traversal and per-root capture.
 
 use super::parse::*;
+use super::stream::{stream_elements, validate_document, StreamEvent, StreamScan};
 use super::urls::*;
+use super::xml::decode_bytes;
 use serde_json::{json, Map, Value};
 use spiderhead_parse::py_url;
 
@@ -74,7 +76,9 @@ pub async fn fetch_document(
 /// `MAX_REDIRECTS`: redirect hops one sitemap fetch may follow.
 pub const MAX_REDIRECTS: usize = 8;
 
-/// One parsed document in the traversal queue.
+/// One fetched document and what its streaming produced. Index children were
+/// already enqueued and urlset entries already accepted; the kind carries the
+/// document's own counters for the per-document `sitemaps` record.
 pub(super) struct ParsedDoc {
     url: String,
     kind: ParsedKind,
@@ -82,11 +86,13 @@ pub(super) struct ParsedDoc {
 }
 
 pub(super) enum ParsedKind {
+    /// A sitemapindex: `declared` counts every valid child of the document.
     Index {
-        children: Vec<Value>,
+        declared: usize,
     },
+    /// A urlset or text sitemap: `declared` counts every delivered entry.
     Entries {
-        entries: Vec<Value>,
+        declared: usize,
         doc_type: &'static str,
     },
     Unknown,
@@ -106,90 +112,197 @@ pub(super) struct Walk {
 }
 
 impl Walk {
-    fn enqueue(&mut self, target: String, source: &str) {
-        if !self.visited.contains(&target) && !self.queued.contains(&target) {
-            self.frontier.push(target.clone());
-            self.queued.insert(target.clone());
-            self.source_of.insert(target, source.to_owned());
+    /// Enqueue one sitemap document. `false` when the `MAX_SITEMAPS` ceiling
+    /// refused it: the queue is bounded (issue #46), the walk is truncated,
+    /// and documents past the ceiling are never fetched.
+    fn enqueue(&mut self, target: String, source: &str) -> bool {
+        if self.visited.contains(&target) || self.queued.contains(&target) {
+            return true;
         }
+        if self.visited.len() + self.frontier.len() >= MAX_SITEMAPS {
+            self.truncated = true;
+            return false;
+        }
+        self.frontier.push(target.clone());
+        self.queued.insert(target.clone());
+        self.source_of.insert(target, source.to_owned());
+        true
     }
+}
 
-    async fn process(
-        &mut self,
-        client: &reqwest::Client,
-        user_agent: &str,
-        gate: Option<&mut spiderhead_fetch::throttle::Throttle>,
-        target: &str,
-    ) -> ParsedDoc {
-        if let Some(gate) = gate {
-            gate.wait().await;
-        }
-        let document = match fetch_document(client, user_agent, target).await {
-            Ok(document) => document,
-            Err(error) => {
-                return ParsedDoc {
-                    url: target.to_owned(),
-                    kind: ParsedKind::Failed(error),
-                    bytes: 0,
-                };
-            }
-        };
-        let bytes = document.body.len();
-        let parsed = parse_sitemap(&document.body, &document.url);
-        if parsed.get("ok") != Some(&json!(true)) {
-            let error = parsed
-                .get("error")
-                .and_then(Value::as_str)
-                .unwrap_or("parse error")
-                .to_owned();
+/// Fetch one sitemap document and stream it: index children enqueue and
+/// urlset entries accept as the parser yields them, so nothing buffers the
+/// document's tree (issue #46). Well-formed XML streams through quick-xml;
+/// anything it refuses falls back to the tolerant document parse, bounded by
+/// the fetched-body cap.
+async fn process_target(
+    walk: &mut Walk,
+    accepted: &mut Accepted,
+    client: &reqwest::Client,
+    user_agent: &str,
+    gate: Option<&mut spiderhead_fetch::throttle::Throttle>,
+    target: &str,
+) -> ParsedDoc {
+    if let Some(gate) = gate {
+        gate.wait().await;
+    }
+    let document = match fetch_document(client, user_agent, target).await {
+        Ok(document) => document,
+        Err(error) => {
             return ParsedDoc {
                 url: target.to_owned(),
                 kind: ParsedKind::Failed(error),
-                bytes,
+                bytes: 0,
             };
         }
-        match parsed.get("type").and_then(Value::as_str) {
-            Some("index") => ParsedDoc {
-                url: target.to_owned(),
-                kind: ParsedKind::Index {
-                    children: parsed
-                        .get("sitemaps")
-                        .and_then(Value::as_array)
-                        .cloned()
-                        .unwrap_or_default(),
+    };
+    let bytes = document.body.len();
+    let kind = stream_document(walk, accepted, &document.body, &document.url);
+    ParsedDoc {
+        url: target.to_owned(),
+        kind,
+        bytes,
+    }
+}
+
+/// Stream one fetched document into the walk. Synchronous: no awaits between
+/// the first and last child, so the accepted order stays document order.
+fn stream_document(
+    walk: &mut Walk,
+    accepted: &mut Accepted,
+    body: &[u8],
+    base_url: &str,
+) -> ParsedKind {
+    // Plain-text sitemap: one URL per line. A body without '<' is not XML
+    // (an empty body is a text sitemap with no entries, like the document
+    // parse answers).
+    let head: Vec<u8> = body
+        .iter()
+        .copied()
+        .skip_while(|b| b.is_ascii_whitespace())
+        .take(512)
+        .collect();
+    if body.is_empty() || (!head.is_empty() && !head.contains(&b'<')) {
+        let mut declared = 0usize;
+        stream_text_sitemap(body, base_url, &mut |entry| {
+            declared += 1;
+            accept_one(accepted, base_url, &entry);
+        });
+        return ParsedKind::Entries {
+            declared,
+            doc_type: "text",
+        };
+    }
+
+    let text = decode_bytes(body);
+    match validate_document(&text) {
+        StreamScan::Clean => {
+            let mut root: Option<&'static str> = None;
+            let mut declared = 0usize;
+            stream_elements(&text, &mut |event| match event {
+                StreamEvent::Root(name) => {
+                    root = match name.as_str() {
+                        "sitemapindex" => Some("index"),
+                        "urlset" => Some("urlset"),
+                        _ => Some("unknown"),
+                    };
+                }
+                StreamEvent::Child(child) => match root {
+                    Some("index") => {
+                        if child.name != "sitemap" {
+                            return;
+                        }
+                        let Some(loc) = child.child_text("loc").filter(|loc| !loc.is_empty())
+                        else {
+                            return;
+                        };
+                        declared += 1;
+                        let joined =
+                            py_url::urljoin(base_url, &loc).unwrap_or_else(|_| loc.clone());
+                        if let Ok(norm) = normalize_url(&joined) {
+                            walk.enqueue(norm, base_url);
+                        }
+                    }
+                    Some("urlset") => {
+                        if child.name != "url" {
+                            return;
+                        }
+                        let Some(entry) = urlset_entry(&child, base_url) else {
+                            return;
+                        };
+                        declared += 1;
+                        accept_one(accepted, base_url, &entry);
+                    }
+                    _ => {}
                 },
-                bytes,
-            },
-            Some("urlset") => ParsedDoc {
-                url: target.to_owned(),
-                kind: ParsedKind::Entries {
-                    entries: parsed
-                        .get("urls")
-                        .and_then(Value::as_array)
-                        .cloned()
-                        .unwrap_or_default(),
+            });
+            match root {
+                Some("index") => ParsedKind::Index { declared },
+                Some("urlset") => ParsedKind::Entries {
+                    declared,
                     doc_type: "urlset",
                 },
-                bytes,
-            },
-            Some("text") => ParsedDoc {
-                url: target.to_owned(),
-                kind: ParsedKind::Entries {
-                    entries: parsed
-                        .get("urls")
-                        .and_then(Value::as_array)
-                        .cloned()
-                        .unwrap_or_default(),
-                    doc_type: "text",
-                },
-                bytes,
-            },
-            _ => ParsedDoc {
-                url: target.to_owned(),
-                kind: ParsedKind::Unknown,
-                bytes,
-            },
+                _ => ParsedKind::Unknown,
+            }
         }
+        StreamScan::NoRoot => ParsedKind::Failed("XML parse error: empty document".to_owned()),
+        StreamScan::Malformed => tolerant_fallback(walk, accepted, body, base_url),
+    }
+}
+
+/// The tolerant document parse, the pinned behaviour for input quick-xml
+/// refuses. Bounded by the fetched-body cap, so buffering it is transient.
+fn tolerant_fallback(
+    walk: &mut Walk,
+    accepted: &mut Accepted,
+    body: &[u8],
+    base_url: &str,
+) -> ParsedKind {
+    let parsed = parse_sitemap(body, base_url);
+    if parsed.get("ok") != Some(&json!(true)) {
+        let error = parsed
+            .get("error")
+            .and_then(Value::as_str)
+            .unwrap_or("parse error")
+            .to_owned();
+        return ParsedKind::Failed(error);
+    }
+    match parsed.get("type").and_then(Value::as_str) {
+        Some("index") => {
+            let children = parsed
+                .get("sitemaps")
+                .and_then(Value::as_array)
+                .cloned()
+                .unwrap_or_default();
+            for child in &children {
+                if let Ok(norm) =
+                    normalize_url(child.get("loc").and_then(Value::as_str).unwrap_or_default())
+                {
+                    walk.enqueue(norm, base_url);
+                }
+            }
+            ParsedKind::Index {
+                declared: children.len(),
+            }
+        }
+        Some("urlset") | Some("text") => {
+            let entries = parsed
+                .get("urls")
+                .and_then(Value::as_array)
+                .cloned()
+                .unwrap_or_default();
+            let declared = entries.len();
+            accept_entries(accepted, base_url, &entries);
+            ParsedKind::Entries {
+                declared,
+                doc_type: if parsed.get("type").and_then(Value::as_str) == Some("text") {
+                    "text"
+                } else {
+                    "urlset"
+                },
+            }
+        }
+        _ => ParsedKind::Unknown,
     }
 }
 
@@ -211,68 +324,75 @@ pub(super) struct Accepted {
 /// URLs across thousands of documents must not grow the answer without bound.
 pub(super) const MAX_DUPLICATES: usize = 100_000;
 
-/// Accept one document's entries, applying the shared truncation limits.
+/// Accept a parsed document's entries in order (the tolerant fallback path and
+/// the unit tests); the streaming path calls [`accept_one`] per entry instead.
 pub(super) fn accept_entries(accepted: &mut Accepted, target: &str, entries: &[Value]) {
     for entry in entries {
-        let raw_loc = entry.get("loc").and_then(Value::as_str).unwrap_or_default();
-        let Ok(norm_loc) = normalize_url(raw_loc) else {
-            continue;
-        };
-        if !accepted.seen.insert(norm_loc.clone()) {
-            if accepted.duplicates.len() < MAX_DUPLICATES {
-                accepted.duplicates.push(norm_loc.clone());
-                let sources = accepted
-                    .duplicate_sources
-                    .entry(norm_loc.clone())
-                    .or_insert_with(|| json!([target]));
-                if let Some(list) = sources.as_array_mut() {
-                    if !list.iter().any(|s| s.as_str() == Some(target)) {
-                        list.push(json!(target));
-                    }
-                }
-            } else {
-                accepted.duplicates_truncated = true;
-            }
-            continue;
-        }
-        if accepted.urls.len() >= MAX_URLS {
-            // `truncated` is a walk-level flag, read by the caller after the batch.
-            // Entries past the cap are drained, never appended.
-            break;
-        }
-        let mut stored = json!({
-            "loc": raw_loc,
-            "loc_normalized": norm_loc,
-            "lastmod": entry.get("lastmod").cloned().unwrap_or(Value::Null),
-            "changefreq": entry.get("changefreq").cloned().unwrap_or(Value::Null),
-            "priority": entry.get("priority").cloned().unwrap_or(Value::Null),
-        });
-        for name in ["images", "news", "videos", "alternates"] {
-            if let Some(value) = entry.get(name) {
-                if value.as_array().is_some_and(|a| !a.is_empty())
-                    || value.as_object().is_some_and(|o| !o.is_empty())
-                {
-                    stored[name] = value.clone();
-                }
-            }
-        }
-        accepted.extension_counts[0] += stored
-            .get("images")
-            .and_then(Value::as_array)
-            .map(Vec::len)
-            .unwrap_or(0) as i64;
-        accepted.extension_counts[1] += i64::from(
-            stored
-                .get("news")
-                .is_some_and(|n| n.as_object().is_some_and(|o| !o.is_empty())),
-        );
-        accepted.extension_counts[2] += stored
-            .get("videos")
-            .and_then(Value::as_array)
-            .map(Vec::len)
-            .unwrap_or(0) as i64;
-        accepted.urls.push(stored);
+        accept_one(accepted, target, entry);
     }
+}
+
+/// Accept one entry, applying the shared truncation limits. Entries past the
+/// member cap are drained, never appended.
+pub(super) fn accept_one(accepted: &mut Accepted, target: &str, entry: &Value) {
+    let raw_loc = entry.get("loc").and_then(Value::as_str).unwrap_or_default();
+    let Ok(norm_loc) = normalize_url(raw_loc) else {
+        return;
+    };
+    if !accepted.seen.insert(norm_loc.clone()) {
+        if accepted.duplicates.len() < MAX_DUPLICATES {
+            accepted.duplicates.push(norm_loc.clone());
+            let sources = accepted
+                .duplicate_sources
+                .entry(norm_loc.clone())
+                .or_insert_with(|| json!([target]));
+            if let Some(list) = sources.as_array_mut() {
+                if !list.iter().any(|s| s.as_str() == Some(target)) {
+                    list.push(json!(target));
+                }
+            }
+        } else {
+            accepted.duplicates_truncated = true;
+        }
+        return;
+    }
+    if accepted.urls.len() >= MAX_URLS {
+        // `truncated` is a walk-level flag, read by the caller after the document.
+        // Entries past the cap are drained, never appended.
+        return;
+    }
+    let mut stored = json!({
+        "loc": raw_loc,
+        "loc_normalized": norm_loc,
+        "lastmod": entry.get("lastmod").cloned().unwrap_or(Value::Null),
+        "changefreq": entry.get("changefreq").cloned().unwrap_or(Value::Null),
+        "priority": entry.get("priority").cloned().unwrap_or(Value::Null),
+    });
+    for name in ["images", "news", "videos", "alternates"] {
+        if let Some(value) = entry.get(name) {
+            if value.as_array().is_some_and(|a| !a.is_empty())
+                || value.as_object().is_some_and(|o| !o.is_empty())
+            {
+                stored[name] = value.clone();
+            }
+        }
+    }
+    accepted.extension_counts[0] += stored
+        .get("images")
+        .and_then(Value::as_array)
+        .map(Vec::len)
+        .unwrap_or(0) as i64;
+    accepted.extension_counts[1] += i64::from(
+        stored
+            .get("news")
+            .is_some_and(|n| n.as_object().is_some_and(|o| !o.is_empty())),
+    );
+    accepted.extension_counts[2] += stored
+        .get("videos")
+        .and_then(Value::as_array)
+        .map(Vec::len)
+        .unwrap_or(0) as i64;
+    accepted.urls.push(stored);
 }
 
 /// The robots.txt discovery answers of a site-root crawl.
@@ -384,10 +504,6 @@ pub async fn crawl(
     }
 
     while !walk.frontier.is_empty() && !walk.truncated {
-        if walk.visited.len() >= MAX_SITEMAPS {
-            walk.truncated = true;
-            break;
-        }
         let batch: Vec<String> = walk
             .frontier
             .drain(..)
@@ -399,12 +515,19 @@ pub async fn crawl(
         }
         for target in &batch {
             if walk.truncated {
-                // The cap tripped earlier in this batch: drain, never append.
+                // The ceiling tripped earlier in this batch: drain, never append.
                 break;
             }
-            let result = walk
-                .process(client, user_agent, gate.as_deref_mut(), target)
-                .await;
+            let before = accepted.urls.len();
+            let result = process_target(
+                &mut walk,
+                &mut accepted,
+                client,
+                user_agent,
+                gate.as_deref_mut(),
+                target,
+            )
+            .await;
             match result.kind {
                 ParsedKind::Failed(error) => {
                     walk.errors.push(json!({"url": result.url, "error": error}));
@@ -413,28 +536,19 @@ pub async fn crawl(
                     walk.errors
                         .push(json!({"url": result.url, "error": "Unknown sitemap format"}));
                 }
-                ParsedKind::Index { children } => {
+                ParsedKind::Index { declared } => {
                     walk.parsed_documents += 1;
                     walk.sitemaps.push(json!({
                         "url": result.url,
                         "source": walk.source_of.get(&result.url).cloned().unwrap_or_else(|| "sitemap index".to_owned()),
                         "type": "index",
-                        "count": children.len(),
+                        "count": declared,
                         "bytes": result.bytes,
-                        "declared": children.len(),
+                        "declared": declared,
                     }));
-                    for child in &children {
-                        if let Ok(norm) = normalize_url(
-                            child.get("loc").and_then(Value::as_str).unwrap_or_default(),
-                        ) {
-                            walk.enqueue(norm, &result.url.clone());
-                        }
-                    }
                 }
-                ParsedKind::Entries { entries, doc_type } => {
+                ParsedKind::Entries { declared, doc_type } => {
                     walk.parsed_documents += 1;
-                    let before = accepted.urls.len();
-                    accept_entries(&mut accepted, &result.url, &entries);
                     if accepted.urls.len() >= MAX_URLS && accepted.urls.len() > before {
                         walk.truncated = true;
                     }
@@ -443,7 +557,7 @@ pub async fn crawl(
                         "source": walk.source_of.get(&result.url).cloned().unwrap_or_else(|| "sitemap index".to_owned()),
                         "type": doc_type,
                         "count": accepted.urls.len() - before,
-                        "declared": entries.len(),
+                        "declared": declared,
                         "bytes": result.bytes,
                     }));
                 }
