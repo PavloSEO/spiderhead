@@ -1,4 +1,4 @@
-//! Replay `cloudflare_traffic_oracle.json` — reference `traffic`/`logpull`/
+//! Replay `cloudflare_traffic_golden.json` — reference `traffic`/`logpull`/
 //! `read_token`/`verify_token` driven by scripted ops: a canned transport queue,
 //! seam specs for bindings/history/open_project/import_logs/raw replies, sandbox
 //! filesystem setup, and recorded calls/spend to diff. `$BASE`/`$HOME`/`$TMP` are
@@ -560,7 +560,7 @@ async fn run_scenario(scenario: &Value, dir: &Path) -> Vec<String> {
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_cloudflare_traffic() {
-    let scenarios = load_fixture("cloudflare_traffic_oracle.json");
+    let scenarios = load_fixture("cloudflare_traffic_golden.json");
     let mut failures = Vec::new();
     let mut ops = 0usize;
     for scenario in &scenarios {

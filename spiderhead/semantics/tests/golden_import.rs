@@ -1,4 +1,4 @@
-//! `import` stage vs the reference baseline (`tests/fixtures/import_oracle.json`).
+//! `import` stage vs the reference baseline (`tests/fixtures/import_golden.json`).
 
 mod golden;
 

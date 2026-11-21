@@ -24,7 +24,7 @@ fn language_guard() -> MutexGuard<'static, ()> {
 }
 
 fn fixture_path() -> std::path::PathBuf {
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tui_oracle.json")
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tui_golden.json")
 }
 
 fn fixture() -> Value {

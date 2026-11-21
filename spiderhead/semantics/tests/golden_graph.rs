@@ -1,4 +1,4 @@
-//! `graph` stage golden check (the reference suite → `graph_oracle.json`).
+//! `graph` stage golden check (the reference suite → `graph_golden.json`).
 
 mod golden;
 

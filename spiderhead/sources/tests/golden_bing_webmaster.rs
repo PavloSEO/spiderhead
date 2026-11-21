@@ -1,4 +1,4 @@
-//! Golden-diff test for the Bing Webmaster client against `bing_webmaster_oracle.json`,
+//! Golden-diff test for the Bing Webmaster client against `bing_webmaster_golden.json`,
 //! recorded by the reference suite running the reference implementation.
 
 mod common;
@@ -9,7 +9,7 @@ use spiderhead_sources::bing_webmaster;
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_bing_webmaster() {
-    for scenario in load_fixture("bing_webmaster_oracle.json") {
+    for scenario in load_fixture("bing_webmaster_golden.json") {
         let (host, root) = scenario_host(&scenario);
         let responses = scenario
             .get("responses")

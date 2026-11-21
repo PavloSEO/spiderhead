@@ -1,6 +1,6 @@
 //! Differential tests of the slice w2-p3 functions against the reference checks package.
 //!
-//! Fixture `fixtures/checks_oracle.json` (generator the reference suite) holds the outputs
+//! Fixture `fixtures/checks_golden.json` (recorded by the reference suite) holds the outputs
 //! of `text_normalize`, `navigation`, `link_context` and the pure `asset_weight` helpers. Every
 //! record is compared field by field; a record that raised in reference must be an error here with
 //! the same message. `CHECKS_FIXTURE` overrides the fixture path, `CHECKS_SHOW` the number of
@@ -27,7 +27,7 @@ use spiderhead_parse::types::ContentAreaConfig;
 
 fn default_fixture() -> String {
     spiderhead_testkit::fixture_text(
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checks_oracle.json"),
+        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checks_golden.json"),
     )
 }
 

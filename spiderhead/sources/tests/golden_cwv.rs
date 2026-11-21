@@ -1,4 +1,4 @@
-//! Golden-diff test for the pure CWV assessment against `cwv_oracle.json`
+//! Golden-diff test for the pure CWV assessment against `cwv_golden.json`
 //! (the reference suite on the reference implementation).
 
 mod common;
@@ -10,7 +10,7 @@ use spiderhead_sources::cwv;
 // no requests; only the projected result/error is compared.
 #[test]
 fn golden_cwv() {
-    for scenario in load_fixture("cwv_oracle.json") {
+    for scenario in load_fixture("cwv_golden.json") {
         let name = scenario.get("name").and_then(Value::as_str).unwrap_or("?");
         let record = scenario
             .get("args")

@@ -595,12 +595,12 @@ async fn golden_yandex() {
     // File-writing ops (`save_to`) use relative paths — run the whole replay inside
     // a scratch cwd so `yandex_tmp/` never lands in the repository.
     let original_cwd = std::env::current_dir().unwrap();
-    let scratch = std::env::temp_dir().join(format!("yandex_oracle_{}", std::process::id()));
+    let scratch = std::env::temp_dir().join(format!("yandex_golden_{}", std::process::id()));
     std::fs::create_dir_all(&scratch).unwrap();
     std::env::set_current_dir(&scratch).unwrap();
 
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        let path = fixtures_dir().join("yandex_oracle.json");
+        let path = fixtures_dir().join("yandex_golden.json");
         let text = std::fs::read_to_string(&path)
             .unwrap_or_else(|e| panic!("fixture {}: {e}", path.display()));
         serde_json::from_str::<Value>(&text).expect("fixture parses")

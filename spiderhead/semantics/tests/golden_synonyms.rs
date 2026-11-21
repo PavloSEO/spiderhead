@@ -1,4 +1,4 @@
-//! `synonyms` stage golden check (the reference suite → `synonyms_oracle.json`).
+//! `synonyms` stage golden check (the reference suite → `synonyms_golden.json`).
 
 mod golden;
 

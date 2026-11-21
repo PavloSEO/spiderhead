@@ -98,7 +98,7 @@ fn assert_eq_diff(case: &str, expected: &Json, got: &Json) {
 
 #[test]
 fn golden_tech() {
-    for case in fixture("tech_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("tech_golden.json")["cases"].as_array().unwrap() {
         let i = &case["input"];
         let input = tech::AnalyzeInput {
             headers: i["headers"]
@@ -144,7 +144,7 @@ fn golden_tech() {
 fn golden_tech_db() {
     let dir = std::env::temp_dir().join(format!("recon-techdb-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
-    for case in fixture("tech_db_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("tech_db_golden.json")["cases"].as_array().unwrap() {
         let cat = dir.join("categories.json");
         let techs = dir.join("db.json");
         std::fs::write(
@@ -194,7 +194,7 @@ fn golden_tech_db() {
 
 #[test]
 fn golden_ai_bots() {
-    for case in fixture("ai_bots_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("ai_bots_golden.json")["cases"].as_array().unwrap() {
         let got = ai_bots::check_ai_access(case["robots"].as_str().unwrap());
         assert_eq_diff(case["name"].as_str().unwrap(), &case["expected"], &got);
     }
@@ -202,7 +202,7 @@ fn golden_ai_bots() {
 
 #[test]
 fn golden_regions() {
-    for case in fixture("regions_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("regions_golden.json")["cases"].as_array().unwrap() {
         let got = match case["kind"].as_str().unwrap() {
             "detect_region" => regions::detect_region(case["token"].as_str().unwrap())
                 .map(|s| json!(s))
@@ -226,7 +226,7 @@ fn golden_regions() {
 
 #[test]
 fn golden_security() {
-    for case in fixture("security_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("security_golden.json")["cases"].as_array().unwrap() {
         let url = case["url"].as_str().unwrap();
         if url.is_empty() {
             continue;
@@ -243,7 +243,7 @@ fn golden_security() {
 
 #[test]
 fn golden_cdn() {
-    for case in fixture("cdn_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("cdn_golden.json")["cases"].as_array().unwrap() {
         let url = case["url"].as_str().unwrap();
         let client = client_of(&case["responses"]);
         let got = if url.is_empty() {
@@ -261,7 +261,7 @@ fn golden_cdn() {
 
 #[test]
 fn golden_backlinks() {
-    for case in fixture("backlinks_oracle.json")["cases"]
+    for case in fixture("backlinks_golden.json")["cases"]
         .as_array()
         .unwrap()
     {
@@ -284,7 +284,7 @@ fn golden_backlinks() {
 
 #[test]
 fn golden_backlink_profile() {
-    for case in fixture("backlink_profile_oracle.json")["cases"]
+    for case in fixture("backlink_profile_golden.json")["cases"]
         .as_array()
         .unwrap()
     {
@@ -331,7 +331,7 @@ fn golden_backlink_profile() {
 
 #[test]
 fn golden_domain() {
-    for case in fixture("domain_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("domain_golden.json")["cases"].as_array().unwrap() {
         let rdap_result = case["rdap"].clone();
         let doh_map = case["doh"].clone();
         let whois_text = case["whois"][0].as_str().map(str::to_string);
@@ -376,7 +376,7 @@ fn golden_domain() {
 
 #[test]
 fn golden_robots() {
-    for case in fixture("robots_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("robots_golden.json")["cases"].as_array().unwrap() {
         let client = client_of(&case["responses"]);
         let paths: Vec<String> = case["paths"]
             .as_array()
@@ -398,7 +398,7 @@ fn golden_robots() {
 
 #[test]
 fn golden_links() {
-    for case in fixture("links_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("links_golden.json")["cases"].as_array().unwrap() {
         let client = client_of(&case["responses"]);
         let got = links_check::check_links_with(
             &client,
@@ -412,7 +412,7 @@ fn golden_links() {
 
 #[test]
 fn golden_hreflang() {
-    for case in fixture("hreflang_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("hreflang_golden.json")["cases"].as_array().unwrap() {
         let client = client_of(&case["responses"]);
         let got = hreflang_check::check_hreflang_with(&client, case["url"].as_str().unwrap());
         assert_eq_diff(case["name"].as_str().unwrap(), &case["expected"], &got);
@@ -421,7 +421,7 @@ fn golden_hreflang() {
 
 #[test]
 fn golden_redirects() {
-    for case in fixture("redirects_oracle.json")["cases"]
+    for case in fixture("redirects_golden.json")["cases"]
         .as_array()
         .unwrap()
     {
@@ -441,7 +441,7 @@ fn golden_redirects() {
 
 #[test]
 fn golden_llms_txt() {
-    for case in fixture("llms_txt_oracle.json")["cases"].as_array().unwrap() {
+    for case in fixture("llms_txt_golden.json")["cases"].as_array().unwrap() {
         let client = client_of(&case["responses"]);
         let got = llms_txt::check_llms_txt_with(
             &client,

@@ -1,5 +1,5 @@
 //! `excel` stage golden check against the reference baseline fixture
-//! (the reference suite → `tests/fixtures/excel_oracle.json`).
+//! (the reference suite → `tests/fixtures/excel_golden.json`).
 //!
 //! The fixture records either `expect.result`+`expect.xlsx` (openpyxl cell
 //! dump) or `expect.error` — the reference stage itself raises `sqlite3

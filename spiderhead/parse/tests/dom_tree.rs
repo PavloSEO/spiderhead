@@ -1,6 +1,6 @@
 //! Differential test of the libxml2-compatible tree builder against lxml/bs4 trees.
 //!
-//! Fixture: `fixtures/parse_oracle.json` (generator the reference suite). Set `DOM_FIXTURE`
+//! Fixture: `fixtures/parse_golden.json` (recorded by the reference suite). Set `DOM_FIXTURE`
 //! to a scratch fixture path (e.g. a fuzz corpus) to run the same comparison on it.
 
 use scraper::Node;
@@ -68,7 +68,7 @@ fn tree_matches_lxml() {
         Some(p) => std::fs::read_to_string(p).unwrap_or_default(),
         None => spiderhead_testkit::fixture_text(
             &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("tests/fixtures/parse_oracle.json"),
+                .join("tests/fixtures/parse_golden.json"),
         ),
     };
     let rows: Vec<Value> = serde_json::from_str(&text).unwrap_or_default();

@@ -1,4 +1,4 @@
-//! Golden-diff test for the Clarity Data Export client against `clarity_oracle.json`.
+//! Golden-diff test for the Clarity Data Export client against `clarity_golden.json`.
 
 mod common;
 
@@ -8,7 +8,7 @@ use spiderhead_sources::clarity;
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_clarity() {
-    for scenario in load_fixture("clarity_oracle.json") {
+    for scenario in load_fixture("clarity_golden.json") {
         let args = scenario.get("args").cloned().unwrap_or_default();
         let transport = StubTransport::new(
             scenario

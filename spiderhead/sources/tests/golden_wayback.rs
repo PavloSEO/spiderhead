@@ -1,4 +1,4 @@
-//! Golden-diff test for the Wayback CDX client against `wayback_oracle.json`.
+//! Golden-diff test for the Wayback CDX client against `wayback_golden.json`.
 
 mod common;
 
@@ -8,7 +8,7 @@ use spiderhead_sources::wayback;
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_wayback() {
-    for scenario in load_fixture("wayback_oracle.json") {
+    for scenario in load_fixture("wayback_golden.json") {
         let responses = scenario
             .get("responses")
             .and_then(Value::as_array)

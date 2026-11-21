@@ -1,7 +1,7 @@
 //! Differential tests for the sf reporters and the tasks pipeline.
 //!
 //! the reference suite (run with the golden venv) emits
-//! `tests/fixtures/sf_oracle.json`; every assertion here rebuilds the same
+//! `tests/fixtures/sf_golden.json`; every assertion here rebuilds the same
 //! `AuditResult` the reference generator built from the reference suite and
 //! compares outputs — zero diffs.
 
@@ -13,7 +13,7 @@ use spiderhead_reports::sf_reporters;
 use spiderhead_reports::sf_tasks;
 
 fn fixture_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/sf_oracle.json")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/sf_golden.json")
 }
 
 fn fixtures() -> Value {

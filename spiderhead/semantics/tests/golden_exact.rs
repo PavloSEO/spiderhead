@@ -1,5 +1,5 @@
 //! `exact` stage golden check against the reference baseline fixture
-//! (the reference suite → `tests/fixtures/exact_oracle.json`).
+//! (the reference suite → `tests/fixtures/exact_golden.json`).
 
 mod golden;
 

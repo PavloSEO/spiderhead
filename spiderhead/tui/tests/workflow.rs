@@ -32,7 +32,7 @@ fn palette() -> theme::Palette {
 
 fn fixture() -> Value {
     spiderhead_testkit::fixture_json(
-        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tui_oracle.json"),
+        &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/tui_golden.json"),
     )
 }
 
