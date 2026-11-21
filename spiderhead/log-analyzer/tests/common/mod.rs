@@ -9,9 +9,9 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use serde_json::Value;
+use spiderhead_golden::{diff, report, Options};
 use spiderhead_log_analyzer::dns::{Clock, DnsFailure, Resolver, SystemClock, Verifier};
 use spiderhead_log_analyzer::import::{ProjectManifest, ProjectManifestLoader};
-use spiderhead_golden::{diff, report, Options};
 
 pub fn fixtures() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")

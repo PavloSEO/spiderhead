@@ -54,7 +54,8 @@ fn normalise(value: &Value) -> Value {
 }
 
 fn raw_scan() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../testdata/golden/raw-scans/basic/scan.sqlite")
 }
 
 // The projection of the raw scan's audit.v2 companion equals the one the reference `ingest_scan` feeds
@@ -276,8 +277,7 @@ fn prepared_fixture_value() -> Value {
 fn golden_ledger() {
     let expected = json_file("ledger-expected.json");
     let answers = &expected["answers"];
-    let mut blessed: Option<Map<String, Value>> =
-        spiderhead_golden::bless_enabled().then(Map::new);
+    let mut blessed: Option<Map<String, Value>> = spiderhead_golden::bless_enabled().then(Map::new);
     let source = if blessed.is_some() {
         prepared_fixture_value()
     } else {
@@ -566,10 +566,7 @@ fn golden_ledger() {
             }],
         });
         let artifact_path = fixtures().join("verification-basic.json");
-        assert!(spiderhead_golden::bless_json(
-            &artifact_path,
-            &artifact
-        ));
+        assert!(spiderhead_golden::bless_json(&artifact_path, &artifact));
         k0.to_string()
     } else {
         answers["verification_pending_key"]

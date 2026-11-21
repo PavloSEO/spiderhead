@@ -20,8 +20,8 @@ fn scratch(tag: &str) -> PathBuf {
 
 /// A private copy of the basic golden scan, so tests can rewrite its capability row.
 fn basic_copy(dir: &Path) -> PathBuf {
-    let source =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite");
+    let source = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../testdata/golden/raw-scans/basic/scan.sqlite");
     let target = dir.join("scan.sqlite");
     fs::copy(&source, &target).unwrap();
     target

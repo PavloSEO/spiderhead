@@ -1,5 +1,5 @@
-//! `cargo xtask oracle --slice <id> [--site <name>] [--baseline-dir D] [--actual-dir D]
-//!  [--known F] [--float-tol X]` and `cargo xtask oracle --self-test`.
+//! `cargo xtask golden --slice <id> [--site <name>] [--baseline-dir D] [--actual-dir D]
+//!  [--known F] [--float-tol X]` and `cargo xtask golden --self-test`.
 //!
 //! Convention: `testdata/golden/actual/<slice>/**/*.json` mirrors `testdata/golden/baselines/<site>/**`.
 //! Missing baseline dir: SKIP (exit 0, reason printed). Missing actual file: FAIL.
@@ -51,11 +51,15 @@ pub fn run(args: &[String]) -> bool {
     let a = match parse(args) {
         Ok(a) => a,
         Err(e) => {
-            eprintln!("oracle: {e}\nusage: cargo xtask oracle (--slice <id> [--site S] | --self-test) [--baseline-dir D] [--actual-dir D] [--known F] [--float-tol X]");
+            eprintln!("golden: {e}\nusage: cargo xtask golden (--slice <id> [--site S] | --self-test) [--baseline-dir D] [--actual-dir D] [--known F] [--float-tol X]");
             return false;
         }
     };
-    let base = PathBuf::from(a.baseline_dir.as_deref().unwrap_or("testdata/golden/baselines"));
+    let base = PathBuf::from(
+        a.baseline_dir
+            .as_deref()
+            .unwrap_or("testdata/golden/baselines"),
+    );
     let known_path = a
         .known
         .as_deref()
@@ -63,7 +67,7 @@ pub fn run(args: &[String]) -> bool {
     let known = match load_known(Path::new(known_path)) {
         Ok(k) => k,
         Err(e) => {
-            eprintln!("oracle: {known_path}: {e}");
+            eprintln!("golden: {known_path}: {e}");
             return false;
         }
     };
@@ -77,7 +81,8 @@ pub fn run(args: &[String]) -> bool {
     } else {
         let slice = a.slice.as_deref().unwrap();
         let site = a.site.clone().unwrap_or_else(|| site_for(slice));
-        let actual = PathBuf::from(a.actual_dir.as_deref().unwrap_or("testdata/golden/actual")).join(slice);
+        let actual =
+            PathBuf::from(a.actual_dir.as_deref().unwrap_or("testdata/golden/actual")).join(slice);
         compare_slice(slice, &base.join(&site), &actual, &opts, &known, &mut used)
     };
     if !a.self_test {
@@ -98,7 +103,7 @@ fn load_known(p: &Path) -> Result<KnownDivergences, String> {
     }
 }
 
-/// Site of a slice: `oracle_site` in slices.toml if present, else the slice id.
+/// Site of a slice: `golden_site` in slices.toml if present, else the slice id.
 fn site_for(slice: &str) -> String {
     fs::read_to_string("slices.toml")
         .ok()
@@ -106,7 +111,7 @@ fn site_for(slice: &str) -> String {
         .and_then(|d| {
             d.get("slice")?.as_array()?.iter().find_map(|s| {
                 (s.get("id")?.as_str()? == slice)
-                    .then(|| s.get("oracle_site")?.as_str().map(String::from))
+                    .then(|| s.get("golden_site")?.as_str().map(String::from))
                     .flatten()
             })
         })
@@ -146,7 +151,7 @@ fn compare_slice(
 ) -> bool {
     if !base.is_dir() {
         println!(
-            "SKIP {slice}: baseline dir {} not found (no oracle baseline recorded)",
+            "SKIP {slice}: baseline dir {} not found (no golden baseline recorded)",
             base.display()
         );
         return true;
@@ -192,7 +197,7 @@ fn compare_slice(
         }
     }
     println!(
-        "oracle {slice}: {ok_n} ok, {bad} failing of {} file(s)",
+        "golden {slice}: {ok_n} ok, {bad} failing of {} file(s)",
         files.len()
     );
     bad == 0
@@ -229,7 +234,7 @@ mod tests {
     use super::*;
 
     fn tmp(name: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("xtask-oracle-{name}-{}", std::process::id()));
+        let d = std::env::temp_dir().join(format!("xtask-golden-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&d);
         fs::create_dir_all(&d).unwrap();
         d

@@ -13,10 +13,7 @@ const PROFILES: [&str; 5] = ["audit", "full", "infra", "quick-check", "router"];
 fn initialize_matches_golden_for_a_live_session() {
     let mut client = Client::spawn("full");
     let actual = client.initialize();
-    if spiderhead_golden::bless_json(
-        &fixture_path("initialize.json"),
-        &tokenize_version(&actual),
-    ) {
+    if spiderhead_golden::bless_json(&fixture_path("initialize.json"), &tokenize_version(&actual)) {
         return;
     }
     let expected = substitute_version(&fixture("initialize.json"));

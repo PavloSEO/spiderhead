@@ -549,7 +549,8 @@ approved_on = "2026-10-27"
     #[test]
     fn real_registry_file_parses() {
         let text = include_str!("../../known-divergences.toml");
-        let k = KnownDivergences::from_toml(text).expect("testdata/golden/known-divergences.toml is valid");
+        let k = KnownDivergences::from_toml(text)
+            .expect("testdata/golden/known-divergences.toml is valid");
         assert!(k.entries.iter().all(|e| e.approved_on.len() == 10));
     }
 

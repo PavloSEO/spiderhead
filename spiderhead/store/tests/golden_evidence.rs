@@ -62,10 +62,7 @@ fn bless_fixture(site: &str) {
     let derived = derive(&raw.con, 0.92, false).expect("derive");
     fx["derived"] = Value::Object(derived);
     let path = fixture_path(site);
-    assert!(
-        spiderhead_golden::bless_json(&path, &fx),
-        "bless failed"
-    );
+    assert!(spiderhead_golden::bless_json(&path, &fx), "bless failed");
 }
 
 /// A private copy of the raw scan, so opening it never writes next to the committed file.

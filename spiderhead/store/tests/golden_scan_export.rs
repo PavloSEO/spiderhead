@@ -224,10 +224,7 @@ fn golden_exports_match() {
     }
     if bless {
         let path = fixtures().join("scan-export-basic.json");
-        assert!(spiderhead_golden::bless_json(
-            &path,
-            &Value::Array(blessed)
-        ));
+        assert!(spiderhead_golden::bless_json(&path, &Value::Array(blessed)));
         // The per-site baseline export is the same full JSON document over each
         // raw scan, normalised the way the recorded baselines are.
         let null = Value::Null;

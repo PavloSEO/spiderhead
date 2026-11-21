@@ -1,6 +1,6 @@
-//! Repo automation: `cargo xtask <ci|layers|slices|oracle|dist|package|version>`.
+//! Repo automation: `cargo xtask <ci|layers|slices|golden|dist|package|version>`.
 mod dist;
-mod oracle;
+mod golden;
 mod package;
 mod version;
 
@@ -47,13 +47,13 @@ fn main() {
         "layers" => layers(),
         "slices" => slices(),
         "rebaseline" => rebaseline(),
-        "oracle" => oracle::run(&std::env::args().skip(2).collect::<Vec<_>>()),
+        "golden" => golden::run(&std::env::args().skip(2).collect::<Vec<_>>()),
         "dist" => report(dist::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         "package" => report(package::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         "version" => report(version::run(&std::env::args().skip(2).collect::<Vec<_>>())),
         _ => {
             eprintln!(
-                "usage: cargo xtask <ci [--quick]|windows-check|layers|slices|rebaseline|oracle|dist|package|version>"
+                "usage: cargo xtask <ci [--quick]|windows-check|layers|slices|rebaseline|golden|dist|package|version>"
             );
             false
         }

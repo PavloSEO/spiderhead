@@ -9,11 +9,11 @@ use spiderhead_crawl::dump::scan_tables;
 use spiderhead_crawl::provenance;
 use spiderhead_crawl::spider::{self, CrawlOptions};
 use spiderhead_golden::{diff, Options};
-use spiderhead_testkit::FixtureServer;
 use spiderhead_parse::ParseOptions;
 use spiderhead_store::native_scan::NativeScan;
 use spiderhead_store::scan_lease::NativeScanLease;
 use spiderhead_store::scan_schema::NativeScanSchemaMixin;
+use spiderhead_testkit::FixtureServer;
 
 fn golden_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")

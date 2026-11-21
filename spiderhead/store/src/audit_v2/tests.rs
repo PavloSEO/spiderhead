@@ -285,7 +285,11 @@ fn reader_matches_golden_baselines_for_every_site() {
     for (site, port) in SITES {
         let dir = Scratch::new(site);
         let scan = dir.0.join("scan.sqlite");
-        fs::copy(repo(&format!("testdata/golden/raw-scans/{site}/scan.sqlite")), &scan).unwrap();
+        fs::copy(
+            repo(&format!("testdata/golden/raw-scans/{site}/scan.sqlite")),
+            &scan,
+        )
+        .unwrap();
         fs::copy(
             repo(&format!(
                 "testdata/golden/raw-scans/{site}/scan.sqlite.audit-v2.sqlite"
@@ -315,7 +319,11 @@ fn writer_reproduces_golden_companions_byte_for_byte() {
     for (site, _) in SITES {
         let dir = Scratch::new(site);
         let scan = dir.0.join("scan.sqlite");
-        fs::copy(repo(&format!("testdata/golden/raw-scans/{site}/scan.sqlite")), &scan).unwrap();
+        fs::copy(
+            repo(&format!("testdata/golden/raw-scans/{site}/scan.sqlite")),
+            &scan,
+        )
+        .unwrap();
         fs::copy(
             repo(&format!(
                 "testdata/golden/raw-scans/{site}/scan.sqlite.audit-v2.sqlite"

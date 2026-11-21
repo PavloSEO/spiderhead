@@ -249,11 +249,7 @@ fn golden_reporters() {
         std::fs::remove_dir_all(&dir).ok();
     }
     if bless {
-        spiderhead_golden::bless_json_field(
-            &fixture_path(),
-            "results",
-            Value::Object(blessed),
-        );
+        spiderhead_golden::bless_json_field(&fixture_path(), "results", Value::Object(blessed));
     }
 }
 
@@ -507,11 +503,7 @@ fn golden_tasks() {
         }
     }
     if bless {
-        spiderhead_golden::bless_json_field(
-            &fixture_path(),
-            "tasks",
-            blessed["tasks"].clone(),
-        );
+        spiderhead_golden::bless_json_field(&fixture_path(), "tasks", blessed["tasks"].clone());
     }
 }
 
@@ -522,8 +514,8 @@ fn golden_tasks_from_audit_v2() {
     let streamed = fixture.get("streamed").expect("streamed").clone();
     let dir = scratch("streamed");
     let scan = dir.join("scan.sqlite");
-    let raw =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite");
+    let raw = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../testdata/golden/raw-scans/basic/scan.sqlite");
     std::fs::copy(&raw, &scan).expect("copy raw scan");
     let companion = PathBuf::from(format!("{}.audit-v2.sqlite", scan.display()));
     let bless = spiderhead_golden::bless_enabled();
