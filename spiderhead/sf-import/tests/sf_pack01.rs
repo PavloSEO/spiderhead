@@ -181,7 +181,7 @@ impl se::ScanConnection for FakeCon {
         {
             return Err(se::ReadError::Scan(format!(
                 "boom for {}",
-                spiderhead_parse::py_str::py_repr(url.as_str().unwrap_or_default())
+                spiderhead_parse::strings::repr(url.as_str().unwrap_or_default())
             )));
         }
         Ok(url

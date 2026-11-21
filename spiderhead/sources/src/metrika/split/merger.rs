@@ -52,14 +52,15 @@ impl SliceMerger {
         let mut dropped = 0i64;
         let data = py_get(body, "data")?;
         let rows = match data {
-            Some(data) if pystr::truthy(Some(data)) => py_iter(data)?,
+            Some(data) if text_rules::truthy(Some(data)) => py_iter(data)?,
             _ => Vec::new(),
         };
         for row in &rows {
             let (values, bad) = self.padded(py_get(row, "metrics")?);
             self.incomplete = self.incomplete || bad;
             let dimensions = py_get(row, "dimensions")?;
-            let key = pyjson::dumps_opts(&dimensions.cloned().unwrap_or(Value::Null), true, false);
+            let key =
+                json_wire::dumps_opts(&dimensions.cloned().unwrap_or(Value::Null), true, false);
             match self.merged.get(&key) {
                 None => {
                     if self.merged.len() as i64 >= self.cap {

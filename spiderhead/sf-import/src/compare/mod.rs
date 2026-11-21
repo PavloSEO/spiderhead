@@ -19,7 +19,7 @@ use spiderhead_store::evidence_contract::Obj;
 use crate::compare::base::{
     crawled_urls, load_correspondence, mapped_issues, resolve_correspondence,
 };
-use crate::pyvalue::py_eq;
+use crate::value_text::value_eq;
 use crate::verification::AuditSource;
 
 /// Names of the four difference buckets, in the order reports present them.
@@ -99,7 +99,7 @@ pub fn compare(
         .get("crawl_config")
         .filter(|v| !v.is_null());
     if let (Some(a), Some(b)) = (before_cfg, after_cfg) {
-        if !py_eq(a, b) && !force {
+        if !value_eq(a, b) && !force {
             let empty = Map::new();
             let (a_map, b_map) = (
                 a.as_object().unwrap_or(&empty),
@@ -112,7 +112,7 @@ pub fn compare(
                 .into_iter()
                 .filter(
                     |key| !match (a_map.get(key.as_str()), b_map.get(key.as_str())) {
-                        (Some(x), Some(y)) => py_eq(x, y),
+                        (Some(x), Some(y)) => value_eq(x, y),
                         (None, None) => true,
                         _ => false,
                     },
@@ -204,12 +204,12 @@ pub fn compare(
     // the truncated baseline is misreported as "appeared".
     let before_partial = run_of(header_obj(before_source))
         .get("crawl_partial")
-        .is_some_and(crate::pyvalue::truthy);
+        .is_some_and(crate::value_text::truthy);
     // A partial after-crawl leaves its unreached URLs unproven; they are
     // reported as not rechecked, never as fixed.
     let after_partial = run_of(header_obj(after_source))
         .get("crawl_partial")
-        .is_some_and(crate::pyvalue::truthy);
+        .is_some_and(crate::value_text::truthy);
 
     let mut entered: Vec<Obj> = Vec::new();
     let mut left: Vec<Obj> = Vec::new();

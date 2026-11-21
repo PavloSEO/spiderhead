@@ -11,8 +11,8 @@ use std::path::Path;
 use std::sync::LazyLock;
 
 use crate::config::{cfg_required, cfg_required_str, Cfg};
+use crate::fmt::scalar_text;
 use crate::norm::{normalize, py_len, Filters};
-use crate::pyfmt::py_str;
 use crate::store::Store;
 
 /// `BRAND_TAIL` — the tail after a separator is a brand.
@@ -95,7 +95,7 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path) -> Result<Value, crate::Err
         }
     }
 
-    let project = cfg_required(cfg, "_project").map(py_str)?;
+    let project = cfg_required(cfg, "_project").map(scalar_text)?;
     let mut md = vec![
         format!("# Semantic core competitors — {project}"),
         String::new(),

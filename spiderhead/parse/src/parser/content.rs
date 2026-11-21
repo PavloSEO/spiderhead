@@ -17,9 +17,9 @@ use crate::models::{
     DuplicateId, HeadingLinkRef, HeadingRef, ImageInfo, ImageLinkRef, LinkPlacement, TrustSignal,
     TrustSignals,
 };
-use crate::py_str::py_strip;
-use crate::py_url::urlparse;
+use crate::strings::strip;
 use crate::types::{ContentAreaConfig, Json, ParseError, PositionRule, Result};
+use crate::url_parse::urlparse;
 
 fn re(pattern: &str) -> Regex {
     Regex::new(pattern).unwrap_or_else(|_| unreachable!("static pattern {pattern}"))
@@ -95,7 +95,7 @@ fn is_hidden_heading_content(tag: &ElementRef<'_>) -> bool {
             let el = candidate.value();
             el.attr("hidden").is_some()
                 || el.attr("inert").is_some()
-                || py_strip(el.attr("aria-hidden").unwrap_or("")).to_lowercase() == "true"
+                || strip(el.attr("aria-hidden").unwrap_or("")).to_lowercase() == "true"
                 || (el.name() == "dialog" && el.attr("open").is_none())
                 || el
                     .attr("style")
@@ -241,8 +241,8 @@ pub fn unsupported_plugin_count(soup: &Soup) -> u64 {
                 continue;
             }
             if name == "object" {
-                let kind = py_strip(attr(&tag, "type").unwrap_or("")).to_lowercase();
-                let essence = py_strip(kind.split(';').next().unwrap_or(""));
+                let kind = strip(attr(&tag, "type").unwrap_or("")).to_lowercase();
+                let essence = strip(kind.split(';').next().unwrap_or(""));
                 if essence.starts_with("image/") || essence == "application/pdf" {
                     continue;
                 }
@@ -264,7 +264,7 @@ pub fn mobile_alternate_broken_count(soup: &Soup) -> u64 {
                 .any(|t| t.to_lowercase() == "alternate")
         })
         .filter(|tag| !is_inert_template_content(tag))
-        .filter(|tag| py_strip(attr(tag, "href").unwrap_or("")).is_empty())
+        .filter(|tag| strip(attr(tag, "href").unwrap_or("")).is_empty())
         .count() as u64
 }
 
@@ -335,7 +335,7 @@ fn ld_scalar(value: &Json) -> String {
         Json::Object(map) => {
             for key in ["name", "@id", "url"] {
                 if let Some(Json::String(inner)) = map.get(key) {
-                    if !py_strip(inner).is_empty() {
+                    if !strip(inner).is_empty() {
                         return inner.clone();
                     }
                 }
@@ -376,11 +376,11 @@ pub fn extract_trust_signals(
         if is_inert_template_content(&tag) {
             continue;
         }
-        let Some(content) = attr(&tag, "content").filter(|c| !py_strip(c).is_empty()) else {
+        let Some(content) = attr(&tag, "content").filter(|c| !strip(c).is_empty()) else {
             continue;
         };
-        let name = py_strip(attr(&tag, "name").unwrap_or("")).to_lowercase();
-        let prop = py_strip(attr(&tag, "property").unwrap_or("")).to_lowercase();
+        let name = strip(attr(&tag, "name").unwrap_or("")).to_lowercase();
+        let prop = strip(attr(&tag, "property").unwrap_or("")).to_lowercase();
         if name == "author" {
             add(&mut author, "meta_author", "high", content);
         } else if name == "article:author" || prop == "article:author" {
@@ -395,7 +395,7 @@ pub fn extract_trust_signals(
         } else if DATE_META_NAMES.contains(&name.as_str()) {
             add(&mut dates, &format!("meta_date:{name}"), "high", content);
         }
-        if prop == "og:type" && py_strip(content).to_lowercase() == "article" {
+        if prop == "og:type" && strip(content).to_lowercase() == "article" {
             article.push("og_type".to_owned());
         }
     }
@@ -439,7 +439,7 @@ pub fn extract_trust_signals(
         if is_inert_template_content(&tag) {
             continue;
         }
-        let prop = py_strip(prop).to_lowercase();
+        let prop = strip(prop).to_lowercase();
         if TRUST_DATE_PROPS.contains(&prop.as_str()) {
             let value = attr(&tag, "content")
                 .filter(|v| !v.is_empty())

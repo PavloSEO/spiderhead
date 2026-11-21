@@ -7,16 +7,16 @@ use std::collections::{BTreeSet, HashMap};
 use rusqlite::Connection;
 use serde_json::{json, Value};
 use sha2::Digest as _;
-use spiderhead_parse::py_str::py_repr;
+use spiderhead_parse::strings::repr;
 use spiderhead_store::evidence_contract::Obj;
 
 use crate::compare::base::{header_obj, host_changed, origin_of, AuditSource, CompareError};
 use crate::compare::facts::page_facts;
-use crate::pyurl::urlsplit;
-use crate::pyvalue::truthy;
 use crate::segments::{rule_matches, Segment, UNSEGMENTED};
+use crate::url_split::urlsplit;
+use crate::value_text::truthy;
 
-use super::shared::{hex, py_json};
+use super::shared::{hex, json_text};
 
 /// The row count a source claims for one collection, when it can be known.
 pub(crate) fn collection_count(source: &AuditSource<'_>, name: &str) -> Option<i64> {
@@ -146,13 +146,13 @@ pub(crate) fn job_id(
     compression: &str,
 ) -> String {
     let declaration_hash = declaration.map(|decl| {
-        let rendered = py_json(&json!({
+        let rendered = json_text(&json!({
             "origin_map": decl.origin_map,
             "pairs": decl.pairs,
         }));
         hex(&sha2::Sha256::digest(rendered.as_bytes()))
     });
-    let key = py_json(&json!({
+    let key = json_text(&json!({
         "identities": identities,
         "force": force,
         "correspondence": declaration_hash,
@@ -179,7 +179,7 @@ pub(crate) fn row(
             .map_err(|e| CompareError(e.to_string())),
         AuditSource::Document(_) => Err(CompareError(format!(
             "comparison source is missing the retained document for {} row {ordinal}",
-            py_repr(name)
+            repr(name)
         ))),
     }
 }
@@ -248,7 +248,7 @@ pub(crate) fn facts_rows(
             .filter(|name| {
                 let before_value = before[name.as_str()].clone();
                 let after_value = after.get(name.as_str()).cloned().unwrap_or(Value::Null);
-                !crate::pyvalue::py_eq(&before_value, &after_value)
+                !crate::value_text::value_eq(&before_value, &after_value)
             })
             .cloned()
             .collect();

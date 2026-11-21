@@ -13,7 +13,7 @@ use indexmap::IndexMap;
 use serde_json::{json, Map, Value};
 use unicode_normalization::UnicodeNormalization;
 
-use crate::py::repr;
+use crate::values::repr;
 
 pub const MODEL_SCHEMA: &str = "spiderhead.technical-audit-pdf/1";
 pub const DEFAULT_PAGE_LIMIT: i64 = 200;
@@ -370,7 +370,7 @@ pub fn validate_pdf_output(
             if actual < *expected_count {
                 errors.push(format!(
                     "PDF text is missing model content: expected {expected_count} occurrence(s) of {}, found {actual}",
-                    crate::py::repr_str(token)
+                    crate::values::repr_str(token)
                 ));
                 if errors.len() >= 25 {
                     errors.push(

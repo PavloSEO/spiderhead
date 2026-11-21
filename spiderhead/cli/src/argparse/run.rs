@@ -6,8 +6,8 @@ use serde_json::Value;
 
 use super::model::{action_name, ArgError, Namespace, OptTuple, Stop};
 use super::parse_known;
+use crate::argparse_compat::repr;
 use crate::help;
-use crate::pycompat::repr;
 use crate::tree::{Action, Nargs, Node, SUPPRESS};
 use crate::Exit;
 

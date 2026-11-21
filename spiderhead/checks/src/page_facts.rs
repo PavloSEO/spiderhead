@@ -25,9 +25,9 @@ use spiderhead_parse::parser::meta;
 use spiderhead_parse::parser::parse_html;
 use spiderhead_parse::parser::shared::collapse_whitespace;
 use spiderhead_parse::parser::tokenize::{document_base_url, DocumentSource};
-use spiderhead_parse::py_str::py_strip;
-use spiderhead_parse::py_url::{urljoin, urlparse};
+use spiderhead_parse::strings::strip;
 use spiderhead_parse::types::{ParseOptions, Result};
+use spiderhead_parse::url_parse::{urljoin, urlparse};
 
 use crate::price::{parse_amount, parse_price};
 
@@ -130,7 +130,7 @@ fn breadcrumbs(soup: &Soup, base_url: &str) -> Vec<Value> {
     let mut out: Vec<Value> = Vec::new();
     for tag in meta::live_jsonld_tags(soup) {
         let text = dom::get_text(&tag, "");
-        let raw = py_strip(&text);
+        let raw = strip(&text);
         if !raw.contains("BreadcrumbList") {
             continue;
         }
@@ -261,7 +261,7 @@ fn same_as(soup: &Soup) -> Vec<String> {
     let mut seen: HashSet<String> = HashSet::new();
     // Explicit `itemprop="sameAs"` is the strongest source.
     for tag in dom::all_elements(soup).filter(|el| dom::attr(el, "itemprop") == Some("sameAs")) {
-        let href = py_strip(dom::attr(&tag, "href").unwrap_or("")).to_owned();
+        let href = strip(dom::attr(&tag, "href").unwrap_or("")).to_owned();
         if href.is_empty() {
             continue;
         }
@@ -485,7 +485,7 @@ fn price(soup: &Soup, scope: Scope<'_>) -> Option<Value> {
         let parsed = parse_price(&declared);
         let value = match parsed.as_ref().map(|found| found.value) {
             Some(value) => json!(value),
-            None => match parse_amount(py_strip(&declared)) {
+            None => match parse_amount(strip(&declared)) {
                 Some(value) => json!(value),
                 None => json!(declared),
             },

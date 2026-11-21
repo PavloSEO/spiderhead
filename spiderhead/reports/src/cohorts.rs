@@ -20,7 +20,7 @@ use spiderhead_core::tabular::neutralize_formula;
 
 use crate::bi::schema::NORMALIZED_FORMAT;
 use crate::join::{normalize_join_key, IsoDate};
-use crate::py;
+use crate::values;
 
 pub const PUBLICATION_FORMAT: &str = "spiderhead.publication-cohort-input.v1";
 pub const GSC_PROGRESS_FORMAT: &str = "spiderhead.gsc-progress-input.v1";
@@ -169,7 +169,7 @@ fn metric(entry: Option<&Value>, name: &str) -> Res<(Option<f64>, String, Option
     if state != "measured" {
         let reason = entry
             .get("reason")
-            .filter(|r| py::truthy(Some(r)))
+            .filter(|r| values::truthy(Some(r)))
             .cloned()
             .unwrap_or_else(|| json!("metric is not measured"));
         return Ok((None, state, Some(reason)));
@@ -212,18 +212,22 @@ fn normalized_documents(value: Option<&Value>) -> Res<Vec<Value>> {
 }
 
 fn source_of(document: &Value, ordinal: usize) -> Value {
-    let mapping = py::get(document, "mapping").cloned().unwrap_or(Value::Null);
-    let source = py::get(&mapping, "source").cloned().unwrap_or(Value::Null);
-    let collection = py::get(&mapping, "collection")
+    let mapping = values::get(document, "mapping")
         .cloned()
         .unwrap_or(Value::Null);
-    let period = py::get(&mapping, "period")
+    let source = values::get(&mapping, "source")
+        .cloned()
+        .unwrap_or(Value::Null);
+    let collection = values::get(&mapping, "collection")
+        .cloned()
+        .unwrap_or(Value::Null);
+    let period = values::get(&mapping, "period")
         .filter(|v| v.is_object())
         .cloned()
         .unwrap_or_else(|| json!({}));
     json!({
         "source_id": format!("evidence-{ordinal}"),
-        "provider": source.get("provider").filter(|v| py::truthy(Some(v))).cloned().unwrap_or_else(|| json!("unknown")),
+        "provider": source.get("provider").filter(|v| values::truthy(Some(v))).cloned().unwrap_or_else(|| json!("unknown")),
         "operation": source.get("operation").cloned().unwrap_or(Value::Null),
         "reporting_identity": source.get("reporting_identity").cloned().unwrap_or(Value::Null),
         "timezone": source.get("timezone").cloned().unwrap_or(Value::Null),
@@ -232,8 +236,8 @@ fn source_of(document: &Value, ordinal: usize) -> Value {
         "period_start": period.get("start_date").cloned().unwrap_or(Value::Null),
         "period_end": period.get("end_date").cloned().unwrap_or(Value::Null),
         "collection": collection,
-        "dimensions": py::get(&mapping, "dimensions")
-            .filter(|v| py::truthy(Some(v)))
+        "dimensions": values::get(&mapping, "dimensions")
+            .filter(|v| values::truthy(Some(v)))
             .cloned()
             .unwrap_or_else(|| json!([])),
     })
@@ -292,7 +296,7 @@ fn atomic_package(
                                 neutralize_formula(&canonical(value))
                             }
                             Value::String(text) => neutralize_formula(text),
-                            other => py::str_value(other),
+                            other => values::str_value(other),
                         }
                     })
                     .collect();
@@ -475,8 +479,8 @@ fn age_windows(document: &Value) -> Res<(Vec<Value>, Option<IsoDate>)> {
         if !item.get("id").is_some_and(Value::is_string)
             || !is_int(start)
             || !is_int(end)
-            || start.and_then(py::to_i64).unwrap_or(-1) < 0
-            || start.and_then(py::to_i64) > end.and_then(py::to_i64)
+            || start.and_then(values::to_i64).unwrap_or(-1) < 0
+            || start.and_then(values::to_i64) > end.and_then(values::to_i64)
         {
             return Err(CohortProjectionError::new(
                 "age windows require ordered non-negative integer days",
@@ -530,10 +534,12 @@ pub fn publication_cohorts(
     let mut authors = Vec::new();
     let mut summary: BTreeMap<String, (i64, i64)> = BTreeMap::new();
     for row in &content {
-        let publication = py::get(row, "publication").cloned().unwrap_or(Value::Null);
+        let publication = values::get(row, "publication")
+            .cloned()
+            .unwrap_or(Value::Null);
         let measured = publication.get("state").and_then(Value::as_str) == Some("measured");
         let cohort = if measured {
-            py::str_value(publication.get("value").unwrap_or(&Value::Null))[..7].to_owned()
+            values::str_value(publication.get("value").unwrap_or(&Value::Null))[..7].to_owned()
         } else {
             "unknown".to_owned()
         };
@@ -571,7 +577,7 @@ pub fn publication_cohorts(
                 "publication_source".to_owned(),
                 publication.get("source").cloned().unwrap_or(Value::Null),
             );
-            let modified = py::get(row, "modified").cloned().unwrap_or(Value::Null);
+            let modified = values::get(row, "modified").cloned().unwrap_or(Value::Null);
             row_out.insert(
                 "modified_raw".to_owned(),
                 modified.get("raw").cloned().unwrap_or(Value::Null),
@@ -584,7 +590,7 @@ pub fn publication_cohorts(
                 "modified_state".to_owned(),
                 modified.get("state").cloned().unwrap_or(Value::Null),
             );
-            let first = py::get(row, "first_observed")
+            let first = values::get(row, "first_observed")
                 .cloned()
                 .unwrap_or(Value::Null);
             row_out.insert(
@@ -631,8 +637,8 @@ pub fn publication_cohorts(
     let mut age_observations = Vec::new();
     for (doc_ordinal, evidence) in evidence_docs.iter().enumerate() {
         let source = source_of(evidence, doc_ordinal);
-        for row in py::get_list(evidence, "rows") {
-            let url = py::get(row, "url")
+        for row in values::get_list(evidence, "rows") {
+            let url = values::get(row, "url")
                 .and_then(|u| u.get("normalized"))
                 .and_then(Value::as_str);
             let key = url.and_then(|u| normalize_join_key(Some(u)));
@@ -643,15 +649,15 @@ pub fn publication_cohorts(
                     .unwrap_or_default(),
                 _ => Vec::new(),
             };
-            let observed_date = py::get(row, "dimensions")
+            let observed_date = values::get(row, "dimensions")
                 .and_then(|d| d.get("date"))
                 .and_then(Value::as_str);
             let observed_day = observed_date.and_then(IsoDate::parse);
-            let metrics = py::get(row, "metrics").cloned().unwrap_or(Value::Null);
+            let metrics = values::get(row, "metrics").cloned().unwrap_or(Value::Null);
             if let Some(metric_map) = metrics.as_object() {
                 for (metric_name, metric_entry) in metric_map {
                     let (value, state, reason) = metric(Some(metric_entry), metric_name)?;
-                    let collection = py::get(&source, "collection")
+                    let collection = values::get(&source, "collection")
                         .cloned()
                         .unwrap_or(Value::Null);
                     observations.push({
@@ -683,8 +689,9 @@ pub fn publication_cohorts(
                                 if publication.get("state").and_then(Value::as_str)
                                     == Some("measured")
                                 {
-                                    py::str_value(publication.get("value").unwrap_or(&Value::Null))
-                                        [..7]
+                                    values::str_value(
+                                        publication.get("value").unwrap_or(&Value::Null),
+                                    )[..7]
                                         .to_owned()
                                 } else {
                                     "unknown".to_owned()
@@ -746,13 +753,13 @@ pub fn publication_cohorts(
                         );
                         r.insert(
                             "dimensions_json".to_owned(),
-                            py::get(row, "dimensions")
+                            values::get(row, "dimensions")
                                 .cloned()
                                 .unwrap_or_else(|| json!({})),
                         );
                         r.insert(
                             "ambiguous_row".to_owned(),
-                            json!(py::truthy(row.get("ambiguous"))),
+                            json!(values::truthy(row.get("ambiguous"))),
                         );
                         r
                     });
@@ -770,8 +777,11 @@ pub fn publication_cohorts(
                             .expect("measured publication date");
                         let age_day = observed_day.unwrap().diff_days(&published_day);
                         for window in &windows {
-                            let start = window.get("start_day").and_then(py::to_i64).unwrap_or(0);
-                            let end = window.get("end_day").and_then(py::to_i64).unwrap_or(0);
+                            let start = window
+                                .get("start_day")
+                                .and_then(values::to_i64)
+                                .unwrap_or(0);
+                            let end = window.get("end_day").and_then(values::to_i64).unwrap_or(0);
                             if !(start <= age_day && age_day <= end) {
                                 continue;
                             }
@@ -792,7 +802,7 @@ pub fn publication_cohorts(
                                 r.insert("age_day".to_owned(), json!(age_day));
                                 r.insert(
                                     "observation_date".to_owned(),
-                                    py::get(row, "dimensions")
+                                    values::get(row, "dimensions")
                                         .and_then(|d| d.get("date"))
                                         .cloned()
                                         .unwrap_or(Value::Null),
@@ -1028,7 +1038,7 @@ fn overrides(value: Option<&Value>) -> Res<Map<String, Value>> {
             json!({
                 "classification": classification,
                 "rule_id": item.get("rule_id").cloned().unwrap_or(Value::Null),
-                "reason": item.get("reason").filter(|r| py::truthy(Some(r))).cloned().unwrap_or_else(|| json!("operator override")),
+                "reason": item.get("reason").filter(|r| values::truthy(Some(r))).cloned().unwrap_or_else(|| json!("operator override")),
             }),
         );
     }
@@ -1199,14 +1209,16 @@ pub fn gsc_progress(
                 "gsc progress accepts only normalized GSC evidence",
             ));
         }
-        for row in py::get_list(evidence, "rows") {
-            let dimensions = py::get(row, "dimensions").cloned().unwrap_or(Value::Null);
+        for row in values::get_list(evidence, "rows") {
+            let dimensions = values::get(row, "dimensions")
+                .cloned()
+                .unwrap_or(Value::Null);
             let query = dimensions.get("query");
             let query_normalized = query_text(query);
             let (classification, rule_id, reason, classification_source) =
                 match query_normalized.as_ref().and_then(|q| overrides.get(q)) {
                     Some(over) => (
-                        py::str_value(over.get("classification").unwrap_or(&Value::Null)),
+                        values::str_value(over.get("classification").unwrap_or(&Value::Null)),
                         over.get("rule_id").cloned().unwrap_or(Value::Null),
                         over.get("reason").cloned().unwrap_or(Value::Null),
                         "operator_override",
@@ -1228,8 +1240,8 @@ pub fn gsc_progress(
                     selected = periods
                         .iter()
                         .filter(|p| {
-                            let s = p.get("_start").and_then(py::to_i64).unwrap_or(0);
-                            let e = p.get("_end").and_then(py::to_i64).unwrap_or(0);
+                            let s = p.get("_start").and_then(values::to_i64).unwrap_or(0);
+                            let e = p.get("_end").and_then(values::to_i64).unwrap_or(0);
                             s <= day.days() && day.days() <= e
                         })
                         .collect();
@@ -1261,13 +1273,13 @@ pub fn gsc_progress(
             let scope_json = Value::Object(scope);
             let scope_id =
                 crate::bi::schema::digest(canonical(&scope_json).as_bytes())[..16].to_owned();
-            let metrics = py::get(row, "metrics").cloned().unwrap_or(Value::Null);
+            let metrics = values::get(row, "metrics").cloned().unwrap_or(Value::Null);
             let (clicks, clicks_state, clicks_reason) = metric(metrics.get("clicks"), "clicks")?;
             let (impressions, impressions_state, impressions_reason) =
                 metric(metrics.get("impressions"), "impressions")?;
             let (position, position_state, position_reason) =
                 metric(metrics.get("position"), "position")?;
-            let collection = py::get(&source, "collection")
+            let collection = values::get(&source, "collection")
                 .cloned()
                 .unwrap_or(Value::Null);
             let position_band = if position_state == "measured" {
@@ -1336,7 +1348,7 @@ pub fn gsc_progress(
                     "truncated",
                     collection.get("truncated").cloned().unwrap_or(Value::Null),
                 ),
-                ("ambiguous_row", json!(py::truthy(row.get("ambiguous")))),
+                ("ambiguous_row", json!(values::truthy(row.get("ambiguous")))),
                 (
                     "position_band",
                     position_band.map(Value::from).unwrap_or(Value::Null),
@@ -1354,8 +1366,8 @@ pub fn gsc_progress(
                 let state = collection.get("state").cloned().unwrap_or(Value::Null);
                 bucket
                     .collection_states
-                    .insert(if py::truthy(Some(&state)) {
-                        py::str_value(&state)
+                    .insert(if values::truthy(Some(&state)) {
+                        values::str_value(&state)
                     } else {
                         "unknown".to_owned()
                     });
@@ -1474,7 +1486,7 @@ pub fn gsc_progress(
     let mut by_query: BTreeMap<QueryKey, Vec<&Map<String, Value>>> = BTreeMap::new();
     for row in &queries {
         if row["position_state"].as_str() == Some("measured")
-            && !py::truthy(row.get("ambiguous_row"))
+            && !values::truthy(row.get("ambiguous_row"))
             && row["query_normalized"].is_string()
         {
             by_query

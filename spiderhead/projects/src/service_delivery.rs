@@ -369,7 +369,7 @@ fn path(receipts: &DeliveryReceipts) -> &Path {
 
 /// Canonical compact JSON text for a payload.
 fn canonical(value: &Value) -> String {
-    crate::pyjson::dumps_compact(value)
+    crate::json_docs::dumps_compact(value)
 }
 
 /// The injected send callable: `(destination, payload, receipt)` — any failure means

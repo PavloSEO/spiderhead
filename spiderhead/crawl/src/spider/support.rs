@@ -371,7 +371,7 @@ pub(super) fn seed_entry(
 /// `urllib.parse`-style query cleanup: drop `utm_*`/`fbclid` fields by their
 /// decoded name without rewriting any other raw query text.
 pub(super) fn normalize_get_parameters(url: &str) -> String {
-    let Ok(parts) = spiderhead_parse::py_url::urlsplit(url) else {
+    let Ok(parts) = spiderhead_parse::url_parse::urlsplit(url) else {
         return url.to_owned();
     };
     if parts.query.is_empty() {
@@ -382,11 +382,11 @@ pub(super) fn normalize_get_parameters(url: &str) -> String {
         .split('&')
         .filter(|param| {
             let raw = param.split('=').next().unwrap_or_default();
-            let name = spiderhead_parse::py_url::unquote(&raw.replace('+', " ")).to_lowercase();
+            let name = spiderhead_parse::url_parse::unquote(&raw.replace('+', " ")).to_lowercase();
             !(name.starts_with("utm_") || name == "fbclid")
         })
         .collect();
-    spiderhead_parse::py_url::urlunsplit(
+    spiderhead_parse::url_parse::urlunsplit(
         &parts.scheme,
         &parts.netloc,
         &parts.path,

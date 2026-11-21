@@ -91,7 +91,7 @@ pub fn source_identity(source: &AuditSource<'_>) -> Result<Object, VerifyError> 
                     .into_iter()
                     .flatten()
                     .filter_map(|m| m.get("scan_uuid"))
-                    .any(|v| truthy(v) && !py_eq(v, &binding_uuid));
+                    .any(|v| truthy(v) && !value_eq(v, &binding_uuid));
                 if mismatch {
                     return fail(
                         "audit.v2 header scan identity differs from its validated binding",

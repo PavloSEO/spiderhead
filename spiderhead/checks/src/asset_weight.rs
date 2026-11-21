@@ -25,7 +25,7 @@ use spiderhead_parse::dom::{find_all, parse_document, Soup};
 use spiderhead_parse::models::ResourceKind;
 use spiderhead_parse::parser::extract::extract_resource_declarations;
 use spiderhead_parse::parser::tokenize::{document_base_url, DocumentSource};
-use spiderhead_parse::py_str::py_strip;
+use spiderhead_parse::strings::strip;
 use spiderhead_parse::urlutil::urljoin;
 
 /// Default per-request timeout the real handler builds its client with.
@@ -295,7 +295,7 @@ pub fn find_css_imports(css_text: &str) -> Vec<String> {
 /// Whether a resource was served compressed: `(ok, encoding)`, where a
 /// missing header yields `(false, None)`.
 pub fn check_compression(content_encoding: Option<&str>) -> (bool, Option<String>) {
-    let value = py_strip(content_encoding.unwrap_or("")).to_lowercase();
+    let value = strip(content_encoding.unwrap_or("")).to_lowercase();
     let ok = COMPRESSED_ENCODINGS.contains(&value.as_str());
     let encoding = (!value.is_empty()).then_some(value);
     (ok, encoding)
@@ -683,7 +683,7 @@ mod tests {
 
     /// Python `str.strip()` per line, then concatenation.
     fn minify(css: &str) -> String {
-        css.lines().map(py_strip).collect()
+        css.lines().map(strip).collect()
     }
 
     fn repeat_readable_css(rule_count: usize) -> String {

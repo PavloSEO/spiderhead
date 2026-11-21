@@ -16,10 +16,10 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 
 use crate::bindings::py_str;
+use crate::datetime::{monotonic, zulu};
 use crate::error::{py_exception_name, py_named, value, ProjectsError, ProjectsResult};
+use crate::json_docs;
 use crate::locks;
-use crate::pyjson;
-use crate::pytime::{monotonic, zulu};
 use crate::schedule::falsy;
 use crate::urls::urlsplit;
 
@@ -311,7 +311,7 @@ pub fn read_manifest(root: &Path, run_id: &str, project_uuid: &str) -> ProjectsR
 /// `_write_manifest`: atomically publish the manifest under the project write lock.
 pub fn write_manifest(root: &Path, manifest: &Value) -> ProjectsResult<()> {
     let path = manifest_path(root, manifest["run_id"].as_str().unwrap_or_default(), true)?;
-    let payload = pyjson::dumps_indent2(manifest) + "\n";
+    let payload = json_docs::dumps_indent2(manifest) + "\n";
     if payload.len() as u64 > MAX_MANIFEST_BYTES {
         return Err(competitor_error(
             "competitor scan run exceeds its byte limit",

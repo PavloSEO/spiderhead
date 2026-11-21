@@ -4,8 +4,8 @@
 //! may produce `resolved`, `persisting`, or `changed`.
 
 use super::*;
-use crate::pyvalue::str_or_dumps;
-use spiderhead_parse::py_url::urlsplit;
+use crate::value_text::str_or_dumps;
+use spiderhead_parse::url_parse::urlsplit;
 
 /// The issue signature reference compares for persisting/changed verdicts.
 fn issue_signature(issue: &Object) -> String {
@@ -63,7 +63,7 @@ fn policy_gap(before: &Object, after: &Object) -> Option<String> {
         .into_iter()
         .filter(|k| !TARGET_BOUNDS.contains(&k.as_str()))
         .filter(|k| {
-            !py_eq(
+            !value_eq(
                 old.get(*k).unwrap_or(&Value::Null),
                 new.get(*k).unwrap_or(&Value::Null),
             )
@@ -100,7 +100,7 @@ fn check_unmeasured(after: &Object, check: &Value) -> Option<String> {
     for label in ["checks_skipped", "checks_disabled"] {
         if let Some(items) = run.get(label).and_then(Value::as_array) {
             for item in items.iter().filter_map(|i| i.as_object()) {
-                if py_eq(item.get("id").unwrap_or(&Value::Null), check) {
+                if value_eq(item.get("id").unwrap_or(&Value::Null), check) {
                     let reason = item
                         .get("reason")
                         .filter(|r| truthy(r))
@@ -145,7 +145,7 @@ fn json_int(value: &Value) -> Option<i64> {
 
 /// reference `type(value).__name__` for the AttributeError messages of `.get` on non-dicts.
 /// reference `type(value).__name__` for the AttributeError messages of `.get` on non-dicts.
-fn py_type_name(value: &Value) -> &'static str {
+fn type_name(value: &Value) -> &'static str {
     match value {
         Value::Null => "NoneType",
         Value::Bool(_) => "bool",
@@ -196,7 +196,7 @@ pub fn classify(
         old_pages
             .iter()
             .rev()
-            .find(|(u, _)| py_eq(u, url))
+            .find(|(u, _)| value_eq(u, url))
             .map(|(_, p)| p)
     };
     let mut results = Vec::new();
@@ -227,7 +227,7 @@ pub fn classify(
             let Some(after) = after_raw.as_object() else {
                 return fail(format!(
                     "'{}' object has no attribute 'get'",
-                    py_type_name(after_raw)
+                    type_name(after_raw)
                 ));
             };
             if after.get("schema_version") != Some(&Value::from("2.0")) {
@@ -252,7 +252,7 @@ pub fn classify(
             let same_url: Vec<&Object> = after_pages
                 .iter()
                 .filter_map(|p| p.as_object())
-                .filter(|p| p.get("url").is_some_and(|v| py_eq(v, &Value::from(url))))
+                .filter(|p| p.get("url").is_some_and(|v| value_eq(v, &Value::from(url))))
                 .collect();
             unique_rows(&same_url, "page")?;
             let matching: Vec<&Object> = after_issues
@@ -260,15 +260,15 @@ pub fn classify(
                 .filter_map(|i| i.as_object())
                 .filter(|i| {
                     i.get("target_url")
-                        .is_some_and(|v| py_eq(v, &Value::from(url)))
-                        && i.get("check").is_some_and(|v| py_eq(v, &check))
+                        .is_some_and(|v| value_eq(v, &Value::from(url)))
+                        && i.get("check").is_some_and(|v| value_eq(v, &check))
                 })
                 .collect();
             unique_rows(&matching, "finding")?;
             let ap = after_pages
                 .iter()
                 .filter_map(|p| p.as_object())
-                .find(|p| p.get("url").is_some_and(|v| py_eq(v, &Value::from(url))))
+                .find(|p| p.get("url").is_some_and(|v| value_eq(v, &Value::from(url))))
                 .cloned();
             let Some(ap) = ap else {
                 reason = "selected URL has no page observation in the recrawl".to_owned();
@@ -285,9 +285,9 @@ pub fn classify(
                 return Ok(());
             }
             let found = after_issues.iter().filter_map(|i| i.as_object()).find(|i| {
-                i.get("check").is_some_and(|v| py_eq(v, &check))
+                i.get("check").is_some_and(|v| value_eq(v, &check))
                     && i.get("target_url")
-                        .is_some_and(|v| py_eq(v, &Value::from(url)))
+                        .is_some_and(|v| value_eq(v, &Value::from(url)))
             });
             if let Some(found) = found {
                 after_issue = Some(found.clone());
@@ -307,7 +307,7 @@ pub fn classify(
                         .cloned()
                 })
                 .unwrap_or_default();
-            if !silent.iter().any(|v| py_eq(v, &check)) {
+            if !silent.iter().any(|v| value_eq(v, &check)) {
                 reason = "recrawl has no measured clean verdict for this check".to_owned();
                 return Ok(());
             }
@@ -347,7 +347,7 @@ pub fn classify(
                 return Ok(());
             }
             let old_code = old_page.get("status_code").cloned().unwrap_or(Value::Null);
-            if !py_eq(&old_code, &Value::from(code)) && !status_check(&check) {
+            if !value_eq(&old_code, &Value::from(code)) && !status_check(&check) {
                 status = "changed".to_owned();
                 reason = "HTTP status changed; the original page condition was not retested on the same response".to_owned();
                 return Ok(());

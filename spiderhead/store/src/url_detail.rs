@@ -7,7 +7,7 @@ use std::path::Path;
 use rusqlite::{params, Connection};
 use serde_json::{json, Map, Value};
 
-use spiderhead_parse::py_url::{quote_plus, unquote, urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{quote_plus, unquote, urlsplit, urlunsplit};
 
 use crate::bodies::read_page_document_content;
 use crate::browser_artifacts::{redact, retained_console};

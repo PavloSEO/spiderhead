@@ -211,7 +211,7 @@ fn resolve_proxy_identity(config: &Map<String, Value>) -> Result<Option<(String,
     if !allow_private
         && addresses
             .iter()
-            .any(|a| !crate::py::is_public_address(&a.ip().to_string()))
+            .any(|a| !crate::values::is_public_address(&a.ip().to_string()))
     {
         return Err(
             "http.proxy resolves to a private address; set http.proxy_allow_private=true".into(),
@@ -300,6 +300,6 @@ trait TruthyProxy {
 impl TruthyProxy for Value {
     /// Truthiness of the proxy value: a non-empty string counts as set.
     fn is_truthy_proxy(&self) -> bool {
-        crate::py::truthy(Some(self))
+        crate::values::truthy(Some(self))
     }
 }

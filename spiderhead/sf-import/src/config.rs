@@ -10,11 +10,11 @@ use spiderhead_core::canonical_policy::validate_canonical_policy;
 use spiderhead_core::finding_exclusions::validate_rules;
 use spiderhead_core::user_agents::RECON_USER_AGENT;
 use spiderhead_formats::check_registry::builtin as check_registry;
-use spiderhead_parse::py_str::py_repr;
+use spiderhead_parse::strings::repr;
 use thiserror::Error;
 
 use crate::export_manifest::default_profile_exports;
-use crate::pyvalue::py_repr_value;
+use crate::value_text::repr_value;
 
 /// The only severities the schema and the scoring weights know about (issue
 /// #211): anything else silently drops out of by_severity and the weighted
@@ -264,7 +264,7 @@ pub fn default_config() -> Value {
 fn attr_err(value: &Value, attribute: &str) -> ConfigError {
     ConfigError(format!(
         "AttributeError: '{}' object has no attribute '{attribute}'",
-        crate::pyvalue::py_type_name(value)
+        crate::value_text::type_name(value)
     ))
 }
 
@@ -276,7 +276,7 @@ fn item_assign_err(value: &Value) -> ConfigError {
     } else {
         ConfigError(format!(
             "TypeError: '{}' object does not support item assignment",
-            crate::pyvalue::py_type_name(value)
+            crate::value_text::type_name(value)
         ))
     }
 }
@@ -333,7 +333,7 @@ pub fn load_config(path: Option<&str>) -> Result<Value, ConfigError> {
     }
     // reference lets `open(path)` failures surface as the raw OSError.
     let text = std::fs::read_to_string(p).map_err(|e| ConfigError(e.to_string()))?;
-    let user = crate::pyvalue::py_json_loads(&text).map_err(ConfigError)?;
+    let user = crate::value_text::loads(&text).map_err(ConfigError)?;
     // The profile is NOT expanded here: run_audit applies it once, AFTER
     // CLI/MCP overrides, so e.g. config profile=lite + --profile full works.
     deep_merge(&default_config(), &user)
@@ -374,7 +374,7 @@ fn number_f64(v: &Value) -> Option<f64> {
 fn contains_err(value: &Value) -> ConfigError {
     ConfigError(format!(
         "TypeError: argument of type '{}' is not a container or iterable",
-        crate::pyvalue::py_type_name(value)
+        crate::value_text::type_name(value)
     ))
 }
 
@@ -389,7 +389,7 @@ fn subscript_err(value: &Value) -> ConfigError {
         }
         other => ConfigError(format!(
             "TypeError: '{}' object is not subscriptable",
-            crate::pyvalue::py_type_name(other)
+            crate::value_text::type_name(other)
         )),
     }
 }
@@ -402,7 +402,7 @@ fn py_contains(needle: &str, hay: &Value) -> Result<bool, ConfigError> {
         Value::String(s) => Ok(s.contains(needle)),
         Value::Array(items) => Ok(items
             .iter()
-            .any(|item| crate::pyvalue::py_eq(item, &json!(needle)))),
+            .any(|item| crate::value_text::value_eq(item, &json!(needle)))),
         other => Err(contains_err(other)),
     }
 }
@@ -451,8 +451,8 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
                         severity: &Value| {
         errors.push(format!(
             "{where_}[{}] severity is {}; must be one of ('critical', 'warning', 'notice', 'opportunity')",
-            py_repr(check_id),
-            py_repr_value(severity),
+            repr(check_id),
+            repr_value(severity),
         ));
     };
 
@@ -465,7 +465,7 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
         if registry.get(check_id).is_none() {
             errors.push(format!(
                 "severity_overrides names unknown check {}",
-                py_repr(check_id)
+                repr(check_id)
             ));
         } else if !severity
             .as_str()
@@ -481,7 +481,7 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
     };
     for (check_id, check_cfg) in checks {
         if registry.get(check_id).is_none() {
-            errors.push(format!("checks names unknown check {}", py_repr(check_id)));
+            errors.push(format!("checks names unknown check {}", repr(check_id)));
             continue;
         }
         // `"severity" in check_cfg` then `check_cfg["severity"]`: non-dict
@@ -506,8 +506,8 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
             if !enabled.is_boolean() {
                 errors.push(format!(
                     "checks[{}].enabled is {}; must be true or false",
-                    py_repr(check_id),
-                    py_repr_value(&enabled)
+                    repr(check_id),
+                    repr_value(&enabled)
                 ));
             }
         }
@@ -536,18 +536,18 @@ pub fn validate_config(cfg: &Value) -> Result<(), ConfigError> {
         if weight.is_boolean() || numeric.is_none() {
             errors.push(format!(
                 "scoring.weights[{}] is {}; must be a number",
-                py_repr(severity),
-                py_repr_value(weight)
+                repr(severity),
+                repr_value(weight)
             ));
         } else if numeric.is_some_and(|w| !w.is_finite() || w < 0.0) {
             // `repr(weight)` — the fixture's marker strings repr like floats.
             let shown = match weight {
-                Value::String(_) => crate::pyvalue::float_repr(numeric.unwrap_or(f64::NAN)),
-                other => py_repr_value(other),
+                Value::String(_) => crate::value_text::float_repr(numeric.unwrap_or(f64::NAN)),
+                other => repr_value(other),
             };
             errors.push(format!(
                 "scoring.weights[{shown_key}] is {shown}; must be finite and >= 0",
-                shown_key = py_repr(severity)
+                shown_key = repr(severity)
             ));
         }
     }

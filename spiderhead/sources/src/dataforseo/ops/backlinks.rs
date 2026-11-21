@@ -64,11 +64,11 @@ impl<'a, T: Transport> std::fmt::Debug for BacklinkArgs<'a, T> {
 /// `date.fromisoformat(value)` when truthy — `TypeError` for non-str, `ValueError` text
 /// for malformed ISO dates.
 pub(super) fn history_date(v: Option<&Value>) -> Result<Option<i64>, DfsError> {
-    match v.filter(|v| pystr::truthy(Some(v))) {
+    match v.filter(|v| text_rules::truthy(Some(v))) {
         None => Ok(None),
         Some(v) => match v.as_str() {
             None => Err(type_err("fromisoformat: argument must be str")),
-            Some(text) => pytime::date_fromisoformat_err(text)
+            Some(text) => datetime::date_fromisoformat_err(text)
                 .map(Some)
                 .map_err(|m| value_err(&m)),
         },
@@ -93,29 +93,29 @@ pub async fn backlink_call<T: Transport>(
     let Some(op) = operation.as_str().filter(|s| OPS.contains(s)) else {
         return Err(value_err("unsupported backlink operation"));
     };
-    if !pystr::truthy(Some(target)) || !target.is_string() {
+    if !text_rules::truthy(Some(target)) || !target.is_string() {
         return Err(value_err("target required"));
     }
     let default_limit = json!(100);
     let default_offset = json!(0);
     let limit = args.limit.unwrap_or(&default_limit);
-    let limit_i = match pystr::as_strict_i64(Some(limit)) {
+    let limit_i = match text_rules::as_strict_i64(Some(limit)) {
         Some(v) if (1..=1000).contains(&v) => v,
         _ => return Err(value_err("limit must be between 1 and 1000")),
     };
     let offset = args.offset.unwrap_or(&default_offset);
-    let offset_i = match pystr::as_strict_i64(Some(offset)) {
+    let offset_i = match text_rules::as_strict_i64(Some(offset)) {
         Some(v) if v >= 0 => v,
         _ => return Err(value_err("offset must be a non-negative integer")),
     };
-    if !pystr::truthy(args.enabled) {
+    if !text_rules::truthy(args.enabled) {
         return Ok(json!({
             "ok": false,
             "state": "skipped",
             "reason": "backlink adapter is disabled by default",
         }));
     }
-    if !pystr::truthy(args.account_eligible) || !pystr::truthy(args.cache_key) {
+    if !text_rules::truthy(args.account_eligible) || !text_rules::truthy(args.cache_key) {
         return Ok(json!({
             "ok": false,
             "state": "skipped",
@@ -131,7 +131,8 @@ pub async fn backlink_call<T: Transport>(
         }
     }
     if requested_env == "prod"
-        && (!pystr::truthy(args.production_approved) || !pystr::truthy(args.cost_approved))
+        && (!text_rules::truthy(args.production_approved)
+            || !text_rules::truthy(args.cost_approved))
     {
         return Ok(json!({
             "ok": false,
@@ -149,21 +150,21 @@ pub async fn backlink_call<T: Transport>(
             Some(d) => d,
             None => end - 30,
         };
-        if start < pytime::days_from_civil(2019, 1, 1) || start > end || end > env.today() {
+        if start < datetime::days_from_civil(2019, 1, 1) || start > end || end > env.today() {
             return Err(value_err(
                 "history dates must be ordered within 2019-01-01 and today",
             ));
         }
-        let (sy, sm, _) = pytime::civil_from_days(start);
-        let (ey, em, _) = pytime::civil_from_days(end);
+        let (sy, sm, _) = datetime::civil_from_days(start);
+        let (ey, em, _) = datetime::civil_from_days(end);
         let months = (ey - sy) * 12 + em - sm + 1;
         if months > limit_i {
             return Err(value_err(
                 "history date range exceeds the declared row limit",
             ));
         }
-        let (_, _, sd) = pytime::civil_from_days(start);
-        let (_, _, ed) = pytime::civil_from_days(end);
+        let (_, _, sd) = datetime::civil_from_days(start);
+        let (_, _, ed) = datetime::civil_from_days(end);
         history_dates = json!({
             "date_from": format!("{sy:04}-{sm:02}-{sd:02}"),
             "date_to": format!("{ey:04}-{em:02}-{ed:02}"),

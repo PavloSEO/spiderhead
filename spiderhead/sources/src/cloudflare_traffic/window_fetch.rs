@@ -3,7 +3,7 @@
 use super::*;
 
 pub(super) fn stamp_day(days: i64) -> String {
-    let (y, m, d) = pytime::civil_from_days(days);
+    let (y, m, d) = datetime::civil_from_days(days);
     format!("{y:04}-{m:02}-{d:02}")
 }
 
@@ -37,8 +37,8 @@ pub(crate) fn py_quote(value: &Value, safe: &str) -> Result<String, CfError> {
 /// Integer value: falsy input is `0`; other values use the usual integer rules and their errors.
 pub(super) fn py_int_or_zero(value: Option<&Value>) -> Result<i64, CfError> {
     match value {
-        Some(v) if pystr::truthy(Some(v)) => {
-            pystr::to_python_int(v).map_err(|(class, msg)| match class {
+        Some(v) if text_rules::truthy(Some(v)) => {
+            text_rules::to_int(v).map_err(|(class, msg)| match class {
                 "ValueError" => CfError::Value(msg),
                 other => CfError::Classed(other, msg),
             })
@@ -78,8 +78,8 @@ pub(super) fn py_scalar_lt(a: &Value, b: &Value) -> Result<bool, CfError> {
             "TypeError",
             format!(
                 "'<' not supported between instances of '{}' and '{}'",
-                pystr::type_name(a),
-                pystr::type_name(b)
+                text_rules::type_name(a),
+                text_rules::type_name(b)
             ),
         )),
     }
@@ -173,7 +173,7 @@ pub(super) fn fetch_window<'a, T: Transport + Send + Sync>(
         };
         split.queries += 1;
         // A non-object payload is an error when its `errors` field is read.
-        if pystr::truthy(crate::cloudflare::obj_get(&payload, "errors")?) {
+        if text_rules::truthy(crate::cloudflare::obj_get(&payload, "errors")?) {
             return Err(CfError::Cloudflare(format!(
                 "GraphQL error: {}",
                 errors_or_attr(&payload)?
@@ -184,18 +184,18 @@ pub(super) fn fetch_window<'a, T: Transport + Send + Sync>(
         let data = py_get_or_obj(&payload, "data", &EMPTY)?;
         let viewer = py_get_or_obj(data, "viewer", &EMPTY)?;
         let accounts = match crate::cloudflare::obj_get(viewer, "accounts")? {
-            Some(v) if pystr::truthy(Some(v)) => v.clone(),
+            Some(v) if text_rules::truthy(Some(v)) => v.clone(),
             _ => Value::Array(Vec::new()),
         };
         // The first account is used when present; other value kinds fail the same way indexing does.
-        let first = if pystr::truthy(Some(&accounts)) {
+        let first = if text_rules::truthy(Some(&accounts)) {
             crate::cloudflare::py_index0(&accounts)?
         } else {
             EMPTY.clone()
         };
         // The adaptive groups list keeps the value's own type for the length and iteration checks below.
         let found = match crate::cloudflare::obj_get(&first, "httpRequestsAdaptiveGroups")? {
-            Some(v) if pystr::truthy(Some(v)) => v.clone(),
+            Some(v) if text_rules::truthy(Some(v)) => v.clone(),
             _ => Value::Array(Vec::new()),
         };
         if (py_len(&found)? as i64) < page_size {

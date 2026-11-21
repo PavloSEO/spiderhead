@@ -9,7 +9,7 @@ use serde_json::{json, Value};
 use super::nodes::{is_schema_org_context, strip_term, Node};
 use crate::bs4_out::get_text_stripped;
 use crate::dom::ElementRef;
-use crate::py_str::{is_py_space, py_strip};
+use crate::strings::{is_space, strip};
 use crate::urlutil::urljoin;
 
 pub(super) const RDFA_COPY: &str = "http://www.w3.org/ns/rdfa#copy";
@@ -54,7 +54,7 @@ pub(super) fn has_attr(node: &NodeRef<'_, DomNode>, name: &str) -> bool {
 }
 
 pub(super) fn rdfa_term(value: &str, vocab: &str, prefixes: &Prefixes) -> (String, bool) {
-    let mut value = py_strip(value).trim_matches(['[', ']']).to_owned();
+    let mut value = strip(value).trim_matches(['[', ']']).to_owned();
     if value.contains(':') && !value.starts_with("http://") && !value.starts_with("https://") {
         let (prefix, local) = value.split_once(':').unwrap_or((&value, ""));
         let resolved = prefixes
@@ -109,7 +109,7 @@ pub(super) fn prefix_pairs(text: &str) -> Vec<(String, String)> {
         }
         let mut k = j + 1;
         let ws_start = k;
-        while k < chars.len() && is_py_space(chars[k]) {
+        while k < chars.len() && is_space(chars[k]) {
             k += 1;
         }
         if k == ws_start {
@@ -117,7 +117,7 @@ pub(super) fn prefix_pairs(text: &str) -> Vec<(String, String)> {
             continue;
         }
         let ns_start = k;
-        while k < chars.len() && !is_py_space(chars[k]) {
+        while k < chars.len() && !is_space(chars[k]) {
             k += 1;
         }
         if k == ns_start {
@@ -152,7 +152,7 @@ impl Reader {
     }
 
     pub(super) fn iri(&mut self, value: &str, base: &str, prefixes: &Prefixes) -> String {
-        let mut value = py_strip(value);
+        let mut value = strip(value);
         if value.starts_with('[') && value.ends_with(']') && value.len() >= 2 {
             value = &value[1..value.len() - 1];
         }

@@ -1,7 +1,7 @@
 //! Constants and pure helpers shared by the parser layers.
 
 use crate::dom::ElementRef;
-use crate::py_url::{unquote, urlparse};
+use crate::url_parse::{unquote, urlparse};
 use crate::urlutil::hostname;
 
 pub use spiderhead_core::user_agents::CHECKS_PARSER_USER_AGENT as DEFAULT_UA;
@@ -125,7 +125,7 @@ pub fn eq_ci(value: Option<&str>, target: &str) -> bool {
 
 /// Collapse runs of whitespace to single spaces and trim; `None` or empty input gives an empty string.
 pub fn collapse_whitespace(text: &str) -> String {
-    text.split(crate::py_str::is_py_space)
+    text.split(crate::strings::is_space)
         .filter(|part| !part.is_empty())
         .collect::<Vec<_>>()
         .join(" ")

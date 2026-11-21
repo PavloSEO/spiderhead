@@ -9,8 +9,8 @@ use serde_json::{Map, Value};
 
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::norm_url;
-use crate::pyvalue::truthy_opt;
 use crate::rules::shared::{body_unavailable, has_column, rec};
+use crate::value_text::truthy_opt;
 
 // AMP pairing codes (#1020). Each reads the AMP target a desktop page declares with
 // <link rel="amphtml">, and only the AMP pages the crawl actually captured.

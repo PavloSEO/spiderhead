@@ -15,7 +15,7 @@ use crate::credentials::{yandex_cloud_api_key, yandex_cloud_folder_id, Credentia
 use crate::http::{exponential_pause, retry_slots, Request, Sleeper, Transport, TransportError};
 use crate::metrika::{py_eq, SpendSink};
 use crate::spend::{self, Record};
-use crate::{pyerr, pyjson, pystr};
+use crate::{error_text, json_wire, text_rules};
 
 mod errors;
 pub use errors::*;
@@ -65,7 +65,7 @@ pub struct CloudArgs<'a> {
 impl<'e, T: Transport> Cloud<'e, T> {
     /// Build the base client; credentials resolve eagerly, at construction.
     pub fn new(env: &'e CloudEnv<'e, T>, args: &CloudArgs<'e>) -> Result<Self, CloudError> {
-        let key = if pystr::truthy(args.api_key) {
+        let key = if text_rules::truthy(args.api_key) {
             str_value(args.api_key.unwrap_or(&Value::Null))
         } else {
             cloud_credential("api key", || match env.api_key {
@@ -73,7 +73,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                 None => yandex_cloud_api_key(env.host, env.root),
             })?
         };
-        let folder = if pystr::truthy(args.folder_id) {
+        let folder = if text_rules::truthy(args.folder_id) {
             str_value(args.folder_id.unwrap_or(&Value::Null))
         } else {
             cloud_credential("folder id", || match env.folder_id {
@@ -125,13 +125,13 @@ impl<'e, T: Transport> Cloud<'e, T> {
             match call.send(method, url, body, &self.key).await {
                 Ok(answer) if answer.strict => {
                     // A decode or JSON error on either step is journaled when billed, then raised.
-                    let parsed = pystr::decode_utf8_strict(&answer.body)
+                    let parsed = text_rules::decode_utf8_strict(&answer.body)
                         .map_err(CloudError::Decode)
                         .and_then(|text| {
                             serde_json::from_str(&text).map_err(|_| {
                                 CloudError::classed(
                                     "JSONDecodeError",
-                                    pyjson::decode_error(&text)
+                                    json_wire::decode_error(&text)
                                         .unwrap_or_else(|| "JSON decode error".to_owned()),
                                 )
                             })
@@ -210,7 +210,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
         regions: &Value,
         devices: &Value,
     ) -> Result<Value, CloudError> {
-        let num_phrases = match pystr::to_python_int(limit) {
+        let num_phrases = match text_rules::to_int(limit) {
             Ok(value) => value,
             Err((class, message)) => return Err(CloudError::classed(class, message)),
         };
@@ -327,7 +327,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                     "AttributeError",
                     format!(
                         "'{}' object has no attribute 'get'",
-                        pystr::type_name(other)
+                        text_rules::type_name(other)
                     ),
                 )),
             }
@@ -339,14 +339,14 @@ impl<'e, T: Transport> Cloud<'e, T> {
             let items = match &items {
                 // A falsy member yields nothing; a truthy non-list is iterated (text by characters, objects by keys)
                 // before the item lookup fails, or is rejected when it is not iterable at all.
-                _ if !pystr::truthy(Some(&items)) => Vec::new(),
+                _ if !text_rules::truthy(Some(&items)) => Vec::new(),
                 Value::Array(items) => items.clone(),
                 Value::String(text) => text.chars().map(|c| json!(c.to_string())).collect(),
                 Value::Object(map) => map.keys().cloned().map(Value::String).collect(),
                 other => {
                     return Err(CloudError::classed(
                         "TypeError",
-                        format!("'{}' object is not iterable", pystr::type_name(other)),
+                        format!("'{}' object is not iterable", text_rules::type_name(other)),
                     ))
                 }
             };
@@ -358,7 +358,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                             "AttributeError",
                             format!(
                                 "'{}' object has no attribute 'get'",
-                                pystr::type_name(other)
+                                text_rules::type_name(other)
                             ),
                         ))
                     }
@@ -371,8 +371,8 @@ impl<'e, T: Transport> Cloud<'e, T> {
                 let count = match item {
                     Value::Object(map) => {
                         let raw = map.get("count").cloned().unwrap_or(Value::Null);
-                        if pystr::truthy(Some(&raw)) {
-                            pystr::to_python_int(&raw).unwrap_or(0)
+                        if text_rules::truthy(Some(&raw)) {
+                            text_rules::to_int(&raw).unwrap_or(0)
                         } else {
                             0
                         }
@@ -450,7 +450,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                     "AttributeError",
                     format!(
                         "'{}' object has no attribute 'get'",
-                        pystr::type_name(other)
+                        text_rules::type_name(other)
                     ),
                 ))
             }
@@ -460,8 +460,8 @@ impl<'e, T: Transport> Cloud<'e, T> {
         while self.env.monotonic() < deadline {
             self.env.sleeper.pause(5.0).await;
             let (_, done) = self.request(&op_url, None, "GET", 5, false, None).await?;
-            if done.is_object() && pystr::truthy(done.get("done")) {
-                if pystr::truthy(done.get("error")) {
+            if done.is_object() && text_rules::truthy(done.get("done")) {
+                if text_rules::truthy(done.get("error")) {
                     return Err(CloudError::classed(
                         "RuntimeError",
                         format!(
@@ -510,7 +510,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
             other => {
                 return Err(CloudError::classed(
                     "TypeError",
-                    format!("'{}' object is not iterable", pystr::type_name(other)),
+                    format!("'{}' object is not iterable", text_rules::type_name(other)),
                 ))
             }
         };
@@ -522,8 +522,8 @@ impl<'e, T: Transport> Cloud<'e, T> {
                     "TypeError",
                     format!(
                         "cannot use '{}' as a dict key (unhashable type: '{}')",
-                        pystr::type_name(&query),
-                        pystr::type_name(&query)
+                        text_rules::type_name(&query),
+                        text_rules::type_name(&query)
                     ),
                 ));
             }
@@ -564,7 +564,7 @@ impl<'e, T: Transport> Cloud<'e, T> {
                 Err(err) => return Err(err),
             };
             if status == 200
-                && matches!(&operation, Value::Object(map) if pystr::truthy(map.get("id")))
+                && matches!(&operation, Value::Object(map) if text_rules::truthy(map.get("id")))
             {
                 let operation_id = operation.get("id").cloned().unwrap_or(Value::Null);
                 pending.push((operation_id.clone(), query.clone()));
@@ -620,11 +620,11 @@ impl<'e, T: Transport> Cloud<'e, T> {
                     );
                     continue;
                 }
-                if !(done.is_object() && pystr::truthy(done.get("done"))) {
+                if !(done.is_object() && text_rules::truthy(done.get("done"))) {
                     still.push((operation_id, query));
                     continue;
                 }
-                if pystr::truthy(done.get("error")) {
+                if text_rules::truthy(done.get("error")) {
                     results.insert(
                         dict_key(&query),
                         json!({

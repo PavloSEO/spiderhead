@@ -120,7 +120,7 @@ pub fn archive_project(
             "project_format": crate::workspace::PROJECT_FORMAT,
             "seohead_version": spiderhead_core::user_agents::PRODUCT_VERSION,
             "project_uuid": document["project_uuid"],
-            "created_at": crate::pytime::now_iso_micros(),
+            "created_at": crate::datetime::now_iso_micros(),
             "directories": DIRECTORIES,
             "files": entries,
         });
@@ -133,7 +133,7 @@ pub fn archive_project(
                 .start_file(MANIFEST, options)
                 .map_err(|e| value(e.to_string()))?;
             writer
-                .write_all(crate::pyjson::dumps_indent2(&manifest).as_bytes())
+                .write_all(crate::json_docs::dumps_indent2(&manifest).as_bytes())
                 .map_err(|e| value(e.to_string()))?;
             for (rel, copy) in &staged {
                 writer

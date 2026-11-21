@@ -9,10 +9,10 @@ use serde_json::{json, Value};
 use crate::labels::{label as human_label, title as human_title, value_lines};
 use crate::localization::ui;
 use crate::panels::select;
-use crate::pyjson::{self, OrPy};
 use crate::state::{PageIdentity, ShellState};
 use crate::text::Text;
 use crate::theme::Palette;
+use crate::values::{self, OrTruthy};
 
 /// `_view_key` — only data selection belongs in the read key.
 pub fn view_key(state: &ShellState) -> Value {
@@ -81,12 +81,12 @@ pub fn page_selection(state: &mut ShellState, items: &[Value], pagination: &Valu
             if item.is_object() {
                 ["fingerprint", "uuid", "project_uuid", "id", "name"]
                     .iter()
-                    .filter_map(|k| pyjson::get(item, k))
-                    .find(|v| pyjson::truthy(v))
-                    .map(pyjson::py_str)
+                    .filter_map(|k| values::get(item, k))
+                    .find(|v| values::truthy(v))
+                    .map(values::scalar_text)
                     .unwrap_or_else(|| "None".into())
             } else {
-                pyjson::py_str(item)
+                values::scalar_text(item)
             }
         })
         .collect();
@@ -119,15 +119,15 @@ pub fn page_selection(state: &mut ShellState, items: &[Value], pagination: &Valu
         identities.get(state.watch_index as usize).cloned()
     };
     state.watch_page_identity = Some(page_identity);
-    state.watch_next_offset = pyjson::int_of(pagination, "next_offset");
-    state.watch_previous_offset = if pyjson::get(pagination, "previous_offset").is_some() {
-        pyjson::int_of(pagination, "previous_offset")
+    state.watch_next_offset = values::int_of(pagination, "next_offset");
+    state.watch_previous_offset = if values::get(pagination, "previous_offset").is_some() {
+        values::int_of(pagination, "previous_offset")
     } else {
         Some((state.watch_offset - 50).max(0))
     };
-    let total = pyjson::get(pagination, "total")
-        .or_else(|| pyjson::get(pagination, "matched"))
-        .map(pyjson::py_str)
+    let total = values::get(pagination, "total")
+        .or_else(|| values::get(pagination, "matched"))
+        .map(values::scalar_text)
         .unwrap_or_else(|| items.len().to_string());
     let start = if items.is_empty() {
         0
@@ -144,25 +144,25 @@ pub fn page_selection(state: &mut ShellState, items: &[Value], pagination: &Valu
 /// `_local_entries` — sections served from the snapshot itself.
 pub fn local_entries(snapshot: &Value, section: &str) -> Vec<Value> {
     if section == "sites" {
-        let mut sites = pyjson::path(snapshot, &["sites", "items"])
+        let mut sites = values::path(snapshot, &["sites", "items"])
             .and_then(Value::as_array)
             .cloned()
             .unwrap_or_default();
-        let inbox_key = if pyjson::get(snapshot, "latest_inbox").is_some() {
+        let inbox_key = if values::get(snapshot, "latest_inbox").is_some() {
             "latest_inbox"
         } else {
             "inbox"
         };
-        for entry in pyjson::list_of(pyjson::obj(snapshot, inbox_key), "entries") {
-            let entry_id = pyjson::str_of(entry, "id").to_string();
-            for (outcome_index, outcome) in pyjson::list_of(entry, "triage").iter().enumerate() {
-                let reason = pyjson::get(outcome, "reason")
+        for entry in values::list_of(values::obj(snapshot, inbox_key), "entries") {
+            let entry_id = values::str_of(entry, "id").to_string();
+            for (outcome_index, outcome) in values::list_of(entry, "triage").iter().enumerate() {
+                let reason = values::get(outcome, "reason")
                     .cloned()
                     .unwrap_or(Value::Null);
-                let recorded = pyjson::get(outcome, "recorded_at")
+                let recorded = values::get(outcome, "recorded_at")
                     .cloned()
                     .unwrap_or(Value::Null);
-                for (ordinal, target) in pyjson::list_of(outcome, "competitors").iter().enumerate()
+                for (ordinal, target) in values::list_of(outcome, "competitors").iter().enumerate()
                 {
                     let host = target
                         .as_str()
@@ -188,18 +188,18 @@ pub fn local_entries(snapshot: &Value, section: &str) -> Vec<Value> {
         return sites;
     }
     if section == "activity" {
-        let mut runs: Vec<Value> = pyjson::path(snapshot, &["sites", "items"])
+        let mut runs: Vec<Value> = values::path(snapshot, &["sites", "items"])
             .and_then(Value::as_array)
             .map(|items| {
                 items
                     .iter()
                     .flat_map(|site| {
-                        let label = pyjson::path(site, &["site", "label"])
-                            .or_py(|| pyjson::path(site, &["site", "host"]))
-                            .filter(|v| pyjson::truthy(v))
+                        let label = values::path(site, &["site", "label"])
+                            .or_truthy(|| values::path(site, &["site", "host"]))
+                            .filter(|v| values::truthy(v))
                             .cloned()
                             .unwrap_or(Value::Null);
-                        pyjson::path(site, &["runs", "items"])
+                        values::path(site, &["runs", "items"])
                             .and_then(Value::as_array)
                             .map(|arr| arr.as_slice())
                             .unwrap_or(&[])
@@ -215,7 +215,7 @@ pub fn local_entries(snapshot: &Value, section: &str) -> Vec<Value> {
             })
             .unwrap_or_default();
         runs.extend(
-            pyjson::path(snapshot, &["execution", "runs"])
+            values::path(snapshot, &["execution", "runs"])
                 .and_then(Value::as_array)
                 .cloned()
                 .unwrap_or_default()
@@ -225,21 +225,21 @@ pub fn local_entries(snapshot: &Value, section: &str) -> Vec<Value> {
         return runs;
     }
     if section == "sf" {
-        return pyjson::path(snapshot, &["runs", "items"])
+        return values::path(snapshot, &["runs", "items"])
             .and_then(Value::as_array)
             .cloned()
             .unwrap_or_default()
             .into_iter()
-            .filter(|item| pyjson::str_of(item, "kind") == "screaming_frog")
+            .filter(|item| values::str_of(item, "kind") == "screaming_frog")
             .collect();
     }
     if section == "views" {
-        return pyjson::path(snapshot, &["saved_views", "views"])
+        return values::path(snapshot, &["saved_views", "views"])
             .and_then(Value::as_array)
             .cloned()
             .unwrap_or_default();
     }
-    pyjson::path(snapshot, &["log", "text"])
+    values::path(snapshot, &["log", "text"])
         .and_then(Value::as_str)
         .map(|text| text.lines().map(|l| json!(l)).collect())
         .unwrap_or_default()
@@ -263,12 +263,12 @@ pub fn local_page(snapshot: &Value, state: &mut ShellState) -> (Vec<Value>, Stri
 
 /// `_rate_text` — a measured resource rate, never a machine code.
 pub fn rate_text(telemetry: &Value) -> String {
-    let unit = if pyjson::str_of(telemetry, "unit") == "urls_including_resources" {
+    let unit = if values::str_of(telemetry, "unit") == "urls_including_resources" {
         "URLs incl. resources"
     } else {
         "pages"
     };
-    match pyjson::float_of(telemetry, "current_rate_per_second") {
+    match values::float_of(telemetry, "current_rate_per_second") {
         Some(rate) => format!("{rate:.2} {unit}/s"),
         None => ui("rate unavailable"),
     }
@@ -276,14 +276,14 @@ pub fn rate_text(telemetry: &Value) -> String {
 
 /// `_run_summary` — one line per run in activity views.
 pub fn run_summary(item: &Value) -> String {
-    let telemetry = pyjson::obj(item, "telemetry");
-    let title = pyjson::path(item, &["scenario", "id"])
-        .filter(|v| pyjson::truthy(v))
-        .map(pyjson::py_str)
-        .unwrap_or_else(|| human_label(pyjson::get(item, "kind").unwrap_or(&Value::Null)));
-    let mode = pyjson::path(item, &["collector", "mode"]).filter(|v| pyjson::truthy(v));
-    let state_label = pyjson::get(telemetry, "state")
-        .filter(|v| pyjson::truthy(v))
+    let telemetry = values::obj(item, "telemetry");
+    let title = values::path(item, &["scenario", "id"])
+        .filter(|v| values::truthy(v))
+        .map(values::scalar_text)
+        .unwrap_or_else(|| human_label(values::get(item, "kind").unwrap_or(&Value::Null)));
+    let mode = values::path(item, &["collector", "mode"]).filter(|v| values::truthy(v));
+    let state_label = values::get(telemetry, "state")
+        .filter(|v| values::truthy(v))
         .map(|s| {
             if s.as_str() == Some("stale") {
                 ui("Stale sample")
@@ -292,19 +292,19 @@ pub fn run_summary(item: &Value) -> String {
             }
         });
     [
-        pyjson::get(item, "site_label")
-            .filter(|v| pyjson::truthy(v))
-            .map(pyjson::py_str),
+        values::get(item, "site_label")
+            .filter(|v| values::truthy(v))
+            .map(values::scalar_text),
         Some(title),
         Some(human_label(
-            pyjson::get(item, "state").unwrap_or(&Value::Null),
+            values::get(item, "state").unwrap_or(&Value::Null),
         )),
         mode.map(human_label),
         state_label,
         Some(rate_text(telemetry)),
-        pyjson::get(item, "next_action")
-            .filter(|v| pyjson::truthy(v))
-            .map(pyjson::py_str),
+        values::get(item, "next_action")
+            .filter(|v| values::truthy(v))
+            .map(values::scalar_text),
     ]
     .into_iter()
     .flatten()
@@ -346,43 +346,43 @@ pub fn watch_lines(
     };
     owned_data = data;
     let data = &owned_data;
-    if pyjson::truthy(pyjson::get(data, "loading").unwrap_or(&Value::Null))
-        || pyjson::get(data, "error").is_some()
+    if values::truthy(values::get(data, "loading").unwrap_or(&Value::Null))
+        || values::get(data, "error").is_some()
     {
         return vec![Text::new(
-            &pyjson::get(data, "error")
-                .map(pyjson::py_str)
+            &values::get(data, "error")
+                .map(values::scalar_text)
                 .unwrap_or_else(|| ui("Loading retained entries…")),
             "",
         )];
     }
-    let mut site = pyjson::path(snapshot, &["project", "site"])
+    let mut site = values::path(snapshot, &["project", "site"])
         .cloned()
         .unwrap_or(json!({}));
     if state.watch_site_uuid.is_some()
         && ["scans", "findings", "views"].contains(&state.watch_section.as_str())
     {
-        if let Some(found) = pyjson::path(snapshot, &["sites", "items"])
+        if let Some(found) = values::path(snapshot, &["sites", "items"])
             .and_then(Value::as_array)
             .and_then(|items| {
                 items.iter().find(|item| {
-                    pyjson::str_of(item, "project_uuid")
+                    values::str_of(item, "project_uuid")
                         == state.watch_site_uuid.as_deref().unwrap_or("")
                 })
             })
         {
-            site = pyjson::get(found, "site").cloned().unwrap_or(json!({}));
+            site = values::get(found, "site").cloned().unwrap_or(json!({}));
         }
     }
-    let progress = pyjson::obj(snapshot, "progress");
-    let preparation = pyjson::obj(snapshot, "preparation");
+    let progress = values::obj(snapshot, "progress");
+    let preparation = values::obj(snapshot, "preparation");
     let section = state.watch_section.clone();
-    let site_name = pyjson::get(&site, "label")
-        .or_py(|| pyjson::get(&site, "host"))
+    let site_name = values::get(&site, "label")
+        .or_truthy(|| values::get(&site, "host"))
         .and_then(Value::as_str)
         .unwrap_or("")
         .to_string();
-    let site_target = pyjson::str_of(&site, "target").to_string();
+    let site_target = values::str_of(&site, "target").to_string();
     let mut lines = vec![
         Text::new(
             &format!("{section} · {site_name}"),
@@ -400,8 +400,8 @@ pub fn watch_lines(
                 .cloned()
                 .unwrap_or(json!({}));
             state.watch_site_detail_uuid =
-                pyjson::get(&selected, "project_uuid").map(pyjson::py_str);
-            state.watch_site_openable = !pyjson::get(&selected, "directory")
+                values::get(&selected, "project_uuid").map(values::scalar_text);
+            state.watch_site_openable = !values::get(&selected, "directory")
                 .unwrap_or(&Value::Null)
                 .is_null();
             lines.push(Text::new(
@@ -411,18 +411,18 @@ pub fn watch_lines(
             let entries: Vec<String> = sites
                 .iter()
                 .map(|item| {
-                    let total = pyjson::path(item, &["scans", "total"]);
+                    let total = values::path(item, &["scans", "total"]);
                     let scans = match total.and_then(Value::as_i64) {
                         Some(t) => format!("{t} saved scans"),
                         None => "No scan measurement".into(),
                     };
-                    let site_label = pyjson::path(item, &["site", "label"])
-                        .or_py(|| pyjson::path(item, &["site", "target"]))
-                        .map(pyjson::py_str)
+                    let site_label = values::path(item, &["site", "label"])
+                        .or_truthy(|| values::path(item, &["site", "target"]))
+                        .map(values::scalar_text)
                         .unwrap_or_default();
                     format!(
                         "{} · {} · {}",
-                        human_label(pyjson::get(item, "role").unwrap_or(&Value::Null)),
+                        human_label(values::get(item, "role").unwrap_or(&Value::Null)),
                         site_label,
                         scans
                     )
@@ -431,21 +431,21 @@ pub fn watch_lines(
             lines.extend(select(&entries, state.watch_index, palette));
         }
         "tasks" | "methods" | "schema" => {
-            let items = pyjson::list_of(data, "items");
-            let page_hint = page_selection(state, items, pyjson::obj(data, "pagination"));
+            let items = values::list_of(data, "items");
+            let page_hint = page_selection(state, items, values::obj(data, "pagination"));
             state.watch_item_id = items
                 .get(state.watch_index.max(0) as usize)
-                .and_then(|i| pyjson::get(i, "id"))
-                .map(pyjson::py_str);
+                .and_then(|i| values::get(i, "id"))
+                .map(values::scalar_text);
             let entries: Vec<String> = items
                 .iter()
                 .map(|item| {
                     format!(
                         "{} · {}",
-                        human_title(pyjson::str_of(item, "title")),
+                        human_title(values::str_of(item, "title")),
                         human_label(
-                            pyjson::get(item, "display_state")
-                                .or_else(|| pyjson::get(item, "state"))
+                            values::get(item, "display_state")
+                                .or_else(|| values::get(item, "state"))
                                 .unwrap_or(&Value::Null)
                         )
                     )
@@ -474,51 +474,51 @@ pub fn watch_lines(
             }
         }
         "scans" => {
-            let scans = pyjson::list_of(data, "items");
-            let page_hint = page_selection(state, scans, pyjson::obj(data, "pagination"));
+            let scans = values::list_of(data, "items");
+            let page_hint = page_selection(state, scans, values::obj(data, "pagination"));
             let mut entries = Vec::new();
             for scan in scans {
                 let partial =
-                    pyjson::truthy(pyjson::get(scan, "crawl_partial").unwrap_or(&Value::Null))
-                        || pyjson::truthy(
-                            pyjson::get(scan, "corpus_partial").unwrap_or(&Value::Null),
+                    values::truthy(values::get(scan, "crawl_partial").unwrap_or(&Value::Null))
+                        || values::truthy(
+                            values::get(scan, "corpus_partial").unwrap_or(&Value::Null),
                         );
                 let status = if partial {
                     Value::String("partial".into())
                 } else {
-                    pyjson::get(scan, "lifecycle")
+                    values::get(scan, "lifecycle")
                         .cloned()
                         .unwrap_or(Value::Null)
                 };
-                let finding_count = pyjson::path(scan, &["evidence", "findings", "total"])
-                    .map(pyjson::py_str)
+                let finding_count = values::path(scan, &["evidence", "findings", "total"])
+                    .map(values::scalar_text)
                     .unwrap_or_else(|| "unavailable".into());
-                let uuid = pyjson::str_of(scan, "uuid");
+                let uuid = values::str_of(scan, "uuid");
                 entries.push(format!(
                     "{} · {} · {} findings · {} · {}",
-                    human_label(pyjson::get(scan, "source_kind").unwrap_or(&Value::Null)),
+                    human_label(values::get(scan, "source_kind").unwrap_or(&Value::Null)),
                     human_label(&status),
                     finding_count,
-                    human_label(pyjson::get(scan, "finish_reason").unwrap_or(&Value::Null)),
+                    human_label(values::get(scan, "finish_reason").unwrap_or(&Value::Null)),
                     &uuid[..uuid.len().min(8)]
                 ));
             }
             if let Some(scan) = scans.get(state.watch_index.max(0) as usize) {
-                state.watch_selected_scan_uuid = Some(pyjson::str_of(scan, "uuid").to_string());
+                state.watch_selected_scan_uuid = Some(values::str_of(scan, "uuid").to_string());
             }
             lines.push(Text::new(&page_hint, ""));
             lines.extend(select(&entries, state.watch_index, palette));
-            if let Some(steps) = pyjson::get(preparation, "steps").and_then(Value::as_object) {
+            if let Some(steps) = values::get(preparation, "steps").and_then(Value::as_object) {
                 for (name, step) in steps {
                     if ["crawl", "sitemap"].contains(&name.as_str()) {
                         lines.push(Text::new(
                             &format!(
                                 "  {}: {} · {}",
                                 name,
-                                pyjson::get(step, "state")
-                                    .map(pyjson::py_str)
+                                values::get(step, "state")
+                                    .map(values::scalar_text)
                                     .unwrap_or_else(|| ui("unknown")),
-                                pyjson::str_of(step, "reason")
+                                values::str_of(step, "reason")
                             ),
                             "",
                         ));
@@ -528,31 +528,31 @@ pub fn watch_lines(
         }
         "findings" => {
             let page = data;
-            if pyjson::truthy(&Value::Bool(!page.is_null())) {
-                let items = pyjson::list_of(page, "items");
-                let pagination = pyjson::obj(page, "pagination").clone();
+            if values::truthy(&Value::Bool(!page.is_null())) {
+                let items = values::list_of(page, "items");
+                let pagination = values::obj(page, "pagination").clone();
                 let mut merged = pagination.clone();
-                merged["total"] = pyjson::path(page, &["counts", "matched"])
+                merged["total"] = values::path(page, &["counts", "matched"])
                     .cloned()
                     .unwrap_or(Value::Null);
                 page_selection(state, items, &merged);
                 state.watch_selected_scan_uuid =
-                    pyjson::path(page, &["scan", "uuid"]).map(pyjson::py_str);
+                    values::path(page, &["scan", "uuid"]).map(values::scalar_text);
                 state.watch_detail_ordinal = None;
                 if let Some(item) = items.get(state.watch_index.max(0) as usize) {
-                    state.watch_detail_ordinal = pyjson::int_of(item, "ordinal");
+                    state.watch_detail_ordinal = values::int_of(item, "ordinal");
                 }
                 lines.push(Text::new(
                     &format!(
                         "findings {}/{} · page {} · filter={} · sort={} {}",
-                        pyjson::path(page, &["counts", "matched"])
-                            .map(pyjson::py_str)
+                        values::path(page, &["counts", "matched"])
+                            .map(values::scalar_text)
                             .unwrap_or_default(),
-                        pyjson::path(page, &["counts", "source"])
-                            .map(pyjson::py_str)
+                        values::path(page, &["counts", "source"])
+                            .map(values::scalar_text)
                             .unwrap_or_default(),
-                        pyjson::int_of(&pagination, "offset").unwrap_or(0),
-                        pyjson::py_repr(&state.watch_query),
+                        values::int_of(&pagination, "offset").unwrap_or(0),
+                        values::repr(&state.watch_query),
                         state.watch_sort,
                         if state.watch_descending {
                             "desc"
@@ -565,22 +565,22 @@ pub fn watch_lines(
                 let entries: Vec<String> = items
                     .iter()
                     .map(|item| {
-                        let message = pyjson::get(item, "message")
+                        let message = values::get(item, "message")
                             .and_then(Value::as_str)
                             .filter(|s| !s.is_empty())
                             .map(str::to_string)
                             .unwrap_or_else(|| {
                                 human_label(
-                                    pyjson::get(item, "check")
-                                        .or_py(|| pyjson::get(item, "id"))
+                                    values::get(item, "check")
+                                        .or_truthy(|| values::get(item, "id"))
                                         .unwrap_or(&Value::Null),
                                 )
                             });
                         format!(
                             "{} · {} · {}",
-                            human_label(pyjson::get(item, "severity").unwrap_or(&Value::Null)),
+                            human_label(values::get(item, "severity").unwrap_or(&Value::Null)),
                             message,
-                            pyjson::get(item, "target_url")
+                            values::get(item, "target_url")
                                 .and_then(Value::as_str)
                                 .unwrap_or("")
                         )
@@ -600,20 +600,20 @@ pub fn watch_lines(
             let view_lines: Vec<String> = views
                 .iter()
                 .map(|item| {
-                    let columns = pyjson::path(item, &["definition", "columns"])
+                    let columns = values::path(item, &["definition", "columns"])
                         .and_then(Value::as_array)
                         .map(|cols| {
                             cols.iter()
-                                .map(pyjson::py_str)
+                                .map(values::scalar_text)
                                 .collect::<Vec<String>>()
                                 .join(", ")
                         })
                         .unwrap_or_default();
                     format!(
                         "{} · revision {} · {}",
-                        pyjson::str_of(item, "name"),
-                        pyjson::get(item, "revision")
-                            .map(pyjson::py_str)
+                        values::str_of(item, "name"),
+                        values::get(item, "revision")
+                            .map(values::scalar_text)
                             .unwrap_or_default(),
                         columns
                     )
@@ -621,23 +621,23 @@ pub fn watch_lines(
                 .collect();
             state.watch_view_name = views
                 .get(state.watch_index.max(0) as usize)
-                .and_then(|v| pyjson::get(v, "name"))
-                .map(pyjson::py_str);
-            let review = pyjson::obj(snapshot, "review");
+                .and_then(|v| values::get(v, "name"))
+                .map(values::scalar_text);
+            let review = values::obj(snapshot, "review");
             lines.push(Text::new(&page_hint, ""));
             lines.extend(select(&view_lines, state.watch_index, palette));
             lines.extend([
                 Text::new(
                     &format!(
                         "manual review waiting: {}",
-                        pyjson::list_of(review, "manual_waiting").len()
+                        values::list_of(review, "manual_waiting").len()
                     ),
                     "",
                 ),
                 Text::new(
                     &format!(
                         "approved deliverables ready: {}",
-                        pyjson::list_of(review, "deliverable_ready").len()
+                        values::list_of(review, "deliverable_ready").len()
                     ),
                     "",
                 ),
@@ -654,12 +654,12 @@ pub fn watch_lines(
             lines.extend(select(&summaries, state.watch_index, palette));
         }
         "inbox" => {
-            let entries = pyjson::list_of(data, "entries");
-            let page_hint = page_selection(state, entries, pyjson::obj(data, "pagination"));
+            let entries = values::list_of(data, "entries");
+            let page_hint = page_selection(state, entries, values::obj(data, "pagination"));
             state.watch_inbox_entry_id = entries
                 .get(state.watch_index.max(0) as usize)
-                .and_then(|e| pyjson::get(e, "id"))
-                .map(pyjson::py_str);
+                .and_then(|e| values::get(e, "id"))
+                .map(values::scalar_text);
             lines.push(Text::new(
                 &format!("Inbox · {page_hint} · Enter opens outcome"),
                 "",
@@ -667,16 +667,16 @@ pub fn watch_lines(
             let summaries: Vec<String> = entries
                 .iter()
                 .map(|item| {
-                    let triage = pyjson::list_of(item, "triage");
+                    let triage = values::list_of(item, "triage");
                     let last = triage
                         .last()
-                        .and_then(|t| pyjson::get(t, "kind"))
+                        .and_then(|t| values::get(t, "kind"))
                         .map(human_label)
                         .unwrap_or_else(|| "Waiting for agent".into());
                     format!(
                         "{} · {} · {}",
-                        pyjson::str_of(item, "text").replace('\n', " "),
-                        human_label(pyjson::get(item, "kind").unwrap_or(&Value::Null)),
+                        values::str_of(item, "text").replace('\n', " "),
+                        human_label(values::get(item, "kind").unwrap_or(&Value::Null)),
                         last
                     )
                 })
@@ -689,9 +689,9 @@ pub fn watch_lines(
                 &format!("{hint} · retained log; Enter expands a line"),
                 "",
             ));
-            let strings: Vec<String> = entries.iter().map(pyjson::py_str).collect();
+            let strings: Vec<String> = entries.iter().map(values::scalar_text).collect();
             lines.extend(select(&strings, state.watch_index, palette));
-            if pyjson::truthy(pyjson::path(snapshot, &["log", "truncated"]).unwrap_or(&Value::Null))
+            if values::truthy(values::path(snapshot, &["log", "truncated"]).unwrap_or(&Value::Null))
             {
                 lines.push(Text::new(
                     "Older log bytes are outside this retained tail.",
@@ -711,30 +711,30 @@ fn overview_lines(
     _palette: &Palette,
     lines: &mut Vec<Text>,
 ) {
-    let runs = pyjson::path(snapshot, &["runs", "items"])
+    let runs = values::path(snapshot, &["runs", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
     let empty = json!({});
     let run = runs
         .iter()
-        .find(|r| pyjson::str_of(r, "state") == "running")
+        .find(|r| values::str_of(r, "state") == "running")
         .unwrap_or(runs.first().unwrap_or(&empty));
-    let scans = pyjson::path(snapshot, &["scans", "items"])
+    let scans = values::path(snapshot, &["scans", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
     let latest = scans.first().unwrap_or(&empty);
-    let evidence = pyjson::obj(latest, "evidence");
-    let frontier = pyjson::path(evidence, &["frontier", "counts"])
+    let evidence = values::obj(latest, "evidence");
+    let frontier = values::path(evidence, &["frontier", "counts"])
         .cloned()
         .filter(|v| !v.is_null())
         .unwrap_or(json!({}));
-    let counts = if pyjson::truthy(pyjson::get(run, "counters").unwrap_or(&Value::Null)) {
-        pyjson::get(run, "counters").cloned().unwrap_or(json!({}))
+    let counts = if values::truthy(values::get(run, "counters").unwrap_or(&Value::Null)) {
+        values::get(run, "counters").cloned().unwrap_or(json!({}))
     } else {
         let mut c =
-            json!({"fetched": pyjson::get(&frontier, "done").cloned().unwrap_or(Value::Null)});
+            json!({"fetched": values::get(&frontier, "done").cloned().unwrap_or(Value::Null)});
         if let Value::Object(map) = &frontier {
             for (k, v) in map {
                 c[k] = v.clone();
@@ -742,19 +742,19 @@ fn overview_lines(
         }
         c
     };
-    let fetched = pyjson::get(&counts, "fetched")
+    let fetched = values::get(&counts, "fetched")
         .cloned()
         .unwrap_or(Value::Null);
-    let queued = pyjson::get(&counts, "queued")
+    let queued = values::get(&counts, "queued")
         .cloned()
         .unwrap_or(Value::Null);
-    let inflight = pyjson::get(&counts, "inflight")
+    let inflight = values::get(&counts, "inflight")
         .cloned()
         .unwrap_or(Value::Null);
-    let telemetry = pyjson::obj(run, "telemetry");
-    let semantics = pyjson::str_of(telemetry, "queue_semantics");
+    let telemetry = values::obj(run, "telemetry");
+    let semantics = values::str_of(telemetry, "queue_semantics");
     let semantics = if semantics.is_empty() {
-        if pyjson::truthy(&frontier) {
+        if values::truthy(&frontier) {
             "separate"
         } else {
             "unknown"
@@ -766,7 +766,7 @@ fn overview_lines(
     if semantics == "separate" {
         population.push(inflight.clone());
     }
-    let total: Option<i64> = if semantics != "unknown" && population.iter().all(pyjson::is_int) {
+    let total: Option<i64> = if semantics != "unknown" && population.iter().all(values::is_int) {
         Some(population.iter().filter_map(Value::as_i64).sum())
     } else {
         None
@@ -774,7 +774,7 @@ fn overview_lines(
     let amount = if fetched.is_null() {
         ui("unknown")
     } else {
-        pyjson::py_str(&fetched)
+        values::scalar_text(&fetched)
     };
     let speed_text = rate_text(telemetry);
     let collected = match total {
@@ -794,17 +794,17 @@ fn overview_lines(
         None => format!("Collected {amount}; discovered total unknown"),
     };
     let source = human_label(
-        pyjson::get(run, "kind")
-            .or_py(|| pyjson::get(latest, "source_kind"))
+        values::get(run, "kind")
+            .or_truthy(|| values::get(latest, "source_kind"))
             .unwrap_or(&Value::Null),
     );
     let state_label = human_label(
-        pyjson::get(run, "state")
-            .or_py(|| pyjson::get(latest, "lifecycle"))
+        values::get(run, "state")
+            .or_truthy(|| values::get(latest, "lifecycle"))
             .unwrap_or(&Value::Null),
     );
-    let freshness = if pyjson::truthy(telemetry) {
-        match pyjson::get(telemetry, "state").and_then(Value::as_str) {
+    let freshness = if values::truthy(telemetry) {
+        match values::get(telemetry, "state").and_then(Value::as_str) {
             Some("stale") => ui("Stale sample"),
             other => human_label(
                 &other
@@ -828,32 +828,32 @@ fn overview_lines(
             if queued.is_null() {
                 unknown.clone()
             } else {
-                pyjson::py_str(&queued)
+                values::scalar_text(&queued)
             },
             ui("In flight"),
             if inflight.is_null() {
                 unknown.clone()
             } else {
-                pyjson::py_str(&inflight)
+                values::scalar_text(&inflight)
             },
             ui("Excluded"),
-            pyjson::get(&counts, "excluded")
+            values::get(&counts, "excluded")
                 .filter(|v| !v.is_null())
-                .map(pyjson::py_str)
+                .map(values::scalar_text)
                 .unwrap_or(unknown),
         ),
         "",
     ));
-    let sitemap = pyjson::path(evidence, &["sitemaps", "fetch_summaries"]).cloned();
-    let sitemap_step = pyjson::path(preparation, &["steps", "sitemap"]).cloned();
+    let sitemap = values::path(evidence, &["sitemaps", "fetch_summaries"]).cloned();
+    let sitemap_step = values::path(preparation, &["steps", "sitemap"]).cloned();
     lines.push(Text::new(
         &format!(
             "Sitemap: {}",
-            if sitemap.as_ref().is_some_and(pyjson::truthy) {
+            if sitemap.as_ref().is_some_and(values::truthy) {
                 value_lines(sitemap.as_ref().unwrap(), "").join(" · ")
-            } else if sitemap_step.as_ref().is_some_and(pyjson::truthy) {
+            } else if sitemap_step.as_ref().is_some_and(values::truthy) {
                 human_label(
-                    pyjson::get(sitemap_step.as_ref().unwrap(), "state").unwrap_or(&Value::Null),
+                    values::get(sitemap_step.as_ref().unwrap(), "state").unwrap_or(&Value::Null),
                 )
             } else {
                 ui("Not measured")
@@ -861,60 +861,60 @@ fn overview_lines(
         ),
         "",
     ));
-    let completion = pyjson::obj(progress, "audit_task_completion");
-    let completion_text = pyjson::get(completion, "percent")
+    let completion = values::obj(progress, "audit_task_completion");
+    let completion_text = values::get(completion, "percent")
         .filter(|v| !v.is_null())
-        .map(|p| format!("{}%", pyjson::py_str(p)))
+        .map(|p| format!("{}%", values::scalar_text(p)))
         .unwrap_or_else(|| "scope not measured".into());
     lines.push(Text::new(
         &format!(
             "Agreed tasks: {} · Saved scans: {}",
             completion_text,
-            pyjson::path(snapshot, &["scans", "total"])
-                .map(pyjson::py_str)
+            values::path(snapshot, &["scans", "total"])
+                .map(values::scalar_text)
                 .unwrap_or_default()
         ),
         "",
     ));
-    let methods = pyjson::path(snapshot, &["sites", "items"])
+    let methods = values::path(snapshot, &["sites", "items"])
         .and_then(Value::as_array)
         .and_then(|items| items.first().cloned())
         .map(|item| {
-            pyjson::path(&item, &["methods", "kinds"])
+            values::path(&item, &["methods", "kinds"])
                 .cloned()
                 .unwrap_or(json!({}))
         })
         .unwrap_or(json!({}));
     let mut parts = Vec::new();
     for kind in ["scenario", "skill"] {
-        let record = pyjson::get(&methods, kind).cloned().unwrap_or(json!({}));
-        let expected = pyjson::get(&record, "expected");
+        let record = values::get(&methods, kind).cloned().unwrap_or(json!({}));
+        let expected = values::get(&record, "expected");
         let coverage = match expected.and_then(Value::as_i64) {
             None => "scope unknown".into(),
             Some(0) => "none agreed".into(),
             Some(n) => format!(
                 "{}/{}",
-                pyjson::int_of(&record, "completed").unwrap_or(0),
+                values::int_of(&record, "completed").unwrap_or(0),
                 n
             ),
         };
         parts.push(format!("{}s: {}", human_title(kind), coverage));
     }
     lines.push(Text::new(&parts.join(" · "), ""));
-    let work: Vec<Value> = pyjson::path(snapshot, &["active_tasks", "items"])
+    let work: Vec<Value> = values::path(snapshot, &["active_tasks", "items"])
         .and_then(Value::as_array)
         .cloned()
         .filter(|v| !v.is_empty())
-        .unwrap_or_else(|| pyjson::list_of(progress, "next_actions").to_vec());
+        .unwrap_or_else(|| values::list_of(progress, "next_actions").to_vec());
     for item in work.iter().take(2) {
-        let title = pyjson::get(item, "title")
+        let title = values::get(item, "title")
             .and_then(Value::as_str)
             .filter(|s| !s.is_empty())
             .map(str::to_string)
             .unwrap_or_else(|| {
-                ui(pyjson::get(item, "action")
-                    .or_py(|| pyjson::get(item, "id"))
-                    .map(pyjson::py_str)
+                ui(values::get(item, "action")
+                    .or_truthy(|| values::get(item, "id"))
+                    .map(values::scalar_text)
                     .as_deref()
                     .unwrap_or(""))
             });
@@ -923,8 +923,8 @@ fn overview_lines(
                 "Work: {} · {}",
                 title,
                 human_label(
-                    pyjson::get(item, "display_state")
-                        .or_else(|| pyjson::get(item, "state"))
+                    values::get(item, "display_state")
+                        .or_else(|| values::get(item, "state"))
                         .unwrap_or(&Value::Null)
                 )
             ),
@@ -934,17 +934,17 @@ fn overview_lines(
     if work.is_empty() {
         lines.push(Text::new("No active task recorded.", ""));
     }
-    let inbox_key = if pyjson::get(snapshot, "latest_inbox").is_some() {
+    let inbox_key = if values::get(snapshot, "latest_inbox").is_some() {
         "latest_inbox"
     } else {
         "inbox"
     };
-    let latest_notes = pyjson::list_of(pyjson::obj(snapshot, inbox_key), "entries");
+    let latest_notes = values::list_of(values::obj(snapshot, inbox_key), "entries");
     if let Some(last) = latest_notes.last() {
         lines.push(Text::new(
             &format!(
                 "Latest note: {}",
-                pyjson::str_of(last, "text").replace('\n', " ")
+                values::str_of(last, "text").replace('\n', " ")
             ),
             "",
         ));
@@ -982,12 +982,12 @@ pub fn watch_detail_lines(
     };
     owned_data = data;
     let data = &owned_data;
-    if pyjson::truthy(pyjson::get(data, "loading").unwrap_or(&Value::Null))
-        || pyjson::get(data, "error").is_some()
+    if values::truthy(values::get(data, "loading").unwrap_or(&Value::Null))
+        || values::get(data, "error").is_some()
     {
         return vec![Text::new(
-            &pyjson::get(data, "error")
-                .map(pyjson::py_str)
+            &values::get(data, "error")
+                .map(values::scalar_text)
                 .unwrap_or_else(|| "Loading retained details…".into()),
             "",
         )];
@@ -997,7 +997,7 @@ pub fn watch_detail_lines(
     match kind.as_str() {
         "site" => {
             let site = local_entries(snapshot, "sites").into_iter().find(|item| {
-                pyjson::str_of(item, "project_uuid")
+                values::str_of(item, "project_uuid")
                     == state.watch_site_detail_uuid.as_deref().unwrap_or("")
             });
             let Some(site) = site else {
@@ -1006,19 +1006,19 @@ pub fn watch_detail_lines(
                     "",
                 )];
             };
-            state.watch_site_openable = !pyjson::get(&site, "directory")
+            state.watch_site_openable = !values::get(&site, "directory")
                 .unwrap_or(&Value::Null)
                 .is_null();
             let mut lines = vec![
                 Text::new(
-                    &pyjson::path(&site, &["site", "label"])
-                        .or_py(|| pyjson::path(&site, &["site", "target"]))
-                        .map(pyjson::py_str)
+                    &values::path(&site, &["site", "label"])
+                        .or_truthy(|| values::path(&site, &["site", "target"]))
+                        .map(values::scalar_text)
                         .unwrap_or_default(),
                     title_style,
                 ),
                 Text::new(
-                    &human_label(pyjson::get(&site, "role").unwrap_or(&Value::Null)),
+                    &human_label(values::get(&site, "role").unwrap_or(&Value::Null)),
                     "",
                 ),
                 Text::new(
@@ -1043,7 +1043,7 @@ pub fn watch_detail_lines(
                 "scans",
                 "runs",
             ] {
-                if let Some(value) = pyjson::get(&site, key) {
+                if let Some(value) = values::get(&site, key) {
                     lines.extend(
                         value_lines(&json!({key: value}), "")
                             .into_iter()
@@ -1054,18 +1054,18 @@ pub fn watch_detail_lines(
             return lines;
         }
         "task" => {
-            let item = pyjson::obj(data, "item");
+            let item = values::obj(data, "item");
             let mut lines = vec![
-                Text::new(&human_title(pyjson::str_of(item, "title")), title_style),
+                Text::new(&human_title(values::str_of(item, "title")), title_style),
                 Text::new(
                     &format!(
                         "{} · {}",
                         human_label(
-                            pyjson::get(item, "display_state")
-                                .or_else(|| pyjson::get(item, "state"))
+                            values::get(item, "display_state")
+                                .or_else(|| values::get(item, "state"))
                                 .unwrap_or(&Value::Null)
                         ),
-                        pyjson::str_of(item, "id")
+                        values::str_of(item, "id")
                     ),
                     "",
                 ),
@@ -1083,7 +1083,7 @@ pub fn watch_detail_lines(
                 "complete",
                 "stale",
             ] {
-                if let Some(value) = pyjson::get(item, key) {
+                if let Some(value) = values::get(item, key) {
                     lines.extend(
                         value_lines(&json!({key: value}), "")
                             .into_iter()
@@ -1101,7 +1101,7 @@ pub fn watch_detail_lines(
                 "catalogue",
                 "content",
             ] {
-                let value = pyjson::get(data, key).or_else(|| pyjson::get(item, key));
+                let value = values::get(data, key).or_else(|| values::get(item, key));
                 if let Some(value) = value.filter(|v| !v.is_null()) {
                     lines.push(Text::blank());
                     lines.push(Text::new(&human_label(&json!(key)), title_style));
@@ -1115,8 +1115,8 @@ pub fn watch_detail_lines(
             return lines;
         }
         "inbox" => {
-            let entry = pyjson::list_of(data, "entries").iter().find(|item| {
-                pyjson::str_of(item, "id") == state.watch_inbox_entry_id.as_deref().unwrap_or("")
+            let entry = values::list_of(data, "entries").iter().find(|item| {
+                values::str_of(item, "id") == state.watch_inbox_entry_id.as_deref().unwrap_or("")
             });
             let Some(entry) = entry else {
                 return vec![Text::new(
@@ -1126,33 +1126,33 @@ pub fn watch_detail_lines(
             };
             let mut lines = vec![
                 Text::new(
-                    &human_label(pyjson::get(entry, "kind").unwrap_or(&Value::Null)),
+                    &human_label(values::get(entry, "kind").unwrap_or(&Value::Null)),
                     title_style,
                 ),
                 Text::new(
                     &format!(
                         "{} · {}",
-                        pyjson::str_of(entry, "created_at"),
-                        pyjson::str_of(entry, "id")
+                        values::str_of(entry, "created_at"),
+                        values::str_of(entry, "id")
                     ),
                     "",
                 ),
-                Text::new(pyjson::str_of(entry, "text"), ""),
+                Text::new(values::str_of(entry, "text"), ""),
                 Text::blank(),
             ];
             lines.extend(
                 value_lines(
                     &json!({
-                        "goal_state": pyjson::get(entry, "goal_state").cloned().unwrap_or(Value::Null),
-                        "references": pyjson::get(entry, "references").cloned().unwrap_or(json!([])),
-                        "triage": pyjson::get(entry, "triage").cloned().unwrap_or(json!([])),
+                        "goal_state": values::get(entry, "goal_state").cloned().unwrap_or(Value::Null),
+                        "references": values::get(entry, "references").cloned().unwrap_or(json!([])),
+                        "triage": values::get(entry, "triage").cloned().unwrap_or(json!([])),
                     }),
                     "",
                 )
                 .into_iter()
                 .map(|line| Text::new(&line, "")),
             );
-            if pyjson::list_of(entry, "triage").is_empty() {
+            if values::list_of(entry, "triage").is_empty() {
                 lines.push(Text::new(
                     "Saved locally; waiting for an agent triage receipt.",
                     "",
@@ -1161,10 +1161,10 @@ pub fn watch_detail_lines(
             return lines;
         }
         "scan" => {
-            let scan = pyjson::list_of(data, "items")
+            let scan = values::list_of(data, "items")
                 .iter()
                 .find(|item| {
-                    pyjson::str_of(item, "uuid")
+                    values::str_of(item, "uuid")
                         == state.watch_selected_scan_uuid.as_deref().unwrap_or("")
                 })
                 .cloned()
@@ -1175,10 +1175,10 @@ pub fn watch_detail_lines(
                 .collect();
         }
         "view" => {
-            let page = pyjson::obj(data, "result");
-            let pagination = pyjson::obj(page, "pagination");
-            state.watch_view_page_size = pyjson::int_of(pagination, "page_size").unwrap_or(50);
-            state.watch_view_next = pyjson::int_of(pagination, "next_offset");
+            let page = values::obj(data, "result");
+            let pagination = values::obj(page, "pagination");
+            state.watch_view_page_size = values::int_of(pagination, "page_size").unwrap_or(50);
+            state.watch_view_next = values::int_of(pagination, "next_offset");
             let mut lines = vec![
                 Text::new(
                     &format!(
@@ -1190,25 +1190,25 @@ pub fn watch_detail_lines(
                 Text::new(
                     &format!(
                         "Matched {} / {} findings",
-                        pyjson::path(page, &["counts", "matched"])
-                            .map(pyjson::py_str)
+                        values::path(page, &["counts", "matched"])
+                            .map(values::scalar_text)
                             .unwrap_or_default(),
-                        pyjson::path(page, &["counts", "source"])
-                            .map(pyjson::py_str)
+                        values::path(page, &["counts", "source"])
+                            .map(values::scalar_text)
                             .unwrap_or_default()
                     ),
                     "",
                 ),
             ];
             lines.extend(
-                value_lines(pyjson::obj(page, "items"), "")
+                value_lines(values::obj(page, "items"), "")
                     .into_iter()
                     .map(|line| Text::new(&line, "")),
             );
             lines.push(Text::new(
                 &format!(
                     "Results offset {} · [ Previous / ] Next result page",
-                    pyjson::int_of(pagination, "offset").unwrap_or(0)
+                    values::int_of(pagination, "offset").unwrap_or(0)
                 ),
                 "",
             ));
@@ -1229,18 +1229,18 @@ pub fn watch_detail_lines(
         }
         _ => {}
     }
-    let finding = pyjson::obj(data, "finding");
+    let finding = values::obj(data, "finding");
     let mut lines =
         vec![
         Text::new(
-            &pyjson::get(finding, "message")
+            &values::get(finding, "message")
                 .and_then(Value::as_str)
                 .filter(|s| !s.is_empty())
                 .map(str::to_string)
                 .unwrap_or_else(|| {
                     human_label(
-                        pyjson::get(finding, "check")
-                            .or_py(|| pyjson::get(finding, "id"))
+                        values::get(finding, "check")
+                            .or_truthy(|| values::get(finding, "id"))
                             .unwrap_or(&Value::Null),
                     )
                 }),
@@ -1249,8 +1249,8 @@ pub fn watch_detail_lines(
         Text::new(
             &format!(
                 "{} · {}",
-                human_label(pyjson::get(finding, "severity").unwrap_or(&Value::Null)),
-                pyjson::get(finding, "target_url")
+                human_label(values::get(finding, "severity").unwrap_or(&Value::Null)),
+                values::get(finding, "target_url")
                     .and_then(Value::as_str)
                     .filter(|s| !s.is_empty())
                     .unwrap_or("Target not recorded")
@@ -1260,9 +1260,9 @@ pub fn watch_detail_lines(
         Text::new(
             &format!(
                 "Check {} · scan {} · ordinal {}",
-                pyjson::get(finding, "check").map(pyjson::py_str).unwrap_or_default(),
-                pyjson::get(data, "scan_uuid").map(pyjson::py_str).unwrap_or_default(),
-                pyjson::int_of(finding, "ordinal").unwrap_or(0)
+                values::get(finding, "check").map(values::scalar_text).unwrap_or_default(),
+                values::get(data, "scan_uuid").map(values::scalar_text).unwrap_or_default(),
+                values::int_of(finding, "ordinal").unwrap_or(0)
             ),
             "",
         ),
@@ -1274,14 +1274,14 @@ pub fn watch_detail_lines(
         ),
     ];
     lines.extend(
-        value_lines(pyjson::obj(data, "evidence"), "")
+        value_lines(values::obj(data, "evidence"), "")
             .into_iter()
             .map(|line| Text::new(&line, "")),
     );
     lines.push(Text::blank());
     lines.push(Text::new("Retained projection; no check was rerun.", ""));
     lines.extend(
-        value_lines(pyjson::get(data, "truncation").unwrap_or(&json!({})), "")
+        value_lines(values::get(data, "truncation").unwrap_or(&json!({})), "")
             .into_iter()
             .map(|line| Text::new(&line, "")),
     );

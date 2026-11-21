@@ -15,13 +15,13 @@ use serde_json::{json, Value};
 use crate::labels::{label as human_label, value_lines};
 use crate::localization::{number, ui};
 use crate::panels;
-use crate::pyjson::{self, OrPy};
 use crate::render::{Renderable, Segment};
 use crate::rlayout::{Column, Direction, Grid, Layout};
 use crate::scan_now;
 use crate::state::{ShellState, WATCH_SECTIONS};
 use crate::text::Text;
 use crate::theme::Palette;
+use crate::values::{self, OrTruthy};
 use crate::watch_views;
 
 /// `_watch_snapshot` — bounded snapshot or a failure frame.
@@ -49,18 +49,18 @@ pub fn read_view(project: &str, state: &mut ShellState, snapshot: &Value) -> Res
     if state.watch_site_uuid.is_some()
         && ["scans", "findings", "views"].contains(&state.watch_section.as_str())
     {
-        let site = pyjson::path(snapshot, &["sites", "items"])
+        let site = values::path(snapshot, &["sites", "items"])
             .and_then(Value::as_array)
             .and_then(|items| {
                 items.iter().find(|item| {
-                    pyjson::str_of(item, "project_uuid")
+                    values::str_of(item, "project_uuid")
                         == state.watch_site_uuid.as_deref().unwrap_or("")
                 })
             })
             .cloned();
         let directory = site
             .as_ref()
-            .and_then(|s| pyjson::get(s, "directory"))
+            .and_then(|s| values::get(s, "directory"))
             .and_then(Value::as_str);
         match directory {
             Some(dir) if !dir.is_empty() => {
@@ -221,8 +221,8 @@ pub fn save_note(project: &str, state: &mut ShellState) -> String {
     state.note_cursor = Some(0);
     state.note_error.clear();
     state.note_ready = false;
-    let entry_id = pyjson::path(&receipt, &["entry", "id"])
-        .map(pyjson::py_str)
+    let entry_id = values::path(&receipt, &["entry", "id"])
+        .map(values::scalar_text)
         .unwrap_or_default();
     format!(
         "{} saved · {} · waiting for agent triage",
@@ -321,9 +321,9 @@ impl ObserverRefresh {
                         if key == watch_views::view_key(state)
                             && state.watch_selected_scan_uuid.is_none()
                         {
-                            let resolved = pyjson::path(&read.page, &["scan", "uuid"])
-                                .or_py(|| pyjson::get(&read.page, "scan_uuid"))
-                                .map(pyjson::py_str);
+                            let resolved = values::path(&read.page, &["scan", "uuid"])
+                                .or_truthy(|| values::get(&read.page, "scan_uuid"))
+                                .map(values::scalar_text);
                             if let Some(uuid) = resolved {
                                 state.watch_selected_scan_uuid = Some(uuid);
                                 key = watch_views::view_key(state);
@@ -451,7 +451,7 @@ pub fn watch_dashboard(
     ]);
     let mut site = snapshot
         .as_ref()
-        .and_then(|s| pyjson::path(s, &["project", "site"]).cloned())
+        .and_then(|s| values::path(s, &["project", "site"]).cloned())
         .unwrap_or(json!({}));
     let mut selected_site: Option<Value> = None;
     if snapshot.is_some()
@@ -460,16 +460,16 @@ pub fn watch_dashboard(
     {
         selected_site = snapshot
             .as_ref()
-            .and_then(|s| pyjson::path(s, &["sites", "items"]).and_then(Value::as_array))
+            .and_then(|s| values::path(s, &["sites", "items"]).and_then(Value::as_array))
             .and_then(|items| {
                 items.iter().find(|item| {
-                    pyjson::str_of(item, "project_uuid")
+                    values::str_of(item, "project_uuid")
                         == state.watch_site_uuid.as_deref().unwrap_or("")
                 })
             })
             .cloned();
         if let Some(found) = &selected_site {
-            site = pyjson::get(found, "site").cloned().unwrap_or(site);
+            site = values::get(found, "site").cloned().unwrap_or(site);
         }
     }
     let mut header = Grid::new(true, (0, 0, 0, 0));
@@ -500,8 +500,8 @@ pub fn watch_dashboard(
     ]);
     header.add_row(vec![
         Text::new(
-            &pyjson::get(&site, "label")
-                .or_py(|| pyjson::get(&site, "host"))
+            &values::get(&site, "label")
+                .or_truthy(|| values::get(&site, "host"))
                 .and_then(Value::as_str)
                 .map(str::to_string)
                 .unwrap_or_else(|| ui("Project")),
@@ -512,26 +512,26 @@ pub fn watch_dashboard(
     ]);
     if let Some(snap) = snapshot {
         let run_source = selected_site.as_ref().unwrap_or(snap);
-        let recent_run = pyjson::path(run_source, &["runs", "items"])
+        let recent_run = values::path(run_source, &["runs", "items"])
             .and_then(Value::as_array)
             .and_then(|items| items.first().cloned());
         let mut run_hint = ui("No project run recorded");
         if let Some(run) = recent_run {
-            let events = pyjson::list_of(&run, "events");
+            let events = values::list_of(&run, "events");
             let last_phase = events
                 .last()
-                .and_then(|e| pyjson::get(e, "phase"))
-                .map(pyjson::py_str)
+                .and_then(|e| values::get(e, "phase"))
+                .map(values::scalar_text)
                 .unwrap_or_else(|| "unknown phase".into());
             let mut parts = vec![
-                human_label(pyjson::get(&run, "kind").unwrap_or(&Value::Null)),
-                human_label(pyjson::get(&run, "state").unwrap_or(&Value::Null)),
+                human_label(values::get(&run, "kind").unwrap_or(&Value::Null)),
+                human_label(values::get(&run, "state").unwrap_or(&Value::Null)),
             ];
-            if pyjson::str_of(&run, "state") == "running" {
+            if values::str_of(&run, "state") == "running" {
                 parts.push(human_label(&json!(last_phase)));
             }
             run_hint = parts.join(" · ");
-            let sample_state = pyjson::path(&run, &["telemetry", "state"])
+            let sample_state = values::path(&run, &["telemetry", "state"])
                 .and_then(Value::as_str)
                 .map(str::to_string);
             if let Some(sample) = &sample_state {
@@ -542,13 +542,13 @@ pub fn watch_dashboard(
                 };
                 run_hint = format!("{label} · {run_hint}");
             }
-            let runtime = if pyjson::str_of(&run, "kind") == "screaming_frog" {
-                pyjson::get(&run, "collector_runtime")
+            let runtime = if values::str_of(&run, "kind") == "screaming_frog" {
+                values::get(&run, "collector_runtime")
             } else {
-                pyjson::get(&run, "controller")
+                values::get(&run, "controller")
             };
-            if pyjson::str_of(&run, "state") == "running"
-                && pyjson::str_of(runtime.unwrap_or(&Value::Null), "state") == "live"
+            if values::str_of(&run, "state") == "running"
+                && values::str_of(runtime.unwrap_or(&Value::Null), "state") == "live"
                 && sample_state.as_deref() == Some("fresh")
             {
                 let marker = if state.motion_enabled && palette.color {
@@ -564,11 +564,11 @@ pub fn watch_dashboard(
                 &format!(
                     "{} {}  ·  {} {}",
                     ui("Notes"),
-                    pyjson::path(snap, &["inbox", "pagination", "total"])
-                        .map(pyjson::py_str)
+                    values::path(snap, &["inbox", "pagination", "total"])
+                        .map(values::scalar_text)
                         .unwrap_or_default(),
                     ui("Competitors"),
-                    pyjson::list_of(pyjson::obj(snap, "preparation"), "competitors").len()
+                    values::list_of(values::obj(snap, "preparation"), "competitors").len()
                 ),
                 muted,
             )
@@ -769,7 +769,7 @@ pub fn watch_dashboard(
         && state.watch_section == "overview"
         && height >= 32
         && width >= 100
-        && !pyjson::get(view_override.unwrap_or(&json!({})), "error").is_some()
+        && !values::get(view_override.unwrap_or(&json!({})), "error").is_some()
     {
         overview_panels(state, snapshot, palette, border, width, height, &mut root);
     } else {
@@ -890,54 +890,54 @@ fn overview_panels(
     let Some(snap) = snapshot else { return };
     let accent = if palette.color { &palette.accent } else { "" };
     let muted = if palette.color { &palette.muted } else { "" };
-    let scans = pyjson::path(snap, &["scans", "items"])
+    let scans = values::path(snap, &["scans", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
     let latest = scans.first().cloned().unwrap_or(json!({}));
-    let evidence = pyjson::obj(&latest, "evidence");
-    let counts = pyjson::path(evidence, &["frontier", "counts"])
+    let evidence = values::obj(&latest, "evidence");
+    let counts = values::path(evidence, &["frontier", "counts"])
         .cloned()
         .filter(|v| !v.is_null())
         .unwrap_or(json!({}));
-    let latest_artifact = pyjson::path(snap, &["sites", "items"])
+    let latest_artifact = values::path(snap, &["sites", "items"])
         .and_then(Value::as_array)
         .and_then(|items| {
             items
                 .iter()
-                .find(|row| pyjson::str_of(row, "role") == "primary")
+                .find(|row| values::str_of(row, "role") == "primary")
         })
         .and_then(|row| {
-            pyjson::list_of(row, "scans")
+            values::list_of(row, "scans")
                 .iter()
                 .find_map(|v| v.as_array())
                 .cloned()
         })
         .unwrap_or_default()
         .into_iter()
-        .find(|scan| pyjson::str_of(scan, "uuid") == pyjson::str_of(&latest, "uuid"))
-        .and_then(|scan| pyjson::path(&scan, &["artifact", "path"]).cloned());
-    let native_run = pyjson::path(snap, &["runs", "items"])
+        .find(|scan| values::str_of(scan, "uuid") == values::str_of(&latest, "uuid"))
+        .and_then(|scan| values::path(&scan, &["artifact", "path"]).cloned());
+    let native_run = values::path(snap, &["runs", "items"])
         .and_then(Value::as_array)
         .and_then(|items| {
             items.iter().find(|run| {
-                pyjson::str_of(run, "kind") == "native"
+                values::str_of(run, "kind") == "native"
                     && latest_artifact.is_some()
-                    && pyjson::get(run, "artifact") == latest_artifact.as_ref()
-                    && pyjson::path(run, &["collector", "config_fingerprint"])
-                        == pyjson::get(&latest, "config_fingerprint")
+                    && values::get(run, "artifact") == latest_artifact.as_ref()
+                    && values::path(run, &["collector", "config_fingerprint"])
+                        == values::get(&latest, "config_fingerprint")
             })
         })
         .cloned();
-    let outcomes = pyjson::get(evidence, "committed_page_outcomes");
-    let retained_pages = pyjson::get(evidence, "committed_pages")
+    let outcomes = values::get(evidence, "committed_page_outcomes");
+    let retained_pages = values::get(evidence, "committed_pages")
         .cloned()
         .or_else(|| {
             outcomes
                 .and_then(Value::as_object)
                 .map(|m| Value::from(m.values().filter_map(Value::as_i64).sum::<i64>()))
         });
-    let findings = pyjson::path(evidence, &["findings", "total"]).cloned();
+    let findings = values::path(evidence, &["findings", "total"]).cloned();
     let mut cards = Grid::new(true, (0, 1, 0, 1));
     for _ in 0..3 {
         cards.add_column(Column {
@@ -980,7 +980,7 @@ fn overview_panels(
         ),
         card(
             number(
-                pyjson::path(snap, &["scans", "total"])
+                values::path(snap, &["scans", "total"])
                     .and_then(Value::as_i64)
                     .unwrap_or(0),
             ),
@@ -1018,10 +1018,10 @@ fn overview_panels(
         m.update(Renderable::Grid(cards));
     }
     let scan_state =
-        if pyjson::truthy(pyjson::get(&latest, "crawl_partial").unwrap_or(&Value::Null)) {
+        if values::truthy(values::get(&latest, "crawl_partial").unwrap_or(&Value::Null)) {
             "PARTIAL".to_string()
         } else {
-            pyjson::str_of(&latest, "lifecycle")
+            values::str_of(&latest, "lifecycle")
                 .to_uppercase()
                 .replace("NOT_RUN", "NOT RUN")
                 .to_string()
@@ -1033,9 +1033,9 @@ fn overview_panels(
     };
     let frontier_values: Vec<Value> = ["done", "queued", "inflight"]
         .iter()
-        .map(|k| pyjson::get(&counts, k).cloned().unwrap_or(Value::Null))
+        .map(|k| values::get(&counts, k).cloned().unwrap_or(Value::Null))
         .collect();
-    let discovered = if frontier_values.iter().all(pyjson::is_int) {
+    let discovered = if frontier_values.iter().all(values::is_int) {
         Some(
             frontier_values
                 .iter()
@@ -1045,14 +1045,14 @@ fn overview_panels(
     } else {
         None
     };
-    let sitemap = pyjson::path(evidence, &["sitemaps", "fetch_summaries"]).cloned();
+    let sitemap = values::path(evidence, &["sitemaps", "fetch_summaries"]).cloned();
     let scan_labels: Vec<String> = [
         scan_state.to_lowercase(),
-        pyjson::get(&latest, "source_kind")
-            .map(pyjson::py_str)
+        values::get(&latest, "source_kind")
+            .map(values::scalar_text)
             .unwrap_or_default(),
-        pyjson::get(&latest, "finish_reason")
-            .map(pyjson::py_str)
+        values::get(&latest, "finish_reason")
+            .map(values::scalar_text)
             .unwrap_or_default(),
     ]
     .into_iter()
@@ -1071,7 +1071,7 @@ fn overview_panels(
             } else {
                 ui("Discovered URL coverage · scope can grow")
             },
-            pyjson::int_of(&counts, "done"),
+            values::int_of(&counts, "done"),
             discovered,
             palette,
         ),
@@ -1079,16 +1079,16 @@ fn overview_panels(
             &format!(
                 "{} {}  ·  {} {}  ·  {} {}",
                 ui("Queue"),
-                pyjson::get(&counts, "queued")
-                    .map(pyjson::py_str)
+                values::get(&counts, "queued")
+                    .map(values::scalar_text)
                     .unwrap_or_else(|| ui("unknown")),
                 ui("In flight"),
-                pyjson::get(&counts, "inflight")
-                    .map(pyjson::py_str)
+                values::get(&counts, "inflight")
+                    .map(values::scalar_text)
                     .unwrap_or_else(|| ui("unknown")),
                 ui("Excluded"),
-                pyjson::get(&counts, "excluded")
-                    .map(pyjson::py_str)
+                values::get(&counts, "excluded")
+                    .map(values::scalar_text)
                     .unwrap_or_else(|| ui("unknown")),
             ),
             "",
@@ -1097,13 +1097,13 @@ fn overview_panels(
             &format!(
                 "{}: {}",
                 ui("Sitemap"),
-                if sitemap.as_ref().is_some_and(pyjson::truthy) {
+                if sitemap.as_ref().is_some_and(values::truthy) {
                     value_lines(sitemap.as_ref().unwrap(), "").join(" · ")
                 } else {
                     ui("Not measured")
                 }
             ),
-            if palette.color && !sitemap.as_ref().is_some_and(pyjson::truthy) {
+            if palette.color && !sitemap.as_ref().is_some_and(values::truthy) {
                 "#fbbf24"
             } else {
                 ""
@@ -1111,16 +1111,16 @@ fn overview_panels(
         ),
     ];
     if let Some(run) = &native_run {
-        let collector = pyjson::obj(run, "collector");
-        let telemetry = pyjson::obj(run, "telemetry");
+        let collector = values::obj(run, "collector");
+        let telemetry = values::obj(run, "telemetry");
         crawl_lines.insert(
             1,
             Text::new(
                 &format!(
                     "{} {} · {} · {}",
                     ui("Mode"),
-                    human_label(pyjson::get(collector, "mode").unwrap_or(&Value::Null)),
-                    human_label(pyjson::get(telemetry, "state").unwrap_or(&Value::Null)),
+                    human_label(values::get(collector, "mode").unwrap_or(&Value::Null)),
+                    human_label(values::get(telemetry, "state").unwrap_or(&Value::Null)),
                     watch_views::rate_text(telemetry)
                 ),
                 "",
@@ -1129,8 +1129,8 @@ fn overview_panels(
         if height >= 32 {
             crawl_lines.push(panels::meter(
                 &ui("Run URL budget · not whole-site completion"),
-                pyjson::path(run, &["counters", "fetched"]).and_then(Value::as_i64),
-                pyjson::int_of(collector, "max_urls"),
+                values::path(run, &["counters", "fetched"]).and_then(Value::as_i64),
+                values::int_of(collector, "max_urls"),
                 palette,
             ));
         }
@@ -1148,16 +1148,16 @@ fn overview_panels(
             expand: true,
         }));
     }
-    let primary = pyjson::path(snap, &["sites", "items"])
+    let primary = values::path(snap, &["sites", "items"])
         .and_then(Value::as_array)
         .and_then(|items| {
             items
                 .iter()
-                .find(|item| pyjson::str_of(item, "role") == "primary")
+                .find(|item| values::str_of(item, "role") == "primary")
         })
         .cloned()
         .unwrap_or(json!({}));
-    let method_counts = pyjson::path(&primary, &["methods", "kinds"])
+    let method_counts = values::path(&primary, &["methods", "kinds"])
         .cloned()
         .unwrap_or(json!({}));
     let mut meters = Grid::new(true, (0, 1, 0, 1));
@@ -1171,19 +1171,19 @@ fn overview_panels(
     });
     let mut meter_cells = Vec::new();
     for (kind, label) in [("scenario", ui("Scenarios")), ("skill", ui("Skills"))] {
-        let record = pyjson::get(&method_counts, kind)
+        let record = values::get(&method_counts, kind)
             .cloned()
             .unwrap_or(json!({}));
         meter_cells.push(Renderable::Text(panels::meter(
             &label,
-            pyjson::int_of(&record, "completed"),
-            pyjson::int_of(&record, "expected"),
+            values::int_of(&record, "completed"),
+            values::int_of(&record, "expected"),
             palette,
         )));
     }
     meters.add_row(meter_cells);
     let mut checklist: Vec<Renderable> = vec![Renderable::Grid(meters), Text::blank().into()];
-    let active = pyjson::path(snap, &["active_tasks", "items"])
+    let active = values::path(snap, &["active_tasks", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
@@ -1199,7 +1199,7 @@ fn overview_panels(
         .into(),
     );
     let work_items = if active.is_empty() {
-        pyjson::list_of(pyjson::obj(snap, "progress"), "next_actions").to_vec()
+        values::list_of(values::obj(snap, "progress"), "next_actions").to_vec()
     } else {
         active.clone()
     };
@@ -1207,19 +1207,19 @@ fn overview_panels(
         .iter()
         .take((3usize).max(height.saturating_sub(26)))
     {
-        let marker = if pyjson::str_of(item, "state") == "completed" {
+        let marker = if values::str_of(item, "state") == "completed" {
             "+"
         } else {
             "-"
         };
-        let title = pyjson::get(item, "title")
+        let title = values::get(item, "title")
             .and_then(Value::as_str)
             .filter(|s| !s.is_empty())
             .map(str::to_string)
             .unwrap_or_else(|| {
-                ui(pyjson::get(item, "action")
-                    .or_py(|| pyjson::get(item, "id"))
-                    .map(pyjson::py_str)
+                ui(values::get(item, "action")
+                    .or_truthy(|| values::get(item, "id"))
+                    .map(values::scalar_text)
                     .as_deref()
                     .unwrap_or(""))
             });
@@ -1229,8 +1229,8 @@ fn overview_panels(
                     "{marker} {} · {}",
                     title,
                     human_label(
-                        pyjson::get(item, "display_state")
-                            .or_else(|| pyjson::get(item, "state"))
+                        values::get(item, "display_state")
+                            .or_else(|| values::get(item, "state"))
                             .unwrap_or(&Value::Null)
                     )
                 ),
@@ -1254,10 +1254,10 @@ fn overview_panels(
         Text::new(&ui("FINDINGS BY SEVERITY"), accent).into(),
         Text::blank().into(),
     ];
-    let severity = pyjson::path(evidence, &["findings", "by_severity"])
+    let severity = values::path(evidence, &["findings", "by_severity"])
         .cloned()
         .unwrap_or(json!({}));
-    let peak = pyjson::list_of(&severity, "").len();
+    let peak = values::list_of(&severity, "").len();
     let peak = {
         let _ = peak;
         severity
@@ -1270,7 +1270,7 @@ fn overview_panels(
         let value = if findings.as_ref().is_none_or(Value::is_null) {
             None
         } else {
-            pyjson::int_of(&severity, name).or(Some(0))
+            values::int_of(&severity, name).or(Some(0))
         };
         let color = if palette.color {
             match name {
@@ -1300,14 +1300,14 @@ fn overview_panels(
         Text::blank().into(),
         Text::new(&ui("PROJECT NOTES"), accent).into(),
     ]);
-    let inbox_key = if pyjson::get(snap, "latest_inbox").is_some() {
+    let inbox_key = if values::get(snap, "latest_inbox").is_some() {
         "latest_inbox"
     } else {
         "inbox"
     };
-    let entries = pyjson::list_of(pyjson::obj(snap, inbox_key), "entries");
+    let entries = values::list_of(values::obj(snap, inbox_key), "entries");
     for item in entries.iter().rev().take(3).rev() {
-        let mut t = Text::new(pyjson::str_of(item, "text"), "");
+        let mut t = Text::new(values::str_of(item, "text"), "");
         t.no_wrap = true;
         t.overflow = Some(crate::text::Overflow::Ellipsis);
         findings_lines.push(t.into());
@@ -1319,20 +1319,20 @@ fn overview_panels(
         Text::blank().into(),
         Text::new(&ui("COMPETITORS"), accent).into(),
     ]);
-    let competitors: Vec<Value> = pyjson::path(snap, &["sites", "items"])
+    let competitors: Vec<Value> = values::path(snap, &["sites", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default()
         .into_iter()
-        .filter(|item| pyjson::str_of(item, "role") == "competitor")
+        .filter(|item| values::str_of(item, "role") == "competitor")
         .collect();
     for item in competitors.iter().take(5) {
-        let host = pyjson::path(item, &["site", "host"])
-            .or_py(|| pyjson::path(item, &["site", "target"]))
-            .map(pyjson::py_str)
+        let host = values::path(item, &["site", "host"])
+            .or_truthy(|| values::path(item, &["site", "target"]))
+            .map(values::scalar_text)
             .unwrap_or_default();
-        let total = pyjson::path(item, &["scans", "total"])
-            .map(pyjson::py_str)
+        let total = values::path(item, &["scans", "total"])
+            .map(values::scalar_text)
             .unwrap_or_default();
         let mut t = Text::new(&format!("{host} · scans {total}"), "");
         t.no_wrap = true;
@@ -1347,7 +1347,7 @@ fn overview_panels(
             Text::blank().into(),
             Text::new(&ui("WORKFLOW"), accent).into(),
             {
-                let next = pyjson::path(snap, &["execution", "next_action"])
+                let next = values::path(snap, &["execution", "next_action"])
                     .and_then(Value::as_str)
                     .map(str::to_string)
                     .unwrap_or_else(|| "no active workflow".into());
@@ -1359,7 +1359,7 @@ fn overview_panels(
             Text::blank().into(),
             Text::new(&ui("PROJECT LOG"), accent).into(),
         ]);
-        let log_text = pyjson::path(snap, &["log", "text"])
+        let log_text = values::path(snap, &["log", "text"])
             .and_then(Value::as_str)
             .unwrap_or("");
         let keep = (3usize).max(height.saturating_sub(35));
@@ -1577,8 +1577,8 @@ pub fn run(
             if key == "enter"
                 && state.view == "watch"
                 && refresh.as_ref().is_some_and(|r| {
-                    pyjson::truthy(
-                        pyjson::get(&r.page_for(&state), "loading").unwrap_or(&Value::Null),
+                    values::truthy(
+                        values::get(&r.page_for(&state), "loading").unwrap_or(&Value::Null),
                     )
                 })
             {

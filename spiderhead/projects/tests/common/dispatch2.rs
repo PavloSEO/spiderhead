@@ -1,6 +1,6 @@
 //! Step dispatch part 2: runtime, archive, exports, evidence, catalogue,
 //! competitor_scans, execution, run_observation, run_control, schedule_install,
-//! monitoring, observer, service_delivery, projection, pyjson, evidence_cache.
+//! monitoring, observer, service_delivery, projection, json_docs, evidence_cache.
 
 use serde_json::{json, Value};
 use spiderhead_projects as p;
@@ -559,10 +559,10 @@ fn projection_dispatch(ctx: &Ctx, args: &Value, tail: &str) -> ProjectsResult<Va
 
 fn pyjson_dispatch(args: &Value, tail: &str) -> ProjectsResult<Value> {
     match tail {
-        "dumps_compact" => Ok(json!(p::pyjson::dumps_compact(&args["value"]))),
-        "dumps_indent2" => Ok(json!(p::pyjson::dumps_indent2(&args["value"]))),
-        "dumps_default" => Ok(json!(p::pyjson::dumps_default(&args["value"]))),
-        "python_float_repr" => Ok(json!(p::pyjson::python_float_repr(
+        "dumps_compact" => Ok(json!(p::json_docs::dumps_compact(&args["value"]))),
+        "dumps_indent2" => Ok(json!(p::json_docs::dumps_indent2(&args["value"]))),
+        "dumps_default" => Ok(json!(p::json_docs::dumps_default(&args["value"]))),
+        "python_float_repr" => Ok(json!(p::json_docs::float_repr(
             args["value"].as_f64().unwrap_or(f64::NAN)
         ))),
         _ => Err(value(format!("unknown pyjson op {tail}"))),

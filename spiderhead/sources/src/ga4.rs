@@ -10,7 +10,7 @@ use spiderhead_core::host::Host;
 use crate::credentials::{self, CredentialError};
 use crate::gsc;
 use crate::http::{Request, Transport, TransportError};
-use crate::{pyerr, pyjson, pystr};
+use crate::{error_text, json_wire, text_rules};
 
 mod errors;
 pub use errors::*;
@@ -74,7 +74,7 @@ async fn default_transport<T: Transport>(
     let request = Request::new("POST", url)
         .header("Authorization", format!("Bearer {token}"))
         .header("Content-Type", "application/json")
-        .body(pyjson::dumps(payload).into_bytes())
+        .body(json_wire::dumps(payload).into_bytes())
         .timeout(TIMEOUT);
     let response = http.send(&request).await.map_err(|e| Ga4Fault::from(&e))?;
     utf8_body(&response.body)
@@ -275,7 +275,7 @@ pub(crate) async fn run_report_paged<T: Transport>(
             Ok(body) => body,
             Err(_) => {
                 let message =
-                    pyjson::decode_error(&raw).unwrap_or_else(|| "JSON decode error".to_owned());
+                    json_wire::decode_error(&raw).unwrap_or_else(|| "JSON decode error".to_owned());
                 return Ok(failed(&message));
             }
         };
@@ -295,7 +295,7 @@ pub(crate) async fn run_report_paged<T: Transport>(
         // and the total-vs-count check pass, so a float `max_rows` fails mid-loop with an
         // invalid-value error that escapes the handler.
         if !rows.is_array()
-            || total.as_ref().map(pystr::is_py_int) != Some(true)
+            || total.as_ref().map(text_rules::is_int) != Some(true)
             || total.as_ref().and_then(Value::as_i64).unwrap_or_default() < offset + rows_len
             || rows_len > py_int(&limit_text)?
             || !rows
@@ -316,15 +316,15 @@ pub(crate) async fn run_report_paged<T: Transport>(
         // Missing or falsy metadata counts as an empty object.
         let metadata = body
             .get("metadata")
-            .filter(|v| pystr::truthy(Some(v)))
+            .filter(|v| text_rules::truthy(Some(v)))
             .cloned()
             .unwrap_or_else(|| json!({}));
         if !metadata.is_object() {
             return Ok(failed("malformed GA4 metadata"));
         }
-        data_loss |= pystr::truthy(metadata.get("dataLossFromOtherRow"));
-        sampled |= pystr::truthy(metadata.get("samplingMetadatas"));
-        thresholded |= pystr::truthy(metadata.get("subjectToThresholding"));
+        data_loss |= text_rules::truthy(metadata.get("dataLossFromOtherRow"));
+        sampled |= text_rules::truthy(metadata.get("samplingMetadatas"));
+        thresholded |= text_rules::truthy(metadata.get("subjectToThresholding"));
         for row in rows.as_array().cloned().unwrap_or_default() {
             let dimension_values = row.get("dimensionValues");
             let metric_values = row.get("metricValues");
@@ -451,7 +451,7 @@ pub async fn landing_pages<T: Transport>(
         Ok(body) => body,
         Err(_) => {
             let message =
-                pyjson::decode_error(&raw).unwrap_or_else(|| "JSON decode error".to_owned());
+                json_wire::decode_error(&raw).unwrap_or_else(|| "JSON decode error".to_owned());
             return Ok(failed(&message));
         }
     };
@@ -476,7 +476,7 @@ pub async fn landing_pages<T: Transport>(
     let rows_len = rows.as_array().map_or(0, Vec::len) as i64;
     Ok(json!({
         "ok": true,
-        "state": if rows_len >= env.page_rows || pystr::truthy(sampling.as_ref()) { "partial" } else { "complete" },
+        "state": if rows_len >= env.page_rows || text_rules::truthy(sampling.as_ref()) { "partial" } else { "complete" },
         "property_reference": "redacted-local-artifact",
         "reporting_identity": args.reporting_identity.filter(|v| !v.is_empty()).unwrap_or("provider default"),
         "period": {"start_date": start_date, "end_date": end_date},
@@ -485,7 +485,7 @@ pub async fn landing_pages<T: Transport>(
         "rows": rows,
         "returned": rows_len,
         "truncated": rows_len >= env.page_rows,
-        "sampling_or_thresholding": pystr::truthy(sampling.as_ref()),
+        "sampling_or_thresholding": text_rules::truthy(sampling.as_ref()),
         "note": "GA4 sessions are analytics visits and are not Google Search Console clicks.",
     }))
 }

@@ -311,7 +311,7 @@ mod tests {
                     let Some(loc) = child.child_text("loc").filter(|loc| !loc.is_empty()) else {
                         return;
                     };
-                    let joined = spiderhead_parse::py_url::urljoin(base, &loc)
+                    let joined = spiderhead_parse::url_parse::urljoin(base, &loc)
                         .unwrap_or_else(|_| loc.clone());
                     index.push(json!({"loc": joined, "lastmod": child.child_text("lastmod")}));
                 }

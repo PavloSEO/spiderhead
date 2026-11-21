@@ -20,7 +20,7 @@ pub(crate) const BUCKETS: [&str; 5] = ["entered", "left", "appeared", "disappear
 pub(crate) const SQLITE_MAX_INTEGER: i64 = i64::MAX;
 
 /// the reference canonical-JSON encoding used for digests, checkpoints and exports.
-pub(crate) fn py_json(value: &serde_json::Value) -> String {
+pub(crate) fn json_text(value: &serde_json::Value) -> String {
     canonical_json(value)
 }
 

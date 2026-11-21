@@ -8,9 +8,9 @@ use std::sync::LazyLock;
 
 use crate::config::Cfg;
 use crate::demand::has_observed_demand;
+use crate::fmt::{dumps, parse_int, repr_str, scalar_text};
 use crate::norm::normalize;
 use crate::providers::ArsenkinProvider;
-use crate::pyfmt::{dumps, py_int, py_repr_str, py_str};
 use crate::store::{Row, Store};
 
 const DEFAULT_REGION: i64 = 225;
@@ -75,7 +75,7 @@ fn parse_wordstat(result: &Value, region: i64) -> (IndexMap<String, (Value, Valu
     let wanted = region.to_string();
     for (phrase, by_region) in rows {
         let Some(by_region) = by_region.as_object() else {
-            warnings.push(format!("{}: skipped a non-dict row", py_repr_str(phrase)));
+            warnings.push(format!("{}: skipped a non-dict row", repr_str(phrase)));
             continue;
         };
         let values = by_region.get(&wanted).filter(|v| !v.is_null());
@@ -85,7 +85,7 @@ fn parse_wordstat(result: &Value, region: i64) -> (IndexMap<String, (Value, Valu
             warnings.push(format!(
                 "{}: no data for requested region {wanted} \
                  (provider returned regions: {})",
-                py_repr_str(phrase),
+                repr_str(phrase),
                 if available.is_empty() {
                     "none".to_string()
                 } else {
@@ -101,7 +101,7 @@ fn parse_wordstat(result: &Value, region: i64) -> (IndexMap<String, (Value, Valu
         let Some(values) = values.as_object() else {
             warnings.push(format!(
                 "{}: region {wanted} data is not a mapping",
-                py_repr_str(phrase)
+                repr_str(phrase)
             ));
             continue;
         };
@@ -124,7 +124,7 @@ fn frequency(value: &Value) -> Option<i64> {
             Some(i) => i,
             None => n.as_f64().unwrap_or(0.0).trunc() as i64,
         },
-        Value::String(s) => py_int(s).ok()?,
+        Value::String(s) => parse_int(s).ok()?,
         _ => return None,
     };
     (number >= 0).then_some(number)
@@ -196,7 +196,7 @@ fn apply_result(
             continue;
         };
         let key = if !row["lemma_group"].is_null() {
-            py_str(&row["lemma_group"])
+            scalar_text(&row["lemma_group"])
         } else {
             format!("solo:{p}")
         };
@@ -282,7 +282,7 @@ pub fn run(
     client: &mut dyn ArsenkinProvider,
 ) -> Result<Value, crate::Error> {
     let region = match cfg.get("regions") {
-        Some(Value::Array(items)) if !items.is_empty() => py_int(&py_str(&items[0]))
+        Some(Value::Array(items)) if !items.is_empty() => parse_int(&scalar_text(&items[0]))
             .map_err(|e| crate::Error::Config(format!("invalid region: {}", e.0)))?,
         _ => DEFAULT_REGION,
     };
@@ -296,7 +296,7 @@ pub fn run(
     for row in &kept {
         let norm = row["norm"].as_str().unwrap_or_default().to_string();
         let key = if !row["lemma_group"].is_null() {
-            py_str(&row["lemma_group"])
+            scalar_text(&row["lemma_group"])
         } else {
             format!("solo:{norm}")
         };

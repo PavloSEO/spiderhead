@@ -13,7 +13,7 @@ use thiserror::Error;
 
 use super::provider;
 use crate::client_findings::check_title;
-use crate::py;
+use crate::values;
 
 /// Labels shown in the severity table and section headings.
 const SEVERITY_LABEL: [(&str, &str); 3] = [
@@ -55,8 +55,8 @@ pub enum MdError {
 pub(super) fn py_str(value: Option<&Value>) -> String {
     match value {
         None | Some(Value::Null) => "None".to_owned(),
-        Some(v @ (Value::Array(_) | Value::Object(_))) => py::repr(v),
-        Some(v) => py::str_value(v),
+        Some(v @ (Value::Array(_) | Value::Object(_))) => values::repr(v),
+        Some(v) => values::str_value(v),
     }
 }
 
@@ -66,8 +66,8 @@ pub(super) fn py_str_or(value: Option<&Value>, none: &str) -> String {
     match value {
         None => none.to_owned(),
         Some(Value::Null) => "None".to_owned(),
-        Some(v @ (Value::Array(_) | Value::Object(_))) => py::repr(v),
-        Some(v) => py::str_value(v),
+        Some(v @ (Value::Array(_) | Value::Object(_))) => values::repr(v),
+        Some(v) => values::str_value(v),
     }
 }
 
@@ -76,8 +76,8 @@ pub(super) fn py_str_or(value: Option<&Value>, none: &str) -> String {
 pub(super) fn esc(value: Option<&Value>) -> String {
     let text = match value {
         None | Some(Value::Null) => return String::new(),
-        Some(v @ (Value::Array(_) | Value::Object(_))) => py::repr(v),
-        Some(v) => py::str_value(v),
+        Some(v @ (Value::Array(_) | Value::Object(_))) => values::repr(v),
+        Some(v) => values::str_value(v),
     };
     let text = text
         .replace('\\', "\\\\")
@@ -161,7 +161,7 @@ fn capitalize(text: &str) -> String {
 /// The URL a finding prints: `details.safe_url` when set, else `target_url`.
 fn issue_url(issue: &Issue) -> Value {
     match issue.details.get("safe_url") {
-        Some(v) if py::truthy(Some(v)) => v.clone(),
+        Some(v) if values::truthy(Some(v)) => v.clone(),
         _ => issue
             .target_url
             .clone()
@@ -207,7 +207,7 @@ pub fn render_markdown(result: &AuditResult) -> String {
         "- **Generated:** {}",
         py_str(run.get("generated_at"))
     ));
-    if py::truthy(run.get("source")) {
+    if values::truthy(run.get("source")) {
         lines.push(format!("- **Audited site:** {}", esc(run.get("source"))));
     }
     lines.push(String::new());
@@ -224,7 +224,7 @@ pub fn render_markdown(result: &AuditResult) -> String {
         ]
         .into_iter()
         .flatten()
-        .find(|v| py::truthy(Some(v)))
+        .find(|v| values::truthy(Some(v)))
         .map(|v| esc(Some(v)))
         .unwrap_or_else(|| "unknown".to_owned());
         lines.push(format!("> **Crawl failed — no health score.** {reason}."));
@@ -238,7 +238,7 @@ pub fn render_markdown(result: &AuditResult) -> String {
             // the reason is stated, never disguised as a number.
             let reason = s
                 .get("health_score_reason")
-                .filter(|v| py::truthy(Some(v)))
+                .filter(|v| values::truthy(Some(v)))
                 .map(|v| esc(Some(v)))
                 .unwrap_or_else(|| "the run recorded no reason".to_owned());
             lines.push(format!("> **No health score.** {reason}."));
@@ -248,15 +248,15 @@ pub fn render_markdown(result: &AuditResult) -> String {
                 py_str(s.get("health_score"))
             ));
         }
-        if py::truthy(s.get("health_score_basis")) {
+        if values::truthy(s.get("health_score_basis")) {
             lines.push(String::new());
             lines.push(format!("_{}_", esc(s.get("health_score_basis"))));
         }
-        if py::truthy(s.get("health_score_scope")) {
+        if values::truthy(s.get("health_score_scope")) {
             lines.push(String::new());
             lines.push(format!("_{}_", esc(s.get("health_score_scope"))));
         }
-        if let Some(coverage) = s.get("check_coverage").filter(|c| py::truthy(Some(c))) {
+        if let Some(coverage) = s.get("check_coverage").filter(|c| values::truthy(Some(c))) {
             lines.push(String::new());
             lines.push(format!(
                 "- Checks: **{} fired**, {} skipped, {} silent, {} disabled (of {} total)",
@@ -301,7 +301,7 @@ pub fn render_markdown(result: &AuditResult) -> String {
     for (sev, label) in SEVERITY_LABEL {
         let count = by_sev
             .and_then(|m| m.get(sev))
-            .map(py::str_value)
+            .map(values::str_value)
             .unwrap_or_else(|| "0".to_owned());
         lines.push(format!("| {label} | {count} |"));
     }
@@ -332,7 +332,7 @@ pub fn render_markdown(result: &AuditResult) -> String {
             let title = check_title(&Value::String(check.clone()));
             lines.push(format!(
                 "| {title} | {} | {severity} |",
-                py::str_value(count)
+                values::str_value(count)
             ));
         }
         lines.push(String::new());
@@ -376,7 +376,7 @@ pub fn render_markdown(result: &AuditResult) -> String {
             lines.push(format!(
                 "| {} | {} | {:.0}% |",
                 check_title(row.get("check").unwrap_or(&Value::Null)),
-                py::str_value(row.get("pages").unwrap_or(&Value::Null)),
+                values::str_value(row.get("pages").unwrap_or(&Value::Null)),
                 share * 100.0,
             ));
         }
@@ -433,7 +433,7 @@ pub fn render_markdown(result: &AuditResult) -> String {
                 .and_then(Value::as_array)
                 .map(|rows| {
                     rows.iter()
-                        .map(py::str_value)
+                        .map(values::str_value)
                         .collect::<Vec<_>>()
                         .join(", ")
                 })
@@ -441,7 +441,7 @@ pub fn render_markdown(result: &AuditResult) -> String {
                 .unwrap_or_else(|| "all checks".to_owned());
             let suppressed = rule_summary
                 .and_then(|row| row.get("suppressed_findings"))
-                .map(py::str_value)
+                .map(values::str_value)
                 .unwrap_or_else(|| "0".to_owned());
             lines.push(format!(
                 "| {} | `{}` | {} | {} | {suppressed} |",
@@ -478,13 +478,13 @@ pub fn render_markdown(result: &AuditResult) -> String {
                 .and_then(Value::as_object)
                 .unwrap_or(&empty);
             let url = match details.get("safe_url") {
-                Some(v) if py::truthy(Some(v)) => v.clone(),
+                Some(v) if values::truthy(Some(v)) => v.clone(),
                 _ => issue.get("target_url").cloned().unwrap_or(Value::Null),
             };
             lines.push(format!(
                 "| {} | {} | {} | {} | {} |",
-                py::str_value(issue.get("check").unwrap_or(&Value::Null)),
-                py::str_value(issue.get("severity").unwrap_or(&Value::Null)),
+                values::str_value(issue.get("check").unwrap_or(&Value::Null)),
+                values::str_value(issue.get("severity").unwrap_or(&Value::Null)),
                 esc(Some(&url)),
                 esc(suppression.get("rule_id")),
                 esc(suppression.get("reason")),
@@ -635,8 +635,8 @@ fn render_large_html(lines: &mut Vec<String>, group: &[&Issue]) {
         let d = &issue.details;
         let rank = d
             .get("rank")
-            .filter(|r| py::truthy(Some(r)))
-            .map(py::str_value)
+            .filter(|r| values::truthy(Some(r)))
+            .map(values::str_value)
             .unwrap_or_else(|| "—".to_owned());
         lines.push(format!(
             "| {} | {} | ×{} | {} |",
@@ -669,7 +669,7 @@ fn render_duplicates(lines: &mut Vec<String>, group: &[&Issue]) {
             .copied()
             .collect();
         match value {
-            Some(v) if py::truthy(Some(v)) => {
+            Some(v) if values::truthy(Some(v)) => {
                 lines.push(format!("- **\"{}\"** — {} URLs:", esc(Some(v)), urls.len()));
             }
             _ => {
@@ -760,7 +760,7 @@ fn render_sitemap(lines: &mut Vec<String>, sm: &Value) {
         py_str(sm.get("declared_in_robots"))
     ));
     if let Some(sitemaps) = sm.get("sitemaps").and_then(Value::as_array) {
-        if py::truthy(sm.get("sitemaps")) {
+        if values::truthy(sm.get("sitemaps")) {
             let joined = sitemaps
                 .iter()
                 .map(|x| esc(Some(x)))
@@ -784,9 +784,9 @@ fn render_sitemap(lines: &mut Vec<String>, sm: &Value) {
         py_str(sm.get("non_200_in_sitemap")),
         py_str(sm.get("non_indexable_in_sitemap")),
     ));
-    if py::truthy(sm.get("image_entries_in_sitemap"))
-        || py::truthy(sm.get("news_entries_in_sitemap"))
-        || py::truthy(sm.get("video_entries_in_sitemap"))
+    if values::truthy(sm.get("image_entries_in_sitemap"))
+        || values::truthy(sm.get("news_entries_in_sitemap"))
+        || values::truthy(sm.get("video_entries_in_sitemap"))
     {
         // Attached image/news/video entries are their own population: the
         // report keeps both numbers, never a single mixed figure.
@@ -797,7 +797,7 @@ fn render_sitemap(lines: &mut Vec<String>, sm: &Value) {
             py_str_or(sm.get("video_entries_in_sitemap"), "0"),
         ));
     }
-    if let Some(lm) = sm.get("lastmod").filter(|v| py::truthy(Some(v))) {
+    if let Some(lm) = sm.get("lastmod").filter(|v| values::truthy(Some(v))) {
         let share = lm
             .get("share_older_than_threshold")
             .and_then(Value::as_f64)
@@ -809,10 +809,10 @@ fn render_sitemap(lines: &mut Vec<String>, sm: &Value) {
             py_str(lm.get("median")),
             (share * 100.0).round_ties_even() as i64,
         );
-        if py::truthy(lm.get("all_identical")) {
+        if values::truthy(lm.get("all_identical")) {
             line.push_str(" · all values are identical!");
         }
-        if py::truthy(lm.get("invalid_count")) {
+        if values::truthy(lm.get("invalid_count")) {
             line.push_str(&format!(" · invalid: {}", py_str(lm.get("invalid_count"))));
         }
         lines.push(line);

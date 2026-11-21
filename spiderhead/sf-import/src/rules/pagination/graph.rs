@@ -8,8 +8,8 @@ use std::sync::LazyLock;
 use indexmap::IndexMap;
 use regex::Regex;
 
-use spiderhead_parse::py_str::py_strip;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::strings::strip;
+use spiderhead_parse::url_parse::urlsplit;
 
 use crate::context::{AuditContext, ContextError};
 use crate::normalize::norm_url;
@@ -129,7 +129,7 @@ pub fn pagination_page_number(url: &str) -> Option<i128> {
     };
     let mut seen: HashSet<i128> = HashSet::new();
     for (key, value) in parse_qsl_keep_blanks(&parts.query) {
-        if PAGE_NUMBER_PARAMS.contains(&py_strip(&key).to_lowercase().as_str()) {
+        if PAGE_NUMBER_PARAMS.contains(&strip(&key).to_lowercase().as_str()) {
             let n = decimal_int(&value)?;
             seen.insert(n);
         }

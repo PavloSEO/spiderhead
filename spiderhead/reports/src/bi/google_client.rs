@@ -591,10 +591,10 @@ impl GoogleRestClient {
                     code.unwrap_or_default()
                 )));
             }
-            if error.filter(|e| crate::py::truthy(Some(e))).is_some() {
+            if error.filter(|e| crate::values::truthy(Some(e))).is_some() {
                 return Err(bi_err(format!(
                     "Google API rejected the request: {}",
-                    crate::py::repr(error.unwrap_or(&Value::Null))
+                    crate::values::repr(error.unwrap_or(&Value::Null))
                 )));
             }
             return Ok(response);
@@ -1793,13 +1793,13 @@ impl GoogleBigQueryClient {
                     .map(|s| {
                         let error_result = s.get("errorResult");
                         let errors = s.get("errors");
-                        crate::py::truthy(error_result) || crate::py::truthy(errors)
+                        crate::values::truthy(error_result) || crate::values::truthy(errors)
                     })
                     .unwrap_or(false);
                 if failed {
                     return Err(cfg_err(&format!(
                         "BigQuery job {job_id:?} failed: {}",
-                        crate::py::repr(
+                        crate::values::repr(
                             status
                                 .and_then(|s| s.get("errorResult"))
                                 .unwrap_or(&Value::Null)

@@ -3,8 +3,8 @@
 //! A pure projection: no transport, no
 //! credentials. Missing data never becomes a passing metric.
 
-use crate::pyjson;
-use crate::pystr;
+use crate::json_wire;
+use crate::text_rules;
 use serde_json::{json, Map, Value};
 
 /// Identifier of the threshold policy these results are judged against.
@@ -53,7 +53,7 @@ fn py_date(value: Option<&Value>) -> Option<String> {
     let map = value?.as_object()?;
     let mut parts = [0i64; 3];
     for (index, name) in ["year", "month", "day"].iter().enumerate() {
-        parts[index] = pystr::as_strict_i64(map.get(*name))?;
+        parts[index] = text_rules::as_strict_i64(map.get(*name))?;
     }
     let [year, month, day] = parts;
     if !(1..=9999).contains(&year)
@@ -72,7 +72,7 @@ fn py_float(value: Option<&Value>) -> Option<f64> {
     let number = match value {
         Value::Bool(_) => return None,
         Value::Number(n) => n.as_f64().unwrap_or(f64::NAN),
-        Value::String(s) => pyjson::float_parse(s)?,
+        Value::String(s) => json_wire::float_parse(s)?,
         _ => return None,
     };
     if number.is_finite() && number >= 0.0 {
@@ -98,7 +98,7 @@ pub fn assess(record: &Value) -> Result<Value, CwvError> {
     let last = period.filter(|p| p.is_object()).and_then(|p| {
         let m = p.as_object()?;
         let primary = m.get("lastDate");
-        if pystr::truthy(primary) {
+        if text_rules::truthy(primary) {
             py_date(primary)
         } else {
             py_date(m.get("endDate"))
@@ -188,13 +188,13 @@ pub fn assess(record: &Value) -> Result<Value, CwvError> {
         .collect();
     // Use `record_target`, or `target` when `record_target` is falsy.
     let record_target = get("record_target").cloned().unwrap_or(Value::Null);
-    let target = if pystr::truthy(Some(&record_target)) {
+    let target = if text_rules::truthy(Some(&record_target)) {
         record_target.clone()
     } else {
         get("target").cloned().unwrap_or(Value::Null)
     };
     let form_factor = get("form_factor").cloned().unwrap_or(Value::Null);
-    let form_factor = if pystr::truthy(Some(&form_factor)) {
+    let form_factor = if text_rules::truthy(Some(&form_factor)) {
         form_factor
     } else {
         Value::String("ALL_FORM_FACTORS".to_owned())

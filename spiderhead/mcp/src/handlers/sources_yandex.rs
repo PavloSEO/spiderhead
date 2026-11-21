@@ -7,7 +7,7 @@ use spiderhead_sources::arsenkin::{
     parse_wordstat, sanitize_wordstat_query, wordstat_payload, ArsEnv, ArsError, Client,
     ClientArgs, WORDSTAT_TOOL,
 };
-use spiderhead_sources::pystr;
+use spiderhead_sources::text_rules;
 use spiderhead_sources::yandex_cloud::{Cloud, CloudArgs, CloudEnv, CloudError};
 
 use crate::error::ToolError;
@@ -170,7 +170,7 @@ pub fn serp_fetch(args: &Value) -> Result<Value, ToolError> {
             value
                 .get("docs")
                 .cloned()
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .unwrap_or(json!([])),
         );
         entry.insert(
@@ -219,12 +219,12 @@ pub fn keywords_exact(args: &Value) -> Result<Value, ToolError> {
     }
     let region_raw = opt(&args, "region").cloned().unwrap_or(json!(225));
     let wait = opt_bool(&args, "wait").unwrap_or(true);
-    let region = match pystr::to_python_int(&region_raw) {
+    let region = match text_rules::to_int(&region_raw) {
         Ok(region) => region,
         Err(_) => {
             return Ok(json!({
                 "ok": false,
-                "error": format!("invalid region {}", pystr::repr(&region_raw)),
+                "error": format!("invalid region {}", text_rules::repr(&region_raw)),
                 "code": "INVALID_REGION",
             }))
         }
@@ -232,8 +232,8 @@ pub fn keywords_exact(args: &Value) -> Result<Value, ToolError> {
     let mut cleaned = Map::new();
     for original in &keywords {
         let sanitized = sanitize_wordstat_query(original);
-        if sanitized != pystr::repr_value(original) {
-            cleaned.insert(pystr::repr_value(original), json!(sanitized));
+        if sanitized != text_rules::repr_value(original) {
+            cleaned.insert(text_rules::repr_value(original), json!(sanitized));
         }
     }
     let payload = match wordstat_payload(&Value::Array(keywords.clone()), &json!(region)) {
@@ -283,7 +283,7 @@ pub fn keywords_exact(args: &Value) -> Result<Value, ToolError> {
                 "frequencies": parsed["frequencies"],
                 "result": payload_result,
             });
-            if pystr::truthy(parsed.get("warnings")) {
+            if text_rules::truthy(parsed.get("warnings")) {
                 response["warnings"] = parsed["warnings"].clone();
             }
             Ok(response)

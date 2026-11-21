@@ -7,7 +7,7 @@ use rusqlite::Connection;
 use serde_json::{json, Map, Value};
 use spiderhead_core::net::normalize_url;
 use spiderhead_parse::parser::meta::robots_directives;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::url_parse::urlsplit;
 
 use super::stored::SELECTED_LINKS;
 use super::{details, round_to};

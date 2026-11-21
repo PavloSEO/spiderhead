@@ -10,7 +10,7 @@ use spiderhead_store::evidence_contract::Obj;
 use crate::compare::base::CompareError;
 
 use super::export::iter_compare_rows;
-use super::shared::{py_json, BUCKETS};
+use super::shared::{json_text, BUCKETS};
 
 /// The fixed bucket order of the summary table, title-cased.
 fn bucket_title(bucket: &str) -> &'static str {
@@ -30,7 +30,7 @@ fn display_value(value: Option<&Value>) -> String {
         None => String::new(),
         Some(Value::String(text)) => text.clone(),
         Some(Value::Number(number)) => number.to_string(),
-        Some(other) => py_json(other),
+        Some(other) => json_text(other),
     }
 }
 

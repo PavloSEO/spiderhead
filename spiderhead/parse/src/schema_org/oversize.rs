@@ -91,7 +91,7 @@ pub fn check_schema(
             if target.is_empty() {
                 return Ok(SchemaCheck {
                     ok: false,
-                    error: Some(format!("Not a valid HTTP(S) URL: {}", py_repr(url))),
+                    error: Some(format!("Not a valid HTTP(S) URL: {}", repr(url))),
                     ..empty_result()
                 });
             }

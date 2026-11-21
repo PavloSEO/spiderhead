@@ -61,12 +61,12 @@ pub(super) fn detect_bot(user_agent: &str) -> Option<(&'static str, &'static str
 pub(super) fn classify(ua: &Value, category: &Value) -> Result<(String, String), CfError> {
     let bot = match ua {
         Value::String(text) => detect_bot(text),
-        other if pystr::truthy(Some(other)) => {
+        other if text_rules::truthy(Some(other)) => {
             return Err(CfError::Classed(
                 "TypeError",
                 format!(
                     "expected string or bytes-like object, got '{}'",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 ),
             ));
         }
@@ -75,10 +75,10 @@ pub(super) fn classify(ua: &Value, category: &Value) -> Result<(String, String),
     if let Some((family, name)) = bot {
         return Ok((family.to_owned(), name.to_owned()));
     }
-    if pystr::truthy(Some(category)) {
+    if text_rules::truthy(Some(category)) {
         return Ok((
             "other".to_owned(),
-            format!("Verified bot: {}", pystr::repr_value(category)),
+            format!("Verified bot: {}", text_rules::repr_value(category)),
         ));
     }
     Ok(("human".to_owned(), "human".to_owned()))
@@ -99,7 +99,7 @@ pub(super) fn section(path: &Value) -> Result<String, CfError> {
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'split'",
-                pystr::type_name(other)
+                text_rules::type_name(other)
             ),
         )),
     }
@@ -116,7 +116,7 @@ pub(super) fn py_hash_key(value: &Value) -> Result<String, CfError> {
                 if f.is_finite() && f.fract() == 0.0 {
                     Ok(format!("\u{1}n{:.0}", f.trunc()))
                 } else {
-                    Ok(format!("\u{1}f{}", pyjson::float_repr(f)))
+                    Ok(format!("\u{1}f{}", json_wire::float_repr(f)))
                 }
             } else {
                 Ok(format!("\u{1}n{n}"))
@@ -140,7 +140,7 @@ pub(super) fn json_key(value: &Value) -> String {
         Value::String(s) => s.clone(),
         Value::Number(n) => {
             if n.is_f64() {
-                pyjson::float_repr(n.as_f64().unwrap_or_default())
+                json_wire::float_repr(n.as_f64().unwrap_or_default())
             } else {
                 n.to_string()
             }
@@ -263,7 +263,7 @@ pub(super) fn py_get_or_obj<'a>(
     empty: &'a Value,
 ) -> Result<&'a Value, CfError> {
     match crate::cloudflare::obj_get(value, key)? {
-        Some(member) if pystr::truthy(Some(member)) => {
+        Some(member) if text_rules::truthy(Some(member)) => {
             if member.is_object() {
                 Ok(member)
             } else {
@@ -282,14 +282,17 @@ pub(super) fn py_len(value: &Value) -> Result<usize, CfError> {
         Value::String(text) => Ok(text.chars().count()),
         other => Err(CfError::Classed(
             "TypeError",
-            format!("object of type '{}' has no len()", pystr::type_name(other)),
+            format!(
+                "object of type '{}' has no len()",
+                text_rules::type_name(other)
+            ),
         )),
     }
 }
 
 /// Iterate a JSON value: array items, object keys, or string characters.
 pub(super) fn py_iter_values(value: &Value) -> Result<Vec<Value>, CfError> {
-    pystr::iterate(value).map_err(|(class, msg)| CfError::Classed(class, msg))
+    text_rules::iterate(value).map_err(|(class, msg)| CfError::Classed(class, msg))
 }
 
 /// UTC midnight of a date, in microseconds since the epoch.
@@ -301,7 +304,7 @@ pub(super) fn midnight_micros(day: i64) -> i64 {
 pub(super) fn stamp_z(micros: i64) -> String {
     let days = micros.div_euclid(86_400_000_000);
     let secs = micros.rem_euclid(86_400_000_000) / 1_000_000;
-    let (y, m, d) = pytime::civil_from_days(days);
+    let (y, m, d) = datetime::civil_from_days(days);
     format!(
         "{y:04}-{m:02}-{d:02}T{:02}:{:02}:{:02}Z",
         secs / 3600,
@@ -319,10 +322,10 @@ pub(super) fn parse_day(value: &Value, name: &str) -> Result<i64, CfError> {
         ));
     }
     let text = value.as_str().unwrap_or_default();
-    pytime::date_fromisoformat(text).ok_or_else(|| {
+    datetime::date_fromisoformat(text).ok_or_else(|| {
         CfError::Value(format!(
             "{name} must be YYYY-MM-DD, got {}",
-            pystr::repr_str(text)
+            text_rules::repr_str(text)
         ))
     })
 }

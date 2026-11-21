@@ -9,7 +9,7 @@ use serde_json::{json, Map, Value};
 
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::{norm_url, to_int};
-use crate::pyvalue::{py_eq, truthy, truthy_opt};
+use crate::value_text::{truthy, truthy_opt, value_eq};
 
 use super::graph::{
     display_url, expected_step, pagination_loops, pagination_page_number, series_from,
@@ -127,7 +127,7 @@ pub fn check_pagination_series(ctx: &mut AuditContext) -> Result<(), ContextErro
         let (indexable, rec_obj) =
             page.map(|p| (p.is_indexable(), rec(p).cloned().unwrap_or_default()));
         if !indexable
-            || py_eq(
+            || value_eq(
                 &rec_obj.get("crawl_depth").cloned().unwrap_or(Value::Null),
                 &json!(0),
             )

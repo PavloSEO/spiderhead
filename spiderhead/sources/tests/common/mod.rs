@@ -70,7 +70,7 @@ impl StubTransport {
                 Some(Value::Object(m)) if m.contains_key("$b64") => {
                     b64_decode(m.get("$b64").and_then(Value::as_str).unwrap_or_default())
                 }
-                Some(other) => spiderhead_sources::pyjson::dumps(other).into_bytes(),
+                Some(other) => spiderhead_sources::json_wire::dumps(other).into_bytes(),
                 None => Vec::new(),
             }
         };

@@ -191,7 +191,7 @@ pub fn check_coverage_rows(run_id: &str, run: &Value, coverage: &Value) -> Vec<V
             let check_id = obj
                 .get("id")
                 .or_else(|| obj.get("check"))
-                .map(crate::py::str_value)
+                .map(crate::values::str_value)
                 .filter(|s| !s.is_empty())
                 .unwrap_or_else(|| format!("{label}:{index}"));
             rows.push(json!({
@@ -347,10 +347,10 @@ pub fn audit_source(
                     let obj = item.as_object()?;
                     let id = obj.get("id")?;
                     Some((
-                        crate::py::str_value(id),
+                        crate::values::str_value(id),
                         Value::String(
                             obj.get("reason")
-                                .map(crate::py::str_value)
+                                .map(crate::values::str_value)
                                 .filter(|s| !s.is_empty())
                                 .unwrap_or_else(|| "source check was skipped".into()),
                         ),
@@ -383,12 +383,12 @@ pub fn audit_source(
                 if let Some(obj) = failure.as_object() {
                     let tool = obj
                         .get("tool")
-                        .map(crate::py::str_value)
+                        .map(crate::values::str_value)
                         .filter(|s| !s.is_empty())
                         .unwrap_or_else(|| "unknown".into());
                     let reason = obj
                         .get("error")
-                        .map(crate::py::str_value)
+                        .map(crate::values::str_value)
                         .filter(|s| !s.is_empty())
                         .unwrap_or_else(|| "site audit tool failed".into());
                     coverage_rows.push(cov(
@@ -414,7 +414,7 @@ pub fn audit_source(
                 if let Some(obj) = failure.as_object() {
                     let tool = obj
                         .get("tool")
-                        .map(crate::py::str_value)
+                        .map(crate::values::str_value)
                         .filter(|s| !s.is_empty())
                         .unwrap_or_else(|| "unknown".into());
                     let failed_pages = obj
@@ -509,7 +509,7 @@ pub fn audit_source(
     Ok(RunInput {
         run_id,
         source_kind: kind.into(),
-        source_schema: crate::py::str_value(&source_schema).pipe(|s| {
+        source_schema: crate::values::str_value(&source_schema).pipe(|s| {
             if s.is_empty() {
                 "unknown".into()
             } else {
@@ -852,7 +852,7 @@ pub fn scan_source(
         if links_reason.is_none() {
             links_reason = Some("scan link occurrence capability is unavailable".into());
         }
-    } else if crate::py::truthy(scan.get("crawl_partial")) && links_state == "complete" {
+    } else if crate::values::truthy(scan.get("crawl_partial")) && links_state == "complete" {
         links_state = "partial".into();
         if links_reason.is_none() {
             links_reason = Some("the source crawl is partial".into());
@@ -877,7 +877,7 @@ pub fn scan_source(
                     .or_else(|| lifecycle.map(str::to_owned)),
             )
         }
-    } else if crate::py::truthy(scan.get("crawl_partial")) {
+    } else if crate::values::truthy(scan.get("crawl_partial")) {
         (
             "partial".into(),
             Some(
@@ -899,7 +899,7 @@ pub fn scan_source(
         .and_then(|s| s.get("check_coverage"))
         .cloned()
         .unwrap_or_else(|| json!({}));
-    let scan_uuid = crate::py::str_value(scan.get("scan_uuid").unwrap_or(&Value::Null));
+    let scan_uuid = crate::values::str_value(scan.get("scan_uuid").unwrap_or(&Value::Null));
     let mut coverage_rows = audit
         .as_ref()
         .map(|a| {
@@ -1082,7 +1082,7 @@ pub fn scan_source(
     Ok(RunInput {
         run_id: scan_uuid,
         source_kind: "scan".into(),
-        source_schema: crate::py::str_value(scan.get("format_version").unwrap_or(&Value::Null))
+        source_schema: crate::values::str_value(scan.get("format_version").unwrap_or(&Value::Null))
             .pipe(|s| if s.is_empty() { "scan.v1".into() } else { s }),
         source_name,
         source_sha256: scan_sha,
@@ -1332,7 +1332,7 @@ pub fn validate_join(join: &Value) -> Result<(), BIExportError> {
         if item.get("type").and_then(Value::as_str).unwrap_or("number") != "number" {
             return Err(err(format!(
                 "provider metric {} is not numeric",
-                crate::py::repr(item.get("name").unwrap_or(&Value::Null))
+                crate::values::repr(item.get("name").unwrap_or(&Value::Null))
             )));
         }
     }
@@ -1436,7 +1436,7 @@ pub fn validate_store_join(join: &Value) -> Result<(), BIExportError> {
         if item.get("type").and_then(Value::as_str).unwrap_or("number") != "number" {
             return Err(err(format!(
                 "provider metric {} is not numeric",
-                crate::py::repr(item.get("name").unwrap_or(&Value::Null))
+                crate::values::repr(item.get("name").unwrap_or(&Value::Null))
             )));
         }
     }

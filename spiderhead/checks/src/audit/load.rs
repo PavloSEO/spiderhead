@@ -5,7 +5,7 @@ use std::path::Path;
 use rusqlite::{types::ValueRef, Connection, OpenFlags};
 use serde_json::{Map, Value};
 use spiderhead_parse::parser::meta::robots_directives;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::url_parse::urlsplit;
 use thiserror::Error;
 
 use super::model::Page;

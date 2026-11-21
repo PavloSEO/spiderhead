@@ -54,7 +54,7 @@ fn write_file(ctx: &Ctx, args: &Value) -> ProjectsResult<Value> {
         std::fs::create_dir_all(parent).map_err(p::error::ProjectsError::Io)?;
     }
     let text = match args.get("json") {
-        Some(v) => format!("{}\n", p::pyjson::dumps_indent2(v)),
+        Some(v) => format!("{}\n", p::json_docs::dumps_indent2(v)),
         None => args["text"].as_str().unwrap_or_default().to_owned(),
     };
     std::fs::write(&p_, text).map_err(p::error::ProjectsError::Io)?;
@@ -189,7 +189,7 @@ fn urlsplit(args: &Value) -> ProjectsResult<Value> {
 
 fn fromisoformat(args: &Value) -> ProjectsResult<Value> {
     let text = args["text"].as_str().unwrap_or_default();
-    let dt = p::pytime::fromisoformat(text)?;
+    let dt = p::datetime::fromisoformat(text)?;
     Ok(json!({
         "civil": dt.civil.to_string(),
         "offset_seconds": dt.offset_seconds,
@@ -198,7 +198,7 @@ fn fromisoformat(args: &Value) -> ProjectsResult<Value> {
 
 fn epoch_z(args: &Value) -> ProjectsResult<Value> {
     let seconds = args["seconds"].as_f64().unwrap_or_default();
-    Ok(json!(p::pytime::epoch_z(seconds)))
+    Ok(json!(p::datetime::epoch_z(seconds)))
 }
 
 /// Canned detection tools for `facts.project_facts`.
@@ -235,7 +235,7 @@ fn project_facts(ctx: &Ctx, args: &Value) -> ProjectsResult<Value> {
 /// Parse an ISO-8601 string into a `Zoned` at its own fixed offset.
 pub(crate) fn py_zoned(args: &Value, key: &str) -> ProjectsResult<jiff::Zoned> {
     let text = args[key].as_str().unwrap_or_default();
-    let parsed = p::pytime::fromisoformat(text)?;
+    let parsed = p::datetime::fromisoformat(text)?;
     let offset = parsed
         .offset_seconds
         .ok_or_else(|| value("datetime must be timezone-aware"))?;

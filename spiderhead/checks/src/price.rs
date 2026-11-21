@@ -18,7 +18,7 @@ use std::sync::OnceLock;
 use fancy_regex::Regex;
 use serde::Serialize;
 
-use spiderhead_parse::py_str::py_strip;
+use spiderhead_parse::strings::strip;
 
 /// Currency markers people actually write, each with the ISO code it resolves
 /// to. A marker that cannot name one currency — a bare "kr" is Swedish,
@@ -218,7 +218,7 @@ pub fn parse_price(text: &str) -> Option<PriceMatch> {
         return Some(PriceMatch {
             value,
             currency: resolve_currency(marker),
-            raw: py_strip(whole).to_owned(),
+            raw: strip(whole).to_owned(),
         });
     }
     None

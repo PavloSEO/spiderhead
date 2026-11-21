@@ -399,8 +399,8 @@ pub(super) fn task_related_rows(
             ));
         }
         events.sort_by(|a, b| {
-            pyjson::dumps_compact(&a.0)
-                .cmp(&pyjson::dumps_compact(&b.0))
+            json_docs::dumps_compact(&a.0)
+                .cmp(&json_docs::dumps_compact(&b.0))
                 .then(a.1.cmp(&b.1))
         });
         for (ordinal, (occurred_at, _tie, event_type, entry)) in events.into_iter().enumerate() {

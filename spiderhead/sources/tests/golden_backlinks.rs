@@ -20,7 +20,7 @@ use spiderhead_sources::backlink_indexes::{
 };
 use spiderhead_sources::credentials::CredentialError;
 use spiderhead_sources::http::Request;
-use spiderhead_sources::pyjson;
+use spiderhead_sources::json_wire;
 use spiderhead_sources::spend::Record;
 
 use common::{load_fixture, StubTransport};
@@ -122,10 +122,10 @@ fn reply_body(spec: &Value, request: &Request) -> String {
         } else {
             json!({"jsonrpc": "2.0", "id": id, "error": spec.get("moz_rpc_error").cloned().unwrap_or_default()})
         };
-        return pyjson::dumps(&body);
+        return json_wire::dumps(&body);
     }
     match spec.get("body") {
-        Some(body @ (Value::Object(_) | Value::Array(_))) => pyjson::dumps(body),
+        Some(body @ (Value::Object(_) | Value::Array(_))) => json_wire::dumps(body),
         Some(Value::String(text)) => text.clone(),
         _ => String::new(),
     }

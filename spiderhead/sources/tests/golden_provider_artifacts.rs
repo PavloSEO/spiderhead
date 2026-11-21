@@ -12,8 +12,8 @@ use std::path::{Path, PathBuf};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
+use spiderhead_sources::json_wire;
 use spiderhead_sources::provider_artifacts as pa;
-use spiderhead_sources::pyjson;
 
 use common::load_fixture;
 
@@ -50,13 +50,13 @@ fn chmod(path: &Path, mode: u32) {
 /// `write_artifact` — store the payload and return its `local-artifact:` reference.
 fn write_artifact(base: &Path, payload: &Value) -> String {
     let digest = {
-        let text = pyjson::dumps_opts(payload, true, true);
+        let text = json_wire::dumps_opts(payload, true, true);
         let mut hasher = Sha256::new();
         hasher.update(text.as_bytes());
         format!("{:x}", hasher.finalize())
     };
     let path = base.join(format!("provider-{}.json", &digest[..16]));
-    std::fs::write(&path, pyjson::dumps_opts(payload, true, false)).unwrap_or_default();
+    std::fs::write(&path, json_wire::dumps_opts(payload, true, false)).unwrap_or_default();
     chmod(&path, 0o600);
     format!("local-artifact:{digest}")
 }
@@ -124,7 +124,7 @@ fn run_op(op: &Value, base: &Path) -> Value {
                     for entry in entries.flatten() {
                         let name = entry.file_name().to_string_lossy().into_owned();
                         if name.starts_with("provider-") && name.ends_with(".json") {
-                            std::fs::write(entry.path(), pyjson::dumps(&payload))
+                            std::fs::write(entry.path(), json_wire::dumps(&payload))
                                 .unwrap_or_default();
                             chmod(&entry.path(), 0o600);
                         }

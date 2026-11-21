@@ -225,7 +225,7 @@ impl Store {
                 &[
                     json!(dom),
                     r["n"].clone(),
-                    json!(crate::pyfmt::py_round(ap, 2)),
+                    json!(crate::fmt::round_half_even(ap, 2)),
                     r["bp"].clone(),
                     json!(kind),
                 ],

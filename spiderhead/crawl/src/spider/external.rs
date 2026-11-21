@@ -348,7 +348,7 @@ async fn probe(
                         error_kind: "redirects",
                     });
                 }
-                let next = spiderhead_parse::py_url::urljoin(&current, &location)
+                let next = spiderhead_parse::url_parse::urljoin(&current, &location)
                     .unwrap_or_else(|_| location.clone());
                 redirects += 1;
                 current = next;

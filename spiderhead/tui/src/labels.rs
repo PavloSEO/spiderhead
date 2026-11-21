@@ -3,7 +3,7 @@
 use serde_json::Value;
 
 use crate::localization::ui;
-use crate::pyjson;
+use crate::values;
 
 fn labels(key: &str) -> Option<&'static str> {
     Some(match key {
@@ -50,7 +50,7 @@ pub fn label(value: &Value) -> String {
     }
     let text = match value {
         Value::String(s) => s.clone(),
-        other => pyjson::py_str(other),
+        other => values::scalar_text(other),
     };
     ui(&labels(&text)
         .map(str::to_string)
@@ -99,7 +99,7 @@ pub fn value_lines(value: &Value, indent: &str) -> Vec<String> {
                         match item {
                             Value::Null => "Not recorded".to_string(),
                             Value::String(s) => s.clone(),
-                            other => pyjson::py_str(other),
+                            other => values::scalar_text(other),
                         }
                     };
                     lines.push(format!(
@@ -122,7 +122,7 @@ pub fn value_lines(value: &Value, indent: &str) -> Vec<String> {
             "{indent}{}",
             match other {
                 Value::String(s) => s.clone(),
-                v => pyjson::py_str(v),
+                v => values::scalar_text(v),
             }
         )],
     }

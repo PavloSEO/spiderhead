@@ -24,7 +24,7 @@ pub async fn run<T: Transport>(
 ) -> Result<RunOutcome, DfsError> {
     let endpoint = match endpoints(kind) {
         Some(e) => e,
-        None => return Err(pyerr("KeyError", pystr::repr_str(kind))),
+        None => return Err(error_text("KeyError", text_rules::repr_str(kind))),
     };
     let label = format!("{kind}.{}", client.env_name());
     let body = client.post(endpoint, payload, Some(&json!(label))).await?;

@@ -349,7 +349,7 @@ pub fn mirror_check(args: &Value) -> Result<Value, ToolError> {
             "error": format!("not a valid URL: {}", py_repr(url)),
         }));
     }
-    let parts = spiderhead_parse::py_url::urlsplit(&target)
+    let parts = spiderhead_parse::url_parse::urlsplit(&target)
         .map_err(|error| ToolError::Failed(error.to_string()))?;
     let host = parts.netloc.to_lowercase();
     let bare = host.strip_prefix("www.").unwrap_or(&host);

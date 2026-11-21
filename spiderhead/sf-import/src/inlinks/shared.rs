@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use indexmap::IndexMap;
 use serde_json::{Map, Value};
 use spiderhead_core::graph::GraphAccess;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::url_parse::urlsplit;
 
 use crate::context::{AddOpts, AuditContext, ContextError, PageHandle};
 use crate::normalize::{is_true, norm_url, records_from_df, Object, INLINKS_FIELD_MAP};
@@ -51,7 +51,7 @@ pub(crate) struct Link {
 
 /// reference truthiness of an optional cell (missing counts as false).
 pub(crate) fn truthy(value: &Option<Value>) -> bool {
-    value.as_ref().is_some_and(crate::pyvalue::truthy)
+    value.as_ref().is_some_and(crate::value_text::truthy)
 }
 
 /// The cell as a string, when it is one.

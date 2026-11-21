@@ -6,11 +6,11 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 use serde_json::{Map, Value};
-use spiderhead_parse::py_str::py_strip;
+use spiderhead_parse::strings::strip;
 
 use crate::context::{AddOpts, AuditContext, ContextError};
-use crate::pyvalue::{truthy, truthy_opt};
 use crate::rules::shared::{body_unavailable, has_column, rec};
+use crate::value_text::{truthy, truthy_opt};
 
 use super::{ordered_operand, str_or_blank};
 
@@ -22,7 +22,7 @@ pub fn check_tech_extra(ctx: &mut AuditContext) -> Result<(), ContextError> {
         let rec_obj = page.map(|p| rec(p).cloned().unwrap_or_default());
         // SF emits HTTP Version as "HTTP/1.1", "HTTP/2" or bare "1.1"/"2"; str() because
         // an all-numeric column parses as float.
-        let hv = py_strip(
+        let hv = strip(
             &str_or_blank(rec_obj.get("http_version"))
                 .to_uppercase()
                 .replace("HTTP/", ""),
@@ -152,7 +152,7 @@ pub fn check_charset(ctx: &mut AuditContext) -> Result<(), ContextError> {
         if body_unavailable(&rec_obj) {
             continue; // unparsed body: no meta declaration to read either way
         }
-        let meta_charset = py_strip(&str_or_blank(rec_obj.get("meta_charset"))).to_owned();
+        let meta_charset = strip(&str_or_blank(rec_obj.get("meta_charset"))).to_owned();
         let header_declares = content_type
             .as_deref()
             .is_some_and(|ct| !ct.is_empty() && CHARSET_IN_HEADER_RE.is_match(ct));
@@ -376,7 +376,7 @@ pub fn check_viewport(ctx: &mut AuditContext) -> Result<(), ContextError> {
             // reference, and the check does not catch it.
             let scale = m
                 .get(1)
-                .and_then(|g| crate::pyvalue::py_float(g.as_str()))
+                .and_then(|g| crate::value_text::parse_float(g.as_str()))
                 .ok_or_else(|| {
                     ContextError::Value("could not convert initial-scale to float".to_owned())
                 })?;
@@ -442,7 +442,7 @@ pub fn check_compression(ctx: &mut AuditContext) -> Result<(), ContextError> {
         // uncompressed even though each listed token is a real compression coding (#269).
         let tokens: Vec<String> = str_or_blank(rec_obj.get("content_encoding"))
             .split(',')
-            .map(|t| py_strip(t).to_lowercase())
+            .map(|t| strip(t).to_lowercase())
             .filter(|t| !t.is_empty())
             .collect();
         if tokens

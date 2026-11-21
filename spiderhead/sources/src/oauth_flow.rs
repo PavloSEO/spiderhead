@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use crate::credentials::is_private_mode;
-use crate::{pyjson, pytime};
+use crate::{datetime, json_wire};
 
 /// `FLOW_TTL` — a waiting flow dies ten minutes after creation.
 pub const FLOW_TTL_SECONDS: i64 = 600;
@@ -222,7 +222,7 @@ fn io_fail(e: std::io::Error) -> FlowError {
 fn write_record(path: &Path, record: &Map<String, Value>) -> Result<(), FlowError> {
     spiderhead_core::filesystem::atomic_write_bytes(
         path,
-        pyjson::dumps_opts(&Value::Object(record.clone()), true, true).as_bytes(),
+        json_wire::dumps_opts(&Value::Object(record.clone()), true, true).as_bytes(),
         Some(".oauth-flow-"),
         Some(0o600),
         true,
@@ -258,8 +258,8 @@ pub fn create_flow_unlocked_with(
         "flow_id": tokens.urlsafe(16)?,
         "state_sha256": hash_state(&state),
         "status": "waiting",
-        "created_at": pytime::isoformat(now),
-        "expires_at": pytime::isoformat(now + FLOW_TTL_SECONDS * 1_000_000),
+        "created_at": datetime::isoformat(now),
+        "expires_at": datetime::isoformat(now + FLOW_TTL_SECONDS * 1_000_000),
         "connected_at": Value::Null,
         "token_expires_at": Value::Null,
     });
@@ -283,8 +283,8 @@ pub fn create_flow_with(
     create_flow_unlocked_with(path, now, tokens)
 }
 
-fn parse_iso(text: &str) -> Result<pytime::Parsed, FlowError> {
-    pytime::fromisoformat(text)
+fn parse_iso(text: &str) -> Result<datetime::Parsed, FlowError> {
+    datetime::fromisoformat(text)
         .ok_or_else(|| FlowError::Invalid("OAuth flow record is invalid".to_owned()))
 }
 
@@ -379,14 +379,14 @@ pub fn effective_status(flow: &Map<String, Value>, now: i64) -> Result<String, F
         let expires = flow
             .get("expires_at")
             .and_then(Value::as_str)
-            .and_then(pytime::fromisoformat);
+            .and_then(datetime::fromisoformat);
         match expires {
-            Some(pytime::Parsed {
+            Some(datetime::Parsed {
                 micros,
                 aware: true,
             }) if now >= micros => return Ok("expired".to_owned()),
-            Some(pytime::Parsed { aware: true, .. }) => {}
-            Some(pytime::Parsed { aware: false, .. }) => {
+            Some(datetime::Parsed { aware: true, .. }) => {}
+            Some(datetime::Parsed { aware: false, .. }) => {
                 return Err(FlowError::TypeErr(
                     "can't compare offset-naive and offset-aware datetimes".to_owned(),
                 ))
@@ -459,10 +459,10 @@ pub fn complete_flow(
         return fail("oauth_flow_not_waiting");
     }
     current.insert("status".to_owned(), json!("connected"));
-    current.insert("connected_at".to_owned(), json!(pytime::isoformat(now)));
+    current.insert("connected_at".to_owned(), json!(datetime::isoformat(now)));
     current.insert(
         "token_expires_at".to_owned(),
-        json!(pytime::isoformat(now + expires_in * 1_000_000)),
+        json!(datetime::isoformat(now + expires_in * 1_000_000)),
     );
     write_record(path, &current)?;
     Ok(current)

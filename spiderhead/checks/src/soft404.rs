@@ -12,7 +12,7 @@
 
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use spiderhead_parse::py_url::{urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{urlsplit, urlunsplit};
 
 /// Probes requested per check; classification needs agreement of all of them.
 pub const PROBE_COUNT: usize = 2;

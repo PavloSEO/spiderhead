@@ -1,7 +1,7 @@
 //! URL helpers and crawl ceilings shared by the sitemap crawl and the audit.
 
 use serde_json::{json, Value};
-use spiderhead_parse::py_url;
+use spiderhead_parse::url_parse;
 
 /// `MAX_SITEMAPS`: retained sitemap-document ceiling per crawl.
 pub const MAX_SITEMAPS: usize = 5000;
@@ -63,7 +63,7 @@ pub(super) fn netloc_port(netloc: &str) -> Result<Option<u16>, String> {
 /// `normalize_url`: lowercase host, default port dropped, fragment removed, trailing slashes stripped.
 /// `Err` for an invalid URL or a port outside 0-65535.
 pub fn normalize_url(url_str: &str) -> Result<String, String> {
-    let parts = py_url::urlsplit(url_str.trim()).map_err(|_| invalid_url(url_str))?;
+    let parts = url_parse::urlsplit(url_str.trim()).map_err(|_| invalid_url(url_str))?;
     if parts.scheme.is_empty() || parts.netloc.is_empty() {
         return Err(invalid_url(url_str));
     }
@@ -88,7 +88,7 @@ pub fn normalize_url(url_str: &str) -> Result<String, String> {
             path.pop();
         }
     }
-    Ok(py_url::urlunsplit(
+    Ok(url_parse::urlunsplit(
         &scheme,
         &netloc,
         &path,
@@ -104,7 +104,7 @@ pub(super) fn invalid_url(url_str: &str) -> String {
 /// `classify_url_type`: `"folder"` or `"finalUrl"`; the root path is a folder,
 /// a dot in the leaf marks a final URL, malformed URLs default to `"finalUrl"`.
 pub fn classify_url_type(url_str: &str) -> String {
-    let Ok(parts) = py_url::urlsplit(url_str) else {
+    let Ok(parts) = url_parse::urlsplit(url_str) else {
         return "finalUrl".to_owned();
     };
     if parts.scheme.is_empty() || parts.netloc.is_empty() {
@@ -132,7 +132,7 @@ pub fn detect_host_policy(urls: &[Value]) -> Value {
     let mut non_www = 0i64;
     let mut by_host: indexmap::IndexMap<String, i64> = indexmap::IndexMap::new();
     for url in urls {
-        let Ok(parts) = py_url::urlsplit(url.get("loc").and_then(Value::as_str).unwrap_or(""))
+        let Ok(parts) = url_parse::urlsplit(url.get("loc").and_then(Value::as_str).unwrap_or(""))
         else {
             continue;
         };

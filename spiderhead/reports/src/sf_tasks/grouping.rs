@@ -12,7 +12,7 @@ use super::{
     check_meta_fallback, evidence_references, reproductions, task_id, unassigned_assignment,
     TasksError, LINK_CHECKS, PRIORITY_ORDER,
 };
-use crate::py;
+use crate::values;
 
 /// The `(priority, -affected_count)` sort key shared by both builders.
 fn sort_key(task: &Value) -> (i64, i64) {
@@ -28,7 +28,7 @@ fn sort_key(task: &Value) -> (i64, i64) {
         .unwrap_or(9);
     let affected = task
         .get("affected_count")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or_default();
     (prio, -affected)
 }
@@ -136,7 +136,7 @@ fn group_task(
     let urls: Vec<Value> = group
         .iter()
         .filter_map(|i| i.get("target_url"))
-        .filter(|u| py::truthy(Some(*u)))
+        .filter(|u| values::truthy(Some(*u)))
         .cloned()
         .collect();
     let mut unique_urls: Vec<Value> = Vec::new();
@@ -147,7 +147,11 @@ fn group_task(
     }
     let occurrences: i64 = group
         .iter()
-        .map(|i| i.get("occurrences_count").and_then(py::to_i64).unwrap_or(1))
+        .map(|i| {
+            i.get("occurrences_count")
+                .and_then(values::to_i64)
+                .unwrap_or(1)
+        })
         .sum();
     if occurrences < min_occ {
         return None;
@@ -251,7 +255,7 @@ pub(super) fn per_issue(
         // Same threshold semantics as _group_by_check (#224).
         let occurrences = issue
             .get("occurrences_count")
-            .and_then(py::to_i64)
+            .and_then(values::to_i64)
             .unwrap_or(1);
         if occurrences < min_occ {
             continue;
@@ -274,7 +278,7 @@ pub(super) fn per_issue(
             if raw.is_empty() {
                 let target = match issue.get("target_url") {
                     None | Some(Value::Null) => "None".to_owned(),
-                    Some(other) => py::str_value(other),
+                    Some(other) => values::str_value(other),
                 };
                 task_id(check, &target)
             } else {
@@ -286,19 +290,19 @@ pub(super) fn per_issue(
             meta.message,
             issue
                 .get("target_url")
-                .filter(|u| py::truthy(Some(*u)))
-                .map(py::str_value)
+                .filter(|u| values::truthy(Some(*u)))
+                .map(values::str_value)
                 .unwrap_or_default()
         )
         .trim()
         .to_owned();
-        let fix_hint = match issue.get("fix_hint").filter(|h| py::truthy(Some(*h))) {
+        let fix_hint = match issue.get("fix_hint").filter(|h| values::truthy(Some(*h))) {
             Some(hint) => hint.clone(),
             None => meta.fix.clone().map(Value::String).unwrap_or(Value::Null),
         };
         let urls: Vec<Value> = issue
             .get("target_url")
-            .filter(|u| py::truthy(Some(*u)))
+            .filter(|u| values::truthy(Some(*u)))
             .map(|u| vec![u.clone()])
             .unwrap_or_default();
         let (evidence, evidence_truncated) = evidence_references(&[*issue], cap);
@@ -436,12 +440,12 @@ fn stream_grouped_tasks_inner(
         .unwrap_or_default();
     let cap = cfg
         .get("max_urls_per_task")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or_default()
         .max(0) as usize;
     let loc_cap = cfg
         .get("max_locations_per_task")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or(25)
         .max(0) as usize;
     let group_by = cfg
@@ -508,7 +512,7 @@ fn stream_grouped_tasks_inner(
         group.issues += 1;
         group.occurrences += map
             .get("occurrences_count")
-            .and_then(py::to_i64)
+            .and_then(values::to_i64)
             .unwrap_or(1);
         if let Some(url_text) = url.and_then(Value::as_str).filter(|u| !u.is_empty()) {
             con.execute(
@@ -559,7 +563,7 @@ fn stream_grouped_tasks_inner(
     }
     let min_occ = cfg
         .get("min_occurrences")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or_default();
     let prio_map = cfg
         .get("priority_map")

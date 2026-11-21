@@ -9,7 +9,7 @@ use super::nodes::{is_schema_org_context, strip_term, Node};
 use crate::bs4_out::get_text_stripped;
 use crate::dom::{all_elements, ElementRef, Soup};
 use crate::parser::shared::is_inert_template_content;
-use crate::py_str::is_py_space;
+use crate::strings::is_space;
 use crate::types::Result;
 use crate::urlutil::urljoin;
 
@@ -18,7 +18,7 @@ pub(super) fn tokens(el: &ElementRef<'_>, name: &str) -> Vec<String> {
     el.value()
         .attr(name)
         .unwrap_or("")
-        .split(is_py_space)
+        .split(is_space)
         .filter(|t| !t.is_empty())
         .map(str::to_owned)
         .collect()

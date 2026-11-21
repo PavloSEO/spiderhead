@@ -27,7 +27,7 @@ use super::export::{export_one, iter_compare_rows, INDEX_BATCH};
 use super::index::{bind, index_collection};
 use super::publish::{publish, reservation_path};
 use super::shared::{
-    check_cancel, file_sha256_with_size, fsync_directory, notify, py_json, BUCKETS,
+    check_cancel, file_sha256_with_size, fsync_directory, json_text, notify, BUCKETS,
 };
 use super::source::{collection_count, facts_rows, job_id, row, segment_definitions};
 use super::COMPARE_V2;
@@ -106,7 +106,7 @@ impl<'a> Recorder<'a> {
     }
 
     fn write_job(&self) -> Result<(), CompareError> {
-        let mut data = py_json(&Value::Object(self.job.clone()));
+        let mut data = json_text(&Value::Object(self.job.clone()));
         data.push('\n');
         spiderhead_core::filesystem::atomic_write_bytes(
             &self.job_path,
@@ -512,7 +512,7 @@ fn compare_to_files_fresh(
             .map_err(|e| CompareError(crate::compare::base::os_error_text(&e, &output)))?;
         let correspondence_sha256 = match &declaration {
             Some(decl) => json!(super::shared::hex(&sha2::Sha256::digest(
-                py_json(&json!({"origin_map": decl.origin_map, "pairs": decl.pairs})).as_bytes(),
+                json_text(&json!({"origin_map": decl.origin_map, "pairs": decl.pairs})).as_bytes(),
             ))),
             None => Value::Null,
         };
@@ -528,7 +528,7 @@ fn compare_to_files_fresh(
             "stage": "indexing",
         }))
         .map_err(|e| CompareError(e.to_string()))?;
-        let mut data = py_json(&Value::Object(initial_job));
+        let mut data = json_text(&Value::Object(initial_job));
         data.push('\n');
         spiderhead_core::filesystem::atomic_write_bytes(
             &work.join("job.json"),
@@ -654,8 +654,8 @@ fn run_phases(
     let db_path = work.join("index.sqlite");
     let before_defs = segment_definitions(before);
     let after_defs = segment_definitions(after);
-    let compatible_segments =
-        super::shared::py_json(&json!(before_defs)) == super::shared::py_json(&json!(after_defs));
+    let compatible_segments = super::shared::json_text(&json!(before_defs))
+        == super::shared::json_text(&json!(after_defs));
     let before_segments = if before_defs.is_empty() {
         Vec::new()
     } else {
@@ -897,7 +897,7 @@ fn finalize(
                 .map_err(|e| CompareError(crate::compare::base::os_error_text(&e, path)))?;
         }
     }
-    let mut payload = py_json(&Value::Object(result.clone()));
+    let mut payload = json_text(&Value::Object(result.clone()));
     payload.push('\n');
     {
         use std::io::Write;

@@ -10,7 +10,7 @@ use serde_json::{Number, Value};
 /// Render an f64 as shortest round-trip text, as used in JSON output
 /// with a `.0` suffix for integral values,
 /// and `e+NN` exponent style.
-pub fn py_float_repr(v: f64) -> String {
+pub fn float_repr(v: f64) -> String {
     if v.is_nan() {
         return "nan".to_string();
     }
@@ -89,7 +89,7 @@ fn write_number(out: &mut String, n: &Number) {
     } else if let Some(u) = n.as_u64() {
         out.push_str(&u.to_string());
     } else if let Some(f) = n.as_f64() {
-        out.push_str(&py_float_repr(f));
+        out.push_str(&float_repr(f));
     }
 }
 
@@ -167,7 +167,7 @@ fn write_pretty(out: &mut String, v: &Value, step: usize, depth: usize) {
 /// Correctly rounded decimal rounding to `ndigits`
 /// (round-half-even on the decimal representation).
 /// Rust's `{:.prec$}` formatting is also correctly rounded half-even.
-pub fn py_round(v: f64, ndigits: u32) -> f64 {
+pub fn round_half_even(v: f64, ndigits: u32) -> f64 {
     if !v.is_finite() {
         return v;
     }
@@ -178,13 +178,13 @@ pub fn py_round(v: f64, ndigits: u32) -> f64 {
 /// Marker for an integer parse failure.
 #[derive(Debug, thiserror::Error)]
 #[error("invalid literal for int(): {0:?}")]
-pub struct PyIntError(pub String);
+pub struct IntParseError(pub String);
 
 /// Integer parse: accepts surrounding whitespace (incl. \t\n), a sign,
 /// underscores between digits, and Unicode decimal digits.
 /// Returns `Err` on anything else.
-pub fn py_int(s: &str) -> Result<i64, PyIntError> {
-    let bad = || PyIntError(s.to_string());
+pub fn parse_int(s: &str) -> Result<i64, IntParseError> {
+    let bad = || IntParseError(s.to_string());
     let t = s.trim_matches(|c: char| c.is_whitespace());
     if t.is_empty() {
         return Err(bad());
@@ -208,7 +208,7 @@ pub fn py_int(s: &str) -> Result<i64, PyIntError> {
             prev_underscore = true;
             continue;
         }
-        let d = match py_unicode_digit(c) {
+        let d = match unicode_digit(c) {
             Some(d) => d,
             None => return Err(bad()),
         };
@@ -227,7 +227,7 @@ pub fn py_int(s: &str) -> Result<i64, PyIntError> {
 
 /// Decimal digit value for any Unicode `Nd` character
 /// accepts (ASCII plus the common digit blocks).
-fn py_unicode_digit(c: char) -> Option<i64> {
+fn unicode_digit(c: char) -> Option<i64> {
     match c {
         '0'..='9' => Some(c as i64 - '0' as i64),
         '٠'..='٩' => Some(c as i64 - '٠' as i64), // Arabic-Indic
@@ -268,13 +268,13 @@ fn py_unicode_digit(c: char) -> Option<i64> {
 
 /// Text of a cell value imported from XLSX, where a float
 /// keeps its `.0` (`str(240.0) == "240.0"`).
-pub fn py_str_f64(v: f64) -> String {
-    py_float_repr(v)
+pub fn f64_cell_text(v: f64) -> String {
+    float_repr(v)
 }
 
 /// Text of a JSON scalar: `"True"/"False"/"None"`, ints as
 /// digits, floats in shortest round-trip form, strings as-is.
-pub fn py_str(v: &Value) -> String {
+pub fn scalar_text(v: &Value) -> String {
     match v {
         Value::Null => "None".into(),
         Value::Bool(b) => (if *b { "True" } else { "False" }).to_string(),
@@ -282,7 +282,7 @@ pub fn py_str(v: &Value) -> String {
             if let Some(i) = n.as_i64() {
                 i.to_string()
             } else {
-                py_float_repr(n.as_f64().unwrap_or(0.0))
+                float_repr(n.as_f64().unwrap_or(0.0))
             }
         }
         Value::String(s) => s.clone(),
@@ -292,27 +292,27 @@ pub fn py_str(v: &Value) -> String {
 
 /// Integer value of a JSON scalar: `"5"` gives 5, `3.7` gives 3,
 /// `true` gives 1; `Err` for values that cannot convert.
-pub fn py_int_value(v: &Value) -> Result<i64, PyIntError> {
+pub fn int_value(v: &Value) -> Result<i64, IntParseError> {
     match v {
         Value::Bool(b) => Ok(if *b { 1 } else { 0 }),
         Value::Number(n) => Ok(match n.as_i64() {
             Some(i) => i,
             None => n.as_f64().unwrap_or(0.0).trunc() as i64,
         }),
-        Value::String(s) => py_int(s),
-        other => Err(PyIntError(dumps(other))),
+        Value::String(s) => parse_int(s),
+        other => Err(IntParseError(dumps(other))),
     }
 }
 
 /// General-format float helper (kept for output comparisons).
-pub fn py_str_i64(v: i64) -> String {
+pub fn i64_text(v: i64) -> String {
     v.to_string()
 }
 
 /// Quoted string text: single quotes, switching to double when the string
 /// has `'` but no `"`; escapes `\\`, the quote, `\n\r\t` and non-printable
 /// C0/C1/nbsp/soft-hyphen code points as `\xNN`.
-pub fn py_repr_str(s: &str) -> String {
+pub fn repr_str(s: &str) -> String {
     let quote = if s.contains('\'') && !s.contains('"') {
         '"'
     } else {

@@ -26,7 +26,7 @@ use spiderhead_log_analyzer::system::{free_space, SystemResolver};
 use spiderhead_log_analyzer::verify::{
     bot_verification_all, bot_verification_page, AllQuery, Engine, Mode, PageQuery, Whois,
 };
-use spiderhead_sources::pystr;
+use spiderhead_sources::text_rules;
 
 use crate::error::ToolError;
 
@@ -427,7 +427,7 @@ fn run_path_arg(args: &Value, name: &str) -> Result<Option<String>, ToolError> {
         Value::String(s) => Ok(Some(s.clone())),
         other => Err(ToolError::Failed(format!(
             "expected str, bytes or os.PathLike object, not {}",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         ))),
     }
 }

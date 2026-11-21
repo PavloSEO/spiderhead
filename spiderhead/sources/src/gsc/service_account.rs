@@ -10,7 +10,7 @@ use std::path::Path;
 use super::SERVICE_ACCOUNT_ERRORS;
 use crate::credentials::{self, CredentialError};
 use crate::http::{urlencode, Request, Transport, TransportError};
-use crate::{pyjson, pytime};
+use crate::{datetime, json_wire};
 
 /// The JWT-bearer grant type `oauth2` sends for service accounts.
 const JWT_GRANT: &str = "urn:ietf:params:oauth:grant-type:jwt-bearer";
@@ -129,7 +129,7 @@ pub async fn service_account_access_token<T: Transport>(
         host,
         root,
         scope,
-        pytime::now_micros() / 1_000_000,
+        datetime::now_micros() / 1_000_000,
         transport,
     )
     .await
@@ -169,8 +169,8 @@ pub async fn service_account_access_token_at<T: Transport>(
     let header = json!({"alg": "RS256", "typ": "JWT"});
     let signing_input = format!(
         "{}.{}",
-        b64url(pyjson::dumps_opts(&header, true, false).as_bytes()),
-        b64url(pyjson::dumps_opts(&claims, true, false).as_bytes()),
+        b64url(json_wire::dumps_opts(&header, true, false).as_bytes()),
+        b64url(json_wire::dumps_opts(&claims, true, false).as_bytes()),
     );
     let assertion = format!(
         "{signing_input}.{}",

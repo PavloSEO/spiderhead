@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 
 use self::model::{Namespace, Stop};
 use self::run::Run;
-use crate::pycompat::{close_matches, repr};
+use crate::argparse_compat::{close_matches, repr};
 use crate::tree::{Node, SUPPRESS};
 use crate::{help, ParsedCommand};
 

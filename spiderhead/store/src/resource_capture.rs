@@ -13,7 +13,7 @@ use crate::resource_graph::{
 use indexmap::IndexMap;
 use rusqlite::Connection;
 use serde_json::Value;
-use spiderhead_parse::py_url::urljoin;
+use spiderhead_parse::url_parse::urljoin;
 use std::collections::{BTreeMap, BTreeSet};
 
 /// One HTTP exchange as the resource graph needs it.

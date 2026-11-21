@@ -3,14 +3,14 @@
 //! traversal is deterministic.
 //!
 //! Evaluation order comes from a seeded shuffle of the node and community
-//! lists (`pymt::randomize`, seed 42). Renumbering and modularity sums iterate
-//! hash sets in a fixed order through `pyset::PySet<i64>`.
+//! lists (`mt19937::randomize`, seed 42). Renumbering and modularity sums iterate
+//! hash sets in a fixed order through `set_order::OrderSet<i64>`.
 
 use indexmap::IndexMap;
 use std::collections::HashMap;
 
-use crate::pymt::{randomize, RandomState};
-use crate::pyset::py_int_set;
+use crate::mt19937::{randomize, RandomState};
+use crate::set_order::int_set;
 
 const MIN_IMPROVEMENT: f64 = 0.0000001;
 
@@ -153,7 +153,7 @@ fn neighcom(node: &str, graph: &PyGraph, status: &Status) -> IndexMap<i64, f64> 
 /// (the order affects the f64 result).
 fn modularity(status: &Status, resolution: f64) -> f64 {
     let links = status.total_weight;
-    let communities = py_int_set(status.node2com.values().copied());
+    let communities = int_set(status.node2com.values().copied());
     let mut result = 0.0;
     for com in communities.iter() {
         let in_degree = status.internals.get(&com).copied().unwrap_or(0.0);
@@ -216,8 +216,8 @@ fn one_level(graph: &PyGraph, status: &mut Status, resolution: f64, rs: &mut Ran
 
 /// Compact community ids to `0..n`, using the set-order walk.
 fn renumber(dictionary: &IndexMap<String, i64>) -> IndexMap<String, i64> {
-    let values = py_int_set(dictionary.values().copied());
-    let target = py_int_set(0..values.len() as i64);
+    let values = int_set(dictionary.values().copied());
+    let target = int_set(0..values.len() as i64);
     let same = values.len() == target.len() && values.iter().all(|v| target.contains(&v));
     if same {
         return dictionary.clone();

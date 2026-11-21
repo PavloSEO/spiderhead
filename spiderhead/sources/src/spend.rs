@@ -145,7 +145,7 @@ pub fn record(host: &dyn Host, rec: &Record) -> std::io::Result<Value> {
         .append(true)
         .open(&path)?;
     handle.write_all(
-        crate::pyjson::dumps_opts(&Value::Object(entry.clone()), false, false).as_bytes(),
+        crate::json_wire::dumps_opts(&Value::Object(entry.clone()), false, false).as_bytes(),
     )?;
     handle.write_all(b"\n")?;
     Ok(Value::Object(entry))
@@ -382,7 +382,7 @@ fn neutralize_cell(value: &Value) -> String {
         Value::String(s) => spiderhead_core::tabular::neutralize_formula(s),
         Value::Null => String::new(),
         Value::Bool(b) => if *b { "True" } else { "False" }.to_owned(),
-        Value::Number(n) => crate::pyjson::float_repr_or_int(n),
-        other => crate::pyjson::str_value(other).unwrap_or_else(|| other.to_string()),
+        Value::Number(n) => crate::json_wire::float_repr_or_int(n),
+        other => crate::json_wire::str_value(other).unwrap_or_else(|| other.to_string()),
     }
 }

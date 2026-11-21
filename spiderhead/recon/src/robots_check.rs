@@ -13,7 +13,7 @@ fn robots_url_of(url: &str) -> String {
     } else {
         format!("https://{url}")
     };
-    let parsed = spiderhead_parse::py_url::urlsplit(&candidate).unwrap_or_default();
+    let parsed = spiderhead_parse::url_parse::urlsplit(&candidate).unwrap_or_default();
     format!("{}://{}/robots.txt", parsed.scheme, parsed.netloc)
 }
 

@@ -13,7 +13,7 @@ use crate::bi::schema::{
     RunInput, MAX_CELL_BYTES,
 };
 use crate::bi_index::{InlinkIndex, QuadrantHit, QuadrantLookup};
-use crate::py;
+use crate::values;
 
 fn err(msg: impl Into<String>) -> BIExportError {
     BIExportError::new(msg)
@@ -168,13 +168,14 @@ pub fn quadrant_candidates<'a>(
     let mut source_contexts: HashMap<String, Value> = HashMap::new();
     for (provider, observations, info) in sources {
         let header = info.get("evidence").cloned().unwrap_or(Value::Null);
-        let provider_name: String = py::str_value(header.get("provider").unwrap_or(&Value::Null))
-            .case_fold()
-            .collect();
+        let provider_name: String =
+            values::str_value(header.get("provider").unwrap_or(&Value::Null))
+                .case_fold()
+                .collect();
         let collection = provider_collection(&header)?;
         let period = header
             .get("period")
-            .filter(|p| py::truthy(Some(p)))
+            .filter(|p| values::truthy(Some(p)))
             .cloned()
             .unwrap_or_else(|| json!({}));
         let timezone = header.get("timezone").cloned().unwrap_or(Value::Null);
@@ -192,11 +193,11 @@ pub fn quadrant_candidates<'a>(
         }
         let origins = header
             .get("field_origins")
-            .filter(|o| py::truthy(Some(o)))
+            .filter(|o| values::truthy(Some(o)))
             .cloned()
             .unwrap_or_else(|| json!({}));
         let mut fields = serde_json::Map::new();
-        for (name, value) in py::map(&header).cloned().unwrap_or_default() {
+        for (name, value) in values::map(&header).cloned().unwrap_or_default() {
             let declared = ["declared", "envelope"]
                 .contains(&origins.get(&name).and_then(Value::as_str).unwrap_or(""));
             fields.insert(
@@ -237,7 +238,7 @@ pub fn quadrant_candidates<'a>(
             let metric = &observation.metric;
             if observation.population != "matched"
                 || url.get("state").and_then(Value::as_str) != Some("keyed")
-                || py::truthy(row.get("dimensions"))
+                || values::truthy(row.get("dimensions"))
             {
                 continue;
             }
@@ -258,7 +259,7 @@ pub fn quadrant_candidates<'a>(
                 )?;
                 continue;
             }
-            if py::truthy(row.get("ambiguous")) {
+            if values::truthy(row.get("ambiguous")) {
                 block(
                     key,
                     "provider source marks this normalized URL row as ambiguous",
@@ -288,7 +289,7 @@ pub fn quadrant_candidates<'a>(
             }
             let unit = metric
                 .get("unit")
-                .filter(|u| py::truthy(Some(u)))
+                .filter(|u| values::truthy(Some(u)))
                 .or_else(|| entry.get("unit"))
                 .cloned()
                 .unwrap_or(Value::Null);
@@ -430,7 +431,7 @@ pub fn quadrant_candidates<'a>(
             .get(&pair_ids)
             .cloned()
             .unwrap_or(Value::Null);
-        if !py::truthy(decision.get("quadrant").and_then(|q| q.get("eligible"))) {
+        if !values::truthy(decision.get("quadrant").and_then(|q| q.get("eligible"))) {
             let mut block_reasons: Vec<String> = decision
                 .get("quadrant")
                 .and_then(|q| q.get("reasons"))
@@ -448,7 +449,7 @@ pub fn quadrant_candidates<'a>(
                 .cloned()
                 .unwrap_or_default()
             {
-                if py::truthy(aspect.get("unverified"))
+                if values::truthy(aspect.get("unverified"))
                     || aspect.get("verdict").and_then(Value::as_str) != Some("compatible")
                 {
                     block_reasons.push(
@@ -652,7 +653,7 @@ impl<'a> CohortIter<'a> {
                 value_label: if indexability.is_null() {
                     None
                 } else {
-                    Some(py::str_value(&indexability))
+                    Some(values::str_value(&indexability))
                 },
                 ..Default::default()
             },
@@ -703,7 +704,7 @@ impl<'a> CohortIter<'a> {
         if let Some(inlink) = self.inlink_index {
             if inlink.denominator != 0 {
                 let numerator = inlink
-                    .numerator(py::get_str(&projected, "url").as_str())
+                    .numerator(values::get_str(&projected, "url").as_str())
                     .unwrap_or(0);
                 let denominator = inlink.denominator;
                 let complete = denominator == run.page_count as i64
@@ -1080,7 +1081,7 @@ pub fn coverage_rows(
         let collection = provider_collection(&evidence)?;
         let collection_state_v = collection.get("state").cloned().unwrap_or(Value::Null);
         let collection_state = collection_state_v.as_str().unwrap_or("");
-        let collection_reason = collection.get("reason").filter(|r| py::truthy(Some(r)));
+        let collection_reason = collection.get("reason").filter(|r| values::truthy(Some(r)));
         for (population, key, state, reason) in [
             ("matched", "matched_rows", "measured", None),
             (
@@ -1105,8 +1106,8 @@ pub fn coverage_rows(
         ] {
             let count = summary
                 .get(key)
-                .filter(|c| py::is_int(c))
-                .and_then(py::to_i64)
+                .filter(|c| values::is_int(c))
+                .and_then(values::to_i64)
                 .unwrap_or(0);
             let count_v = json!(count);
             let reason_v = collection_reason

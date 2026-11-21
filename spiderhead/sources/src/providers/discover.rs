@@ -98,7 +98,7 @@ pub fn provider_discover(
                 .map(|row| {
                     json!({
                         "service": "topvisor",
-                        "resource": pyjson::str_value(row.get("id").unwrap_or(&Value::Null))
+                        "resource": json_wire::str_value(row.get("id").unwrap_or(&Value::Null))
                             .unwrap_or_default(),
                         "label": row.get("name"),
                     })
@@ -144,7 +144,7 @@ pub fn provider_discover(
         "provider": provider,
         "resources": resources,
         "count": resources.len(),
-        "truncated": pystr::truthy(result.get("nextOffset")),
+        "truncated": text_rules::truthy(result.get("nextOffset")),
         "selected": false,
         "error": result.get("error").cloned().unwrap_or(Value::Null),
         "note": "discovery lists visible resources only; it does not bind or select one",

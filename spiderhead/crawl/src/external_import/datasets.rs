@@ -250,7 +250,7 @@ fn parse_value(
             Ok((Some(json!(value)), None))
         }
         "url" => {
-            let parts = match spiderhead_parse::py_url::urlsplit(raw) {
+            let parts = match spiderhead_parse::url_parse::urlsplit(raw) {
                 Ok(parts) => parts,
                 Err(_) => {
                     return Ok((

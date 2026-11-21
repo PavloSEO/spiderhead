@@ -12,8 +12,8 @@ use serde_json::{json, Map, Value};
 use crate::context::{AddOpts, AuditContext, ContextError, PageHandle};
 use crate::inlinks::shared::{all_inlink_records, host_of, rec, site_host};
 use crate::normalize::{norm_url, Object};
-use crate::pyvalue::truthy;
 use crate::rules::shared::{decoded_path, has_column};
+use crate::value_text::truthy;
 
 /// The `(url, status_code, indexability)` identity of one candidate page.
 type PageSummary = (String, Option<i64>, Option<String>);

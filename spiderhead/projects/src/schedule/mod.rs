@@ -172,7 +172,7 @@ pub fn validate(settings: &Value) -> ProjectsResult<Value> {
     match out.get("time_zone") {
         Some(v) if v.as_str() == Some("auto") => {}
         Some(v) if v.is_string() => {
-            crate::pytime::zone(v.as_str().unwrap())
+            crate::datetime::zone(v.as_str().unwrap())
                 .map_err(|_| value(format!("unknown time_zone '{}'", v.as_str().unwrap())))?;
         }
         _ => return Err(value("time_zone must be 'auto' or an IANA zone name")),
@@ -335,10 +335,10 @@ pub fn infer_time_zone(host: &str) -> (&'static str, &'static str) {
 fn zone_for(settings: &Value, host: &str) -> ProjectsResult<(TimeZone, &'static str)> {
     if settings["time_zone"].as_str() == Some("auto") {
         let (name, source) = infer_time_zone(host);
-        return Ok((crate::pytime::zone(name)?, source));
+        return Ok((crate::datetime::zone(name)?, source));
     }
     Ok((
-        crate::pytime::zone(settings["time_zone"].as_str().unwrap_or("UTC"))?,
+        crate::datetime::zone(settings["time_zone"].as_str().unwrap_or("UTC"))?,
         "explicit",
     ))
 }
@@ -365,7 +365,7 @@ fn window_day(local: &Zoned, start: Time, end: Time) -> Option<Date> {
         return Some(local.datetime().date());
     }
     if current < clock_tuple(end) {
-        let prev = crate::pytime::zoned_add(local, Span::new().days(-1)).ok()?;
+        let prev = crate::datetime::zoned_add(local, Span::new().days(-1)).ok()?;
         return Some(prev.datetime().date());
     }
     None
@@ -421,7 +421,7 @@ pub fn due_state(
     let end = clock(&settings["window"]["end"], "window.end")?;
     let day = window_day(&local, start, end);
     let base = json!({
-        "local_time": crate::pytime::isoformat_zoned(&local),
+        "local_time": crate::datetime::isoformat_zoned(&local),
         "time_zone": zone.iana_name().unwrap_or("UTC"),
         "time_zone_source": source,
     });
@@ -437,7 +437,7 @@ pub fn due_state(
         out.insert("reason".into(), json!("day not selected"));
         return Ok(Value::Object(out));
     }
-    let key = crate::pytime::date_iso(day);
+    let key = crate::datetime::date_iso(day);
     let mut out = base.as_object().unwrap().clone();
     if last_window == Some(key.as_str()) {
         out.insert("due".into(), json!(false));
@@ -467,7 +467,7 @@ pub fn next_due(settings: &Value, host: &str, now: &Zoned) -> ProjectsResult<Opt
         if !day_matches(settings, day) {
             continue;
         }
-        let opening = crate::pytime::combine_zoned(day, start, &zone)?;
+        let opening = crate::datetime::combine_zoned(day, start, &zone)?;
         if opening.timestamp() >= now.timestamp() {
             let utc = opening.with_time_zone(TimeZone::UTC);
             let dt = utc.datetime();

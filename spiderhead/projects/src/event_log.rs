@@ -10,7 +10,7 @@ use serde_json::{json, Value};
 
 use crate::error::{io, ProjectsError, ProjectsResult};
 use crate::workspace::load as workspace_load;
-use crate::{locks, pyjson, pytime};
+use crate::{datetime, json_docs, locks};
 
 /// Event file name under the project root.
 pub const FILE: &str = "events.jsonl";
@@ -59,7 +59,7 @@ fn event(value: &Value) -> ProjectsResult<Value> {
     if object["occurred_at"].as_str().is_none() || object["text"].as_str().is_none() {
         return Err(crate::error::value("project event fields are invalid"));
     }
-    let occurred = pytime::fromisoformat(
+    let occurred = datetime::fromisoformat(
         &object["occurred_at"]
             .as_str()
             .unwrap_or_default()
@@ -131,14 +131,14 @@ fn append_locked(root: &Path, source: &str, actor: &str, text: &str) -> Projects
         }
         let event = json!({
             "sequence": rows.len() + 1,
-            "occurred_at": pytime::zulu(),
+            "occurred_at": datetime::zulu(),
             "source": source,
             "actor": actor,
             "text": text,
         });
         stream.seek(SeekFrom::End(0)).map_err(ProjectsError::Io)?;
         stream
-            .write_all((pyjson::dumps_compact(&event) + "\n").as_bytes())
+            .write_all((json_docs::dumps_compact(&event) + "\n").as_bytes())
             .map_err(ProjectsError::Io)?;
         stream.flush().map_err(ProjectsError::Io)?;
         Ok(json!({"ok": true, "event": event}))
@@ -267,9 +267,9 @@ pub fn page(
 
     let mut result = snapshot(&path)?;
     if follow && result["not_modified"].as_bool().unwrap_or(false) && wait_seconds > 0 {
-        let deadline = pytime::monotonic() + wait_seconds as f64;
-        while pytime::monotonic() < deadline {
-            let rest = (deadline - pytime::monotonic()).clamp(0.0, 0.25);
+        let deadline = datetime::monotonic() + wait_seconds as f64;
+        while datetime::monotonic() < deadline {
+            let rest = (deadline - datetime::monotonic()).clamp(0.0, 0.25);
             std::thread::sleep(std::time::Duration::from_secs_f64(rest));
             result = snapshot(&path)?;
             if !result["not_modified"].as_bool().unwrap_or(false) {

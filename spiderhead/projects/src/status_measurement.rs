@@ -4,8 +4,8 @@ use std::path::Path;
 
 use serde_json::{json, Value};
 
+use crate::datetime;
 use crate::error::ProjectsResult;
-use crate::pytime;
 use crate::runtime::{read_document, write_document};
 use crate::workspace::load as workspace_load;
 
@@ -132,7 +132,7 @@ pub fn read_storage_measurement(directory: &Path) -> ProjectsResult<Value> {
 /// Measure direct regular files in `scans/` once and persist the result.
 pub fn refresh_storage_measurement(directory: &Path) -> ProjectsResult<Value> {
     let (root, project, current) = document(directory)?;
-    let measured_at = pytime::zulu();
+    let measured_at = datetime::zulu();
     let mut storage = missing();
     storage["measured_at"] = json!(measured_at);
     storage["reason"] = Value::Null;

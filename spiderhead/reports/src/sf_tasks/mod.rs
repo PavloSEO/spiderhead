@@ -18,8 +18,8 @@ use thiserror::Error;
 
 use crate::client_findings::reproduction;
 use crate::facts::crawl_domain;
-use crate::py;
 use crate::segments;
+use crate::values;
 
 /// Configuration or I/O failure of the tasks pipeline.
 #[derive(Debug, Error)]
@@ -59,7 +59,7 @@ fn default_pipeline() -> Value {
 pub(crate) fn pipeline_cfg(config: Option<&Value>) -> Value {
     let mut base = default_pipeline().as_object().cloned().unwrap_or_default();
     if let Some(cfg) = config
-        .filter(|c| py::truthy(Some(*c)))
+        .filter(|c| values::truthy(Some(*c)))
         .and_then(|c| c.get("tasks_pipeline"))
         .and_then(Value::as_object)
     {
@@ -124,7 +124,7 @@ pub(crate) fn evidence_references(issues: &[&Value], cap: usize) -> (Vec<Value>,
             });
             if entry
                 .as_object()
-                .map(|m| m.values().all(|v| py::truthy(Some(v))))
+                .map(|m| m.values().all(|v| values::truthy(Some(v))))
                 .unwrap_or(false)
             {
                 entry
@@ -137,7 +137,7 @@ pub(crate) fn evidence_references(issues: &[&Value], cap: usize) -> (Vec<Value>,
         } else {
             let reason = contract
                 .and_then(|c| c.get("reason"))
-                .filter(|r| py::truthy(Some(*r)))
+                .filter(|r| values::truthy(Some(*r)))
                 .map(str_of_opt)
                 .unwrap_or_else(|| "no stable saved-evidence reference is present".to_owned());
             json!({
@@ -169,14 +169,14 @@ fn str_of(value: Option<&Value>) -> String {
 fn str_of_opt(value: &Value) -> String {
     match value {
         Value::Null => "None".to_owned(),
-        Value::Object(_) | Value::Array(_) => py::repr(value),
-        v => py::str_value(v),
+        Value::Object(_) | Value::Array(_) => values::repr(value),
+        v => values::str_value(v),
     }
 }
 
 /// Text of a named contract cell: falsy cells, including `0` and `false`, become `""`.
 fn truthy_str(value: Option<&Value>) -> String {
-    match value.filter(|v| py::truthy(Some(*v))) {
+    match value.filter(|v| values::truthy(Some(*v))) {
         None => String::new(),
         Some(v) => str_of_opt(v),
     }
@@ -336,13 +336,13 @@ fn audit_segment_definitions(audit: &Value) -> Vec<Value> {
             return Vec::new();
         };
         let mut rules = Vec::new();
-        if let Some(prefix) = item.get("prefix").filter(|v| py::truthy(Some(*v))) {
+        if let Some(prefix) = item.get("prefix").filter(|v| values::truthy(Some(*v))) {
             rules.push(json!({"op": "prefix", "field": "path", "value": prefix}));
         }
-        if let Some(host) = item.get("host").filter(|v| py::truthy(Some(*v))) {
+        if let Some(host) = item.get("host").filter(|v| values::truthy(Some(*v))) {
             rules.push(json!({"op": "eq", "field": "host", "value": host}));
         }
-        if let Some(pattern) = item.get("pattern").filter(|v| py::truthy(Some(*v))) {
+        if let Some(pattern) = item.get("pattern").filter(|v| values::truthy(Some(*v))) {
             rules.push(json!({"op": "regex", "field": "url", "value": pattern}));
         }
         if rules.is_empty() {
@@ -405,7 +405,7 @@ fn segment_assignments(audit: &Value) -> Result<IndexMap<String, Value>, TasksEr
         .get("primary")
         .and_then(Value::as_object)
         .unwrap_or(&empty);
-    let partial = py::truthy(audit.get("run").and_then(|r| r.get("crawl_partial")));
+    let partial = values::truthy(audit.get("run").and_then(|r| r.get("crawl_partial")));
     let mut targets = Vec::new();
     if let Some(issues) = audit.get("issues").and_then(Value::as_array) {
         for issue in issues {
@@ -483,18 +483,18 @@ pub fn build_tasks(audit: &Value, config: Option<&Value>) -> Result<Value, Tasks
         .unwrap_or_default();
     let cap = cfg
         .get("max_urls_per_task")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or_default()
         .max(0) as usize;
     // Locations have their own cap, so the URL cap cannot silently truncate them.
     let loc_cap = cfg
         .get("max_locations_per_task")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or(25)
         .max(0) as usize;
     let min_occ = cfg
         .get("min_occurrences")
-        .and_then(py::to_i64)
+        .and_then(values::to_i64)
         .unwrap_or_default();
     let group_by = cfg
         .get("group_by")
@@ -595,7 +595,7 @@ pub fn build_tasks(audit: &Value, config: Option<&Value>) -> Result<Value, Tasks
                 .unwrap_or(9);
             let affected = task
                 .get("affected_count")
-                .and_then(py::to_i64)
+                .and_then(values::to_i64)
                 .unwrap_or_default();
             (prio, -affected)
         };

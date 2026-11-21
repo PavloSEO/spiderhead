@@ -2,8 +2,8 @@
 
 use serde_json::Value;
 
-use super::pynum_data::DECIMAL_ZEROS;
-use crate::url_normalize::is_py_space;
+use super::decimal_zeros::DECIMAL_ZEROS;
+use crate::url_normalize::is_space;
 
 /// The value of a Unicode decimal digit, or `None` for any other character.
 fn decimal_value(c: char) -> Option<u32> {
@@ -16,7 +16,7 @@ fn decimal_value(c: char) -> Option<u32> {
 /// Strip, fold Unicode digits to ASCII and drop `_` that sit between two digits. A stray `_`
 /// stays in the text so the number parser rejects it.
 fn plain_ascii(raw: &str) -> String {
-    let chars: Vec<char> = raw.trim_matches(is_py_space).chars().collect();
+    let chars: Vec<char> = raw.trim_matches(is_space).chars().collect();
     let digit = |c: char| decimal_value(c).and_then(|v| char::from_digit(v, 10));
     let folded: Vec<char> = chars.iter().map(|&c| digit(c).unwrap_or(c)).collect();
     let mut out = String::with_capacity(folded.len());
@@ -32,7 +32,7 @@ fn plain_ascii(raw: &str) -> String {
 }
 
 /// Parses an integer as a JSON number; `None` when the text is not an integer or does not fit 64 bits.
-pub(super) fn py_int(raw: &str) -> Option<Value> {
+pub(super) fn parse_int(raw: &str) -> Option<Value> {
     let text = plain_ascii(raw);
     let digits = text.strip_prefix(['+', '-']).unwrap_or(&text);
     if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
@@ -45,7 +45,7 @@ pub(super) fn py_int(raw: &str) -> Option<Value> {
 }
 
 /// Parses a float as a JSON number; `None` when the text is not a number, or for `inf`/`nan`, which a JSON number cannot represent.
-pub(super) fn py_float(raw: &str) -> Option<Value> {
+pub(super) fn parse_float(raw: &str) -> Option<Value> {
     let parsed = plain_ascii(raw).parse::<f64>().ok()?;
     parsed.is_finite().then(|| serde_json::json!(parsed))
 }

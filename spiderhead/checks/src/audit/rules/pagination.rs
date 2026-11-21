@@ -4,7 +4,7 @@
 use std::collections::{HashMap, HashSet};
 
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url::{urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{urlsplit, urlunsplit};
 
 use crate::audit::context::AuditContext;
 use crate::audit::model::norm_url;

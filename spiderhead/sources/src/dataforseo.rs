@@ -22,7 +22,7 @@ use crate::credentials::{self, CredentialError};
 use crate::http::{Request, Sleeper, Transport, TransportError};
 use crate::metrika::SpendSink;
 use crate::spend::{self, Record};
-use crate::{pyjson, pystr};
+use crate::{json_wire, text_rules};
 
 mod errors;
 pub use errors::*;
@@ -134,7 +134,7 @@ impl<'a, T: Transport> DfsEnv<'a, T> {
             Some(sink) => sink(rec),
             None => spend::record(self.host, rec),
         }
-        .map_err(|err| pyerr("OSError", err.to_string()))
+        .map_err(|err| error_text("OSError", err.to_string()))
     }
 
     pub(crate) fn login(&self) -> Result<String, DfsError> {
@@ -158,7 +158,7 @@ impl<'a, T: Transport> DfsEnv<'a, T> {
         match self.today {
             Some(today) => today(),
             None => {
-                crate::pytime::date_fromisoformat(&spend::local_stamp()[..10]).unwrap_or_default()
+                crate::datetime::date_fromisoformat(&spend::local_stamp()[..10]).unwrap_or_default()
             }
         }
     }
@@ -167,7 +167,7 @@ impl<'a, T: Transport> DfsEnv<'a, T> {
 /// Environment name from the argument, then `DATAFORSEO_ENV`, then `sandbox`; it must be a known
 /// name. A non-text value is an error.
 pub(crate) fn resolve_env(env: Option<&Value>, host: &dyn Host) -> Result<String, DfsError> {
-    let raw = match env.filter(|v| pystr::truthy(Some(v))) {
+    let raw = match env.filter(|v| text_rules::truthy(Some(v))) {
         Some(v) => match v.as_str() {
             Some(text) => text.to_owned(),
             None => return Err(attr_err(v, "lower")),
@@ -203,20 +203,20 @@ pub fn geo_guard(
     location_code: Option<&Value>,
 ) -> Result<Option<Value>, DfsError> {
     if let Some(code_value) = location_code.filter(|v| !v.is_null()) {
-        if let Ok(code) = pystr::to_python_int(code_value) {
+        if let Ok(code) = text_rules::to_int(code_value) {
             if let Some(iso) = unsupported_location(code) {
                 return Ok(Some(rejection(iso)));
             }
         }
     }
-    if !pystr::truthy(country) {
+    if !text_rules::truthy(country) {
         return Ok(None);
     }
     let country = country.unwrap_or(&Value::Null);
     let Some(text) = country.as_str() else {
         return Err(attr_err(country, "strip"));
     };
-    let stripped = pystr::strip(text);
+    let stripped = text_rules::strip(text);
     let iso = country_alias(&stripped.to_lowercase())
         .unwrap_or(&stripped.to_uppercase())
         .to_owned();
@@ -277,12 +277,16 @@ impl<'e, T: Transport> Client<'e, T> {
 
     /// Credentials for basic auth; empty values fall back to the stored credentials.
     fn auth(&self) -> Result<String, DfsError> {
-        let login = match self.login.as_ref().filter(|v| pystr::truthy(Some(v))) {
-            Some(v) => pystr::repr_value(v),
+        let login = match self.login.as_ref().filter(|v| text_rules::truthy(Some(v))) {
+            Some(v) => text_rules::repr_value(v),
             None => self.env.login()?,
         };
-        let password = match self.password.as_ref().filter(|v| pystr::truthy(Some(v))) {
-            Some(v) => pystr::repr_value(v),
+        let password = match self
+            .password
+            .as_ref()
+            .filter(|v| text_rules::truthy(Some(v)))
+        {
+            Some(v) => text_rules::repr_value(v),
             None => self.env.password()?,
         };
         Ok(format!(
@@ -303,10 +307,10 @@ impl<'e, T: Transport> Client<'e, T> {
         operation: Option<&Value>,
     ) -> Result<Value, DfsError> {
         let url = format!("{}{}", self.base, endpoint.trim_start_matches('/'));
-        let data = pyjson::dumps_opts(payload, false, false).into_bytes();
-        let label = match operation.filter(|v| pystr::truthy(Some(v))) {
+        let data = json_wire::dumps_opts(payload, false, false).into_bytes();
+        let label = match operation.filter(|v| text_rules::truthy(Some(v))) {
             // The label is passed through as-is; non-text labels only reach the spend record.
-            Some(v) => pystr::repr_value(v),
+            Some(v) => text_rules::repr_value(v),
             None => endpoint.to_owned(),
         };
         let mut attempt = 0i64;
@@ -319,8 +323,8 @@ impl<'e, T: Transport> Client<'e, T> {
                 .timeout(TIMEOUT);
             match self.env.transport.send(&request).await {
                 Ok(response) => {
-                    let raw = pystr::decode_utf8_strict(&response.body)
-                        .map_err(|m| pyerr("UnicodeDecodeError", m))?;
+                    let raw = text_rules::decode_utf8_strict(&response.body)
+                        .map_err(|m| error_text("UnicodeDecodeError", m))?;
                     return match serde_json::from_str::<Value>(&raw) {
                         Ok(value) => Ok(value),
                         Err(_) => {
@@ -341,9 +345,9 @@ impl<'e, T: Transport> Client<'e, T> {
                                 extra: Some(extra),
                                 at: None,
                             })?;
-                            Err(pyerr(
+                            Err(error_text(
                                 "JSONDecodeError",
-                                pyjson::decode_error(&raw)
+                                json_wire::decode_error(&raw)
                                     .unwrap_or_else(|| "JSON decode error".to_owned()),
                             ))
                         }
@@ -419,7 +423,7 @@ impl<'e, T: Transport> Client<'e, T> {
                 message: "account metadata response exceeded 2 MiB".to_owned(),
             });
         }
-        let body = pystr::decode_utf8_strict(raw)
+        let body = text_rules::decode_utf8_strict(raw)
             .ok()
             .and_then(|text| serde_json::from_str::<Value>(&text).ok())
             .ok_or_else(|| DfsError::Provider {
@@ -428,7 +432,7 @@ impl<'e, T: Transport> Client<'e, T> {
             })?;
         let info = account_metadata_result(&body)?;
         let balance = match info.get("money") {
-            Some(v) if pystr::truthy(Some(v)) => match v.as_object() {
+            Some(v) if text_rules::truthy(Some(v)) => match v.as_object() {
                 Some(m) => m.get("balance").cloned().unwrap_or(Value::Null),
                 None => return Err(attr_err(v, "get")),
             },

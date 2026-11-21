@@ -4,7 +4,7 @@ use super::*;
 
 pub(super) fn env(host: &dyn Host, name: &str) -> String {
     host.var(name)
-        .map(|v| pystr::strip(&v).to_owned())
+        .map(|v| text_rules::strip(&v).to_owned())
         .unwrap_or_default()
 }
 

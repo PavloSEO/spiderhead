@@ -14,7 +14,7 @@ pub(super) async fn post_form<T: Transport>(
         .timeout(30.0);
     match transport.send(&request).await {
         Ok(response) => {
-            let text = match pystr::decode_utf8_strict(&response.body) {
+            let text = match text_rules::decode_utf8_strict(&response.body) {
                 Ok(text) => text,
                 Err(message) => return Err(FormOutcome::Undecodable(message)),
             };
@@ -34,7 +34,7 @@ pub(super) fn connect_error(kind: &str) -> OAuthError {
     if kind == "timeout" {
         OAuthError::Connect("TimeoutError", "timed out".to_owned())
     } else {
-        OAuthError::Connect("URLError", crate::pyerr::url_error(kind))
+        OAuthError::Connect("URLError", crate::error_text::url_error(kind))
     }
 }
 
@@ -97,7 +97,7 @@ pub async fn refresh_access_token<T: Transport>(
         // A 2xx body that is not valid JSON propagates unchanged.
         Err(FormOutcome::Decode(text)) => {
             return Err(OAuthError::Invalid(
-                pyjson::decode_error(&text)
+                json_wire::decode_error(&text)
                     .unwrap_or_else(|| "Expecting value: line 1 column 1 (char 0)".to_owned()),
             ))
         }
@@ -153,7 +153,7 @@ pub struct Manage<'a> {
 }
 
 pub(super) fn now_or(now: Option<i64>) -> i64 {
-    now.unwrap_or_else(pytime::now_micros)
+    now.unwrap_or_else(datetime::now_micros)
 }
 
 pub(super) fn flow_public(flow: &Map<String, Value>, now: i64) -> Result<Value, OAuthError> {

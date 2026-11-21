@@ -8,9 +8,9 @@ use std::time::Instant;
 
 use crate::config::{cfg_i64, Cfg};
 use crate::demand::has_observed_demand;
+use crate::fmt::scalar_text;
 use crate::norm::{normalize, Filters};
 use crate::providers::DemandProvider;
-use crate::pyfmt::py_str;
 use crate::store::Store;
 
 /// Normalize a phrase, dedupe against expanded, queued and blocked phrases, then queue it.
@@ -36,7 +36,7 @@ fn enqueue(
 /// Regions from config, defaulting to `["225"]`; elements are stored as text.
 fn regions_of(cfg: &Cfg) -> Vec<String> {
     match cfg.get("regions") {
-        Some(Value::Array(items)) if !items.is_empty() => items.iter().map(py_str).collect(),
+        Some(Value::Array(items)) if !items.is_empty() => items.iter().map(scalar_text).collect(),
         _ => vec!["225".to_string()],
     }
 }

@@ -90,11 +90,11 @@ pub(super) fn stale_dependencies(
     let max_bytes = max_bytes
         .or_else(|| limits.map(|(_, b)| b))
         .unwrap_or(EVIDENCE_HASH_BYTES);
-    let deadline = deadline.unwrap_or_else(|| pytime::monotonic() + max_seconds);
+    let deadline = deadline.unwrap_or_else(|| datetime::monotonic() + max_seconds);
 
     macro_rules! add {
         ($id:expr, $reason:expr) => {{
-            let key = crate::pyjson::dumps_compact(&$id);
+            let key = crate::json_docs::dumps_compact(&$id);
             if seen.insert(key) {
                 stale.push(json!({"id": $id, "reason": $reason}));
             }
@@ -323,7 +323,7 @@ pub(super) fn public_run(
                     "metadata_matches"
                 };
                 let verified_at = if verify_evidence && failure.as_ref().is_none_or(falsy) {
-                    Value::String(pytime::iso_now())
+                    Value::String(datetime::iso_now())
                 } else {
                     step.get("evidence_verification")
                         .filter(|v| !falsy(v))
@@ -334,7 +334,7 @@ pub(super) fn public_run(
                 step["evidence_status"] = json!({
                     "state": state,
                     "verified_at": verified_at,
-                    "observed_at": pytime::iso_now(),
+                    "observed_at": datetime::iso_now(),
                     "reason": failure.unwrap_or(Value::Null),
                 });
             }

@@ -8,7 +8,7 @@ use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 
 use crate::error::{io, value, ProjectsResult};
-use crate::pyjson;
+use crate::json_docs;
 
 /// Bytes retained from the end of a scan log page.
 pub const LOG_BYTES: u64 = 32 * 1024;
@@ -102,7 +102,7 @@ pub fn revisioned(payload: &Value, since_revision: Option<&str>) -> ProjectsResu
         }
     }
     let stable = stable_projection(payload);
-    let encoded = pyjson::dumps_compact(&stable);
+    let encoded = json_docs::dumps_compact(&stable);
     let revision = format!("{:x}", Sha256::digest(encoded.as_bytes()));
     if since_revision == Some(revision.as_str()) {
         return Ok(serde_json::json!({
@@ -151,7 +151,7 @@ fn canonical(path: &Path) -> PathBuf {
 }
 
 fn encode_json(item: &Value) -> String {
-    pyjson::dumps_compact(item)
+    json_docs::dumps_compact(item)
 }
 
 fn encode_stat(state: Option<(u64, u64, i64, i64)>) -> String {

@@ -7,8 +7,8 @@ use serde_json::{Map, Value};
 use spiderhead_core::url_normalize;
 use std::collections::HashMap;
 
-use crate::pyvalue::py_float;
 use crate::table::Table;
+use crate::value_text::parse_float;
 
 /// JSON object map shorthand.
 pub type Object = Map<String, Value>;
@@ -247,8 +247,8 @@ fn is_comma_decimal(value: &str) -> bool {
         && tail.bytes().all(|b| b.is_ascii_digit())
 }
 
-fn py_strip(s: &str) -> &str {
-    spiderhead_parse::py_str::py_strip(s)
+fn strip(s: &str) -> &str {
+    spiderhead_parse::strings::strip(s)
 }
 
 /// `normalize_value`: empty strings and NaN -> `Null`; strings are stripped;
@@ -258,7 +258,7 @@ pub fn normalize_value(value: &Value) -> Value {
         Value::Null => Value::Null,
         Value::Number(n) if n.as_f64().is_some_and(|f| !f.is_finite()) => Value::Null,
         Value::String(s) => {
-            let cleaned = py_strip(s);
+            let cleaned = strip(s);
             if cleaned.is_empty() {
                 Value::Null
             } else {
@@ -283,7 +283,7 @@ pub fn to_float(value: &Value) -> Option<f64> {
             }
         }
         Value::Number(n) => n.as_f64()?,
-        Value::String(s) => py_float(&comma_to_dot(s))?,
+        Value::String(s) => parse_float(&comma_to_dot(s))?,
         _ => return None,
     };
     if f.is_finite() {
@@ -308,10 +308,7 @@ pub fn is_true(value: &Value) -> bool {
         Value::Bool(b) => *b,
         Value::Number(n) => n.as_f64().is_some_and(|f| f != 0.0),
         Value::String(s) => {
-            matches!(
-                py_strip(s).to_lowercase().as_str(),
-                "true" | "yes" | "1" | "y"
-            )
+            matches!(strip(s).to_lowercase().as_str(), "true" | "yes" | "1" | "y")
         }
         // str(container) is repr(...) — never one of the true words.
         _ => false,
@@ -430,7 +427,7 @@ enum Coerced {
 }
 
 fn pd_numeric(text: &str) -> Option<Coerced> {
-    let s = py_strip(text);
+    let s = strip(text);
     let b = s.as_bytes();
     let mut i = 0usize;
     if matches!(b.get(i), Some(b'+') | Some(b'-')) {

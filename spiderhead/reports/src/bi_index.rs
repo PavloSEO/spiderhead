@@ -11,8 +11,8 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use rusqlite::{Connection, OptionalExtension};
 use serde_json::{json, Map, Value};
 
-use crate::py;
 use crate::segments::{self, Memberships, Segment, SegmentError};
+use crate::values;
 
 use crate::bi::schema::{
     canonical_json, digest, f, format_cell, schema_fields, BIExportError, Field, Groups, RunInput,
@@ -143,7 +143,7 @@ impl<'a> GroupIndex<'a> {
             }
             let group_id = group
                 .get("group_id")
-                .filter(|v| py::truthy(Some(v)))
+                .filter(|v| values::truthy(Some(v)))
                 .or_else(|| group.get("id"));
             let group_id = match group_id.and_then(Value::as_str) {
                 Some(id) if !id.is_empty() => id.to_owned(),
@@ -179,7 +179,7 @@ impl<'a> GroupIndex<'a> {
                 {
                     bi_err(format!(
                         "duplicate finding group id {}",
-                        py::repr_str(&group_id)
+                        values::repr_str(&group_id)
                     ))
                 }
                 other => map_sqlite(other),
@@ -390,7 +390,7 @@ pub fn group_fields(kind: &str) -> Vec<Field> {
 
 /// Digest of companion content.
 pub fn companion_digest(descriptor: &Value) -> Result<String, BIExportError> {
-    let stripped: Map<String, Value> = py::map(descriptor)
+    let stripped: Map<String, Value> = values::map(descriptor)
         .cloned()
         .unwrap_or_default()
         .into_iter()
@@ -665,7 +665,7 @@ pub fn verify_group_members_companion(
             .map_err(|_| mismatch())?;
             let group_id = metadata
                 .get("group_id")
-                .filter(|v| py::truthy(Some(v)))
+                .filter(|v| values::truthy(Some(v)))
                 .or_else(|| metadata.get("id"))
                 .and_then(Value::as_str)
                 .ok_or_else(mismatch)?;
@@ -681,7 +681,7 @@ pub fn verify_group_members_companion(
                 .map_err(|_| mismatch())?;
             let declared = match metadata.get("count") {
                 None | Some(Value::Null) => String::new(),
-                Some(v) => py::str_value(v),
+                Some(v) => values::str_value(v),
             };
             if count < 0
                 || group
@@ -860,7 +860,7 @@ pub fn verify_group_member_references(
             .unwrap_or(Value::Null);
             let group_id = metadata
                 .get("group_id")
-                .filter(|v| py::truthy(Some(v)))
+                .filter(|v| values::truthy(Some(v)))
                 .or_else(|| metadata.get("id"))
                 .and_then(Value::as_str)
                 .unwrap_or("")
@@ -942,7 +942,7 @@ pub fn verify_group_member_references(
             }
             let member_count = value.get("member_count");
             if !value.get("group_id").is_some_and(Value::is_string)
-                || !member_count.is_some_and(py::is_int)
+                || !member_count.is_some_and(values::is_int)
             {
                 return Err(bi_err(
                     "finding group reference has invalid identity or count",
@@ -1085,8 +1085,8 @@ impl<'a> InlinkIndex<'a> {
             use unicode_casefold::UnicodeCaseFold;
             let media = {
                 let raw = page.get("content_type");
-                let text = if py::truthy(raw) {
-                    py::str_value(raw.unwrap_or(&Value::Null))
+                let text = if values::truthy(raw) {
+                    values::str_value(raw.unwrap_or(&Value::Null))
                 } else {
                     String::new()
                 };
@@ -1100,7 +1100,7 @@ impl<'a> InlinkIndex<'a> {
                 folded
             };
             let complete = page.get("document_id").is_some_and(|v| !v.is_null())
-                && !py::truthy(page.get("body_unavailable"))
+                && !values::truthy(page.get("body_unavailable"))
                 && (media == "text/html" || media == "application/xhtml+xml");
             let url = page
                 .get("url")
@@ -1221,7 +1221,7 @@ fn segment_state(
     let url = record.get("url").and_then(Value::as_str).unwrap_or("");
     for rule in &segment.rules {
         if rule.op == "segment" {
-            let name = py::str_value(&rule.value);
+            let name = values::str_value(&rule.value);
             if memberships.contains(&name, url) {
                 return Ok(("matched".to_owned(), BTreeSet::new()));
             }

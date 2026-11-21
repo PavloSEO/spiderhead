@@ -19,7 +19,7 @@ use thiserror::Error;
 use crate::credentials::{self, CredentialError};
 use crate::cwv;
 use crate::http::{Request, Response, Transport, TransportError};
-use crate::{pyerr, pyjson, pystr};
+use crate::{error_text, json_wire, text_rules};
 
 mod cache;
 use cache::*;
@@ -109,7 +109,7 @@ async fn post<T: Transport>(
     let request = Request::new("POST", host)
         .header("Content-Type", "application/json")
         .header("X-goog-api-key", api_key)
-        .body(pyjson::dumps(payload).into_bytes())
+        .body(json_wire::dumps(payload).into_bytes())
         .timeout(TIMEOUT);
     let response = match transport.send(&request).await {
         Ok(response) => response,
@@ -122,7 +122,7 @@ async fn post<T: Transport>(
     if response.body.len() > MAX_RESPONSE_BYTES {
         return Err(FetchFail::TooLarge);
     }
-    pystr::decode_utf8_strict(&response.body).map_err(|_| FetchFail::Undecodable)
+    text_rules::decode_utf8_strict(&response.body).map_err(|_| FetchFail::Undecodable)
 }
 
 /// Text of a parsed-JSON `error.message`: strings stay raw, scalars print plainly, and
@@ -131,14 +131,14 @@ fn str_message(value: &Value) -> String {
     match value {
         Value::String(text) => text.clone(),
         Value::Array(_) | Value::Object(_) => repr_json(value),
-        other => pystr::repr_value(other),
+        other => text_rules::repr_value(other),
     }
 }
 
 /// Debug form of a JSON value, with strings in single quotes.
 fn repr_json(value: &Value) -> String {
     match value {
-        Value::String(text) => pystr::repr_str(text),
+        Value::String(text) => text_rules::repr_str(text),
         Value::Array(items) => {
             let inner: Vec<String> = items.iter().map(repr_json).collect();
             format!("[{}]", inner.join(", "))
@@ -150,7 +150,7 @@ fn repr_json(value: &Value) -> String {
                 .collect();
             format!("{{{}}}", inner.join(", "))
         }
-        other => pystr::repr_value(other),
+        other => text_rules::repr_value(other),
     }
 }
 
@@ -161,7 +161,7 @@ fn api_error(response: &Response) -> String {
         return "CrUX error response exceeded the 2 MiB limit".to_owned();
     }
     let text = String::from_utf8_lossy(&response.body);
-    let reason = pyerr::reason_phrase(response.status);
+    let reason = error_text::reason_phrase(response.status);
     match serde_json::from_str::<Value>(&text) {
         Ok(body) => {
             let message = body
@@ -169,7 +169,7 @@ fn api_error(response: &Response) -> String {
                 .filter(|e| e.is_object())
                 .and_then(|e| e.get("message"));
             match message {
-                Some(m) if pystr::truthy(Some(m)) => str_message(m),
+                Some(m) if text_rules::truthy(Some(m)) => str_message(m),
                 _ => reason.to_owned(),
             }
         }
@@ -292,7 +292,7 @@ pub async fn query<T: Transport>(
     if let Some(ff) = args.form_factor.filter(|f| !f.is_empty()) {
         payload.insert("formFactor".to_owned(), json!(ff));
     }
-    if let Some(metrics) = args.metrics.filter(|m| pystr::truthy(Some(m))) {
+    if let Some(metrics) = args.metrics.filter(|m| text_rules::truthy(Some(m))) {
         payload.insert("metrics".to_owned(), metrics.clone());
     }
 
@@ -317,7 +317,7 @@ pub async fn query<T: Transport>(
         Err(FetchFail::Connect(kind)) => {
             return finish(json!({
                 "ok": false, "state": "failed",
-                "error": format!("CrUX request failed: {}", pyerr::url_error(&kind)),
+                "error": format!("CrUX request failed: {}", error_text::url_error(&kind)),
             }));
         }
     };
@@ -349,7 +349,7 @@ pub async fn query<T: Transport>(
         values_by_metric.insert(name.clone(), percentiles);
     }
     let returned_target = record_key.get(if url_mode { "url" } else { "origin" });
-    if pystr::truthy(record_key.get(if url_mode { "origin" } else { "url" })) {
+    if text_rules::truthy(record_key.get(if url_mode { "origin" } else { "url" })) {
         return finish(
             json!({"ok": false, "state": "failed", "error": "CrUX target kind mismatch"}),
         );
@@ -502,7 +502,7 @@ pub async fn sample<T: Transport>(
         if let (Some(path), Some(true)) =
             (cache.as_ref(), result.get("ok").and_then(Value::as_bool))
         {
-            let encoded = pyjson::dumps_opts(&result, true, true).into_bytes();
+            let encoded = json_wire::dumps_opts(&result, true, true).into_bytes();
             if encoded.len() > MAX_CACHE_BYTES {
                 if let Value::Object(m) = &mut result {
                     m.insert("cache".to_owned(), json!("not_written_too_large"));
@@ -529,7 +529,7 @@ pub async fn sample<T: Transport>(
         .iter()
         .map(|r| {
             let rt = r.get("record_target").cloned().unwrap_or(Value::Null);
-            if pystr::truthy(Some(&rt)) {
+            if text_rules::truthy(Some(&rt)) {
                 rt
             } else {
                 r.get("target").cloned().unwrap_or(Value::Null)

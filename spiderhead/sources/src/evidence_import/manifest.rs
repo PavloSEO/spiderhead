@@ -151,7 +151,7 @@ pub fn validate_manifest(manifest: &Value) -> Result<Value, CfError> {
             if mtype != "number" {
                 return Err(err(format!(
                     "metric '{}' has unsupported type '{}'; only numeric metrics join evidence",
-                    pystr::repr_value(&metric["name"]),
+                    text_rules::repr_value(&metric["name"]),
                     mtype
                 )));
             }
@@ -178,7 +178,7 @@ pub fn validate_manifest(manifest: &Value) -> Result<Value, CfError> {
         let Some(spec) = collection.as_object() else {
             return Err(err(format!(
                 "mapping collection may name only {}",
-                pystr::repr(&Value::Array(
+                text_rules::repr(&Value::Array(
                     [
                         "collected_at",
                         "reason",
@@ -197,7 +197,7 @@ pub fn validate_manifest(manifest: &Value) -> Result<Value, CfError> {
         if !unknown.is_empty() {
             return Err(err(format!(
                 "mapping collection may name only {}",
-                pystr::repr(&Value::Array(
+                text_rules::repr(&Value::Array(
                     [
                         "collected_at",
                         "reason",

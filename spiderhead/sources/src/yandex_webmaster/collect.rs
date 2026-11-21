@@ -28,7 +28,7 @@ pub(super) fn bearer<T: Transport>(
     env: &WmEnv<'_, T>,
     token: Option<&Value>,
 ) -> Result<Result<Value, String>, WmError> {
-    if pystr::truthy(token) {
+    if text_rules::truthy(token) {
         return Ok(Ok(token.cloned().unwrap_or(Value::Null)));
     }
     let resolved = match env.token {
@@ -89,12 +89,12 @@ pub(super) async fn collect_inner<T: Transport>(
             )))
         }
     };
-    if path_template.contains("{host}") && !pystr::truthy(args.host_id) {
+    if path_template.contains("{host}") && !text_rules::truthy(args.host_id) {
         return Err(WmError::value_error(
             "host_id is required for this Yandex Webmaster operation",
         ));
     }
-    if path_template.contains("{query}") && !pystr::truthy(args.query_id) {
+    if path_template.contains("{query}") && !text_rules::truthy(args.query_id) {
         return Err(WmError::value_error(
             "query_id (from search_performance) is required for query_history",
         ));
@@ -115,7 +115,7 @@ pub(super) async fn collect_inner<T: Transport>(
     if let Some((key, value)) = default_params(operation) {
         query.insert(key.to_owned(), json!(value));
     }
-    if pystr::truthy(args.params) {
+    if text_rules::truthy(args.params) {
         match args.params {
             Some(Value::Object(extra)) => {
                 for (key, value) in extra {
@@ -125,7 +125,7 @@ pub(super) async fn collect_inner<T: Transport>(
             Some(other) => {
                 return Err(WmError::type_error(format!(
                     "dict() argument after ** must be a mapping, not {}",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 )))
             }
             None => unreachable!(),
@@ -135,7 +135,7 @@ pub(super) async fn collect_inner<T: Transport>(
         .iter()
         .find(|(name, _)| *name == operation)
         .map(|(_, v)| *v);
-    let paged = pystr::truthy(args.paginate);
+    let paged = text_rules::truthy(args.paginate);
     // A paged request needs a positive row limit, checked before anything is sent.
     if paged && spec.is_some() && rows_below_one(args.max_rows, MAX_ROWS)? {
         return Err(WmError::value_error(
@@ -144,26 +144,26 @@ pub(super) async fn collect_inner<T: Transport>(
     }
 
     let outcome: Result<Collected, WmError> = async {
-        let user = if pystr::truthy(args.user_id) {
+        let user = if text_rules::truthy(args.user_id) {
             args.user_id.cloned().unwrap_or(Value::Null)
         } else {
             Value::String(resolve_user_id(call, &bearer).await?)
         };
         // Both placeholders are substituted for every operation, so a truthy non-string ID fails even when the path has no such placeholder.
         let host_part = match args.host_id {
-            Some(value) if pystr::truthy(Some(value)) => match value {
+            Some(value) if text_rules::truthy(Some(value)) => match value {
                 Value::String(text) => text.clone(),
                 other => {
                     return Err(WmError::type_error(format!(
                         "replace() argument 2 must be str, not {}",
-                        pystr::type_name(other)
+                        text_rules::type_name(other)
                     )))
                 }
             },
             _ => String::new(),
         };
         let query_part = match args.query_id {
-            Some(value) if pystr::truthy(Some(value)) => match value {
+            Some(value) if text_rules::truthy(Some(value)) => match value {
                 Value::String(text) => quote(text, ""),
                 _ => return Err(WmError::type_error("quote_from_bytes() expected bytes")),
             },
@@ -182,7 +182,7 @@ pub(super) async fn collect_inner<T: Transport>(
             Some((list_key, page_size)) => {
                 // The start offset is parsed inside the request's error handling.
                 let start = match query.get("offset") {
-                    Some(value) => match pystr::to_python_int(value) {
+                    Some(value) => match text_rules::to_int(value) {
                         Ok(v) => v,
                         Err((class, message)) => {
                             return Err(match class {

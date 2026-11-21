@@ -5,10 +5,10 @@
 pub mod content;
 mod entities;
 pub mod extract;
+pub(crate) mod lenient_json;
 pub mod meta;
-pub(crate) mod pyjson;
-pub(crate) mod pyscan;
 pub mod shared;
+pub(crate) mod tag_scan;
 pub mod tokenize;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -134,7 +134,7 @@ pub fn parse_html(html: &str, final_url: &str, options: &ParseOptions) -> Result
         meta::canonical_tag(&soup)
             .and_then(|tag| tag.value().attr("href"))
             .filter(|href| !href.is_empty())
-            .and_then(|href| urljoin(&base_url, crate::py_str::py_strip(href)).ok())
+            .and_then(|href| urljoin(&base_url, crate::strings::strip(href)).ok())
     } else {
         None
     };
@@ -154,7 +154,7 @@ pub fn parse_html(html: &str, final_url: &str, options: &ParseOptions) -> Result
                 .filter(|p| p.to_lowercase().starts_with("og:"))
             {
                 og.insert(
-                    crate::py_str::py_strip(prop).to_owned(),
+                    crate::strings::strip(prop).to_owned(),
                     collapse_whitespace(content),
                 );
                 continue;
@@ -165,7 +165,7 @@ pub fn parse_html(html: &str, final_url: &str, options: &ParseOptions) -> Result
                 .filter(|n| n.to_lowercase().starts_with("twitter:"))
             {
                 twitter.insert(
-                    crate::py_str::py_strip(name).to_owned(),
+                    crate::strings::strip(name).to_owned(),
                     collapse_whitespace(content),
                 );
             }
@@ -258,7 +258,7 @@ pub fn parse_html(html: &str, final_url: &str, options: &ParseOptions) -> Result
         let area = resolve_content_area_marked(&soup, options.content_area.as_ref())?;
         content_text = extract_area_text(&area);
         word_count = content_text
-            .split(crate::py_str::is_py_space)
+            .split(crate::strings::is_space)
             .filter(|w| !w.is_empty())
             .count() as u64;
         readability = reading_ease(&content_text);

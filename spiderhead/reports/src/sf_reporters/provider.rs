@@ -7,20 +7,20 @@ use serde_json::Value;
 
 use super::md::{code, esc, py_str, py_str_or};
 use crate::client_findings::check_title;
-use crate::py;
+use crate::values;
 
 /// `write_internal_linking`: the link graph's shape, printed with the health
 /// summary — a measurement that could not be taken prints its reason.
 pub(super) fn write_internal_linking(lines: &mut Vec<String>, block: Option<&Value>) {
-    let Some(block) = block.filter(|b| py::truthy(Some(b))) else {
+    let Some(block) = block.filter(|b| values::truthy(Some(b))) else {
         return;
     };
     lines.push("**Internal linking**".to_owned());
     lines.push(String::new());
-    if !py::truthy(block.get("measured")) {
+    if !values::truthy(block.get("measured")) {
         let reason = block
             .get("reason")
-            .filter(|r| py::truthy(Some(r)))
+            .filter(|r| values::truthy(Some(r)))
             .map(|r| esc(Some(r)))
             .unwrap_or_else(|| "no reason recorded".to_owned());
         lines.push(format!("> Not measured. {reason}."));
@@ -30,15 +30,15 @@ pub(super) fn write_internal_linking(lines: &mut Vec<String>, block: Option<&Val
     let empty = serde_json::Map::new();
     let depth = block
         .get("click_depth")
-        .filter(|d| py::truthy(Some(d)))
+        .filter(|d| values::truthy(Some(d)))
         .and_then(Value::as_object)
         .unwrap_or(&empty);
-    if py::truthy(depth.get("measured")) {
+    if values::truthy(depth.get("measured")) {
         let within = depth.get("within").and_then(Value::as_object);
         let within_at = |key: &str| {
             within
                 .and_then(|w| w.get(key))
-                .map(py::str_value)
+                .map(values::str_value)
                 .unwrap_or_else(|| "0".to_owned())
         };
         lines.push(format!(
@@ -66,33 +66,33 @@ pub(super) fn write_internal_linking(lines: &mut Vec<String>, block: Option<&Val
     } else {
         let reason = depth
             .get("reason")
-            .filter(|r| py::truthy(Some(r)))
+            .filter(|r| values::truthy(Some(r)))
             .map(|r| esc(Some(r)))
             .unwrap_or_else(|| "no reason recorded".to_owned());
         lines.push(format!("- Click depth not measured: {reason}."));
     }
     let positions = block
         .get("by_position")
-        .filter(|p| py::truthy(Some(p)))
+        .filter(|p| values::truthy(Some(p)))
         .and_then(Value::as_object);
     let unclassified = block.get("unclassified").cloned().unwrap_or(Value::from(0));
     let total = block.get("edges_total").cloned().unwrap_or(Value::from(0));
     if let Some(positions) = positions.filter(|p| !p.is_empty()) {
         let shown = positions
             .iter()
-            .map(|(name, count)| format!("{} {}", name, py::str_value(count)))
+            .map(|(name, count)| format!("{} {}", name, values::str_value(count)))
             .collect::<Vec<_>>()
             .join(", ");
         lines.push(format!("- Internal edges by position: {shown}"));
     }
     lines.push(format!(
         "- Unclassified edges (position never recorded): **{}** of {}. Never counted as content.",
-        py::str_value(&unclassified),
-        py::str_value(&total),
+        values::str_value(&unclassified),
+        values::str_value(&total),
     ));
     let fraction = block
         .get("duplicate_fraction")
-        .filter(|f| py::truthy(Some(f)))
+        .filter(|f| values::truthy(Some(f)))
         .and_then(Value::as_f64)
         .unwrap_or(0.0);
     lines.push(format!(
@@ -124,12 +124,12 @@ pub(super) fn write_provider_findings(lines: &mut Vec<String>, findings: Option<
         "- Evidence state: **{}**",
         esc(provider_findings.get("state")),
     ));
-    if py::truthy(provider_findings.get("network_requests")) {
+    if values::truthy(provider_findings.get("network_requests")) {
         lines.push("- URL Inspection: explicitly requested for this run".to_owned());
     } else {
         lines.push("- Provider history only; no URL Inspection request was made".to_owned());
     }
-    if py::truthy(provider_findings.get("crawl_pages_omitted")) {
+    if values::truthy(provider_findings.get("crawl_pages_omitted")) {
         lines.push(format!(
             "- Crawl pages omitted from the provider join: **{}**",
             py_str(provider_findings.get("crawl_pages_omitted")),
@@ -153,7 +153,7 @@ pub(super) fn write_provider_findings(lines: &mut Vec<String>, findings: Option<
         let coverage = source_data.get("coverage").and_then(Value::as_object);
         let period = coverage
             .and_then(|c| c.get("period"))
-            .filter(|p| py::truthy(Some(p)));
+            .filter(|p| values::truthy(Some(p)));
         if let Some(period) = period {
             lines.push(format!(
                 "- Period: {} to {}",
@@ -162,7 +162,7 @@ pub(super) fn write_provider_findings(lines: &mut Vec<String>, findings: Option<
             ));
         }
         if let Some(coverage) = coverage {
-            if py::truthy(coverage.get("days_expected")) {
+            if values::truthy(coverage.get("days_expected")) {
                 lines.push(format!(
                     "- Retained days complete: {} / {} (empty days: {})",
                     py_str_or(coverage.get("days_complete"), "0"),
@@ -170,17 +170,17 @@ pub(super) fn write_provider_findings(lines: &mut Vec<String>, findings: Option<
                     py_str_or(coverage.get("days_empty"), "0"),
                 ));
             }
-            if py::truthy(coverage.get("truncated")) {
+            if values::truthy(coverage.get("truncated")) {
                 lines.push(
                     "- Provider rows reached the local read cap; absence findings are withheld."
                         .to_owned(),
                 );
             }
         }
-        if py::truthy(source_data.get("truncated_findings")) {
+        if values::truthy(source_data.get("truncated_findings")) {
             lines.push("- URL examples are capped at 500 per finding.".to_owned());
         }
-        if py::truthy(source_data.get("reason")) {
+        if values::truthy(source_data.get("reason")) {
             lines.push(format!("- Reason: {}", esc(source_data.get("reason"))));
         }
         if let Some(findings) = source_data.get("findings").and_then(Value::as_object) {
@@ -222,7 +222,7 @@ fn write_finding(lines: &mut Vec<String>, check: &str, finding: &Value) {
         safe_urls = entries
             .iter()
             .map(|e| match e.get("safe_url") {
-                Some(v) if py::truthy(Some(v)) => v.clone(),
+                Some(v) if values::truthy(Some(v)) => v.clone(),
                 _ => e.get("url").cloned().unwrap_or(Value::Null),
             })
             .collect();
@@ -293,7 +293,7 @@ fn write_url_facts(lines: &mut Vec<String>, source_data: &serde_json::Map<String
 fn write_inspection(lines: &mut Vec<String>, source_data: &serde_json::Map<String, Value>) {
     let Some(inspection) = source_data
         .get("inspection")
-        .filter(|i| py::truthy(Some(i)))
+        .filter(|i| values::truthy(Some(i)))
         .and_then(Value::as_object)
     else {
         return;
@@ -306,7 +306,7 @@ fn write_inspection(lines: &mut Vec<String>, source_data: &serde_json::Map<Strin
         esc(Some(super::md::get_or(inspection, "deferred", &zero))),
         esc(inspection.get("state")),
     ));
-    if !py::truthy(inspection.get("sample_population_complete")) {
+    if !values::truthy(inspection.get("sample_population_complete")) {
         lines.push(
             "- Unsampled crawl URLs remain unknown; no site-wide clean conclusion is drawn from this bounded inspection sample."
                 .to_owned(),
@@ -327,7 +327,7 @@ fn write_inspection(lines: &mut Vec<String>, source_data: &serde_json::Map<Strin
             ));
             for row in rows.iter().take(20) {
                 let url = match row.get("safe_url") {
-                    Some(v) if py::truthy(Some(v)) => v.clone(),
+                    Some(v) if values::truthy(Some(v)) => v.clone(),
                     _ => row.get("url").cloned().unwrap_or(Value::Null),
                 };
                 lines.push(format!("  - {}", esc(Some(&url))));

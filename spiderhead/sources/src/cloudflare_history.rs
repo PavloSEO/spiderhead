@@ -12,7 +12,7 @@ use sha2::{Digest, Sha256};
 use thiserror::Error;
 
 use crate::credentials::is_private_mode;
-use crate::{pyjson, pystr};
+use crate::{json_wire, text_rules};
 
 mod storage;
 use storage::*;
@@ -86,12 +86,12 @@ pub fn save_snapshot(
     project: &Value,
     observed_at: Option<&Value>,
 ) -> Result<Value, CfhError> {
-    if !pystr::truthy(result.get("ok")) || !pystr::truthy(result.get("zone_id")) {
+    if !text_rules::truthy(result.get("ok")) || !text_rules::truthy(result.get("zone_id")) {
         return invalid("a successful Cloudflare result with zone ID is required");
     }
     let payload = json!({
         "url_facts": result.get("url_facts").cloned().unwrap_or_else(|| json!([])),
-        "url_facts_truncated": pystr::truthy(result.get("url_facts_truncated")),
+        "url_facts_truncated": text_rules::truthy(result.get("url_facts_truncated")),
         "url_facts_omitted": result.get("url_facts_omitted").cloned().unwrap_or_else(|| json!(0)),
         "requests": result.get("requests").cloned().unwrap_or(Value::Null),
         "sampled": result.get("sampled").cloned().unwrap_or(Value::Null),
@@ -104,11 +104,11 @@ pub fn save_snapshot(
     }
     let truncated_days = result
         .get("truncated_days")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .cloned()
         .unwrap_or_else(|| json!([]));
-    let facts_truncated = pystr::truthy(result.get("url_facts_truncated"));
-    let state = if pystr::truthy(result.get("sampled"))
+    let facts_truncated = text_rules::truthy(result.get("url_facts_truncated"));
+    let state = if text_rules::truthy(result.get("sampled"))
         || !truncated_days
             .as_array()
             .map(|a| a.is_empty())
@@ -119,9 +119,9 @@ pub fn save_snapshot(
     } else {
         "complete"
     };
-    let stamp = match observed_at.filter(|v| pystr::truthy(Some(v))) {
+    let stamp = match observed_at.filter(|v| text_rules::truthy(Some(v))) {
         Some(v) => v.as_str().unwrap_or_default().to_owned(),
-        None => crate::pytime::isoformat_seconds(crate::pytime::now_micros()),
+        None => crate::datetime::isoformat_seconds(crate::datetime::now_micros()),
     };
     let fingerprint = {
         let mut hasher = Sha256::new();
@@ -176,8 +176,8 @@ pub fn save_snapshot(
                     period_from,
                     period_to,
                     state,
-                    i64::from(pystr::truthy(result.get("sampled"))),
-                    crate::pyjson::dumps(&truncated_days),
+                    i64::from(text_rules::truthy(result.get("sampled"))),
+                    crate::json_wire::dumps(&truncated_days),
                     encoded,
                 ],
             )?;
@@ -202,8 +202,8 @@ pub fn save_snapshot(
 }
 
 /// Accept only JSON integers, not booleans or floats.
-fn is_py_int(value: &Value) -> bool {
-    pystr::is_py_int(value)
+fn is_int(value: &Value) -> bool {
+    text_rules::is_int(value)
 }
 
 fn truncated_json_days(text: &str) -> Value {
@@ -233,9 +233,9 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
     } else {
         facts_limit
     };
-    if !is_py_int(&limit)
+    if !is_int(&limit)
         || !(1..=100).contains(&limit.as_i64().unwrap_or(0))
-        || !is_py_int(&offset)
+        || !is_int(&offset)
         || offset.as_i64().unwrap_or(-1) < 0
     {
         return invalid("limit must be 1..100 and offset must be nonnegative");
@@ -244,15 +244,13 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
         return invalid("include_facts must be a boolean");
     }
     let include_facts_b = include_facts.as_bool().unwrap_or(false);
-    if !is_py_int(&facts_offset) || facts_offset.as_i64().unwrap_or(-1) < 0 {
+    if !is_int(&facts_offset) || facts_offset.as_i64().unwrap_or(-1) < 0 {
         return invalid("facts_offset must be nonnegative");
     }
-    if !is_py_int(&facts_limit) || !(1..=MAX_FACT_PAGE).contains(&facts_limit.as_i64().unwrap_or(0))
-    {
+    if !is_int(&facts_limit) || !(1..=MAX_FACT_PAGE).contains(&facts_limit.as_i64().unwrap_or(0)) {
         return invalid(format!("facts_limit must be 1..{MAX_FACT_PAGE}"));
     }
-    if !snapshot_id.is_null() && (!is_py_int(&snapshot_id) || snapshot_id.as_i64().unwrap_or(0) < 1)
-    {
+    if !snapshot_id.is_null() && (!is_int(&snapshot_id) || snapshot_id.as_i64().unwrap_or(0) < 1) {
         return invalid("snapshot_id must be positive");
     }
     let mut limit_i = limit.as_i64().unwrap_or(0);
@@ -266,7 +264,7 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
     let con = connect(&path, false)?;
     let mut filters = String::new();
     let mut params: Vec<rusqlite::types::Value> = Vec::new();
-    if pystr::truthy(Some(&zone_id)) {
+    if text_rules::truthy(Some(&zone_id)) {
         filters.push_str("zone_id=?");
         params.push(rusqlite::types::Value::Text(
             zone_id.as_str().unwrap_or_default().to_owned(),
@@ -332,7 +330,9 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
                 _ => String::new(),
             };
             serde_json::from_str(&text).map_err(|e| {
-                CfhError::JsonDecode(pyjson::decode_error(&text).unwrap_or_else(|| e.to_string()))
+                CfhError::JsonDecode(
+                    json_wire::decode_error(&text).unwrap_or_else(|| e.to_string()),
+                )
             })?
         } else {
             None
@@ -349,7 +349,7 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
                 .unwrap_or_else(|| json!(0))
         });
         let stored_omitted = stored_omitted.and_then(|v| {
-            if is_py_int(&v) && v.as_i64().unwrap_or(-1) >= 0 {
+            if is_int(&v) && v.as_i64().unwrap_or(-1) >= 0 {
                 Some(v.as_i64().unwrap_or(0))
             } else {
                 None
@@ -367,7 +367,7 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
                 }
                 let get_s = |key: &str, default: &str, cap: usize| {
                     item.get(key)
-                        .map(|v| pyjson::str_value(v).unwrap_or_else(|| default.to_owned()))
+                        .map(|v| json_wire::str_value(v).unwrap_or_else(|| default.to_owned()))
                         .unwrap_or_else(|| default.to_owned())
                         .chars()
                         .take(cap)
@@ -375,7 +375,7 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
                 };
                 let int_or_null = |key: &str| {
                     item.get(key)
-                        .filter(|v| is_py_int(v))
+                        .filter(|v| is_int(v))
                         .cloned()
                         .unwrap_or(Value::Null)
                 };
@@ -394,8 +394,8 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
                     "edge_status": int_or_null("edge_status"),
                     "origin_status": int_or_null("origin_status"),
                     "cache_status": get_s("cache_status", "unknown", 64),
-                    "edge_redirect": pystr::truthy(item.get("edge_redirect")),
-                    "requests": if is_py_int(&requests) && requests.as_i64().unwrap_or(-1) >= 0 {
+                    "edge_redirect": text_rules::truthy(item.get("edge_redirect")),
+                    "requests": if is_int(&requests) && requests.as_i64().unwrap_or(-1) >= 0 {
                         requests
                     } else {
                         Value::Null
@@ -416,7 +416,7 @@ pub fn list_snapshots(args: &Value) -> Result<Value, CfhError> {
         });
         if include_facts_b {
             let p = payload.as_ref().cloned().unwrap_or_default();
-            let src_truncated = pystr::truthy(p.get("url_facts_truncated"));
+            let src_truncated = text_rules::truthy(p.get("url_facts_truncated"));
             let next_offset = if facts_offset_i + (facts.len() as i64) < all_facts.len() as i64 {
                 json!(facts_offset_i + facts.len() as i64)
             } else {
@@ -493,9 +493,9 @@ pub fn list_zones(
     let default_offset = json!(0);
     let limit = limit.unwrap_or(&default_limit);
     let offset = offset.unwrap_or(&default_offset);
-    if !is_py_int(limit)
+    if !is_int(limit)
         || !(1..=100).contains(&limit.as_i64().unwrap_or(0))
-        || !is_py_int(offset)
+        || !is_int(offset)
         || offset.as_i64().unwrap_or(-1) < 0
     {
         return invalid("limit must be 1..100 and offset must be nonnegative");
@@ -545,8 +545,8 @@ pub fn list_zones(
             "latest_period": {"from": row.2, "to": row.3},
             "state": row.4,
             "sampled": row.5 != 0,
-            "truncated": pystr::truthy(Some(&days))
-                || pystr::truthy(payload.get("url_facts_truncated")),
+            "truncated": text_rules::truthy(Some(&days))
+                || text_rules::truthy(payload.get("url_facts_truncated")),
         }));
     }
     Ok(json!({

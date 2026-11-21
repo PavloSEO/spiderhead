@@ -134,7 +134,7 @@ fn budget_or(error: rusqlite::Error) -> StoreError {
 
 /// Lower-cased host of a URL, with userinfo and port removed.
 pub(crate) fn hostname_of(url: &str) -> Option<String> {
-    let parts = spiderhead_parse::py_url::urlsplit(url).ok()?;
+    let parts = spiderhead_parse::url_parse::urlsplit(url).ok()?;
     let netloc = parts
         .netloc
         .rsplit_once('@')

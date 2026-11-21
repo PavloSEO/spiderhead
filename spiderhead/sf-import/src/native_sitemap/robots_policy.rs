@@ -6,7 +6,7 @@
 
 use serde_json::Value;
 use spiderhead_core::user_agents::token_aliases;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::url_parse::urlsplit;
 
 use crate::normalize::Object;
 

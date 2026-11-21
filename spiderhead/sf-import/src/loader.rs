@@ -5,7 +5,7 @@
 
 use encoding_rs::{Encoding, UTF_16BE, UTF_16LE, UTF_8, WINDOWS_1250, WINDOWS_1251, WINDOWS_1252};
 use serde_json::Value;
-use spiderhead_parse::py_str::py_repr;
+use spiderhead_parse::strings::repr;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -583,7 +583,7 @@ pub fn read_table(path: &Path) -> Result<(Table, String), LoadError> {
         }
     }
     Err(LoadError::Undecodable {
-        path: py_repr(&path.display().to_string()),
+        path: repr(&path.display().to_string()),
         err: last_err,
     })
 }
@@ -622,9 +622,9 @@ pub fn discover_exports(exports_dir: &Path) -> Result<Vec<(String, PathBuf)>, Lo
             .collect();
         if matches.len() > 1 {
             return Err(LoadError::Ambiguous {
-                key: py_repr(key),
+                key: repr(key),
                 count: matches.len(),
-                dir: py_repr(&exports_dir.display().to_string()),
+                dir: repr(&exports_dir.display().to_string()),
                 names: matches
                     .iter()
                     .map(|s| s.as_str())
@@ -760,14 +760,14 @@ pub fn load_exports(
         if !result.frames.contains_key(*key) {
             if let Some((path, err)) = read_errors.get(*key) {
                 return Err(LoadError::RequiredUnreadable {
-                    key: py_repr(key),
-                    path: py_repr(path),
+                    key: repr(key),
+                    path: repr(path),
                     err: err.clone(),
                 });
             }
             return Err(LoadError::RequiredMissing {
-                key: py_repr(key),
-                dir: py_repr(&exports_dir.display().to_string()),
+                key: repr(key),
+                dir: repr(&exports_dir.display().to_string()),
             });
         }
     }

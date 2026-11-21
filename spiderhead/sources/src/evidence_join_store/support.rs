@@ -22,7 +22,7 @@ pub(super) fn url_policy(value: Option<&Value>) -> Result<Map<String, Value>, Cf
             .iter()
             .map(|k| (k.to_string(), json!(false))),
     );
-    let supplied = value.filter(|v| pystr::truthy(Some(v)));
+    let supplied = value.filter(|v| text_rules::truthy(Some(v)));
     if let Some(spec) = supplied {
         let entries = spec
             .as_object()
@@ -105,7 +105,7 @@ pub(super) fn validate_metadata(metadata: &Value) -> Result<(), CfError> {
         "candidate_pairs",
     ] {
         let value = summary.get(name);
-        if !pystr::is_py_int(value.unwrap_or(&Value::Null))
+        if !text_rules::is_int(value.unwrap_or(&Value::Null))
             || value.and_then(Value::as_i64).unwrap_or(-1) < 0
         {
             return Err(store_error(

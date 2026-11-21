@@ -13,7 +13,7 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-use crate::{pyjson, pystr};
+use crate::{json_wire, text_rules};
 
 /// `FORMAT` — the history database identity.
 pub const FORMAT: &str = "spiderhead.backlink-history.v1";
@@ -131,8 +131,8 @@ fn create_private(path: &Path) -> Result<(), BlhError> {
 /// Resolve the database path from exactly one of `db` or `project`; a project directory
 /// must contain `project.json`.
 pub fn path_arg(db: Option<&Value>, project: Option<&Value>) -> Result<PathBuf, BlhError> {
-    let has_db = db.is_some_and(|v| pystr::truthy(Some(v)));
-    let has_project = project.is_some_and(|v| pystr::truthy(Some(v)));
+    let has_db = db.is_some_and(|v| text_rules::truthy(Some(v)));
+    let has_project = project.is_some_and(|v| text_rules::truthy(Some(v)));
     if has_db == has_project {
         return invalid("pass exactly one of db or project");
     }
@@ -142,7 +142,7 @@ pub fn path_arg(db: Option<&Value>, project: Option<&Value>) -> Result<PathBuf, 
             return type_err(format!(
                 "argument should be a str or an os.PathLike object where __fspath__ \
                  returns a str, not '{}'",
-                pystr::type_name(raw)
+                text_rules::type_name(raw)
             ));
         };
         let root = PathBuf::from(text);
@@ -152,7 +152,7 @@ pub fn path_arg(db: Option<&Value>, project: Option<&Value>) -> Result<PathBuf, 
         return Ok(root.join(DB_NAME));
     }
     let raw = db.unwrap_or(&Value::Null);
-    Ok(PathBuf::from(pystr::repr_value(raw)))
+    Ok(PathBuf::from(text_rules::repr_value(raw)))
 }
 
 fn table_names(con: &Connection) -> Result<Vec<String>, BlhError> {
@@ -263,7 +263,7 @@ fn strict_dumps(value: &Value) -> Result<String, BlhError> {
             "Out of range float values are not JSON compliant: {tag}"
         ));
     }
-    Ok(pyjson::dumps_opts_compact(value, true, true))
+    Ok(json_wire::dumps_opts_compact(value, true, true))
 }
 
 /// A JSON value as a SQLite bind parameter; objects and arrays are refused.
@@ -296,12 +296,12 @@ fn member(row: &Value, key: &str) -> Result<Value, BlhError> {
         Value::Object(map) => map
             .get(key)
             .cloned()
-            .ok_or_else(|| BlhError::KeyErr(pystr::repr_str(key))),
+            .ok_or_else(|| BlhError::KeyErr(text_rules::repr_str(key))),
         Value::Array(_) => type_err("list indices must be integers or slices, not str"),
         Value::String(_) => type_err("string indices must be integers, not 'str'"),
         other => type_err(format!(
             "'{}' object is not subscriptable",
-            pystr::type_name(other)
+            text_rules::type_name(other)
         )),
     }
 }
@@ -387,25 +387,25 @@ pub fn save_snapshot(
 
 fn load_rows(payload: &str) -> Result<Value, BlhError> {
     let body: Value = serde_json::from_str(payload).map_err(|e| {
-        BlhError::JsonDecode(pyjson::decode_error(payload).unwrap_or_else(|| e.to_string()))
+        BlhError::JsonDecode(json_wire::decode_error(payload).unwrap_or_else(|| e.to_string()))
     })?;
     member(&body, "rows")
 }
 
 /// Distinct (source, target) link pairs in the snapshot.
 fn edge_set(rows: &Value) -> Result<std::collections::BTreeSet<String>, BlhError> {
-    let list = pystr::iterate(rows).map_err(|(c, m)| pyerr_class(c, &m))?;
+    let list = text_rules::iterate(rows).map_err(|(c, m)| pyerr_class(c, &m))?;
     let mut out = std::collections::BTreeSet::new();
     for row in &list {
         let edge = json!([member(row, "source_url")?, member(row, "target_url")?]);
-        out.insert(pyjson::dumps(&edge));
+        out.insert(json_wire::dumps(&edge));
     }
     Ok(out)
 }
 
 /// Number of rows whose state is `lost`.
 fn lost_count(rows: &Value) -> Result<i64, BlhError> {
-    let list = pystr::iterate(rows).map_err(|(c, m)| pyerr_class(c, &m))?;
+    let list = text_rules::iterate(rows).map_err(|(c, m)| pyerr_class(c, &m))?;
     let mut count = 0i64;
     for row in &list {
         if member(row, "state")? == json!("lost") {
@@ -434,9 +434,9 @@ pub fn snapshot_history(
     let default_offset = json!(0);
     let limit = limit.unwrap_or(&default_limit);
     let offset = offset.unwrap_or(&default_offset);
-    if !pystr::is_py_int(limit)
+    if !text_rules::is_int(limit)
         || !(1..=1000).contains(&limit.as_i64().unwrap_or(0))
-        || !pystr::is_py_int(offset)
+        || !text_rules::is_int(offset)
         || offset.as_i64().unwrap_or(-1) < 0
     {
         return invalid("limit must be 1..1000 and offset must be nonnegative");
@@ -487,7 +487,7 @@ pub fn read_snapshot(
     db: Option<&Value>,
     project: Option<&Value>,
 ) -> Result<Value, BlhError> {
-    if !pystr::is_py_int(snapshot_id) || snapshot_id.as_i64().unwrap_or(0) < 1 {
+    if !text_rules::is_int(snapshot_id) || snapshot_id.as_i64().unwrap_or(0) < 1 {
         return invalid("snapshot_id must be a positive integer");
     }
     let id = snapshot_id.as_i64().unwrap_or(0);
@@ -507,12 +507,12 @@ pub fn read_snapshot(
         return invalid("backlink snapshot was not found");
     };
     let body: Value = serde_json::from_str(&payload).map_err(|e| {
-        BlhError::JsonDecode(pyjson::decode_error(&payload).unwrap_or_else(|| e.to_string()))
+        BlhError::JsonDecode(json_wire::decode_error(&payload).unwrap_or_else(|| e.to_string()))
     })?;
     let Some(map) = body.as_object() else {
         return type_err(format!(
             "'{}' object is not a mapping",
-            pystr::type_name(&body)
+            text_rules::type_name(&body)
         ));
     };
     let mut out = Map::new();

@@ -16,7 +16,7 @@ use crate::credentials::metrika_token;
 use crate::credentials::CredentialError;
 use crate::http::{Request, Sleeper, Transport, TransportError};
 use crate::spend::{self, Record};
-use crate::{pyerr, pyjson, pystr, pytime};
+use crate::{datetime, error_text, json_wire, text_rules};
 
 mod split;
 mod tz;
@@ -113,7 +113,7 @@ impl<'a, T: Transport> MetrikaEnv<'a, T> {
 
     /// Current UTC instant in unix seconds.
     fn now(&self) -> i64 {
-        self.now.unwrap_or_else(pytime::now_seconds)
+        self.now.unwrap_or_else(datetime::now_seconds)
     }
 
     /// Named zone resolved to its offset at `now`; `None` when the zone is not found.
@@ -164,7 +164,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
                         Ok(value) => Ok(value),
                         Err(_) => Err(MetrikaFail::classed(
                             "JSONDecodeError",
-                            pyjson::decode_error(&body)
+                            json_wire::decode_error(&body)
                                 .unwrap_or_else(|| "JSON decode error".to_owned()),
                         )),
                     };
@@ -192,7 +192,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
                     }
                     return Err(MetrikaError {
                         status: 0,
-                        message: format!("network: {}", pyerr::url_error(&kind)),
+                        message: format!("network: {}", error_text::url_error(&kind)),
                     }
                     .into());
                 }
@@ -385,7 +385,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             other => {
                 return Err(MetrikaFail::type_error(format!(
                     "'{}' object is not a mapping",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 )));
             }
         }
@@ -443,7 +443,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             };
             let data = or_get(&body, "data")?;
             let items = match data {
-                Some(data) if pystr::truthy(Some(data)) => py_len(data)?,
+                Some(data) if text_rules::truthy(Some(data)) => py_len(data)?,
                 _ => 0,
             };
             self.env.spend(&Record {
@@ -515,7 +515,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             // A falsy `data` member yields no rows.
             let data = py_get(&page, "data")?;
             let chunk = match data {
-                Some(value) if pystr::truthy(Some(value)) => py_iter(value)?,
+                Some(value) if text_rules::truthy(Some(value)) => py_iter(value)?,
                 _ => Vec::new(),
             };
             let chunk_len = chunk.len() as i64;
@@ -528,7 +528,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
                 break;
             }
             let total = or_get(first.as_ref().unwrap_or(&Value::Null), "total_rows")?;
-            if pystr::truthy(total) && py_ge_i64(collected, total.unwrap_or(&Value::Null))? {
+            if text_rules::truthy(total) && py_ge_i64(collected, total.unwrap_or(&Value::Null))? {
                 break;
             }
             cursor += page_limit;
@@ -599,7 +599,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             .await?;
         let data = or_get(&body, "data")?;
         let items = match data {
-            Some(data) if pystr::truthy(Some(data)) => py_len(data)?,
+            Some(data) if text_rules::truthy(Some(data)) => py_len(data)?,
             _ => 0,
         };
         self.env.spend(&Record {
@@ -648,7 +648,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
                 other => {
                     return Err(MetrikaFail::type_error(format!(
                         "sequence item {index}: expected str instance, {} found",
-                        pystr::type_name(&other)
+                        text_rules::type_name(&other)
                     )));
                 }
             }

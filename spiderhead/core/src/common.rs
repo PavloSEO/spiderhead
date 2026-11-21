@@ -99,7 +99,7 @@ fn write_pretty(value: &Value, depth: i32, out: &mut String) {
             out.push(']');
         }
         Value::Number(number) if number.is_f64() => {
-            out.push_str(&python_float_repr(number.as_f64().unwrap_or_default()));
+            out.push_str(&float_repr(number.as_f64().unwrap_or_default()));
         }
         other => out.push_str(&serde_json::to_string(other).unwrap_or_default()),
     }
@@ -132,7 +132,7 @@ fn write_json(value: &Value, item_sep: &str, key_sep: &str, out: &mut String) {
             out.push(']');
         }
         Value::Number(number) if number.is_f64() => {
-            out.push_str(&python_float_repr(number.as_f64().unwrap_or_default()));
+            out.push_str(&float_repr(number.as_f64().unwrap_or_default()));
         }
         other => out.push_str(&serde_json::to_string(other).unwrap_or_default()),
     }
@@ -145,9 +145,7 @@ pub fn python_repr(value: &Value) -> String {
     match value {
         Value::Null => "None".to_owned(),
         Value::Bool(flag) => if *flag { "True" } else { "False" }.to_owned(),
-        Value::Number(number) if number.is_f64() => {
-            python_float_repr(number.as_f64().unwrap_or_default())
-        }
+        Value::Number(number) if number.is_f64() => float_repr(number.as_f64().unwrap_or_default()),
         Value::Number(number) => number.to_string(),
         Value::String(text) => python_str_repr(text),
         Value::Array(items) => {
@@ -212,7 +210,7 @@ pub fn python_os_error(error: &std::io::Error, path: Option<&std::path::Path>) -
 
 /// Float text in the shortest round-trip form. Exponents -4 to 15 are positional; others use exponent notation with a sign, e.g. `1e-07`, `1e+16`.
 /// The default `serde_json` float text differs (`1e-7`), which would change existing hashes.
-fn python_float_repr(value: f64) -> String {
+fn float_repr(value: f64) -> String {
     if !value.is_finite() {
         return if value.is_nan() {
             "NaN"

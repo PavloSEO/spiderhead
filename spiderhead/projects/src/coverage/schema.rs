@@ -47,7 +47,7 @@ pub fn hash(value: &Value) -> ProjectsResult<String> {
     if !finite(value) {
         return Err(crate::error::value("coverage value is not canonical JSON"));
     }
-    let encoded = crate::pyjson::dumps_compact_ascii(value);
+    let encoded = crate::json_docs::dumps_compact_ascii(value);
     Ok(format!("{:x}", Sha256::digest(encoded.as_bytes())))
 }
 

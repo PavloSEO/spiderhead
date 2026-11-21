@@ -10,8 +10,8 @@ use spiderhead_parse::dom::{
 };
 use spiderhead_parse::parser::shared::{collapse_whitespace, has_ancestor, INERT_LINK_CONTAINERS};
 use spiderhead_parse::parser::tokenize::{document_base_url, DocumentSource};
-use spiderhead_parse::py_str::{is_py_space, py_strip};
-use spiderhead_parse::py_url::{urljoin, urlparse, urlsplit};
+use spiderhead_parse::strings::{is_space, strip};
+use spiderhead_parse::url_parse::{urljoin, urlparse, urlsplit};
 use spiderhead_parse::urlutil::hostname;
 use spiderhead_store::bodies::read_document;
 
@@ -321,7 +321,7 @@ fn excluded(tag: &ElementRef<'_>) -> bool {
 
 /// `_name_text` (the reference suite): label/reference text without mistaking control values.
 fn name_text(tag: &ElementRef<'_>) -> String {
-    let label = py_strip(attr(tag, "aria-label").unwrap_or(""));
+    let label = strip(attr(tag, "aria-label").unwrap_or(""));
     if !label.is_empty() {
         return label.to_owned();
     }
@@ -354,10 +354,10 @@ fn name_text(tag: &ElementRef<'_>) -> String {
 
 /// `_aria_named` (the reference suite): an accessible name via `aria-label`/`aria-labelledby`.
 fn aria_named<'a>(tag: &ElementRef<'a>, ids: &HashMap<String, Vec<ElementRef<'a>>>) -> bool {
-    !py_strip(attr(tag, "aria-label").unwrap_or("")).is_empty()
+    !strip(attr(tag, "aria-label").unwrap_or("")).is_empty()
         || attr(tag, "aria-labelledby")
             .unwrap_or("")
-            .split(is_py_space)
+            .split(is_space)
             .filter(|s| !s.is_empty())
             .any(|reference| {
                 ids.get(reference)
@@ -422,7 +422,7 @@ fn extract_images_retained(soup: &Soup, base_url: &str, max_images: usize) -> Ve
                         squeezed.strip_suffix("!important").unwrap_or(&squeezed) == "display:none"
                     })
         });
-        let raw = py_strip(attr(&tag, "src").unwrap_or(""));
+        let raw = strip(attr(&tag, "src").unwrap_or(""));
         let resource_url = if raw.is_empty() {
             None
         } else {
@@ -438,7 +438,7 @@ fn extract_images_retained(soup: &Soup, base_url: &str, max_images: usize) -> Ve
         };
         let mut missing_dimensions = Vec::new();
         for name in ["width", "height"] {
-            let value = py_strip(attr(&tag, name).unwrap_or(""));
+            let value = strip(attr(&tag, name).unwrap_or(""));
             let positive = value.len() <= 16
                 && !value.is_empty()
                 && value.bytes().all(|b| b.is_ascii_digit())
@@ -987,7 +987,7 @@ fn navigation_moved(source: Option<&Value>, destination: Option<&Value>) -> bool
     nav_parts(&a) != nav_parts(&b)
 }
 
-fn nav_parts(u: &spiderhead_parse::py_url::SplitUrl) -> (&str, &str, &str, &str) {
+fn nav_parts(u: &spiderhead_parse::url_parse::SplitUrl) -> (&str, &str, &str, &str) {
     (
         u.scheme.as_str(),
         u.netloc.as_str(),

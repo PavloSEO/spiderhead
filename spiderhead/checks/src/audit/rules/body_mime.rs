@@ -4,7 +4,7 @@
 use rusqlite::types::Value as SqlValue;
 use rusqlite::{Connection, OptionalExtension};
 use serde_json::{Map, Value};
-use spiderhead_parse::py_str::py_strip;
+use spiderhead_parse::strings::strip;
 use spiderhead_store::bodies::read_document_body;
 
 use super::asset_checks::decode_json_bytes;
@@ -57,10 +57,10 @@ fn declared_family_of(declared: &str) -> Option<&'static str> {
 /// `_declared_family`: `(declared, family)` for a supported Content-Type string.
 fn declared_family(value: Option<&str>) -> Option<(String, &'static str)> {
     let value = value?;
-    if py_strip(value).is_empty() {
+    if strip(value).is_empty() {
         return None;
     }
-    let declared = py_strip(value.split(';').next().unwrap_or(value)).to_lowercase();
+    let declared = strip(value.split(';').next().unwrap_or(value)).to_lowercase();
     declared_family_of(&declared).map(|family| (declared, family))
 }
 
@@ -180,7 +180,7 @@ fn state_str(value: &SqlValue) -> String {
     match value {
         SqlValue::Text(s) => s.clone(),
         SqlValue::Integer(i) => i.to_string(),
-        SqlValue::Real(f) => spiderhead_parse::py_json::float_repr(*f),
+        SqlValue::Real(f) => spiderhead_parse::json_text::float_repr(*f),
         SqlValue::Blob(b) => format!("b{bytes:?}", bytes = String::from_utf8_lossy(b)),
         SqlValue::Null => "unknown".into(),
     }

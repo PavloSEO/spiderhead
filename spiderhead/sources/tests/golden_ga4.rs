@@ -10,13 +10,13 @@ use std::collections::VecDeque;
 use serde_json::{json, Value};
 use spiderhead_core::host::FakeHost;
 use spiderhead_sources::credentials::CredentialError;
+use spiderhead_sources::error_text::reason_phrase;
 use spiderhead_sources::ga4::{
     self, Ga4Env, Ga4Error, Ga4Fault, Ga4Transport, LandingArgs, ReportArgs,
 };
 use spiderhead_sources::ga4_content::{self, PageViewsArgs};
 use spiderhead_sources::http::Sleeper;
-use spiderhead_sources::pyerr::reason_phrase;
-use spiderhead_sources::{pyjson, pystr};
+use spiderhead_sources::{json_wire, text_rules};
 
 use common::{absent_config_root, StubTransport};
 
@@ -61,7 +61,7 @@ fn report_body(spec: &Value, offset: Option<usize>, limit: usize, index: usize) 
                 let values = row.as_array().cloned().unwrap_or_default();
                 json!({
                     "dimensionValues": values.iter().take(dims_len).map(|v| json!({"value": v})).collect::<Vec<_>>(),
-                    "metricValues": values.iter().skip(dims_len).map(|v| json!({"value": pystr::repr_value(v)})).collect::<Vec<_>>(),
+                    "metricValues": values.iter().skip(dims_len).map(|v| json!({"value": text_rules::repr_value(v)})).collect::<Vec<_>>(),
                 })
             }
         })
@@ -133,9 +133,9 @@ fn report_body(spec: &Value, offset: Option<usize>, limit: usize, index: usize) 
         body["rowCount"] = raw.clone();
     }
     if spec.get("non_dict").is_some() {
-        return pyjson::dumps(&json!([1, 2]));
+        return json_wire::dumps(&json!([1, 2]));
     }
-    pyjson::dumps(&body)
+    json_wire::dumps(&body)
 }
 
 /// One scripted entry → body or the exception the reference script raises.
@@ -305,7 +305,7 @@ async fn run_op(op: &Value) -> (Value, Vec<Value>, Vec<f64>, Vec<Value>) {
         let Ok(limit) = limit_text.parse::<usize>() else {
             return Err(Ga4Fault::Value(format!(
                 "invalid literal for int() with base 10: {}",
-                spiderhead_sources::pystr::repr_str(limit_text)
+                spiderhead_sources::text_rules::repr_str(limit_text)
             )));
         };
         let index = page_index.get();

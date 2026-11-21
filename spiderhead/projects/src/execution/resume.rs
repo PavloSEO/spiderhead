@@ -22,7 +22,7 @@ pub fn resume(directory: &Path, run_id: &str, expected_revision: i64) -> Project
     let rows = rows(&root, None)?;
     let mut digests: Digests = HashMap::new();
     let (max_seconds, max_bytes) = hash_limits(&root)?;
-    let deadline = pytime::monotonic() + max_seconds;
+    let deadline = datetime::monotonic() + max_seconds;
     let public = public_run(
         &document["runs"][run_index],
         &rows,
@@ -117,7 +117,7 @@ pub fn status(
     let rows = rows(&root, coverage)?;
     let mut digests: Digests = HashMap::new();
     let (max_seconds, max_bytes) = hash_limits(&root)?;
-    let deadline = pytime::monotonic() + max_seconds;
+    let deadline = datetime::monotonic() + max_seconds;
     let mut runs = Vec::new();
     for run in document["runs"].as_array().cloned().unwrap_or_default() {
         runs.push(public_run(

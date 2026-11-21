@@ -23,7 +23,7 @@ use crate::client_findings::{
 use crate::document::ReportDoc;
 use crate::evidence_summary;
 use crate::project_coverage::value_text;
-use crate::py;
+use crate::values;
 use crate::{checks_completed_display, severity_title};
 use crate::{DEFAULT_MAX_OUTPUT_BYTES, MIN_FREE_DISK_BYTES};
 
@@ -128,7 +128,7 @@ fn cell(value: &Value) -> Result<Cell, XlsxReportError> {
                 Ok(Cell::Str(s))
             }
         }
-        other => Ok(Cell::Str(py::str_value(&other))),
+        other => Ok(Cell::Str(values::str_value(&other))),
     }
 }
 
@@ -215,7 +215,7 @@ fn autofit(rows: &[Vec<Cell>], limits: &[(usize, f64)]) -> Vec<f64> {
 
 fn get_obj<'a>(value: &'a Value, key: &str) -> &'a Map<String, Value> {
     static EMPTY: std::sync::LazyLock<Map<String, Value>> = std::sync::LazyLock::new(Map::new);
-    py::get(value, key)
+    values::get(value, key)
         .and_then(Value::as_object)
         .unwrap_or(&EMPTY)
 }
@@ -223,7 +223,9 @@ fn get_obj<'a>(value: &'a Value, key: &str) -> &'a Map<String, Value> {
 /// `_metadata_workbook`'s Summary sheet plus the derived exclusions record.
 fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxReportError> {
     let mut sheet = SheetDef::new("Summary");
-    let summary_v = py::get(document, "summary").cloned().unwrap_or(Value::Null);
+    let summary_v = values::get(document, "summary")
+        .cloned()
+        .unwrap_or(Value::Null);
     let summary = &summary_v;
     let by_sev = get_obj(summary, "findings_by_severity");
 
@@ -232,14 +234,14 @@ fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxRepo
         .insert((0, 0), Format::new().set_bold().set_font_size(16.0));
     sheet.rows.push(vec![cell(&Value::String(format!(
         "SEO Audit: {}",
-        py::str_value(document.get("domain").unwrap_or(&Value::Null))
+        values::str_value(document.get("domain").unwrap_or(&Value::Null))
     )))?]);
     sheet
         .rows
         .push(vec![cell(document.get("url").unwrap_or(&Value::Null))?]);
     sheet.rows.push(vec![cell(&Value::String(format!(
         "Generated: {}",
-        py::str_value(document.get("generated_at").unwrap_or(&Value::Null))
+        values::str_value(document.get("generated_at").unwrap_or(&Value::Null))
     )))?]);
 
     // Scope rows must precede the metrics so a reader sees the coverage limits first.
@@ -247,23 +249,23 @@ fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxRepo
     if summary.get("crawl_valid") == Some(&Value::Bool(false)) {
         let reason = {
             let value = summary.get("crawl_invalid_reason").unwrap_or(&Value::Null);
-            if py::truthy(Some(value)) {
-                py::str_value(value)
+            if values::truthy(Some(value)) {
+                values::str_value(value)
             } else {
                 "the crawl produced no usable data".to_owned()
             }
         };
         scope_rows.push(format!("Crawl failed -- no health score. {reason}"));
     }
-    if py::truthy(summary.get("crawl_partial")) {
+    if values::truthy(summary.get("crawl_partial")) {
         let finish = summary.get("crawl_finish_reason").unwrap_or(&Value::Null);
         let scope = summary.get("crawl_scope_note").unwrap_or(&Value::Null);
         let mut bits: Vec<String> = Vec::new();
-        if py::truthy(Some(finish)) {
-            bits.push(format!("stopped: {}", py::str_value(finish)));
+        if values::truthy(Some(finish)) {
+            bits.push(format!("stopped: {}", values::str_value(finish)));
         }
-        if py::truthy(Some(scope)) {
-            bits.push(py::str_value(scope));
+        if values::truthy(Some(scope)) {
+            bits.push(values::str_value(scope));
         }
         scope_rows.push(format!(
             "Partial crawl -- scope is limited.{}",
@@ -274,11 +276,11 @@ fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxRepo
             }
         ));
     }
-    for item in py::get_list(summary, "checks_disabled") {
+    for item in values::get_list(summary, "checks_disabled") {
         scope_rows.push(format!(
             "Disabled check {} -- {}",
-            check_title(py::get(item, "id").unwrap_or(&Value::Null)),
-            py::str_value(py::get(item, "reason").unwrap_or(&Value::Null))
+            check_title(values::get(item, "id").unwrap_or(&Value::Null)),
+            values::str_value(values::get(item, "reason").unwrap_or(&Value::Null))
         ));
     }
     if let Some(notice) = finding_view_notice(summary) {
@@ -288,15 +290,15 @@ fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxRepo
     let exclusions = finding_exclusion_report(summary, suppressed.map(Vec::as_slice));
     if let Some(exclusions) = exclusions.as_ref() {
         let count =
-            py::to_i64(exclusions.get("suppressed_total").unwrap_or(&Value::Null)).unwrap_or(0);
-        let occurrences = py::to_i64(
+            values::to_i64(exclusions.get("suppressed_total").unwrap_or(&Value::Null)).unwrap_or(0);
+        let occurrences = values::to_i64(
             exclusions
                 .get("suppressed_occurrences")
                 .unwrap_or(&Value::Null),
         )
         .unwrap_or(0);
         let rule_count =
-            py::to_i64(exclusions.get("rules_configured").unwrap_or(&Value::Null)).unwrap_or(0);
+            values::to_i64(exclusions.get("rules_configured").unwrap_or(&Value::Null)).unwrap_or(0);
         scope_rows.push(format!(
             "Finding exclusions: {} {} and {} {} suppressed by {} configured URL {}; see Finding Exclusions.",
             count,
@@ -340,7 +342,7 @@ fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxRepo
         ("Checks completed", checks_completed_display(summary)),
         (
             "Checks unavailable",
-            json!(py::get_list(summary, "tools_failed").len()),
+            json!(values::get_list(summary, "tools_failed").len()),
         ),
     ];
     let header_row = 4 + offset; // 0-indexed
@@ -368,7 +370,7 @@ fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxRepo
     chart.set_width(453).set_height(265);
     sheet.chart = Some((header_row, 3, chart));
 
-    let failed = py::get_list(summary, "tools_failed");
+    let failed = values::get_list(summary, "tools_failed");
     if !failed.is_empty() {
         let start = header_row + 1 + metrics.len() as u32 + 1;
         while sheet.rows.len() <= start as usize {
@@ -385,14 +387,14 @@ fn build_summary(document: &Value) -> Result<(SheetDef, Option<Value>), XlsxRepo
             }
             sheet.rows[row as usize] = vec![
                 cell(&Value::String(check_title(
-                    py::get(item, "tool").unwrap_or(&Value::Null),
+                    values::get(item, "tool").unwrap_or(&Value::Null),
                 )))?,
-                cell(py::get(item, "error").unwrap_or(&Value::Null))?,
+                cell(values::get(item, "error").unwrap_or(&Value::Null))?,
             ];
         }
     }
     let note = summary.get("severity_note").unwrap_or(&Value::Null);
-    if py::truthy(Some(note)) {
+    if values::truthy(Some(note)) {
         let row = header_row + 1 + metrics.len() as u32 + failed.len() as u32 + 3;
         while sheet.rows.len() <= row as usize {
             sheet.rows.push(Vec::new());
@@ -426,28 +428,28 @@ fn exclusion_sheets(exclusions: &Value) -> Result<Vec<SheetDef>, XlsxReportError
         .collect(),
     );
     style_header(&mut rules_sheet, 0);
-    for rule in py::get_list(exclusions, "rules") {
-        let checks = py::get_list(rule, "checks")
+    for rule in values::get_list(exclusions, "rules") {
+        let checks = values::get_list(rule, "checks")
             .iter()
-            .map(py::str_value)
+            .map(values::str_value)
             .collect::<Vec<_>>()
             .join(", ");
         rules_sheet.rows.push(vec![
-            cell(py::get(rule, "id").unwrap_or(&Value::Null))?,
-            cell(py::get(rule, "pattern").unwrap_or(&Value::Null))?,
+            cell(values::get(rule, "id").unwrap_or(&Value::Null))?,
+            cell(values::get(rule, "pattern").unwrap_or(&Value::Null))?,
             cell(&Value::String(if checks.is_empty() {
                 "all checks".to_owned()
             } else {
                 checks
             }))?,
-            cell(py::get(rule, "suppressed_findings").unwrap_or(&Value::Null))?,
-            cell(py::get(rule, "suppressed_occurrences").unwrap_or(&Value::Null))?,
-            cell(py::get(rule, "reason").unwrap_or(&Value::Null))?,
+            cell(values::get(rule, "suppressed_findings").unwrap_or(&Value::Null))?,
+            cell(values::get(rule, "suppressed_occurrences").unwrap_or(&Value::Null))?,
+            cell(values::get(rule, "reason").unwrap_or(&Value::Null))?,
         ]);
     }
     sheets.push(rules_sheet);
 
-    let suppressed = py::get_list(exclusions, "issues");
+    let suppressed = values::get_list(exclusions, "issues");
     if !suppressed.is_empty() {
         let mut sheet = SheetDef::new("Suppressed Findings");
         sheet.rows.push(
@@ -510,18 +512,20 @@ fn technologies_sheet(document: &Value) -> Result<SheetDef, XlsxReportError> {
         &["Category", "Detected Technology", "Evidence"],
         true,
     );
-    let site = py::get(document, "site").cloned().unwrap_or(Value::Null);
-    let tech = py::get(&site, "tech_detect")
+    let site = values::get(document, "site")
         .cloned()
         .unwrap_or(Value::Null);
-    for item in py::get_list(&tech, "technologies") {
+    let tech = values::get(&site, "tech_detect")
+        .cloned()
+        .unwrap_or(Value::Null);
+    for item in values::get_list(&tech, "technologies") {
         sheet.rows.push(vec![
-            cell(py::get(item, "category").unwrap_or(&Value::Null))?,
-            cell(py::get(item, "name").unwrap_or(&Value::Null))?,
-            cell(py::get(item, "evidence").unwrap_or(&Value::Null))?,
+            cell(values::get(item, "category").unwrap_or(&Value::Null))?,
+            cell(values::get(item, "name").unwrap_or(&Value::Null))?,
+            cell(values::get(item, "evidence").unwrap_or(&Value::Null))?,
         ]);
     }
-    let domain_profile = py::get(&site, "domain_profile")
+    let domain_profile = values::get(&site, "domain_profile")
         .cloned()
         .unwrap_or(Value::Null);
     let registration = get_obj(&domain_profile, "registration");
@@ -544,16 +548,18 @@ fn technologies_sheet(document: &Value) -> Result<SheetDef, XlsxReportError> {
 }
 
 fn coverage_sheet(summary: &Value) -> Result<Option<SheetDef>, XlsxReportError> {
-    let coverage = py::get(summary, "project_coverage")
+    let coverage = values::get(summary, "project_coverage")
         .cloned()
         .unwrap_or(Value::Null);
     if !coverage.is_object() {
         return Ok(None);
     }
-    let project = py::get(&coverage, "project")
+    let project = values::get(&coverage, "project")
         .cloned()
         .unwrap_or(Value::Null);
-    let checklist = py::get(&coverage, "status").cloned().unwrap_or(Value::Null);
+    let checklist = values::get(&coverage, "status")
+        .cloned()
+        .unwrap_or(Value::Null);
     let mut sheet = SheetDef::new("Project Coverage");
     for (label, value) in [
         (
@@ -612,12 +618,12 @@ fn coverage_sheet(summary: &Value) -> Result<Option<SheetDef>, XlsxReportError> 
         .collect(),
     );
     style_header(&mut sheet, 7);
-    for item in py::get_list(&checklist, "items") {
+    for item in values::get_list(&checklist, "items") {
         if !item.is_object() {
             continue;
         }
-        let task = py::get(item, "task").cloned().unwrap_or(Value::Null);
-        let affected = py::get(item, "affected_urls")
+        let task = values::get(item, "task").cloned().unwrap_or(Value::Null);
+        let affected = values::get(item, "affected_urls")
             .cloned()
             .unwrap_or(Value::Null);
         sheet.rows.push(vec![
@@ -650,7 +656,7 @@ fn coverage_sheet(summary: &Value) -> Result<Option<SheetDef>, XlsxReportError> 
             cell(&Value::String(
                 item.get("reason")
                     .or_else(|| checklist.get("reason"))
-                    .map(py::str_value)
+                    .map(values::str_value)
                     .unwrap_or_default(),
             ))?,
         ]);
@@ -695,7 +701,7 @@ fn data_rows(
             .iter()
             .map(|finding| {
                 if let Some(columns) = view_columns {
-                    let fields = py::get(finding, "view_fields")
+                    let fields = values::get(finding, "view_fields")
                         .cloned()
                         .unwrap_or(Value::Null);
                     (
@@ -710,17 +716,17 @@ fn data_rows(
                         None,
                     )
                 } else {
-                    let details = py::get_list(finding, "client_details")
+                    let details = values::get_list(finding, "client_details")
                         .iter()
-                        .map(py::str_value)
+                        .map(values::str_value)
                         .collect::<Vec<_>>()
                         .join("; ");
-                    let locations = py::get_list(finding, "client_locations")
+                    let locations = values::get_list(finding, "client_locations")
                         .iter()
-                        .map(py::str_value)
+                        .map(values::str_value)
                         .collect::<Vec<_>>()
                         .join("; ");
-                    let severity = py::get(finding, "severity")
+                    let severity = values::get(finding, "severity")
                         .and_then(Value::as_str)
                         .unwrap_or_default();
                     (
@@ -928,7 +934,7 @@ pub fn write(document: &dyn ReportDoc, path: &Path) -> Result<Value, XlsxReportE
         );
         Value::Object(object)
     };
-    let summary = py::get(&meta_document, "summary")
+    let summary = values::get(&meta_document, "summary")
         .cloned()
         .unwrap_or(Value::Null);
     let view_columns = finding_view_columns(&summary);

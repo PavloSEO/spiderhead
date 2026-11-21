@@ -8,7 +8,7 @@ use thiserror::Error;
 
 use spiderhead_core::tabular::neutralize_formula;
 
-use crate::py;
+use crate::values;
 
 /// Manifest format marker.
 pub const MANIFEST_FORMAT: &str = "spiderhead.bi-manifest.v1";
@@ -511,7 +511,7 @@ pub fn cell_text(value: &Value) -> String {
             }
         }
         Value::String(s) => neutralize_formula(s),
-        other => neutralize_formula(&py::str_value(other)),
+        other => neutralize_formula(&values::str_value(other)),
     }
 }
 
@@ -539,7 +539,7 @@ pub fn format_cell(
             ))),
         },
         "integer" => match value {
-            Value::Number(n) if n.is_i64() || n.is_u64() => Ok((py::str_value(value), false)),
+            Value::Number(n) if n.is_i64() || n.is_u64() => Ok((values::str_value(value), false)),
             _ => Err(BIExportError::new(format!(
                 "{field_name} must be integer or null"
             ))),
@@ -550,7 +550,7 @@ pub fn format_cell(
                 if !f.is_finite() {
                     return Err(BIExportError::new(format!("{field_name} must be finite")));
                 }
-                Ok((py::repr(value), false))
+                Ok((values::repr(value), false))
             }
             _ => Err(BIExportError::new(format!(
                 "{field_name} must be numeric or null"

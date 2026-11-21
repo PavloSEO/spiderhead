@@ -4,8 +4,8 @@ use super::*;
 
 /// Quote a log field for the combined format; falsy values become `-`.
 pub fn apache_quote(value: &Value) -> String {
-    let text = if pystr::truthy(Some(value)) {
-        pystr::repr_value(value)
+    let text = if text_rules::truthy(Some(value)) {
+        text_rules::repr_value(value)
     } else {
         "-".to_owned()
     };
@@ -21,7 +21,7 @@ pub(super) fn logpull_datetime(value: &Value, name: &str) -> Result<i64, CfError
         )));
     }
     let replaced = text.replace('Z', "+00:00");
-    let parsed = pytime::fromisoformat_offset(&replaced);
+    let parsed = datetime::fromisoformat_offset(&replaced);
     let Some((parsed, offset)) = parsed else {
         return Err(CfError::Value(format!(
             "{name} must be an RFC3339 UTC timestamp"
@@ -43,7 +43,7 @@ pub(super) const MONTH_ABBR: [&str; 12] = [
 pub(crate) fn apache_stamp(micros: i64) -> String {
     let days = micros.div_euclid(86_400_000_000);
     let secs = micros.rem_euclid(86_400_000_000) / 1_000_000;
-    let (y, m, d) = pytime::civil_from_days(days);
+    let (y, m, d) = datetime::civil_from_days(days);
     format!(
         "{d:02}/{}/{y:04}:{:02}:{:02}:{:02} +0000",
         MONTH_ABBR[(m - 1) as usize],
@@ -67,7 +67,7 @@ pub fn to_apache(row: &Value) -> Result<String, CfError> {
             ));
         }
     }
-    let ip = pystr::repr_value(row.get("ClientIP").unwrap_or(&Value::Null));
+    let ip = text_rules::repr_value(row.get("ClientIP").unwrap_or(&Value::Null));
     if ip.is_empty() {
         return Err(CfError::Value("record has an invalid client IP".to_owned()));
     }
@@ -88,8 +88,8 @@ pub fn to_apache(row: &Value) -> Result<String, CfError> {
     // A parse failure is "invalid"; a stamp without a timezone is a separate error.
     let stamp = stamp_text
         .strip_suffix('Z')
-        .map(|t| pytime::fromisoformat(&format!("{t}+00:00")))
-        .unwrap_or_else(|| pytime::fromisoformat(&stamp_text.replace('Z', "+00:00")))
+        .map(|t| datetime::fromisoformat(&format!("{t}+00:00")))
+        .unwrap_or_else(|| datetime::fromisoformat(&stamp_text.replace('Z', "+00:00")))
         .ok_or_else(|| CfError::Value("record has an invalid edge timestamp".to_owned()))?;
     if !stamp.aware {
         return Err(CfError::Value(
@@ -100,7 +100,7 @@ pub fn to_apache(row: &Value) -> Result<String, CfError> {
         .get("EdgeResponseStatus")
         .cloned()
         .unwrap_or(Value::Null);
-    if !pystr::is_py_int(&status) {
+    if !text_rules::is_int(&status) {
         return Err(CfError::Value(
             "record has an invalid HTTP status".to_owned(),
         ));
@@ -112,19 +112,19 @@ pub fn to_apache(row: &Value) -> Result<String, CfError> {
         ));
     }
     let size = row.get("EdgeResponseBytes").cloned().unwrap_or(Value::Null);
-    if !size.is_null() && (!pystr::is_py_int(&size) || size.as_i64().unwrap_or(-1) < 0) {
+    if !size.is_null() && (!text_rules::is_int(&size) || size.as_i64().unwrap_or(-1) < 0) {
         return Err(CfError::Value(
             "record has invalid response bytes".to_owned(),
         ));
     }
     let method = row
         .get("ClientRequestMethod")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .cloned()
         .unwrap_or_else(|| json!("GET"));
     let agent = row
         .get("ClientRequestUserAgent")
-        .filter(|v| pystr::truthy(Some(v)))
+        .filter(|v| text_rules::truthy(Some(v)))
         .cloned()
         .unwrap_or_else(|| json!("-"));
     let size_text = if size.is_null() {
@@ -173,15 +173,15 @@ pub async fn logpull<T: Transport>(
     raw_transport: Option<&RawTransport<'_>>,
 ) -> Result<Value, CfError> {
     // Requires a project and no explicit zone.
-    let project_given = pystr::truthy(project);
+    let project_given = text_rules::truthy(project);
     if !project_given || zone.is_some_and(|z| !z.is_null()) {
         return Err(CfError::Value(
             "pass a project with one selected Cloudflare zone binding".to_owned(),
         ));
     }
-    let project_s = project.map(pystr::repr_value).unwrap_or_default();
+    let project_s = project.map(text_rules::repr_value).unwrap_or_default();
     let count_v = count.cloned().unwrap_or_else(|| json!(5000));
-    if !pystr::is_py_int(&count_v) || !(1..=10_000).contains(&count_v.as_i64().unwrap_or(0)) {
+    if !text_rules::is_int(&count_v) || !(1..=10_000).contains(&count_v.as_i64().unwrap_or(0)) {
         return Err(CfError::Value(
             "count must be between 1 and 10000".to_owned(),
         ));
@@ -189,7 +189,7 @@ pub async fn logpull<T: Transport>(
     let count_i = count_v.as_i64().unwrap_or(0);
     let start_at = logpull_datetime(start, "start")?;
     let end_at = logpull_datetime(end, "end")?;
-    let current = env.now.unwrap_or_else(pytime::now_micros);
+    let current = env.now.unwrap_or_else(datetime::now_micros);
     if start_at >= end_at || end_at - start_at > 3_600_000_000 {
         return Err(CfError::Value(
             "Logpull interval must be ordered and at most one hour".to_owned(),
@@ -206,11 +206,11 @@ pub async fn logpull<T: Transport>(
         ));
     }
 
-    let secret = match token.filter(|v| pystr::truthy(Some(v))) {
+    let secret = match token.filter(|v| text_rules::truthy(Some(v))) {
         Some(t) => t
             .as_str()
             .map(str::to_owned)
-            .unwrap_or_else(|| pystr::repr_value(t)),
+            .unwrap_or_else(|| text_rules::repr_value(t)),
         None => match crate::cloudflare::read_token(env.host, env.home) {
             Ok(t) => t,
             Err(e) => {
@@ -295,7 +295,7 @@ pub async fn logpull<T: Transport>(
         "EdgeResponseStatus",
     ];
     if !field_payload.is_object()
-        || !pystr::truthy(field_payload.get("success"))
+        || !text_rules::truthy(field_payload.get("success"))
         || !required.iter().all(|r| available.contains(*r))
     {
         return Ok(json!({
@@ -376,7 +376,7 @@ pub async fn logpull<T: Transport>(
             json!({"ok": false, "state": "failed", "provider": "cloudflare", "error": "Cloudflare Logpull response exceeded the 16 MiB limit"}),
         );
     }
-    let lines: Vec<String> = pystr::splitlines(&raw_text)
+    let lines: Vec<String> = text_rules::splitlines(&raw_text)
         .into_iter()
         .filter(|l| !l.is_empty())
         .collect();
@@ -438,7 +438,7 @@ pub async fn logpull<T: Transport>(
                     "TypeError",
                     format!(
                         "argument should be a str or an os.PathLike object where __fspath__ returns str or bytes, not '{}'",
-                        pystr::type_name(other)
+                        text_rules::type_name(other)
                     ),
                 ))
             }
@@ -476,12 +476,12 @@ pub async fn logpull<T: Transport>(
         }
     };
     // A failed import reports the fixed retention text; a truthy non-object result is an error.
-    let import_ok = pystr::truthy(Some(&import_result))
-        && pystr::truthy(crate::cloudflare::obj_get(&import_result, "ok")?);
+    let import_ok = text_rules::truthy(Some(&import_result))
+        && text_rules::truthy(crate::cloudflare::obj_get(&import_result, "ok")?);
     if !import_ok {
-        let error = if pystr::truthy(Some(&import_result)) {
+        let error = if text_rules::truthy(Some(&import_result)) {
             crate::cloudflare::obj_get(&import_result, "error")?
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
         } else {
             None
@@ -494,7 +494,7 @@ pub async fn logpull<T: Transport>(
             "error": error.unwrap_or_else(|| json!("Cloudflare log rows could not be retained")),
         }));
     }
-    let complete = pystr::truthy(crate::cloudflare::obj_get(&import_result, "complete")?);
+    let complete = text_rules::truthy(crate::cloudflare::obj_get(&import_result, "complete")?);
     let truncated = converted.len() as i64 == count_i;
     Ok(json!({
         "ok": true,
@@ -512,7 +512,7 @@ pub async fn logpull<T: Transport>(
 
 /// `datetime.isoformat()` on a UTC instant (seconds precision, `+00:00`).
 pub(super) fn iso8601(micros: i64) -> String {
-    pytime::isoformat(micros)
+    datetime::isoformat(micros)
 }
 
 /// Error handling around the Logpull network call: a `CloudflareError` keeps its message;
@@ -532,7 +532,7 @@ pub(super) fn logpull_failed(e: CfError) -> Result<Value, CfError> {
 /// Use the default when the value is falsy.
 pub(super) fn truthy_or(value: Option<&Value>, default: Value) -> Value {
     match value {
-        Some(v) if pystr::truthy(Some(v)) => v.clone(),
+        Some(v) if text_rules::truthy(Some(v)) => v.clone(),
         _ => default,
     }
 }
@@ -542,26 +542,26 @@ pub(super) fn truthy_or(value: Option<&Value>, default: Value) -> Value {
 /// failure gives the `malformed HTTP request rows` envelope.
 pub(super) fn logpull_row(row: &Value) -> Result<String, ()> {
     let ip_v = truthy_or(row.get("ClientIP"), json!("-"));
-    let ip = pystr::repr_value(&ip_v);
+    let ip = text_rules::repr_value(&ip_v);
     ip.parse::<std::net::IpAddr>().map_err(|_| ())?;
     let uri = apache_quote(&truthy_or(row.get("ClientRequestURI"), json!("/")));
     let method = apache_quote(&truthy_or(row.get("ClientRequestMethod"), json!("GET")));
     let agent = apache_quote(&truthy_or(row.get("ClientRequestUserAgent"), json!("-")));
     let status_v = row.get("EdgeResponseStatus").ok_or(())?;
-    let status = pystr::to_python_int(status_v).map_err(|_| ())?;
+    let status = text_rules::to_int(status_v).map_err(|_| ())?;
     if !(100..=599).contains(&status) {
         return Err(());
     }
     let stamp_v = row.get("EdgeStartTimestamp").ok_or(())?;
-    let stamp_text = pystr::repr_value(stamp_v).replace('Z', "+00:00");
-    let stamp = pytime::fromisoformat(&stamp_text)
+    let stamp_text = text_rules::repr_value(stamp_v).replace('Z', "+00:00");
+    let stamp = datetime::fromisoformat(&stamp_text)
         .filter(|p| p.aware)
         .ok_or(())?;
     let size = row.get("EdgeResponseBytes").cloned().unwrap_or(Value::Null);
     let size_text = if size.is_null() {
         "-".to_owned()
     } else {
-        pystr::to_python_int(&size).map_err(|_| ())?.to_string()
+        text_rules::to_int(&size).map_err(|_| ())?.to_string()
     };
     Ok(format!(
         "{ip} - - [{}] \"{method} {uri} HTTP/1.1\" {status} {size_text} \"-\" \"{agent}\"",

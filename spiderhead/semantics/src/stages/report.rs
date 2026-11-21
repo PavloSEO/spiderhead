@@ -5,7 +5,7 @@ use std::path::Path;
 use serde_json::{json, Value};
 
 use crate::config::Cfg;
-use crate::pyfmt::py_str;
+use crate::fmt::scalar_text;
 use crate::store::Store;
 use crate::store_export::write_csv_row;
 
@@ -33,12 +33,12 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path) -> Result<Value, crate::Err
         )?;
         Ok(rows
             .iter()
-            .map(|r| format!("{}({})", py_str(&r["domain"]), py_str(&r["n"])))
+            .map(|r| format!("{}({})", scalar_text(&r["domain"]), scalar_text(&r["n"])))
             .collect::<Vec<_>>()
             .join(", "))
     };
 
-    let project = cfg.get("_project").map(py_str).unwrap_or_default();
+    let project = cfg.get("_project").map(scalar_text).unwrap_or_default();
     let count = |k: &str| c.get(k).copied().unwrap_or(0);
     let mut md: Vec<String> = vec![
         format!("# Semantic core report — {project}"),
@@ -57,8 +57,8 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path) -> Result<Value, crate::Err
         format!(
             "Provider units: {} Yandex requests + {} Arsenkin limits \
              (money: `seohead spend-report`)",
-            py_str(&sp["yandex_requests"]),
-            py_str(&sp["arsenkin"]),
+            scalar_text(&sp["yandex_requests"]),
+            scalar_text(&sp["arsenkin"]),
         ),
         String::new(),
         "## Top clusters (by summed exact !W)".to_string(),
@@ -72,10 +72,10 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path) -> Result<Value, crate::Err
         .filter(|cl| cl["n"].as_i64().unwrap_or(0) != 0)
         .collect();
     for (i, cl) in non_empty.iter().take(40).enumerate() {
-        let name = py_str(&cl["name"]);
+        let name = scalar_text(&cl["name"]);
         let name40: String = name.chars().take(40).collect();
         let top = if truthy(&cl["top_exact"]) {
-            py_str(&cl["top_exact"])
+            scalar_text(&cl["top_exact"])
         } else {
             "0".to_string()
         };
@@ -83,10 +83,10 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path) -> Result<Value, crate::Err
             "| {} | {} | {} | {} | {} | {} | {} |",
             i + 1,
             name40,
-            py_str(&cl["n"]),
-            py_str(&cl["sum_exact"]),
+            scalar_text(&cl["n"]),
+            scalar_text(&cl["sum_exact"]),
             top,
-            py_str(&cl["coherence"]),
+            scalar_text(&cl["coherence"]),
             domains(&cl["id"])?,
         ));
     }
@@ -106,11 +106,11 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path) -> Result<Value, crate::Err
         md.push(String::new());
         for r in &solo {
             let w = if r["exact"].is_null() {
-                format!("~{}", py_str(&r["base"]))
+                format!("~{}", scalar_text(&r["base"]))
             } else {
-                py_str(&r["exact"])
+                scalar_text(&r["exact"])
             };
-            md.push(format!("- {} — !W {w}", py_str(&r["norm"])));
+            md.push(format!("- {} — !W {w}", scalar_text(&r["norm"])));
         }
     }
 
@@ -173,6 +173,6 @@ fn csv_cell(v: &Value) -> String {
     if v.is_null() {
         String::new()
     } else {
-        py_str(v)
+        scalar_text(v)
     }
 }

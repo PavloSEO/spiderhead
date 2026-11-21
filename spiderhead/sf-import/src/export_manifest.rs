@@ -13,7 +13,7 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-use spiderhead_parse::py_str::py_repr;
+use spiderhead_parse::strings::repr;
 
 use crate::loader::{discover_exports, read_table, LoadedExports};
 
@@ -280,7 +280,7 @@ pub fn requests_from_config(exports: &Value) -> Result<Vec<ExportRequest>, Manif
     // `if exports.get("fetch_all_inlinks"):` — reference truthiness, not == true.
     if exports
         .get("fetch_all_inlinks")
-        .is_some_and(crate::pyvalue::truthy)
+        .is_some_and(crate::value_text::truthy)
     {
         let identity = ("bulk".to_owned(), "Links:All Inlinks".to_owned());
         if !seen.contains(&identity) {
@@ -471,7 +471,7 @@ pub fn validate_export_files(
             failures.push(format!(
                 "{} {}: missing loader key(s) {}",
                 request.group,
-                py_repr(&request.name),
+                repr(&request.name),
                 missing_keys.join(", ")
             ));
         }
@@ -500,7 +500,7 @@ pub fn validate_export_files(
                 failures.push(format!(
                     "{} {} ({raw_id}): {reason}",
                     request.group,
-                    py_repr(&request.name)
+                    repr(&request.name)
                 ));
             } else {
                 let matched = matches[0].clone();
@@ -509,7 +509,7 @@ pub fn validate_export_files(
                     failures.push(format!(
                         "{} {} ({raw_id}): unreadable ({exc})",
                         request.group,
-                        py_repr(&request.name)
+                        repr(&request.name)
                     ));
                 }
             }
@@ -580,7 +580,7 @@ pub fn validate_loaded_requests(
             missing.push(format!(
                 "{} {} -> {key}: {reason}",
                 request.group,
-                py_repr(&request.name)
+                repr(&request.name)
             ));
         }
     }

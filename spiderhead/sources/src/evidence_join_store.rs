@@ -9,7 +9,7 @@ use sha2::Digest;
 
 use crate::cloudflare::CfError;
 use crate::evidence_join::{key_fn_for_store, row_join_key, NORMALIZED_FORMAT};
-use crate::pystr;
+use crate::text_rules;
 
 mod support;
 pub use support::*;
@@ -336,7 +336,9 @@ fn write_inner(
                 .get("natural_key_sha256")
                 .cloned()
                 .unwrap_or(Value::Null);
-            if !pystr::is_py_int(&index) || index.as_i64().unwrap_or(-1) < 0 || !digest.is_string()
+            if !text_rules::is_int(&index)
+                || index.as_i64().unwrap_or(-1) < 0
+                || !digest.is_string()
             {
                 return Err(store_error(
                     "normalized evidence row lacks its stable identity",
@@ -344,7 +346,7 @@ fn write_inner(
             }
             let dimensions = raw
                 .get("dimensions")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or(json!({}));
             if !dimensions.is_object() {
@@ -439,7 +441,7 @@ fn write_inner(
         ),
         "ambiguous_rows": rows
             .iter()
-            .filter(|row| row.get("ambiguous").map(|v| pystr::truthy(Some(v))).unwrap_or(false))
+            .filter(|row| row.get("ambiguous").map(|v| text_rules::truthy(Some(v))).unwrap_or(false))
             .count(),
     });
     let mut sorted_dimensions = dimension_names.clone();
@@ -506,5 +508,5 @@ fn write_inner(
 
 /// Text form for digest fields: integers render plainly, strings as-is.
 fn pyjson_str(value: &Value) -> String {
-    crate::pyjson::str_value(value).unwrap_or_default()
+    crate::json_wire::str_value(value).unwrap_or_default()
 }

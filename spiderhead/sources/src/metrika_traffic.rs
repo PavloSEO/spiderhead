@@ -13,7 +13,7 @@ use std::pin::Pin;
 use serde_json::{json, Map, Value};
 
 use crate::metrika::{is_number, py_eq, py_get, py_str, py_subscript, MetrikaFail};
-use crate::{pystr, pytime};
+use crate::{datetime, text_rules};
 
 mod request;
 use request::*;
@@ -227,11 +227,11 @@ pub async fn build_traffic_document(
     document.insert("source".to_owned(), json!(SOURCE));
     document.insert(
         "generated_at".to_owned(),
-        json!(pytime::isoformat_seconds(
+        json!(datetime::isoformat_seconds(
             input
                 .now
                 .map(|seconds| seconds * 1_000_000)
-                .unwrap_or_else(pytime::now_seconds)
+                .unwrap_or_else(datetime::now_seconds)
         )),
     );
     document.insert("counter_ids".to_owned(), json!(request.ids));
@@ -268,7 +268,7 @@ pub async fn build_traffic_document(
     document.insert("warnings".to_owned(), Value::Array(warnings));
     // The summary's reason is read before `blocks` moves into the document.
     let error_value = match blocks["summary"].get("reason") {
-        Some(reason) if pystr::truthy(Some(reason)) => reason.clone(),
+        Some(reason) if text_rules::truthy(Some(reason)) => reason.clone(),
         _ => json!("summary unavailable"),
     };
     document.insert("blocks".to_owned(), Value::Object(blocks));
@@ -280,5 +280,5 @@ pub async fn build_traffic_document(
 
 /// Float text in the robots warning, in shortest round-trip form.
 fn pyjson_repr(value: f64) -> String {
-    crate::pyjson::float_repr(value)
+    crate::json_wire::float_repr(value)
 }

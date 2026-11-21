@@ -168,7 +168,7 @@ fn coverage(document: &Value, summary: &Value, kind: &str) -> Res<Value> {
                 reason.as_ref(),
             );
             if name == "fired" && record.is_object() {
-                let key = crate::py::str_value(record.get("id").unwrap_or(&Value::Null));
+                let key = crate::values::str_value(record.get("id").unwrap_or(&Value::Null));
                 if !key.is_empty() {
                     let escaped = key.replace('~', "~0").replace('/', "~1");
                     let obj = cov.as_object_mut().unwrap();
@@ -313,7 +313,7 @@ fn coverage(document: &Value, summary: &Value, kind: &str) -> Res<Value> {
         )?;
         let run = document
             .get("run")
-            .filter(|v| crate::py::truthy(Some(v)))
+            .filter(|v| crate::values::truthy(Some(v)))
             .cloned()
             .unwrap_or_else(|| json!({}));
         if !run.is_object() {
@@ -570,7 +570,7 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
                 }
             }
             let run = document.get("run").cloned().unwrap_or_else(|| json!({}));
-            let run = if crate::py::truthy(Some(&run)) {
+            let run = if crate::values::truthy(Some(&run)) {
                 run
             } else {
                 json!({})
@@ -636,8 +636,8 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
                     )?;
                 }
             }
-            let failed = row.get("failed_pages").and_then(crate::py::to_i64);
-            let checked = row.get("pages_checked").and_then(crate::py::to_i64);
+            let failed = row.get("failed_pages").and_then(crate::values::to_i64);
+            let checked = row.get("pages_checked").and_then(crate::values::to_i64);
             if let (Some(f), Some(c)) = (failed, checked) {
                 if f > c {
                     return Err(PdfModelError::new(format!(
@@ -662,13 +662,13 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
                 if !ok {
                     return Err(PdfModelError::new(format!(
                         "summary.by_check[{}] must be a positive integer",
-                        crate::py::repr(&Value::String(check.clone()))
+                        crate::values::repr(&Value::String(check.clone()))
                     )));
                 }
             }
         }
         let totals = summary.get("totals").cloned().unwrap_or(Value::Null);
-        let totals = if crate::py::truthy(Some(&totals)) {
+        let totals = if crate::values::truthy(Some(&totals)) {
             totals
         } else {
             json!({})
@@ -690,7 +690,7 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
                         Some(amount),
                         &format!(
                             "summary.totals.pages_by_representation[{}]",
-                            crate::py::repr(&Value::String(representation.clone()))
+                            crate::values::repr(&Value::String(representation.clone()))
                         ),
                         false,
                     )?;
@@ -747,7 +747,7 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
         .cloned()
         .unwrap_or(Value::Null);
     let run = document.get("run").cloned().unwrap_or(Value::Null);
-    let run = if crate::py::truthy(Some(&run)) {
+    let run = if crate::values::truthy(Some(&run)) {
         run
     } else {
         json!({})
@@ -755,7 +755,7 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
     // A truthy non-list value would iterate into non-object items (keys, characters);
     // the object check rejects those.
     let truthy_rows = |value: Option<&Value>| -> Vec<Value> {
-        match value.filter(|v| crate::py::truthy(Some(v))) {
+        match value.filter(|v| crate::values::truthy(Some(v))) {
             None => Vec::new(),
             Some(Value::Array(items)) => items.clone(),
             Some(other) => vec![other.clone()],
@@ -861,7 +861,7 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
     let checks_total = count_fields.get("checks_total");
     if checks_fired.is_some_and(|v| !v.is_null())
         && fired_ids.is_some()
-        && checks_fired.and_then(crate::py::to_i64)
+        && checks_fired.and_then(crate::values::to_i64)
             != Some(fired_ids.as_ref().unwrap().len() as i64)
     {
         return Err(PdfModelError::new(
@@ -870,7 +870,7 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
     }
     if checks_silent.is_some_and(|v| !v.is_null())
         && silent_ids.is_some()
-        && checks_silent.and_then(crate::py::to_i64)
+        && checks_silent.and_then(crate::values::to_i64)
             != Some(silent_ids.as_ref().unwrap().len() as i64)
     {
         return Err(PdfModelError::new(
@@ -880,7 +880,8 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
     if checks_disabled.is_some_and(|v| !v.is_null()) {
         let declared_disabled = &effective_disabled_ids;
         if (disabled_ids.is_some() || !disabled_rows.is_empty())
-            && checks_disabled.and_then(crate::py::to_i64) != Some(declared_disabled.len() as i64)
+            && checks_disabled.and_then(crate::values::to_i64)
+                != Some(declared_disabled.len() as i64)
         {
             return Err(PdfModelError::new(
                 "checks_disabled disagrees with disabled check IDs",
@@ -897,7 +898,7 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
             .filter(|id| !effective_disabled_ids.contains(*id))
             .cloned()
             .collect();
-        if checks_skipped.and_then(crate::py::to_i64) != Some(effective_skipped.len() as i64) {
+        if checks_skipped.and_then(crate::values::to_i64) != Some(effective_skipped.len() as i64) {
             return Err(PdfModelError::new(
                 "checks_skipped disagrees with run.checks_skipped",
             ));
@@ -909,9 +910,9 @@ fn validate_optional_containers(document: &Value, summary: &Value, kind: &str) -
     if checks_total.is_some_and(|v| !v.is_null()) && all {
         let sum = [checks_fired, checks_skipped, checks_disabled, checks_silent]
             .iter()
-            .map(|v| v.and_then(crate::py::to_i64).unwrap_or(0))
+            .map(|v| v.and_then(crate::values::to_i64).unwrap_or(0))
             .sum::<i64>();
-        if checks_total.and_then(crate::py::to_i64) != Some(sum) {
+        if checks_total.and_then(crate::values::to_i64) != Some(sum) {
             return Err(PdfModelError::new(
                 "check coverage counts do not sum to checks_total",
             ));
@@ -942,7 +943,7 @@ pub fn build_pdf_model(
             keys.sort();
             format!(
                 "audit document schema not recognized: {}",
-                crate::py::repr(&Value::Array(keys.into_iter().map(|k| json!(k)).collect()))
+                crate::values::repr(&Value::Array(keys.into_iter().map(|k| json!(k)).collect()))
             )
         })));
     };
@@ -1027,8 +1028,8 @@ pub fn build_pdf_model(
                 "title": display.get("client_title").cloned().unwrap_or(Value::Null),
                 "observation": display.get("client_observation").cloned().unwrap_or(Value::Null),
                 "reproduction": display.get("client_reproduction").cloned().unwrap_or(Value::Null),
-                "details": display.get("client_details").filter(|v| crate::py::truthy(Some(v))).cloned().unwrap_or_else(|| json!([])),
-                "locations": display.get("client_locations").filter(|v| crate::py::truthy(Some(v))).cloned().unwrap_or_else(|| json!([])),
+                "details": display.get("client_details").filter(|v| crate::values::truthy(Some(v))).cloned().unwrap_or_else(|| json!([])),
+                "locations": display.get("client_locations").filter(|v| crate::values::truthy(Some(v))).cloned().unwrap_or_else(|| json!([])),
                 "evidence_reference": display.get("client_evidence").cloned().unwrap_or(Value::Null),
             },
         }));
@@ -1086,7 +1087,7 @@ pub fn build_pdf_model(
             "crawl_invalid_reason",
             raw_run
                 .get("crawl_invalid_reason")
-                .filter(|v| crate::py::truthy(Some(v)))
+                .filter(|v| crate::values::truthy(Some(v)))
                 .cloned()
                 .or_else(|| summary.get("crawl_invalid_reason").cloned()),
         ),
@@ -1190,7 +1191,7 @@ pub fn build_pdf_model(
     // and only a missing value (`None`) triggers the contract.
     let run_id = if raw_run
         .get("scan_uuid")
-        .is_some_and(|v| crate::py::truthy(Some(v)))
+        .is_some_and(|v| crate::values::truthy(Some(v)))
     {
         raw_run.get("scan_uuid").cloned()
     } else {
@@ -1227,7 +1228,7 @@ pub fn build_pdf_model(
         "domain".to_owned(),
         document
             .get("domain")
-            .filter(|v| crate::py::truthy(Some(v)))
+            .filter(|v| crate::values::truthy(Some(v)))
             .or_else(|| raw_run.get("project"))
             .cloned()
             .unwrap_or(Value::Null),
@@ -1236,7 +1237,7 @@ pub fn build_pdf_model(
         "url".to_owned(),
         document
             .get("url")
-            .filter(|v| crate::py::truthy(Some(v)))
+            .filter(|v| crate::values::truthy(Some(v)))
             .or_else(|| raw_run.get("source"))
             .cloned()
             .unwrap_or(Value::Null),
@@ -1245,7 +1246,7 @@ pub fn build_pdf_model(
         "generated_at".to_owned(),
         document
             .get("generated_at")
-            .filter(|v| crate::py::truthy(Some(v)))
+            .filter(|v| crate::values::truthy(Some(v)))
             .or_else(|| raw_run.get("generated_at"))
             .cloned()
             .unwrap_or(Value::Null),

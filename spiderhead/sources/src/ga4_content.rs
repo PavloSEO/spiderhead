@@ -7,11 +7,11 @@ use std::io::Read;
 use std::path::PathBuf;
 
 use serde_json::{json, Map, Value};
-use spiderhead_parse::py_url;
+use spiderhead_parse::url_parse;
 
 use crate::ga4::{self, BoxBody, Ga4Env, Ga4Error, Ga4Fault, Ga4Transport, PageCall};
 use crate::http::{Sleeper, Transport};
-use crate::{pyjson, pystr, pytime};
+use crate::{datetime, json_wire, text_rules};
 
 mod host_helpers;
 pub use host_helpers::*;
@@ -157,7 +157,7 @@ impl<T: Transport> PageCall for Collector<'_, T> {
                 Ok(body) => body,
                 Err(_) => {
                     return Err(Ga4Fault::Value(
-                        pyjson::decode_error(&raw)
+                        json_wire::decode_error(&raw)
                             .unwrap_or_else(|| "JSON decode error".to_owned()),
                     ))
                 }
@@ -198,7 +198,7 @@ impl<T: Transport> PageCall for Collector<'_, T> {
             }
             let metadata = body
                 .get("metadata")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or_else(|| json!({}));
             if !metadata.is_object() {
@@ -228,13 +228,13 @@ impl<T: Transport> PageCall for Collector<'_, T> {
                 "limit": payload["limit"],
                 "row_count": body.get("rowCount"),
                 "timezone": current_timezone,
-                "sampled": pystr::truthy(metadata.get("samplingMetadatas")),
+                "sampled": text_rules::truthy(metadata.get("samplingMetadatas")),
                 "sampling_metadata": metadata.get("samplingMetadatas"),
-                "thresholded": pystr::truthy(metadata.get("subjectToThresholding")),
-                "data_loss": pystr::truthy(metadata.get("dataLossFromOtherRow")),
+                "thresholded": text_rules::truthy(metadata.get("subjectToThresholding")),
+                "data_loss": text_rules::truthy(metadata.get("dataLossFromOtherRow")),
                 "property_quota": body.get("propertyQuota"),
             });
-            if pyjson::dumps(&fact).len() > MAX_FACT_BYTES {
+            if json_wire::dumps(&fact).len() > MAX_FACT_BYTES {
                 return Err(Ga4Fault::Value(
                     "GA4 page metadata exceeds its bound".to_owned(),
                 ));
@@ -259,21 +259,21 @@ pub async fn page_views<T: Transport>(
     // Unhashable values are caught as type errors; other scalars are attribute errors that propagate.
     // A null or bytes value parses to a byte-based result that the semantic check rejects.
     let start_days = match start_date {
-        Value::String(text) => pytime::date_fromisoformat_err(text).map_err(|_| first_error())?,
+        Value::String(text) => datetime::date_fromisoformat_err(text).map_err(|_| first_error())?,
         _ => return Err(first_error()),
     };
     let end_days = match end_date {
-        Value::String(text) => pytime::date_fromisoformat_err(text).map_err(|_| first_error())?,
+        Value::String(text) => datetime::date_fromisoformat_err(text).map_err(|_| first_error())?,
         _ => return Err(first_error()),
     };
     let (origin, origin_port, origin_text) = match site_origin {
         Value::String(text) => {
-            let split = py_url::urlsplit(text).map_err(|_| first_error())?;
+            let split = url_parse::urlsplit(text).map_err(|_| first_error())?;
             let port = port(&split.netloc).map_err(|_| first_error())?;
             (split, port, text.as_str())
         }
         Value::Null => {
-            let split = py_url::urlsplit("").map_err(|_| first_error())?;
+            let split = url_parse::urlsplit("").map_err(|_| first_error())?;
             (split, None, "")
         }
         Value::Array(_) | Value::Object(_) => return Err(first_error()),
@@ -282,7 +282,7 @@ pub async fn page_views<T: Transport>(
                 class: "AttributeError".to_owned(),
                 message: format!(
                     "'{}' object has no attribute 'decode'",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 ),
             })
         }
@@ -291,11 +291,11 @@ pub async fn page_views<T: Transport>(
     let origin_host = hostname(&origin.netloc);
     let max_rows_ok = args
         .max_rows
-        .map(|v| pystr::is_py_int(v) && (1..=100_000).contains(&v.as_i64().unwrap_or(0)))
+        .map(|v| text_rules::is_int(v) && (1..=100_000).contains(&v.as_i64().unwrap_or(0)))
         .unwrap_or(true);
     // The property id must be a text of decimal digits and at least 1.
     let property_ok = match property_id {
-        Value::String(text) => pystr::is_decimal(text) && !decimal_lt_one(text)?,
+        Value::String(text) => text_rules::is_decimal(text) && !decimal_lt_one(text)?,
         _ => false,
     };
     let origin_ok = (origin.scheme == "http" || origin.scheme == "https")
@@ -465,7 +465,7 @@ fn bind_rows(
     result_rows: Value,
     start_days: i64,
     end_days: i64,
-    origin: &py_url::SplitUrl,
+    origin: &url_parse::SplitUrl,
     origin_host: &str,
 ) -> Result<Vec<Value>, ()> {
     // Iterating a non-list rows value is a type error.
@@ -483,14 +483,17 @@ fn bind_rows(
             chars[4..6].iter().collect::<String>(),
             chars[6..].iter().collect::<String>()
         );
-        let observed = pytime::date_fromisoformat_err(&iso).map_err(|_| ())?;
+        let observed = datetime::date_fromisoformat_err(&iso).map_err(|_| ())?;
         if !(start_days..=end_days).contains(&observed) {
             return Err(());
         }
         let count = item.get("screenPageViews").ok_or(())?;
-        let count_str = count.as_str().filter(|c| pystr::is_decimal(c)).ok_or(())?;
+        let count_str = count
+            .as_str()
+            .filter(|c| text_rules::is_decimal(c))
+            .ok_or(())?;
         // Digits in any Unicode Nd script count; values past i64 take the invalid-contract branch.
-        let count_int = pystr::nd_int(count_str).ok_or(())?;
+        let count_int = text_rules::nd_int(count_str).ok_or(())?;
         let host = item.get("hostName").ok_or(())?;
         let path = item.get("pagePathPlusQueryString").ok_or(())?;
         // The checks run in order: the URL path is parsed only after the host and both prefix checks pass.
@@ -502,7 +505,7 @@ fn bind_rows(
         let eligible = host_ok
             && match path.as_str() {
                 Some(p) if p.starts_with('/') && !p.starts_with("//") => {
-                    py_url::urlsplit(p).map_err(|_| ())?.fragment.is_empty()
+                    url_parse::urlsplit(p).map_err(|_| ())?.fragment.is_empty()
                 }
                 _ => false,
             };
@@ -518,7 +521,7 @@ fn bind_rows(
             Value::Null
         };
         row.insert("date".to_owned(), {
-            let (y, m, d) = pytime::civil_from_days(observed);
+            let (y, m, d) = datetime::civil_from_days(observed);
             json!(format!("{y:04}-{m:02}-{d:02}"))
         });
         row.insert("source_date".to_owned(), json!(day_str));

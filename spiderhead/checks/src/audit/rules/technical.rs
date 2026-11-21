@@ -729,7 +729,7 @@ pub fn check_html_structure(ctx: &mut AuditContext) {
     let mut unmeasured_mime = 0i64;
     let mut observed_mime = 0i64;
     for i in 0..ctx.pages.len() {
-        let path = spiderhead_parse::py_url::urlsplit(&ctx.pages[i].url)
+        let path = spiderhead_parse::url_parse::urlsplit(&ctx.pages[i].url)
             .map(|split| split.path)
             .unwrap_or_default();
         let Some(expected) = guess_type(&path) else {

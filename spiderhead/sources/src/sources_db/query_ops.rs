@@ -10,7 +10,7 @@ use super::{
     day_list, gaps, invalid, py_path_str, source_spec, SourcesError, MAX_EXPORT_ROWS,
     SCHEMA_VERSION,
 };
-use crate::{pyjson, pystr, pytime};
+use crate::{datetime, json_wire, text_rules};
 
 /// `status` — summarize requested and retained calendar-day coverage without modifying
 /// the database.
@@ -48,7 +48,8 @@ pub fn status(path: &Path) -> Result<Value, SourcesError> {
     let mut entries = Vec::new();
     for ((source, resource), days) in &ledger {
         // A ledger row for an unregistered source is a key error.
-        let spec = source_spec(source).map_err(|_| SourcesError::Key(pystr::repr_str(source)))?;
+        let spec =
+            source_spec(source).map_err(|_| SourcesError::Key(text_rules::repr_str(source)))?;
         let stored: i64 = connection.query_row(
             &format!("SELECT COUNT(*) FROM {} WHERE resource = ?", spec.table),
             rusqlite::params![resource],
@@ -187,7 +188,7 @@ fn csv_field(value: rusqlite::types::ValueRef<'_>) -> String {
     let text = match value {
         rusqlite::types::ValueRef::Null => String::new(),
         rusqlite::types::ValueRef::Integer(n) => n.to_string(),
-        rusqlite::types::ValueRef::Real(x) => pyjson::float_repr(x),
+        rusqlite::types::ValueRef::Real(x) => json_wire::float_repr(x),
         rusqlite::types::ValueRef::Text(bytes) => String::from_utf8_lossy(bytes).into_owned(),
         rusqlite::types::ValueRef::Blob(bytes) => repr_bytes(bytes),
     };
@@ -206,7 +207,7 @@ pub fn query(path: &Path, source: &str, args: &QueryArgs<'_>) -> Result<Value, S
     }
     for value in [args.start_date, args.end_date].into_iter().flatten() {
         if !value.is_empty() {
-            if let Err(message) = pytime::date_fromisoformat_err(value) {
+            if let Err(message) = datetime::date_fromisoformat_err(value) {
                 return invalid(message);
             }
         }

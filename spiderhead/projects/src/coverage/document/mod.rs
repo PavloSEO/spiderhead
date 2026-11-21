@@ -11,8 +11,8 @@ use super::schema::{
     completion_hash, identifier, scope as check_scope, stored_plan, text, FORMAT, FORMAT_V2,
     FORMAT_V3, FORMAT_V4,
 };
+use crate::datetime;
 use crate::error::ProjectsResult;
-use crate::pytime;
 use crate::workspace::target as workspace_target;
 
 mod validate_document;
@@ -419,7 +419,7 @@ pub fn record_shape(
             "artifact verification timestamp",
             128,
         )?;
-        let aware = pytime::fromisoformat(
+        let aware = datetime::fromisoformat(
             &receipt["verified_at"]
                 .as_str()
                 .unwrap_or_default()

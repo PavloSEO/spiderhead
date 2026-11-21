@@ -10,11 +10,11 @@ use std::sync::LazyLock;
 use regex::Regex;
 use serde_json::{Map, Value};
 use spiderhead_formats::models::Page;
-use spiderhead_parse::py_url::{parse_qsl, unquote, urlencode, urlsplit, urlunsplit};
+use spiderhead_parse::url_parse::{parse_qsl, unquote, urlencode, urlsplit, urlunsplit};
 
 use crate::context::{AuditContext, ContextError};
 use crate::normalize::{find_column, norm_url, INTERNAL_FIELD_MAP};
-use crate::pyvalue::{str_or_dumps, truthy, truthy_opt};
+use crate::value_text::{str_or_dumps, truthy, truthy_opt};
 
 /// `NON_ASCII`: any character outside ASCII.
 pub static NON_ASCII: LazyLock<Regex> =
@@ -69,8 +69,8 @@ pub(crate) fn parse_qsl_keep_blanks(query: &str) -> Vec<(String, String)> {
         }
         let (name, value) = name_value.split_once('=').unwrap_or((name_value, ""));
         out.push((
-            spiderhead_parse::py_url::unquote(&name.replace('+', " ")),
-            spiderhead_parse::py_url::unquote(&value.replace('+', " ")),
+            spiderhead_parse::url_parse::unquote(&name.replace('+', " ")),
+            spiderhead_parse::url_parse::unquote(&value.replace('+', " ")),
         ));
     }
     out

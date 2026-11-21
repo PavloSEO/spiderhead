@@ -4,7 +4,7 @@ use indexmap::IndexMap;
 use serde_json::Value;
 
 use super::PRIORITY_ORDER;
-use crate::py;
+use crate::values;
 
 /// `esc`: markdown-table-safe scalar text — `None` prints as "".
 fn esc(value: Option<&Value>) -> String {
@@ -29,14 +29,14 @@ fn py_str(value: Option<&Value>) -> String {
 
 fn str_of(value: &Value) -> String {
     match value {
-        Value::Object(_) | Value::Array(_) => py::repr(value),
-        other => py::str_value(other),
+        Value::Object(_) | Value::Array(_) => values::repr(value),
+        other => values::str_value(other),
     }
 }
 
 /// Integer parsed for a display count.
 fn py_int(value: Option<&Value>) -> i64 {
-    value.and_then(py::to_i64).unwrap_or_default()
+    value.and_then(values::to_i64).unwrap_or_default()
 }
 
 /// `render_tasks_md`: the developer-facing Markdown backlog.
@@ -51,15 +51,15 @@ pub fn render_tasks_md(backlog: &Value) -> String {
     let site_name = [get("project"), get("site_name")]
         .into_iter()
         .flatten()
-        .find(|v| py::truthy(Some(*v)))
-        .map(py::str_value)
+        .find(|v| values::truthy(Some(*v)))
+        .map(values::str_value)
         .unwrap_or_else(|| "site".to_owned());
     let mut lines = vec![format!("# Audit Tasks — {site_name}"), String::new()];
     // A failed crawl says so before anything else: the tasks below describe
     // the failed run, not the site.
     if get("crawl_valid") == Some(&Value::Bool(false)) {
         let reason = get("crawl_invalid_reason")
-            .filter(|v| py::truthy(Some(*v)))
+            .filter(|v| values::truthy(Some(*v)))
             .map(str_of)
             .unwrap_or_else(|| "the crawl produced no usable data".to_owned());
         lines.push(format!("> **Crawl failed — no health score.** {reason}."));
@@ -67,23 +67,23 @@ pub fn render_tasks_md(backlog: &Value) -> String {
     }
     // A partial crawl still scores — a distinct warning from the failed one
     // A partial crawl still scores; this warning is distinct from the failed-crawl one above.
-    if py::truthy(get("crawl_partial")) {
+    if values::truthy(get("crawl_partial")) {
         let stop = get("crawl_finish_reason");
         let stop_text = match stop {
-            Some(s) if py::truthy(Some(s)) => format!(" Stopped early: `{}`.", str_of(s)),
+            Some(s) if values::truthy(Some(s)) => format!(" Stopped early: `{}`.", str_of(s)),
             _ => String::new(),
         };
         lines.push(format!(
             "> **Partial crawl — this is a sample, not the whole site.**{stop_text}"
         ));
-        if let Some(scope) = get("health_score_scope").filter(|v| py::truthy(Some(*v))) {
+        if let Some(scope) = get("health_score_scope").filter(|v| values::truthy(Some(*v))) {
             lines.push(format!("> {}", str_of(scope)));
         }
         lines.push(String::new());
     }
     // The health-score basis note appears whenever checks were skipped or disabled,
     // independent of a partial crawl.
-    if let Some(basis) = get("health_score_basis").filter(|v| py::truthy(Some(*v))) {
+    if let Some(basis) = get("health_score_basis").filter(|v| values::truthy(Some(*v))) {
         lines.push(format!("> {}", str_of(basis)));
         lines.push(String::new());
     }
@@ -91,7 +91,7 @@ pub fn render_tasks_md(backlog: &Value) -> String {
         .get("finding_exclusions")
         .and_then(Value::as_object)
         .unwrap_or(&empty);
-    if py::truthy(exclusions.get("rules_configured")) {
+    if values::truthy(exclusions.get("rules_configured")) {
         let findings = py_int(exclusions.get("suppressed_total"));
         let rules = py_int(exclusions.get("rules_configured"));
         let finding_label = if findings == 1 { "finding" } else { "findings" };
@@ -164,7 +164,7 @@ pub fn render_tasks_md(backlog: &Value) -> String {
             ));
             if let Some(assignment) = task
                 .get("assignment")
-                .filter(|v| py::truthy(Some(*v)))
+                .filter(|v| values::truthy(Some(*v)))
                 .and_then(Value::as_object)
             {
                 lines.push(format!(
@@ -183,7 +183,7 @@ pub fn render_tasks_md(backlog: &Value) -> String {
                     py_str(scope.get("affected_urls_total"))
                 ));
             }
-            if let Some(hint) = task.get("fix_hint").filter(|v| py::truthy(Some(*v))) {
+            if let Some(hint) = task.get("fix_hint").filter(|v| values::truthy(Some(*v))) {
                 lines.push(format!("    - _How to fix:_ {}", esc(Some(hint))));
             }
             let reproductions = task

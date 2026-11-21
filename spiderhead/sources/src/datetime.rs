@@ -230,7 +230,12 @@ pub fn date_fromisoformat(text: &str) -> Option<i64> {
 /// Parse a date to epoch days, or return the error message
 /// (`Invalid isoformat string: '…'` / `month must be in 1..12, not 13` / …).
 pub fn date_fromisoformat_err(text: &str) -> Result<i64, String> {
-    let invalid = || format!("Invalid isoformat string: {}", crate::pystr::repr_str(text));
+    let invalid = || {
+        format!(
+            "Invalid isoformat string: {}",
+            crate::text_rules::repr_str(text)
+        )
+    };
     let (days, index) =
         date_part(text.as_bytes()).map_err(|field| field.unwrap_or_else(invalid))?;
     if index != text.len() {

@@ -15,7 +15,7 @@ use crate::credentials::{self, CredentialError};
 use crate::http::{exponential_pause, retry_slots, Request, Sleeper, Transport, TransportError};
 use crate::metrika::SpendSink;
 use crate::spend::{self, Record};
-use crate::{pyerr as pyerrs, pyjson, pystr};
+use crate::{error_text as pyerrs, json_wire, text_rules};
 
 mod errors;
 pub use errors::*;
@@ -77,7 +77,7 @@ impl<'a, T: Transport> ArsEnv<'a, T> {
             Some(sink) => sink(rec),
             None => spend::record(self.host, rec),
         }
-        .map_err(|err| pyerr("OSError", err.to_string()))
+        .map_err(|err| error_text("OSError", err.to_string()))
     }
 
     pub(crate) fn token(&self) -> Result<String, ArsError> {
@@ -164,8 +164,8 @@ pub struct ClientArgs<'a> {
 impl<'e, T: Transport> Client<'e, T> {
     /// Builds a client, using the explicit token when given and the stored credential otherwise.
     pub fn new(env: &'e ArsEnv<'e, T>, args: ClientArgs<'e>) -> Result<Self, ArsError> {
-        let token = match args.token.filter(|v| pystr::truthy(Some(v))) {
-            Some(v) => pystr::repr_value(v),
+        let token = match args.token.filter(|v| text_rules::truthy(Some(v))) {
+            Some(v) => text_rules::repr_value(v),
             None => env.token()?,
         };
         Ok(Client {
@@ -194,7 +194,7 @@ impl<'e, T: Transport> Client<'e, T> {
         billed: bool,
     ) -> Result<Value, ArsError> {
         let url = format!("{BASE}/{endpoint}");
-        let data = pyjson::dumps_opts(body, false, false).into_bytes();
+        let data = json_wire::dumps_opts(body, false, false).into_bytes();
         let mut last: Option<ArsError> = None;
         for slot in retry_slots(retries) {
             self.limiter.acquire(self.env).await;
@@ -205,27 +205,28 @@ impl<'e, T: Transport> Client<'e, T> {
                 .timeout(90.0);
             match self.env.transport.send(&request).await {
                 Ok(response) => {
-                    let raw = pystr::decode_utf8_strict(&response.body)
-                        .map_err(|m| pyerr("UnicodeDecodeError", m))?;
+                    let raw = text_rules::decode_utf8_strict(&response.body)
+                        .map_err(|m| error_text("UnicodeDecodeError", m))?;
                     let payload = match serde_json::from_str::<Value>(&raw) {
                         Ok(payload) => payload,
                         Err(_) => {
-                            return Err(pyerr(
+                            return Err(error_text(
                                 "JSONDecodeError",
-                                pyjson::decode_error(&raw)
+                                json_wire::decode_error(&raw)
                                     .unwrap_or_else(|| "JSON decode error".to_owned()),
                             ));
                         }
                     };
                     if let Some(map) = payload.as_object() {
-                        if pystr::repr_value(map.get("code").unwrap_or(&Value::Null)) == "429" {
+                        if text_rules::repr_value(map.get("code").unwrap_or(&Value::Null)) == "429"
+                        {
                             self.env.sleeper.pause(exponential_pause(slot.index)).await;
                             last = Some(provider("429", json!(raw)));
                             continue;
                         }
                         if map.get("status") == Some(&json!("Error")) {
                             let mut err = provider(
-                                pystr::repr_value(map.get("code").unwrap_or(&Value::Null)),
+                                text_rules::repr_value(map.get("code").unwrap_or(&Value::Null)),
                                 map.get("error").cloned().unwrap_or_else(|| json!(raw)),
                             );
                             if let ArsError::Provider(p) = &mut err {
@@ -248,7 +249,7 @@ impl<'e, T: Transport> Client<'e, T> {
                 Err(TransportError::Connect(kind)) => {
                     // Timeouts are not URL errors, so they escape this handler unchanged.
                     if kind == "timeout" {
-                        return Err(pyerr("TimeoutError", "timed out"));
+                        return Err(error_text("TimeoutError", "timed out"));
                     }
                     let detail = pyerrs::url_error(&kind);
                     if billed {
@@ -325,7 +326,7 @@ impl<'e, T: Transport> Client<'e, T> {
             );
             self.env.record(&Record {
                 source: SOURCE.to_owned(),
-                operation: pystr::repr_value(tools_name),
+                operation: text_rules::repr_value(tools_name),
                 cost: Some(cost_f),
                 unit: "limits".to_owned(),
                 task_id: None,
@@ -337,16 +338,16 @@ impl<'e, T: Transport> Client<'e, T> {
                 code: "INVALID_TASK_ID".to_owned(),
                 message: json!(format!(
                     "{}: SET_TASK_OK response had no usable task_id (received {}); cost {} was billed and journaled",
-                    pystr::repr_value(tools_name),
-                    pystr::repr(&raw_task_id),
-                    pystr::repr(&cost),
+                    text_rules::repr_value(tools_name),
+                    text_rules::repr(&raw_task_id),
+                    text_rules::repr(&cost),
                 )),
                 payload: Some(result),
             })));
         };
         self.env.record(&Record {
             source: SOURCE.to_owned(),
-            operation: pystr::repr_value(tools_name),
+            operation: text_rules::repr_value(tools_name),
             cost: Some(cost_f),
             unit: "limits".to_owned(),
             task_id: Some(json!(task_id)),
@@ -359,7 +360,7 @@ impl<'e, T: Transport> Client<'e, T> {
 
     /// `check(task_id)` — `(status, raw result)` for one `/check` call.
     pub async fn check(&self, task_id: &Value) -> Result<(Value, Value), ArsError> {
-        let id = pystr::to_python_int(task_id).map_err(|(c, m)| pyerr(c, m))?;
+        let id = text_rules::to_int(task_id).map_err(|(c, m)| error_text(c, m))?;
         let result = self
             .post("check", &json!({"task_id": id}), 5, false)
             .await?;
@@ -368,13 +369,13 @@ impl<'e, T: Transport> Client<'e, T> {
 
     /// `get(task_id)` — fetch a result without another charge (paid at creation time).
     pub async fn get(&self, task_id: &Value) -> Result<Value, ArsError> {
-        let id = pystr::to_python_int(task_id).map_err(|(c, m)| pyerr(c, m))?;
+        let id = text_rules::to_int(task_id).map_err(|(c, m)| error_text(c, m))?;
         self.post("get", &json!({"task_id": id}), 5, false).await
     }
 
     /// `delete(task_id)` — `/tasks {"action": "delete"}`.
     pub async fn delete(&self, task_id: &Value) -> Result<Value, ArsError> {
-        let id = pystr::to_python_int(task_id).map_err(|(c, m)| pyerr(c, m))?;
+        let id = text_rules::to_int(task_id).map_err(|(c, m)| error_text(c, m))?;
         self.post(
             "tasks",
             &json!({"action": "delete", "task_id": id}),
@@ -386,7 +387,7 @@ impl<'e, T: Transport> Client<'e, T> {
 
     /// `restart(task_id)` — `/tasks {"action": "restart"}`.
     pub async fn restart(&self, task_id: &Value) -> Result<Value, ArsError> {
-        let id = pystr::to_python_int(task_id).map_err(|(c, m)| pyerr(c, m))?;
+        let id = text_rules::to_int(task_id).map_err(|(c, m)| error_text(c, m))?;
         self.post(
             "tasks",
             &json!({"action": "restart", "task_id": id}),
@@ -415,7 +416,7 @@ impl<'e, T: Transport> Client<'e, T> {
             let Some(limit) = py_f64(timeout) else {
                 return Err(type_err(format!(
                     "'<' not supported between instances of 'float' and '{}'",
-                    pystr::type_name(timeout)
+                    text_rules::type_name(timeout)
                 )));
             };
             if now - started >= limit {
@@ -433,15 +434,15 @@ impl<'e, T: Transport> Client<'e, T> {
                     "STATUS",
                     json!(format!(
                         "task {}: status {}",
-                        pystr::repr_value(task_id),
-                        pystr::repr_value(&status)
+                        text_rules::repr_value(task_id),
+                        text_rules::repr_value(&status)
                     )),
                 ));
             }
             let Some(seconds) = py_f64(interval) else {
                 return Err(type_err(format!(
                     "'{}' object cannot be interpreted as an integer or float",
-                    pystr::type_name(interval)
+                    text_rules::type_name(interval)
                 )));
             };
             self.env.sleeper.pause(seconds).await;
@@ -451,9 +452,9 @@ impl<'e, T: Transport> Client<'e, T> {
             json!(format!(
                 "task {} did not finish within {}s; the result is already paid for, \
                  so retrieve it later with get({})",
-                pystr::repr_value(task_id),
-                pystr::repr_value(timeout),
-                pystr::repr_value(task_id)
+                text_rules::repr_value(task_id),
+                text_rules::repr_value(timeout),
+                text_rules::repr_value(task_id)
             )),
         ))
     }

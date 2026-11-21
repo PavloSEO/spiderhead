@@ -11,7 +11,7 @@ use crate::ledger::urlparts::urlsplit;
 use rusqlite::functions::FunctionFlags;
 use rusqlite::{Connection, OptionalExtension};
 use serde_json::{json, Value};
-use spiderhead_parse::py_url::{urljoin, urlparse, urlunparse};
+use spiderhead_parse::url_parse::{urljoin, urlparse, urlunparse};
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::atomic::{AtomicU64, Ordering};
 

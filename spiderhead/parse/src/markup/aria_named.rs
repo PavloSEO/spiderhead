@@ -8,9 +8,9 @@ pub(crate) fn aria_named<'a>(
     tag: &ElementRef<'a>,
     ids: &HashMap<String, Vec<ElementRef<'a>>>,
 ) -> bool {
-    !py_strip(attr(tag, "aria-label")).is_empty()
+    !strip(attr(tag, "aria-label")).is_empty()
         || attr(tag, "aria-labelledby")
-            .split(crate::py_str::is_py_space)
+            .split(crate::strings::is_space)
             .filter(|s| !s.is_empty())
             .any(|reference| {
                 ids.get(reference)
@@ -43,9 +43,8 @@ pub(super) fn stripped_text(tag: &ElementRef<'_>) -> String {
                 .ancestors()
                 .filter_map(ElementRef::wrap)
                 .find_map(|a| crate::dom::container_kind(a.value().name()));
-            if owner == crate::dom::container_kind(tag.value().name()) && !py_strip(text).is_empty()
-            {
-                parts.push(py_strip(text).to_owned());
+            if owner == crate::dom::container_kind(tag.value().name()) && !strip(text).is_empty() {
+                parts.push(strip(text).to_owned());
             }
         }
     }
@@ -74,7 +73,7 @@ impl Issues {
 pub(super) fn accessibility_facts(soup: &Soup) -> AccessibilityFacts {
     let mut issues = Issues::default();
     let root = find(soup, "html");
-    if root.is_none_or(|r| py_strip(attr(&r, "lang")).is_empty()) {
+    if root.is_none_or(|r| strip(attr(&r, "lang")).is_empty()) {
         issues.add(
             "A11Y_HTML_LANG_MISSING",
             json!({"tag": "html", "lang": root.and_then(|r| r.value().attr("lang"))}),
@@ -160,10 +159,10 @@ pub(super) fn body_issues<'a>(soup: &'a Soup, body: &ElementRef<'a>, issues: &mu
             }
             let identifier = attr(&tag, "id");
             let references: Vec<&str> = attr(&tag, "aria-labelledby")
-                .split(crate::py_str::is_py_space)
+                .split(crate::strings::is_space)
                 .filter(|s| !s.is_empty())
                 .collect();
-            let mut named = aria_named(&tag, &ids) || !py_strip(attr(&tag, "title")).is_empty();
+            let mut named = aria_named(&tag, &ids) || !strip(attr(&tag, "title")).is_empty();
             named |= !identifier.is_empty()
                 && ids
                     .get(identifier)
@@ -218,7 +217,7 @@ pub(super) fn body_issues<'a>(soup: &'a Soup, body: &ElementRef<'a>, issues: &mu
             scraper::Node::Doctype(doctype) => doctype.name(),
             _ => return false,
         };
-        !py_strip(text).is_empty()
+        !strip(text).is_empty()
             && node
                 .parent()
                 .and_then(ElementRef::wrap)

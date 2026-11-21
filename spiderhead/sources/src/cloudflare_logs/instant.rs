@@ -64,7 +64,7 @@ pub async fn instant_logs_capture<T: Transport>(
             "confirm_live_capture=true is required to start an Instant Logs session".to_owned(),
         ));
     }
-    if !pystr::truthy(Some(project)) {
+    if !text_rules::truthy(Some(project)) {
         return Err(CfError::Value(
             "project is required for local log retention".to_owned(),
         ));
@@ -98,14 +98,14 @@ pub async fn instant_logs_capture<T: Transport>(
             "reason": "optional websockets dependency is unavailable; install the cloudflare-stream extra",
         }));
     };
-    let project_s = pystr::repr_value(project);
+    let project_s = text_rules::repr_value(project);
     let live = LiveSend { transport, sleeper };
     // Credential and zone lookups: Cloudflare, I/O and value errors become the
     // `unavailable` envelope; any other error still propagates.
     let (secret, info) = match async {
-        let secret = match token.filter(|t| pystr::truthy(Some(t))) {
+        let secret = match token.filter(|t| text_rules::truthy(Some(t))) {
             Some(Value::String(s)) => s.clone(),
-            Some(other) => pystr::repr_value(other),
+            Some(other) => text_rules::repr_value(other),
             None => crate::cloudflare::read_token(env.host, env.home)?,
         };
         let bindings = env
@@ -140,7 +140,7 @@ pub async fn instant_logs_capture<T: Transport>(
         },
     };
     let plan_raw = truthy_or(info.get("plan").cloned(), json!(""));
-    let plan = pystr::repr_value(&plan_raw).trim().to_lowercase();
+    let plan = text_rules::repr_value(&plan_raw).trim().to_lowercase();
     let plan_state = if plan.starts_with("business") {
         "business"
     } else if plan.starts_with("enterprise") {
@@ -185,7 +185,10 @@ pub async fn instant_logs_capture<T: Transport>(
     } else {
         Value::Null
     };
-    if !existing.is_object() || !pystr::truthy(existing.get("success")) || !active_jobs.is_array() {
+    if !existing.is_object()
+        || !text_rules::truthy(existing.get("success"))
+        || !active_jobs.is_array()
+    {
         return Ok(json!({
             "ok": false,
             "state": "unavailable",
@@ -247,7 +250,7 @@ pub async fn instant_logs_capture<T: Transport>(
             "AttributeError",
             format!(
                 "'{}' object has no attribute 'get'",
-                pystr::type_name(&created)
+                text_rules::type_name(&created)
             ),
         ));
     }
@@ -259,7 +262,7 @@ pub async fn instant_logs_capture<T: Transport>(
     } else {
         Value::Null
     };
-    if !pystr::truthy(created.get("success")) || !destination.is_string() {
+    if !text_rules::truthy(created.get("success")) || !destination.is_string() {
         return Ok(json!({
             "ok": false,
             "state": "failed",
@@ -367,7 +370,7 @@ pub async fn instant_logs_capture<T: Transport>(
                     text
                 }
             };
-            for line in pystr::splitlines(&bytes).iter().map(String::as_str) {
+            for line in text_rules::splitlines(&bytes).iter().map(String::as_str) {
                 if line.is_empty() {
                     continue;
                 }
@@ -430,7 +433,7 @@ pub async fn instant_logs_capture<T: Transport>(
             }
         }
     };
-    if !pystr::truthy(crate::cloudflare::obj_get(&imported, "ok")?) {
+    if !text_rules::truthy(crate::cloudflare::obj_get(&imported, "ok")?) {
         return Ok(json!({
             "ok": false,
             "state": "failed",
@@ -485,7 +488,7 @@ pub(super) fn pinned_endpoint(destination: &str, result: &Value) -> Result<bool,
     }
     if let Some(session_id) = result.get("session_id").filter(|v| !v.is_null()) {
         let leaf = path.rsplit('/').next().unwrap_or_default();
-        if leaf != pystr::repr_value(session_id) {
+        if leaf != text_rules::repr_value(session_id) {
             return Ok(false);
         }
     }
@@ -547,7 +550,7 @@ pub(super) fn split_host_port(authority: &str) -> Result<(String, Option<u16>), 
             let parsed: u32 = text.parse().map_err(|_| {
                 CfError::Value(format!(
                     "Port could not be cast to integer value as {}",
-                    pystr::repr_str(text)
+                    text_rules::repr_str(text)
                 ))
             })?;
             if parsed > 65535 {

@@ -1,6 +1,6 @@
 //! URL splitting, joining and fragment removal for project input validation.
 //!
-//! The split itself is `spiderhead_parse::py_url` (byte-exact, netloc
+//! The split itself is `spiderhead_parse::url_parse` (byte-exact, netloc
 //! checks included); this module keeps the component accessors used by validation
 //! (username/password/hostname/port with the port's `ValueError` behavior) and the
 //! defragment helper.
@@ -80,9 +80,9 @@ impl Split {
     }
 }
 
-/// Split a URL into its components via `spiderhead_parse::py_url`.
+/// Split a URL into its components via `spiderhead_parse::url_parse`.
 pub fn urlsplit(input: &str) -> Result<Split, ProjectsError> {
-    let parts = spiderhead_parse::py_url::urlsplit(input)
+    let parts = spiderhead_parse::url_parse::urlsplit(input)
         .map_err(|e| crate::error::value(e.to_string()))?;
     Ok(Split {
         scheme: parts.scheme,
@@ -93,9 +93,9 @@ pub fn urlsplit(input: &str) -> Result<Split, ProjectsError> {
     })
 }
 
-/// Join components back into a URL via `spiderhead_parse::py_url`.
+/// Join components back into a URL via `spiderhead_parse::url_parse`.
 pub fn urlunsplit(scheme: &str, netloc: &str, path: &str, query: &str, fragment: &str) -> String {
-    spiderhead_parse::py_url::urlunsplit(scheme, netloc, path, query, fragment)
+    spiderhead_parse::url_parse::urlunsplit(scheme, netloc, path, query, fragment)
 }
 
 /// Split off the fragment: returns `(url without fragment, fragment)`.

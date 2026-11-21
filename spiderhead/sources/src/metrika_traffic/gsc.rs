@@ -59,10 +59,10 @@ pub fn normalize_gsc_rows(rows: &Value) -> Result<Vec<Map<String, Value>>, Metri
         record.insert("position".to_owned(), num(values[3]));
         out.push((
             values[0]
-                .filter(|v| pystr::truthy(Some(&json!(v))))
+                .filter(|v| text_rules::truthy(Some(&json!(v))))
                 .unwrap_or(0.0),
             values[1]
-                .filter(|v| pystr::truthy(Some(&json!(v))))
+                .filter(|v| text_rules::truthy(Some(&json!(v))))
                 .unwrap_or(0.0),
             query,
             record,
@@ -104,13 +104,13 @@ pub(super) fn gsc_block(
             };
             return Ok(json!({
                 "status": "unavailable",
-                "reason": reason.filter(|r| pystr::truthy(Some(r)))
+                "reason": reason.filter(|r| text_rules::truthy(Some(r)))
                     .unwrap_or(json!("Search Console returned no data")),
             }));
         }
         let rows_value = py_get(&result, "rows")?;
         let raw = match rows_value {
-            Some(v) if pystr::truthy(Some(v)) => v.clone(),
+            Some(v) if text_rules::truthy(Some(v)) => v.clone(),
             _ => json!([]),
         };
         let rows = match normalize_gsc_rows(&raw) {
@@ -122,7 +122,7 @@ pub(super) fn gsc_block(
                 }));
             }
         };
-        let truncated = pystr::truthy(py_get(&result, "truncated")?);
+        let truncated = text_rules::truthy(py_get(&result, "truncated")?);
         (rows, "Search Console API".to_owned(), truncated)
     } else {
         return Ok(json!({
@@ -142,7 +142,7 @@ pub(super) fn gsc_block(
         let mut total = 0.0f64;
         for row in &rows {
             if let Some(v) = row.get(field).and_then(Value::as_f64) {
-                if pystr::truthy(Some(&json!(v))) {
+                if text_rules::truthy(Some(&json!(v))) {
                     any_float = true;
                     total += v;
                 }

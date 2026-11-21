@@ -18,11 +18,11 @@ use serde_json::{json, Value};
 
 use crate::dom::parse_document;
 use crate::duplicate::is_word_char;
-use crate::parser::pyjson;
+use crate::parser::lenient_json;
 use crate::parser::shared::MAX_REDIRECTS;
 use crate::parser::tokenize::{document_base_url as html_document_base_url, DocumentSource};
 use crate::parser::{meta, HtmlFetcher};
-use crate::py_str::{is_py_space, py_repr, py_strip};
+use crate::strings::{is_space, repr, strip};
 use crate::types::{Json, Result};
 
 mod oversize;
@@ -217,7 +217,7 @@ pub fn json_syntax_hint(text: &str) -> String {
         *c == ','
             && chars[i + 1..]
                 .iter()
-                .find(|n| !is_py_space(**n))
+                .find(|n| !is_space(**n))
                 .is_some_and(|n| matches!(n, '}' | ']'))
     });
     let mut causes = Vec::new();
@@ -245,7 +245,7 @@ pub enum SchemaSource<'a> {
 
 /// Normalise a URL: an absolute HTTP(S) URL without credentials, or `""`.
 pub fn normalize_url(value: &str) -> String {
-    let raw = py_strip(value);
+    let raw = strip(value);
     if raw.is_empty() {
         return String::new();
     }
@@ -265,7 +265,7 @@ pub fn normalize_url(value: &str) -> String {
     } else {
         format!("https://{raw}")
     };
-    let Ok(parts) = crate::py_url::urlsplit(&raw) else {
+    let Ok(parts) = crate::url_parse::urlsplit(&raw) else {
         return String::new();
     };
     if !matches!(parts.scheme.as_str(), "http" | "https")
@@ -285,12 +285,12 @@ fn extract_blocks(soup: &crate::dom::Soup) -> (Vec<Json>, Vec<String>, usize) {
         let index = i + 1;
         found += 1;
         let raw = crate::dom::get_text(tag, "");
-        let text = py_strip(&raw);
+        let text = strip(&raw);
         if text.is_empty() {
             errors.push(format!("JSON-LD block #{index} is empty"));
             continue;
         }
-        match pyjson::loads(text) {
+        match lenient_json::loads(text) {
             Ok(value) => blocks.push(value),
             Err(err) => {
                 let full = err.0;

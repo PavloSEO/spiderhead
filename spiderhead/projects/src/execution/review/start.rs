@@ -17,7 +17,7 @@ pub fn start(
     if step_list.is_none_or(|list| {
         list.is_empty() || list.len() > 200 || {
             let unique: std::collections::HashSet<String> =
-                list.iter().map(crate::pyjson::dumps_compact).collect();
+                list.iter().map(crate::json_docs::dumps_compact).collect();
             unique.len() != list.len()
         }
     }) {
@@ -143,7 +143,7 @@ pub fn checkpoint(
     let rows = rows(&root, None)?;
     let mut digests: Digests = HashMap::new();
     let (max_seconds, max_bytes) = hash_limits(&root)?;
-    let deadline = pytime::monotonic() + max_seconds;
+    let deadline = datetime::monotonic() + max_seconds;
     let stale = stale_dependencies(
         &document["runs"][run_index],
         &rows,

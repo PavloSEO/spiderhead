@@ -33,13 +33,13 @@ pub mod pdf_output;
 pub mod pdf_stream;
 pub mod pdf_validation;
 pub mod project_coverage;
-pub mod py;
 pub mod reporting_pack;
 pub mod segments;
 pub mod sf_reporters;
 pub mod sf_tasks;
 pub mod svg_charts;
 pub mod traffic_dashboard;
+pub mod values;
 pub mod xlsx;
 
 /// Report formats `build_report` accepts.

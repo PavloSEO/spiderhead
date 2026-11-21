@@ -126,7 +126,7 @@ fn stamp(value: &Value, label: &str) -> ProjectsResult<()> {
     let Some(raw) = value.as_str() else {
         return Err(crate::error::value(label));
     };
-    let parsed = crate::pytime::fromisoformat(&raw.replace('Z', "+00:00"))
+    let parsed = crate::datetime::fromisoformat(&raw.replace('Z', "+00:00"))
         .map_err(|_| crate::error::value(label))?;
     if !parsed.is_aware() || !parsed.is_utc() {
         return Err(crate::error::value(label));
@@ -406,7 +406,7 @@ fn document(root: &Path, project: &Value) -> ProjectsResult<Value> {
 }
 
 fn write(root: &Path, document: &Value) -> ProjectsResult<()> {
-    let payload = crate::pyjson::dumps_indent2(document) + "\n";
+    let payload = crate::json_docs::dumps_indent2(document) + "\n";
     if payload.len() as u64 > MAX_BYTES {
         return Err(crate::error::value("project inbox exceeds its byte limit"));
     }

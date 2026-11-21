@@ -4,18 +4,18 @@ use super::*;
 
 /// Parse an ISO date to epoch days; `None` when the text is not a valid date.
 pub(super) fn date_iso(text: &str) -> Option<i64> {
-    pytime::date_fromisoformat(text)
+    datetime::date_fromisoformat(text)
 }
 
 pub(super) fn day_iso(days: i64) -> String {
-    let (y, m, d) = pytime::civil_from_days(days);
+    let (y, m, d) = datetime::civil_from_days(days);
     format!("{y:04}-{m:02}-{d:02}")
 }
 
 /// Every ISO date from `start` through `end`; a reversed range is an invalid-input error.
 pub(super) fn day_list(start: &str, end: &str) -> Result<Vec<String>, SourcesError> {
-    let first = pytime::date_fromisoformat_err(start).map_err(SourcesError::Invalid)?;
-    let last = pytime::date_fromisoformat_err(end).map_err(SourcesError::Invalid)?;
+    let first = datetime::date_fromisoformat_err(start).map_err(SourcesError::Invalid)?;
+    let last = datetime::date_fromisoformat_err(end).map_err(SourcesError::Invalid)?;
     if first > last {
         return invalid("start_date must not be after end_date");
     }
@@ -49,7 +49,7 @@ pub(super) fn gaps(days: &[String]) -> Result<Vec<Vec<String>>, SourcesError> {
     let mut out = Vec::new();
     for pair in days.windows(2) {
         let parse = |day: &str| -> Result<i64, SourcesError> {
-            pytime::date_fromisoformat_err(day).map_err(SourcesError::Invalid)
+            datetime::date_fromisoformat_err(day).map_err(SourcesError::Invalid)
         };
         let (before, after) = (parse(&pair[0])?, parse(&pair[1])?);
         if after - before > 1 {
@@ -73,13 +73,13 @@ pub fn available_end(
     let mut today = match as_of {
         Some(day) => day,
         None => {
-            let micros = now.unwrap_or_else(pytime::now_micros);
+            let micros = now.unwrap_or_else(datetime::now_micros);
             let (y, m, d) = if spec.date_timezone == "America/Los_Angeles" {
-                pytime::pacific_date(micros)
+                datetime::pacific_date(micros)
             } else {
-                pytime::civil_from_days(micros.div_euclid(86_400_000_000))
+                datetime::civil_from_days(micros.div_euclid(86_400_000_000))
             };
-            pytime::days_from_civil(y, m, d)
+            datetime::days_from_civil(y, m, d)
         }
     };
     if spec.date_timezone != "America/Los_Angeles" {
@@ -97,11 +97,11 @@ pub(super) fn requested_period(
 ) -> Result<(String, String, String), SourcesError> {
     let available = available_end(source, None, now)?;
     let end = match end_date {
-        Some(text) => pytime::date_fromisoformat_err(text).map_err(SourcesError::Invalid)?,
+        Some(text) => datetime::date_fromisoformat_err(text).map_err(SourcesError::Invalid)?,
         None => available,
     };
     let start = match start_date {
-        Some(text) => pytime::date_fromisoformat_err(text).map_err(SourcesError::Invalid)?,
+        Some(text) => datetime::date_fromisoformat_err(text).map_err(SourcesError::Invalid)?,
         None => end - 27,
     };
     if start > end {
@@ -124,7 +124,7 @@ pub(super) fn number(value: Option<&Value>) -> Result<Option<f64>, SourcesError>
             Some(x) if x.is_finite() => Ok(Some(x)),
             _ => Err(err()),
         },
-        Some(Value::String(s)) => match pyjson::float_parse(s) {
+        Some(Value::String(s)) => match json_wire::float_parse(s) {
             Some(x) if x.is_finite() => Ok(Some(x)),
             _ => Err(err()),
         },

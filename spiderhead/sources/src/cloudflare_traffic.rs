@@ -12,7 +12,7 @@ use crate::cloudflare::{
     MAX_RESPONSE_BYTES, MAX_TRACKED_PATHS, MAX_URL_FACTS, NOTE, PAGE_SIZE, QUERY, SOURCE,
 };
 use crate::http::{self, Request, Sleeper, Transport};
-use crate::{pyjson, pystr, pytime};
+use crate::{datetime, json_wire, text_rules};
 
 mod bot_patterns;
 use bot_patterns::*;
@@ -76,8 +76,8 @@ pub async fn traffic<T: Transport>(
     send: Option<&CfTransport<'_>>,
     token: Option<&Value>,
 ) -> Result<Value, CfError> {
-    let zone_given = pystr::truthy(zone);
-    let project_given = pystr::truthy(project);
+    let zone_given = text_rules::truthy(zone);
+    let project_given = text_rules::truthy(project);
     if zone_given == project_given {
         return Err(CfError::Value(
             "pass exactly one of zone or project".to_owned(),
@@ -92,12 +92,12 @@ pub async fn traffic<T: Transport>(
     let include_cfg = include_cfg.as_bool().unwrap_or(false);
     // Keep the raw zone argument (null on the project path) until the bound zone id replaces it.
     let zone_s = if zone_given {
-        pystr::repr_value(zone.unwrap_or(&Value::Null))
+        text_rules::repr_value(zone.unwrap_or(&Value::Null))
     } else {
         String::new()
     };
     let project_s = if project_given {
-        pystr::repr_value(project.unwrap_or(&Value::Null))
+        text_rules::repr_value(project.unwrap_or(&Value::Null))
     } else {
         String::new()
     };
@@ -108,12 +108,12 @@ pub async fn traffic<T: Transport>(
     };
     let today = env
         .today
-        .unwrap_or_else(|| pytime::now_micros() / 86_400_000_000);
-    let end = match until.filter(|v| pystr::truthy(Some(v))) {
+        .unwrap_or_else(|| datetime::now_micros() / 86_400_000_000);
+    let end = match until.filter(|v| text_rules::truthy(Some(v))) {
         Some(v) => parse_day(v, "until")?,
         None => today,
     };
-    let start = match since.filter(|v| pystr::truthy(Some(v))) {
+    let start = match since.filter(|v| text_rules::truthy(Some(v))) {
         Some(v) => parse_day(v, "since")?,
         None => end - 6,
     };
@@ -134,11 +134,11 @@ pub async fn traffic<T: Transport>(
     }
 
     let live = LiveSend { transport, sleeper };
-    let secret = match token.filter(|v| pystr::truthy(Some(v))) {
+    let secret = match token.filter(|v| text_rules::truthy(Some(v))) {
         Some(t) => t
             .as_str()
             .map(str::to_owned)
-            .unwrap_or_else(|| pystr::repr_value(t)),
+            .unwrap_or_else(|| text_rules::repr_value(t)),
         None => match crate::cloudflare::read_token(env.host, env.home) {
             Ok(t) => t,
             Err(e) => {
@@ -197,7 +197,7 @@ pub async fn traffic<T: Transport>(
             }
         }
     };
-    if !pystr::truthy(info.get("account")) {
+    if !text_rules::truthy(info.get("account")) {
         return Ok(
             json!({"ok": false, "source": SOURCE, "zone": requested_zone, "error": "the zone has no account id"}),
         );
@@ -269,25 +269,25 @@ pub async fn traffic<T: Transport>(
             }
             let ua = dims
                 .get("userAgent")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or_else(|| json!(""));
             let category = dims
                 .get("verifiedBotCategory")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or_else(|| json!(""));
             let (family, name) = classify(&ua, &category)?;
             let path = dims
                 .get("clientRequestPath")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or_else(|| json!("/"));
             let code = py_int_or_zero(dims.get("edgeResponseStatus"))?;
             let origin = py_int_or_zero(dims.get("originResponseStatus"))?;
             let day_key = dims
                 .get("date")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or_else(|| json!(stamp_day(day)));
 
@@ -295,12 +295,12 @@ pub async fn traffic<T: Transport>(
             // still grouped analytics, not a request log: no IP or sub-day timestamp exists.
             let host = dims
                 .get("clientRequestHTTPHost")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or_else(|| json!("unknown"));
             let cache_status = dims
                 .get("cacheStatus")
-                .filter(|v| pystr::truthy(Some(v)))
+                .filter(|v| text_rules::truthy(Some(v)))
                 .cloned()
                 .unwrap_or_else(|| json!("unknown"));
             let fact_key = vec![
@@ -309,7 +309,7 @@ pub async fn traffic<T: Transport>(
                 day_key.clone(),
                 json!(family),
                 json!(name),
-                if pystr::truthy(Some(&category)) {
+                if text_rules::truthy(Some(&category)) {
                     category.clone()
                 } else {
                     Value::Null
@@ -380,14 +380,14 @@ pub async fn traffic<T: Transport>(
             hosts.add(host, count)?;
             if family != "human" {
                 bot_url_status.entry(name.clone()).or_default().add(
-                    json!(format!("{}\t{}", pystr::repr_value(&path), code)),
+                    json!(format!("{}\t{}", text_rules::repr_value(&path), code)),
                     count,
                 )?;
                 bots_daily
                     .entry(name.clone())
                     .or_default()
                     .add(day_key, count)?;
-                if pystr::truthy(Some(&category)) {
+                if text_rules::truthy(Some(&category)) {
                     categories
                         .entry(name.clone())
                         .or_default()
@@ -490,7 +490,7 @@ pub async fn traffic<T: Transport>(
                 let status_text = parts.next().ok_or_else(|| {
                     CfError::Classed("IndexError", "list index out of range".to_owned())
                 })?;
-                let status_v = pystr::to_python_int(&json!(status_text)).map_err(
+                let status_v = text_rules::to_int(&json!(status_text)).map_err(
                     |(class, msg)| match class {
                         "ValueError" => CfError::Value(msg),
                         other => CfError::Classed(other, msg),

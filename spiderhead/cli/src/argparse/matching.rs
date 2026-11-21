@@ -5,8 +5,8 @@ use serde_json::Value;
 
 use super::model::{is_negative_number, nargs_pattern, ArgError, OptTuple};
 use super::run::Run;
+use crate::argparse_compat::repr;
 use crate::convert::{check_choice, convert};
-use crate::pycompat::repr;
 use crate::tree::{Action, Nargs};
 
 impl<'a> Run<'a> {

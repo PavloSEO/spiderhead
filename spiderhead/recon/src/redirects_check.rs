@@ -6,7 +6,7 @@ use std::collections::HashSet;
 
 use serde_json::{json, Value as Json};
 use spiderhead_core::user_agents::RECON_USER_AGENT;
-use spiderhead_parse::py_url::urljoin;
+use spiderhead_parse::url_parse::urljoin;
 
 use crate::net_client::{http_client, FetchError, ReconClient, Response};
 

@@ -10,8 +10,8 @@ use serde_json::{json, Map, Value};
 use spiderhead_parse::parser::tokenize::{document_base_url, DocumentSource};
 
 use crate::context::{AddOpts, AuditContext, ContextError};
-use crate::pyvalue::str_or_dumps;
 use crate::rules::shared::{body_unavailable, con, has_column, rec};
+use crate::value_text::str_or_dumps;
 
 /// One row of the retained-render-blocking page query: page URL, selected
 /// static document id (nullable), its body state, final response URL, status.

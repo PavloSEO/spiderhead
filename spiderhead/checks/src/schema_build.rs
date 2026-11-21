@@ -19,10 +19,10 @@ use std::collections::{BTreeMap, BTreeSet, HashSet};
 use serde_json::{json, Map, Value};
 
 use spiderhead_parse::parser::{fetch_html, FetchOutcome, HtmlFetcher};
-use spiderhead_parse::py_str::py_strip;
-use spiderhead_parse::py_url::urlparse;
 use spiderhead_parse::schema_org::{flatten, types_of, Node};
+use spiderhead_parse::strings::strip;
 use spiderhead_parse::types::Result;
+use spiderhead_parse::url_parse::urlparse;
 
 use crate::page_facts::extract;
 use crate::page_type::{classify, truthy};
@@ -509,7 +509,7 @@ fn values_match(a: &Value, b: &Value) -> bool {
         return true;
     }
     if let (Some(x), Some(y)) = (a.as_str(), b.as_str()) {
-        return py_strip(x) == py_strip(y);
+        return strip(x) == strip(y);
     }
     if is_reference(a) && is_reference(b) {
         return a["@id"] == b["@id"];
@@ -734,7 +734,7 @@ pub fn build_schema(
 ) -> Result<Value> {
     let Some(target) = resolve_target(fetcher, url, html, timeout) else {
         let shown = url
-            .map(spiderhead_parse::py_str::py_repr)
+            .map(spiderhead_parse::strings::repr)
             .unwrap_or_else(|| "None".to_owned());
         return Ok(
             json!({"ok": false, "error": format!("No valid URL or HTML was provided: {shown}")}),

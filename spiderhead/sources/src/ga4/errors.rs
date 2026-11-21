@@ -58,7 +58,7 @@ impl From<&TransportError> for Ga4Fault {
         match err {
             TransportError::Http(response) => Ga4Fault::Http {
                 code: i64::from(response.status),
-                reason: pyerr::reason_phrase(response.status).to_owned(),
+                reason: error_text::reason_phrase(response.status).to_owned(),
             },
             TransportError::Connect(message) => Ga4Fault::Url(message.clone()),
             TransportError::InvalidRequest(message) => Ga4Fault::Value(message.clone()),

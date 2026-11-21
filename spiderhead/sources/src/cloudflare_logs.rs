@@ -19,7 +19,7 @@ use crate::cloudflare_traffic::{
     resolve_project_zone, to_apache, BindingsLookup, LogImport, ProjectOpener,
 };
 use crate::http::{Sleeper, Transport};
-use crate::pystr;
+use crate::text_rules;
 
 mod instant;
 pub use instant::*;
@@ -70,12 +70,15 @@ fn io_error(path: &Path, error: &std::io::Error) -> CfError {
             "FileNotFoundError",
             format!(
                 "[Errno 2] No such file or directory: {}",
-                pystr::repr_str(&text)
+                text_rules::repr_str(&text)
             ),
         ),
         std::io::ErrorKind::PermissionDenied => CfError::Classed(
             "PermissionError",
-            format!("[Errno 13] Permission denied: {}", pystr::repr_str(&text)),
+            format!(
+                "[Errno 13] Permission denied: {}",
+                text_rules::repr_str(&text)
+            ),
         ),
         _ => CfError::Os(format!("{error}: {text:?}")),
     }
@@ -94,7 +97,7 @@ fn to_path(value: &Value) -> Result<PathBuf, CfError> {
             "TypeError",
             format!(
                 "argument should be a str or an os.PathLike object where __fspath__ returns a str, not '{}'",
-                pystr::type_name(value)
+                text_rules::type_name(value)
             ),
         )),
     }
@@ -109,7 +112,7 @@ fn bounded_int(
     message: &str,
 ) -> Result<i64, CfError> {
     let v = value.cloned().unwrap_or_else(|| json!(default));
-    if !pystr::is_py_int(&v) || !(lo..=hi).contains(&v.as_i64().unwrap_or(0)) {
+    if !text_rules::is_int(&v) || !(lo..=hi).contains(&v.as_i64().unwrap_or(0)) {
         return Err(CfError::Value(message.to_owned()));
     }
     Ok(v.as_i64().unwrap_or(0))
@@ -147,7 +150,7 @@ fn write_project_import(
                 "TypeError",
                 format!(
                     "argument should be a str or an os.PathLike object where __fspath__ returns a str, not '{}'",
-                    pystr::type_name(other)
+                    text_rules::type_name(other)
                 ),
             ))
         }
@@ -195,7 +198,7 @@ fn write_project_import(
     };
     let _ = std::fs::remove_file(&temporary);
     let result = result?;
-    if !pystr::truthy(crate::cloudflare::obj_get(&result, "ok")?) {
+    if !text_rules::truthy(crate::cloudflare::obj_get(&result, "ok")?) {
         return Ok(json!({
             "ok": false,
             "state": "failed",
@@ -207,13 +210,13 @@ fn write_project_import(
     }
     Ok(json!({
         "ok": true,
-        "state": if !complete || !pystr::truthy(crate::cloudflare::obj_get(&result, "complete")?) { "partial" } else { "complete" },
+        "state": if !complete || !text_rules::truthy(crate::cloudflare::obj_get(&result, "complete")?) { "partial" } else { "complete" },
         "imported": match crate::cloudflare::obj_get(&result, "lines")? {
             Some(l) if l.is_object() => l.get("parsed").and_then(Value::as_i64).unwrap_or(0),
             Some(l) => return Err(crate::cloudflare::attr_get_error(l)),
             None => 0,
         },
-        "complete": complete && pystr::truthy(crate::cloudflare::obj_get(&result, "complete")?),
+        "complete": complete && text_rules::truthy(crate::cloudflare::obj_get(&result, "complete")?),
         "log_import": result,
     }))
 }
@@ -221,7 +224,7 @@ fn write_project_import(
 /// Use the default when the value is falsy.
 fn truthy_or(value: Option<Value>, default: Value) -> Value {
     match value {
-        Some(v) if pystr::truthy(Some(&v)) => v,
+        Some(v) if text_rules::truthy(Some(&v)) => v,
         _ => default,
     }
 }
@@ -233,7 +236,7 @@ pub fn import_logpush_file(
     project: &Value,
     max_events: Option<&Value>,
 ) -> Result<Value, CfError> {
-    if !pystr::truthy(Some(project)) {
+    if !text_rules::truthy(Some(project)) {
         return Err(CfError::Value(
             "project is required for local Logpush retention".to_owned(),
         ));
@@ -245,7 +248,7 @@ pub fn import_logpush_file(
         MAX_INPUT_ROWS,
         &format!("max_events must be between 1 and {MAX_INPUT_ROWS}"),
     )?;
-    let project_s = pystr::repr_value(project);
+    let project_s = text_rules::repr_value(project);
     let path = to_path(input_path)?;
     let before = lstat(&path)?;
     let before_id = link_identity(&path).map_err(|e| io_error(&path, &e))?;
@@ -284,7 +287,7 @@ pub fn import_logpush_file(
     }
     let text = String::from_utf8(raw)
         .map_err(|_| CfError::Value("Logpush input must be UTF-8 JSON Lines".to_owned()))?;
-    let lines = pystr::splitlines(&text)
+    let lines = text_rules::splitlines(&text)
         .into_iter()
         .filter(|l| !l.is_empty())
         .collect::<Vec<_>>();
@@ -308,7 +311,7 @@ pub fn import_logpush_file(
                 return Ok(json!({
                     "ok": false,
                     "state": "failed",
-                    "reason": crate::pyjson::decode_error(&line)
+                    "reason": crate::json_wire::decode_error(&line)
                         .unwrap_or_else(|| "Expecting value: line 1 column 1 (char 0)".to_owned()),
                 }))
             }

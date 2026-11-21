@@ -7,8 +7,8 @@ use std::sync::OnceLock;
 use serde_json::{json, Map, Value};
 
 use super::{GraphShape, Json};
-use crate::py_json::str_or_dumps;
-use crate::py_str::py_strip;
+use crate::json_text::str_or_dumps;
+use crate::strings::strip;
 use crate::types::Result;
 use crate::urlutil::urljoin;
 
@@ -62,7 +62,7 @@ pub(super) fn strip_term(value: &str) -> String {
     let tail = value.rsplit('#').next().unwrap_or(value);
     let tail = tail.rsplit('/').next().unwrap_or(tail);
     let tail = tail.rsplit(':').next().unwrap_or(tail);
-    py_strip(tail).to_owned()
+    strip(tail).to_owned()
 }
 
 pub(super) fn strip_json(value: &Json) -> String {
@@ -83,7 +83,7 @@ pub fn types_of(node: &Node) -> Vec<String> {
 /// Whether an `@context` value identifies the Schema.org vocabulary; only the
 /// case-insensitive host decides.
 pub(super) fn is_schema_org_context(value: &str) -> bool {
-    let s = py_strip(value);
+    let s = strip(value);
     if s.is_empty() {
         return false;
     }
@@ -307,7 +307,7 @@ pub(super) fn rich_results(nodes: &[Node]) -> Vec<Json> {
                         && !v.is_null()
                         && !matches!(v, Value::Array(a) if a.is_empty())
                         && !matches!(v, Value::Object(o) if o.is_empty())
-                        && !matches!(v, Value::String(s) if py_strip(s).is_empty())
+                        && !matches!(v, Value::String(s) if strip(s).is_empty())
                 })
                 .map(|(k, _)| k.as_str())
                 .collect();
@@ -402,7 +402,7 @@ impl UnionFind {
 fn key_of(value: &Json) -> String {
     match value {
         Value::String(s) => format!("s:{s}"),
-        other => format!("j:{}", crate::py_json::dumps_sorted(other)),
+        other => format!("j:{}", crate::json_text::dumps_sorted(other)),
     }
 }
 

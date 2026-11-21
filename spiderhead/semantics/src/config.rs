@@ -94,7 +94,7 @@ fn parse_scalar(v: &str) -> Value {
     // Optional minus sign, then digits in any Unicode Nd script.
     let digits = v.strip_prefix('-').unwrap_or(v);
     if !digits.is_empty() && digits.chars().all(|c| c.is_numeric()) {
-        if let Ok(i) = crate::pyfmt::py_int(v) {
+        if let Ok(i) = crate::fmt::parse_int(v) {
             return Value::from(i);
         }
     }

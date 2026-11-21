@@ -53,7 +53,7 @@ fn siphash13(data: &[u8]) -> u64 {
 
 /// String hash: siphash13 over the UCS-1/2/4 code-unit buffer
 /// (little-endian code units), `-1` remapped to `-2`; empty string hashes to 0.
-pub fn py_str_hash(s: &str) -> u64 {
+pub fn str_hash(s: &str) -> u64 {
     if s.is_empty() {
         return 0;
     }
@@ -82,7 +82,7 @@ pub fn py_str_hash(s: &str) -> u64 {
 
 /// Integer hash for `|v| < 2^61` (negative handled by sign + mod,
 /// `-1` remapped to `-2`), sufficient for the pipeline's integer sets.
-pub fn py_int_hash(v: i64) -> u64 {
+pub fn int_hash(v: i64) -> u64 {
     const MOD: i64 = (1i64 << 61) - 1;
     let sign = if v < 0 { -1i64 } else { 1 };
     let mut h = v.unsigned_abs() as i64 % MOD;
@@ -125,14 +125,14 @@ impl<K> Slot<K> {
 /// Use wherever a set's iteration order reaches observable
 /// output; membership-only sets can safely use this too.
 #[derive(Clone)]
-pub struct PySet<K: Clone + PartialEq> {
+pub struct OrderSet<K: Clone + PartialEq> {
     table: Vec<Slot<K>>,
     used: usize,
     fill: usize,
     hasher: fn(&K) -> u64,
 }
 
-impl<K: Clone + PartialEq> PySet<K> {
+impl<K: Clone + PartialEq> OrderSet<K> {
     /// Create an empty set with an initial 8-slot table.
     pub fn new(hasher: fn(&K) -> u64) -> Self {
         Self {
@@ -350,7 +350,7 @@ impl<K: Clone + PartialEq> PySet<K> {
     /// Merge another set (`update` / copy path):
     /// presize once, then insert `other`'s entries in `other`'s slot order
     /// via `insert_clean` when the target table is empty, else `add_entry`.
-    pub fn update(&mut self, other: &PySet<K>) {
+    pub fn update(&mut self, other: &OrderSet<K>) {
         if other.used == 0 {
             return;
         }
@@ -381,15 +381,15 @@ impl<K: Clone + PartialEq> PySet<K> {
     }
 
     /// Copy into a fresh empty set.
-    pub fn copy(&self) -> PySet<K> {
-        let mut out = PySet::new(self.hasher);
+    pub fn copy(&self) -> OrderSet<K> {
+        let mut out = OrderSet::new(self.hasher);
         out.update(self);
         out
     }
 
     /// Intersection: iterates the smaller of the two sets and checks membership in the larger one.
-    pub fn intersection(&self, other: &PySet<K>) -> PySet<K> {
-        let mut out = PySet::new(self.hasher);
+    pub fn intersection(&self, other: &OrderSet<K>) -> OrderSet<K> {
+        let mut out = OrderSet::new(self.hasher);
         if other.len() <= self.len() {
             for k in other.iter() {
                 if self.contains(&k) {
@@ -409,7 +409,7 @@ impl<K: Clone + PartialEq> PySet<K> {
     /// Difference: when `len(s) >> 2 > len(t)` the set is copied and
     /// `t`'s elements are discarded in place (the result keeps `s`'s layout);
     /// otherwise it builds a fresh set adding survivors in `s` order.
-    pub fn difference(&self, other: &PySet<K>) -> PySet<K> {
+    pub fn difference(&self, other: &OrderSet<K>) -> OrderSet<K> {
         if (self.len() >> 2) > other.len() {
             let mut out = self.copy();
             for k in other.iter() {
@@ -417,7 +417,7 @@ impl<K: Clone + PartialEq> PySet<K> {
             }
             return out;
         }
-        let mut out = PySet::new(self.hasher);
+        let mut out = OrderSet::new(self.hasher);
         for k in self.iter() {
             if !other.contains(&k) {
                 out.add(k);
@@ -427,7 +427,7 @@ impl<K: Clone + PartialEq> PySet<K> {
     }
 
     /// Union: copy `self`, then merge `other`.
-    pub fn union(&self, other: &PySet<K>) -> PySet<K> {
+    pub fn union(&self, other: &OrderSet<K>) -> OrderSet<K> {
         let mut out = self.copy();
         out.update(other);
         out
@@ -444,11 +444,11 @@ struct LookResult {
 }
 
 /// String set (`hash(str)` semantics).
-pub type PyStrSet = PySet<String>;
+pub type StrSet = OrderSet<String>;
 
 /// Build a string set by adding items in order.
-pub fn py_str_set<I: IntoIterator<Item = String>>(items: I) -> PyStrSet {
-    let mut set = PySet::new(|s: &String| py_str_hash(s));
+pub fn str_set<I: IntoIterator<Item = String>>(items: I) -> StrSet {
+    let mut set = OrderSet::new(|s: &String| str_hash(s));
     for item in items {
         set.add(item);
     }
@@ -456,8 +456,8 @@ pub fn py_str_set<I: IntoIterator<Item = String>>(items: I) -> PyStrSet {
 }
 
 /// Build an integer set by adding items in order.
-pub fn py_int_set<I: IntoIterator<Item = i64>>(items: I) -> PySet<i64> {
-    let mut set = PySet::new(|v: &i64| py_int_hash(*v));
+pub fn int_set<I: IntoIterator<Item = i64>>(items: I) -> OrderSet<i64> {
+    let mut set = OrderSet::new(|v: &i64| int_hash(*v));
     for item in items {
         set.add(item);
     }
@@ -471,7 +471,7 @@ mod tests {
     // Expected orders recorded with a zero hash seed.
     #[test]
     fn str_set_order_matches_cpython() {
-        let set = py_str_set(
+        let set = str_set(
             [
                 "a", "b", "c", "абв", "hello", "world", "seo", "audit", "x", "",
             ]
@@ -495,22 +495,22 @@ mod tests {
         .iter()
         .map(|s| s.to_string())
         .collect();
-        let set = py_str_set((0..50).map(|i| format!("w{i}")));
+        let set = str_set((0..50).map(|i| format!("w{i}")));
         assert_eq!(set.to_vec(), expected);
     }
 
     #[test]
     fn int_set_order_matches_cpython() {
-        let set = py_int_set(0..20);
+        let set = int_set(0..20);
         assert_eq!(set.to_vec(), (0..20).collect::<Vec<_>>());
     }
 
     #[test]
     fn str_hash_golden() {
         // Zero-seed hashes of 'a', 'b', 'абв' and ''.
-        assert_eq!(py_str_hash("a") as i64, 4644417185603328019);
-        assert_eq!(py_str_hash("b") as i64, -8420940591063670578);
-        assert_eq!(py_str_hash("абв") as i64, -8852227582061620260);
-        assert_eq!(py_str_hash(""), 0);
+        assert_eq!(str_hash("a") as i64, 4644417185603328019);
+        assert_eq!(str_hash("b") as i64, -8420940591063670578);
+        assert_eq!(str_hash("абв") as i64, -8852227582061620260);
+        assert_eq!(str_hash(""), 0);
     }
 }

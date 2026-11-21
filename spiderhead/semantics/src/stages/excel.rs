@@ -7,7 +7,7 @@ use rust_xlsxwriter::{Color, Format, Workbook};
 use serde_json::{json, Value};
 
 use crate::config::{cfg_required, cfg_required_str, cfg_str, Cfg};
-use crate::pyfmt::py_str;
+use crate::fmt::scalar_text;
 use crate::store::Store;
 
 /// `excel.run(store, cfg, out_dir, scope)` → `{"core": n, "file": path, "scope": scope}`.
@@ -20,7 +20,7 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path, scope: &str) -> Result<Valu
         format!("{scope_where} AND ")
     };
 
-    let proj = cfg_required(cfg, "_project").map(py_str)?;
+    let proj = cfg_required(cfg, "_project").map(scalar_text)?;
     let vendor_path =
         Path::new(&cfg_required_str(cfg, "_dir")?).join(cfg_str(cfg, "vendor_file", "vendors.txt"));
     let vendors: std::collections::HashSet<String> = match std::fs::read_to_string(&vendor_path) {
@@ -122,8 +122,8 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path, scope: &str) -> Result<Valu
             json!("Provider units"),
             json!(format!(
                 "{} Yandex requests + {} Arsenkin limits",
-                py_str(&sp["yandex_requests"]),
-                py_str(&sp["arsenkin"]),
+                scalar_text(&sp["yandex_requests"]),
+                scalar_text(&sp["arsenkin"]),
             )),
         ],
     ];
@@ -207,7 +207,7 @@ pub fn run(store: &Store, cfg: &Cfg, out_dir: &Path, scope: &str) -> Result<Valu
              WHERE p.cluster_id=? AND s.domain IS NOT NULL",
             &[cl["id"].clone()],
         )? {
-            let d = py_str(&x["domain"]);
+            let d = scalar_text(&x["domain"]);
             *doms.entry(d).or_default() += 1;
         }
         let mut by_n: Vec<(String, i64)> = doms.into_iter().collect();
@@ -341,7 +341,7 @@ fn write_cell(
             }
         }
         other => {
-            let s = spiderhead_core::tabular::neutralize_formula(&py_str(other));
+            let s = spiderhead_core::tabular::neutralize_formula(&scalar_text(other));
             if let Some(f) = fmt {
                 ws.write_string_with_format(row, col, &s, f).map_err(xerr)?;
             } else {

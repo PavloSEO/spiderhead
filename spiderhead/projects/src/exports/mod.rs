@@ -17,10 +17,10 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 
 use crate::bindings::py_str;
+use crate::datetime::zulu;
 use crate::error::{py_exception_name, py_named, ProjectsError, ProjectsResult};
+use crate::json_docs;
 use crate::locks;
-use crate::pyjson;
-use crate::pytime::zulu;
 
 mod matches_artifact;
 mod nested_field;
@@ -258,7 +258,7 @@ fn csv_line(values: &[String]) -> Vec<u8> {
 fn safe_cell(value: Option<&Value>) -> String {
     let text = match value {
         None | Some(Value::Null) => return String::new(),
-        Some(v @ (Value::Object(_) | Value::Array(_))) => pyjson::dumps_compact(v),
+        Some(v @ (Value::Object(_) | Value::Array(_))) => json_docs::dumps_compact(v),
         Some(other) => py_str(other),
     };
     if text.starts_with(['=', '+', '-', '@', '\t', '\r']) {
@@ -401,7 +401,7 @@ fn read_job(root: &Path, job_id: &str) -> ProjectsResult<Value> {
 /// `_write_job`: atomically publish the job record.
 fn write_job(root: &Path, job: &Value) -> ProjectsResult<()> {
     let path = job_path(root, job["job_id"].as_str().unwrap_or_default(), true)?;
-    let content = pyjson::dumps_indent2(job) + "\n";
+    let content = json_docs::dumps_indent2(job) + "\n";
     spiderhead_core::filesystem::atomic_write_bytes(&path, content.as_bytes(), None, None, true)
         .map_err(ProjectsError::Io)
 }

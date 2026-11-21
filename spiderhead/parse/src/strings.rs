@@ -3,13 +3,13 @@
 //! and capitalize.
 
 /// Whitespace test for one code point: the Unicode white-space set plus U+001C..U+001F.
-pub fn is_py_space(c: char) -> bool {
+pub fn is_space(c: char) -> bool {
     c.is_whitespace() || ('\u{1c}'..='\u{1f}').contains(&c)
 }
 
 /// Strip leading and trailing characters that count as whitespace.
-pub fn py_strip(text: &str) -> &str {
-    text.trim_matches(is_py_space)
+pub fn strip(text: &str) -> &str {
+    text.trim_matches(is_space)
 }
 
 /// Printable test for one code point.
@@ -55,7 +55,7 @@ fn is_printable(c: char) -> bool {
 /// Uses single quotes unless the text holds a single quote and no double quote. Backslash,
 /// the chosen quote, tab, newline and carriage return are escaped; other non-printable code
 /// points become `\xhh`, `\uhhhh` or `\Uhhhhhhhh`.
-pub fn py_repr(text: &str) -> String {
+pub fn repr(text: &str) -> String {
     let quote = if text.contains('\'') && !text.contains('"') {
         '"'
     } else {
@@ -103,7 +103,7 @@ fn push_escape(out: &mut String, code: u32) {
 ///
 /// The first code point uses the upper-case mapping, which matches the title-case mapping for
 /// every code point that can appear in a script code after the ASCII comparison.
-pub fn py_capitalize(text: &str) -> String {
+pub fn capitalize(text: &str) -> String {
     let mut chars = text.chars();
     let Some(first) = chars.next() else {
         return String::new();
@@ -127,26 +127,26 @@ mod tests {
     // Behaviour is checked against fixed reference rows.
     #[test]
     fn strip_follows_python_isspace() {
-        assert_eq!(py_strip("\u{1c}\u{3000}en\u{a0}"), "en");
-        assert_eq!(py_strip("\u{200b}en"), "\u{200b}en");
+        assert_eq!(strip("\u{1c}\u{3000}en\u{a0}"), "en");
+        assert_eq!(strip("\u{200b}en"), "\u{200b}en");
     }
 
     #[test]
     fn repr_chooses_quotes_and_escapes_like_cpython() {
-        assert_eq!(py_repr("en"), "'en'");
-        assert_eq!(py_repr("it's"), "\"it's\"");
-        assert_eq!(py_repr("a'b\"c"), "'a\\'b\"c'");
-        assert_eq!(py_repr("a\tb\\c\n"), "'a\\tb\\\\c\\n'");
-        assert_eq!(py_repr("\u{7f}"), "'\\x7f'");
-        assert_eq!(py_repr("\u{200b}"), "'\\u200b'");
-        assert_eq!(py_repr("\u{e000}"), "'\\ue000'");
-        assert_eq!(py_repr("\u{1f600}"), "'\u{1f600}'");
+        assert_eq!(repr("en"), "'en'");
+        assert_eq!(repr("it's"), "\"it's\"");
+        assert_eq!(repr("a'b\"c"), "'a\\'b\"c'");
+        assert_eq!(repr("a\tb\\c\n"), "'a\\tb\\\\c\\n'");
+        assert_eq!(repr("\u{7f}"), "'\\x7f'");
+        assert_eq!(repr("\u{200b}"), "'\\u200b'");
+        assert_eq!(repr("\u{e000}"), "'\\ue000'");
+        assert_eq!(repr("\u{1f600}"), "'\u{1f600}'");
     }
 
     #[test]
     fn capitalize_title_cases_the_first_code_point() {
-        assert_eq!(py_capitalize("hANS"), "Hans");
-        assert_eq!(py_capitalize("zzzz"), "Zzzz");
-        assert_eq!(py_capitalize(""), "");
+        assert_eq!(capitalize("hANS"), "Hans");
+        assert_eq!(capitalize("zzzz"), "Zzzz");
+        assert_eq!(capitalize(""), "");
     }
 }

@@ -6,12 +6,12 @@
 //! the native parse resolved the tree.
 
 use serde_json::{Map, Value};
-use spiderhead_parse::py_str::py_strip;
+use spiderhead_parse::strings::strip;
 
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::{find_column, INTERNAL_FIELD_MAP};
-use crate::pyvalue::{py_eq, truthy, truthy_opt};
 use crate::rules::shared::{body_unavailable, has_column, rec};
+use crate::value_text::{truthy, truthy_opt, value_eq};
 
 use super::{ordered_operand, str_or_blank};
 
@@ -147,7 +147,7 @@ pub fn check_document_skeleton(ctx: &mut AuditContext) -> Result<(), ContextErro
         } else {
             Value::from(0)
         };
-        if py_eq(&head_count, &Value::from(0)) {
+        if value_eq(&head_count, &Value::from(0)) {
             ctx.add(
                 "HEAD_MISSING",
                 AddOpts {
@@ -167,7 +167,7 @@ pub fn check_document_skeleton(ctx: &mut AuditContext) -> Result<(), ContextErro
                 },
             )?;
         }
-        if py_eq(&body_count, &Value::from(0)) {
+        if value_eq(&body_count, &Value::from(0)) {
             ctx.add(
                 "BODY_MISSING",
                 AddOpts {
@@ -191,7 +191,7 @@ pub fn check_document_skeleton(ctx: &mut AuditContext) -> Result<(), ContextErro
         if !invalid.is_empty() {
             let elements: Vec<Value> = invalid
                 .split(',')
-                .map(|e| py_strip(e).to_owned())
+                .map(|e| strip(e).to_owned())
                 .filter(|e| !e.is_empty())
                 .map(Value::String)
                 .collect();
@@ -293,11 +293,11 @@ pub fn check_html_structure(ctx: &mut AuditContext) -> Result<(), ContextError> 
             unmeasured_mime += 1;
             continue;
         };
-        if py_strip(content_type).is_empty() {
+        if strip(content_type).is_empty() {
             unmeasured_mime += 1;
             continue;
         }
-        let declared = py_strip(content_type.split(';').next().unwrap_or("")).to_lowercase();
+        let declared = strip(content_type.split(';').next().unwrap_or("")).to_lowercase();
         if !declared.contains('/') {
             unmeasured_mime += 1;
             continue;

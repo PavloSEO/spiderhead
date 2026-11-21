@@ -131,7 +131,7 @@ async fn run_op(
     let today_days = scenario
         .get("today")
         .and_then(Value::as_str)
-        .and_then(spiderhead_sources::pytime::date_fromisoformat)
+        .and_then(spiderhead_sources::datetime::date_fromisoformat)
         .unwrap_or(0);
     let today = move || today_days;
     let env = DfsEnv {

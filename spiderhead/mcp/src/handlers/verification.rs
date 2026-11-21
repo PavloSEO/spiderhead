@@ -14,8 +14,8 @@ use spiderhead_core::crawl_settings::{load, manifest, ConfigError, LoadInput};
 use spiderhead_core::host::SystemHost;
 use spiderhead_core::timeutil::{self, Format};
 use spiderhead_sf_import::verification::{
-    classify, compact_after_source, markdown, offline_observation_gap, py_eq, python_dumps_indent,
-    select_source, AuditSource, VerifyError,
+    classify, compact_after_source, markdown, offline_observation_gap, python_dumps_indent,
+    select_source, value_eq, AuditSource, VerifyError,
 };
 use spiderhead_store::crawl_list_input::read_url_list;
 use spiderhead_store::inputs::{load_audit_source, AuditSource as StoreSource};
@@ -301,7 +301,7 @@ fn live_policy(
             continue;
         }
         let differs = match (recorded.get(&key), measured.get(&key)) {
-            (Some(before), Some(after)) => !py_eq(before, after),
+            (Some(before), Some(after)) => !value_eq(before, after),
             _ => true,
         };
         if differs {

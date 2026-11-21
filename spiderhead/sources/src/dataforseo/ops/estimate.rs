@@ -85,7 +85,8 @@ pub fn estimate<T: Transport>(
         let Some(map) = rate.as_object() else {
             return Ok(result);
         };
-        let kind = pystr::repr_value(map.get("cost_type").unwrap_or(&json!(""))).replace('_', "");
+        let kind =
+            text_rules::repr_value(map.get("cost_type").unwrap_or(&json!(""))).replace('_', "");
         let cost = match map.get("cost") {
             Some(Value::Number(n)) if n.as_f64().is_some_and(|c| c.is_finite() && c >= 0.0) => {
                 n.as_f64().unwrap_or_default()
@@ -174,7 +175,7 @@ pub(crate) fn preflight<T: Transport>(
     }
     if quote.get("env").and_then(Value::as_str) == Some("prod") || args.require_confirmation {
         if let Some(refusal) = spend_gate::confirmation_required(
-            pystr::truthy(args.confirm_paid),
+            text_rules::truthy(args.confirm_paid),
             operation,
             Some(&quote),
         ) {

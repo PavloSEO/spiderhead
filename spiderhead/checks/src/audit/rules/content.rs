@@ -179,14 +179,14 @@ pub fn check_content_quality(ctx: &mut AuditContext) {
 /// `_path_of`: the URL's path part — query and fragment must not leak into
 /// path-based checks.
 fn path_of(url: &str) -> String {
-    spiderhead_parse::py_url::urlsplit(url)
+    spiderhead_parse::url_parse::urlsplit(url)
         .map(|s| s.path)
         .unwrap_or_default()
 }
 
 /// `_decoded_path`: the path as a reader sees it, percent-escapes resolved.
 fn decoded_path(url: &str) -> String {
-    spiderhead_parse::py_url::unquote(&path_of(url))
+    spiderhead_parse::url_parse::unquote(&path_of(url))
 }
 
 /// `SESSION_PARAM_RE`: whole-name match, case-insensitive.
@@ -249,8 +249,8 @@ pub(super) fn parse_qsl_keep_blank(query: &str) -> Vec<(String, String)> {
         }
         let (name, value) = name_value.split_once('=').unwrap_or((name_value, ""));
         out.push((
-            spiderhead_parse::py_url::unquote(&name.replace('+', " ")),
-            spiderhead_parse::py_url::unquote(&value.replace('+', " ")),
+            spiderhead_parse::url_parse::unquote(&name.replace('+', " ")),
+            spiderhead_parse::url_parse::unquote(&value.replace('+', " ")),
         ));
     }
     out
@@ -260,7 +260,7 @@ pub(super) fn parse_qsl_keep_blank(query: &str) -> Vec<(String, String)> {
 /// bare/blank-valued names dropped.
 fn parse_qs_names(query: &str) -> Vec<String> {
     let mut names: Vec<String> = Vec::new();
-    for (name, _) in spiderhead_parse::py_url::parse_qsl(query) {
+    for (name, _) in spiderhead_parse::url_parse::parse_qsl(query) {
         if !names.contains(&name) {
             names.push(name);
         }
@@ -271,7 +271,7 @@ fn parse_qs_names(query: &str) -> Vec<String> {
 /// `_redact_query_values`: each `name=value` becomes `name=[redacted]`,
 /// urlencoded exactly as Creference `urlencode` renders it.
 fn redact_query_values(url: &str) -> String {
-    let Ok(parts) = spiderhead_parse::py_url::urlsplit(url) else {
+    let Ok(parts) = spiderhead_parse::url_parse::urlsplit(url) else {
         return url.to_owned();
     };
     let query = parse_qsl_keep_blank(&parts.query)
@@ -279,13 +279,13 @@ fn redact_query_values(url: &str) -> String {
         .map(|(name, _)| {
             format!(
                 "{}={}",
-                spiderhead_parse::py_url::quote_plus(name),
-                spiderhead_parse::py_url::quote_plus("[redacted]")
+                spiderhead_parse::url_parse::quote_plus(name),
+                spiderhead_parse::url_parse::quote_plus("[redacted]")
             )
         })
         .collect::<Vec<_>>()
         .join("&");
-    spiderhead_parse::py_url::urlunsplit(
+    spiderhead_parse::url_parse::urlunsplit(
         &parts.scheme,
         &parts.netloc,
         &parts.path,
@@ -303,7 +303,7 @@ type SlashVariant = (String, Option<i64>, bool, String, Option<String>);
 /// `_slash_key`: None for the site root, else (scheme, netloc, path minus any
 /// trailing slash, query) — the identity of a trailing-slash pair.
 fn slash_key(url: &str) -> Option<SlashKey> {
-    let p = spiderhead_parse::py_url::urlsplit(url).ok()?;
+    let p = spiderhead_parse::url_parse::urlsplit(url).ok()?;
     if p.path.is_empty() || p.path == "/" {
         return None;
     }
@@ -347,7 +347,7 @@ pub fn check_url_and_perf(ctx: &mut AuditContext) {
         {
             ctx.add("URL_HAS_PARAMS", Some(&url), Default::default());
         }
-        let search_parts = spiderhead_parse::py_url::urlsplit(&url).ok();
+        let search_parts = spiderhead_parse::url_parse::urlsplit(&url).ok();
         let raw_path_segments: Vec<String> = search_parts
             .as_ref()
             .map(|s| {
@@ -474,7 +474,7 @@ pub fn check_url_extra(ctx: &mut AuditContext) {
             );
         }
         if page.is_indexable() {
-            let tp: Vec<String> = spiderhead_parse::py_url::urlsplit(&url)
+            let tp: Vec<String> = spiderhead_parse::url_parse::urlsplit(&url)
                 .map(|s| {
                     parse_qs_names(&s.query)
                         .into_iter()
@@ -501,10 +501,10 @@ pub fn check_url_hygiene(ctx: &mut AuditContext) {
     for i in ctx.indexable_html_pages() {
         indexable_pages += 1;
         let page = ctx.pages[i].clone();
-        let query = spiderhead_parse::py_url::urlsplit(&page.url)
+        let query = spiderhead_parse::url_parse::urlsplit(&page.url)
             .map(|s| s.query)
             .unwrap_or_default();
-        let mut names: Vec<String> = spiderhead_parse::py_url::parse_qsl(&query)
+        let mut names: Vec<String> = spiderhead_parse::url_parse::parse_qsl(&query)
             .into_iter()
             .map(|(name, _)| name)
             .filter(|n| is_session_param(n))
@@ -554,7 +554,7 @@ pub fn check_url_hygiene(ctx: &mut AuditContext) {
         let slash: Vec<_> = group
             .iter()
             .filter(|(u, ..)| {
-                spiderhead_parse::py_url::urlsplit(u)
+                spiderhead_parse::url_parse::urlsplit(u)
                     .map(|s| s.path.ends_with('/'))
                     .unwrap_or(false)
             })
@@ -562,7 +562,7 @@ pub fn check_url_hygiene(ctx: &mut AuditContext) {
         let plain: Vec<_> = group
             .iter()
             .filter(|(u, ..)| {
-                spiderhead_parse::py_url::urlsplit(u)
+                spiderhead_parse::url_parse::urlsplit(u)
                     .map(|s| !s.path.ends_with('/'))
                     .unwrap_or(false)
             })

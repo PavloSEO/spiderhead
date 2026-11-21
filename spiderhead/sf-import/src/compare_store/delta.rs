@@ -7,7 +7,7 @@ use serde_json::{json, Map, Value};
 use spiderhead_store::evidence_contract::Obj;
 
 use crate::compare::base::{key_of, CompareError};
-use crate::pyvalue::str_or_dumps;
+use crate::value_text::str_or_dumps;
 
 /// The four finding-delta buckets, in report order.
 const DIRECTIONS: [&str; 4] = ["improved", "regressed", "added", "resolved"];

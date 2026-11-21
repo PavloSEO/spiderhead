@@ -55,7 +55,7 @@ pub(crate) async fn acquire_token<T: Transport>(
     service_account: ServiceAccount<'_>,
 ) -> Result<(Option<String>, Option<String>), GscError> {
     let bearer_error = match explicit.filter(|v| py_truthy(v)) {
-        Some(value) => return Ok((Some(pystr::repr_value(value)), None)),
+        Some(value) => return Ok((Some(text_rules::repr_value(value)), None)),
         None => match credentials::gsc_access_token(host, root) {
             Ok(token) => return Ok((Some(token), None)),
             Err(CredentialError::Missing(message)) => message,

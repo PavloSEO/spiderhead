@@ -13,7 +13,7 @@ use serde_json::{json, Map, Value};
 use spiderhead_parse::content_area::{extract_area_text, resolve_content_area};
 use spiderhead_parse::dom::parse_document;
 use spiderhead_parse::duplicate::{content_hash, find_duplicates, DuplicateItem, DuplicateOptions};
-use spiderhead_parse::py_str::py_strip;
+use spiderhead_parse::strings::strip;
 use spiderhead_parse::types::{ContentAreaConfig, ParseError};
 use spiderhead_store::bodies::read_page_document;
 use spiderhead_store::corpus_inputs::{
@@ -24,7 +24,7 @@ use spiderhead_store::error::StoreError;
 
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::find_column;
-use crate::pyvalue::truthy;
+use crate::value_text::truthy;
 
 /// Title separators tried in order when looking for a shared template token.
 pub const SEPARATORS: [&str; 6] = [" | ", " — ", " - ", " · ", " :: ", " // "];
@@ -290,10 +290,10 @@ pub fn dom_metrics(html: &str) -> Result<(i64, i64), String> {
                 let lead_blank = body
                     .children()
                     .take_while(|c| c.value().is_text())
-                    .all(|c| c.value().as_text().is_none_or(|t| py_strip(t).is_empty()));
+                    .all(|c| c.value().as_text().is_none_or(|t| strip(t).is_empty()));
                 let trail_blank = kids.last().is_none_or(|last| {
                     last.next_siblings()
-                        .all(|c| c.value().as_text().is_none_or(|t| py_strip(t).is_empty()))
+                        .all(|c| c.value().as_text().is_none_or(|t| strip(t).is_empty()))
                 });
                 start = if kids.len() == 1 && lead_blank && trail_blank {
                     kids[0]
@@ -363,7 +363,7 @@ pub fn build_html_index(html_dir: &Path) -> HashMap<String, PathBuf> {
 
 /// The stored file for a URL: host+path, then path, then basename.
 pub fn match_html_file<'a>(index: &'a HashMap<String, PathBuf>, url: &str) -> Option<&'a PathBuf> {
-    let parsed = spiderhead_parse::py_url::urlsplit(url).ok()?;
+    let parsed = spiderhead_parse::url_parse::urlsplit(url).ok()?;
     let host = parsed.netloc.to_lowercase();
     let path = parsed.path.clone();
     let base = {
@@ -627,7 +627,7 @@ pub fn check_content_duplication(ctx: &mut AuditContext) -> Result<(), ContextEr
         let area = resolve_content_area(&soup, content_cfg.as_ref())
             .map_err(|e| ContextError::Value(e.to_string()))?;
         let text = extract_area_text(&area);
-        if py_strip(&text).is_empty() {
+        if strip(&text).is_empty() {
             *omitted
                 .entry("no comparable content-area text".into())
                 .or_insert(0) += 1;
@@ -825,7 +825,7 @@ pub fn check_templated_titles(ctx: &mut AuditContext) -> Result<(), ContextError
         .iter()
         .filter_map(|p| p.map(|p| p.metrics.get("title").cloned()))
         .filter(truthy)
-        .map(|t| py_strip(&crate::pyvalue::str_or_dumps(&t)).to_owned())
+        .map(|t| strip(&crate::value_text::str_or_dumps(&t)).to_owned())
         .collect();
     if titles.len() < 5 {
         ctx.skip("TITLE_TEMPLATED", "too few titles to assess templating");
@@ -837,8 +837,8 @@ pub fn check_templated_titles(ctx: &mut AuditContext) -> Result<(), ContextError
             if title.contains(sep) {
                 let head = title.split_once(sep).map_or("", |(h, _)| h);
                 let tail = title.rsplit_once(sep).map_or("", |(_, t)| t);
-                prefixes.bump(py_strip(head).to_owned());
-                suffixes.bump(py_strip(tail).to_owned());
+                prefixes.bump(strip(head).to_owned());
+                suffixes.bump(strip(tail).to_owned());
                 break;
             }
         }

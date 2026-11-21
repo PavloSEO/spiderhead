@@ -21,7 +21,7 @@ use std::collections::HashSet;
 
 use crate::context::{AddOpts, AuditContext};
 use crate::normalize::{find_column, normalize_value, to_float};
-use crate::pyvalue;
+use crate::value_text;
 
 /// `SITEMAP_DIRECTIVE` — robots.txt `Sitemap:` lines.
 fn sitemap_directives(robots_text: &str) -> Vec<String> {
@@ -95,7 +95,7 @@ fn urls_from_export(ctx: &mut AuditContext, key: &str) -> Vec<Value> {
     values
         .into_iter()
         .map(normalize_value)
-        .filter(pyvalue::truthy)
+        .filter(value_text::truthy)
         .collect()
 }
 
@@ -117,7 +117,7 @@ fn emit_from_export(ctx: &mut AuditContext, key: &str, check_id: &str) -> usize 
         let _ = ctx.add(
             check_id,
             AddOpts {
-                target_url: Some(pyvalue::str_or_dumps(url)),
+                target_url: Some(value_text::str_or_dumps(url)),
                 details,
                 evidence,
                 ..AddOpts::default()
@@ -412,7 +412,7 @@ pub fn run_sitemap(
         let _ = ctx.add(
             "SITEMAP_ORPHAN",
             AddOpts {
-                target_url: Some(pyvalue::str_or_dumps(orphan_url)),
+                target_url: Some(value_text::str_or_dumps(orphan_url)),
                 details,
                 evidence,
                 ..AddOpts::default()
@@ -423,7 +423,7 @@ pub fn run_sitemap(
         let _ = ctx.add(
             "URL_NOT_IN_SITEMAP",
             AddOpts {
-                target_url: Some(pyvalue::str_or_dumps(url)),
+                target_url: Some(value_text::str_or_dumps(url)),
                 ..AddOpts::default()
             },
         );
@@ -435,7 +435,7 @@ pub fn run_sitemap(
     let mut sitemaps_declared: Vec<String> = Vec::new();
     let want_network = options.sitemap_url.is_some()
         || !options.sitemap_urls.is_empty()
-        || cfg_live.get("enabled").is_some_and(pyvalue::truthy);
+        || cfg_live.get("enabled").is_some_and(value_text::truthy);
     let mut base = base_url(ctx);
     if base.is_none() {
         // No crawled pages to derive an origin from — but an explicit target

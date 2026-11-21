@@ -5,8 +5,8 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use crate::py_url;
 use crate::types::{Json, ParseError, Result};
+use crate::url_parse;
 use crate::urlutil;
 
 mod expand_navigation;
@@ -52,7 +52,7 @@ fn invalid<T>(message: &str) -> Result<T> {
 /// Safety test on one URL: scheme `http`/`https`, a host, and no userinfo. A malformed
 /// netloc is an error.
 fn url_is_unsafe(url: &str) -> Result<bool> {
-    let parts = py_url::urlsplit(url).map_err(|e| ParseError::Invalid(e.to_string()))?;
+    let parts = url_parse::urlsplit(url).map_err(|e| ParseError::Invalid(e.to_string()))?;
     let host_present = urlutil::hostname(url)?.is_some_and(|host| !host.is_empty());
     let (username, password) = match parts.netloc.rsplit_once('@') {
         None => (String::new(), String::new()),

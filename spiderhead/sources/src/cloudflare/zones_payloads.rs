@@ -11,7 +11,7 @@ pub(crate) fn zone_info(row: &Value) -> Result<Value, CfError> {
     let id = py_subscript(row, "id")?;
     let name = py_subscript(row, "name")?;
     let account = match obj_get(row, "account")? {
-        Some(v) if pystr::truthy(Some(v)) => {
+        Some(v) if text_rules::truthy(Some(v)) => {
             if v.is_object() {
                 v.clone()
             } else {
@@ -21,7 +21,7 @@ pub(crate) fn zone_info(row: &Value) -> Result<Value, CfError> {
         _ => EMPTY.clone(),
     };
     let plan = match obj_get(row, "plan")? {
-        Some(v) if pystr::truthy(Some(v)) => {
+        Some(v) if text_rules::truthy(Some(v)) => {
             if v.is_object() {
                 v.clone()
             } else {
@@ -41,17 +41,17 @@ pub(crate) fn zone_info(row: &Value) -> Result<Value, CfError> {
 
 /// `resolve_zone` without the transport half — the payload checks for the async path.
 pub(crate) fn zone_lookup(payload: &Value, zone: &str) -> Result<Value, CfError> {
-    if !pystr::truthy(obj_get(payload, "success")?) {
+    if !text_rules::truthy(obj_get(payload, "success")?) {
         return cf(format!("zone lookup failed: {}", errors_or_attr(payload)?));
     }
     let rows = match obj_get(payload, "result")? {
-        Some(v) if pystr::truthy(Some(v)) => v.clone(),
+        Some(v) if text_rules::truthy(Some(v)) => v.clone(),
         _ => Value::Array(Vec::new()),
     };
-    if !pystr::truthy(Some(&rows)) {
+    if !text_rules::truthy(Some(&rows)) {
         return cf(format!(
             "zone {} is not visible to this token",
-            pystr::repr_str(zone)
+            text_rules::repr_str(zone)
         ));
     }
     let row = py_index0(&rows)?;
@@ -60,7 +60,7 @@ pub(crate) fn zone_lookup(payload: &Value, zone: &str) -> Result<Value, CfError>
 
 /// `resolve_zone_id` without the transport half.
 pub(crate) fn zone_id_lookup(payload: &Value, zone_id: &str) -> Result<Value, CfError> {
-    if !pystr::truthy(obj_get(payload, "success")?) {
+    if !text_rules::truthy(obj_get(payload, "success")?) {
         return cf(format!("zone lookup failed: {}", errors_or_attr(payload)?));
     }
     match obj_get(payload, "result")? {
@@ -92,7 +92,7 @@ pub(super) fn zone_setting_payload(payload: Result<&Value, &CfError>, setting: &
     };
     let result = payload.get("result");
     if !payload.is_object()
-        || !pystr::truthy(payload.get("success"))
+        || !text_rules::truthy(payload.get("success"))
         || !result.is_some_and(Value::is_object)
         || result.and_then(|r| r.get("id")) != Some(&json!(setting))
     {
@@ -124,7 +124,7 @@ pub(super) fn ruleset_payload(payload: Result<&Value, &CfError>) -> Value {
     let value = payload.get("result");
     let rules = value.and_then(|v| v.get("rules")).and_then(Value::as_array);
     let valid = payload.is_object()
-        && pystr::truthy(payload.get("success"))
+        && text_rules::truthy(payload.get("success"))
         && rules.is_some_and(|r| r.iter().all(Value::is_object));
     if !valid {
         return json!({
@@ -183,7 +183,7 @@ pub(super) fn logpush_payload(payload: Result<&Value, &CfError>) -> Value {
         }
     };
     let rows = payload.get("result").and_then(Value::as_array);
-    if !payload.is_object() || !pystr::truthy(payload.get("success")) || rows.is_none() {
+    if !payload.is_object() || !text_rules::truthy(payload.get("success")) || rows.is_none() {
         return json!({
             "state": "unavailable",
             "reason": "Logpush jobs are unavailable or not readable",
@@ -201,7 +201,7 @@ pub(super) fn logpush_payload(payload: Result<&Value, &CfError>) -> Value {
     let info = payload.get("result_info").cloned().unwrap_or(Value::Null);
     let total = if info.is_object() {
         info.get("total_count")
-            .filter(|v| pystr::is_py_int(v))
+            .filter(|v| text_rules::is_int(v))
             .and_then(Value::as_i64)
     } else {
         None

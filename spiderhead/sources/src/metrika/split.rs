@@ -13,7 +13,7 @@ use super::{
 };
 use crate::http::Transport;
 use crate::spend::Record;
-use crate::{pyjson, pystr, pytime};
+use crate::{datetime, json_wire, text_rules};
 
 mod merger;
 use merger::*;
@@ -160,16 +160,16 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             };
             let data = py_get(&body, "data")?;
             downloaded += match data {
-                Some(data) if pystr::truthy(Some(data)) => py_len(data)?,
+                Some(data) if text_rules::truthy(Some(data)) => py_len(data)?,
                 _ => 0,
             };
             if index == 0 {
                 first_query = match py_get(&body, "query")? {
-                    Some(query) if pystr::truthy(Some(query)) => query.clone(),
+                    Some(query) if text_rules::truthy(Some(query)) => query.clone(),
                     _ => json!({}),
                 };
             }
-            slice_capped = slice_capped || pystr::truthy(py_get(&body, "capped")?);
+            slice_capped = slice_capped || text_rules::truthy(py_get(&body, "capped")?);
             let dropped = merger.add(&body)?;
             let mut entry = Map::new();
             entry.insert(
@@ -185,14 +185,14 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             entry.insert(
                 "rows".to_owned(),
                 json!(match data {
-                    Some(data) if pystr::truthy(Some(data)) => py_len(data)?,
+                    Some(data) if text_rules::truthy(Some(data)) => py_len(data)?,
                     _ => 0,
                 }),
             );
             entry.insert("rows_dropped".to_owned(), json!(dropped));
             entry.insert(
                 "capped".to_owned(),
-                json!(pystr::truthy(py_get(&body, "capped")?)),
+                json!(text_rules::truthy(py_get(&body, "capped")?)),
             );
             for key in [
                 "sampled",
@@ -208,10 +208,10 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
                 );
             }
             slices.push(Value::Object(entry));
-            if pystr::truthy(py_get(&body, "capped")?) || merger.overflowed {
+            if text_rules::truthy(py_get(&body, "capped")?) || merger.overflowed {
                 // A truncated slice leaves the tail of its own span unread, and
                 // the partitions after it are never requested.
-                if pystr::truthy(py_get(&body, "capped")?) {
+                if text_rules::truthy(py_get(&body, "capped")?) {
                     if let Some(span) = span {
                         unfetched.push(slice_span(*span, true));
                     }
@@ -272,7 +272,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             .skip(window_start)
             .take((window_end - window_start as i64).max(0) as usize)
             .collect();
-        let mut query = if pystr::truthy(Some(&first_query)) {
+        let mut query = if text_rules::truthy(Some(&first_query)) {
             py_dict_from_pairs(first_query.clone())?
         } else {
             Map::new()
@@ -361,7 +361,7 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             .filter(|s| s.get("sampled").is_some())
             .map(|s| s["sampled"].clone())
             .collect();
-        if reported_sampled.iter().any(|v| pystr::truthy(Some(v))) {
+        if reported_sampled.iter().any(|v| text_rules::truthy(Some(v))) {
             result.insert("sampled".to_owned(), json!(true));
         } else if !reported_sampled.is_empty()
             && reported_sampled
@@ -385,7 +385,10 @@ impl<'e, T: Transport> MetrikaClient<'e, T> {
             .filter(|s| s.get("contains_sensitive_data").is_some())
             .map(|s| s["contains_sensitive_data"].clone())
             .collect();
-        if reported_sensitive.iter().any(|v| pystr::truthy(Some(v))) {
+        if reported_sensitive
+            .iter()
+            .any(|v| text_rules::truthy(Some(v)))
+        {
             result.insert("contains_sensitive_data".to_owned(), json!(true));
         } else if !reported_sensitive.is_empty()
             && reported_sensitive

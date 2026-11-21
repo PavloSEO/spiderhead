@@ -8,7 +8,7 @@ use rusqlite::types::ValueRef;
 use serde_json::{Map, Value};
 
 use crate::error::{value, ProjectsError, ProjectsResult};
-use crate::pyjson;
+use crate::json_docs;
 use crate::schedule::falsy;
 use crate::workspace;
 
@@ -360,7 +360,7 @@ pub(crate) fn open_companion(path: &Path) -> ProjectsResult<rusqlite::Connection
                     if number == 0.0 {
                         String::new()
                     } else {
-                        pyjson::python_float_repr(number)
+                        json_docs::float_repr(number)
                     }
                 }
                 ValueRef::Text(bytes) => String::from_utf8_lossy(bytes).into_owned(),

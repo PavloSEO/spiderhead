@@ -86,7 +86,7 @@ fn sql_text(value: &rusqlite::types::Value) -> String {
     match value {
         rusqlite::types::Value::Null => "None".to_string(),
         rusqlite::types::Value::Integer(n) => n.to_string(),
-        rusqlite::types::Value::Real(f) => crate::pyjson::python_float_repr(*f),
+        rusqlite::types::Value::Real(f) => crate::json_docs::float_repr(*f),
         rusqlite::types::Value::Text(t) => t.clone(),
         rusqlite::types::Value::Blob(b) => format!("{b:?}"),
     }
@@ -244,7 +244,7 @@ pub(crate) fn retained_findings(row: &Map<String, Value>) -> ProjectsResult<Valu
     if evidence_cache_key(row)? != key {
         return Ok(findings);
     }
-    let size = crate::pyjson::dumps_compact(&findings).len();
+    let size = crate::json_docs::dumps_compact(&findings).len();
     if size <= findings_cache_max_bytes() {
         lru_put(
             findings_cache(),

@@ -7,11 +7,11 @@ use std::path::Path;
 use std::sync::OnceLock;
 
 use serde_json::Value;
-use spiderhead_parse::py_str::py_repr;
+use spiderhead_parse::strings::repr;
 use spiderhead_store::evidence_contract::Obj;
 
-use crate::pyurl::urlsplit;
-use crate::pyvalue::str_or_dumps;
+use crate::url_split::urlsplit;
+use crate::value_text::str_or_dumps;
 pub(crate) use crate::verification::AuditSource;
 
 /// Two audits that cannot be compared without lying about the result.
@@ -156,7 +156,7 @@ pub(crate) fn key_of(issue: &Obj) -> (String, String) {
         .map_or_else(String::new, str_or_dumps);
     let target = match issue
         .get("target_url")
-        .filter(|v| crate::pyvalue::truthy(v))
+        .filter(|v| crate::value_text::truthy(v))
     {
         Some(v) => str_or_dumps(v),
         None => String::new(),
@@ -249,14 +249,14 @@ pub(crate) fn page_rows(source: &AuditSource<'_>) -> Result<HashMap<String, Obj>
         let Some(page) = page.as_object() else {
             continue;
         };
-        let Some(url) = page.get("url").filter(|u| crate::pyvalue::truthy(u)) else {
+        let Some(url) = page.get("url").filter(|u| crate::value_text::truthy(u)) else {
             continue;
         };
         let Some(url) = url.as_str() else { continue };
         if rows.contains_key(url) {
             return Err(CompareError(format!(
                 "url correspondence cannot pair duplicate page URL {}",
-                py_repr(url)
+                repr(url)
             )));
         }
         rows.insert(url.to_owned(), page.clone());
@@ -303,9 +303,9 @@ pub(crate) fn resolve_correspondence(
             if other_before != before_url {
                 return Err(CompareError(format!(
                     "url correspondence maps both {} and {} to crawled page {}",
-                    py_repr(other_before),
-                    py_repr(before_url),
-                    py_repr(&after_url)
+                    repr(other_before),
+                    repr(before_url),
+                    repr(&after_url)
                 )));
             }
         }
@@ -395,14 +395,14 @@ pub(crate) fn crawled_urls(source: &AuditSource<'_>) -> Result<BTreeSet<String>,
         let Some(page) = page.as_object() else {
             continue;
         };
-        let Some(url) = page.get("url").filter(|u| crate::pyvalue::truthy(u)) else {
+        let Some(url) = page.get("url").filter(|u| crate::value_text::truthy(u)) else {
             continue;
         };
         let Some(url) = url.as_str() else { continue };
         if !urls.insert(url.to_owned()) {
             return Err(CompareError(format!(
                 "comparison has duplicate page URL {}",
-                py_repr(url)
+                repr(url)
             )));
         }
     }
@@ -603,7 +603,7 @@ pub(crate) fn load_correspondence(value: &Value) -> Result<Declaration, CompareE
                 if let Some(key) = first_duplicate_key(&text) {
                     return Err(CompareError(format!(
                         "url correspondence repeats object key {}",
-                        py_repr(&key)
+                        repr(&key)
                     )));
                 }
                 parsed
@@ -655,7 +655,7 @@ pub(crate) fn load_correspondence(value: &Value) -> Result<Declaration, CompareE
     {
         return Err(CompareError(format!(
             "url correspondence schema_version must be {}",
-            py_repr(CORRESPONDENCE_SCHEMA)
+            repr(CORRESPONDENCE_SCHEMA)
         )));
     }
 
@@ -714,15 +714,15 @@ pub(crate) fn load_correspondence(value: &Value) -> Result<Declaration, CompareE
         if pairs.contains_key(&before) {
             return Err(CompareError(format!(
                 "url correspondence maps {} more than once",
-                py_repr(&before)
+                repr(&before)
             )));
         }
         if let Some(other) = reverse_pairs.get(&after) {
             return Err(CompareError(format!(
                 "url correspondence maps both {} and {} to {}",
-                py_repr(other),
-                py_repr(&before),
-                py_repr(&after)
+                repr(other),
+                repr(&before),
+                repr(&after)
             )));
         }
         pairs.insert(before.clone(), after.clone());

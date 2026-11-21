@@ -8,9 +8,9 @@ use std::sync::LazyLock;
 
 use serde_json::{Map, Value};
 
-use crate::py::str_value;
 use crate::svg_charts::{bar_chart, ChartOpts, Series};
 use crate::traffic_dashboard::{load_brand, Brand};
+use crate::values::str_value;
 
 mod labels;
 #[allow(unused_imports)]
@@ -1737,7 +1737,7 @@ pub fn render_audit_pdf_html(
     let mut summary_rows = field_rows(&Value::Object(summary_fields), lang);
     if let Some(diagnostics) = source
         .get("input_diagnostics")
-        .filter(|v| crate::py::truthy(Some(v)))
+        .filter(|v| crate::values::truthy(Some(v)))
     {
         summary_rows.push((
             l(lang, "input_diagnostics").to_owned(),

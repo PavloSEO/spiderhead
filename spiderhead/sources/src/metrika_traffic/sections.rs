@@ -6,7 +6,7 @@ use super::*;
 /// that propagates through the block runner.
 pub(super) fn or_get<'v>(value: &'v Value, key: &str) -> Result<Option<&'v Value>, MetrikaFail> {
     match value {
-        v if !pystr::truthy(Some(v)) => Ok(None),
+        v if !text_rules::truthy(Some(v)) => Ok(None),
         v => py_get(v, key),
     }
 }
@@ -81,7 +81,7 @@ pub(super) async fn summary(
                 entry.insert(
                     "reason".to_owned(),
                     match &repeat_errors[0] {
-                        Some(reason) if pystr::truthy(Some(&json!(reason))) => json!(reason),
+                        Some(reason) if text_rules::truthy(Some(&json!(reason))) => json!(reason),
                         _ => json!("Metrica returned no value"),
                     },
                 );
@@ -283,7 +283,7 @@ pub(super) async fn series(
     let mut by_label: Map<String, Value> = Map::new();
     for row in &rows {
         let name = row.get("name").cloned().unwrap_or(Value::Null);
-        if pystr::truthy(Some(&name)) {
+        if text_rules::truthy(Some(&name)) {
             by_label.insert(
                 py_str(&name),
                 row.get("visits").cloned().unwrap_or(Value::Null),
@@ -298,8 +298,8 @@ pub(super) async fn series(
             day += 1;
         }
     } else {
-        let (year, month, _) = pytime::civil_from_days(period.0);
-        let mut cursor = pytime::days_from_civil(year, month, 1);
+        let (year, month, _) = datetime::civil_from_days(period.0);
+        let mut cursor = datetime::days_from_civil(year, month, 1);
         while cursor <= period.1 {
             labels.push(cursor);
             cursor = add_months(cursor, 1);

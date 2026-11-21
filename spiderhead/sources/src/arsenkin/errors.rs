@@ -55,7 +55,7 @@ impl std::fmt::Display for ArsError {
         match self {
             ArsError::Provider(err) => {
                 // Displays as `{code}: {message}`; the payload is rendered as text.
-                write!(f, "{}: {}", err.code, pystr::repr_value(&err.message))
+                write!(f, "{}: {}", err.code, text_rules::repr_value(&err.message))
             }
             ArsError::MissingCredential(m) | ArsError::Classed { message: m, .. } => f.write_str(m),
         }
@@ -86,14 +86,14 @@ pub(super) fn attr_err(value: &Value, attr: &str) -> ArsError {
         class: "AttributeError".to_owned(),
         message: format!(
             "'{}' object has no attribute '{}'",
-            pystr::type_name(value),
+            text_rules::type_name(value),
             attr
         ),
     }
 }
 
 /// A failure with an explicit error kind name.
-pub(super) fn pyerr(class: &str, message: impl Into<String>) -> ArsError {
+pub(super) fn error_text(class: &str, message: impl Into<String>) -> ArsError {
     ArsError::Classed {
         class: class.to_owned(),
         message: message.into(),
@@ -113,6 +113,6 @@ pub(super) fn provider(code: impl Into<String>, message: Value) -> ArsError {
 pub(super) fn cred_err(err: CredentialError) -> ArsError {
     match err {
         CredentialError::Missing(message) => ArsError::MissingCredential(message),
-        other => pyerr(other.error_class(), other.to_string()),
+        other => error_text(other.error_class(), other.to_string()),
     }
 }

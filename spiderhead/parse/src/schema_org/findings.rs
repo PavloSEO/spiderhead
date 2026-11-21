@@ -3,7 +3,7 @@
 use serde_json::Value;
 
 use super::{Json, SchemaCheck};
-use crate::py_json::str_or_dumps;
+use crate::json_text::str_or_dumps;
 
 fn plural_join(items: &[Json], take: usize) -> String {
     items

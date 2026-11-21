@@ -7,9 +7,9 @@ use serde_json::Value;
 use crate::error::{TuiError, TuiResult};
 use crate::labels::label;
 use crate::localization::{number, ui};
-use crate::pyjson::{self, OrPy};
 use crate::text::Text;
 use crate::theme::Palette;
+use crate::values::{self, OrTruthy};
 
 /// `project_directory`: accept either the project root or its parent folder
 /// (`<dir>/project/project.json` layout).
@@ -59,17 +59,17 @@ pub fn select(snapshot: &Value, scan: Option<&str>) -> TuiResult<Value> {
     let matches = |item: &Value| {
         ["uuid", "id", "scan_uuid", "run_id"]
             .iter()
-            .any(|k| pyjson::get(item, k).map(pyjson::py_str).as_deref() == Some(scan))
+            .any(|k| values::get(item, k).map(values::scalar_text).as_deref() == Some(scan))
     };
     let mut result = snapshot.clone();
-    let scans: Vec<Value> = pyjson::path(&result, &["scans", "items"])
+    let scans: Vec<Value> = values::path(&result, &["scans", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default()
         .into_iter()
         .filter(|item| matches(item))
         .collect();
-    let runs: Vec<Value> = pyjson::path(&result, &["runs", "items"])
+    let runs: Vec<Value> = values::path(&result, &["runs", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default()
@@ -98,15 +98,15 @@ pub fn summary(snapshot: Option<&Value>) -> String {
     let Some(snapshot) = snapshot else {
         return ui("Loading…");
     };
-    let runs = pyjson::path(snapshot, &["runs", "items"])
+    let runs = values::path(snapshot, &["runs", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
     let run = runs
         .iter()
-        .find(|r| pyjson::str_of(r, "state") == "running")
+        .find(|r| values::str_of(r, "state") == "running")
         .or_else(|| runs.first());
-    let scans = pyjson::path(snapshot, &["scans", "items"])
+    let scans = values::path(snapshot, &["scans", "items"])
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
@@ -117,13 +117,13 @@ pub fn summary(snapshot: Option<&Value>) -> String {
     let empty = Value::Object(Default::default());
     let run = run.unwrap_or(&empty);
     let saved = saved.unwrap_or(&empty);
-    let frontier = pyjson::path(saved, &["evidence", "frontier", "counts"])
+    let frontier = values::path(saved, &["evidence", "frontier", "counts"])
         .cloned()
         .unwrap_or(Value::Null);
-    let counts = if pyjson::truthy(pyjson::get(run, "counters").unwrap_or(&Value::Null)) {
-        pyjson::get(run, "counters").cloned().unwrap()
+    let counts = if values::truthy(values::get(run, "counters").unwrap_or(&Value::Null)) {
+        values::get(run, "counters").cloned().unwrap()
     } else {
-        let mut c = serde_json::json!({"fetched": pyjson::get(&frontier, "done").cloned().unwrap_or(Value::Null)});
+        let mut c = serde_json::json!({"fetched": values::get(&frontier, "done").cloned().unwrap_or(Value::Null)});
         if let Value::Object(map) = &frontier {
             for (k, v) in map {
                 c[k] = v.clone();
@@ -131,20 +131,20 @@ pub fn summary(snapshot: Option<&Value>) -> String {
         }
         c
     };
-    let fetched = pyjson::get(&counts, "fetched")
+    let fetched = values::get(&counts, "fetched")
         .cloned()
         .unwrap_or(Value::Null);
-    let queued = pyjson::get(&counts, "queued")
+    let queued = values::get(&counts, "queued")
         .cloned()
         .unwrap_or(Value::Null);
-    let inflight = pyjson::get(&counts, "inflight")
+    let inflight = values::get(&counts, "inflight")
         .cloned()
         .unwrap_or(Value::Null);
-    let semantics = pyjson::path(run, &["telemetry", "queue_semantics"])
+    let semantics = values::path(run, &["telemetry", "queue_semantics"])
         .and_then(Value::as_str)
         .map(str::to_string)
         .unwrap_or_else(|| {
-            if pyjson::truthy(&frontier) {
+            if values::truthy(&frontier) {
                 "separate".into()
             } else {
                 "unknown".into()
@@ -154,7 +154,7 @@ pub fn summary(snapshot: Option<&Value>) -> String {
     if semantics == "separate" {
         population.push(inflight.clone());
     }
-    let total: Option<i64> = if semantics != "unknown" && population.iter().all(pyjson::is_int) {
+    let total: Option<i64> = if semantics != "unknown" && population.iter().all(values::is_int) {
         Some(population.iter().filter_map(Value::as_i64).sum())
     } else {
         None
@@ -176,28 +176,28 @@ pub fn summary(snapshot: Option<&Value>) -> String {
         ui("Not measured")
     };
     let unknown = ui("unknown");
-    let mode = pyjson::path(run, &["collector", "mode"])
+    let mode = values::path(run, &["collector", "mode"])
         .and_then(Value::as_str)
-        .or_else(|| pyjson::get(saved, "mode").and_then(Value::as_str));
+        .or_else(|| values::get(saved, "mode").and_then(Value::as_str));
     let state_label = label(
-        pyjson::get(run, "state")
-            .or_py(|| pyjson::get(saved, "lifecycle"))
+        values::get(run, "state")
+            .or_truthy(|| values::get(saved, "lifecycle"))
             .unwrap_or(&Value::Null),
     );
-    let freshness = label(pyjson::path(run, &["telemetry", "state"]).unwrap_or(&Value::Null));
-    let errors = pyjson::get(&counts, "errors")
+    let freshness = label(values::path(run, &["telemetry", "state"]).unwrap_or(&Value::Null));
+    let errors = values::get(&counts, "errors")
         .filter(|v| !v.is_null())
-        .or_else(|| pyjson::get(run, "errors"))
+        .or_else(|| values::get(run, "errors"))
         .cloned()
         .unwrap_or(Value::Null);
     let errors_text = if errors.is_number() {
-        pyjson::py_str(&errors)
+        values::scalar_text(&errors)
     } else {
         unknown.clone()
     };
-    let run_id = pyjson::get(run, "id")
-        .or_py(|| pyjson::get(run, "uuid"))
-        .or_py(|| pyjson::get(saved, "uuid"))
+    let run_id = values::get(run, "id")
+        .or_truthy(|| values::get(run, "uuid"))
+        .or_truthy(|| values::get(saved, "uuid"))
         .cloned()
         .unwrap_or(Value::Null);
     let parts: Vec<Option<String>> = vec![
@@ -216,11 +216,11 @@ pub fn summary(snapshot: Option<&Value>) -> String {
         Some(format!(
             "{} {}",
             ui("Excluded"),
-            pyjson::get(&counts, "excluded")
+            values::get(&counts, "excluded")
                 .map(|v| {
                     v.as_i64()
                         .map(|n| n.to_string())
-                        .unwrap_or_else(|| pyjson::py_str(v))
+                        .unwrap_or_else(|| values::scalar_text(v))
                 })
                 .unwrap_or_else(|| unknown.clone())
         )),
@@ -239,7 +239,7 @@ pub fn summary(snapshot: Option<&Value>) -> String {
 pub fn run_label(identity: &Value) -> String {
     let text = match identity {
         Value::Null => String::new(),
-        other => pyjson::py_str(other),
+        other => values::scalar_text(other),
     };
     let digits: String = text
         .to_lowercase()
@@ -265,11 +265,11 @@ pub fn panel(
     );
     if compact {
         let site = snapshot
-            .and_then(|s| pyjson::path(s, &["project", "site"]))
+            .and_then(|s| values::path(s, &["project", "site"]))
             .cloned()
             .unwrap_or(Value::Null);
-        let label = pyjson::get(&site, "label")
-            .or_py(|| pyjson::get(&site, "host"))
+        let label = values::get(&site, "label")
+            .or_truthy(|| values::get(&site, "host"))
             .and_then(Value::as_str)
             .filter(|s| !s.is_empty())
             .map(str::to_string)

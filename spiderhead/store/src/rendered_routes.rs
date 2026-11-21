@@ -104,7 +104,7 @@ pub fn observations(
             continue;
         };
         let resolved = defrag(href.trim());
-        let target = spiderhead_parse::py_url::urlsplit(&resolved)
+        let target = spiderhead_parse::url_parse::urlsplit(&resolved)
             .map_err(|e| StoreError::Invalid(e.to_string()))?;
         if !matches!(target.scheme.as_str(), "http" | "https") || target.netloc.is_empty() {
             continue;

@@ -211,11 +211,11 @@ impl DiskIssueResults {
     pub fn append_suppressed(&mut self, issue: &Object) -> Result<(), DiskError> {
         let check = issue
             .get("check")
-            .map(crate::pyvalue::str_or_dumps)
+            .map(crate::value_text::str_or_dumps)
             .unwrap_or_default();
         let severity = issue
             .get("severity")
-            .map(crate::pyvalue::str_or_dumps)
+            .map(crate::value_text::str_or_dumps)
             .unwrap_or_default();
         // reference binds the raw value: str -> TEXT, number -> INT/REAL,
         // bool -> INT, None -> NULL (containers would raise and are bound
@@ -254,8 +254,8 @@ impl DiskIssueResults {
             targets.push(t.clone());
         }
         for loc in &issue.locations {
-            if let Some(u) = loc.get("url").filter(|u| crate::pyvalue::truthy(u)) {
-                let s = crate::pyvalue::str_or_dumps(u);
+            if let Some(u) = loc.get("url").filter(|u| crate::value_text::truthy(u)) {
+                let s = crate::value_text::str_or_dumps(u);
                 if !targets.contains(&s) {
                     targets.push(s);
                 }

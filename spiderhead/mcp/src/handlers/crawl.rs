@@ -235,7 +235,7 @@ fn requested_urls(args: &Map<String, Value>) -> Result<Option<Vec<String>>, Tool
     let mut seen = std::collections::BTreeSet::new();
     let mut list = Vec::new();
     for entry in &raw {
-        let scheme = spiderhead_parse::py_url::urlsplit(entry)
+        let scheme = spiderhead_parse::url_parse::urlsplit(entry)
             .map(|parts| parts.scheme)
             .unwrap_or_default();
         if scheme != "http" && scheme != "https" {

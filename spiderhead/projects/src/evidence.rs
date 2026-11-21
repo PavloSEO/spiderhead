@@ -8,8 +8,8 @@ use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
 
 use crate::coverage::schema::{text, URL_ENUMERATION_LIMIT};
+use crate::datetime;
 use crate::error::{io, ProjectsError, ProjectsResult};
-use crate::pytime;
 
 /// `artifact_path`: accept portable regular files inside the project, excluding control files.
 pub fn artifact_path(root: &Path, value: &Value) -> ProjectsResult<PathBuf> {
@@ -65,7 +65,7 @@ pub fn digest(
     let mut block = vec![0u8; 1024 * 1024];
     loop {
         if let Some(deadline) = deadline {
-            if pytime::monotonic() > deadline {
+            if datetime::monotonic() > deadline {
                 return Err(crate::error::value("evidence hashing time budget exceeded"));
             }
         }
@@ -116,7 +116,7 @@ fn artifact_receipt(root: &Path, reference: &str) -> ProjectsResult<Value> {
         "artifact_verification": {
             "sha256": digest,
             "identity": before.to_vec(),
-            "verified_at": pytime::iso_now(),
+            "verified_at": datetime::iso_now(),
         },
     }))
 }
@@ -340,7 +340,7 @@ fn saved_check(root: &Path, definition: &Value, value: &Value) -> ProjectsResult
     result["artifact_verification"] = json!({
         "sha256": before,
         "identity": before_identity.to_vec(),
-        "verified_at": pytime::iso_now(),
+        "verified_at": datetime::iso_now(),
     });
     Ok(result)
 }

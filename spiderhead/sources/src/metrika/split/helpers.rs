@@ -6,7 +6,7 @@ use super::*;
 pub(super) fn resolve_date(value: Option<&Value>, today: Option<i64>) -> Option<i64> {
     let text = value?.as_str()?;
     if iso_date_re(text) {
-        return pytime::date_fromisoformat(text);
+        return datetime::date_fromisoformat(text);
     }
     let today = today?;
     if text == "today" {
@@ -27,17 +27,17 @@ pub(super) fn iso_date_re(text: &str) -> bool {
         && chars
             .iter()
             .enumerate()
-            .all(|(i, c)| i == 4 || i == 7 || pystr::is_decimal(&c.to_string()))
+            .all(|(i, c)| i == 4 || i == 7 || text_rules::is_decimal(&c.to_string()))
 }
 
 /// `(\d+)daysAgo`; the count reads any Unicode decimal digits, and `$` tolerates one trailing newline.
 pub(super) fn days_ago_int(text: &str) -> Option<i64> {
     let stem = text.strip_suffix('\n').unwrap_or(text);
     let digits = stem.strip_suffix("daysAgo")?;
-    if digits.is_empty() || !pystr::is_decimal(digits) {
+    if digits.is_empty() || !text_rules::is_decimal(digits) {
         return None;
     }
-    pystr::nd_int(digits)
+    text_rules::nd_int(digits)
 }
 
 /// Resolve a period when both ends are known and ordered, else `None`.
@@ -61,7 +61,7 @@ pub(super) fn monthrange(year: i64, month: i64) -> i64 {
     } else {
         (year, month + 1)
     };
-    pytime::days_from_civil(y, m, 1) - pytime::days_from_civil(year, month, 1)
+    datetime::days_from_civil(y, m, 1) - datetime::days_from_civil(year, month, 1)
 }
 
 /// Calendar-month-aligned spans that cover `start` through `end`.
@@ -69,8 +69,8 @@ pub(super) fn month_slices(start: i64, end: i64) -> Vec<(i64, i64)> {
     let mut slices = Vec::new();
     let mut cursor = start;
     while cursor <= end {
-        let (year, month, _) = pytime::civil_from_days(cursor);
-        let month_end = pytime::days_from_civil(year, month, monthrange(year, month));
+        let (year, month, _) = datetime::civil_from_days(cursor);
+        let month_end = datetime::days_from_civil(year, month, monthrange(year, month));
         let slice_end = month_end.min(end);
         slices.push((cursor, slice_end));
         cursor = slice_end + 1;
@@ -91,7 +91,7 @@ pub(super) fn slice_span(span: (i64, i64), partial: bool) -> Value {
 
 /// `YYYY-MM-DD` text for a day number.
 pub(crate) fn date_iso(days: i64) -> String {
-    let (y, m, d) = pytime::civil_from_days(days);
+    let (y, m, d) = datetime::civil_from_days(days);
     format!("{y:04}-{m:02}-{d:02}")
 }
 
@@ -99,7 +99,7 @@ pub(crate) fn date_iso(days: i64) -> String {
 pub(super) fn metric_value(row: &Value, index: usize) -> Result<f64, MetrikaFail> {
     let values = py_get(row, "metrics")?;
     let value = match values {
-        Some(values) if pystr::truthy(Some(values)) && (index as i64) < py_len(values)? => {
+        Some(values) if text_rules::truthy(Some(values)) && (index as i64) < py_len(values)? => {
             py_subscript(values, index)?
         }
         _ => Value::Null,
@@ -114,7 +114,7 @@ pub(super) fn metric_value(row: &Value, index: usize) -> Result<f64, MetrikaFail
 pub(super) fn dimension_value(row: &Value, index: usize) -> Result<String, MetrikaFail> {
     let values = py_get(row, "dimensions")?;
     let value = match values {
-        Some(values) if pystr::truthy(Some(values)) && (index as i64) < py_len(values)? => {
+        Some(values) if text_rules::truthy(Some(values)) && (index as i64) < py_len(values)? => {
             py_subscript(values, index)?
         }
         _ => Value::Null,
@@ -265,7 +265,7 @@ pub(super) fn metric_bounds(rows: &[Value]) -> Result<(Vec<Value>, Vec<Value>), 
     let mut width = 0usize;
     for row in rows {
         let items = match py_get(row, "metrics")? {
-            Some(v) if pystr::truthy(Some(v)) => py_len(v)? as usize,
+            Some(v) if text_rules::truthy(Some(v)) => py_len(v)? as usize,
             _ => 0,
         };
         width = width.max(items);
@@ -274,7 +274,7 @@ pub(super) fn metric_bounds(rows: &[Value]) -> Result<(Vec<Value>, Vec<Value>), 
     let mut maxs: Vec<Value> = vec![Value::Null; width];
     for row in rows {
         let metrics = match py_get(row, "metrics")? {
-            Some(v) if pystr::truthy(Some(v)) => py_iter(v)?,
+            Some(v) if text_rules::truthy(Some(v)) => py_iter(v)?,
             _ => Vec::new(),
         };
         for (index, value) in metrics.iter().enumerate() {
@@ -315,7 +315,7 @@ pub(super) fn accuracy_above_last_resort(value: &Value) -> bool {
         if text.trim().eq_ignore_ascii_case("low") {
             return false;
         }
-        if let Some(parsed) = pyjson::float_parse(text) {
+        if let Some(parsed) = json_wire::float_parse(text) {
             return parsed > SAMPLED_ACCURACY;
         }
     }
@@ -345,13 +345,13 @@ pub(super) fn accuracy_used(accuracies: &[Value]) -> Value {
 /// `rows_to_records` — flatten a report into `{dimension: name, metric: number}`.
 pub fn rows_to_records(report: &Value) -> Result<Vec<Value>, MetrikaFail> {
     let query = match py_get(report, "query")? {
-        Some(q) if pystr::truthy(Some(q)) => q.clone(),
+        Some(q) if text_rules::truthy(Some(q)) => q.clone(),
         _ => json!({}),
     };
     // `query.dimensions`/`query.metrics` are lists of id strings.
     let read_ids = |key: &str| -> Result<Vec<String>, MetrikaFail> {
         let items = match py_get(&query, key)? {
-            Some(v) if pystr::truthy(Some(v)) => py_iter(v)?,
+            Some(v) if text_rules::truthy(Some(v)) => py_iter(v)?,
             _ => Vec::new(),
         };
         items
@@ -362,7 +362,7 @@ pub fn rows_to_records(report: &Value) -> Result<Vec<Value>, MetrikaFail> {
                     "AttributeError",
                     format!(
                         "'{}' object has no attribute 'split'",
-                        pystr::type_name(other)
+                        text_rules::type_name(other)
                     ),
                 )),
             })
@@ -372,13 +372,13 @@ pub fn rows_to_records(report: &Value) -> Result<Vec<Value>, MetrikaFail> {
     let metrics = read_ids("metrics")?;
     let mut records = Vec::new();
     let data = match py_get(report, "data")? {
-        Some(v) if pystr::truthy(Some(v)) => py_iter(v)?,
+        Some(v) if text_rules::truthy(Some(v)) => py_iter(v)?,
         _ => Vec::new(),
     };
     for row in &data {
         let mut record = Map::new();
         let dims = match py_get(row, "dimensions")? {
-            Some(v) if pystr::truthy(Some(v)) => py_iter(v)?,
+            Some(v) if text_rules::truthy(Some(v)) => py_iter(v)?,
             _ => Vec::new(),
         };
         for (index, dimension) in dims.iter().enumerate() {
@@ -393,7 +393,7 @@ pub fn rows_to_records(report: &Value) -> Result<Vec<Value>, MetrikaFail> {
             record.insert(key, value);
         }
         let mets = match py_get(row, "metrics")? {
-            Some(v) if pystr::truthy(Some(v)) => py_iter(v)?,
+            Some(v) if text_rules::truthy(Some(v)) => py_iter(v)?,
             _ => Vec::new(),
         };
         for (index, value) in mets.iter().enumerate() {
@@ -434,7 +434,7 @@ pub(super) fn str_or_none(value: Option<&Value>) -> String {
 /// Text form of a value, where a falsy value becomes an empty string.
 pub(super) fn str_or_empty(value: Option<&Value>) -> String {
     match value {
-        Some(v) if pystr::truthy(Some(v)) => py_str(v),
+        Some(v) if text_rules::truthy(Some(v)) => py_str(v),
         _ => String::new(),
     }
 }

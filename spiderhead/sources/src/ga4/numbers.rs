@@ -47,7 +47,7 @@ impl PyNum {
     pub(super) fn to_py_str(self) -> String {
         match self {
             PyNum::Int(n) => n.to_string(),
-            PyNum::Float(f) => pyjson::float_repr(f),
+            PyNum::Float(f) => json_wire::float_repr(f),
         }
     }
 }
@@ -71,7 +71,7 @@ pub(crate) fn resolve_max_rows(value: &Value) -> Result<PyNum, Ga4Error> {
         )),
         None => Err(Ga4Error::TypeError(format!(
             "'<=' not supported between instances of 'int' and '{}'",
-            pystr::type_name(value)
+            text_rules::type_name(value)
         ))),
     }
 }
@@ -82,7 +82,7 @@ pub(super) fn py_int(text: &str) -> Result<i64, Ga4Error> {
     text.parse().map_err(|_| {
         Ga4Error::Invalid(format!(
             "invalid literal for int() with base 10: {}",
-            pystr::repr_str(text)
+            text_rules::repr_str(text)
         ))
     })
 }

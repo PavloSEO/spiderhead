@@ -7,9 +7,9 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 
 use crate::config::{cfg_i64, Cfg};
+use crate::fmt::{int_value, scalar_text};
 use crate::norm::{normalize, Filters};
 use crate::providers::DemandProvider;
-use crate::pyfmt::{py_int_value, py_str};
 use crate::store::Store;
 
 /// Read `synonyms.txt` and check each unseen candidate via
@@ -75,7 +75,7 @@ pub fn run(
     }
     let min_base = cfg_i64(cfg, "min_base", 20);
     let regions: Vec<String> = match cfg.get("regions") {
-        Some(Value::Array(items)) if !items.is_empty() => items.iter().map(py_str).collect(),
+        Some(Value::Array(items)) if !items.is_empty() => items.iter().map(scalar_text).collect(),
         _ => vec!["225".to_string()],
     };
     let mut added = 0i64;
@@ -116,7 +116,7 @@ pub fn run(
         n_req += 1;
         store.add_run("synonyms", 1, 0, &format!("phrase={p}"))?;
         let base = match body.get("totalCount") {
-            Some(v) if !v.is_null() => Some(py_int_value(v).map_err(|e| crate::Error::Stage {
+            Some(v) if !v.is_null() => Some(int_value(v).map_err(|e| crate::Error::Stage {
                 stage: "synonyms".into(),
                 message: e.to_string(),
             })?),

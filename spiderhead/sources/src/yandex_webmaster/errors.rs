@@ -87,7 +87,7 @@ impl WmError {
             Value::String(_) => WmError::type_error("string indices must be integers, not 'str'"),
             other => WmError::type_error(format!(
                 "'{}' object is not subscriptable",
-                pystr::type_name(other)
+                text_rules::type_name(other)
             )),
         }
     }
@@ -98,7 +98,7 @@ impl WmError {
             class: "AttributeError".to_owned(),
             message: format!(
                 "'{}' object has no attribute 'get'",
-                pystr::type_name(value)
+                text_rules::type_name(value)
             ),
         }
     }

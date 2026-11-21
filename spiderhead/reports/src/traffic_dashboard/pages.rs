@@ -8,8 +8,8 @@ use super::{
     delta_html, label, label_for, legend, num, table, text_of, tpl, unavailable, Renderer,
     GSC_ROWS_PER_PAGE, OTHER_COLOR, PX_PER_MM,
 };
-use crate::py::{html_escape, str_value};
 use crate::svg_charts::{bar_chart, donut_chart, line_chart, ChartOpts, Series};
+use crate::values::{html_escape, str_value};
 
 impl Renderer<'_> {
     fn label(&self, key: &str) -> &str {
@@ -324,8 +324,8 @@ impl Renderer<'_> {
             lines.push(tpl(self.label("method_robots_na"), &[("reason", reason)]));
         }
         let comparisons = doc.get("comparisons").unwrap_or(&empty);
-        if crate::py::truthy(comparisons.get("previous"))
-            && crate::py::truthy(comparisons.get("year_ago"))
+        if crate::values::truthy(comparisons.get("previous"))
+            && crate::values::truthy(comparisons.get("year_ago"))
         {
             lines.push(tpl(
                 self.label("method_compare"),

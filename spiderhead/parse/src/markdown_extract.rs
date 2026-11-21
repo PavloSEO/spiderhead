@@ -8,7 +8,7 @@ use scraper::Node;
 
 use crate::content_area::{find_content_root, resolve_content_area, TEXT_EXCLUDED_TAGS};
 use crate::dom::{find, parse_document, ElementRef};
-use crate::py_str::py_strip;
+use crate::strings::strip;
 use crate::types::{ContentAreaConfig, Result};
 
 /// Result of [`extract_markdown`].
@@ -105,7 +105,7 @@ fn inline(node: NodeRef<'_, Node>) -> String {
             Work::Close { start, wrap } => {
                 let inner = out[start..].to_owned();
                 out.truncate(start);
-                let text = py_strip(&inner);
+                let text = strip(&inner);
                 out.push_str(&match wrap {
                     Wrap::Link(Some(href)) if !href.is_empty() && !text.is_empty() => {
                         format!("[{text}]({href})")
@@ -156,7 +156,7 @@ fn walk(node: NodeRef<'_, Node>, lines: &mut Vec<String>) {
     let mut stack: Vec<NodeRef<'_, Node>> = node.children().rev().collect();
     while let Some(child) = stack.pop() {
         if let Some(text) = string_of(&child) {
-            let text = py_strip(text);
+            let text = strip(text);
             if !text.is_empty() {
                 lines.push(text.to_owned());
             }
@@ -171,7 +171,7 @@ fn walk(node: NodeRef<'_, Node>, lines: &mut Vec<String>) {
         }
         if let Some(level) = heading_level(name) {
             let rendered = inline(child);
-            let text = py_strip(&rendered);
+            let text = strip(&rendered);
             if !text.is_empty() {
                 lines.push(format!("{} {text}", "#".repeat(level)));
             }
@@ -184,7 +184,7 @@ fn walk(node: NodeRef<'_, Node>, lines: &mut Vec<String>) {
                 .filter(|c| c.value().name() == "li");
             for (i, li) in items.enumerate() {
                 let rendered = inline(*li);
-                let text = py_strip(&rendered);
+                let text = strip(&rendered);
                 if !text.is_empty() {
                     let marker = if name == "ol" {
                         format!("{}.", i + 1)
@@ -202,7 +202,7 @@ fn walk(node: NodeRef<'_, Node>, lines: &mut Vec<String>) {
         }
         if BLOCK_TAGS.contains(&name) {
             let rendered = inline(child);
-            let text = py_strip(&rendered);
+            let text = strip(&rendered);
             if text.is_empty() {
                 stack.extend(child.children().rev());
             } else {

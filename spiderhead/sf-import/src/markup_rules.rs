@@ -11,7 +11,7 @@ use std::collections::HashSet;
 use crate::context::disk::DiskError;
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::{norm_url, Object};
-use crate::pyvalue::{str_or_dumps, truthy};
+use crate::value_text::{str_or_dumps, truthy};
 
 /// The structured-data check ids this evidence can fire.
 pub const SCHEMA_CODES: [&str; 3] = [

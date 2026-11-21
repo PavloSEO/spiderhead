@@ -13,7 +13,7 @@ use rusqlite::Connection;
 use serde_json::Value;
 use thiserror::Error;
 
-use crate::{pyjson, pystr, pytime};
+use crate::{datetime, json_wire, text_rules};
 
 mod catalog;
 pub use catalog::*;
@@ -247,12 +247,12 @@ fn store(
         let Some(row) = row.as_object() else {
             return Err(SourcesError::Attribute(format!(
                 "'{}' object has no attribute 'get'",
-                pystr::type_name(row)
+                text_rules::type_name(row)
             )));
         };
         let date_value = row.get("date");
         if matches!(date_value, Some(Value::Array(_)) | Some(Value::Object(_))) {
-            let name = pystr::type_name(date_value.unwrap_or(&Value::Null));
+            let name = text_rules::type_name(date_value.unwrap_or(&Value::Null));
             return Err(SourcesError::Type(format!(
                 "cannot use '{name}' as a dict key (unhashable type: '{name}')"
             )));
@@ -266,7 +266,7 @@ fn store(
         for name in spec.dimensions {
             match row.get(*name) {
                 Some(v) if !v.is_null() => {
-                    key_parts.push(pystr::repr_value(v));
+                    key_parts.push(text_rules::repr_value(v));
                 }
                 _ => missing = true,
             }
@@ -460,10 +460,10 @@ fn num_eq(value: Option<&Value>, n: i64) -> bool {
 
 /// `_failure_state` — only explicit access-failure classes, never provider text.
 fn failure_state(result: &Value) -> &'static str {
-    let error = if pystr::truthy(result.get("error")) {
+    let error = if text_rules::truthy(result.get("error")) {
         result
             .get("error")
-            .map(pystr::repr_value)
+            .map(text_rules::repr_value)
             .unwrap_or_default()
     } else {
         String::new()

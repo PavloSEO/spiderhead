@@ -6,8 +6,8 @@
 
 use serde_json::Value;
 
-use crate::pycompat::{is_py_float, is_py_int, repr};
-use crate::pyjson;
+use crate::argparse_compat::{float_accepts, int_accepts, repr};
+use crate::json_errors;
 use crate::tree::Action;
 
 /// Convert one command-line string with the action's `type=`; `Err` is the message part of
@@ -15,12 +15,12 @@ use crate::tree::Action;
 pub fn convert(action: &Action, text: &str) -> Result<Value, String> {
     match action.type_name.as_deref() {
         None => Ok(Value::String(text.to_owned())),
-        Some("int") if is_py_int(text) => Ok(int_value(text)),
-        Some("float") if is_py_float(text) => Ok(float_value(text)),
+        Some("int") if int_accepts(text) => Ok(int_value(text)),
+        Some("float") if float_accepts(text) => Ok(float_value(text)),
         Some(name @ ("int" | "float")) => Err(format!("invalid {name} value: {}", repr(text))),
         Some("_json_list") => json_list(text),
         Some("_mcp_http_port") => {
-            if !is_py_int(text) {
+            if !int_accepts(text) {
                 return Err(format!("invalid port: {}", repr(text)));
             }
             let n: i128 = text.trim().replace('_', "").parse().unwrap_or(i128::MAX);
@@ -53,7 +53,7 @@ fn float_value(text: &str) -> Value {
 }
 
 fn json_list(text: &str) -> Result<Value, String> {
-    if let Some(err) = pyjson::decode_error(text) {
+    if let Some(err) = json_errors::decode_error(text) {
         return Err(format!("not valid JSON: {err}"));
     }
     if !text.trim_start().starts_with('[') {

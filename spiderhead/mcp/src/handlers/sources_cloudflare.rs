@@ -15,7 +15,7 @@ use spiderhead_sources::cloudflare_history;
 use spiderhead_sources::cloudflare_logs::{import_logpush_file, instant_logs_capture, LogsEnv};
 use spiderhead_sources::cloudflare_traffic::{traffic, TrafficEnv};
 use spiderhead_sources::http::Sleeper;
-use spiderhead_sources::pystr;
+use spiderhead_sources::text_rules;
 
 use crate::error::ToolError;
 
@@ -68,8 +68,8 @@ pub fn cloudflare_traffic(args: &Value) -> Result<Value, ToolError> {
     let include = opt(&args, "include_configuration")
         .cloned()
         .unwrap_or(json!(false));
-    let since = opt(&args, "since").filter(|v| pystr::truthy(Some(v)));
-    let until = opt(&args, "until").filter(|v| pystr::truthy(Some(v)));
+    let since = opt(&args, "since").filter(|v| text_rules::truthy(Some(v)));
+    let until = opt(&args, "until").filter(|v| text_rules::truthy(Some(v)));
     run(traffic(
         &env,
         &transport,
@@ -113,7 +113,7 @@ pub fn cloudflare_logpush_import(args: &Value) -> Result<Value, ToolError> {
                 missing.len(),
                 missing
                     .iter()
-                    .map(|name| pystr::repr_str(name))
+                    .map(|name| text_rules::repr_str(name))
                     .collect::<Vec<_>>()
                     .join(" and ")
             )))

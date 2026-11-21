@@ -33,7 +33,7 @@ impl std::fmt::Display for BlError {
 impl std::error::Error for BlError {}
 
 /// A failure with an explicit error kind name.
-pub(super) fn pyerr(class: &str, message: impl Into<String>) -> BlError {
+pub(super) fn error_text(class: &str, message: impl Into<String>) -> BlError {
     BlError::Classed {
         class: class.to_owned(),
         message: message.into(),
@@ -42,12 +42,12 @@ pub(super) fn pyerr(class: &str, message: impl Into<String>) -> BlError {
 
 /// Invalid input value.
 pub(super) fn value_err<T>(message: impl Into<String>) -> Result<T, BlError> {
-    Err(pyerr("ValueError", message))
+    Err(error_text("ValueError", message))
 }
 
 /// Value has the wrong type.
 pub(super) fn type_err<T>(message: impl Into<String>) -> Result<T, BlError> {
-    Err(pyerr("TypeError", message))
+    Err(error_text("TypeError", message))
 }
 
 /// Transport result: the body text and response headers.

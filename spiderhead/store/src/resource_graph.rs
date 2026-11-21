@@ -76,10 +76,10 @@ fn append_one(
     if value.is_empty() {
         return;
     }
-    let Ok(resolved) = spiderhead_parse::py_url::urljoin(base_url, value) else {
+    let Ok(resolved) = spiderhead_parse::url_parse::urljoin(base_url, value) else {
         return;
     };
-    let http = spiderhead_parse::py_url::urlsplit(&resolved)
+    let http = spiderhead_parse::url_parse::urlsplit(&resolved)
         .is_ok_and(|parts| matches!(parts.scheme.as_str(), "http" | "https"));
     let has_host = crate::ledger::urlparts::urlsplit(&resolved)
         .hostname()

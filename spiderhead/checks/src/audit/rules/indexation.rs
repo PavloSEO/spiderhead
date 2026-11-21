@@ -332,7 +332,7 @@ pub fn check_directives_extra(ctx: &mut AuditContext) {
 
 /// `canonical_identity` pieces the cross-origin row compares: (scheme, host).
 fn identity(url: &str) -> Option<(String, String)> {
-    let s = spiderhead_parse::py_url::urlsplit(&norm_url(url)).ok()?;
+    let s = spiderhead_parse::url_parse::urlsplit(&norm_url(url)).ok()?;
     let host = spiderhead_parse::urlutil::hostname(url).ok().flatten()?;
     Some((s.scheme.to_lowercase(), host))
 }
@@ -345,7 +345,7 @@ pub fn check_canonical_annotations(ctx: &mut AuditContext) {
         if canonical.is_empty() {
             continue;
         }
-        let Ok(target) = spiderhead_parse::py_url::urlsplit(&canonical) else {
+        let Ok(target) = spiderhead_parse::url_parse::urlsplit(&canonical) else {
             continue;
         };
         if !matches!(target.scheme.as_str(), "http" | "https")
@@ -363,7 +363,7 @@ pub fn check_canonical_annotations(ctx: &mut AuditContext) {
         if src.1 != dst.1 {
             differences.push("host");
         }
-        let source_scheme = spiderhead_parse::py_url::urlsplit(&page.url)
+        let source_scheme = spiderhead_parse::url_parse::urlsplit(&page.url)
             .map(|s| s.scheme)
             .unwrap_or_default();
         if source_scheme != target.scheme {
@@ -483,7 +483,7 @@ fn rel_has_canonical(rel: &str) -> bool {
 /// `urlsplit(target)` resolves to scheme http/https + hostname, with Cthe reference
 /// `.port` ValueError on a malformed or out-of-range port.
 fn valid_http_target(target: &str) -> bool {
-    let Ok(parts) = spiderhead_parse::py_url::urlsplit(target) else {
+    let Ok(parts) = spiderhead_parse::url_parse::urlsplit(target) else {
         return false;
     };
     if !matches!(parts.scheme.as_str(), "http" | "https") {
@@ -820,7 +820,7 @@ pub fn check_canonical_extra(ctx: &mut AuditContext) {
             );
         }
         if !canonical.is_empty()
-            && spiderhead_parse::py_url::urlsplit(&canonical)
+            && spiderhead_parse::url_parse::urlsplit(&canonical)
                 .map(|p| !p.fragment.is_empty())
                 .unwrap_or(false)
         {
@@ -842,7 +842,7 @@ pub fn check_canonical_extra(ctx: &mut AuditContext) {
 /// `_canonical_policy_target_is_fetched`: this exact policy URL has a response
 /// row (scheme/netloc/path/query/fragment identity, not the folded norm key).
 fn canonical_policy_target_is_fetched(ctx: &AuditContext, url: &str) -> bool {
-    let Ok(target) = spiderhead_parse::py_url::urlsplit(url) else {
+    let Ok(target) = spiderhead_parse::url_parse::urlsplit(url) else {
         return false;
     };
     let target_path = if target.path.is_empty() {
@@ -865,7 +865,7 @@ fn canonical_policy_target_is_fetched(ctx: &AuditContext, url: &str) -> bool {
         if page.status_code.is_none() {
             continue;
         }
-        let Ok(candidate) = spiderhead_parse::py_url::urlsplit(&page.url) else {
+        let Ok(candidate) = spiderhead_parse::url_parse::urlsplit(&page.url) else {
             continue;
         };
         let candidate_path = if candidate.path.is_empty() {
@@ -1233,7 +1233,7 @@ fn split_port(netloc: &str) -> Result<Option<u16>, ()> {
 
 /// `_homepage_url`: an HTTP(S) origin root without query, fragment or userinfo.
 fn homepage_url(url: &str) -> bool {
-    let Ok(parts) = spiderhead_parse::py_url::urlsplit(url) else {
+    let Ok(parts) = spiderhead_parse::url_parse::urlsplit(url) else {
         return false;
     };
     matches!(parts.scheme.to_lowercase().as_str(), "http" | "https")
@@ -1250,8 +1250,8 @@ fn homepage_url(url: &str) -> bool {
 /// `_same_home_origin`: same scheme, hostname and effective port.
 fn same_home_origin(source: &str, target: &str) -> bool {
     let (Ok(s), Ok(t)) = (
-        spiderhead_parse::py_url::urlsplit(source),
-        spiderhead_parse::py_url::urlsplit(target),
+        spiderhead_parse::url_parse::urlsplit(source),
+        spiderhead_parse::url_parse::urlsplit(target),
     ) else {
         return false;
     };
@@ -1330,7 +1330,7 @@ pub fn check_canonical_homepage_group(ctx: &mut AuditContext) {
         {
             continue;
         }
-        let Ok(source_parts) = spiderhead_parse::py_url::urlsplit(&page.url) else {
+        let Ok(source_parts) = spiderhead_parse::url_parse::urlsplit(&page.url) else {
             continue;
         };
         if source_parts.path.is_empty()

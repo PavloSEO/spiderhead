@@ -7,7 +7,7 @@ use serde_json::{json, Map, Value};
 use thiserror::Error;
 
 use crate::join::normalize_join_key_opts;
-use crate::py;
+use crate::values;
 
 /// Join failure; shares the import error type.
 #[derive(Debug, Error)]
@@ -40,7 +40,7 @@ fn row_join_key(row: &Value, policy: &Map<String, Value>) -> Option<String> {
     }
     let candidate = url
         .get("resolved")
-        .filter(|v| py::truthy(Some(*v)))
+        .filter(|v| values::truthy(Some(*v)))
         .or_else(|| url.get("raw"))
         .cloned();
     key_fn(policy, &candidate.unwrap_or(Value::Null))
@@ -156,7 +156,7 @@ pub fn join_evidence(
                 let url = row.get("url").cloned().unwrap_or(json!({}));
                 let raw = url
                     .get("resolved")
-                    .filter(|v| py::truthy(Some(*v)))
+                    .filter(|v| values::truthy(Some(*v)))
                     .or_else(|| url.get("raw"))
                     .and_then(Value::as_str)
                     .unwrap_or_default()

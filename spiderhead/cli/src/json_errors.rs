@@ -47,7 +47,7 @@ impl Scanner<'_> {
                         return Err((
                             format!(
                                 "Invalid \\escape: {}",
-                                crate::pycompat::repr(&c.to_string())
+                                crate::argparse_compat::repr(&c.to_string())
                             ),
                             i,
                         ))

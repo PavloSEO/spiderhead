@@ -507,7 +507,7 @@ pub fn diagnose_summary_lines(result: &Value) -> Vec<String> {
         .flatten()
     {
         let url = match decision["url"].as_str() {
-            Some(url) => spiderhead_sources::pystr::repr_str(url),
+            Some(url) => spiderhead_sources::text_rules::repr_str(url),
             None => text(&decision["url"]),
         };
         lines.push(format!(

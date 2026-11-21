@@ -5,7 +5,7 @@
 //! separate lines; `*.example.com` folds back to its base domain.
 
 use crate::http::{Request, Transport, TransportError};
-use crate::{pyerr, pystr};
+use crate::{error_text, text_rules};
 use serde_json::{json, Value};
 use spiderhead_core::user_agents::RECON_USER_AGENT;
 use std::collections::BTreeSet;
@@ -70,7 +70,7 @@ pub async fn subdomains<T: Transport>(transport: &T, domain: &str) -> Result<Val
     if domain.is_empty() {
         return raise("ValueError", "domain required");
     }
-    let domain = pystr::strip(domain).to_lowercase();
+    let domain = text_rules::strip(domain).to_lowercase();
     let query = crate::http::urlencode(&[
         ("q".to_owned(), format!("%.{domain}")),
         ("output".to_owned(), "json".to_owned()),
@@ -85,9 +85,9 @@ pub async fn subdomains<T: Transport>(transport: &T, domain: &str) -> Result<Val
         },
         Err(e) => {
             let text = match &e {
-                TransportError::Http(r) => pyerr::http_error(r.status),
-                TransportError::Connect(kind) => pyerr::url_error(kind),
-                TransportError::InvalidRequest(_) => pyerr::url_error("invalid request"),
+                TransportError::Http(r) => error_text::http_error(r.status),
+                TransportError::Connect(kind) => error_text::url_error(kind),
+                TransportError::InvalidRequest(_) => error_text::url_error("invalid request"),
             };
             return Ok(json!({
                 "ok": false,
@@ -96,7 +96,7 @@ pub async fn subdomains<T: Transport>(transport: &T, domain: &str) -> Result<Val
             }));
         }
     };
-    if pystr::strip(&raw).is_empty() {
+    if text_rules::strip(&raw).is_empty() {
         return Ok(json!({"ok": true, "domain": domain, "count": 0, "subdomains": []}));
     }
     let rows: Value = match serde_json::from_str(&raw) {
@@ -132,13 +132,13 @@ pub async fn subdomains<T: Transport>(transport: &T, domain: &str) -> Result<Val
         for field in ["common_name", "name_value"] {
             let value = map.get(field).cloned().unwrap_or(Value::Null);
             // Missing or falsy fields become the empty string.
-            let text = if pystr::truthy(Some(&value)) {
-                pystr::repr_value(&value)
+            let text = if text_rules::truthy(Some(&value)) {
+                text_rules::repr_value(&value)
             } else {
                 String::new()
             };
-            for candidate in pystr::splitlines(&text) {
-                let cleaned = pystr::strip(&candidate).to_lowercase();
+            for candidate in text_rules::splitlines(&text) {
+                let cleaned = text_rules::strip(&candidate).to_lowercase();
                 let name = cleaned.strip_prefix("*.").unwrap_or(&cleaned);
                 if !name.is_empty() && (name == domain || name.ends_with(&suffix)) {
                     names.insert(name.to_owned());

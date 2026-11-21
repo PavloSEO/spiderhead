@@ -6,7 +6,7 @@
 use serde_json::{json, Map, Value};
 
 use crate::context::{AddOpts, AuditContext, ContextError};
-use crate::pyvalue::{str_or_dumps, truthy};
+use crate::value_text::{str_or_dumps, truthy};
 
 /// Element differences that concern a rule rather than one field.
 fn rule_checks(rule: &str) -> &'static [&'static str] {

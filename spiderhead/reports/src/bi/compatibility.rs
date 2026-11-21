@@ -7,7 +7,7 @@ use serde_json::{json, Map, Value};
 
 use crate::bi::dates::window;
 use crate::bi::schema::BIExportError;
-use crate::py;
+use crate::values;
 
 fn err(msg: impl Into<String>) -> BIExportError {
     BIExportError::new(msg)
@@ -103,12 +103,12 @@ fn period_aspect(left: &Value, right: &Value, reasons: &mut Vec<Value>) -> bool 
 /// URL keys with at least one measured `metric` row.
 fn measured_keys(document: &Value, metric: &str) -> BTreeSet<String> {
     let mut keys = BTreeSet::new();
-    for row in py::get_list(document, "rows") {
-        let url = py::get_map(row, "url");
+    for row in values::get_list(document, "rows") {
+        let url = values::get_map(row, "url");
         if url.get("state").and_then(Value::as_str) != Some("keyed") {
             continue;
         }
-        let entry = py::get_map(row, "metrics");
+        let entry = values::get_map(row, "metrics");
         let entry = entry.get(metric).cloned().unwrap_or(Value::Null);
         if entry.get("state").and_then(Value::as_str) == Some("measured") {
             if let Some(key) = url.get("normalized").and_then(Value::as_str) {
@@ -121,9 +121,9 @@ fn measured_keys(document: &Value, metric: &str) -> BTreeSet<String> {
 
 /// Index URLs by key.
 fn keyed_urls(document: &Value) -> BTreeSet<String> {
-    py::get_list(document, "rows")
+    values::get_list(document, "rows")
         .iter()
-        .map(|row| py::get_map(row, "url"))
+        .map(|row| values::get_map(row, "url"))
         .filter(|url| url.get("state").and_then(Value::as_str) == Some("keyed"))
         .filter_map(|url| url.get("normalized").and_then(Value::as_str))
         .map(str::to_owned)
@@ -133,12 +133,12 @@ fn keyed_urls(document: &Value) -> BTreeSet<String> {
 /// Measured keys whose value is exactly `0`.
 fn zero_measured_keys(document: &Value, metric: &str) -> BTreeSet<String> {
     let mut keys = BTreeSet::new();
-    for row in py::get_list(document, "rows") {
-        let url = py::get_map(row, "url");
+    for row in values::get_list(document, "rows") {
+        let url = values::get_map(row, "url");
         if url.get("state").and_then(Value::as_str) != Some("keyed") {
             continue;
         }
-        let entry = py::get_map(row, "metrics");
+        let entry = values::get_map(row, "metrics");
         let entry = entry.get(metric).cloned().unwrap_or(Value::Null);
         if entry.get("state").and_then(Value::as_str) == Some("measured")
             && entry.get("value") == Some(&json!(0))
@@ -444,7 +444,7 @@ pub fn evidence_compatibility(
     }
 
     let dims = |document: &Value| -> BTreeSet<String> {
-        py::get_map(document, "mapping")
+        values::get_map(document, "mapping")
             .get("dimensions")
             .and_then(Value::as_array)
             .map(|a| {
@@ -493,7 +493,7 @@ pub fn evidence_compatibility(
 
     let mut degraded: Vec<String> = Vec::new();
     for (side, document) in [("left", left), ("right", right)] {
-        let collection_map = py::get_map(document, "mapping")
+        let collection_map = values::get_map(document, "mapping")
             .get("collection")
             .and_then(Value::as_object)
             .cloned()
@@ -502,7 +502,7 @@ pub fn evidence_compatibility(
         let flags: Vec<&str> = ["sampled", "thresholded", "truncated"]
             .iter()
             .copied()
-            .filter(|name| py::truthy(collection_map.get(*name)))
+            .filter(|name| values::truthy(collection_map.get(*name)))
             .collect();
         if UNUSABLE_STATES.contains(&state.unwrap_or("")) {
             let mut extra = unverified();
@@ -550,7 +550,7 @@ pub fn evidence_compatibility(
     };
 
     let axis = |document: &Value| -> Value {
-        let mapping = py::get_map(document, "mapping");
+        let mapping = values::get_map(document, "mapping");
         let source = mapping.get("source").cloned().unwrap_or_else(|| json!({}));
         let metrics: Vec<Value> = mapping
             .get("metrics")
@@ -575,18 +575,18 @@ pub fn evidence_compatibility(
         "format": COMPATIBILITY_FORMAT,
         "verdict": verdict,
         "juxtaposed": juxtaposed,
-        "boundary_policy": if py::truthy(Some(&policy)) { json!(boundary) } else { Value::Null },
+        "boundary_policy": if values::truthy(Some(&policy)) { json!(boundary) } else { Value::Null },
         "reasons": reasons.clone(),
         "axes": {"left": axis(left), "right": axis(right)},
     });
 
     let quadrant_req = policy.get("quadrant").cloned().unwrap_or(Value::Null);
     let mut quadrant = json!({
-        "requested": py::truthy(Some(&quadrant_req)),
+        "requested": values::truthy(Some(&quadrant_req)),
         "eligible": false,
         "reasons": [],
     });
-    if py::truthy(Some(&quadrant_req)) {
+    if values::truthy(Some(&quadrant_req)) {
         let mut blockers: Vec<String> = Vec::new();
         if policy.get("boundary_policy").is_none() {
             blockers.push("boundary_policy_undeclared".into());
@@ -594,11 +594,11 @@ pub fn evidence_compatibility(
         if verdict != "compatible" {
             blockers.push(format!("sources_{verdict}"));
         }
-        if reasons.iter().any(|r| py::truthy(r.get("unverified"))) {
+        if reasons.iter().any(|r| values::truthy(r.get("unverified"))) {
             blockers.push("unverified_scope".into());
         }
         let metric_names = |document: &Value| -> BTreeSet<String> {
-            py::get_map(document, "mapping")
+            values::get_map(document, "mapping")
                 .get("metrics")
                 .and_then(Value::as_array)
                 .map(|a| {
@@ -680,7 +680,7 @@ pub fn evidence_compatibility(
 pub fn public_compatibility(result: &Value) -> Value {
     let mut out = result.clone();
     let mut axes = Map::new();
-    for (side, axis) in py::get_map(result, "axes") {
+    for (side, axis) in values::get_map(result, "axes") {
         let redacted: Map<String, Value> = axis
             .as_object()
             .cloned()

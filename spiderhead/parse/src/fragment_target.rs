@@ -8,7 +8,7 @@ use std::sync::OnceLock;
 
 use fancy_regex::Regex;
 
-use crate::py_url::{parse_qsl, urlencode, urlparse, urlunsplit, UrlError};
+use crate::url_parse::{parse_qsl, urlencode, urlparse, urlunsplit, UrlError};
 
 /// The meta-tag signal, matched case-insensitively.
 const FRAGMENT_META_PATTERN: &str = r#"(?i)<meta[^>]+name=["']fragment["'][^>]+content=["']!["']"#;

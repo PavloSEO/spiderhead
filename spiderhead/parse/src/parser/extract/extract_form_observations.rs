@@ -24,11 +24,11 @@ pub fn extract_form_observations(
 }
 
 pub(super) fn form_info(tag: &ElementRef<'_>, base_url: &str, final_url: &str) -> FormInfo {
-    let method = match py_strip(attr(tag, "method").unwrap_or("")) {
+    let method = match strip(attr(tag, "method").unwrap_or("")) {
         "" => "get".to_owned(),
         m => m.to_lowercase(),
     };
-    let action_raw = py_strip(attr(tag, "action").unwrap_or(""));
+    let action_raw = strip(attr(tag, "action").unwrap_or(""));
     let action = if action_raw.is_empty() {
         final_url.to_owned()
     } else {
@@ -73,9 +73,9 @@ pub fn split_srcset(value: &str) -> Vec<String> {
     }
     pieces.push(&value[start..]);
     for entry in pieces {
-        let entry = py_strip(entry);
+        let entry = strip(entry);
         if let Some(first) = entry
-            .split(crate::py_str::is_py_space)
+            .split(crate::strings::is_space)
             .next()
             .filter(|s| !s.is_empty())
         {
@@ -90,7 +90,7 @@ pub fn extract_css_urls(css_text: Option<&str>) -> Vec<String> {
     CSS_URL
         .captures_iter(css_text.unwrap_or(""))
         .flatten()
-        .filter_map(|c| c.get(2).map(|m| py_strip(m.as_str()).to_owned()))
+        .filter_map(|c| c.get(2).map(|m| strip(m.as_str()).to_owned()))
         .collect()
 }
 
@@ -99,7 +99,7 @@ pub fn extract_url_sources(soup: &Soup, base_url: &str) -> Vec<BTreeMap<String, 
     let mut out: Vec<BTreeMap<String, String>> = Vec::new();
     let mut seen: BTreeSet<String> = BTreeSet::new();
     let mut push = |raw_url: &str, tag_name: &str, attr_name: &str| {
-        let raw_url = py_strip(raw_url);
+        let raw_url = strip(raw_url);
         if raw_url.is_empty() || raw_url.starts_with('#') {
             return;
         }
@@ -138,7 +138,7 @@ pub fn extract_url_sources(soup: &Soup, base_url: &str) -> Vec<BTreeMap<String, 
                     }
                     "ping" => {
                         for sub in value
-                            .split(crate::py_str::is_py_space)
+                            .split(crate::strings::is_space)
                             .filter(|s| !s.is_empty())
                         {
                             push(sub, tag_name, attr_name);
@@ -169,7 +169,7 @@ pub fn extract_url_sources(soup: &Soup, base_url: &str) -> Vec<BTreeMap<String, 
         if is_inert_template_content(&meta) {
             continue;
         }
-        if py_strip(attr(&meta, "http-equiv").unwrap_or("")).to_lowercase() == "refresh" {
+        if strip(attr(&meta, "http-equiv").unwrap_or("")).to_lowercase() == "refresh" {
             let content = attr(&meta, "content").unwrap_or("");
             if let Ok(Some(found)) = META_REFRESH_URL.captures(content) {
                 if let Some(url) = found.get(1) {
@@ -213,10 +213,10 @@ pub fn extract_resource_declarations(
             }
             (ResourceKind::Stylesheet, "href")
         };
-        let Some(raw_url) = attr(&tag, attr_name).filter(|u| !py_strip(u).is_empty()) else {
+        let Some(raw_url) = attr(&tag, attr_name).filter(|u| !strip(u).is_empty()) else {
             continue;
         };
-        let Ok(resolved) = urljoin(base_url, py_strip(raw_url)) else {
+        let Ok(resolved) = urljoin(base_url, strip(raw_url)) else {
             continue;
         };
         if max_declarations.is_some_and(|cap| declarations.len() >= cap) {
@@ -249,10 +249,7 @@ pub fn image_url_sources(
 /// Collapsed `sandbox` value. The attribute is a token list, rendered as a bracketed list such as
 /// `['allow-forms', 'allow-scripts']`; an empty list counts as absent.
 pub(super) fn sandbox_text(value: &str) -> String {
-    let tokens: Vec<String> = value
-        .split_whitespace()
-        .map(crate::py_str::py_repr)
-        .collect();
+    let tokens: Vec<String> = value.split_whitespace().map(crate::strings::repr).collect();
     if tokens.is_empty() {
         String::new()
     } else {
@@ -273,7 +270,7 @@ pub fn extract_frames(
         if is_inert_template_content(&tag) {
             continue;
         }
-        let raw_src = py_strip(attr(&tag, "src").unwrap_or("")).to_owned();
+        let raw_src = strip(attr(&tag, "src").unwrap_or("")).to_owned();
         let src = if raw_src.is_empty() {
             String::new()
         } else {
@@ -285,7 +282,7 @@ pub fn extract_frames(
             raw_src,
             in_content_area: in_content_area.contains(&index),
             title: collapse_whitespace(attr(&tag, "title").unwrap_or("")),
-            loading: py_strip(attr(&tag, "loading").unwrap_or("")).to_lowercase(),
+            loading: strip(attr(&tag, "loading").unwrap_or("")).to_lowercase(),
             sandbox: sandbox_text(attr(&tag, "sandbox").unwrap_or("")),
         });
     }

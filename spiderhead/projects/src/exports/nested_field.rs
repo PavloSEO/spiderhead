@@ -238,7 +238,7 @@ pub(super) fn write_rows_inner(
             ));
         }
         if format_ == "json" {
-            let encoded = pyjson::dumps_compact(row);
+            let encoded = json_docs::dumps_compact(row);
             let chunk = format!("{}{}", if processed > 1 { "," } else { "" }, encoded);
             let file = sink
                 .file
@@ -323,7 +323,7 @@ pub(super) fn write_rows_inner(
 }
 
 pub(super) fn build_json_prefix(job: &Value) -> String {
-    let body = pyjson::dumps_compact(&json!({
+    let body = json_docs::dumps_compact(&json!({
         "format": "spiderhead.project-export.v1",
         "dataset": job["dataset"],
         "source": job["source"],

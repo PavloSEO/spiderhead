@@ -15,7 +15,7 @@ use std::path::Path;
 use crate::credentials::{self, CredentialError};
 use crate::http::{quote, Request, Transport, TransportError};
 use crate::oauth::{self, OAuthError};
-use crate::{pyerr, pyjson, pystr, pytime};
+use crate::{datetime, error_text, json_wire, text_rules};
 
 mod inspect;
 mod pages;
@@ -107,14 +107,14 @@ impl From<OAuthError> for GscError {
 /// `default_date_range` — `(start, end)` of the last completed inclusive 28-day window:
 /// `end` is yesterday in Pacific Time, `start` 27 days before that.
 pub fn default_date_range(now_micros: i64) -> (String, String) {
-    let (y, m, d) = pytime::pacific_date(now_micros);
-    let end_days = pytime::days_from_civil(y, m, d) - 1;
+    let (y, m, d) = datetime::pacific_date(now_micros);
+    let end_days = datetime::days_from_civil(y, m, d) - 1;
     let start_days = end_days - (DEFAULT_WINDOW_DAYS - 1);
     (iso_days(start_days), iso_days(end_days))
 }
 
 fn iso_days(days: i64) -> String {
-    let (y, m, d) = pytime::civil_from_days(days);
+    let (y, m, d) = datetime::civil_from_days(days);
     format!("{y:04}-{m:02}-{d:02}")
 }
 
@@ -124,7 +124,7 @@ fn is_iso_date(value: Option<&str>) -> bool {
     if bytes.len() != 10 || bytes[4] != b'-' || bytes[7] != b'-' {
         return false;
     }
-    pytime::fromisoformat(value)
+    datetime::fromisoformat(value)
         .map(|p| !p.aware)
         .unwrap_or(false)
 }
@@ -216,7 +216,7 @@ pub async fn search_analytics<T: Transport>(
     let (start_date, end_date) = resolve_date_range(
         args.start_date,
         args.end_date,
-        args.now.unwrap_or_else(pytime::now_micros),
+        args.now.unwrap_or_else(datetime::now_micros),
     );
     if let Some(error) = validate_date_range(start_date.as_deref(), end_date.as_deref()) {
         return Ok(json!({"ok": false, "error": error}));
@@ -531,7 +531,7 @@ pub async fn sitemap_status<T: Transport>(
             return Ok(json!({
                 "ok": false,
                 "state": "failed",
-                "error": pyerr::http_error(response.status),
+                "error": error_text::http_error(response.status),
             }))
         }
         Fetch::TooLarge => {

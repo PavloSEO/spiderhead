@@ -12,8 +12,8 @@ use std::collections::{BTreeMap, HashSet};
 use serde_json::{json, Map, Value as Json};
 use spiderhead_core::net::normalize_url;
 use spiderhead_core::timeutil::{stamp, Format};
-use spiderhead_parse::py_str::py_repr;
-use spiderhead_parse::py_url::urlsplit;
+use spiderhead_parse::strings::repr;
+use spiderhead_parse::url_parse::urlsplit;
 
 use crate::cwv::{assess, truthy};
 
@@ -568,7 +568,7 @@ pub fn audit_site(
     if domain.is_empty() || domain.contains(' ') || !domain.trim_matches('.').contains('.') {
         return Ok(json!({
             "ok": false,
-            "error": format!("Value does not look like a domain: {}", py_repr(url))
+            "error": format!("Value does not look like a domain: {}", repr(url))
         }));
     }
 

@@ -15,13 +15,13 @@ use rusqlite::Connection;
 use serde_json::{json, Map, Value};
 
 use spiderhead_sources::sources_db::{self, fetchers, QueryArgs, SyncArgs, SyncEnv};
-use spiderhead_sources::{gsc, pystr, pytime};
+use spiderhead_sources::{datetime, gsc, text_rules};
 
 use common::StubTransport;
 
 /// The frozen `sources_db.datetime` — 2026-02-10T12:00:00+00:00 in epoch microseconds.
 fn frozen_micros() -> i64 {
-    pytime::days_from_civil(2026, 2, 10) * 86_400_000_000 + 12 * 3_600_000_000
+    datetime::days_from_civil(2026, 2, 10) * 86_400_000_000 + 12 * 3_600_000_000
 }
 
 /// `$BASE` → the scenario sandbox path inside op arguments.
@@ -291,7 +291,7 @@ fn sql_params(params: &[Value]) -> Vec<rusqlite::types::Value> {
                 .map(rusqlite::types::Value::Integer)
                 .unwrap_or_else(|| rusqlite::types::Value::Real(n.as_f64().unwrap_or_default())),
             Value::String(s) => rusqlite::types::Value::Text(s.clone()),
-            other => rusqlite::types::Value::Text(pystr::repr_value(other)),
+            other => rusqlite::types::Value::Text(text_rules::repr_value(other)),
         })
         .collect()
 }
@@ -379,14 +379,14 @@ async fn run_op(
             let as_of = args
                 .get("as_of")
                 .and_then(Value::as_str)
-                .and_then(pytime::date_fromisoformat);
+                .and_then(datetime::date_fromisoformat);
             match sources_db::available_end(
                 args["source"].as_str().unwrap_or_default(),
                 as_of,
                 Some(frozen_micros()),
             ) {
                 Ok(days) => {
-                    let (y, m, d) = pytime::civil_from_days(days);
+                    let (y, m, d) = datetime::civil_from_days(days);
                     outcome_result(format!("{y:04}-{m:02}-{d:02}"), &base_str)
                 }
                 Err(err) => map_sources_error(&err, &base_str),

@@ -5,13 +5,13 @@ use std::sync::LazyLock;
 
 use fancy_regex::Regex;
 
-use super::pyjson;
+use super::lenient_json;
 use super::shared::{
     char_prefix, collapse_whitespace, is_inert_template_content, rel_has, FOREIGN_CONTENT,
 };
 use crate::dom::{find, find_all, get_text, ElementRef, Soup};
 use crate::models::{HreflangAlternate, JsonldInvalid};
-use crate::py_str::py_strip;
+use crate::strings::strip;
 use crate::types::{Json, Result};
 use crate::urlutil::urljoin;
 
@@ -98,7 +98,7 @@ pub fn document_charset(html: &str) -> Option<String> {
 pub fn document_doctype(html: &str) -> Option<String> {
     let window = char_prefix(html, DOCTYPE_WINDOW_CHARS);
     let found = DOCTYPE_RE.find(window).ok().flatten()?;
-    Some(py_strip(found.as_str()).to_owned())
+    Some(strip(found.as_str()).to_owned())
 }
 
 /// True when the root `<html>` carries `amp` or `⚡`.
@@ -116,7 +116,7 @@ pub(crate) fn first_meta_tag<'a>(soup: &'a Soup, name: &str) -> Option<ElementRe
 pub(crate) fn live_meta_tag_count(soup: &Soup, name: &str) -> usize {
     find_all(soup, "meta")
         .filter(|tag| name_is(tag, name) && !is_inert_template_content(tag))
-        .filter(|tag| attr(tag, "content").is_some_and(|c| !py_strip(c).is_empty()))
+        .filter(|tag| attr(tag, "content").is_some_and(|c| !strip(c).is_empty()))
         .count()
 }
 
@@ -157,10 +157,10 @@ pub fn extract_head_links(soup: &Soup, base_url: &str) -> Vec<BTreeMap<String, S
             continue;
         }
         let href = attr(&tag, "href").unwrap_or("");
-        let target = if py_strip(href).is_empty() {
+        let target = if strip(href).is_empty() {
             String::new()
         } else {
-            urljoin(base_url, py_strip(href)).unwrap_or_default()
+            urljoin(base_url, strip(href)).unwrap_or_default()
         };
         let mut declaration = BTreeMap::new();
         declaration.insert("rel".to_owned(), rel.to_owned());
@@ -187,7 +187,7 @@ pub(crate) fn robots_directive_tags(soup: &Soup) -> Vec<ElementRef<'_>> {
             attr(tag, "name")
                 .is_some_and(|n| ROBOTS_META_NAMES.contains(&n.to_lowercase().as_str()))
         })
-        .filter(|tag| attr(tag, "content").is_some_and(|c| !py_strip(c).is_empty()))
+        .filter(|tag| attr(tag, "content").is_some_and(|c| !strip(c).is_empty()))
         .collect()
 }
 
@@ -197,7 +197,7 @@ pub fn robots_meta_entries(soup: &Soup) -> Vec<(String, String)> {
         .iter()
         .map(|tag| {
             (
-                py_strip(attr(tag, "name").unwrap_or("")).to_lowercase(),
+                strip(attr(tag, "name").unwrap_or("")).to_lowercase(),
                 collapse_whitespace(attr(tag, "content").unwrap_or("")),
             )
         })
@@ -238,7 +238,7 @@ pub(crate) fn hreflang_tags(soup: &Soup) -> Vec<ElementRef<'_>> {
 pub fn meta_refresh_content(soup: &Soup) -> String {
     find_all(soup, "meta")
         .filter(|meta| !is_inert_template_content(meta))
-        .find(|meta| py_strip(attr(meta, "http-equiv").unwrap_or("")).to_lowercase() == "refresh")
+        .find(|meta| strip(attr(meta, "http-equiv").unwrap_or("")).to_lowercase() == "refresh")
         .map(|meta| collapse_whitespace(attr(&meta, "content").unwrap_or("")))
         .unwrap_or_default()
 }
@@ -260,13 +260,13 @@ pub fn robots_directives(values: &[Option<&str>]) -> Vec<String> {
     };
     for value in values.iter().map(|v| v.unwrap_or("")) {
         for raw in value.replace(';', ",").split(',') {
-            let mut token = py_strip(raw).to_lowercase();
+            let mut token = strip(raw).to_lowercase();
             if token.contains(':') && !VALUED_DIRECTIVES.iter().any(|d| token.starts_with(d)) {
                 let (agent, rest) = token.split_once(':').unwrap_or((&token, ""));
-                if !GOOGLE_ROBOTS_AGENTS.contains(&py_strip(agent)) {
+                if !GOOGLE_ROBOTS_AGENTS.contains(&strip(agent)) {
                     continue;
                 }
-                token = py_strip(rest).to_owned();
+                token = strip(rest).to_owned();
             }
             if token.is_empty() {
                 continue;
@@ -299,7 +299,7 @@ pub fn extract_mobile_alternates(
         if !hreflang.is_empty() || media.is_empty() || is_inert_template_content(&tag) {
             continue;
         }
-        let raw_href = py_strip(attr(&tag, "href").unwrap_or("")).to_owned();
+        let raw_href = strip(attr(&tag, "href").unwrap_or("")).to_owned();
         let url = if raw_href.is_empty() {
             String::new()
         } else {
@@ -319,7 +319,7 @@ pub fn extract_mobile_alternates(
 pub fn live_jsonld_tags(soup: &Soup) -> Vec<ElementRef<'_>> {
     find_all(soup, "script")
         .filter(|tag| {
-            py_strip(attr(tag, "type").unwrap_or("")).to_lowercase() == "application/ld+json"
+            strip(attr(tag, "type").unwrap_or("")).to_lowercase() == "application/ld+json"
         })
         .filter(|tag| !is_inert_template_content(tag))
         .collect()
@@ -333,7 +333,7 @@ pub fn extract_jsonld(soup: &Soup) -> (Vec<Json>, Vec<JsonldInvalid>) {
     for (index, tag) in live_jsonld_tags(soup).iter().enumerate() {
         let index = (index + 1) as u64;
         let raw = get_text(tag, "");
-        let text = py_strip(&raw);
+        let text = strip(&raw);
         if text.is_empty() {
             invalid.push(JsonldInvalid {
                 index,
@@ -342,7 +342,7 @@ pub fn extract_jsonld(soup: &Soup) -> (Vec<Json>, Vec<JsonldInvalid>) {
             });
             continue;
         }
-        match pyjson::loads(text) {
+        match lenient_json::loads(text) {
             Ok(value) => out.push(value),
             Err(err) => invalid.push(JsonldInvalid {
                 index,
@@ -367,7 +367,7 @@ pub fn extract_amphtml(soup: &Soup, base_url: &str) -> Result<String> {
         if is_inert_template_content(&tag) {
             continue;
         }
-        let raw_href = py_strip(attr(&tag, "href").unwrap_or(""));
+        let raw_href = strip(attr(&tag, "href").unwrap_or(""));
         if !raw_href.is_empty() {
             return urljoin(base_url, raw_href);
         }
@@ -382,14 +382,14 @@ pub fn extract_hreflang(soup: &Soup, base_url: &str) -> Result<Vec<HreflangAlter
         if is_inert_template_content(&tag) {
             continue;
         }
-        let raw_href = py_strip(attr(&tag, "href").unwrap_or("")).to_owned();
+        let raw_href = strip(attr(&tag, "href").unwrap_or("")).to_owned();
         let url = if raw_href.is_empty() {
             String::new()
         } else {
             urljoin(base_url, &raw_href)?
         };
         alternates.push(HreflangAlternate {
-            lang: py_strip(attr(&tag, "hreflang").unwrap_or("")).to_owned(),
+            lang: strip(attr(&tag, "hreflang").unwrap_or("")).to_owned(),
             raw_href,
             url,
         });

@@ -16,9 +16,9 @@ use crate::models::{
     FormInfo, FrameInfo, InvalidLinkTarget, LinkInfo, LinkObservation, LinkPlacement,
     ResourceDeclaration, ResourceKind,
 };
-use crate::py_str::py_strip;
-use crate::py_url::urlparse;
+use crate::strings::strip;
 use crate::types::{ContentAreaConfig, Json, ParseError, ParseOptions, PositionRule, Result};
+use crate::url_parse::urlparse;
 use crate::urlutil::urljoin;
 
 mod extract_form_observations;
@@ -108,7 +108,7 @@ pub fn link_target_reason(
     if is_inert_template_content(tag) {
         return Err("");
     }
-    let href_raw = py_strip(attr(tag, "href").unwrap_or(""));
+    let href_raw = strip(attr(tag, "href").unwrap_or(""));
     if href_raw.is_empty() || href_raw.starts_with('#') {
         return Err("");
     }
@@ -159,7 +159,7 @@ fn link_info_with(
         raw_href: href_raw.to_owned(),
         text: text.clone(),
         rel: rel_tokens.join(" "),
-        target: py_strip(attr(tag, "target").unwrap_or("")).to_owned(),
+        target: strip(attr(tag, "target").unwrap_or("")).to_owned(),
         nofollow: rel_tokens.iter().any(|t| t == "nofollow"),
         external,
         position: None,
@@ -284,7 +284,7 @@ pub fn extract_link_observations(
             Err(reason) => {
                 if options.record_invalid_targets && !reason.is_empty() {
                     out.invalid_targets.push(InvalidLinkTarget {
-                        raw_href: py_strip(attr(&tag, "href").unwrap_or("")).to_owned(),
+                        raw_href: strip(attr(&tag, "href").unwrap_or("")).to_owned(),
                         reason: reason.to_owned(),
                     });
                 }

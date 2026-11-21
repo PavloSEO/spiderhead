@@ -8,8 +8,8 @@ use spiderhead_core::host::Host;
 
 use crate::cloudflare::CfError;
 use crate::credentials;
-use crate::pyjson;
-use crate::pystr;
+use crate::json_wire;
+use crate::text_rules;
 
 mod types;
 pub use types::*;
