@@ -8,12 +8,12 @@ use super::*;
 const TOTAL_PUBLISHED_ISSUES: usize = 320;
 
 /// Expected counts (`coverage_counts()`).
-const ORACLE_CHECK: usize = 216;
-const ORACLE_TOOL: usize = 10;
-const ORACLE_OUT_OF_SCOPE: usize = 94;
+const GOLDEN_CHECK: usize = 216;
+const GOLDEN_TOOL: usize = 10;
+const GOLDEN_OUT_OF_SCOPE: usize = 94;
 
 /// Category names in catalogue order.
-const ORACLE_CATEGORY_ORDER: [&str; 24] = [
+const GOLDEN_CATEGORY_ORDER: [&str; 24] = [
     "Response Codes",
     "Security",
     "URL",
@@ -121,21 +121,21 @@ fn the_counts_add_up_and_coverage_is_the_majority_of_scope() {
 
 // Pinned against `coverage_counts()`; a change here is a coverage change.
 #[test]
-fn counts_match_the_oracle() {
+fn counts_match_the_golden_fixture() {
     let counts = coverage_counts();
-    assert_eq!(counts.check, ORACLE_CHECK);
-    assert_eq!(counts.tool, ORACLE_TOOL);
+    assert_eq!(counts.check, GOLDEN_CHECK);
+    assert_eq!(counts.tool, GOLDEN_TOOL);
     assert_eq!(counts.partial, 0);
     assert_eq!(counts.gap, 0);
-    assert_eq!(counts.out_of_scope, ORACLE_OUT_OF_SCOPE);
-    assert_eq!(counts.get(Status::Check), ORACLE_CHECK);
+    assert_eq!(counts.out_of_scope, GOLDEN_OUT_OF_SCOPE);
+    assert_eq!(counts.get(Status::Check), GOLDEN_CHECK);
 }
 
 // Pins the size of each category.
 #[test]
-fn categories_keep_the_oracle_order_and_sizes() {
+fn categories_keep_the_golden_order_and_sizes() {
     let names: Vec<&str> = categories().iter().map(|category| category.name).collect();
-    assert_eq!(names, ORACLE_CATEGORY_ORDER);
+    assert_eq!(names, GOLDEN_CATEGORY_ORDER);
     let sizes: Vec<(&str, usize)> = [
         ("Response Codes", 15),
         ("Page Titles", 9),

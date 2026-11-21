@@ -271,7 +271,7 @@ mod tests {
         );
     }
 
-    /// Stub answering 404 only for `/.well-known/` routes; matches the oracle
+    /// Stub answering 404 only for `/.well-known/` routes; matches the reference suite
     /// test's monkeypatched client.
     struct WellKnownStub;
 

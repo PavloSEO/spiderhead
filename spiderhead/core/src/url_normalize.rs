@@ -321,7 +321,7 @@ mod tests {
 
     /// Edge-case table: expected keys for unusual inputs, pinning the urlsplit/urlunsplit behaviour.
     #[test]
-    fn norm_url_matches_reference_oracle_table() {
+    fn norm_url_matches_the_reference_table() {
         let cases: &[(Option<&str>, &str)] = &[
             (Some(""), ""),
             (None, ""),
@@ -410,7 +410,7 @@ mod tests {
 
     /// Each row must be accepted or rejected as listed, and accepted rows must yield the listed key.
     #[test]
-    fn norm_url_matches_oracle_differential_table() {
+    fn norm_url_matches_golden_differential_table() {
         let rows: serde_json::Value =
             serde_json::from_str(include_str!("../tests/fixtures/norm_url_oracle.json"))
                 .expect("fixture parses");
@@ -425,7 +425,7 @@ mod tests {
                 None => got.is_err(),
             };
             if !ok {
-                bad.push(format!("{input:?}: rust {got:?}, oracle {row}"));
+                bad.push(format!("{input:?}: rust {got:?}, golden {row}"));
             }
         }
         assert!(

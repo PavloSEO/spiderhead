@@ -385,7 +385,7 @@ mod tests {
     }
 
     #[test]
-    fn verifier_matches_the_reference_oracle() {
+    fn verifier_matches_the_reference_suite() {
         std::env::set_var("SH_TEST_TOKEN", "abc");
         std::env::set_var("SH_USER", "u");
         std::env::set_var("SH_PASS", "p\u{e4}");

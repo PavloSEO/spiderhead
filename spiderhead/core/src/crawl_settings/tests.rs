@@ -684,7 +684,7 @@ fn is_unrepresentable(value: &Value) -> bool {
 
 /// Table of expected fingerprints: the SHA-256 of the manifest JSON with sorted keys and non-ASCII kept.
 #[test]
-fn fingerprint_matches_oracle_differential_table() {
+fn fingerprint_matches_golden_differential_table() {
     let rows: Value =
         serde_json::from_str(include_str!("../../tests/fixtures/fingerprint_oracle.json"))
             .expect("fixture parses");
@@ -697,7 +697,7 @@ fn fingerprint_matches_oracle_differential_table() {
         let got = fingerprint(&config, &host);
         if got.as_deref().ok() != row["fp"].as_str() {
             bad.push(format!(
-                "{}: rust {got:?}, oracle {}",
+                "{}: rust {got:?}, golden {}",
                 row["overlay"], row["fp"]
             ));
         }
@@ -713,7 +713,7 @@ fn fingerprint_matches_oracle_differential_table() {
 /// Differential table for `coerce` and `parse_setting_assignment` (float and int parsing, bool and
 /// list splitting, JSON objects: each case yields the expected value or rejection.
 #[test]
-fn coerce_and_assignment_match_oracle_differential_table() {
+fn coerce_and_assignment_match_golden_differential_table() {
     let rows: Value = serde_json::from_str(include_str!("../../tests/fixtures/coerce_oracle.json"))
         .expect("fixture parses");
     let rows = rows.as_array().expect("array");
@@ -741,7 +741,7 @@ fn coerce_and_assignment_match_oracle_differential_table() {
             None => got.is_err(),
         };
         if !same {
-            bad.push(format!("{label}: rust {got:?}, oracle {row}"));
+            bad.push(format!("{label}: rust {got:?}, golden {row}"));
         }
     }
     assert!(

@@ -196,12 +196,12 @@ mod tests {
 }
 
 #[cfg(test)]
-mod oracle_tests {
+mod golden_tests {
     use super::*;
 
     /// Input and expected-result table. A row that expects an error must return `Err`.
     #[test]
-    fn domain_functions_match_oracle_differential_table() {
+    fn domain_functions_match_golden_differential_table() {
         let rows: serde_json::Value =
             serde_json::from_str(include_str!("../../tests/fixtures/domain_oracle.json"))
                 .expect("fixture parses");
@@ -216,7 +216,7 @@ mod oracle_tests {
                 _ => Some(registrable_domain(input)),
             };
             if got.as_deref() != want {
-                bad.push(format!("{input:?}: rust {got:?}, oracle {row}"));
+                bad.push(format!("{input:?}: rust {got:?}, golden {row}"));
             }
         }
         assert!(

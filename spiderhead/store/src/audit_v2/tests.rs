@@ -281,7 +281,7 @@ fn actual_document(scan: &Path) -> Value {
 }
 
 #[test]
-fn reader_matches_oracle_baselines_for_every_site() {
+fn reader_matches_golden_baselines_for_every_site() {
     for (site, port) in SITES {
         let dir = Scratch::new(site);
         let scan = dir.0.join("scan.sqlite");
@@ -311,7 +311,7 @@ fn reader_matches_oracle_baselines_for_every_site() {
 }
 
 #[test]
-fn writer_reproduces_oracle_companions_byte_for_byte() {
+fn writer_reproduces_golden_companions_byte_for_byte() {
     for (site, _) in SITES {
         let dir = Scratch::new(site);
         let scan = dir.0.join("scan.sqlite");

@@ -124,7 +124,7 @@ fn submission_requires_project_safe_target_and_finite_budgets() {
 }
 
 #[test]
-fn browser_policy_applies_python_truthiness_not_types() {
+fn browser_policy_applies_reference_truthiness_not_types() {
     // Review 2026-10-27: reference reads `browser.get("persistent_profile")` and
     // `browser.get("backend", "local") != "local"` on raw JSON values — a truthy
     // non-boolean profile or any non-string backend must still be refused.

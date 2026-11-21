@@ -103,7 +103,7 @@ fn each_collection_streams_one_row_per_item_and_can_be_iterated_twice() {
 }
 
 #[test]
-fn header_keeps_the_oracle_key_order_and_empty_placeholders() {
+fn header_keeps_the_golden_key_order_and_empty_placeholders() {
     let result = AuditResult {
         suppressed_issues: vec![json!({"check": "X"})],
         ..AuditResult::default()
@@ -387,6 +387,6 @@ fn merging_image_issues_ignores_invalid_omitted_counts() {
 }
 
 #[test]
-fn severities_are_listed_lowest_to_highest_in_the_oracle_order() {
+fn severities_are_listed_lowest_to_highest_in_the_golden_order() {
     assert_eq!(SEVERITIES, ["critical", "warning", "notice", "opportunity"]);
 }
