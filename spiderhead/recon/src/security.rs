@@ -125,7 +125,7 @@ pub fn check_security(url: &str, probe_paths: bool, timeout: f64) -> Json {
         return json!({"ok": false, "error": format!("not a valid URL: {}", crate::net_client::py_repr(url))});
     }
     let Ok((client, _)) = http_client(timeout) else {
-        return json!({"ok": false, "error": "httpx is required"});
+        return json!({"ok": false, "error": "HTTP client unavailable"});
     };
     check_security_with(&client, &target, probe_paths)
 }

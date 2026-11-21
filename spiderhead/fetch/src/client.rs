@@ -246,7 +246,7 @@ mod tests {
     }
 
     #[test]
-    fn header_template_is_the_httpx_set() {
+    fn header_template_matches_the_golden_shape() {
         let headers = request_header_template("UA", "127.0.0.1:1");
         assert_eq!(
             headers,

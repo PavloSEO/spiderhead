@@ -1,7 +1,8 @@
 //! Reference suite offline proxy-policy tests.
 //!
 //! Only the pure parts are covered: settings resolution, proxy route validation, DNS guards and
-//! run-log redaction. Everything that opens a socket, drives httpx, the CLI, MCP or NativeScan is
+//! run-log redaction. Everything that opens a socket, drives the HTTP transport, the CLI, MCP or
+//! NativeScan is
 //! listed in the slice report as deferred. DNS and environment come from [`FakeHost`]; nothing
 //! here touches the network.
 

@@ -30,7 +30,7 @@ pub fn check_headers(url: &str, method: &str, timeout: f64) -> Value {
         return json!({"ok": false, "url": url, "error": "headers-check method must be GET or HEAD"});
     }
     let Ok((client, http2_capable)) = http_client(timeout) else {
-        return json!({"ok": false, "url": url, "error": "httpx is required"});
+        return json!({"ok": false, "url": url, "error": "HTTP client unavailable"});
     };
     let started = std::time::Instant::now();
     let response = match client.request(&method, url, &[], &[]) {

@@ -153,7 +153,7 @@ impl Response {
     pub fn text(&self) -> String {
         String::from_utf8_lossy(&self.content).into_owned()
     }
-    /// httpx `is_redirect`: a 3xx status that carries a `Location` header.
+    /// A redirect in flight: a 3xx status that carries a `Location` header.
     pub fn is_redirect(&self) -> bool {
         matches!(self.status_code, 301 | 302 | 303 | 307 | 308) && self.header("location").is_some()
     }
@@ -163,8 +163,8 @@ impl Response {
     }
 }
 
-/// Parse `Set-Cookie` headers the way `httpx.Cookies` exposes them: the first
-/// `;`-segment is `name=value`; a segment without `=` still yields the name.
+/// Parse `Set-Cookie` headers the way the reference client exposes them: the
+/// first `;`-segment is `name=value`; a segment without `=` still yields the name.
 fn parse_cookies(headers: &[(String, String)]) -> Vec<Cookie> {
     let mut out = Vec::new();
     for (name, value) in headers {

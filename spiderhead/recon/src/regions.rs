@@ -306,7 +306,7 @@ pub fn analyze_regions(
         return json!({"ok": false, "error": format!("Unable to parse URL: {}", crate::net_client::py_repr(url))});
     }
     let Ok((client, _)) = http_client(timeout) else {
-        return json!({"ok": false, "error": "httpx is required"});
+        return json!({"ok": false, "error": "HTTP client unavailable"});
     };
     analyze_regions_with(&client, &start, &main_host, extra, limit, render)
 }
