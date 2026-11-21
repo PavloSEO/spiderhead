@@ -1,14 +1,13 @@
-//! Additive scan.v1 legacy import and read-only access; no crawl or body capture.
+//! scan.v1 artifacts: read-only access, including the artifacts of imported legacy runs.
 //!
-//! Identity and runtime checks, schema introspection, canonical JSON helpers, the legacy import (`import_run`) and the read-only open with full or light validation.
+//! Identity and runtime checks, schema introspection, canonical JSON helpers, and the read-only open with full or light validation.
 //! The audit JSON-Schema check lives in `spiderhead_formats::audit_schema`; the audit-v2 companion reader lives in `crate::audit_v2`.
 
 use spiderhead_core::filesystem::{path_identity, StatCompat};
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 use std::fs::{self, File};
-use std::io::{BufRead, BufReader, Read};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
@@ -17,7 +16,7 @@ use rusqlite::{Connection, OptionalExtension};
 use serde::de::{self, Deserialize, Deserializer, MapAccess, SeqAccess, Visitor};
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
-use spiderhead_core::sqlite::{open_readonly, open_writer};
+use spiderhead_core::sqlite::open_readonly;
 
 use crate::audit_v2::audit_v2_path;
 use crate::error::StoreError;
@@ -146,30 +145,44 @@ pub const PAGE_NONNEGATIVE_INTS: &[&str] = &[
     "word_count",
 ];
 
-/// Columns of the pages table that the legacy JSONL record carries under another name.
-const PAGE_JSON_COLUMNS: &[&str] = &[
-    "redirect_chain_json",
-    "hreflang_json",
-    "heading_outline_json",
-    "invalid_link_targets_json",
-    "link_placement_json",
-    "trust_signals_json",
-    "duplicate_ids_json",
-    "canonical_chain_json",
-];
+/// UTC timestamp in the `YYYY-MM-DDTHH:MM:SS[.ffffff]Z` form the schema records.
+pub(crate) fn utc_now_iso() -> String {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default();
+    let secs = now.as_secs() as i64;
+    let micros = now.subsec_micros();
+    let days = secs.div_euclid(86_400);
+    let rem = secs.rem_euclid(86_400);
+    // Civil date from days since 1970-01-01 (Howard Hinnant's algorithm).
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let day = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    let year = yoe + era * 400 + i64::from(month <= 2);
+    let fraction = if micros == 0 {
+        String::new()
+    } else {
+        format!(".{micros:06}")
+    };
+    format!(
+        "{year:04}-{month:02}-{day:02}T{:02}:{:02}:{:02}{fraction}Z",
+        rem / 3600,
+        rem % 3600 / 60,
+        rem % 60
+    )
+}
 
-/// Record keys that the legacy page JSONL adds on top of the table names.
-const PAGE_RECORD_KEYS: &[&str] = &[
-    "url",
-    "redirect_chain",
-    "hreflang",
-    "heading_outline",
-    "invalid_link_targets",
-    "link_placement",
-    "trust_signals",
-    "duplicate_ids",
-    "canonical_chain",
-];
+/// fsync a directory so a renamed or created entry survives a crash.
+pub(crate) fn sync_directory(directory: &Path) {
+    if let Ok(handle) = File::open(directory) {
+        let _ = handle.sync_all();
+    }
+}
 
 /// Build a `ScanError` as a store error.
 fn bad(message: impl Into<String>) -> StoreError {
@@ -213,18 +226,14 @@ pub fn schema() -> &'static str {
     SCAN_V1_SQL
 }
 
-mod import_run;
-mod legacy_import;
 #[cfg(test)]
-mod legacy_tests;
+mod legacy_read_tests;
 mod legacy_validate;
 mod page_checks;
 mod read;
 mod rows;
 mod schema_probe;
 mod strict_json;
-pub use import_run::*;
-pub use legacy_import::*;
 pub use legacy_validate::*;
 pub use page_checks::*;
 pub use read::*;

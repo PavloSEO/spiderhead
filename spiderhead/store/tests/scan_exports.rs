@@ -1,17 +1,16 @@
 //! Tests of the reference suite: legacy exports from scan.v1 stay deterministic
-//! and safely published. The legacy run is the offline fixture under `testdata/legacy-run`
-//! (captured from the reference build). The one reference test that monkeypatches the JSONL writer
-//! to inject a failure is deferred: it needs reference-only mechanics.
+//! and safely published. The fixture under `testdata/legacy-run` is one offline
+//! crawl (`audit.json`, `pages.jsonl`, `links.jsonl`) and the scan.v1 artifact
+//! that importing it produced; the importer is gone, so the committed artifact
+//! stands in for every run imported before its removal. The one reference test
+//! that monkeypatches the JSONL writer to inject a failure is deferred: it needs
+//! reference-only mechanics.
 
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use rusqlite::Connection;
 use serde_json::{json, Value};
 use spiderhead_store::exports::export_run;
-use spiderhead_store::scan_artifact::{import_run, open_scan};
-
-const BUILD: &str = "25fd2ed032a31d63c5811722619e35c14b631476";
 
 fn fixture() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/legacy-run")
@@ -27,18 +26,11 @@ fn scratch(name: &str) -> PathBuf {
     dir
 }
 
-/// A writable copy of the legacy run directory (`legacy_run` fixture of the reference suite).
-fn legacy_run(dir: &Path) -> PathBuf {
-    let run = dir.join("legacy-run");
-    fs::create_dir_all(&run).expect("run dir");
-    for name in ["audit.json", "pages.jsonl", "links.jsonl"] {
-        fs::copy(fixture().join(name), run.join(name)).expect("copy fixture");
-    }
-    run
-}
-
-fn artifact(dir: &Path, run: &Path) -> PathBuf {
-    import_run(run, &dir.join("scan.sqlite"), BUILD, None).expect("import")
+/// A writable copy of the committed artifact of the imported legacy run.
+fn artifact(dir: &Path) -> PathBuf {
+    let path = dir.join("scan.sqlite");
+    fs::copy(fixture().join("scan.sqlite"), &path).expect("copy fixture");
+    path
 }
 
 /// reference `_pages`: JSONL pages with the live-only `attempts` projection dropped.
@@ -64,29 +56,10 @@ fn links(path: &Path) -> Vec<Value> {
         .collect()
 }
 
-fn rows(con: &Connection, sql: &str) -> Vec<Vec<String>> {
-    let mut stmt = con.prepare(sql).expect("prepare");
-    let columns = stmt.column_count();
-    stmt.query_map([], |row| {
-        (0..columns)
-            .map(|i| Ok(format!("{:?}", row.get::<_, rusqlite::types::Value>(i)?)))
-            .collect::<Result<Vec<String>, rusqlite::Error>>()
-    })
-    .expect("query")
-    .collect::<Result<_, _>>()
-    .expect("rows")
-}
-
-fn document(con: &Connection) -> String {
-    con.query_row("SELECT document_json FROM audit", [], |r| r.get(0))
-        .expect("audit")
-}
-
 #[test]
-fn export_reimports_all_observations_and_audit_bytes() {
-    let dir = scratch("reimport");
-    let run = legacy_run(&dir);
-    let scan = artifact(&dir, &run);
+fn export_matches_the_captured_observations_and_audit_bytes() {
+    let dir = scratch("roundtrip");
+    let scan = artifact(&dir);
     let before = fs::read(&scan).expect("bytes");
     let exported = dir.join("exported");
 
@@ -104,30 +77,16 @@ fn export_reimports_all_observations_and_audit_bytes() {
     assert_eq!(names, ["audit.json", "links.jsonl", "pages.jsonl"]);
     assert_eq!(
         fs::read(exported.join("audit.json")).expect("audit"),
-        fs::read(run.join("audit.json")).expect("audit")
+        fs::read(fixture().join("audit.json")).expect("audit")
     );
-    assert_eq!(pages(&exported), pages(&run));
-    assert_eq!(links(&exported), links(&run));
-
-    let reimported = dir.join("reimported.sqlite");
-    import_run(&exported, &reimported, BUILD, None).expect("reimport");
-    let original = open_scan(&scan, true, None).expect("open original");
-    let restored = open_scan(&reimported, true, None).expect("open restored");
-    assert_eq!(
-        rows(&original, "SELECT * FROM pages ORDER BY page_ordinal"),
-        rows(&restored, "SELECT * FROM pages ORDER BY page_ordinal")
-    );
-    assert_eq!(
-        rows(&original, "SELECT * FROM links ORDER BY link_id"),
-        rows(&restored, "SELECT * FROM links ORDER BY link_id")
-    );
-    assert_eq!(document(&original), document(&restored));
+    assert_eq!(pages(&exported), pages(&fixture()));
+    assert_eq!(links(&exported), links(&fixture()));
 }
 
 #[test]
 fn repeated_exports_are_byte_identical() {
     let dir = scratch("repeat");
-    let scan = artifact(&dir, &legacy_run(&dir));
+    let scan = artifact(&dir);
     let first = dir.join("first");
     let second = dir.join("second");
     export_run(&scan, &first).expect("first");
@@ -141,41 +100,12 @@ fn repeated_exports_are_byte_identical() {
     }
 }
 
-#[test]
-fn export_omits_known_late_fields_that_were_absent_in_legacy_jsonl() {
-    const LATE: [&str; 4] = [
-        "content_frames",
-        "content_frames_same_origin",
-        "hreflang",
-        "body_unavailable",
-    ];
-    let dir = scratch("late");
-    let run = legacy_run(&dir);
-    let mut edited = pages(&run);
-    for page in edited.iter_mut() {
-        for field in LATE {
-            page.as_object_mut().expect("object").remove(field);
-        }
-    }
-    let text: String = edited.iter().map(|page| format!("{page}\n")).collect();
-    fs::write(run.join("pages.jsonl"), text).expect("write pages");
-    let scan = artifact(&dir, &run);
-    let exported = dir.join("older-export");
-    export_run(&scan, &exported).expect("export");
-    for page in pages(&exported) {
-        let object = page.as_object().expect("object");
-        for field in LATE {
-            assert!(!object.contains_key(field), "{field}");
-        }
-    }
-}
-
 // Symlink creation needs privilege on Windows.
 #[test]
 #[cfg(unix)]
 fn existing_and_symlinked_destinations_are_refused() {
     let dir = scratch("refuse");
-    let scan = artifact(&dir, &legacy_run(&dir));
+    let scan = artifact(&dir);
     let existing = dir.join("existing");
     fs::create_dir_all(&existing).expect("existing");
     let alias = dir.join("alias");
@@ -197,16 +127,9 @@ fn existing_and_symlinked_destinations_are_refused() {
 
 #[test]
 fn recovery_only_partialness_cannot_be_exported_as_complete() {
-    use std::io::Write;
     let dir = scratch("recovery");
-    let run = legacy_run(&dir);
-    fs::OpenOptions::new()
-        .append(true)
-        .open(run.join("links.jsonl"))
-        .expect("open")
-        .write_all(b"{\"source\":")
-        .expect("append");
-    let scan = import_run(&run, &dir.join("recovered.sqlite"), BUILD, None).expect("import");
+    let scan = dir.join("recovered.sqlite");
+    fs::copy(fixture().join("scan-partial.sqlite"), &scan).expect("copy fixture");
     let before = fs::read(&scan).expect("bytes");
     let destination = dir.join("cannot-represent-recovery");
     let err = export_run(&scan, &destination).expect_err("must refuse");
@@ -217,25 +140,4 @@ fn recovery_only_partialness_cannot_be_exported_as_complete() {
     );
     assert!(!destination.exists());
     assert_eq!(fs::read(&scan).expect("bytes"), before);
-}
-
-#[test]
-fn partialness_recorded_in_audit_survives_export_and_reimport() {
-    let dir = scratch("partial");
-    let run = legacy_run(&dir);
-    let audit_path = run.join("audit.json");
-    let mut audit: Value =
-        serde_json::from_str(&fs::read_to_string(&audit_path).expect("audit")).expect("json");
-    audit["run"]["crawl_partial"] = json!(true);
-    fs::write(&audit_path, audit.to_string()).expect("write audit");
-    let scan = import_run(&run, &dir.join("partial.sqlite"), BUILD, None).expect("import");
-    let destination = dir.join("partial-export");
-    export_run(&scan, &destination).expect("export");
-    let reimported =
-        import_run(&destination, &dir.join("partial-again.sqlite"), BUILD, None).expect("reimport");
-    let con = open_scan(&reimported, true, None).expect("open");
-    let partial: i64 = con
-        .query_row("SELECT crawl_partial FROM scan", [], |r| r.get(0))
-        .expect("flag");
-    assert_eq!(partial, 1);
 }
