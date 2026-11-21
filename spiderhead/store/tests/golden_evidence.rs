@@ -63,7 +63,7 @@ fn bless_fixture(site: &str) {
     fx["derived"] = Value::Object(derived);
     let path = fixture_path(site);
     assert!(
-        spiderhead_oracle_diff::bless_json(&path, &fx),
+        spiderhead_golden::bless_json(&path, &fx),
         "bless failed"
     );
 }
@@ -151,7 +151,7 @@ fn contracts(document: &Map<String, Value>) -> Vec<Value> {
 
 #[test]
 fn attach_contract_matches_golden_on_every_site() {
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     for site in SITES {
         if bless {
             bless_fixture(site);
@@ -176,7 +176,7 @@ fn attach_contract_matches_golden_on_every_site() {
 
 #[test]
 fn attach_contract_parts_streams_the_same_rows() {
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     for site in SITES {
         if bless {
             bless_fixture(site);
@@ -212,7 +212,7 @@ fn attach_contract_parts_streams_the_same_rows() {
 }
 
 fn check_derive(site: &str) {
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         bless_fixture(site);
         return;
     }
@@ -242,7 +242,7 @@ fn derive_matches_golden_with_hreflang_declarations() {
 
 #[test]
 fn lifted_collections_restore_the_derived_corpus() {
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         bless_fixture("basic");
         return;
     }

@@ -34,8 +34,8 @@ const LAYERS: &[(&str, u8)] = &[
     ("spiderhead-mcp", 6),
     ("spiderhead-tui", 6),
     ("spiderhead-cli", 7),
-    ("spiderhead-oracle-diff", 7),
-    ("spiderhead-oracle-testkit", 7),
+    ("spiderhead-golden", 7),
+    ("spiderhead-testkit", 7),
     ("spiderhead-desktop", 8),
 ];
 
@@ -462,7 +462,7 @@ fn layers() -> bool {
         };
         for d in p["dependencies"].as_array().unwrap() {
             let dn = d["name"].as_str().unwrap();
-            // Test-only dependencies (e.g. the oracle differ) may point anywhere.
+            // Test-only dependencies (e.g. the golden differ) may point anywhere.
             if d["kind"].as_str() == Some("dev") {
                 continue;
             }

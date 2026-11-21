@@ -61,7 +61,7 @@ fn short(value: &Value) -> String {
 fn parse_html_matches_the_reference_parser() {
     let text = match std::env::var("PARSE_FIXTURE") {
         Ok(path) => std::fs::read_to_string(path).unwrap_or_default(),
-        Err(_) => spiderhead_oracle_testkit::fixture_text(
+        Err(_) => spiderhead_testkit::fixture_text(
             &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("tests/fixtures/parse_oracle.json"),
         ),

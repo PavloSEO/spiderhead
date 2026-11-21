@@ -35,6 +35,6 @@ zip.workspace = true
 [dev-dependencies]
 tempfile.workspace = true
 spiderhead-checks.workspace = true
-spiderhead-oracle-diff.workspace = true
-spiderhead-oracle-testkit.workspace = true
+spiderhead-golden.workspace = true
+spiderhead-testkit.workspace = true
 spiderhead-projects.workspace = true

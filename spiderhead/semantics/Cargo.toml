@@ -20,4 +20,4 @@ spiderhead-core.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
-spiderhead-oracle-diff.workspace = true
+spiderhead-golden.workspace = true

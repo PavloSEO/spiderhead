@@ -8,8 +8,8 @@ use spiderhead_core::host::SystemHost;
 use spiderhead_crawl::dump::scan_tables;
 use spiderhead_crawl::provenance;
 use spiderhead_crawl::spider::{self, CrawlOptions};
-use spiderhead_oracle_diff::{diff, Options};
-use spiderhead_oracle_testkit::FixtureServer;
+use spiderhead_golden::{diff, Options};
+use spiderhead_testkit::FixtureServer;
 use spiderhead_parse::ParseOptions;
 use spiderhead_store::native_scan::NativeScan;
 use spiderhead_store::scan_lease::NativeScanLease;
@@ -126,7 +126,7 @@ fn baseline_path(site: &str) -> std::path::PathBuf {
 }
 
 fn baseline(site: &str) -> Value {
-    spiderhead_oracle_testkit::fixture_json(&baseline_path(site))
+    spiderhead_testkit::fixture_json(&baseline_path(site))
 }
 
 /// A bless run also republishes the stored capture: `raw-scans/<site>` must hold
@@ -168,11 +168,11 @@ fn capture_is_fresh(site: &str, port: u16, actual: &Value) -> bool {
 fn assert_golden(site: &str, port: u16) {
     let work = Scratch::new(site);
     let actual = crawl_and_dump(site, port, &work.0);
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         if !capture_is_fresh(site, port, &actual) {
             refresh_raw_capture(site, &work.0.join("scan.sqlite"));
         }
-        spiderhead_oracle_diff::bless_json(&baseline_path(site), &actual);
+        spiderhead_golden::bless_json(&baseline_path(site), &actual);
         return;
     }
     let expected = baseline(site);
@@ -181,7 +181,7 @@ fn assert_golden(site: &str, port: u16) {
         divergences.is_empty(),
         "{site}: {} divergence(s)\n{}",
         divergences.len(),
-        spiderhead_oracle_diff::report(&divergences, 40)
+        spiderhead_golden::report(&divergences, 40)
     );
 }
 
@@ -222,11 +222,11 @@ fn golden_robots_sitemap() {
         &work.0,
         &[format!("{base}/sitemap-ok.xml")],
     );
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         if !capture_is_fresh("robots-sitemap", 18706, &actual) {
             refresh_raw_capture("robots-sitemap", &work.0.join("scan.sqlite"));
         }
-        spiderhead_oracle_diff::bless_json(&baseline_path("robots-sitemap"), &actual);
+        spiderhead_golden::bless_json(&baseline_path("robots-sitemap"), &actual);
         return;
     }
     let expected = baseline("robots-sitemap");
@@ -235,7 +235,7 @@ fn golden_robots_sitemap() {
         divergences.is_empty(),
         "robots-sitemap: {} divergence(s)\n{}",
         divergences.len(),
-        spiderhead_oracle_diff::report(&divergences, 40)
+        spiderhead_golden::report(&divergences, 40)
     );
 }
 
@@ -352,7 +352,7 @@ fn interrupted_crawl_resumes_to_the_same_scan() {
         divergences.is_empty(),
         "resume: {} divergence(s)\n{}",
         divergences.len(),
-        spiderhead_oracle_diff::report(&divergences, 40)
+        spiderhead_golden::report(&divergences, 40)
     );
 }
 

@@ -29,6 +29,6 @@ thiserror.workspace = true
 [dev-dependencies]
 rust_xlsxwriter.workspace = true
 spiderhead-fetch.workspace = true
-spiderhead-oracle-diff.workspace = true
+spiderhead-golden.workspace = true
 spiderhead-sources.workspace = true
 tempfile.workspace = true

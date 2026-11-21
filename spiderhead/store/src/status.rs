@@ -444,7 +444,7 @@ mod golden_tests {
     // Light validation: frontier and HTTP outcome counts are disjoint and need no network.
     #[test]
     fn scan_status_matches_the_reference_baseline() {
-        let bless = spiderhead_oracle_diff::bless_enabled();
+        let bless = spiderhead_golden::bless_enabled();
         let mut divergences = Vec::new();
         for site in SITES {
             let path = raw_scan(site);
@@ -459,7 +459,7 @@ mod golden_tests {
                     serde_json::from_str(&std::fs::read_to_string(&file).expect("baseline file"))
                         .expect("baseline json");
                 doc["stdout"] = actual;
-                spiderhead_oracle_diff::bless_json(&file, &doc);
+                spiderhead_golden::bless_json(&file, &doc);
                 continue;
             }
             let expected = baseline(site, "scan-status.json");

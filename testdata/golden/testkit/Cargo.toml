@@ -1,9 +1,9 @@
 [package]
-name = "spiderhead-oracle-testkit"
+name = "spiderhead-testkit"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Deterministic loopback fixture server used by the oracle parity tests."
+description = "Deterministic loopback fixture server used by the golden replay tests."
 
 [dependencies]
 indexmap.workspace = true

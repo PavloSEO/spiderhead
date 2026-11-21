@@ -10,7 +10,7 @@ use indexmap::IndexMap;
 use regex::Regex;
 use serde_json::{Map, Value};
 use spiderhead_checks::audit;
-use spiderhead_oracle_diff::{diff, Options};
+use spiderhead_golden::{diff, Options};
 
 const SITES: [&str; 6] = [
     "basic",
@@ -227,7 +227,7 @@ fn read_audit_db(db: &Path) -> Value {
 
 #[test]
 fn audit_v2_matches_reference_baselines() {
-    let known = spiderhead_oracle_diff::KnownDivergences::from_toml(
+    let known = spiderhead_golden::KnownDivergences::from_toml(
         &std::fs::read_to_string(golden_dir().join("known-divergences.toml"))
             .expect("known-divergences.toml"),
     )
@@ -290,7 +290,7 @@ fn audit_v2_matches_reference_baselines() {
             failures.push_str(&format!(
                 "[{site}] {} divergences\n{}",
                 divs.len(),
-                spiderhead_oracle_diff::report(&divs, 30)
+                spiderhead_golden::report(&divs, 30)
             ));
         }
     }

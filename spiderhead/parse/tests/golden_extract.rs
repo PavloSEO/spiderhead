@@ -27,7 +27,7 @@ fn fixture() -> &'static Value {
     FIXTURE.get_or_init(|| {
         let text = match std::env::var("EXTRACT_FIXTURE") {
             Ok(path) => std::fs::read_to_string(path).unwrap_or_default(),
-            Err(_) => spiderhead_oracle_testkit::fixture_text(
+            Err(_) => spiderhead_testkit::fixture_text(
                 &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                     .join("tests/fixtures/extract_oracle.json"),
             ),

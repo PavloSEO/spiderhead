@@ -10,7 +10,7 @@ use regex::Regex;
 use serde_json::Value;
 
 use spiderhead_cli::{run, Output};
-use spiderhead_oracle_testkit::FixtureServer;
+use spiderhead_testkit::FixtureServer;
 
 /// The golden normalisation, plus the wall-clock latency keys the cdn
 /// transport probes measure per run.

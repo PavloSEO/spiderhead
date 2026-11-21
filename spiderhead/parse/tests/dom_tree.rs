@@ -66,7 +66,7 @@ fn tree_matches_lxml() {
     let path = std::env::var("DOM_FIXTURE").ok();
     let text = match &path {
         Some(p) => std::fs::read_to_string(p).unwrap_or_default(),
-        None => spiderhead_oracle_testkit::fixture_text(
+        None => spiderhead_testkit::fixture_text(
             &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("tests/fixtures/parse_oracle.json"),
         ),

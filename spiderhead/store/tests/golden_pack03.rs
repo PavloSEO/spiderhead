@@ -21,7 +21,7 @@ fn fixture() -> Value {
 #[test]
 fn golden_scan_directory_tree() {
     let scan = root().join("testdata/golden/raw-scans/basic/scan.sqlite");
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mut fixture = fixture();
     let cases = fixture["scan_tree"].as_array().unwrap().clone();
     let mut blessed: Vec<Value> = Vec::new();
@@ -81,7 +81,7 @@ fn golden_scan_directory_tree() {
     if bless {
         fixture["scan_tree"] = Value::Array(blessed);
         let path = root().join("spiderhead/store/tests/fixtures/pack03-basic.json");
-        assert!(spiderhead_oracle_diff::bless_json(&path, &fixture));
+        assert!(spiderhead_golden::bless_json(&path, &fixture));
         return;
     }
     eprintln!("blocked by other slices: {blocked} case(s)");

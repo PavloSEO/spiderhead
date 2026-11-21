@@ -11,14 +11,14 @@ use std::time::Duration;
 use serde_json::Value;
 use spiderhead_log_analyzer::dns::{Clock, DnsFailure, Resolver, SystemClock, Verifier};
 use spiderhead_log_analyzer::import::{ProjectManifest, ProjectManifestLoader};
-use spiderhead_oracle_diff::{diff, report, Options};
+use spiderhead_golden::{diff, report, Options};
 
 pub fn fixtures() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures")
 }
 
 pub fn load(name: &str) -> Value {
-    let text = spiderhead_oracle_testkit::fixture_text(&fixtures().join(name));
+    let text = spiderhead_testkit::fixture_text(&fixtures().join(name));
     serde_json::from_str(&text).expect("fixture is JSON")
 }
 

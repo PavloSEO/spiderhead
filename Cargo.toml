@@ -71,8 +71,8 @@ spiderhead-recon = { path = "spiderhead/recon" }
 spiderhead-mcp = { path = "spiderhead/mcp" }
 spiderhead-log-analyzer = { path = "spiderhead/log-analyzer" }
 spiderhead-tui = { path = "spiderhead/tui" }
-spiderhead-oracle-diff = { path = "testdata/golden/diff" }
-spiderhead-oracle-testkit = { path = "testdata/golden/testkit" }
+spiderhead-golden = { path = "testdata/golden/diff" }
+spiderhead-testkit = { path = "testdata/golden/testkit" }
 tempfile = "3.27"
 toml = "0.8"
 calamine = "0.37"
@@ -95,7 +95,7 @@ debug = "line-tables-only"
 opt-level = 1
 debug = false
 
-# The parser is the hot path of the oracle tests; light optimization cuts them
+# The parser is the hot path of the golden tests; light optimization cuts them
 # from minutes to seconds at a small rebuild cost.
 [profile.dev.package.spiderhead-parse]
 opt-level = 1

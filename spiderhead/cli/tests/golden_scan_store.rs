@@ -342,13 +342,13 @@ fn golden_scan_store_commands_match() {
             .unwrap_or_else(|| vec!["basic"]);
         for site in sites {
             let path = fixtures_root().join(site).join(format!("{id}.json"));
-            let mut fixture = spiderhead_oracle_testkit::fixture_json(&path);
-            if spiderhead_oracle_diff::bless_enabled() {
+            let mut fixture = spiderhead_testkit::fixture_json(&path);
+            if spiderhead_golden::bless_enabled() {
                 if let Some(obj) = fixture.as_object_mut() {
                     obj.insert("cli".to_owned(), run_cli(case, site));
                     obj.insert("mcp".to_owned(), run_mcp(case, site, &server));
                 }
-                spiderhead_oracle_diff::bless_json(&path, &fixture);
+                spiderhead_golden::bless_json(&path, &fixture);
                 continue;
             }
             for (surface, actual) in [

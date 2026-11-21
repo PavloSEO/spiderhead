@@ -28,7 +28,7 @@ fn fixture_path() -> std::path::PathBuf {
 }
 
 fn fixture() -> Value {
-    spiderhead_oracle_testkit::fixture_json(&fixture_path())
+    spiderhead_testkit::fixture_json(&fixture_path())
 }
 
 fn plain_palette() -> theme::Palette {
@@ -97,7 +97,7 @@ fn watch_sections_match_reference_lines() {
     let _g = language_guard();
     let fx = fixture();
     let palette = plain_palette();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mut blessed = fx.clone();
     for (case_index, case) in fx["watch_cases"]
         .as_array()
@@ -135,7 +135,7 @@ fn watch_sections_match_reference_lines() {
         assert_state(&state, &case["state"], name);
     }
     if bless {
-        spiderhead_oracle_diff::bless_json_field(
+        spiderhead_golden::bless_json_field(
             &fixture_path(),
             "watch_cases",
             blessed["watch_cases"].clone(),
@@ -148,7 +148,7 @@ fn watch_details_match_reference_lines() {
     let _g = language_guard();
     let fx = fixture();
     let palette = plain_palette();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mut blessed = fx.clone();
     for (case_index, case) in fx["detail_cases"]
         .as_array()
@@ -219,7 +219,7 @@ fn watch_details_match_reference_lines() {
         assert_state(&state, &case["state"], name);
     }
     if bless {
-        spiderhead_oracle_diff::bless_json_field(
+        spiderhead_golden::bless_json_field(
             &fixture_path(),
             "detail_cases",
             blessed["detail_cases"].clone(),
@@ -298,7 +298,7 @@ fn trim_rows(text: &str) -> String {
 fn frames_match_reference_text() {
     let _g = language_guard();
     let fx = fixture();
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         let mut blessed = fx.clone();
         for (index, case) in fx["frame_cases"]
             .as_array()
@@ -310,7 +310,7 @@ fn frames_match_reference_text() {
                 obj.insert("text".to_owned(), Value::from(frame_text(&fx, case)));
             }
         }
-        spiderhead_oracle_diff::bless_json_field(
+        spiderhead_golden::bless_json_field(
             &fixture_path(),
             "frame_cases",
             blessed["frame_cases"].clone(),

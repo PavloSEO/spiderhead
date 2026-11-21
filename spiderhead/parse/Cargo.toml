@@ -23,4 +23,4 @@ unicode-general-category = { workspace = true }
 url = { workspace = true }
 
 [dev-dependencies]
-spiderhead-oracle-testkit.workspace = true
+spiderhead-testkit.workspace = true

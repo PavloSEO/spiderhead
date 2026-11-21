@@ -54,7 +54,7 @@ fn blocked(payload: &(dyn std::any::Any + Send)) -> bool {
 
 #[test]
 fn golden_searches_match() {
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mut fixture = fixture();
     let cases = fixture["cases"].as_array().unwrap().clone();
     let mut blessed: Vec<Value> = Vec::new();
@@ -137,7 +137,7 @@ fn golden_searches_match() {
     if bless {
         fixture["cases"] = Value::Array(blessed);
         let path = root().join("spiderhead/store/tests/fixtures/pack02-search.json");
-        assert!(spiderhead_oracle_diff::bless_json(&path, &fixture));
+        assert!(spiderhead_golden::bless_json(&path, &fixture));
         return;
     }
     eprintln!("compared {checked} case(s); blocked by other slices: {blocked_cases}");

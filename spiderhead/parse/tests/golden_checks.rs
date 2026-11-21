@@ -26,7 +26,7 @@ use spiderhead_parse::text_normalize::{
 use spiderhead_parse::types::ContentAreaConfig;
 
 fn default_fixture() -> String {
-    spiderhead_oracle_testkit::fixture_text(
+    spiderhead_testkit::fixture_text(
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/checks_oracle.json"),
     )
 }

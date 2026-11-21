@@ -17,7 +17,7 @@ fn fixture_path() -> PathBuf {
 }
 
 fn fixtures() -> Value {
-    spiderhead_oracle_testkit::fixture_json(&fixture_path())
+    spiderhead_testkit::fixture_json(&fixture_path())
 }
 
 fn scratch(tag: &str) -> PathBuf {
@@ -175,7 +175,7 @@ fn golden_reporters() {
         .and_then(Value::as_object)
         .cloned()
         .unwrap_or_default();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mut blessed = cases.clone();
     for (name, row) in &cases {
         let spec = row.get("spec").expect("spec");
@@ -249,7 +249,7 @@ fn golden_reporters() {
         std::fs::remove_dir_all(&dir).ok();
     }
     if bless {
-        spiderhead_oracle_diff::bless_json_field(
+        spiderhead_golden::bless_json_field(
             &fixture_path(),
             "results",
             Value::Object(blessed),
@@ -262,7 +262,7 @@ fn golden_reporters() {
 fn golden_tasks() {
     let document = fixtures();
     let mut blessed = document.clone();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let results = document
         .get("results")
         .and_then(Value::as_object)
@@ -507,7 +507,7 @@ fn golden_tasks() {
         }
     }
     if bless {
-        spiderhead_oracle_diff::bless_json_field(
+        spiderhead_golden::bless_json_field(
             &fixture_path(),
             "tasks",
             blessed["tasks"].clone(),
@@ -526,7 +526,7 @@ fn golden_tasks_from_audit_v2() {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden/raw-scans/basic/scan.sqlite");
     std::fs::copy(&raw, &scan).expect("copy raw scan");
     let companion = PathBuf::from(format!("{}.audit-v2.sqlite", scan.display()));
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     if bless {
         let (header, collections) =
             spiderhead_checks::audit::audit_v2_document(&scan).expect("audit document");
@@ -637,7 +637,7 @@ fn golden_tasks_from_audit_v2() {
             });
         }
         document["streamed"]["companion_b64"] = Value::String(out);
-        assert!(spiderhead_oracle_diff::bless_json_field(
+        assert!(spiderhead_golden::bless_json_field(
             &fixture_path(),
             "streamed",
             document["streamed"].clone()

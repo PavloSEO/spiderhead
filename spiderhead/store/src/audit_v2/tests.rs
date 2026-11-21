@@ -297,7 +297,7 @@ fn reader_matches_golden_baselines_for_every_site() {
         let mut norm = Norm::new(base.clone(), body_hash_map(&scan, &base));
         let got = norm.walk(&actual_document(&scan), None);
         let file = repo(&format!("testdata/golden/baselines/{site}/audit.v2.json"));
-        if spiderhead_oracle_diff::bless_json(&file, &got) {
+        if spiderhead_golden::bless_json(&file, &got) {
             continue;
         }
         let want: Value = serde_json::from_str(&fs::read_to_string(&file).unwrap()).unwrap();

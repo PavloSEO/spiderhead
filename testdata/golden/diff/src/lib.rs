@@ -1,4 +1,4 @@
-//! Structural JSON diff between reference baseline baselines and Rust output.
+//! Structural JSON diff between golden baselines and Rust output.
 //!
 //! `diff(expected, actual, opts)` yields one [`Divergence`] per differing leaf,
 //! addressed by a JSON pointer. [`KnownDivergences`] (from `testdata/golden/known-divergences.toml`)
@@ -187,7 +187,7 @@ fn walk_set(x: &[Value], y: &[Value], path: &str, opts: &Options, out: &mut Vec<
 
 // ---------------------------------------------------------------- registry
 
-/// One approved Rust-vs-oracle divergence, as written in `testdata/golden/known-divergences.toml`.
+/// One approved baseline-vs-Rust divergence, as written in `testdata/golden/known-divergences.toml`.
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 pub struct KnownEntry {
     /// Unique, never reused (`D-0001`).

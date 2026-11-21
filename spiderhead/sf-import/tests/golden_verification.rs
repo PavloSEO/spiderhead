@@ -79,7 +79,7 @@ fn bless_cases(key: &str, run: impl Fn(&Value) -> Value) {
         updated.push(case);
     }
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/verification.json");
-    assert!(spiderhead_oracle_diff::bless_json_field(
+    assert!(spiderhead_golden::bless_json_field(
         &path,
         key,
         Value::Array(updated)
@@ -318,7 +318,7 @@ fn classify_matches() {
 
 #[test]
 fn markdown_matches() {
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         bless_cases("markdown", |case| {
             Value::String(verification::markdown(&obj(&case["in"])))
         });
@@ -337,7 +337,7 @@ fn markdown_matches() {
 fn reader_source_identity_matches() {
     let fix = fixture();
     let (_dir, readers) = build_readers(fix["files"].as_object().unwrap());
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         bless_cases("source_identity_reader", |case| {
             let source = AuditSource::Reader(reader(&readers, case));
             blessed_out(verification::source_identity(&source), |o| {
@@ -362,7 +362,7 @@ fn reader_source_identity_matches() {
 fn reader_select_source_matches() {
     let fix = fixture();
     let (_dir, readers) = build_readers(fix["files"].as_object().unwrap());
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         bless_cases("select_source_reader", |case| {
             let source = AuditSource::Reader(reader(&readers, case));
             blessed_out(
@@ -406,7 +406,7 @@ fn reader_select_source_matches() {
 fn reader_compact_after_matches() {
     let fix = fixture();
     let (_dir, readers) = build_readers(fix["files"].as_object().unwrap());
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         bless_cases("compact_after_reader", |case| {
             let source = AuditSource::Reader(reader(&readers, case));
             let selected = objs(&case["selected"]);

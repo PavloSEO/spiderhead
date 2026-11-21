@@ -4,7 +4,7 @@
 //! Convention: `testdata/golden/actual/<slice>/**/*.json` mirrors `testdata/golden/baselines/<site>/**`.
 //! Missing baseline dir: SKIP (exit 0, reason printed). Missing actual file: FAIL.
 use serde_json::Value;
-use spiderhead_oracle_diff::{diff, report, KnownDivergences, Options};
+use spiderhead_golden::{diff, report, KnownDivergences, Options};
 use std::{
     fs,
     path::{Path, PathBuf},

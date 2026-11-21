@@ -1,4 +1,4 @@
-//! Deterministic loopback fixture server for the oracle parity tests.
+//! Deterministic loopback fixture server for the golden replay tests.
 //!
 //! A site directory (`testdata/golden/sites/<name>`) is `pages/**` static files plus an
 //! optional `routes.toml` of `[[route]]` overrides (`path`, `status`,

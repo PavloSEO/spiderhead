@@ -17,7 +17,7 @@ use spiderhead_reports::svg_charts::{bar_chart, donut_chart, line_chart, ChartOp
 
 fn fixtures() -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/reports_oracle.json");
-    spiderhead_oracle_testkit::fixture_json(&path)
+    spiderhead_testkit::fixture_json(&path)
 }
 
 fn documents() -> Vec<Value> {

@@ -36,7 +36,7 @@ impl Ctx {
 }
 
 /// A loopback fixture site server; killed on drop.
-pub use spiderhead_oracle_testkit::FixtureServer;
+pub use spiderhead_testkit::FixtureServer;
 
 fn ts_re() -> &'static regex::Regex {
     static RE: LazyLock<regex::Regex> = LazyLock::new(|| {
@@ -292,9 +292,9 @@ pub fn run_fixture(fixture: &str) {
         },
         PathBuf::from,
     );
-    let text = spiderhead_oracle_testkit::fixture_text(&fixture_path);
+    let text = spiderhead_testkit::fixture_text(&fixture_path);
     let cases: Vec<Value> = serde_json::from_str(&text).expect("fixture json");
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mut blessed = cases.clone();
     let mut bad: Vec<String> = Vec::new();
     let mut steps_run = 0usize;
@@ -357,7 +357,7 @@ pub fn run_fixture(fixture: &str) {
         let _ = std::fs::remove_dir_all(&scratch);
     }
     if bless {
-        spiderhead_oracle_diff::bless_json(&fixture_path, &Value::Array(blessed));
+        spiderhead_golden::bless_json(&fixture_path, &Value::Array(blessed));
         return;
     }
     let limit = std::env::var("PROJECTS_SHOW")

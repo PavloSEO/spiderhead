@@ -28,7 +28,7 @@ pub fn fixture_path(name: &str) -> PathBuf {
 
 /// Parse a committed fixture, preferring a `.zst` sibling when present.
 pub fn fixture(name: &str) -> Value {
-    spiderhead_oracle_testkit::fixture_json(&fixture_path(name))
+    spiderhead_testkit::fixture_json(&fixture_path(name))
 }
 
 /// What one invocation produced, normalised like the fixtures.
@@ -142,7 +142,7 @@ fn bless_fixture(name: &str, records: &serde_json::Map<String, Value>) {
         }
         out.insert(key.clone(), blessed);
     }
-    spiderhead_oracle_diff::bless_json(&fixture_path(name), &Value::Object(out));
+    spiderhead_golden::bless_json(&fixture_path(name), &Value::Object(out));
 }
 
 /// Run every record of a fixture and fail with all diffs (capped) when any differ.
@@ -151,7 +151,7 @@ pub fn assert_fixture(name: &str) -> usize {
     let records = data
         .as_object()
         .unwrap_or_else(|| panic!("{name}: not an object"));
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         bless_fixture(name, records);
         return records.len();
     }

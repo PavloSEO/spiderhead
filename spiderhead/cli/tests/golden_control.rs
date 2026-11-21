@@ -153,7 +153,7 @@ fn fixture_path() -> PathBuf {
 }
 
 fn fixture() -> Value {
-    spiderhead_oracle_testkit::fixture_json(&fixture_path())
+    spiderhead_testkit::fixture_json(&fixture_path())
 }
 
 fn unified_diff(field: &str, expected: &str, actual: &str) -> String {
@@ -358,7 +358,7 @@ fn cli_step(argv: &[String], registry: &spiderhead_cli::Registry) -> (i32, Outpu
 fn control_group_matches_the_reference_cli_and_mcp() {
     let fixture = fixture();
     let mut blessed = fixture.clone();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
 
     // ── CLI: the chains replay through the real binary in its own work dir ──
     let cli_work = fresh_work("cli");
@@ -518,7 +518,7 @@ fn control_group_matches_the_reference_cli_and_mcp() {
         }
     }
     let _ = std::fs::remove_dir_all(&mcp_work);
-    spiderhead_oracle_diff::bless_json(&fixture_path(), &blessed);
+    spiderhead_golden::bless_json(&fixture_path(), &blessed);
 }
 
 /// `{WORK}` placeholders in recorded arguments resolve to the surface's work dir.

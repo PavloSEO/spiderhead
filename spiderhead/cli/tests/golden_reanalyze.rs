@@ -10,7 +10,7 @@ use regex::Regex;
 use serde_json::{json, Value};
 
 use spiderhead_cli::{run, Output};
-use spiderhead_oracle_testkit::FixtureServer;
+use spiderhead_testkit::FixtureServer;
 
 /// The golden normalisation for one fixture-server run.
 struct Norm {
@@ -121,9 +121,9 @@ fn reanalysis_matches_the_reference_cli_and_mcp() {
     std::env::set_var("SEOHEAD_ALLOW_PRIVATE_HOSTS", "127.0.0.1");
     let fixture_path =
         Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/reanalysis/reanalysis.json");
-    let fixture: Value = spiderhead_oracle_testkit::fixture_json(&fixture_path);
+    let fixture: Value = spiderhead_testkit::fixture_json(&fixture_path);
     let mut blessed = fixture.clone();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
 
     // ── CLI: crawl the fixture site, derive, read the derived scan ──────────
     let server = FixtureServer::start("basic");
@@ -250,5 +250,5 @@ fn reanalysis_matches_the_reference_cli_and_mcp() {
         assert!(problems.is_empty(), "{name} diverges:\n{problems}");
     }
     let _ = std::fs::remove_dir_all(&mcp_work);
-    spiderhead_oracle_diff::bless_json(&fixture_path, &blessed);
+    spiderhead_golden::bless_json(&fixture_path, &blessed);
 }

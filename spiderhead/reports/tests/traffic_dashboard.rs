@@ -8,7 +8,7 @@ use spiderhead_reports::traffic_dashboard::{load_brand, render_html};
 
 fn fixtures() -> Value {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/reports_oracle.json");
-    spiderhead_oracle_testkit::fixture_json(&path)
+    spiderhead_testkit::fixture_json(&path)
 }
 
 fn traffic() -> Value {

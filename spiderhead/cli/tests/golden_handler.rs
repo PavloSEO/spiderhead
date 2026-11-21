@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use regex::Regex;
 use serde_json::Value;
 use spiderhead_cli::{run, Output};
-use spiderhead_oracle_testkit::FixtureServer;
+use spiderhead_testkit::FixtureServer;
 
 /// The golden normalisation of the reference suite, in Rust:
 /// volatile base/work/port/UUID/timestamp shapes become stable tokens.
@@ -214,7 +214,7 @@ fn check_site(name: &str, _index: usize) {
     )
     .expect("raw scan copy");
     let registry = spiderhead_cli::registry();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let mut norm = Norm::new(&server.base, &work);
     for invocation in invocations(&server.base, &work) {
         // Each captured command ran in its own reference process: drop the in-process
@@ -239,7 +239,7 @@ fn check_site(name: &str, _index: usize) {
                 doc["out_file"] =
                     serde_json::json!(norm.s(&std::fs::read_to_string(p).unwrap_or_default()));
             }
-            assert!(spiderhead_oracle_diff::bless_json(&path, &doc));
+            assert!(spiderhead_golden::bless_json(&path, &doc));
             continue;
         }
         let mut problems = String::new();
@@ -443,11 +443,11 @@ fn check_mcp_site(name: &str, _index: usize) {
         let raw =
             std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
         let fixture: Value = serde_json::from_str(&raw).expect("fixture json");
-        if spiderhead_oracle_diff::bless_enabled() {
+        if spiderhead_golden::bless_enabled() {
             let mut doc = fixture.clone();
             doc["is_error"] = Value::Bool(actual_is_error);
             doc["text"] = Value::String(norm.s(&actual_text));
-            assert!(spiderhead_oracle_diff::bless_json(&path, &doc));
+            assert!(spiderhead_golden::bless_json(&path, &doc));
             continue;
         }
         let expected_is_error = fixture["is_error"].as_bool().unwrap_or(false);

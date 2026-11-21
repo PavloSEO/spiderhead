@@ -62,9 +62,9 @@ fn raw_scan() -> PathBuf {
 // evidence, groups with their members).
 #[test]
 fn prepared_source_matches_the_reference_projection() {
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         let path = fixtures().join("ledger-prepared.json");
-        assert!(spiderhead_oracle_diff::bless_json(
+        assert!(spiderhead_golden::bless_json(
             &path,
             &prepared_fixture_value()
         ));
@@ -277,7 +277,7 @@ fn golden_ledger() {
     let expected = json_file("ledger-expected.json");
     let answers = &expected["answers"];
     let mut blessed: Option<Map<String, Value>> =
-        spiderhead_oracle_diff::bless_enabled().then(Map::new);
+        spiderhead_golden::bless_enabled().then(Map::new);
     let source = if blessed.is_some() {
         prepared_fixture_value()
     } else {
@@ -566,7 +566,7 @@ fn golden_ledger() {
             }],
         });
         let artifact_path = fixtures().join("verification-basic.json");
-        assert!(spiderhead_oracle_diff::bless_json(
+        assert!(spiderhead_golden::bless_json(
             &artifact_path,
             &artifact
         ));
@@ -678,7 +678,7 @@ fn golden_ledger() {
         doc["answers"] = Value::Object(ans);
         doc["tables"] = tables;
         let file = fixtures().join("ledger-expected.json");
-        assert!(spiderhead_oracle_diff::bless_json(&file, &doc));
+        assert!(spiderhead_golden::bless_json(&file, &doc));
         std::fs::remove_dir_all(&dir).ok();
         return;
     }
