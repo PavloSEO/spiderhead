@@ -16,7 +16,7 @@ pub enum WmError {
         /// Response body, decoded with replacement characters.
         body: String,
     },
-    /// Connection failure; the message is `<urlopen error {reason}>`.
+    /// Connection failure; the message is the reason as-is.
     Url(String),
     /// Timeout; the message is used as-is.
     Timeout(String),
@@ -107,8 +107,8 @@ impl WmError {
 impl std::fmt::Display for WmError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            WmError::Http { code, reason, .. } => write!(f, "HTTP Error {code}: {reason}"),
-            WmError::Url(reason) => write!(f, "<urlopen error {reason}>"),
+            WmError::Http { code, reason, .. } => write!(f, "HTTP {code} {reason}"),
+            WmError::Url(reason) => f.write_str(reason),
             WmError::MissingCredential(message)
             | WmError::Timeout(message)
             | WmError::Value(message)

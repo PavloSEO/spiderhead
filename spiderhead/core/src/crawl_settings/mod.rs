@@ -5,7 +5,6 @@
 //! Defaults and descriptions live in [`crate::settings_data`]; this module owns load, validate and merge.
 //! Settings are `serde_json::Value` trees, so dotted-path lookups work the same way for every key.
 
-mod decimal_zeros;
 mod number_parse;
 mod report;
 mod validate;
@@ -25,7 +24,6 @@ use crate::settings_data::{
     self, BUDGET_REQUESTS_PER_PAGE, BUDGET_SECONDS_PER_PAGE, MAX_MATERIALIZED_URLS,
     MAX_REQUESTS_CEILING, MAX_URLS_CEILING,
 };
-use crate::url_normalize::is_space;
 
 pub use report::{
     describe_settings, effective_request_rate, fingerprint, load_estimate, manifest, rate_fields,
@@ -117,19 +115,20 @@ pub fn merge(base: &Value, overlay: &Value) -> Value {
 pub fn coerce(path: &str, raw: &str) -> Result<Value, String> {
     let defaults = flatten(settings_data::defaults());
     match defaults.get(path) {
-        Some(Value::Bool(_)) => match raw.trim_matches(is_space).to_lowercase().as_str() {
+        Some(Value::Bool(_)) => match raw.trim().to_lowercase().as_str() {
             "1" | "true" | "yes" | "on" => Ok(Value::Bool(true)),
             "0" | "false" | "no" | "off" => Ok(Value::Bool(false)),
             _ => Err("expected true or false".into()),
         },
         Some(Value::Number(number)) if number.is_f64() => {
-            number_parse::parse_float(raw).ok_or_else(|| "could not convert string to float".into())
+            number_parse::parse_float(raw).ok_or_else(|| "expected a number".into())
         }
-        Some(Value::Number(_)) => number_parse::parse_int(raw)
-            .ok_or_else(|| "invalid literal for int() with base 10".into()),
+        Some(Value::Number(_)) => {
+            number_parse::parse_int(raw).ok_or_else(|| "expected an integer".into())
+        }
         Some(Value::Array(_)) => Ok(Value::Array(
             raw.split(',')
-                .map(|item| item.trim_matches(is_space))
+                .map(|item| item.trim())
                 .filter(|item| !item.is_empty())
                 .map(|item| Value::String(item.to_owned()))
                 .collect(),

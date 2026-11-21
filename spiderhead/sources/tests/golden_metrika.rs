@@ -107,13 +107,12 @@ impl Transport for QueueTransport {
             }));
         }
         if let Some(msg) = entry.get("url_error").and_then(Value::as_str) {
-            // `URLError(msg)` → `str` is `<urlopen error msg>` — `Connect` carries
-            // the reason and `error_text::url_error` adds the urllib wrapper.
+            // `Connect` carries the reason; `error_text::url_error` renders it as is.
             return Err(TransportError::Connect(msg.to_owned()));
         }
         if entry.get("timeout").is_some() {
-            // `TimeoutError(msg)` → `str` is `msg`; the fixture only scripts
-            // `"timed out"`, which `error_text::url_error("timeout")` reproduces.
+            // The fixture scripts `"timeout"`, which `error_text::url_error`
+            // renders as `"timed out"`.
             return Err(TransportError::Connect("timeout".to_owned()));
         }
         panic!("unknown transport entry {entry}");

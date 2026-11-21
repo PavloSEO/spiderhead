@@ -11,7 +11,6 @@ pub mod norm;
 pub mod providers;
 pub mod read_model;
 pub mod runner;
-pub mod set_order;
 pub mod stages;
 pub mod store;
 mod store_export;

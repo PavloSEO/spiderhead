@@ -5,13 +5,12 @@
 
 use indexmap::IndexMap;
 use serde_json::{json, Value};
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
 use crate::config::Cfg;
 use crate::fmt::{dumps, round_half_even, scalar_text};
 use crate::louvain::{best_partition, PyGraph};
 use crate::providers::SerpProvider;
-use crate::set_order::{str_hash, StrSet};
 use crate::store::{zulu_seconds, Row, Store};
 
 /// Hub domains (portals, wikis, socials, marketplaces, gov/edu, stock media)
@@ -309,7 +308,9 @@ pub fn run(
         store.exec("ALTER TABLE serp_fetches ADD COLUMN fetched_at TEXT", &[])?;
     }
     let mut n_req = 0i64;
-    let mut doms: IndexMap<String, StrSet> = IndexMap::new();
+    // URL keys of each phrase in lexicographic order: the canonical order for
+    // pair counting and graph edges.
+    let mut doms: IndexMap<String, BTreeSet<String>> = IndexMap::new();
     let mut todo: Vec<String> = Vec::new();
     let receipts: IndexMap<String, Row> = store
         .q(
@@ -367,17 +368,17 @@ pub fn run(
                     Some(u.to_string())
                 })
                 .collect();
-            let mut set = StrSet::new(|s: &String| str_hash(s));
+            let mut set = BTreeSet::new();
             for k in keys {
-                set.add(url_key(&k)?);
+                set.insert(url_key(&k)?);
             }
             doms.insert(norm, set);
         } else if !cached.is_empty() && !has_receipt.contains(&norm) {
             // Legacy SERP has no region receipt; retain it until an explicit new fetch is recorded.
-            let mut set = StrSet::new(|s: &String| str_hash(s));
+            let mut set = BTreeSet::new();
             for d in take_py(&cached, top).iter() {
                 if let Some(u) = d["url"].as_str().filter(|s| !s.is_empty()) {
-                    set.add(url_key(u)?);
+                    set.insert(url_key(u)?);
                 }
             }
             doms.insert(norm, set);
@@ -472,10 +473,10 @@ pub fn run(
             // row would mask the real error as 'unresolved paid SERP operation'
             // on every rerun).
             if let Some(docs) = paid_docs {
-                let mut set = StrSet::new(|s: &String| str_hash(s));
+                let mut set = BTreeSet::new();
                 for d in &docs {
                     if let Some(u) = d["url"].as_str().filter(|s| !s.is_empty()) {
-                        set.add(url_key(u)?);
+                        set.insert(url_key(u)?);
                     }
                 }
                 doms.insert(p.clone(), set);
@@ -510,8 +511,8 @@ pub fn run(
     let keys: Vec<String> = doms.keys().cloned().collect();
     let mut dom_index: IndexMap<String, Vec<String>> = IndexMap::new();
     for p in &keys {
-        for d in doms[p].iter() {
-            dom_index.entry(d).or_default().push(p.clone());
+        for d in &doms[p] {
+            dom_index.entry(d.clone()).or_default().push(p.clone());
         }
     }
     let ubiq = 4.max((0.04 * keys.len() as f64) as i64);
@@ -614,7 +615,7 @@ pub fn run(
                 for j in (i + 1)..members.len() {
                     let (a, b) = (&doms[&members[i]], &doms[&members[j]]);
                     let (small, large) = if a.len() <= b.len() { (a, b) } else { (b, a) };
-                    let inter = small.iter().filter(|x| large.contains(x)).count();
+                    let inter = small.iter().filter(|x| large.contains(*x)).count();
                     let union = a.len() + b.len() - inter;
                     sum += inter as f64 / union.max(1) as f64;
                 }

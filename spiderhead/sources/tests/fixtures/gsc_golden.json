@@ -1039,7 +1039,7 @@
    "pauses": [],
    "result": {
     "ok": false,
-    "error": "Search Console request failed: <urlopen error reset>"
+    "error": "Search Console request failed: reset"
    }
   },
   "call": "search_analytics",
@@ -2341,7 +2341,7 @@
     "ok": false,
     "state": "verification_failed",
     "verified": false,
-    "error": "<urlopen error reset>"
+    "error": "reset"
    }
   },
   "call": "discover_properties",
@@ -3052,7 +3052,7 @@
    "result": {
     "ok": false,
     "state": "failed",
-    "error": "HTTP Error 403: Forbidden",
+    "error": "HTTP 403 Forbidden",
     "returned": 1
    }
   },
@@ -6640,7 +6640,7 @@
    "result": {
     "ok": false,
     "state": "failed",
-    "error": "HTTP Error 403: Forbidden"
+    "error": "HTTP 403 Forbidden"
    }
   },
   "call": "sitemap_status",
@@ -6684,7 +6684,7 @@
    "result": {
     "ok": false,
     "state": "failed",
-    "error": "<urlopen error reset>"
+    "error": "reset"
    }
   },
   "call": "sitemap_status",

@@ -8355,7 +8355,7 @@
     "result": {
      "ok": false,
      "state": "failed",
-     "error": "HTTP Error 503: unavailable"
+     "error": "HTTP 503 unavailable"
     },
     "calls": [
      {
@@ -8401,7 +8401,7 @@
     "result": {
      "ok": false,
      "state": "failed",
-     "error": "HTTP Error 404: Not Found"
+     "error": "HTTP 404 Not Found"
     },
     "calls": [
      {
@@ -8437,7 +8437,7 @@
     "result": {
      "ok": false,
      "state": "failed",
-     "error": "<urlopen error Connection refused>"
+     "error": "Connection refused"
     },
     "calls": [
      {
@@ -8813,7 +8813,7 @@
     "result": {
      "ok": false,
      "state": "failed",
-     "error": "HTTP Error 500: Internal Server Error"
+     "error": "HTTP 500 Internal Server Error"
     },
     "calls": [
      {
@@ -12876,7 +12876,7 @@
    "record": {
     "error": {
      "class": "NetworkAmbiguousError",
-     "message": "wordstat.topRequests: response lost; request may already be billed: <urlopen error connection reset>"
+     "message": "wordstat.topRequests: response lost; request may already be billed: connection reset"
     },
     "calls": [
      {
@@ -12897,7 +12897,7 @@
       "unit": "requests",
       "extra": {
        "attempt_failed": "network_error",
-       "detail": "<urlopen error connection reset>"
+       "detail": "connection reset"
       }
      }
     ]
@@ -13888,7 +13888,7 @@
    "record": {
     "error": {
      "class": "NetworkAmbiguousError",
-     "message": "web.searchAsync: response lost; request may already be billed: <urlopen error reset>"
+     "message": "web.searchAsync: response lost; request may already be billed: reset"
     },
     "calls": [
      {
@@ -13909,7 +13909,7 @@
       "unit": "requests",
       "extra": {
        "attempt_failed": "network_error",
-       "detail": "<urlopen error reset>"
+       "detail": "reset"
       }
      }
     ]
@@ -14197,7 +14197,7 @@
    "record": {
     "result": {
      "x": {
-      "error": "web.searchAsync: response lost; request may already be billed: <urlopen error reset>",
+      "error": "web.searchAsync: response lost; request may already be billed: reset",
       "status": "network_ambiguous",
       "docs": []
      },
@@ -14247,7 +14247,7 @@
       "unit": "requests",
       "extra": {
        "attempt_failed": "network_error",
-       "detail": "<urlopen error reset>"
+       "detail": "reset"
       }
      },
      {
@@ -14980,7 +14980,7 @@
     "result": {
      "ok": false,
      "error": "region tree could not be parsed (status 0)",
-     "raw": "network: <urlopen error refused>"
+     "raw": "network: refused"
     },
     "calls": [
      {

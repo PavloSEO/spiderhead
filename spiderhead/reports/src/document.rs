@@ -98,7 +98,7 @@ pub fn detect_kind(document: &Value) -> (Option<&'static str>, Option<String>) {
                      site-audit reports require exactly '{}'",
                     values::get(document, "schema")
                         .map(values::repr)
-                        .unwrap_or_else(|| "None".into()),
+                        .unwrap_or_else(|| "null".into()),
                     SITE_AUDIT_SCHEMA
                 )),
             );
@@ -129,7 +129,7 @@ pub fn detect_kind(document: &Value) -> (Option<&'static str>, Option<String>) {
                      Export Analyzer audits require exactly '{}'",
                     values::get(document, "schema_version")
                         .map(values::repr)
-                        .unwrap_or_else(|| "None".into()),
+                        .unwrap_or_else(|| "null".into()),
                     SF_AUDIT_SCHEMA_VERSION
                 )),
             );

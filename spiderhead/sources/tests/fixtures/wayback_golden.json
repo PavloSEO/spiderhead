@@ -1066,7 +1066,7 @@
     }
    ],
    "result": {
-    "error": "Wayback CDX request failed: HTTP Error 503: Service Unavailable",
+    "error": "Wayback CDX request failed: HTTP 503 Service Unavailable",
     "ok": false,
     "url": "https://x/"
    }
@@ -1104,7 +1104,7 @@
     }
    ],
    "result": {
-    "error": "Wayback CDX request failed: HTTP Error 404: Not Found",
+    "error": "Wayback CDX request failed: HTTP 404 Not Found",
     "ok": false,
     "url": "https://x/"
    }
@@ -1178,7 +1178,7 @@
     }
    ],
    "result": {
-    "error": "Wayback CDX request failed: <urlopen error reset>",
+    "error": "Wayback CDX request failed: reset",
     "ok": false,
     "url": "https://x/"
    }

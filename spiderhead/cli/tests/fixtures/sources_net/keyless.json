@@ -219,7 +219,7 @@
    "expect": {
     "cli": {
      "exit": 1,
-     "stdout": "{\n  \"ok\": false,\n  \"url\": \"https://example.test/a\",\n  \"error\": \"Wayback CDX request failed: HTTP Error 503: Service Unavailable\"\n}\n",
+     "stdout": "{\n  \"ok\": false,\n  \"url\": \"https://example.test/a\",\n  \"error\": \"Wayback CDX request failed: HTTP 503 Service Unavailable\"\n}\n",
      "stderr": "spiderhead: wayback-history\n",
      "requests": [
       {

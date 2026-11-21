@@ -45,8 +45,8 @@ impl Ga4Fault {
 impl std::fmt::Display for Ga4Fault {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Ga4Fault::Http { code, reason } => write!(f, "HTTP Error {code}: {reason}"),
-            Ga4Fault::Url(reason) => write!(f, "<urlopen error {reason}>"),
+            Ga4Fault::Http { code, reason } => write!(f, "HTTP {code} {reason}"),
+            Ga4Fault::Url(reason) => f.write_str(reason),
             Ga4Fault::Timeout(message) | Ga4Fault::Value(message) => f.write_str(message),
             Ga4Fault::Other { message, .. } => f.write_str(message),
         }
