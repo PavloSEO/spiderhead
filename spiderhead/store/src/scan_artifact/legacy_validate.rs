@@ -56,7 +56,7 @@ pub fn validate_scalar_storage(con: &Connection) -> Result<(), StoreError> {
                     return Err(bad(format!(
                         "{table}.\"{name}\" row {rowid} holds a {found} value: the scan was \
                          written by another schema version (seohead 3.x or an older \
-                         SpiderHead); re-crawl or re-import it with this build"
+                         SpiderHead); re-crawl it with this build"
                     )));
                 }
             }

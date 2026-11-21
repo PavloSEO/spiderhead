@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Storage: importing legacy directory runs is removed; scan artifacts of already imported runs (`source_kind = legacy_import`) stay fully supported for reading, filtering, export and reports.
 - Crawl: `crawl-site` takes URL lists through `--urls` and `--urls-file`; `resources.fetch` runs on the native crawl (scan.v2); the external checks phase runs on the native crawl.
 - Reports: the audit PDF is rendered natively; `boilerplate-report` groups a retained corpus by chrome hashes; reports can be pinned.
 - Sources: Microsoft Clarity is available as a provider; `google-keywords` refreshes the price snapshot when a spend ceiling needs it.
