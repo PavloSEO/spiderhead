@@ -62,7 +62,7 @@ const USES_NETLOC: &[&str] = &[
 /// Returns a [`NormUrlError`] exactly when `urlsplit` would reject the input:
 /// unbalanced or malformed brackets, or a non-ASCII authority that NFKC-expands to delimiters.
 pub fn norm_url(url: Option<&str>) -> Result<String, NormUrlError> {
-    let trimmed = url.unwrap_or("").trim_matches(is_py_space);
+    let trimmed = url.unwrap_or("").trim_matches(is_space);
     if trimmed.is_empty() {
         return Ok(String::new());
     }
@@ -80,7 +80,7 @@ pub fn norm_url(url: Option<&str>) -> Result<String, NormUrlError> {
 /// Whether `c` is whitespace for stripping purposes.
 ///
 /// `char::is_whitespace` misses the separators U+001C to U+001F, so they are added here.
-pub(crate) fn is_py_space(c: char) -> bool {
+pub(crate) fn is_space(c: char) -> bool {
     c.is_whitespace() || ('\u{1c}'..='\u{1f}').contains(&c)
 }
 

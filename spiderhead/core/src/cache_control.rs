@@ -4,7 +4,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::url_normalize::is_py_space;
+use crate::url_normalize::is_space;
 
 /// Parses a `Cache-Control` header into a map from directive name to argument.
 ///
@@ -14,14 +14,14 @@ use crate::url_normalize::is_py_space;
 pub fn parse_cache_control(value: &str) -> BTreeMap<String, Option<String>> {
     let mut out = BTreeMap::new();
     for part in value.split(',') {
-        let part = part.trim_matches(is_py_space);
+        let part = part.trim_matches(is_space);
         if part.is_empty() {
             continue;
         }
         match part.split_once('=') {
             Some((name, raw)) => {
-                let name = name.trim_matches(is_py_space).to_lowercase();
-                let raw = raw.trim_matches(is_py_space).trim_matches('"');
+                let name = name.trim_matches(is_space).to_lowercase();
+                let raw = raw.trim_matches(is_space).trim_matches('"');
                 out.insert(name, Some(raw.to_owned()));
             }
             None => {

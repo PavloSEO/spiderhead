@@ -1,7 +1,7 @@
 //! Domain and URL normalization that never touches DNS.
 
 use super::idna_codec::encode_idna;
-use crate::url_normalize::{is_py_space, split, NormUrlError};
+use crate::url_normalize::{is_space, split, NormUrlError};
 use fancy_regex::Regex;
 use std::sync::OnceLock;
 
@@ -65,7 +65,7 @@ pub fn registrable_domain(host: &str) -> String {
 ///
 /// Returns the [`NormUrlError`] when the URL parser rejects the input.
 pub fn try_normalize_domain(value: &str) -> Result<String, NormUrlError> {
-    let raw = value.trim_matches(is_py_space);
+    let raw = value.trim_matches(is_space);
     if raw.is_empty() {
         return Ok(String::new());
     }
@@ -85,7 +85,7 @@ pub fn try_normalize_domain(value: &str) -> Result<String, NormUrlError> {
         .rsplit('@')
         .next()
         .unwrap_or("")
-        .trim_matches(is_py_space)
+        .trim_matches(is_space)
         .trim_end_matches('.')
         .to_lowercase();
     if raw.starts_with('[') || raw.matches(':').count() > 1 {
