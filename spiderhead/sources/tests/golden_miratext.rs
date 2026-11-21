@@ -1,4 +1,4 @@
-//! Golden-diff test for the Miratext client against `miratext_oracle.json`.
+//! Golden-diff test for the Miratext client against `miratext_golden.json`.
 
 mod common;
 
@@ -16,7 +16,7 @@ fn scrub_stamp(v: &mut Value) {
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_miratext() {
-    for scenario in load_fixture("miratext_oracle.json") {
+    for scenario in load_fixture("miratext_golden.json") {
         let mut scenario = scenario.clone();
         if let Some(expect) = scenario.pointer_mut("/expect/result") {
             let mut e = expect.take();

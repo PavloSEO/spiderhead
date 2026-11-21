@@ -263,7 +263,7 @@ fn request_diffs(want: &[Value], got: &[Value]) -> Vec<String> {
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_arsenkin() {
-    let scenarios = load_fixture("arsenkin_oracle.json");
+    let scenarios = load_fixture("arsenkin_golden.json");
     let mut failures = Vec::new();
     for (index, scenario) in scenarios.iter().enumerate() {
         let name = scenario

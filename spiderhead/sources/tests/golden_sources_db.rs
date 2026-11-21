@@ -1,4 +1,4 @@
-//! Replay `sources_db_oracle.json` — reference `sources_db` driven by scripted ops
+//! Replay `sources_db_golden.json` — reference `sources_db` driven by scripted ops
 //! (`db_path`/`connect`/`exec_sql`/`write_file`/`available_end`/`sync`/`status`/
 //! `query`/`fetch_*`) with injected fetchers and provider seams, a frozen `now`,
 //! recorded `time.sleep` pauses and watched-file snapshots. Paths normalize to `$BASE`.
@@ -560,7 +560,7 @@ fn assert_json_eq(actual: &Value, expected: &Value, context: &str) {
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_sources_db() {
-    let path = common::fixtures_dir().join("sources_db_oracle.json");
+    let path = common::fixtures_dir().join("sources_db_golden.json");
     let fixture: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
     let dir = common::fixtures_dir().join("tmp_sources_db");
     let _ = std::fs::remove_dir_all(&dir);

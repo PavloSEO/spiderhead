@@ -133,11 +133,11 @@ fn tree_into(base: &PathBuf, dir: &PathBuf, out: &mut Map<String, Value>) -> Pro
     Ok(())
 }
 
-/// Copy `oracle/raw-scans/<site>/scan.sqlite{,.audit-v2.sqlite}` into a directory.
+/// Copy `testdata/golden/raw-scans/<site>/scan.sqlite{,.audit-v2.sqlite}` into a directory.
 fn copy_scan(ctx: &Ctx, args: &Value) -> ProjectsResult<Value> {
     let site = args["site"].as_str().unwrap_or_default();
     let src = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../oracle/raw-scans")
+        .join("../../testdata/golden/raw-scans")
         .join(site);
     let dest = ctx.path(&args["path"]);
     std::fs::create_dir_all(&dest).map_err(p::error::ProjectsError::Io)?;

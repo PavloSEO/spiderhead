@@ -132,7 +132,7 @@ pub fn fixtures_dir() -> PathBuf {
 /// Load a fixture file as JSON rows, preferring a `.zst` sibling.
 pub fn load_fixture(name: &str) -> Vec<Value> {
     let path = fixtures_dir().join(name);
-    let text = spiderhead_oracle_testkit::fixture_text(&path);
+    let text = spiderhead_testkit::fixture_text(&path);
     serde_json::from_str(&text).unwrap_or_else(|e| panic!("fixture {}: {e}", path.display()))
 }
 

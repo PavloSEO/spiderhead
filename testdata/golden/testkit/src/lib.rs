@@ -1,6 +1,6 @@
-//! Deterministic loopback fixture server for the oracle parity tests.
+//! Deterministic loopback fixture server for the golden replay tests.
 //!
-//! A site directory (`oracle/sites/<name>`) is `pages/**` static files plus an
+//! A site directory (`testdata/golden/sites/<name>`) is `pages/**` static files plus an
 //! optional `routes.toml` of `[[route]]` overrides (`path`, `status`,
 //! `location`, `file`, `content_type`, `headers`, `body`). Responses carry
 //! fixed `Date`/`Last-Modified`/`Server` headers so the bytes depend on the
@@ -350,7 +350,7 @@ pub struct FixtureServer {
 }
 
 impl FixtureServer {
-    /// Serve `oracle/sites/<site>` on a free port chosen by the OS; read `base` for the URL.
+    /// Serve `testdata/golden/sites/<site>` on a free port chosen by the OS; read `base` for the URL.
     /// Also switches the process to virtual pacing time (see `SPIDERHEAD_VIRTUAL_TIME`), so
     /// crawls against fixtures record their politeness delays instead of sleeping.
     pub fn start(site: &str) -> FixtureServer {
@@ -369,7 +369,7 @@ impl FixtureServer {
         )
     }
 
-    /// Serve `oracle/sites/<site>` on a fixed port. Baselines whose hashes cover the
+    /// Serve `testdata/golden/sites/<site>` on a fixed port. Baselines whose hashes cover the
     /// request host (such as response variant keys) were recorded on fixed ports, so
     /// those tests must reuse them; the bind waits up to 30 s for a busy port to free.
     pub fn start_on(site: &str, port: u16) -> FixtureServer {

@@ -1,4 +1,4 @@
-//! Golden-diff test for the Topvisor client: every row of `topvisor_oracle.json` was
+//! Golden-diff test for the Topvisor client: every row of `topvisor_golden.json` was
 //! produced by the reference suite running the reference implementation against the stub
 //! server. The Rust client must send the same requests and produce the same page or error.
 
@@ -13,7 +13,7 @@ use spiderhead_sources::topvisor;
 // test_http_errors_do_not_echo_credentials, plus the validation-before-auth cases.
 #[tokio::test(flavor = "current_thread")]
 async fn golden_topvisor() {
-    for scenario in load_fixture("topvisor_oracle.json") {
+    for scenario in load_fixture("topvisor_golden.json") {
         let (host, root) = scenario_host(&scenario);
         let responses = scenario
             .get("responses")

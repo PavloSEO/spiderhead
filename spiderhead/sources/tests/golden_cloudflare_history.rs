@@ -1,4 +1,4 @@
-//! Replay `cloudflare_history_oracle.json` — reference `cloudflare_history`
+//! Replay `cloudflare_history_golden.json` — reference `cloudflare_history`
 //! (`save_snapshot`/`list_snapshots`/`list_zones`) driven by scripted ops against a
 //! sandbox project directory. Paths normalize to `$BASE`.
 //!
@@ -120,7 +120,7 @@ fn run_op(op: &Value, base: &Path) -> Value {
 
 #[test]
 fn golden_cloudflare_history() {
-    let scenarios = load_fixture("cloudflare_history_oracle.json");
+    let scenarios = load_fixture("cloudflare_history_golden.json");
     let mut failures = Vec::new();
     for scenario in &scenarios {
         let name = scenario

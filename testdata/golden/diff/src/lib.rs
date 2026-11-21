@@ -1,7 +1,7 @@
-//! Structural JSON diff between reference baseline baselines and Rust output.
+//! Structural JSON diff between golden baselines and Rust output.
 //!
 //! `diff(expected, actual, opts)` yields one [`Divergence`] per differing leaf,
-//! addressed by a JSON pointer. [`KnownDivergences`] (from `oracle/known-divergences.toml`)
+//! addressed by a JSON pointer. [`KnownDivergences`] (from `testdata/golden/known-divergences.toml`)
 //! filters approved differences and reports registry entries that matched nothing.
 
 mod bless;
@@ -187,7 +187,7 @@ fn walk_set(x: &[Value], y: &[Value], path: &str, opts: &Options, out: &mut Vec<
 
 // ---------------------------------------------------------------- registry
 
-/// One approved Rust-vs-oracle divergence, as written in `oracle/known-divergences.toml`.
+/// One approved baseline-vs-Rust divergence, as written in `testdata/golden/known-divergences.toml`.
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 pub struct KnownEntry {
     /// Unique, never reused (`D-0001`).
@@ -203,9 +203,9 @@ pub struct KnownEntry {
     /// Input or snippet that triggers the difference.
     #[serde(default)]
     pub example: String,
-    /// What the oracle produced.
+    /// What the reference produced.
     #[serde(default)]
-    pub python_value: String,
+    pub baseline_value: String,
     /// What Rust produces.
     #[serde(default)]
     pub rust_value: String,
@@ -549,7 +549,8 @@ approved_on = "2026-10-27"
     #[test]
     fn real_registry_file_parses() {
         let text = include_str!("../../known-divergences.toml");
-        let k = KnownDivergences::from_toml(text).expect("oracle/known-divergences.toml is valid");
+        let k = KnownDivergences::from_toml(text)
+            .expect("testdata/golden/known-divergences.toml is valid");
         assert!(k.entries.iter().all(|e| e.approved_on.len() == 10));
     }
 

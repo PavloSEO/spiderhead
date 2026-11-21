@@ -686,7 +686,7 @@ fn is_unrepresentable(value: &Value) -> bool {
 #[test]
 fn fingerprint_matches_golden_differential_table() {
     let rows: Value =
-        serde_json::from_str(include_str!("../../tests/fixtures/fingerprint_oracle.json"))
+        serde_json::from_str(include_str!("../../tests/fixtures/fingerprint_golden.json"))
             .expect("fixture parses");
     let rows = rows.as_array().expect("array");
     assert!(rows.len() >= 150);
@@ -714,7 +714,7 @@ fn fingerprint_matches_golden_differential_table() {
 /// list splitting, JSON objects: each case yields the expected value or rejection.
 #[test]
 fn coerce_and_assignment_match_golden_differential_table() {
-    let rows: Value = serde_json::from_str(include_str!("../../tests/fixtures/coerce_oracle.json"))
+    let rows: Value = serde_json::from_str(include_str!("../../tests/fixtures/coerce_golden.json"))
         .expect("fixture parses");
     let rows = rows.as_array().expect("array");
     assert!(rows.len() >= 100);

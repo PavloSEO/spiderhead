@@ -1,4 +1,4 @@
-//! Replay `backlinks_oracle.json` — reference `backlink_indexes` and `backlink_history`
+//! Replay `backlinks_golden.json` — reference `backlink_indexes` and `backlink_history`
 //! driven by scripted ops (`estimate`/`collect`/`save_snapshot`/`snapshot_history`/
 //! `read_snapshot`) with an injected transport recording each request, scenario-keyed
 //! credentials, a pinned `uuid.uuid4` and a recording `spend.record`. Sandbox paths
@@ -355,7 +355,7 @@ async fn run_op(
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_backlinks() {
-    let scenarios = load_fixture("backlinks_oracle.json");
+    let scenarios = load_fixture("backlinks_golden.json");
     let mut failures = Vec::new();
     for scenario in &scenarios {
         let name = scenario

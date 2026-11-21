@@ -1187,7 +1187,7 @@ mod tests {
     ];
 
     fn golden_root() -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
     }
 
     /// Writable copy of a recorded raw scan in a unique scratch directory.

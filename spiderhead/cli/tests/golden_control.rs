@@ -153,7 +153,7 @@ fn fixture_path() -> PathBuf {
 }
 
 fn fixture() -> Value {
-    spiderhead_oracle_testkit::fixture_json(&fixture_path())
+    spiderhead_testkit::fixture_json(&fixture_path())
 }
 
 fn unified_diff(field: &str, expected: &str, actual: &str) -> String {
@@ -226,7 +226,7 @@ fn fresh_work(tag: &str) -> PathBuf {
 /// destination previews read (the env var names it for this surface's run).
 fn prepare_work(work: &Path) {
     let crate_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let raw = crate_dir.join("../../oracle/raw-scans/basic");
+    let raw = crate_dir.join("../../testdata/golden/raw-scans/basic");
     std::fs::copy(raw.join("scan.sqlite"), work.join("scan-basic.sqlite")).expect("scan copy");
     std::fs::copy(
         raw.join("scan.sqlite.audit-v2.sqlite"),
@@ -358,7 +358,7 @@ fn cli_step(argv: &[String], registry: &spiderhead_cli::Registry) -> (i32, Outpu
 fn control_group_matches_the_reference_cli_and_mcp() {
     let fixture = fixture();
     let mut blessed = fixture.clone();
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
 
     // ── CLI: the chains replay through the real binary in its own work dir ──
     let cli_work = fresh_work("cli");
@@ -518,7 +518,7 @@ fn control_group_matches_the_reference_cli_and_mcp() {
         }
     }
     let _ = std::fs::remove_dir_all(&mcp_work);
-    spiderhead_oracle_diff::bless_json(&fixture_path(), &blessed);
+    spiderhead_golden::bless_json(&fixture_path(), &blessed);
 }
 
 /// `{WORK}` placeholders in recorded arguments resolve to the surface's work dir.

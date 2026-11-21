@@ -7,7 +7,7 @@ use spiderhead_sources::{evidence_join, evidence_join_store};
 use std::path::PathBuf;
 
 fn fixture() -> Value {
-    let text = include_str!("fixtures/evidence_join_oracle.json");
+    let text = include_str!("fixtures/evidence_join_golden.json");
     serde_json::from_str(text).expect("fixture parses")
 }
 

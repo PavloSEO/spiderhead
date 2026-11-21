@@ -1,7 +1,7 @@
 //! Differential tests against the reference baseline fixtures.
 //!
 //! the reference suite (run with the golden venv) emits
-//! `tests/fixtures/reports_oracle.json`; every assertion here compares Rust
+//! `tests/fixtures/reports_golden.json`; every assertion here compares Rust
 //! output against that captured reference output — zero diffs.
 
 use std::path::PathBuf;
@@ -16,8 +16,8 @@ use spiderhead_reports::facts::build_facts_export;
 use spiderhead_reports::svg_charts::{bar_chart, donut_chart, line_chart, ChartOpts, Series};
 
 fn fixtures() -> Value {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/reports_oracle.json");
-    spiderhead_oracle_testkit::fixture_json(&path)
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/reports_golden.json");
+    spiderhead_testkit::fixture_json(&path)
 }
 
 fn documents() -> Vec<Value> {

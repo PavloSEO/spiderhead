@@ -382,7 +382,7 @@ fn run_scenario(scenario: &Value) {
 
 #[test]
 fn golden_scenarios_match_golden() {
-    let scenarios = common::load_fixture("gsc_inspection_history_oracle.json");
+    let scenarios = common::load_fixture("gsc_inspection_history_golden.json");
     for scenario in &scenarios {
         run_scenario(scenario);
     }

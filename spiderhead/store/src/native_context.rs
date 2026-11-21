@@ -1230,7 +1230,7 @@ mod tests {
     // sorted-key JSON re-emitted from the parsed payload.
     #[test]
     fn raw_scans_validate_and_match_baselines() {
-        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle");
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden");
         let own = [
             "analysis_asset_thresholds",
             "native_config_extension",
@@ -1302,7 +1302,7 @@ mod tests {
                 actual.push(Value::Object(shown));
             }
             let baseline_path = root.join("baselines").join(site).join("scan.tables.json");
-            let baseline: Value = spiderhead_oracle_testkit::fixture_json(&baseline_path);
+            let baseline: Value = spiderhead_testkit::fixture_json(&baseline_path);
             // digests are normalised in the baselines; compare every other byte of the kinds this
             // module validates
             let pick = |rows: &Value| -> Value {
@@ -1326,7 +1326,7 @@ mod tests {
             }
             // The baseline belongs to the live parity replay; a bless run can see
             // the file mid-refresh, so this check is skipped while blessing.
-            if !spiderhead_oracle_diff::bless_enabled() {
+            if !spiderhead_golden::bless_enabled() {
                 assert_eq!(want, got, "{site}");
             }
         }

@@ -1,7 +1,7 @@
 //! Whole-document audit.v2 golden: the Rust audit document written through
 //! `store::audit_v2::write_audit_v2` is read back and structurally diffed
 //! against the reference baselines, after the same normalisation the reference suite
-//! applies (`oracle/NORMALISATION.md`).
+//! applies (`testdata/golden/NORMALISATION.md`).
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -10,7 +10,7 @@ use indexmap::IndexMap;
 use regex::Regex;
 use serde_json::{Map, Value};
 use spiderhead_checks::audit;
-use spiderhead_oracle_diff::{diff, Options};
+use spiderhead_golden::{diff, Options};
 
 const SITES: [&str; 6] = [
     "basic",
@@ -22,7 +22,7 @@ const SITES: [&str; 6] = [
 ];
 
 fn golden_dir() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
 }
 
 /// the reference suite on the Rust side: same rules, same order.
@@ -227,7 +227,7 @@ fn read_audit_db(db: &Path) -> Value {
 
 #[test]
 fn audit_v2_matches_reference_baselines() {
-    let known = spiderhead_oracle_diff::KnownDivergences::from_toml(
+    let known = spiderhead_golden::KnownDivergences::from_toml(
         &std::fs::read_to_string(golden_dir().join("known-divergences.toml"))
             .expect("known-divergences.toml"),
     )
@@ -290,7 +290,7 @@ fn audit_v2_matches_reference_baselines() {
             failures.push_str(&format!(
                 "[{site}] {} divergences\n{}",
                 divs.len(),
-                spiderhead_oracle_diff::report(&divs, 30)
+                spiderhead_golden::report(&divs, 30)
             ));
         }
     }

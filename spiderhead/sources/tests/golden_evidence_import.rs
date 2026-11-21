@@ -20,7 +20,7 @@ fn scrub(value: &Value, base: &str) -> Value {
 
 #[test]
 fn golden_ops_match_golden() {
-    let text = include_str!("fixtures/evidence_import_oracle.json");
+    let text = include_str!("fixtures/evidence_import_golden.json");
     let fixture: Value = serde_json::from_str(text).expect("fixture");
     let base = std::env::temp_dir()
         .join(format!("sh-evi-{}", std::process::id()))

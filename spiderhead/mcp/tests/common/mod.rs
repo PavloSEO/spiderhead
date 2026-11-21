@@ -6,7 +6,7 @@ use std::io::{BufRead, BufReader, BufWriter, Write};
 use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
 
 use serde_json::{json, Value};
-use spiderhead_oracle_diff::{diff, Divergence, Options};
+use spiderhead_golden::{diff, Divergence, Options};
 
 /// The binary under test (cargo wires `CARGO_BIN_EXE_*` for integration tests).
 const BINARY: &str = env!("CARGO_BIN_EXE_spiderhead-mcp");
@@ -121,7 +121,7 @@ pub fn fixture_path(name: &str) -> std::path::PathBuf {
 
 /// Load a fixture saved by the reference suite, preferring a `.zst` sibling.
 pub fn fixture(name: &str) -> Value {
-    spiderhead_oracle_testkit::fixture_json(&fixture_path(name))
+    spiderhead_testkit::fixture_json(&fixture_path(name))
 }
 
 /// Undo [`substitute_version`]: the served version becomes the stored token.

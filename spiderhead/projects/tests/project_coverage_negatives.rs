@@ -4,7 +4,7 @@
 //! `object()`, `None`, `True`, `"1"`, `1.0`) cannot reach the typed Rust
 //! signatures — the boundary validation is covered by the golden dispatch
 //! layer. The `load_catalogue` monkeypatch is a reference-only seam; both stay
-//! deferred in `oracle/deferred-tests.toml`.
+//! deferred to the reference suite.
 
 #[path = "common/testkit.rs"]
 mod testkit;

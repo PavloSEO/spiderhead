@@ -1,4 +1,4 @@
-//! Golden-diff test for the CrUX client against `crux_oracle.json`.
+//! Golden-diff test for the CrUX client against `crux_golden.json`.
 
 mod common;
 
@@ -141,7 +141,7 @@ fn assert_key_not_cached(cache: &Option<PathBuf>, api_key: Option<&str>) {
 // + the reference suite — recorded stub-server scenarios.
 #[tokio::test(flavor = "current_thread")]
 async fn golden_crux() {
-    for scenario in load_fixture("crux_oracle.json") {
+    for scenario in load_fixture("crux_golden.json") {
         let name = scenario.get("name").and_then(Value::as_str).unwrap_or("?");
         let responses = scenario
             .get("responses")

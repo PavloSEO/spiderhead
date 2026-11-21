@@ -55,7 +55,7 @@ fn fixture() -> Value {
     // The fixture belongs to the semantics crate; the CLI binary is what the
     // sequence runs through.
     let path =
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../semantics/tests/fixtures/cli_oracle.json");
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../semantics/tests/fixtures/cli_golden.json");
     serde_json::from_str(&std::fs::read_to_string(path).expect("fixture file"))
         .expect("fixture json")
 }

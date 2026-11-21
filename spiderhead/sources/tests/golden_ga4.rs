@@ -428,7 +428,7 @@ fn assert_op(label: &str, op: &Value, actual: &(Value, Vec<Value>, Vec<f64>, Vec
 
 #[tokio::test]
 async fn golden_ga4() {
-    let path = common::fixtures_dir().join("ga4_oracle.json");
+    let path = common::fixtures_dir().join("ga4_golden.json");
     let fixture: Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
     for scenario in fixture["scenarios"].as_array().unwrap() {
         let name = scenario["name"].as_str().unwrap_or("?");

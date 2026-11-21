@@ -1,5 +1,5 @@
 //! Differential test of the URL query slice (`storage-pack-10`): the reference baseline's answers over
-//! `oracle/raw-scans/basic`, captured by the reference suite, must be reproduced exactly.
+//! `testdata/golden/raw-scans/basic`, captured by the reference suite, must be reproduced exactly.
 
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::PathBuf;
@@ -15,7 +15,7 @@ fn root() -> PathBuf {
 
 fn scan() -> String {
     root()
-        .join("oracle/raw-scans/basic/scan.sqlite")
+        .join("testdata/golden/raw-scans/basic/scan.sqlite")
         .to_string_lossy()
         .into_owned()
 }
@@ -64,7 +64,7 @@ fn blocked(payload: &(dyn std::any::Any + Send)) -> bool {
 // the reference suite, replayed against the golden answers on the raw basic scan.
 #[test]
 fn golden_queries_match() {
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let cases = fixture()["queries"].as_array().unwrap().clone();
     let mut blessed: Vec<Value> = Vec::new();
     let mut failures = Vec::new();
@@ -92,7 +92,7 @@ fn golden_queries_match() {
         blessed.push(updated);
     }
     if bless {
-        assert!(spiderhead_oracle_diff::bless_json_field(
+        assert!(spiderhead_golden::bless_json_field(
             &fixture_path(),
             "queries",
             Value::Array(blessed)
@@ -123,7 +123,7 @@ fn golden_counts_match() {
 
 #[test]
 fn golden_exports_match() {
-    let bless = spiderhead_oracle_diff::bless_enabled();
+    let bless = spiderhead_golden::bless_enabled();
     let cases = fixture()["exports"].as_array().unwrap().clone();
     let mut blessed: Vec<Value> = Vec::new();
     let dir = std::env::temp_dir().join(format!("sh-pack10-{}", std::process::id()));
@@ -175,7 +175,7 @@ fn golden_exports_match() {
     }
     std::fs::remove_dir_all(&dir).ok();
     if bless {
-        assert!(spiderhead_oracle_diff::bless_json_field(
+        assert!(spiderhead_golden::bless_json_field(
             &fixture_path(),
             "exports",
             Value::Array(blessed)

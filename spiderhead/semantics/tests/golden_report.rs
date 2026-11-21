@@ -1,5 +1,5 @@
 //! `report` stage golden check against the reference baseline fixture
-//! (the reference suite → `tests/fixtures/report_oracle.json`).
+//! (the reference suite → `tests/fixtures/report_golden.json`).
 
 mod golden;
 

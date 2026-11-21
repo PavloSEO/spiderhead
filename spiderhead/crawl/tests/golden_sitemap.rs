@@ -1,5 +1,5 @@
 //! Whole-corpus sitemap golden: every document in
-//! `tests/fixtures/sitemap_oracle.json` (recorded by the reference suite
+//! `tests/fixtures/sitemap_golden.json` (recorded by the reference suite
 //! `parse_sitemap` and structurally diffed, plus the URL-helper table.
 
 use serde_json::Value;
@@ -7,10 +7,10 @@ use spiderhead_crawl::sitemap;
 
 fn fixture() -> Value {
     let path =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/sitemap_oracle.json");
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/sitemap_golden.json");
     // the reference json module emits NaN/Infinity literals for float('nan') etc.;
     // swap them for strings on both sides of the comparison.
-    let raw = spiderhead_oracle_testkit::fixture_text(&path);
+    let raw = spiderhead_testkit::fixture_text(&path);
     let raw = raw
         .replace(": NaN", ": \"NaN\"")
         .replace(": Infinity", ": \"Infinity\"")

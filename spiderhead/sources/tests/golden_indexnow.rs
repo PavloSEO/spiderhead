@@ -1,4 +1,4 @@
-//! Golden-diff test for the IndexNow client against `indexnow_oracle.json`.
+//! Golden-diff test for the IndexNow client against `indexnow_golden.json`.
 
 mod common;
 
@@ -8,7 +8,7 @@ use spiderhead_sources::indexnow;
 
 #[tokio::test(flavor = "current_thread")]
 async fn golden_indexnow() {
-    for scenario in load_fixture("indexnow_oracle.json") {
+    for scenario in load_fixture("indexnow_golden.json") {
         let responses = scenario
             .get("responses")
             .and_then(Value::as_array)

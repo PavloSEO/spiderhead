@@ -1,5 +1,5 @@
 //! `competitors` stage golden check against the reference baseline fixture
-//! (the reference suite → `tests/fixtures/competitors_oracle.json`).
+//! (the reference suite → `tests/fixtures/competitors_golden.json`).
 
 mod golden;
 

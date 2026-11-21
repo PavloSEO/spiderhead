@@ -150,7 +150,7 @@ const SITES: [&str; 6] = [
 ];
 
 fn golden_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../oracle")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/golden")
 }
 
 fn raw_scan(site: &str) -> PathBuf {

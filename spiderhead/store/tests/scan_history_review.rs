@@ -35,7 +35,7 @@ impl Drop for Scratch {
 
 fn golden_basic() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../oracle/raw-scans/basic")
+        .join("../../testdata/golden/raw-scans/basic")
         .canonicalize()
         .expect("golden basic fixture")
 }

@@ -1,7 +1,7 @@
 //! Golden-fixture replay harness shared by `*_golden.rs` tests.
 //!
-//! A fixture (`tests/fixtures/<stage>_oracle.json`) holds scenarios recorded by
-//! `gen/gen_<stage>the reference suite: setup ops, provider answers, stage args, and the
+//! A fixture (`tests/fixtures/<stage>_golden.json`) holds scenarios recorded by
+//! the reference suite: setup ops, provider answers, stage args, and the
 //! expected post-stage snapshot (every table, scrubbed timestamps), result
 //! object, provider call log, and emitted files.
 //!
@@ -36,7 +36,7 @@ const VOLATILE: &[&str] = &[
 pub fn fixture(stage: &str) -> Value {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures")
-        .join(format!("{stage}_oracle.json"));
+        .join(format!("{stage}_golden.json"));
     let text = std::fs::read_to_string(&path)
         .unwrap_or_else(|e| panic!("cannot read {}: {e}", path.display()));
     serde_json::from_str(&text).expect("fixture JSON")

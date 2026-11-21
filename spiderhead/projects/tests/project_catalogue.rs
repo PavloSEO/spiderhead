@@ -15,12 +15,12 @@ use spiderhead_projects::catalogue::{definition_hash, load_catalogue};
 #[test]
 fn packaged_catalogue_matches_golden_loader() {
     let fixture_path = testkit::fixture("catalogue.json");
-    let fixture = spiderhead_oracle_testkit::fixture_json(&fixture_path);
+    let fixture = spiderhead_testkit::fixture_json(&fixture_path);
     let loaded = load_catalogue().expect("load_catalogue");
-    if spiderhead_oracle_diff::bless_enabled() {
+    if spiderhead_golden::bless_enabled() {
         let mut ids: Vec<String> = loaded.keys().cloned().collect();
         ids.sort();
-        spiderhead_oracle_diff::bless_json(
+        spiderhead_golden::bless_json(
             &fixture_path,
             &serde_json::json!({
                 "count": loaded.len(),
