@@ -216,7 +216,7 @@ pub fn profile_domain_with(domain: &str, with_tls: bool, probes: &DomainProbes<'
 /// [`profile_domain_with`] over the real client and system tools.
 pub fn profile_domain(domain: &str, with_tls: bool, timeout: f64) -> Json {
     let Ok((client, _)) = crate::net_client::http_client(timeout) else {
-        return json!({"ok": false, "error": "httpx is required"});
+        return json!({"ok": false, "error": "HTTP client unavailable"});
     };
     let probes = DomainProbes {
         rdap: &|path| rdap(&client, path),

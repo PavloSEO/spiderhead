@@ -169,7 +169,7 @@ pub fn check_cdn(url: &str, timeout: f64) -> Json {
         return json!({"ok": false, "error": format!("not a valid URL: {}", crate::net_client::py_repr(url))});
     }
     let Ok((client, http2_capable)) = http_client(timeout) else {
-        return json!({"ok": false, "error": "httpx is required"});
+        return json!({"ok": false, "error": "HTTP client unavailable"});
     };
     check_cdn_with(&client, &target, http2_capable)
 }

@@ -95,7 +95,7 @@ pub fn detect_tech(url: &str, timeout: f64) -> Json {
         return json!({"ok": false, "error": format!("Not a valid URL: {}", crate::net_client::py_repr(url))});
     }
     let Ok((client, _)) = http_client(timeout) else {
-        return json!({"ok": false, "error": "httpx is required"});
+        return json!({"ok": false, "error": "HTTP client unavailable"});
     };
     detect_tech_with(&client, &target)
 }

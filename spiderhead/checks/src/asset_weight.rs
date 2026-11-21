@@ -89,8 +89,7 @@ pub struct AssetReply {
 }
 
 impl AssetReply {
-    /// First value of a header, case-insensitive on the name (httpx's
-    /// `CaseInsensitiveDict.get`).
+    /// First value of a header, case-insensitive on the name.
     fn header(&self, name: &str) -> Option<&str> {
         self.headers
             .iter()

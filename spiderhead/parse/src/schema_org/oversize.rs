@@ -98,7 +98,7 @@ pub fn check_schema(
             let Some(fetcher) = fetcher else {
                 return Ok(SchemaCheck {
                     ok: false,
-                    error: Some("httpx is required".to_owned()),
+                    error: Some("HTTP client unavailable".to_owned()),
                     ..empty_result()
                 });
             };

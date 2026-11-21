@@ -74,7 +74,7 @@ pub(super) fn exc_type(exc: &crate::net_client::FetchError) -> &'static str {
         Invalid(_) => "ValueError",
         Blocked(_) => "BlockedRedirectError",
         Unavailable(_) => "NetworkUnavailable",
-        // httpx reports read-phase timeouts as ReadTimeout; reqwest does not
+        // The reference client reports read-phase timeouts as ReadTimeout; reqwest does not
         // separate connect- from read-phase, so one name stands for both.
         Timeout => "ReadTimeout",
         Transport(_) => "RequestError",

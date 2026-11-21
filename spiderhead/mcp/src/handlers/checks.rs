@@ -101,7 +101,7 @@ pub fn soft404_check(args: &Value) -> Result<Value, ToolError> {
     let args = kwargs(args);
     let url = need_str(&args, "url", "soft404-check", &["url"])?;
     let Ok((client, _)) = http_client(20.0) else {
-        return Ok(json!({"ok": false, "error": "httpx is required"}));
+        return Ok(json!({"ok": false, "error": "HTTP client unavailable"}));
     };
     Ok(spiderhead_checks::soft404::check_soft404_with(
         url,
@@ -354,10 +354,10 @@ pub fn mirror_check(args: &Value) -> Result<Value, ToolError> {
     let host = parts.netloc.to_lowercase();
     let bare = host.strip_prefix("www.").unwrap_or(&host);
     let Ok((client, _)) = http_client(timeout) else {
-        return Err(ToolError::Failed("httpx is required".to_owned()));
+        return Err(ToolError::Failed("HTTP client unavailable".to_owned()));
     };
     let Ok((resolver, _)) = http_client(8.0) else {
-        return Err(ToolError::Failed("httpx is required".to_owned()));
+        return Err(ToolError::Failed("HTTP client unavailable".to_owned()));
     };
     let www_name = format!("www.{bare}");
     let a = doh(&resolver, &www_name, "A");
@@ -511,7 +511,7 @@ fn fetch_robots(url: &str) -> RobotsOutcome {
     }
     let robots_url = robots_url_of(&target);
     let Ok((client, _)) = http_client(20.0) else {
-        return RobotsOutcome::Refusal(json!({"ok": false, "error": "httpx is required"}));
+        return RobotsOutcome::Refusal(json!({"ok": false, "error": "HTTP client unavailable"}));
     };
     let response = match client.get(&robots_url, &[], &[]) {
         Ok(response) => response,
@@ -610,7 +610,7 @@ pub fn asset_weight_check(args: &Value) -> Result<Value, ToolError> {
         ..AssetWeightOptions::default()
     };
     let Ok((client, _)) = http_client(DEFAULT_TIMEOUT) else {
-        return Err(ToolError::Failed("httpx is required".to_owned()));
+        return Err(ToolError::Failed("HTTP client unavailable".to_owned()));
     };
     let adapter = AssetAdapter { client: &client };
     analyze_page_asset_weight(url, &adapter, options).map_err(ToolError::Failed)

@@ -189,7 +189,7 @@ pub fn check_backlinks(target: &str, donors: &[String], concurrency: i64, timeou
     let _concurrency = concurrency.clamp(1, 10);
 
     let Ok((client, _)) = http_client(timeout) else {
-        return json!({"ok": false, "error": "httpx is required"});
+        return json!({"ok": false, "error": "HTTP client unavailable"});
     };
     check_backlinks_with(
         &client,

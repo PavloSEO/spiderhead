@@ -309,6 +309,12 @@ fn refusal(state: &str, reason: &str) -> Value {
     json!({"ok": false, "state": state, "reason": reason})
 }
 
+/// A release asset the downloader accepts: a packaged binary archive, or the
+/// product's own release naming. Everything else (notes, checksums) is refused.
+fn is_binary_asset(name: &str) -> bool {
+    name.starts_with("spiderhead-") || name.ends_with(".tar.gz")
+}
+
 /// `update_download`: fetch one checksummed asset of the last checked release.
 pub fn update_download(args: &Value) -> Result<Value, ToolError> {
     let args = kwargs(args);
@@ -406,13 +412,10 @@ pub fn download_update(
             "asset is not in the checked release metadata",
         ));
     };
-    if !(asset_name.ends_with(".whl")
-        || asset_name.ends_with(".tar.gz")
-        || asset_name.starts_with("spiderhead-"))
-    {
+    if !is_binary_asset(asset_name) {
         return Ok(refusal(
             "unsupported_asset",
-            "only wheel and source archive assets are supported",
+            "only binary release assets are supported",
         ));
     }
     if out.is_empty() || out.chars().count() > 4096 {
@@ -760,9 +763,9 @@ mod tests {
 
     fn feed(digest: Option<&str>) -> Value {
         let mut asset = json!({
-            "name": "spiderhead-9.9.9-py3-none-any.whl",
+            "name": "spiderhead-9.9.9.tar.gz",
             "size": 5,
-            "browser_download_url": format!("{BASE}/download/v9.9.9/spiderhead-9.9.9-py3-none-any.whl"),
+            "browser_download_url": format!("{BASE}/download/v9.9.9/spiderhead-9.9.9.tar.gz"),
         });
         if let Some(digest) = digest {
             asset["digest"] = json!(format!("sha256:{digest}"));
@@ -796,7 +799,7 @@ mod tests {
             feed_url,
             response(200, feed(Some(&digest)).to_string().as_bytes()),
         );
-        let asset_url = format!("{BASE}/download/v9.9.9/spiderhead-9.9.9-py3-none-any.whl");
+        let asset_url = format!("{BASE}/download/v9.9.9/spiderhead-9.9.9.tar.gz");
         client
             .responses
             .insert(asset_url.clone(), response(200, body));
@@ -810,10 +813,10 @@ mod tests {
         assert_eq!(again["state"], "not_due");
 
         // The download verifies the checksum and publishes a new file only.
-        let out = directory.join("pkg.whl");
+        let out = directory.join("pkg.bin");
         let done = download_update(
             "v9.9.9",
-            "spiderhead-9.9.9-py3-none-any.whl",
+            "spiderhead-9.9.9.tar.gz",
             &out.to_string_lossy(),
             1024,
             &client,
@@ -823,7 +826,7 @@ mod tests {
         assert_eq!(std::fs::read(&out).expect("file"), body);
         let exists = download_update(
             "v9.9.9",
-            "spiderhead-9.9.9-py3-none-any.whl",
+            "spiderhead-9.9.9.tar.gz",
             &out.to_string_lossy(),
             1024,
             &client,
@@ -832,10 +835,10 @@ mod tests {
 
         // A tampered asset is refused and leaves no file behind.
         client.responses.insert(asset_url, response(200, b"HELLO"));
-        let tampered = directory.join("bad.whl");
+        let tampered = directory.join("bad.bin");
         let refused = download_update(
             "v9.9.9",
-            "spiderhead-9.9.9-py3-none-any.whl",
+            "spiderhead-9.9.9.tar.gz",
             &tampered.to_string_lossy(),
             1024,
             &client,
@@ -847,8 +850,8 @@ mod tests {
         // The byte limit is checked before the digest.
         let limited = download_update(
             "v9.9.9",
-            "spiderhead-9.9.9-py3-none-any.whl",
-            &directory.join("big.whl").to_string_lossy(),
+            "spiderhead-9.9.9.tar.gz",
+            &directory.join("big.bin").to_string_lossy(),
             2,
             &client,
         )
@@ -863,8 +866,8 @@ mod tests {
         let digest = format!("{:x}", Sha256::digest(body));
         let assets = vec![
             Asset {
-                name: "a.whl".to_owned(),
-                url: format!("{BASE}/download/v1.0.0/a.whl"),
+                name: "a.tar.gz".to_owned(),
+                url: format!("{BASE}/download/v1.0.0/a.tar.gz"),
                 size: None,
                 sha256: None,
             },
@@ -878,7 +881,7 @@ mod tests {
         let mut client = FakeClient::default();
         client.responses.insert(
             assets[1].url.clone(),
-            response(200, format!("{digest}  a.whl\n").as_bytes()),
+            response(200, format!("{digest}  a.tar.gz\n").as_bytes()),
         );
         let found = checksum(&client, &Value::Null, &assets[0], &assets, &[]);
         assert_eq!(found, Ok(digest));

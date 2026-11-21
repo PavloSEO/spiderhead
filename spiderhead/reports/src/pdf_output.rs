@@ -7,7 +7,8 @@ use std::path::Path;
 
 use serde_json::{json, Value};
 
-const INSTALL: &str = "pip install 'seohead-seotools[pdf]' and install Chrome, Edge or Chromium";
+const INSTALL: &str =
+    "a PDF renderer is unavailable: install Chrome, Edge or Chromium and ensure it is on PATH";
 
 /// Rewrite the PDF with only fixed, non-source metadata values.
 fn sanitize_metadata(path: &Path, lang: &str) -> Result<(), String> {

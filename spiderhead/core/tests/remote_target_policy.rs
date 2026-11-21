@@ -1,8 +1,8 @@
 //! the staging allowlist and the DNS answer rules of the remote egress policy.
 //!
 //! Not covered here (see the report): transport, pinned-client, browser-route, job-runner and
-//! crawl-entry tests. They drive the reference httpx/Playwright mechanics, which live in crates
-//! that are not covered yet.
+//! crawl-entry tests. They drive the reference transport and browser mechanics, which live in
+//! crates that are not covered yet.
 
 use std::net::{IpAddr, SocketAddr};
 

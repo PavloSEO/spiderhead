@@ -1,8 +1,8 @@
 //! Explicit HTTP forward-proxy resolution.
 //!
 //! The proxy is named as a URL, or as `env:VARIABLE` so its credentials never sit in a config
-//! file. The resolved route carries a credential-free identity. The httpx proxy object is not
-//! part of this crate: the transport layer does not exist yet.
+//! file. The resolved route carries a credential-free identity. The transport-side proxy object
+//! is not part of this crate: the transport layer does not exist yet.
 
 use super::is_public_address;
 use crate::host::Host;
