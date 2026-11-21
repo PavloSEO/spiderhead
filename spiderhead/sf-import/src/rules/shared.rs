@@ -14,7 +14,7 @@ use spiderhead_parse::url_parse::{parse_qsl, unquote, urlencode, urlsplit, urlun
 
 use crate::context::{AuditContext, ContextError};
 use crate::normalize::{find_column, norm_url, INTERNAL_FIELD_MAP};
-use crate::pyvalue::{str_or_dumps, truthy, truthy_opt};
+use crate::value_text::{str_or_dumps, truthy, truthy_opt};
 
 /// `NON_ASCII`: any character outside ASCII.
 pub static NON_ASCII: LazyLock<Regex> =

@@ -78,7 +78,7 @@ pub(crate) fn truthy(value: &Value) -> bool {
 
 /// reference `==` between two JSON values: bools compare as numbers (`True == 1`),
 /// numbers across int/float forms (`1 == 1.0`), containers recurse element-wise.
-pub fn py_eq(a: &Value, b: &Value) -> bool {
+pub fn value_eq(a: &Value, b: &Value) -> bool {
     let as_num = |v: &Value| -> Option<f64> {
         match v {
             Value::Bool(b) => Some(if *b { 1.0 } else { 0.0 }),
@@ -88,10 +88,12 @@ pub fn py_eq(a: &Value, b: &Value) -> bool {
     };
     match (a, b) {
         (Value::Array(x), Value::Array(y)) => {
-            x.len() == y.len() && x.iter().zip(y).all(|(p, q)| py_eq(p, q))
+            x.len() == y.len() && x.iter().zip(y).all(|(p, q)| value_eq(p, q))
         }
         (Value::Object(x), Value::Object(y)) => {
-            x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| py_eq(v, w)))
+            x.len() == y.len()
+                && x.iter()
+                    .all(|(k, v)| y.get(k).is_some_and(|w| value_eq(v, w)))
         }
         _ => match (as_num(a), as_num(b)) {
             (Some(x), Some(y)) => x == y,
@@ -102,7 +104,7 @@ pub fn py_eq(a: &Value, b: &Value) -> bool {
 
 /// Whether `value` occurs in `hay` under reference `==` (the `in` operator on a list).
 pub(crate) fn py_contains(hay: &[Value], value: &Value) -> bool {
-    hay.iter().any(|h| py_eq(h, value))
+    hay.iter().any(|h| value_eq(h, value))
 }
 
 /// `obj[key]` when it is a JSON object, like the reference `isinstance(x, Mapping)` guard.
@@ -119,7 +121,7 @@ pub(crate) fn sorted_join(items: &HashSet<String>) -> String {
 
 /// `sorted(map(str, items))` rendered as a reference list literal inside an f-string.
 pub(crate) fn sorted_list_repr(items: &[Value]) -> String {
-    use crate::pyvalue::str_or_dumps;
+    use crate::value_text::str_or_dumps;
     use spiderhead_parse::strings::repr;
     let mut strs: Vec<String> = items.iter().map(str_or_dumps).collect();
     strs.sort();
@@ -207,7 +209,7 @@ pub(crate) fn unique_rows(rows: &[&Object], kind: &str) -> Result<(), VerifyErro
         let key = row_key(row, kind);
         if keys
             .iter()
-            .any(|k| k.len() == key.len() && k.iter().zip(&key).all(|(a, b)| py_eq(a, b)))
+            .any(|k| k.len() == key.len() && k.iter().zip(&key).all(|(a, b)| value_eq(a, b)))
         {
             return fail(format!("selected audit has duplicate {kind} keys"));
         }

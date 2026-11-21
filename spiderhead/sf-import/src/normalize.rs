@@ -7,8 +7,8 @@ use serde_json::{Map, Value};
 use spiderhead_core::url_normalize;
 use std::collections::HashMap;
 
-use crate::pyvalue::py_float;
 use crate::table::Table;
+use crate::value_text::parse_float;
 
 /// JSON object map shorthand.
 pub type Object = Map<String, Value>;
@@ -283,7 +283,7 @@ pub fn to_float(value: &Value) -> Option<f64> {
             }
         }
         Value::Number(n) => n.as_f64()?,
-        Value::String(s) => py_float(&comma_to_dot(s))?,
+        Value::String(s) => parse_float(&comma_to_dot(s))?,
         _ => return None,
     };
     if f.is_finite() {

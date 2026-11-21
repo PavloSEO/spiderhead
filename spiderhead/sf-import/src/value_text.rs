@@ -60,7 +60,7 @@ pub fn number_repr(n: &serde_json::Number) -> String {
 
 /// reference `repr(value)` for a JSON value: `{'a': 1}`-style containers, `'x'`-quoted
 /// strings, `True`/`False`/`None` and `repr` numbers. `str(container)` delegates here.
-pub fn py_repr_value(value: &Value) -> String {
+pub fn repr_value(value: &Value) -> String {
     match value {
         Value::Null => "None".to_owned(),
         Value::Bool(b) => if *b { "True" } else { "False" }.to_owned(),
@@ -68,16 +68,12 @@ pub fn py_repr_value(value: &Value) -> String {
         Value::String(s) => repr(s),
         Value::Array(items) => format!(
             "[{}]",
-            items
-                .iter()
-                .map(py_repr_value)
-                .collect::<Vec<_>>()
-                .join(", ")
+            items.iter().map(repr_value).collect::<Vec<_>>().join(", ")
         ),
         Value::Object(map) => format!(
             "{{{}}}",
             map.iter()
-                .map(|(k, v)| format!("{}: {}", repr(k), py_repr_value(v)))
+                .map(|(k, v)| format!("{}: {}", repr(k), repr_value(v)))
                 .collect::<Vec<_>>()
                 .join(", ")
         ),
@@ -92,7 +88,7 @@ pub fn str_or_dumps(value: &Value) -> String {
         Value::Bool(b) => if *b { "True" } else { "False" }.to_owned(),
         Value::Number(n) => number_repr(n),
         Value::String(s) => s.clone(),
-        other => py_repr_value(other),
+        other => repr_value(other),
     }
 }
 
@@ -100,7 +96,7 @@ pub fn str_or_dumps(value: &Value) -> String {
 /// PEP 515 digit separators (`1_000.5`), and scientific notation. Non-ASCII decimal
 /// digits are not supported (Creference accepts them; JSON-sourced cells never carry
 /// them). Returns `None` where Creference raises `ValueError`.
-pub fn py_float(text: &str) -> Option<f64> {
+pub fn parse_float(text: &str) -> Option<f64> {
     let s = strip(text);
     let bytes = s.as_bytes();
     let mut i = 0usize;
@@ -161,7 +157,7 @@ pub fn py_float(text: &str) -> Option<f64> {
 }
 
 /// reference `type(value).__name__` for a JSON value (error-message building).
-pub fn py_type_name(value: &Value) -> &'static str {
+pub fn type_name(value: &Value) -> &'static str {
     match value {
         Value::Null => "NoneType",
         Value::Bool(_) => "bool",
@@ -200,16 +196,18 @@ pub fn truthy_opt(value: Option<&Value>) -> bool {
 /// reference `==` on JSON values: numbers compare across `int`/`float`/`bool`
 /// (`1 == 1.0 == True`), containers recursively, anything else by type.
 /// `NaN != NaN`, as in Creference.
-pub fn py_eq(a: &Value, b: &Value) -> bool {
+pub fn value_eq(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Null, Value::Null) => true,
         _ if numeric(a) && numeric(b) => numeric_eq(a, b),
         (Value::String(x), Value::String(y)) => x == y,
         (Value::Array(x), Value::Array(y)) => {
-            x.len() == y.len() && x.iter().zip(y.iter()).all(|(u, v)| py_eq(u, v))
+            x.len() == y.len() && x.iter().zip(y.iter()).all(|(u, v)| value_eq(u, v))
         }
         (Value::Object(x), Value::Object(y)) => {
-            x.len() == y.len() && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| py_eq(v, w)))
+            x.len() == y.len()
+                && x.iter()
+                    .all(|(k, v)| y.get(k).is_some_and(|w| value_eq(v, w)))
         }
         _ => false,
     }
@@ -318,8 +316,8 @@ fn dumps_string(out: &mut String, text: &str) {
 
 /// `json.loads(text)`: the parsed value or the full `JSONDecodeError: …`
 /// text Cthe reference `str(exc)` produces.
-pub fn py_json_loads(text: &str) -> Result<Value, String> {
-    let mut parser = PyJson {
+pub fn loads(text: &str) -> Result<Value, String> {
+    let mut parser = Parser {
         chars: text.chars().collect(),
         pos: 0,
     };
@@ -332,12 +330,12 @@ pub fn py_json_loads(text: &str) -> Result<Value, String> {
     Ok(value)
 }
 
-struct PyJson {
+struct Parser {
     chars: Vec<char>,
     pos: usize,
 }
 
-impl PyJson {
+impl Parser {
     fn skip_ws(&mut self) {
         while matches!(self.chars.get(self.pos), Some(' ' | '\t' | '\n' | '\r')) {
             self.pos += 1;

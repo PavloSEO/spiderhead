@@ -9,8 +9,8 @@ use serde_json::{Map, Value};
 use spiderhead_parse::strings::strip;
 
 use crate::context::{AddOpts, AuditContext, ContextError};
-use crate::pyvalue::{truthy, truthy_opt};
 use crate::rules::shared::{body_unavailable, has_column, rec};
+use crate::value_text::{truthy, truthy_opt};
 
 use super::{ordered_operand, str_or_blank};
 
@@ -376,7 +376,7 @@ pub fn check_viewport(ctx: &mut AuditContext) -> Result<(), ContextError> {
             // reference, and the check does not catch it.
             let scale = m
                 .get(1)
-                .and_then(|g| crate::pyvalue::py_float(g.as_str()))
+                .and_then(|g| crate::value_text::parse_float(g.as_str()))
                 .ok_or_else(|| {
                     ContextError::Value("could not convert initial-scale to float".to_owned())
                 })?;

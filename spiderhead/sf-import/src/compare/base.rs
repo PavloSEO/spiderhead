@@ -10,8 +10,8 @@ use serde_json::Value;
 use spiderhead_parse::strings::repr;
 use spiderhead_store::evidence_contract::Obj;
 
-use crate::pyurl::urlsplit;
-use crate::pyvalue::str_or_dumps;
+use crate::url_split::urlsplit;
+use crate::value_text::str_or_dumps;
 pub(crate) use crate::verification::AuditSource;
 
 /// Two audits that cannot be compared without lying about the result.
@@ -156,7 +156,7 @@ pub(crate) fn key_of(issue: &Obj) -> (String, String) {
         .map_or_else(String::new, str_or_dumps);
     let target = match issue
         .get("target_url")
-        .filter(|v| crate::pyvalue::truthy(v))
+        .filter(|v| crate::value_text::truthy(v))
     {
         Some(v) => str_or_dumps(v),
         None => String::new(),
@@ -249,7 +249,7 @@ pub(crate) fn page_rows(source: &AuditSource<'_>) -> Result<HashMap<String, Obj>
         let Some(page) = page.as_object() else {
             continue;
         };
-        let Some(url) = page.get("url").filter(|u| crate::pyvalue::truthy(u)) else {
+        let Some(url) = page.get("url").filter(|u| crate::value_text::truthy(u)) else {
             continue;
         };
         let Some(url) = url.as_str() else { continue };
@@ -395,7 +395,7 @@ pub(crate) fn crawled_urls(source: &AuditSource<'_>) -> Result<BTreeSet<String>,
         let Some(page) = page.as_object() else {
             continue;
         };
-        let Some(url) = page.get("url").filter(|u| crate::pyvalue::truthy(u)) else {
+        let Some(url) = page.get("url").filter(|u| crate::value_text::truthy(u)) else {
             continue;
         };
         let Some(url) = url.as_str() else { continue };

@@ -16,7 +16,7 @@ use spiderhead_parse::parser::meta::robots_directives;
 use spiderhead_parse::url_parse::{urlsplit, urlunsplit};
 
 use crate::normalize::norm_url;
-use crate::pyvalue::{py_repr_value, str_or_dumps, truthy};
+use crate::value_text::{repr_value, str_or_dumps, truthy};
 
 /// Schema tag of the diff result.
 pub const SCHEMA_VERSION: &str = "segment_diff.v1";
@@ -259,14 +259,14 @@ pub fn diff_segments(
             "no segments declared anywhere; scope.segments is empty".into(),
         ));
     }
-    let quoted = |s: &str| py_repr_value(&json!(s));
+    let quoted = |s: &str| repr_value(&json!(s));
     if source == target {
         return Err(SegmentDiffError(format!(
             "source and target segment are both {}",
             quoted(source)
         )));
     }
-    let declared = || py_repr_value(&json!(names.iter().collect::<Vec<_>>()));
+    let declared = || repr_value(&json!(names.iter().collect::<Vec<_>>()));
     for (label, name) in [("source", source), ("target", target)] {
         if !names.contains(name) {
             return Err(SegmentDiffError(format!(

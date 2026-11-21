@@ -24,7 +24,7 @@ use spiderhead_store::error::StoreError;
 
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::find_column;
-use crate::pyvalue::truthy;
+use crate::value_text::truthy;
 
 /// Title separators tried in order when looking for a shared template token.
 pub const SEPARATORS: [&str; 6] = [" | ", " — ", " - ", " · ", " :: ", " // "];
@@ -825,7 +825,7 @@ pub fn check_templated_titles(ctx: &mut AuditContext) -> Result<(), ContextError
         .iter()
         .filter_map(|p| p.map(|p| p.metrics.get("title").cloned()))
         .filter(truthy)
-        .map(|t| strip(&crate::pyvalue::str_or_dumps(&t)).to_owned())
+        .map(|t| strip(&crate::value_text::str_or_dumps(&t)).to_owned())
         .collect();
     if titles.len() < 5 {
         ctx.skip("TITLE_TEMPLATED", "too few titles to assess templating");

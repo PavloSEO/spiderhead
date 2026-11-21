@@ -192,8 +192,8 @@ impl ReadIndex {
 /// before/after issue, everything else by itself.
 fn sort_fields(name: &str, row: &Map<String, Value>) -> (String, String, String) {
     if name == "segment_changes" && row.contains_key("before") {
-        let after = row.get("after").filter(|v| crate::pyvalue::truthy(v));
-        let before = row.get("before").filter(|v| crate::pyvalue::truthy(v));
+        let after = row.get("after").filter(|v| crate::value_text::truthy(v));
+        let before = row.get("before").filter(|v| crate::value_text::truthy(v));
         return (
             merged_field(after, before, "target_url"),
             merged_field(after, before, "check"),
@@ -204,11 +204,11 @@ fn sort_fields(name: &str, row: &Map<String, Value>) -> (String, String, String)
     // falsy or non-object lookups fall through like an absent field.
     let issue = if name == "segment_changes" {
         row.get("issue")
-            .filter(|v| crate::pyvalue::truthy(v))
+            .filter(|v| crate::value_text::truthy(v))
             .and_then(Value::as_object)
             .or_else(|| {
                 row.get("after")
-                    .filter(|v| crate::pyvalue::truthy(v))
+                    .filter(|v| crate::value_text::truthy(v))
                     .and_then(Value::as_object)
             })
             .unwrap_or(row)
@@ -227,11 +227,11 @@ fn merged_field(after: Option<&Value>, before: Option<&Value>, key: &str) -> Str
     plain_field_opt(
         after
             .and_then(|v| v.get(key))
-            .filter(|v| crate::pyvalue::truthy(v))
+            .filter(|v| crate::value_text::truthy(v))
             .or_else(|| {
                 before
                     .and_then(|v| v.get(key))
-                    .filter(|v| crate::pyvalue::truthy(v))
+                    .filter(|v| crate::value_text::truthy(v))
             }),
     )
 }
@@ -241,8 +241,8 @@ fn field_or(value: &Map<String, Value>, primary: &str, fallback: &str) -> String
     plain_field_opt(
         value
             .get(primary)
-            .filter(|v| crate::pyvalue::truthy(v))
-            .or_else(|| value.get(fallback).filter(|v| crate::pyvalue::truthy(v))),
+            .filter(|v| crate::value_text::truthy(v))
+            .or_else(|| value.get(fallback).filter(|v| crate::value_text::truthy(v))),
     )
 }
 
@@ -397,13 +397,13 @@ pub fn read_compare_page(
     let raw_manifest = std::fs::read(&manifest_path).map_err(|_| {
         CompareError(format!(
             "could not read comparison manifest for {}",
-            crate::pyvalue::repr(name)
+            crate::value_text::repr(name)
         ))
     })?;
     let manifest: Value = serde_json::from_slice(&raw_manifest).map_err(|_| {
         CompareError(format!(
             "could not read comparison manifest for {}",
-            crate::pyvalue::repr(name)
+            crate::value_text::repr(name)
         ))
     })?;
     let entry = manifest
@@ -415,7 +415,7 @@ pub fn read_compare_page(
         .ok_or_else(|| {
             CompareError(format!(
                 "comparison manifest does not contain file {}",
-                crate::pyvalue::repr(name)
+                crate::value_text::repr(name)
             ))
         })?;
     let entry = entry
@@ -440,13 +440,13 @@ pub fn read_compare_page(
     let file_info = std::fs::symlink_metadata(&data_path).map_err(|_| {
         CompareError(format!(
             "comparison data file is unavailable for {}",
-            crate::pyvalue::repr(name)
+            crate::value_text::repr(name)
         ))
     })?;
     let manifest_info = std::fs::metadata(&manifest_path).map_err(|_| {
         CompareError(format!(
             "comparison data file is unavailable for {}",
-            crate::pyvalue::repr(name)
+            crate::value_text::repr(name)
         ))
     })?;
     if file_info.is_symlink() {
@@ -457,14 +457,14 @@ pub fn read_compare_page(
     let file_identity = spiderhead_core::filesystem::link_identity(&data_path).map_err(|_| {
         CompareError(format!(
             "comparison data file is unavailable for {}",
-            crate::pyvalue::repr(name)
+            crate::value_text::repr(name)
         ))
     })?;
     let manifest_identity =
         spiderhead_core::filesystem::path_identity(&manifest_path).map_err(|_| {
             CompareError(format!(
                 "comparison data file is unavailable for {}",
-                crate::pyvalue::repr(name)
+                crate::value_text::repr(name)
             ))
         })?;
     let manifest_sha = hex_sha256(&raw_manifest);

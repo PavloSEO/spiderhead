@@ -4,14 +4,14 @@
 use std::collections::BTreeSet;
 use std::sync::OnceLock;
 
-use crate::pyvalue::py_repr_value;
+use crate::value_text::repr_value;
 use serde_json::{json, Map, Value};
 use spiderhead_store::evidence_contract::Obj;
 
 use crate::compare::base::{
     header_obj, run_of, ResolvedCorrespondence, CORRESPONDENCE_SCHEMA, RELEASE_REVIEW_SCHEMA,
 };
-use crate::pyvalue::{py_eq, truthy};
+use crate::value_text::{truthy, value_eq};
 use crate::verification::AuditSource;
 
 /// One measured-or-missing page attribute, with the row it was read from.
@@ -151,7 +151,7 @@ pub(crate) fn release_review(
                 let b = &before_facts[name.as_str()];
                 let a = &after_facts[name.as_str()];
                 b.get("state") != a.get("state")
-                    || !py_eq(
+                    || !value_eq(
                         b.get("value").unwrap_or(&Value::Null),
                         a.get("value").unwrap_or(&Value::Null),
                     )
@@ -326,7 +326,7 @@ pub(crate) fn preflight(before: &AuditSource<'_>, after: &AuditSource<'_>) -> Ve
             ));
         }
         (Some(a), Some(b)) => {
-            if !py_eq(a, b) {
+            if !value_eq(a, b) {
                 let (Some(a), Some(b)) = (a.as_object(), b.as_object()) else {
                     // Non-object manifests always compare unequal; the key list
                     // below is only defined for objects.
@@ -346,7 +346,7 @@ pub(crate) fn preflight(before: &AuditSource<'_>, after: &AuditSource<'_>) -> Ve
                         let x = a.get(key.as_str());
                         let y = b.get(key.as_str());
                         !match (x, y) {
-                            (Some(x), Some(y)) => py_eq(x, y),
+                            (Some(x), Some(y)) => value_eq(x, y),
                             (None, None) => true,
                             _ => false,
                         }
@@ -366,12 +366,12 @@ pub(crate) fn preflight(before: &AuditSource<'_>, after: &AuditSource<'_>) -> Ve
     let before_profile = run_of(header_obj(before)).get("profile");
     let after_profile = run_of(header_obj(after)).get("profile");
     if let (Some(a), Some(b)) = (before_profile, after_profile) {
-        if !py_eq(a, b) {
+        if !value_eq(a, b) {
             warnings.push(format!(
                 "SF export profile differs between the two runs ({} vs {}), so some of the \
                  difference may be the profile's check coverage rather than the site",
-                py_repr_value(a),
-                py_repr_value(b)
+                repr_value(a),
+                repr_value(b)
             ));
         }
     }

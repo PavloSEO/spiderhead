@@ -51,7 +51,7 @@ pub(crate) struct Link {
 
 /// reference truthiness of an optional cell (missing counts as false).
 pub(crate) fn truthy(value: &Option<Value>) -> bool {
-    value.as_ref().is_some_and(crate::pyvalue::truthy)
+    value.as_ref().is_some_and(crate::value_text::truthy)
 }
 
 /// The cell as a string, when it is one.

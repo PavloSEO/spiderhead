@@ -10,8 +10,8 @@ use spiderhead_parse::strings::strip;
 
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::{find_column, INTERNAL_FIELD_MAP};
-use crate::pyvalue::{py_eq, truthy, truthy_opt};
 use crate::rules::shared::{body_unavailable, has_column, rec};
+use crate::value_text::{truthy, truthy_opt, value_eq};
 
 use super::{ordered_operand, str_or_blank};
 
@@ -147,7 +147,7 @@ pub fn check_document_skeleton(ctx: &mut AuditContext) -> Result<(), ContextErro
         } else {
             Value::from(0)
         };
-        if py_eq(&head_count, &Value::from(0)) {
+        if value_eq(&head_count, &Value::from(0)) {
             ctx.add(
                 "HEAD_MISSING",
                 AddOpts {
@@ -167,7 +167,7 @@ pub fn check_document_skeleton(ctx: &mut AuditContext) -> Result<(), ContextErro
                 },
             )?;
         }
-        if py_eq(&body_count, &Value::from(0)) {
+        if value_eq(&body_count, &Value::from(0)) {
             ctx.add(
                 "BODY_MISSING",
                 AddOpts {

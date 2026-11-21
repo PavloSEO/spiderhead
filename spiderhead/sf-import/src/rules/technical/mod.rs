@@ -21,7 +21,7 @@ pub use render_blocking::check_render_blocking;
 use serde_json::Value;
 
 use crate::context::ContextError;
-use crate::pyvalue::{str_or_dumps, truthy};
+use crate::value_text::{str_or_dumps, truthy};
 
 /// `str(value or "")` for a record field: falsy reads as "", truthy as
 /// `str(value)`.

@@ -8,8 +8,8 @@ use spiderhead_core::job_control::JobProgressUpdate;
 use spiderhead_parse::strings::repr;
 
 use crate::compare::base::{iter_rows, key_of, mapped_url, AuditSource, CompareError};
-use crate::pyvalue::py_json_loads;
 use crate::segments::Segment;
+use crate::value_text::loads;
 
 use super::checkpoint::{commit_txn, set_state, state_value_or};
 use super::export::INDEX_BATCH;
@@ -205,9 +205,7 @@ pub(crate) fn index_collection(
                     };
                     if let (Some(prev), Some(next)) = (existing.flatten(), Some(document.as_str()))
                     {
-                        if let (Ok(mut hit), Ok(incoming)) =
-                            (py_json_loads(&prev), py_json_loads(next))
-                        {
+                        if let (Ok(mut hit), Ok(incoming)) = (loads(&prev), loads(next)) {
                             if let (Some(hit), Some(incoming)) =
                                 (hit.as_object_mut(), incoming.as_object())
                             {

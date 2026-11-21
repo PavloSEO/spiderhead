@@ -35,7 +35,7 @@ impl AuditContext {
 
     /// `if self.enabled(check_id)`: reference truthiness of the raw config value.
     fn enabled_flag(&self, check_id: &str) -> bool {
-        crate::pyvalue::truthy(&self.enabled(check_id))
+        crate::value_text::truthy(&self.enabled(check_id))
     }
 
     /// `severity`: severity override, then the check's configured severity,
@@ -48,10 +48,10 @@ impl AuditContext {
             .and_then(Value::as_object)
             .and_then(|o| o.get(check_id))
         {
-            return crate::pyvalue::str_or_dumps(v);
+            return crate::value_text::str_or_dumps(v);
         }
         if let Some(v) = self.check_cfg(check_id).and_then(|c| c.get("severity")) {
-            return crate::pyvalue::str_or_dumps(v);
+            return crate::value_text::str_or_dumps(v);
         }
         self.registry
             .meta_or_fallback(check_id)

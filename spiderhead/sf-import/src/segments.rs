@@ -13,7 +13,7 @@ use std::collections::{BTreeMap, BTreeSet, BinaryHeap, HashMap};
 use regex::Regex;
 use serde_json::{json, Map, Value};
 
-use crate::pyvalue::{py_eq, py_repr_value, str_or_dumps};
+use crate::value_text::{repr_value, str_or_dumps, value_eq};
 
 /// Schema tag of the segment report.
 pub const SCHEMA_VERSION: &str = "segments.v1";
@@ -49,7 +49,7 @@ impl SegmentRule {
         if !VALID_OPS.contains(&op) {
             return Err(SegmentError(format!(
                 "unknown segment rule op {}; expected one of ['contains', 'eq', 'in', 'prefix', 'regex', 'segment']",
-                py_repr_value(&json!(op))
+                repr_value(&json!(op))
             )));
         }
         let regex = if op == "regex" {
@@ -93,7 +93,7 @@ impl Segment {
 }
 
 fn coerce_segment(raw: &Value) -> Result<Segment, SegmentError> {
-    let name = raw.get("name").filter(|n| crate::pyvalue::truthy(n));
+    let name = raw.get("name").filter(|n| crate::value_text::truthy(n));
     let Some(name) = name else {
         return Err(SegmentError(
             "a segment definition needs a non-empty 'name'".into(),
@@ -107,7 +107,7 @@ fn coerce_segment(raw: &Value) -> Result<Segment, SegmentError> {
         .ok_or_else(|| {
             SegmentError(format!(
                 "segment {} has no rules; it would never match anything",
-                py_repr_value(&json!(name))
+                repr_value(&json!(name))
             ))
         })?;
     let mut rules = Vec::new();
@@ -167,8 +167,8 @@ pub(crate) fn rule_matches(
     if rule.op == "in" {
         let probe = value.unwrap_or(&Value::Null);
         return match &rule.value {
-            Value::Array(items) => items.iter().any(|i| py_eq(probe, i)),
-            single => py_eq(probe, single),
+            Value::Array(items) => items.iter().any(|i| value_eq(probe, i)),
+            single => value_eq(probe, single),
         };
     }
     let text = match value {
@@ -178,7 +178,7 @@ pub(crate) fn rule_matches(
     match rule.op.as_str() {
         "prefix" => text.starts_with(&str_or_dumps(&rule.value)),
         "contains" => text.contains(&str_or_dumps(&rule.value)),
-        "eq" => py_eq(value.unwrap_or(&Value::Null), &rule.value),
+        "eq" => value_eq(value.unwrap_or(&Value::Null), &rule.value),
         "regex" => rule.regex.as_ref().is_some_and(|re| re.is_match(&text)),
         _ => false,
     }
@@ -196,7 +196,7 @@ pub fn resolve_order(segments: &[Value]) -> Result<Vec<Segment>, SegmentError> {
         if by_name.insert(seg.name.clone(), seg).is_some() {
             return Err(SegmentError(format!(
                 "duplicate segment name {}",
-                py_repr_value(&json!(seg.name))
+                repr_value(&json!(seg.name))
             )));
         }
     }
@@ -205,8 +205,8 @@ pub fn resolve_order(segments: &[Value]) -> Result<Vec<Segment>, SegmentError> {
             if !by_name.contains_key(&dep) {
                 return Err(SegmentError(format!(
                     "segment {} references unknown segment {}",
-                    py_repr_value(&json!(seg.name)),
-                    py_repr_value(&json!(dep))
+                    repr_value(&json!(seg.name)),
+                    repr_value(&json!(dep))
                 )));
             }
         }
@@ -323,7 +323,7 @@ pub fn assign_segments(pages: &[Value], segments: &[Value]) -> Result<Value, Seg
     let records: Vec<&Map<String, Value>> = pages.iter().filter_map(Value::as_object).collect();
     let url_of = |r: &Map<String, Value>| {
         r.get("url")
-            .filter(|u| crate::pyvalue::truthy(u))
+            .filter(|u| crate::value_text::truthy(u))
             .map(str_or_dumps)
     };
     let mut resolved: HashMap<String, BTreeSet<String>> = HashMap::new();

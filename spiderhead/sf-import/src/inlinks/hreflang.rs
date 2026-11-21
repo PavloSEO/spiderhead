@@ -15,7 +15,7 @@ use spiderhead_parse::parser::meta::robots_directives;
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::inlinks::shared::rec;
 use crate::normalize::{norm_url, records_from_df, Object, HREFLANG_FIELD_MAP};
-use crate::pyvalue::truthy as value_truthy;
+use crate::value_text::truthy as value_truthy;
 
 /// One hreflang annotation reduced to what the quality sub-checks read; the
 /// raw JSON cells are kept so the details quote the annotation as written.

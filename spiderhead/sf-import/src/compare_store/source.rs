@@ -12,9 +12,9 @@ use spiderhead_store::evidence_contract::Obj;
 
 use crate::compare::base::{header_obj, host_changed, origin_of, AuditSource, CompareError};
 use crate::compare::facts::page_facts;
-use crate::pyurl::urlsplit;
-use crate::pyvalue::truthy;
 use crate::segments::{rule_matches, Segment, UNSEGMENTED};
+use crate::url_split::urlsplit;
+use crate::value_text::truthy;
 
 use super::shared::{hex, json_text};
 
@@ -248,7 +248,7 @@ pub(crate) fn facts_rows(
             .filter(|name| {
                 let before_value = before[name.as_str()].clone();
                 let after_value = after.get(name.as_str()).cloned().unwrap_or(Value::Null);
-                !crate::pyvalue::py_eq(&before_value, &after_value)
+                !crate::value_text::value_eq(&before_value, &after_value)
             })
             .cloned()
             .collect();

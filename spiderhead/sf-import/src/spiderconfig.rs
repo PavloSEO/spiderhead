@@ -223,9 +223,9 @@ pub fn patch_speed(blob: &[u8], urls_per_second: f64) -> Result<Vec<u8>, SpiderC
     if !(MIN_RATE..=MAX_RATE).contains(&rate) {
         return Err(value_err(format!(
             "rate {} is outside the allowed {}..{} URLs/s",
-            crate::pyvalue::float_repr(rate),
-            crate::pyvalue::float_repr(MIN_RATE),
-            crate::pyvalue::float_repr(MAX_RATE),
+            crate::value_text::float_repr(rate),
+            crate::value_text::float_repr(MIN_RATE),
+            crate::value_text::float_repr(MAX_RATE),
         )));
     }
     let (flag_at, double_at) = perf_offsets(blob)?;

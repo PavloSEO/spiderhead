@@ -8,7 +8,7 @@ use serde_json::{json, Map, Value};
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::inlinks::shared::{all_inlink_records, graph_access, rec};
 use crate::normalize::{find_column, norm_url, Object, INTERNAL_FIELD_MAP};
-use crate::pyvalue::truthy as value_truthy;
+use crate::value_text::truthy as value_truthy;
 
 /// `_NON_RESOURCE_LINK_TYPES`: link types that are declarations, not resources
 /// a page loads.

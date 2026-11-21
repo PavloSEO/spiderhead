@@ -14,12 +14,12 @@ use serde_json::{json, Map, Value};
 use spiderhead_parse::text_normalize::{normalize_text, script_evidence};
 use spiderhead_sf_import::config::load_config;
 use spiderhead_sf_import::loader::{discover_exports, EXPORT_MATCHERS};
-use spiderhead_sf_import::pyvalue::py_repr_value;
 use spiderhead_sf_import::snippet_edits::{
     attach_retained_context, attach_retained_measurements, build_snippet_tasks,
     measure_snippet_edits, parse_snippet_csv, write_snippet_tasks, FontLoader,
     RetainedContextOptions, SnippetError, SpellcheckArgs, TextMeasure,
 };
+use spiderhead_sf_import::value_text::repr_value;
 use spiderhead_store::inputs::Diagnostic;
 
 use crate::error::ToolError;
@@ -128,7 +128,7 @@ pub fn sf_audit_run(args: &Value) -> Result<Value, ToolError> {
     {
         return Err(ToolError::Failed(format!(
             "mode must be one of ['crawl', 'crawl-list', 'load-crawl', 'parse-exports'], got {}",
-            py_repr_value(&mode)
+            repr_value(&mode)
         )));
     }
     match opt(&args, "profile") {
@@ -137,7 +137,7 @@ pub fn sf_audit_run(args: &Value) -> Result<Value, ToolError> {
         Some(other) => {
             return Err(ToolError::Failed(format!(
                 "profile must be one of ['custom', 'full', 'lite'], got {}",
-                py_repr_value(other)
+                repr_value(other)
             )))
         }
     }
@@ -249,7 +249,7 @@ pub fn sf_audit_issues(args: &Value) -> Result<Value, ToolError> {
         Some(Value::String(text)) => text.trim().parse::<i64>().map_err(|_| {
             ToolError::Failed(format!(
                 "invalid literal for int() with base 10: {}",
-                py_repr_value(&json!(text))
+                repr_value(&json!(text))
             ))
         })?,
         Some(Value::Bool(flag)) => {

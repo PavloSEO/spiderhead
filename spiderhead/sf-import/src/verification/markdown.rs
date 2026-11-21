@@ -2,7 +2,7 @@
 //! indented JSON evidence block per finding).
 
 use super::*;
-use crate::pyvalue::str_or_dumps;
+use crate::value_text::str_or_dumps;
 
 /// `markdown`: the focused human report of a verification document.
 pub fn markdown(document: &Object) -> String {
@@ -188,7 +188,7 @@ fn scalar_json(value: &Value) -> String {
             } else if let Some(u) = n.as_u64() {
                 u.to_string()
             } else {
-                crate::pyvalue::float_repr(n.as_f64().unwrap_or(0.0))
+                crate::value_text::float_repr(n.as_f64().unwrap_or(0.0))
             }
         }
         other => serde_json::to_string(other).unwrap_or_default(),

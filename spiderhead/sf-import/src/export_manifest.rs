@@ -280,7 +280,7 @@ pub fn requests_from_config(exports: &Value) -> Result<Vec<ExportRequest>, Manif
     // `if exports.get("fetch_all_inlinks"):` — reference truthiness, not == true.
     if exports
         .get("fetch_all_inlinks")
-        .is_some_and(crate::pyvalue::truthy)
+        .is_some_and(crate::value_text::truthy)
     {
         let identity = ("bulk".to_owned(), "Links:All Inlinks".to_owned());
         if !seen.contains(&identity) {

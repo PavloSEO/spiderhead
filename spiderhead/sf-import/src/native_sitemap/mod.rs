@@ -15,7 +15,7 @@ use spiderhead_parse::parser::meta::robots_directives;
 use crate::context::disk::DiskError;
 use crate::context::{AddOpts, AuditContext, ContextError};
 use crate::normalize::{norm_url, Object};
-use crate::pyvalue::{str_or_dumps, truthy, truthy_opt};
+use crate::value_text::{str_or_dumps, truthy, truthy_opt};
 
 use robots_policy::blocked;
 use run_robots::run_robots;

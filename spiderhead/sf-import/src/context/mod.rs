@@ -363,10 +363,10 @@ impl AuditContext {
             }
             if let Some(v) = rec
                 .get("redirect_url")
-                .filter(|v| crate::pyvalue::truthy(v))
+                .filter(|v| crate::value_text::truthy(v))
             {
                 self.redirect_map
-                    .insert(url.clone(), crate::pyvalue::str_or_dumps(v));
+                    .insert(url.clone(), crate::value_text::str_or_dumps(v));
             }
             self.page_by_url.insert(url, page.clone());
             pages.push(page);
@@ -410,19 +410,19 @@ impl AuditContext {
     /// statistics are added later.
     fn metrics_from_record(rec: &Object) -> Object {
         let get = |k: &str| rec.get(k).cloned().unwrap_or(Value::Null);
-        let h1_count = i64::from(crate::pyvalue::truthy_opt(rec.get("h1")))
-            + i64::from(crate::pyvalue::truthy_opt(rec.get("h1_2")));
-        let h2_count = i64::from(crate::pyvalue::truthy_opt(rec.get("h2")))
-            + i64::from(crate::pyvalue::truthy_opt(rec.get("h2_2")));
+        let h1_count = i64::from(crate::value_text::truthy_opt(rec.get("h1")))
+            + i64::from(crate::value_text::truthy_opt(rec.get("h1_2")));
+        let h2_count = i64::from(crate::value_text::truthy_opt(rec.get("h2")))
+            + i64::from(crate::value_text::truthy_opt(rec.get("h2_2")));
         let h1_list: Vec<Value> = [rec.get("h1"), rec.get("h1_2")]
             .into_iter()
             .flatten()
-            .filter(|v| crate::pyvalue::truthy(v))
+            .filter(|v| crate::value_text::truthy(v))
             .cloned()
             .collect();
         let representation = rec
             .get("representation")
-            .filter(|v| crate::pyvalue::truthy(v))
+            .filter(|v| crate::value_text::truthy(v))
             .cloned()
             .unwrap_or_else(|| Value::from("static"));
         let mut m = Object::new();

@@ -394,13 +394,13 @@ pub fn compact_after_source(
         );
         if pairs
             .iter()
-            .any(|(c, u)| py_eq(c, &key.0) && py_eq(u, &key.1))
+            .any(|(c, u)| value_eq(c, &key.0) && value_eq(u, &key.1))
         {
             // A repeated key is another page-level hit on the same target:
             // fold it into the already-selected finding instead of failing.
             if let Some(index) = issue_keys
                 .iter()
-                .position(|(c, u)| py_eq(c, &key.0) && py_eq(u, &key.1))
+                .position(|(c, u)| value_eq(c, &key.0) && value_eq(u, &key.1))
             {
                 if let Some(hit) = issues[index].as_object_mut() {
                     crate::compare::base::merge_issue_hit(hit, item);

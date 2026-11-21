@@ -15,7 +15,7 @@ use spiderhead_sf_import::compare::{compare, header_obj, iter_rows, run_of, Comp
 use spiderhead_sf_import::compare_store::{
     compare_markdown, findings_delta, read_compare_page, writer_is_active,
 };
-use spiderhead_sf_import::pyvalue::py_eq;
+use spiderhead_sf_import::value_text::value_eq;
 use spiderhead_store::inputs::{load_audit_source, Diagnostic};
 use spiderhead_store::scan_artifact::open_scan;
 
@@ -524,7 +524,7 @@ pub fn compare_url(args: &Value) -> Result<Value, ToolError> {
                     .and_then(|entry| entry.get("value"))
                     .cloned()
                     .unwrap_or(Value::Null);
-                if !py_eq(&left_value, &right_value) {
+                if !value_eq(&left_value, &right_value) {
                     compared.insert(
                         name.clone(),
                         json!({"state": "changed", "before": left_value, "after": right_value}),

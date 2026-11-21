@@ -16,8 +16,8 @@ use spiderhead_parse::url_parse::{urlsplit, urlunsplit};
 
 use crate::context::{AddOpts, AuditContext, ContextError, PageHandle};
 use crate::normalize::norm_url;
-use crate::pyvalue::truthy_opt;
 use crate::rules::shared::{con, probed_targets, rec, ProbedTarget};
+use crate::value_text::truthy_opt;
 
 /// `_rel_has(token)` over a declaration `rel` value that may be a string or a
 /// list (reference accepts either and lowercases every token). Public so the

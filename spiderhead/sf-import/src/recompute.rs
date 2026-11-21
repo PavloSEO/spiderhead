@@ -56,7 +56,7 @@ pub fn needs_recompute(trigger: &str) -> Result<(bool, &'static str), PolicyErro
     if !RECOMPUTE_EVENTS.contains(&trigger) {
         return Err(PolicyError(format!(
             "unknown recompute trigger: {}",
-            crate::pyvalue::py_repr_value(&Value::from(trigger))
+            crate::value_text::repr_value(&Value::from(trigger))
         )));
     }
     Ok((trigger != "scan_loaded", recompute_reason(trigger)))
@@ -98,17 +98,17 @@ pub fn classify_trigger(
     }
     let segments = |m: &serde_json::Map<String, Value>| -> Value {
         m.get("segments")
-            .filter(|v| crate::pyvalue::truthy(v))
+            .filter(|v| crate::value_text::truthy(v))
             .cloned()
             .unwrap_or_else(|| Value::Array(Vec::new()))
     };
-    if !crate::pyvalue::py_eq(&segments(before_map), &segments(after_map)) {
+    if !crate::value_text::value_eq(&segments(before_map), &segments(after_map)) {
         return Ok("segments_changed");
     }
-    if !crate::pyvalue::py_eq(
+    if !crate::value_text::value_eq(
         map_get(before_map, "config_fingerprint"),
         map_get(after_map, "config_fingerprint"),
-    ) || !crate::pyvalue::py_eq(
+    ) || !crate::value_text::value_eq(
         map_get(before_map, "evidence_revision"),
         map_get(after_map, "evidence_revision"),
     ) {

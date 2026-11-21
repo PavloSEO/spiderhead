@@ -86,7 +86,7 @@ fn subscript_err(container: &Value) -> SnippetError {
         Value::Array(_) => type_err("list indices must be integers or slices, not str"),
         other => type_err(format!(
             "'{}' object is not subscriptable",
-            crate::pyvalue::py_type_name(other)
+            crate::value_text::type_name(other)
         )),
     }
 }
@@ -95,7 +95,7 @@ fn subscript_err(container: &Value) -> SnippetError {
 fn contains_err(container: &Value) -> SnippetError {
     type_err(format!(
         "argument of type '{}' is not a container or iterable",
-        crate::pyvalue::py_type_name(container)
+        crate::value_text::type_name(container)
     ))
 }
 
@@ -103,7 +103,7 @@ fn contains_err(container: &Value) -> SnippetError {
 fn iterate_err(container: &Value) -> SnippetError {
     type_err(format!(
         "'{}' object is not iterable",
-        crate::pyvalue::py_type_name(container)
+        crate::value_text::type_name(container)
     ))
 }
 
@@ -503,15 +503,15 @@ fn dict_edit(edit: &Value) -> Result<Map<String, Value>, SnippetError> {
                 if matches!(k, Value::Array(_) | Value::Object(_)) {
                     return Err(type_err(format!(
                         "cannot use '{}' as a dict key (unhashable type: '{}')",
-                        crate::pyvalue::py_type_name(&k),
-                        crate::pyvalue::py_type_name(&k)
+                        crate::value_text::type_name(&k),
+                        crate::value_text::type_name(&k)
                     )));
                 }
                 // reference keys need only be hashable; JSON renders them as
                 // strings, so the same textual form is stored here.
                 let key = match k {
                     Value::String(s) => s,
-                    other => crate::pyvalue::str_or_dumps(&other),
+                    other => crate::value_text::str_or_dumps(&other),
                 };
                 m.insert(key, v.clone());
             }
@@ -732,7 +732,7 @@ pub fn inspect_retained_document(
     let Some(document_obj) = document.as_object() else {
         return Err(attr_err(format!(
             "'{}' object has no attribute 'get'",
-            crate::pyvalue::py_type_name(document)
+            crate::value_text::type_name(document)
         )));
     };
     let identity = document_identity(document_obj);
@@ -743,7 +743,7 @@ pub fn inspect_retained_document(
             "state": "unavailable",
             "reason": document_obj
                 .get("reason")
-                .filter(|v| crate::pyvalue::truthy(v))
+                .filter(|v| crate::value_text::truthy(v))
                 .map(str_or_empty)
                 .unwrap_or_else(|| "retained document is unavailable".into()),
             "source": identity,
@@ -760,7 +760,7 @@ pub fn inspect_retained_document(
     }
     let content_type = document_obj
         .get("content_type")
-        .filter(|v| crate::pyvalue::truthy(v))
+        .filter(|v| crate::value_text::truthy(v))
         .map(str_or_empty)
         .unwrap_or_default();
     let content_type = content_type
@@ -800,7 +800,7 @@ pub fn inspect_retained_document(
         if !v.is_object() {
             return Err(attr_err(format!(
                 "'{}' object has no attribute 'get'",
-                crate::pyvalue::py_type_name(v)
+                crate::value_text::type_name(v)
             )));
         }
     }
@@ -933,7 +933,7 @@ pub fn inspect_retained_document(
 }
 
 fn str_or_empty(v: &Value) -> String {
-    crate::pyvalue::str_or_dumps(v)
+    crate::value_text::str_or_dumps(v)
 }
 
 /// `_bounded_query_excerpt`: the clipped excerpt window around a match, with
@@ -1262,12 +1262,12 @@ pub fn attach_retained_context_in(
     let Some(tasks_obj) = tasks.as_object() else {
         return Err(attr_err(format!(
             "'{}' object has no attribute 'get'",
-            crate::pyvalue::py_type_name(tasks)
+            crate::value_text::type_name(tasks)
         )));
     };
     let task_list = match tasks_obj.get("tasks") {
         None => None,
-        Some(v) if !crate::pyvalue::truthy(v) => None,
+        Some(v) if !crate::value_text::truthy(v) => None,
         Some(v) => Some(v.clone()),
     };
     let Some(task_list) = task_list else {
@@ -1319,7 +1319,7 @@ pub fn attach_retained_context_in(
             "raw_body_sha256",
         ] {
             if let Some(v) = source.get(key) {
-                identity_parts.push(format!("{key}={}", crate::pyvalue::str_or_dumps(v)));
+                identity_parts.push(format!("{key}={}", crate::value_text::str_or_dumps(v)));
             }
         }
         if let Some(task_obj) = task.as_object_mut() {
@@ -1349,7 +1349,7 @@ pub fn attach_retained_context_in(
                     other => {
                         return Err(type_err(format!(
                             "unsupported operand type(s) for +=: '{}' and 'str'",
-                            crate::pyvalue::py_type_name(&other)
+                            crate::value_text::type_name(&other)
                         )));
                     }
                 }
@@ -1375,7 +1375,7 @@ pub fn attach_retained_measurements(
     let Some(tasks_obj) = tasks.as_object() else {
         return Err(attr_err(format!(
             "'{}' object has no attribute 'get'",
-            crate::pyvalue::py_type_name(tasks)
+            crate::value_text::type_name(tasks)
         )));
     };
     let task_list: Vec<Value> = match tasks_obj.get("tasks") {
@@ -1395,7 +1395,7 @@ pub fn attach_retained_measurements(
         let Value::Object(task_obj) = task else {
             return Err(attr_err(format!(
                 "'{}' object has no attribute 'get'",
-                crate::pyvalue::py_type_name(task)
+                crate::value_text::type_name(task)
             )));
         };
         let retained = task_obj.get("retained_document");
@@ -1418,7 +1418,7 @@ pub fn attach_retained_measurements(
         let Some(metadata) = metadata.as_object() else {
             return Err(attr_err(format!(
                 "'{}' object has no attribute 'get'",
-                crate::pyvalue::py_type_name(&metadata)
+                crate::value_text::type_name(&metadata)
             )));
         };
         let mut meta_row = Map::new();
@@ -1426,7 +1426,7 @@ pub fn attach_retained_measurements(
             if let Some(v) = metadata.get(key) {
                 // `if metadata.get(key)` — reference truthiness (0, False, "",
                 // [], {}, None are all skipped).
-                if crate::pyvalue::truthy(v) {
+                if crate::value_text::truthy(v) {
                     meta_row.insert(key.into(), v.clone());
                 }
             }
@@ -1443,12 +1443,12 @@ pub fn attach_retained_measurements(
         let Some(excerpt) = excerpt.as_object() else {
             return Err(attr_err(format!(
                 "'{}' object has no attribute 'get'",
-                crate::pyvalue::py_type_name(&excerpt)
+                crate::value_text::type_name(&excerpt)
             )));
         };
         let state = excerpt.get("state").and_then(Value::as_str).unwrap_or("");
         if ["available", "partial"].contains(&state)
-            && crate::pyvalue::truthy_opt(excerpt.get("text"))
+            && crate::value_text::truthy_opt(excerpt.get("text"))
         {
             rows.push(json!({"description": excerpt["text"]}));
             owners.push((
@@ -1501,7 +1501,7 @@ pub fn build_snippet_tasks(parsed: &Value) -> Result<Value, SnippetError> {
     let Some(parsed_obj) = parsed.as_object() else {
         return Err(attr_err(format!(
             "'{}' object has no attribute 'get'",
-            crate::pyvalue::py_type_name(parsed)
+            crate::value_text::type_name(parsed)
         )));
     };
     let (edits, errors, source_sha256) = (
@@ -1537,7 +1537,7 @@ pub fn build_snippet_tasks(parsed: &Value) -> Result<Value, SnippetError> {
                 for field in EDITABLE {
                     if items
                         .iter()
-                        .any(|e| crate::pyvalue::py_eq(e, &json!(field)))
+                        .any(|e| crate::value_text::value_eq(e, &json!(field)))
                     {
                         return Err(subscript_err(edit));
                     }
@@ -1554,7 +1554,7 @@ pub fn build_snippet_tasks(parsed: &Value) -> Result<Value, SnippetError> {
             .get("line")
             .cloned()
             .ok_or_else(|| key_err("line"))?;
-        let identity = crate::pyvalue::dumps_sorted(&json!({
+        let identity = crate::value_text::dumps_sorted(&json!({
             "url": url_value,
             "edits": changes,
         }));
@@ -1571,12 +1571,12 @@ pub fn build_snippet_tasks(parsed: &Value) -> Result<Value, SnippetError> {
         // EDITABLE order the dict carries.
         let proposal = changes
             .iter()
-            .map(|(key, value)| format!("{key}: {}", crate::pyvalue::str_or_dumps(value)))
+            .map(|(key, value)| format!("{key}: {}", crate::value_text::str_or_dumps(value)))
             .collect::<Vec<_>>()
             .join("; ");
         // f-string `str(edit['url'])` — raw text for strings, `str()` for
         // other JSON values.
-        let url_text = crate::pyvalue::str_or_dumps(&url_value);
+        let url_text = crate::value_text::str_or_dumps(&url_value);
         tasks.push(json!({
             "id": task_id,
             "type": "snippet_edit_review",
@@ -1592,7 +1592,7 @@ pub fn build_snippet_tasks(parsed: &Value) -> Result<Value, SnippetError> {
                 "title": format!("Review search snippet for {url_text}"),
                 "summary": format!(
                     "Review the proposed snippet for {url_text}: {proposal}. Source CSV line: {}; content SHA-256: {source_sha256}.",
-                    crate::pyvalue::str_or_dumps(&line_value)
+                    crate::value_text::str_or_dumps(&line_value)
                 ),
                 "references": [format!("section:snippet-{}", task_id.to_lowercase())],
             },
