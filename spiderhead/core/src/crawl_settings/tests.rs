@@ -712,14 +712,17 @@ fn fingerprint_matches_golden_differential_table() {
 
 /// Differential table for `coerce` and `parse_setting_assignment` (float and int parsing, bool and
 /// list splitting, JSON objects: each case yields the expected value or rejection.
+/// With `SPIDERHEAD_BLESS=1` every row's outcome is rewritten from the live value.
 #[test]
 fn coerce_and_assignment_match_golden_differential_table() {
     let rows: Value = serde_json::from_str(include_str!("../../tests/fixtures/coerce_golden.json"))
         .expect("fixture parses");
-    let rows = rows.as_array().expect("array");
+    let rows = rows.as_array().expect("array").clone();
     assert!(rows.len() >= 100);
+    let bless = spiderhead_golden::bless_enabled();
+    let mut updated = rows.clone();
     let mut bad = Vec::new();
-    for row in rows {
+    for (index, row) in rows.iter().enumerate() {
         let (label, got): (String, Result<Value, String>) = if row["fn"] == "coerce" {
             let (path, raw) = (
                 row["path"].as_str().unwrap_or(""),
@@ -735,6 +738,20 @@ fn coerce_and_assignment_match_golden_differential_table() {
                     .map_err(|e| e.to_string()),
             )
         };
+        if bless {
+            let entry = updated[index].as_object_mut().expect("row object");
+            entry.remove("ok");
+            entry.remove("err");
+            match got {
+                Ok(value) => {
+                    entry.insert("ok".into(), value);
+                }
+                Err(_) => {
+                    entry.insert("err".into(), Value::Bool(true));
+                }
+            }
+            continue;
+        }
         let same = match row.get("ok") {
             Some(want) if is_unrepresentable(want) => got.is_err(),
             Some(want) => got.as_ref().ok() == Some(want),
@@ -743,6 +760,14 @@ fn coerce_and_assignment_match_golden_differential_table() {
         if !same {
             bad.push(format!("{label}: rust {got:?}, golden {row}"));
         }
+    }
+    if bless {
+        spiderhead_golden::bless_json(
+            &std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/coerce_golden.json"),
+            &Value::Array(updated),
+        );
+        return;
     }
     assert!(
         bad.is_empty(),
