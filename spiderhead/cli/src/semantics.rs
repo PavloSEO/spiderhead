@@ -49,7 +49,7 @@ pub struct Semantics;
 impl crate::registry::CommandHandler for Semantics {
     fn run(&self, cmd: &ParsedCommand, out: &mut Output) -> Result<ExitCode, CliError> {
         let Some(stage) = cmd.path.get(1) else {
-            // The delegated parser requires a stage; argparse answered already.
+            // The declared tree requires a stage; the parser answered already.
             return Ok(ExitCode::USAGE);
         };
         let mut options = Options::defaults();
@@ -94,7 +94,7 @@ impl crate::registry::CommandHandler for Semantics {
             options.mapping = Some(mapping);
         }
         // `--cluster` folds into the export/excel scope (a non-default scope
-        // together with --cluster is the CLI's own argparse error).
+        // together with --cluster is the CLI's own usage error).
         let stage_is_exportish = matches!(stage.as_str(), "export" | "excel");
         if stage_is_exportish {
             if let Some(cluster) = &options.cluster {

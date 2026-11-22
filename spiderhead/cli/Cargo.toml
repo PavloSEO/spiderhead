@@ -15,6 +15,13 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow.workspace = true
+clap = { version = "4", default-features = false, features = [
+    "std",
+    "help",
+    "usage",
+    "error-context",
+    "suggestions",
+] }
 fancy-regex.workspace = true
 regex.workspace = true
 serde.workspace = true

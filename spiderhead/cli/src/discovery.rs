@@ -1,37 +1,13 @@
-//! Project autodiscovery for the command line, plus the `init` and `mcp` commands that sit
-//! outside the argparse-shaped tree.
+//! Project autodiscovery for the command line, plus the `init`, `update` and
+//! `mcp` commands that sit outside the declared command tree.
 
 use serde_json::Value;
 
 use crate::{ExitCode, Output, ParsedCommand};
 
-const PROJECT_FLAGS: [&str; 2] = ["--project", "--directory"];
-
 /// Commands whose directory names something to create.
 fn creates(path: &[String]) -> bool {
     matches!(path.join(" ").as_str(), "project new" | "project-new")
-}
-
-/// Flags to append when a parse failed only because the project argument was missing and a
-/// project is discoverable from the working directory.
-pub fn missing_project_flags(code: i32, stderr: &str) -> Option<Vec<String>> {
-    if code != 2 {
-        return None;
-    }
-    let marker = "the following arguments are required: ";
-    let line = stderr.lines().find_map(|l| l.split_once(marker))?.1;
-    let names: Vec<&str> = line.split(", ").map(str::trim).collect();
-    if !names.iter().all(|n| PROJECT_FLAGS.contains(n)) {
-        return None;
-    }
-    let found = spiderhead_core::project_root::discover_here()?;
-    let value = found.to_string_lossy().into_owned();
-    Some(
-        names
-            .into_iter()
-            .flat_map(|n| [n.to_owned(), value.clone()])
-            .collect(),
-    )
 }
 
 /// Fill an unset `project` / `directory` option from the working directory.
@@ -77,7 +53,7 @@ fn serves_stdio(args: &[String]) -> bool {
     }
 }
 
-/// `spiderhead mcp`, `init` and `update`, handled before argparse.
+/// `spiderhead mcp`, `init` and `update`, handled before parsing.
 pub fn builtin(argv: &[String], out: &mut Output) -> Option<ExitCode> {
     match argv.first().map(String::as_str) {
         // Bare `spiderhead mcp` (optionally `--transport stdio`) starts the stdio server;
@@ -191,15 +167,6 @@ mod tests {
         assert!(serves_stdio(&args(&["--transport", "stdio"])));
         assert!(!serves_stdio(&args(&["--help"])));
         assert!(!serves_stdio(&args(&["--transport", "http"])));
-    }
-
-    #[test]
-    fn only_project_flags_trigger_a_retry() {
-        assert!(
-            missing_project_flags(2, "error: the following arguments are required: --out")
-                .is_none()
-        );
-        assert!(missing_project_flags(0, "").is_none());
     }
 
     #[test]

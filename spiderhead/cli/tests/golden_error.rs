@@ -1,4 +1,4 @@
-//! Parse errors: same usage block, same message, same exit code as argparse.
+//! Parse errors: the recorded cases keep their exit codes under the clap surface.
 
 mod common;
 
