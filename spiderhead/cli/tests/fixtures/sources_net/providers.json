@@ -303,7 +303,7 @@
     "cli": {
      "exit": 2,
      "stdout": "",
-     "stderr": "usage: spiderhead provider-discover [-h] [--input INPUT]\n                                    --provider {google,yandex,topvisor}\n                                    [--domain DOMAIN]\nspiderhead provider-discover: error: argument --provider: invalid choice: 'nope' (choose from 'google', 'yandex', 'topvisor')\n",
+     "stderr": "error: invalid value \"nope\" for --provider <provider>: choose from \"google\", \"yandex\", \"topvisor\"\n",
      "requests": []
     }
    }

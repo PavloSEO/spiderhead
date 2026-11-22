@@ -457,7 +457,7 @@
     "cli": {
      "exit": 2,
      "stdout": "",
-     "stderr": "usage: spiderhead gsc-query [-h] [--input INPUT] [--site-url SITE_URL]\n                            [--mode {search_analytics,inspect_url}]\n                            [--start-date START_DATE] [--end-date END_DATE]\n                            [--dimensions DIMENSIONS] [--row-limit ROW_LIMIT]\n                            [--inspection-url INSPECTION_URL]\n                            [--filter-groups FILTER_GROUPS]\nspiderhead gsc-query: error: argument --mode: invalid choice: 'nope' (choose from 'search_analytics', 'inspect_url')\n",
+     "stderr": "error: invalid value \"nope\" for --mode <mode>: choose from \"search_analytics\", \"inspect_url\"\n",
      "requests": []
     }
    }
