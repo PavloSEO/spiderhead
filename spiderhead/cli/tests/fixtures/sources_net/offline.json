@@ -262,7 +262,7 @@
     "cli": {
      "exit": 2,
      "stdout": "",
-     "stderr": "usage: spiderhead backlinks-profile [-h] [--input INPUT] [--domain DOMAIN]\n                                    [--project PROJECT] [--db DB]\n                                    [--state {live,lost,unknown}]\n                                    [--follow {normal,nofollow,sponsored,ugc,unknown}]\n                                    [--target-prefix TARGET_PREFIX]\n                                    [--min-spam-score MIN_SPAM_SCORE]\n                                    [--max-spam-score MAX_SPAM_SCORE]\n                                    [--history] [--one-per-domain]\n                                    [--limit LIMIT] [--offset OFFSET]\nspiderhead backlinks-profile: error: argument --state: invalid choice: 'weird' (choose from 'live', 'lost', 'unknown')\n",
+     "stderr": "error: invalid value \"weird\" for --state <state>: choose from \"live\", \"lost\", \"unknown\"\n",
      "requests": []
     }
    }

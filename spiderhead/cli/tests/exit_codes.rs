@@ -155,9 +155,8 @@ fn unwired_commands_say_so_on_stderr_and_exit_one() {
 fn bare_invocation_prints_help_and_exits_zero() {
     let got = common::invoke(&[]);
     assert_eq!(got.code, 0);
-    assert!(got
-        .stdout
-        .starts_with("usage: spiderhead [-h] [--version] <command> ...\n"));
+    assert!(got.stdout.contains("Usage: spiderhead"), "{}", got.stdout);
+    assert!(got.stdout.contains("Local-first SEO toolkit"));
 }
 
 #[test]

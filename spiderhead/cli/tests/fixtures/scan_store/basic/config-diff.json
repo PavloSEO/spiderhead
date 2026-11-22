@@ -4,7 +4,7 @@
   "steps": [
    {
     "exit": 2,
-    "stderr": "usage: spiderhead scan-config-diff [-h] [--input INPUT] --before BEFORE_PATH\n                                   --after AFTER_PATH\nspiderhead scan-config-diff: error: the following arguments are required: --before, --after\n",
+    "stderr": "error: the following required arguments were not provided:\n  --before <before_path>\n  --after <after_path>\n\nUsage: spiderhead scan-config-diff --before <before_path> --after <after_path> --input <input>\n\nFor more information, try '--help'.\n",
     "stdout": ""
    }
   ]

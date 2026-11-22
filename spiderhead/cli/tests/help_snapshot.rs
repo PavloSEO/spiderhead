@@ -1,4 +1,4 @@
-//! The original's recorded `--help` snapshot (COLUMNS=80, one screen per flat command).
+//! The recorded `--help` snapshot (COLUMNS=80, one screen per flat command).
 
 mod common;
 
@@ -7,10 +7,6 @@ use serde_json::Value;
 fn at_80_columns() {
     static ONCE: std::sync::Once = std::sync::Once::new();
     ONCE.call_once(|| std::env::set_var("COLUMNS", "80"));
-}
-
-fn tree_json() -> Value {
-    serde_json::from_str(include_str!("../data/cli_tree.json")).unwrap_or(Value::Null)
 }
 
 #[test]
@@ -53,19 +49,28 @@ fn snapshot_covers_every_rendered_command() {
         .into_iter()
         .flat_map(|o| o.keys().map(String::as_str))
         .collect();
-    let tree = tree_json();
-    let rendered: std::collections::BTreeSet<&str> = tree["root"]["children"]
-        .as_array()
-        .into_iter()
-        .flatten()
-        .filter(|n| {
-            !n["command"].is_null()
-                && !matches!(
-                    n["path"][0].as_str(),
-                    Some("mcp" | "tui" | "sf" | "semantics" | "watch")
-                )
-        })
-        .filter_map(|n| n["path"][0].as_str())
+    let root = spiderhead_cli::spec::command();
+    // The snapshot covers the flat commands with handler contracts; the
+    // structural group heads and the delegated/binary-surface commands have
+    // their own screens.
+    const STRUCTURAL: [&str; 12] = [
+        "version",
+        "scan",
+        "logs",
+        "project",
+        "skill",
+        "scenario",
+        "sf",
+        "semantics",
+        "crawl-profile",
+        "mcp",
+        "tui",
+        "watch",
+    ];
+    let rendered: std::collections::BTreeSet<&str> = root
+        .get_subcommands()
+        .map(|c| c.get_name())
+        .filter(|name| !STRUCTURAL.contains(name))
         .collect();
     assert_eq!(recorded, rendered);
     assert!(recorded.len() > 200, "the CLI inventory collapsed");

@@ -14,7 +14,7 @@ use crate::exit::emit_result;
 use crate::registry::{CommandHandler, Registry};
 use crate::{CliError, ExitCode, Output, ParsedCommand};
 
-/// argparse's suppress sentinel: values holding it were never supplied.
+/// Reference suppress sentinel: values holding it were never supplied.
 const SUPPRESS: &str = "==SUPPRESS==";
 
 /// A handler wired to the shared implementation behind one CLI command.
@@ -1010,7 +1010,7 @@ mod tests {
         assert_eq!(kwargs["with_tls"], Value::Bool(false));
         assert!(!kwargs.contains_key("no_tls"));
 
-        // The unset flag (argparse default) adds nothing: the handler default applies.
+        // The unset flag adds nothing: the handler default applies.
         let mut unset = Map::new();
         unset.insert("domain".into(), Value::String("example.test".into()));
         unset.insert("no_tls".into(), Value::Bool(false));

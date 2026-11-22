@@ -192,7 +192,7 @@ fn compare_requests(
     unified_diff("requests", &pretty(expected), &pretty(&actual))
 }
 
-fn run_cli_case(name: &str, case: &Value) -> String {
+fn run_cli_case(name: &str, case: &Value) -> (String, Option<Value>) {
     let work = fresh_work(&format!("cli-{}", std::process::id()));
     // Routes may embed the origin, so the port is learned before they are filled.
     let probe = fake_net::FakeProviders::start(&json!([]));
@@ -213,6 +213,14 @@ fn run_cli_case(name: &str, case: &Value) -> String {
     let code = run(&argv, &registry, &mut out).expect("handler run");
     let dates = case["relative_dates"].as_bool().unwrap_or(false);
     let expect = &case["expect"]["cli"];
+    let fresh_stdout = normalize(&out.stdout, &work, dates);
+    let fresh_stderr = normalize(&out.stderr, &work, dates);
+    let fresh_requests: Value = serde_json::from_str(&normalize(
+        &json!(server.requests()).to_string(),
+        &work,
+        dates,
+    ))
+    .unwrap_or(json!([]));
     let mut problems = String::new();
     if i64::from(code.0) != expect["exit"].as_i64().unwrap_or_default() {
         problems += &format!("  exit: expected {}, got {}\n", expect["exit"], code.0);
@@ -233,14 +241,17 @@ fn run_cli_case(name: &str, case: &Value) -> String {
     );
     clear_extra_env(case);
     let _ = std::fs::remove_dir_all(&work);
+    let fresh = spiderhead_golden::bless_enabled().then(|| {
+        json!({"exit": code.0, "stdout": fresh_stdout, "stderr": fresh_stderr, "requests": fresh_requests})
+    });
     if problems.is_empty() {
-        String::new()
+        (String::new(), fresh)
     } else {
-        format!("{name} (cli) diverges:\n{problems}")
+        (format!("{name} (cli) diverges:\n{problems}"), fresh)
     }
 }
 
-fn run_mcp_case(name: &str, case: &Value) -> String {
+fn run_mcp_case(name: &str, case: &Value) -> (String, Option<Value>) {
     let work = fresh_work("mcp");
     let probe = fake_net::FakeProviders::start(&json!([]));
     let origin = probe.origin.clone();
@@ -286,6 +297,13 @@ fn run_mcp_case(name: &str, case: &Value) -> String {
     }
     let text = result["content"][0]["text"].as_str().unwrap_or_default();
     let actual = normalize(text, &work, dates);
+    let fresh_text = actual.clone();
+    let fresh_requests: Value = serde_json::from_str(&normalize(
+        &json!(server.requests()).to_string(),
+        &work,
+        dates,
+    ))
+    .unwrap_or(json!([]));
     let wanted = expect["text"].as_str().unwrap_or_default();
     if actual != wanted {
         problems += &unified_diff("text", wanted, &actual);
@@ -299,10 +317,12 @@ fn run_mcp_case(name: &str, case: &Value) -> String {
     );
     clear_extra_env(case);
     let _ = std::fs::remove_dir_all(&work);
+    let fresh = spiderhead_golden::bless_enabled()
+        .then(|| json!({"is_error": is_error, "text": fresh_text, "requests": fresh_requests}));
     if problems.is_empty() {
-        String::new()
+        (String::new(), fresh)
     } else {
-        format!("{name} (mcp) diverges:\n{problems}")
+        (format!("{name} (mcp) diverges:\n{problems}"), fresh)
     }
 }
 
@@ -315,25 +335,41 @@ fn golden_networked_sources_match() {
         .filter(|path| path.extension().is_some_and(|ext| ext == "json"))
         .collect();
     files.sort();
+    let bless = spiderhead_golden::bless_enabled();
     let mut failures = String::new();
     let mut count = 0;
     for file in files {
         let raw = std::fs::read_to_string(&file).expect("fixture file");
-        let fixture: Value = serde_json::from_str(&raw).expect("fixture json");
-        for case in fixture["cases"].as_array().expect("cases") {
-            let name = format!(
-                "{}/{}",
-                fixture["group"].as_str().unwrap_or_default(),
-                case["name"].as_str().unwrap_or_default()
-            );
+        let mut fixture: Value = serde_json::from_str(&raw).expect("fixture json");
+        let group = fixture["group"].as_str().unwrap_or_default().to_owned();
+        let mut touched = false;
+        for case in fixture["cases"].as_array_mut().expect("cases") {
+            let name = format!("{group}/{}", case["name"].as_str().unwrap_or_default());
             if case.get("cli").is_some() {
-                failures += &run_cli_case(&name, case);
+                let (problems, fresh) = run_cli_case(&name, case);
+                match (bless, fresh) {
+                    (true, Some(fresh)) => {
+                        case["expect"]["cli"] = fresh;
+                        touched = true;
+                    }
+                    _ => failures += &problems,
+                }
                 count += 1;
             }
             if case.get("mcp").is_some() {
-                failures += &run_mcp_case(&name, case);
+                let (problems, fresh) = run_mcp_case(&name, case);
+                match (bless, fresh) {
+                    (true, Some(fresh)) => {
+                        case["expect"]["mcp"] = fresh;
+                        touched = true;
+                    }
+                    _ => failures += &problems,
+                }
                 count += 1;
             }
+        }
+        if bless && touched {
+            spiderhead_golden::bless_json(&file, &fixture);
         }
     }
     assert!(count > 0, "no cases ran");

@@ -45,10 +45,7 @@ impl Scanner<'_> {
                     Some(c) if "\"\\/bfnrt".contains(c) => i += 2,
                     Some(c) => {
                         return Err((
-                            format!(
-                                "Invalid \\escape: {}",
-                                crate::argparse_compat::repr(&c.to_string())
-                            ),
+                            format!("Invalid \\escape: {}", crate::convert::repr(&c.to_string())),
                             i,
                         ))
                     }
