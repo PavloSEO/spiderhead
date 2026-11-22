@@ -83,7 +83,7 @@ rust-stemmers = "1"
 ruzstd = "0.9"
 rust_xlsxwriter = { version = "0.101", features = ["constant_memory"] }
 zip = { version = "9.1", default-features = false, features = ["deflate"] }
-zstd = "0.13"
+zstd = "0.14"
 windows-sys = { version = "0.59", features = ["Win32_Storage_FileSystem", "Win32_Networking_WinSock", "Win32_Foundation", "Win32_System_Threading"] }
 
 # Fast inner loop: light debug info links faster; deps are optimized once
